@@ -19,11 +19,8 @@ package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
-import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
-import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
-import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
-import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
-import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
+import com.navercorp.pinpoint.thrift.dto.flink.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -150,6 +147,74 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinMemoryBo2.getTimestamp(), 1491275148454L);
         assertEquals(joinMemoryBo2.getHeapUsed(), 2000);
         assertEquals(joinMemoryBo2.getNonHeapUsed(), 500);
+    }
+
+    @Test
+    public void map3Test() {
+        final String agentId = "testAgent";
+        final JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274138454L);
+        tFAgentStatBatch.setAgentId(agentId);
+
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(agentId);
+        tFAgentStat.setTimestamp(1491274148454L);
+        tFAgentStat.setCollectInterval(5000);
+
+        final TFTransaction tFTransaction = new TFTransaction();
+        tFTransaction.setSampledNewCount(10);
+        tFTransaction.setSampledContinuationCount(20);
+        tFTransaction.setUnsampledNewCount(40);
+        tFTransaction.setUnsampledContinuationCount(50);
+        tFAgentStat.setTransaction(tFTransaction);
+
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(agentId);
+        tFAgentStat2.setTimestamp(1491275148454L);
+        tFAgentStat2.setCollectInterval(5000);
+
+        final TFTransaction tFTransaction2 = new TFTransaction();
+        tFTransaction2.setSampledNewCount(11);
+        tFTransaction2.setSampledContinuationCount(21);
+        tFTransaction2.setUnsampledNewCount(41);
+        tFTransaction2.setUnsampledContinuationCount(51);
+        tFAgentStat2.setTransaction(tFTransaction2);
+
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
+        assertEquals(joinAgentStatBo.getId(), agentId);
+        assertEquals(joinAgentStatBo.getAgentStartTimestamp(), 1491274138454L);
+        assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
+
+        List<JoinTransactionBo> joinTransactionBoList = joinAgentStatBo.getJoinTransactionBoList();
+        assertEquals(joinTransactionBoList.size(), 2);
+
+        JoinTransactionBo joinTransactionBo = joinTransactionBoList.get(0);
+        assertEquals(joinTransactionBo.getId(), agentId);
+        assertEquals(joinTransactionBo.getTimestamp(), 1491274148454L);
+        assertEquals(joinTransactionBo.getCollectInterval(), 5000);
+        assertEquals(joinTransactionBo.getTotalCount(), 120);
+        assertEquals(joinTransactionBo.getMaxTotalCount(), 120);
+        assertEquals(joinTransactionBo.getMaxTotalCountAgentId(), agentId);
+        assertEquals(joinTransactionBo.getMinTotalCount(), 120);
+        assertEquals(joinTransactionBo.getMinTotalCountAgentId(), agentId);
+
+        JoinTransactionBo joinTransactionBo2 = joinTransactionBoList.get(1);
+        assertEquals(joinTransactionBo2.getId(), agentId);
+        assertEquals(joinTransactionBo2.getTimestamp(), 1491275148454L);
+        assertEquals(joinTransactionBo2.getCollectInterval(), 5000);
+        assertEquals(joinTransactionBo2.getTotalCount(), 124);
+        assertEquals(joinTransactionBo2.getMaxTotalCount(), 124);
+        assertEquals(joinTransactionBo2.getMaxTotalCountAgentId(), agentId);
+        assertEquals(joinTransactionBo2.getMinTotalCount(), 124);
+        assertEquals(joinTransactionBo2.getMinTotalCountAgentId(), agentId);
     }
 
 }

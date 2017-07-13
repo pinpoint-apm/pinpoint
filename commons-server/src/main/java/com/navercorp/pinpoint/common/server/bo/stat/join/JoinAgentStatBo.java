@@ -25,12 +25,14 @@ public class JoinAgentStatBo implements JoinStatBo {
     public static final JoinAgentStatBo EMPTY_JOIN_AGENT_STAT_BO = new JoinAgentStatBo();
     private static final List<JoinCpuLoadBo>  EMPTY_JOIN_CPU_LOAD_BO_LIST = new ArrayList<JoinCpuLoadBo>(0);
     private static final List<JoinMemoryBo> EMPTY_JOIN_MEMORY_BO_LIST = new ArrayList<JoinMemoryBo>();
+    private static final List<JoinTransactionBo> EMPTY_JOIN_TRANSACTION_BO_LIST = new ArrayList<JoinTransactionBo>();
 
     private String agentId = UNKNOWN_AGENT;
     private long agentStartTimestamp = Long.MIN_VALUE;
     private long timestamp = Long.MIN_VALUE;
     private List<JoinCpuLoadBo> joinCpuLoadBoList = EMPTY_JOIN_CPU_LOAD_BO_LIST;
     private List<JoinMemoryBo> joinMemoryBoList = EMPTY_JOIN_MEMORY_BO_LIST;
+    private List<JoinTransactionBo> joinTransactionBoList = EMPTY_JOIN_TRANSACTION_BO_LIST;
 
     public void setId(String id) {
         this.agentId = id;
@@ -93,5 +95,13 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public List<JoinMemoryBo> getJoinMemoryBoList() {
         return joinMemoryBoList;
+    }
+
+    public void setJoinTransactionBoList(List<JoinTransactionBo> joinTransactionBoList) {
+        this.joinTransactionBoList = joinTransactionBoList;
+    }
+
+    public List<JoinTransactionBo> getJoinTransactionBoList() {
+        return joinTransactionBoList;
     }
 }

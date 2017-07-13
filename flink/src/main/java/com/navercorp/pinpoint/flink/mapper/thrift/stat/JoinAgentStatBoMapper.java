@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
@@ -34,6 +35,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
 
     private static JoinCpuLoadBoMapper joinCpuLoadBoMapper = new JoinCpuLoadBoMapper();
     private static JoinMemoryBoMapper joinMemoryBoMapper = new JoinMemoryBoMapper();
+    private static JoinTransactionBoMapper joinTransactionBoMapper = new JoinTransactionBoMapper();
 
     @Override
     public JoinAgentStatBo map(TFAgentStatBatch tFAgentStatBatch) {
@@ -49,17 +51,30 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
         int agentStatSize = tFAgentStatBatch.getAgentStats().size();
         List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>(agentStatSize);
         List<JoinMemoryBo> joinMemoryBoList = new ArrayList<>(agentStatSize);
+        List<JoinTransactionBo> JoinTransactionBoList = new ArrayList<>(agentStatSize);
         for (TFAgentStat tFAgentStat : tFAgentStatBatch.getAgentStats()) {
             createAndAddJoinCpuLoadBo(tFAgentStat, joinCpuLoadBoList);
             createAndAddJoinMemoryBo(tFAgentStat, joinMemoryBoList);
+            createAndAddJoinTransactionBo(tFAgentStat, JoinTransactionBoList);
         }
 
         joinAgentStatBo.setJoinCpuLoadBoList(joinCpuLoadBoList);
         joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
+        joinAgentStatBo.setJoinTransactionBoList(JoinTransactionBoList);
         joinAgentStatBo.setId(tFAgentStatBatch.getAgentId());
         joinAgentStatBo.setAgentStartTimestamp(tFAgentStatBatch.getStartTimestamp());
         joinAgentStatBo.setTimestamp(getTimeStamp(joinAgentStatBo));
         return joinAgentStatBo;
+    }
+
+    private void createAndAddJoinTransactionBo(TFAgentStat tFAgentStat, List<JoinTransactionBo> joinTransactionBoList) {
+        JoinTransactionBo joinTransactionBo = joinTransactionBoMapper.map(tFAgentStat);
+
+        if (joinTransactionBo == JoinTransactionBo.EMPTY_TRANSACTION_BO) {
+            return;
+        }
+
+        joinTransactionBoList.add(joinTransactionBo);
     }
 
     private long getTimeStamp(JoinAgentStatBo joinAgentStatBo) {
@@ -71,8 +86,14 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
 
         List<JoinMemoryBo> joinMemoryBoList = joinAgentStatBo.getJoinMemoryBoList();
 
-        if(joinMemoryBoList.size() != 0) {
+        if (joinMemoryBoList.size() != 0) {
             return joinMemoryBoList.get(0).getTimestamp();
+        }
+
+        List<JoinTransactionBo> joinTransactionBoList = joinAgentStatBo.getJoinTransactionBoList();
+
+        if (joinTransactionBoList.size() != 0) {
+            return joinTransactionBoList.get(0).getTimestamp();
         }
 
         return Long.MIN_VALUE;
@@ -81,7 +102,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
     public void createAndAddJoinCpuLoadBo(TFAgentStat tFAgentStat, List<JoinCpuLoadBo> joinCpuLoadBoList) {
         JoinCpuLoadBo joinCpuLoadBo = joinCpuLoadBoMapper.map(tFAgentStat);
 
-        if (joinCpuLoadBo == joinCpuLoadBo.EMPTY_JOIN_CPU_LOAD_BO) {
+        if (joinCpuLoadBo == JoinCpuLoadBo.EMPTY_JOIN_CPU_LOAD_BO) {
             return;
         }
 

@@ -25,7 +25,6 @@ import java.util.List;
 public class JoinCpuLoadBo implements JoinStatBo {
     public static final JoinCpuLoadBo EMPTY_JOIN_CPU_LOAD_BO = new JoinCpuLoadBo();
     public static final double UNCOLLECTED_VALUE = -1;
-    private static final byte version = 1;
 
     private String id = UNKNOWN_ID;
     private long timestamp = Long.MIN_VALUE;
@@ -216,11 +215,6 @@ public class JoinCpuLoadBo implements JoinStatBo {
         return minSystemCpuLoad;
     }
 
-    public byte getVersion() {
-        return version;
-    }
-
-
     @Override
     public String toString() {
         return "JoinCpuLoadBo{" +
@@ -246,7 +240,6 @@ public class JoinCpuLoadBo implements JoinStatBo {
 
         JoinCpuLoadBo that = (JoinCpuLoadBo) o;
 
-        if (version != that.version) return false;
         if (Double.compare(that.jvmCpuLoad, jvmCpuLoad) != 0) return false;
         if (Double.compare(that.maxJvmCpuLoad, maxJvmCpuLoad) != 0) return false;
         if (Double.compare(that.minJvmCpuLoad, minJvmCpuLoad) != 0) return false;

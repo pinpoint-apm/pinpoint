@@ -19,10 +19,7 @@ package flink.process;
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.process.ApplicationCache;
 import com.navercorp.pinpoint.flink.process.TbaseFlatMapper;
-import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
-import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
-import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
-import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
+import com.navercorp.pinpoint.thrift.dto.flink.*;
 import javafx.scene.chart.PieChart;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -202,6 +199,97 @@ public class TbaseFlatMapperTest {
         tFJvmGc2.setJvmMemoryHeapUsed(2000);
         tFJvmGc2.setJvmMemoryNonHeapUsed(850);
         tFAgentStat2.setGc(tFJvmGc2);
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        return tFAgentStatBatch;
+    }
+
+    @Test
+    public void flatMap3Test() throws Exception {
+        TbaseFlatMapper mapper = new TbaseFlatMapper();
+        mapper.setApplicationCache(new MockApplicationCache());
+        TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch3();
+        ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
+        ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
+        mapper.flatMap(tfAgentStatBatch, collector);
+
+        assertEquals(dataList.size(), 2);
+
+        Tuple3<String, JoinStatBo, Long> data1 = dataList.get(0);
+        assertEquals(data1.f0, AGENT_ID);
+        assertEquals(data1.f2.longValue(), 1491274143454L);
+        JoinAgentStatBo joinAgentStatBo = (JoinAgentStatBo) data1.f1;
+        assertEquals(joinAgentStatBo.getId(), AGENT_ID);
+        assertEquals(joinAgentStatBo.getAgentStartTimestamp(), 1491274142454L);
+        assertEquals(joinAgentStatBo.getTimestamp(), 1491274143454L);
+        assertJoinTransactionBo(joinAgentStatBo.getJoinTransactionBoList());
+
+        Tuple3<String, JoinStatBo, Long> data2 = dataList.get(1);
+        assertEquals(data2.f0, APPLICATION_ID);
+        assertEquals(data2.f2.longValue(), 1491274140000L);
+        JoinApplicationStatBo joinApplicationStatBo = (JoinApplicationStatBo) data2.f1;
+        assertEquals(joinApplicationStatBo.getId(), APPLICATION_ID);
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1491274140000L);
+        assertEquals(joinApplicationStatBo.getStatType(), StatType.APP_STST);
+        assertJoinTransactionBo(joinApplicationStatBo.getJoinTransactionBoList());
+    }
+
+    private void assertJoinTransactionBo(List<JoinTransactionBo> joinTransactionBoList) {
+        assertEquals(2, joinTransactionBoList.size());
+
+        JoinTransactionBo joinTransactionBo = joinTransactionBoList.get(0);
+        assertEquals(joinTransactionBo.getId(), AGENT_ID);
+        assertEquals(joinTransactionBo.getTimestamp(), 1491274143454L);
+        assertEquals(joinTransactionBo.getCollectInterval(), 5000);
+        assertEquals(joinTransactionBo.getTotalCount(), 120);
+        assertEquals(joinTransactionBo.getMaxTotalCount(), 120);
+        assertEquals(joinTransactionBo.getMaxTotalCountAgentId(), AGENT_ID);
+        assertEquals(joinTransactionBo.getMinTotalCount(), 120);
+        assertEquals(joinTransactionBo.getMinTotalCountAgentId(), AGENT_ID);
+
+        JoinTransactionBo joinTransactionBo2 = joinTransactionBoList.get(1);
+        assertEquals(joinTransactionBo2.getId(), AGENT_ID);
+        assertEquals(joinTransactionBo2.getTimestamp(), 1491274148454L);
+        assertEquals(joinTransactionBo2.getCollectInterval(), 5000);
+        assertEquals(joinTransactionBo2.getTotalCount(), 124);
+        assertEquals(joinTransactionBo2.getMaxTotalCount(), 124);
+        assertEquals(joinTransactionBo2.getMaxTotalCountAgentId(), AGENT_ID);
+        assertEquals(joinTransactionBo2.getMinTotalCount(), 124);
+        assertEquals(joinTransactionBo2.getMinTotalCountAgentId(), AGENT_ID);
+    }
+
+    private TFAgentStatBatch createTFAgentStatBatch3() {
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274142454L);
+        tFAgentStatBatch.setAgentId(AGENT_ID);
+
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(AGENT_ID);
+        tFAgentStat.setTimestamp(1491274143454L);
+        tFAgentStat.setCollectInterval(5000);
+
+        final TFTransaction tFTransaction = new TFTransaction();
+        tFTransaction.setSampledNewCount(10);
+        tFTransaction.setSampledContinuationCount(20);
+        tFTransaction.setUnsampledNewCount(40);
+        tFTransaction.setUnsampledContinuationCount(50);
+        tFAgentStat.setTransaction(tFTransaction);
+
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(AGENT_ID);
+        tFAgentStat2.setTimestamp(1491274148454L);
+        tFAgentStat2.setCollectInterval(5000);
+
+        final TFTransaction tFTransaction2 = new TFTransaction();
+        tFTransaction2.setSampledNewCount(11);
+        tFTransaction2.setSampledContinuationCount(21);
+        tFTransaction2.setUnsampledNewCount(41);
+        tFTransaction2.setUnsampledContinuationCount(51);
+        tFAgentStat2.setTransaction(tFTransaction2);
 
         final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
         tFAgentStatList.add(tFAgentStat);

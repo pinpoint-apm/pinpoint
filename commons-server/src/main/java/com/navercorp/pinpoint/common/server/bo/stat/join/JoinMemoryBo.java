@@ -23,9 +23,7 @@ import java.util.List;
  */
 public class JoinMemoryBo implements JoinStatBo {
     public static final JoinMemoryBo EMPTY_JOIN_MEMORY_BO = new JoinMemoryBo();
-
     public static final long UNCOLLECTED_VALUE = -1;
-    private static final byte version = 1;
 
     private String id = UNKNOWN_ID;
     private long timestamp = Long.MIN_VALUE;
@@ -165,11 +163,7 @@ public class JoinMemoryBo implements JoinStatBo {
             return JoinMemoryBo.EMPTY_JOIN_MEMORY_BO;
         }
 
-        final JoinMemoryBo newJoinMemoryBo = new JoinMemoryBo();
         final JoinMemoryBo initJoinMemoryBo = joinMemoryBoList.get(0);
-        newJoinMemoryBo.setId(initJoinMemoryBo.getId());
-        newJoinMemoryBo.setTimestamp(timestamp);
-
         long sumHeapUsed = 0;
         long minHeapUsed = initJoinMemoryBo.getMinHeapUsed();
         long maxHeapUsed = initJoinMemoryBo.getMaxHeapUsed();
@@ -203,6 +197,9 @@ public class JoinMemoryBo implements JoinStatBo {
             }
         }
 
+        final JoinMemoryBo newJoinMemoryBo = new JoinMemoryBo();
+        newJoinMemoryBo.setId(initJoinMemoryBo.getId());
+        newJoinMemoryBo.setTimestamp(timestamp);
         newJoinMemoryBo.setHeapUsed(sumHeapUsed / (long)boCount);
         newJoinMemoryBo.setMinHeapUsed(minHeapUsed);
         newJoinMemoryBo.setMinHeapAgentId(minHeapAgentId);
