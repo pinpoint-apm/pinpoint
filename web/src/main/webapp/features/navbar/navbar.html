@@ -21,8 +21,9 @@
                     </li>
                     <li class="divider-vertical" ng-hide="bIsInspector"></li>
                     <li id="navbar_depth" class="inout-bound" ng-hide="bIsInspector">
-                    	<div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:105px;">
+                    	<div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:127px;">
                             <button type="button" class="btn btn-default">
+								<img ng-src="images/bidirect_{{bidirectional ? 'on' : 'off'}}.png" width="18px" height="18px" style="margin-right:4px" />
                                 <img src="images/inbound.png" width="18px" height="18px"/> {{callee}} <img src="images/outbound.png" width="18px" height="18px"/> {{caller}}
                             </button>
                     		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="padding-bottom:6px">
@@ -38,14 +39,10 @@
                                     <li class="outbound-title"><img src="images/outbound.png" width="20px" height="20px"/> Outbound</li>
                                     <li class="depth" ng-repeat="r in rangeList" ng-class="{selected: r === caller}" ng-click="setCaller(r)">{{r}}</li>
                                 </ul>
-								<!--div class="bidirectional">
-									<img ng-src="images/bidirect_{{bidirectional ? 'on' : 'off'}}.png" width="27px" height="27px" style="margin-right: 6px;"/><label for="bidirectional_search">Bidirectional Search</label> <input id="bidirectional_search" type="checkbox" ng-model="bidirectional"/>
-								</div>
-                                <div style="clear: both;padding: 6px 2px 4px 2px">
-									<button type="button" class="btn btn-default btn-xs" style="float:left;" ng-click="cancelDepth( true )">Cancel</button><button type="button" class="btn btn-default btn-xs" style="float:right;" ng-click="setDepth()">OK</button>
-                                </div-->
 								<div style="clear: both;padding: 6px 2px 4px 2px">
-									<img ng-src="images/bidirect_{{bidirectional ? 'on' : 'off'}}.png" width="22px" height="22px" style="float:left;margin-left:4px;cursor:pointer;" alt="Bidirectional Search" ng-click="checkBidirectional()"/> <button type="button" class="btn btn-default btn-xs" style="float:right;" ng-click="setDepth()">OK</button> <button type="button" class="btn btn-default btn-xs" style="float:right;margin-right:4px;" ng-click="cancelDepth( true )">Cancel</button>
+									<img ng-src="images/bidirect_{{bidirectional ? 'on' : 'off'}}.png" width="22px" height="22px" style="float:left;margin-left:4px;cursor:pointer;" alt="Bidirectional Search" ng-click="checkBidirectional()"/>
+									<button type="button" class="btn btn-default btn-xs" style="float:right;width:60px;" ng-click="setDepth()">OK</button>
+									<button type="button" class="btn btn-default btn-xs" style="float:right;width:60px;margin-right:4px;" ng-click="cancelDepth( true )">Cancel</button>
 								</div>
 
                             </div>
