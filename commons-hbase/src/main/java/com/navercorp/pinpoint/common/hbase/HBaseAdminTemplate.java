@@ -54,20 +54,19 @@ public class HBaseAdminTemplate {
         }
     }
 
-    public boolean tableExists(String tableName) {
+    public boolean tableExists(TableName tableName) {
         try {
-            return admin.tableExists(TableName.valueOf(tableName));
+            return admin.tableExists(tableName);
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }
     }
 
-    public boolean dropTableIfExist(String tableName) {
-        TableName tn = TableName.valueOf(tableName);
+    public boolean dropTableIfExist(TableName tableName) {
         try {
-            if (admin.tableExists(tn)) {
-                this.admin.disableTable(tn);
-                this.admin.deleteTable(tn);
+            if (admin.tableExists(tableName)) {
+                this.admin.disableTable(tableName);
+                this.admin.deleteTable(tableName);
                 return true;
             }
             return false;
@@ -76,11 +75,10 @@ public class HBaseAdminTemplate {
         }
     }
 
-    public void dropTable(String tableName) {
-        TableName tn = TableName.valueOf(tableName);
+    public void dropTable(TableName tableName) {
         try {
-            this.admin.disableTable(tn);
-            this.admin.deleteTable(tn);
+            this.admin.disableTable(tableName);
+            this.admin.deleteTable(tableName);
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }

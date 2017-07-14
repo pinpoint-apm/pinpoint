@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.test.plugin;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
@@ -35,36 +35,88 @@ import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
 
 public class ForkedPinpointPluginTest {
     private static boolean forked = false;
+
+    private static PluginTestLogger logger = PluginTestLogger.getLogger(ForkedPinpointPluginTest.class.getName());
     
     public static boolean isForked() {
         return forked;
     }
+
     
 
-    public static void main(String[] args) throws ClassNotFoundException, MalformedURLException, InitializationError {
+    public static void main(String[] args) throws Exception {
         forked = true;
-        
-        String testClassName = args[0];
 
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        final String testClassName = args[0];
+        final String agentType = getAgentType(args);
+
+        final ClassLoader classLoader = getClassLoader(agentType);
         
-        if (args.length >= 2 && args[1].startsWith(CHILD_CLASS_PATH_PREFIX)) {
-            String jars = args[1].substring(CHILD_CLASS_PATH_PREFIX.length());
-            List<URL> urls = getJarUrls(jars);
-            classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
+        final String testId = System.getProperty(PINPOINT_TEST_ID, "");
+        if (logger.isDebugEnabled()){
+            logger.debug("testId:" + testId);
         }
-        
-        String testId = System.getProperty(PINPOINT_TEST_ID, "");
 
-        ClassLoader old = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
+        final Callable<Result> testCaseCallable = new Callable<Result>() {
+            @Override
+            public Result call() throws Exception {
+                Class<?> testClass = classLoader.loadClass(testClassName);
+                return runTests(testClass, testId);
+            }
+        };
+        Result result = null;
+        try {
+            result = executeTestCase(testCaseCallable, classLoader);
+        } catch (Throwable e) {
+            logger.info("testcase run error:" + e.getMessage());
+            System.exit(-1);
+        }
 
-        Class<?> testClass = classLoader.loadClass(testClassName);
-        Result result = runTests(testClass, testId);
-        
-        Thread.currentThread().setContextClassLoader(old);
+        System.exit(getFailureCount(result));
+    }
 
-        System.exit(result.getFailureCount());
+
+    private static String getAgentType(String[] args) {
+        if (args == null) {
+            return "";
+        }
+        if (args.length >= 2) {
+            return args[1];
+        }
+        return "";
+    }
+
+
+    private static int getFailureCount(Result result) {
+        if (result == null) {
+            return -1;
+        }
+        return result.getFailureCount();
+    }
+
+    private static ClassLoader getClassLoader(String agentType) throws MalformedURLException {
+        if (agentType.startsWith(CHILD_CLASS_PATH_PREFIX)) {
+            String jars = agentType.substring(CHILD_CLASS_PATH_PREFIX.length());
+            List<URL> urls = getJarUrls(jars);
+            for (URL url : urls) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("child-runner lib:" + url);
+                }
+            }
+            return new PluginTestClassLoader(urls.toArray(new URL[urls.size()]), ClassLoader.getSystemClassLoader());
+        }
+        return ClassLoader.getSystemClassLoader();
+    }
+
+    private static Result executeTestCase(Callable<Result> callable, ClassLoader classLoader) throws Exception {
+        final Thread currentThread = Thread.currentThread();
+        ClassLoader old = currentThread.getContextClassLoader();
+        currentThread.setContextClassLoader(classLoader);
+        try {
+            return callable.call();
+        } finally {
+            currentThread.setContextClassLoader(old);
+        }
     }
 
 

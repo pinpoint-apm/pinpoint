@@ -7,9 +7,11 @@
 	 * @name MainCtrl
 	 * @class
 	 */
-	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "UrlVoService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "AnalyticsService", "PreferenceService",
-	    function (cfg, $scope, $timeout, $routeParams, locationService, UrlVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService, preferenceService) {
+	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "UrlVoService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "SystemConfigurationService", "AnalyticsService", "PreferenceService",
+	    function (cfg, $scope, $timeout, $routeParams, locationService, UrlVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, SystemConfigService, analyticsService, preferenceService) {
 			analyticsService.send(analyticsService.CONST.MAIN_PAGE);
+			analyticsService.sendMain(analyticsService.CONST.VERSION, SystemConfigService.get("version"));
+
 	        // define private variables
 	        var oNavbarVoService, bNodeSelected, bNoData;
 	
@@ -40,6 +42,7 @@
 	            }
 				oNavbarVoService.setCalleeRange( preferenceService.getCalleeByApp($routeParams.application) );
 				oNavbarVoService.setCallerRange( preferenceService.getCallerByApp($routeParams.application) );
+				oNavbarVoService.setBidirectional( preferenceService.getBidirectionalByApp($routeParams.application) );
 				UrlVoService.initUrlVo( "main", $routeParams );
 
 				if ( oNavbarVoService.isRealtime() ) {
@@ -161,13 +164,14 @@
 	            $scope.hasScatter = false;
 	            $scope.sidebarLoading = true;
 
-				if ( oNavbarVoService.isRealtime() ) {
+				// if ( oNavbarVoService.isRealtime() ) {
 					$scope.$broadcast("realtimeChartController.close");
-				}
+				// }
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
 				$scope.$broadcast('serverListDirective.initialize', oNavbarVoService );
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
+				$scope.$broadcast('groupedApplicationListDirective.hide');
 	            $scope.$broadcast('scatterDirective.initialize.forMain', oNavbarVoService);
 	            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
@@ -183,44 +187,42 @@
 	        /**
 	         * scope event on serverMapDirective.nodeClicked
 	         */
-	        $scope.$on('serverMapDirective.nodeClicked', function (event, e, query, node, data, searchQuery) {
+	        $scope.$on('serverMapDirective.nodeClicked', function (event, query, node, data, searchQuery) {
 	            bNodeSelected = true;
 	            var oSidebarTitleVoService = new SidebarTitleVoService();
 	            oSidebarTitleVoService.setImageType(node.serviceType);
-	
-	            if (node.isWas === true) {
-	            	if ( node.isAuthorized === true ) {
-						$scope.hasScatter = true;
-						$scope.$broadcast('scatterDirective.initializeWithNode.forMain', node);
-					} else {
-						$scope.hasScatter = false;
+
+				$scope.hasScatter = false;
+				$scope.hasFilter = false;
+				if ( node.unknownNodeGroup ) {
+					oSidebarTitleVoService.setTitle( node.serviceType );
+				} else {
+					if (node.isWas === true) {
+						if ( node.isAuthorized === true ) {
+							$scope.hasScatter = true;
+							$scope.$broadcast('scatterDirective.initializeWithNode.forMain', node);
+						}
 					}
-					oSidebarTitleVoService.setTitle(node.applicationName);
-	            } else if (node.unknownNodeGroup) {
-	                oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
-	                $scope.hasScatter = false;
-	            } else {
-	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.hasScatter = false;
-	            }
-	            $scope.hasFilter = false;
+					oSidebarTitleVoService.setTitle( node.applicationName );
+				}
 	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService, node, oNavbarVoService);
-	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', e, query, node, data, oNavbarVoService, null, searchQuery);
+				$scope.$broadcast('groupedApplicationListDirective.initialize', node, data, oNavbarVoService);
+	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', node, data, oNavbarVoService, null, searchQuery);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
-	
-//	            $scope.refreshHelpIcons();
 	        });
 	
 	        /**
 	         * scope event on serverMapDirective.linkClicked
 	         */
-	        $scope.$on('serverMapDirective.linkClicked', function (event, e, query, link, data) {
+	        $scope.$on('serverMapDirective.linkClicked', function (event, query, link, data) {
 	            bNodeSelected = false;
 	            var oSidebarTitleVoService = new SidebarTitleVoService();
 	            if (link.unknownLinkGroup) {
-	                oSidebarTitleVoService
-	                    .setImageType(link.sourceInfo.serviceType)
-	                    .setTitle('Unknown Group from ' + link.sourceInfo.applicationName);
+					oSidebarTitleVoService
+						.setImageType(link.sourceInfo.serviceType)
+						.setTitle(link.sourceInfo.applicationName)
+						.setImageType2(link.toNode.serviceType)
+						.setTitle2(link.toNode.serviceType.replace("_", " "));
 	            } else {
 	                oSidebarTitleVoService
 	                    .setImageType(link.sourceInfo.serviceType)
@@ -243,10 +245,9 @@
 	                $scope.hasFilter = false;
 	            }
 	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService, link, oNavbarVoService);
-	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
-	            $scope.$broadcast('linkInfoDetailsDirective.initialize', e, query, link, data, oNavbarVoService);
-	
-//	            $scope.refreshHelpIcons();
+				$scope.$broadcast('groupedApplicationListDirective.initialize', link, data, oNavbarVoService);
+	            $scope.$broadcast('linkInfoDetailsDirective.initialize', link, data, oNavbarVoService);
+				$scope.$broadcast('nodeInfoDetailsDirective.hide');
 	        });
 	
 	        /**
@@ -302,7 +303,7 @@
 	            oSidebarTitleVoService
 	                .setImageType(node.serviceType);
 	            if (node.unknownNodeGroup) {
-	                oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
+	                oSidebarTitleVoService.setTitle( node.serviceType );
 	                $scope.hasScatter = false;
 	            } else {
 	                oSidebarTitleVoService.setTitle(node.applicationName);

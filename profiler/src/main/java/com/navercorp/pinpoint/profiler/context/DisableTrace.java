@@ -111,6 +111,7 @@ public class DisableTrace implements Trace {
     public void close() {
     }
 
+
     @Override
     public int getCallStackFrameId() {
         return 0;

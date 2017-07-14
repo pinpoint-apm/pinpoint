@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.dao;
 
 
-import java.util.Collection;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -30,14 +29,9 @@ public interface TraceDao {
 
     List<SpanBo> selectSpan(TransactionId transactionId);
 
-    @Deprecated
-    List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId);
-
     List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList);
     
-    List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList);
+    List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList);
 
-    @Deprecated
-    List<SpanBo> selectSpans(TransactionId transactionId);
-    
+
 }

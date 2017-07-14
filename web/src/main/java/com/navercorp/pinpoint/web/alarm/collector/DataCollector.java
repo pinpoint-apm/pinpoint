@@ -35,4 +35,12 @@ public abstract class DataCollector {
         return dataCollectorCategory;
     }
 
+    protected long calculatePercent(long used, long total) {
+        if (total == 0 || used == 0) {
+            return 0;
+        } else {
+            return (used * 100L) / total;
+        }
+    }
+
 }

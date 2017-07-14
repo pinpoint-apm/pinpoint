@@ -1,83 +1,13 @@
 <div class="linkInfoDetails" ng-show="showLinkInfoDetails">
-
-    <div class="unknown-group" ng-show="link.toNode.serviceType.indexOf( '_GROUP' ) != -1">
-
-        <div class="search-n-order">
-			<div style="display:inline-block;width:265px;">
-                <div class="input-group form-group input-group-sm has-feedback" style="margin-bottom:0;">
-                    <span class=" input-group-addon">
-                        <span class="glyphicon glyphicon-search" style="top:0;"></span>
-                    </span>
-                    <input type="text" class="form-control" ng-model="linkSearch" ng-change="linkSearchChange()" placeholder="Type keywords for filtering.">
-                    <span class="glyphicon glyphicon-remove form-control-feedback" style="top:-2px;z-index:2;" ng-click="linkSearch=''" ng-show="linkSearch"></span>
-                </div>
-            </div>
-			<div style="float:right">
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-default" ng-click="linkOrderByName()">Name <span class="glyphicon" ng-class="linkOrderByNameClass"></span></button>
-                    <button type="button" class="btn btn-default" ng-click="linkOrderByCount()">Count <span class="glyphicon" ng-class="linkOrderByCountClass"></span></button>
-                </div>
-            </div>
-        </div>
-
-        <div class="unknown-list">
-            <div class="panel panel-default" ng-repeat="(index, link) in unknownLinkGroup | orderBy:linkOrderBy:linkOrderByDesc" ng-show="showUnknownLinkBy(linkSearch, link)" style="height:241px;">
-                <div class="panel-heading">
-                    <span class="glyphicon glyphicon-arrow-right"></span>
-                    {{link.targetInfo.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':link.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="left">{{link.totalCount | number}}</span>
-                </div>
-                <div class="panel-body summaryCharts_{{link.targetInfo.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
-                    <div ng-show="showLinkResponseSummaryForUnknown" style="padding-top: 20px;">
-                        <h6 style="position:absolute;top:5px;left:10px;margin:0;">Response Summary</h6>
-                        <response-time-chart-directive namespace="forLink_{{link.targetInfo.applicationName | applicationNameToClassName}}"></response-time-chart-directive>
-                    </div>
-                    <div ng-hide="showLinkResponseSummaryForUnknown">
-                        <h6 style="position:absolute;top:5px;left:10px;margin:0;">Load</h6>
-                        <load-chart-directive namespace="forLink_{{link.targetInfo.applicationName | applicationNameToClassName}}"></load-chart-directive>
-                    </div>
-
-
-
-                    <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
-                       ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkLoad(link.targetInfo.applicationName, link.key)" ng-show="showLinkResponseSummaryForUnknown">
-                        <span class="glyphicon glyphicon-stats"></span>
-                    </a>
-                    <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
-                       ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkResponseSummary(link.targetInfo.applicationName, link.key)" ng-show="!showLinkResponseSummaryForUnknown">
-                        <span class="glyphicon glyphicon-stats"></span>
-                    </a>
-
-                    <a class="btn btn-default btn-xs" href ng-click="showLinkDetailInformation(link.key)"
-                       title="Show Link Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;color:#31708f;">
-                        <span class="glyphicon glyphicon-info-sign"></span>
-                    </a>
-                    <a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;color:#3c763d"
-                       ng-click="passingTransactionMapFromLinkInfoDetails(link.key)">
-                        <span class="glyphicon glyphicon-filter"></span>
-                    </a>
-                    <a class="btn btn-default btn-xs" href title="Filter Transaction Wizard" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 110px; right:5px;color:#a94442;"
-                       ng-click="openFilterWizard(link.key)">
-                        <span class="glyphicon glyphicon-filter"></span>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="known-link" ng-hide="link.toNode.serviceType.indexOf( '_GROUP' ) != -1">
-        <div class='response-summary' ng-show="showLinkResponseSummary">
+    <div class="known-link">
+        <div class="response-summary" ng-show="showLinkResponseSummary">
             <h5>Response Summary</h5>
-            <response-time-chart-directive namespace="forLink"></response-time-chart-directive>
+            <response-time-summary-chart-directive namespace="forLink"></response-time-summary-chart-directive>
         </div>
 
         <div class="load" ng-show="showLinkLoad">
             <h5>Load</h5>
             <load-chart-directive namespace="forLink"></load-chart-directive>
         </div>
-        <div ng-show="link.targetInfo.serviceType=='UNKNOWN' && htLastUnknownLink">
-            <button type="button" class="btn btn-default btn-xs" ng-click="goBackToUnknownLink()"><span class="glyphicon glyphicon-arrow-left"></span> Go back to Unknown Group</button>
-        </div>
     </div>
-
 </div>

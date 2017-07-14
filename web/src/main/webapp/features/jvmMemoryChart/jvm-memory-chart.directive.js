@@ -7,8 +7,8 @@
 	 * @name jvmMemoryChartDirective
 	 * @class
 	 */	
-	angular.module('pinpointApp').directive('jvmMemoryChartDirective', ['$timeout',
-        function ($timeout) {
+	angular.module("pinpointApp").directive("jvmMemoryChartDirective", [
+        function () {
             return {
                 template: '<div></div>',
                 replace: true,
@@ -17,36 +17,27 @@
                     namespace: '@' // string value
                 },
                 link: function postLink(scope, element, attrs) {
+                    var sId = "", oChart;
 
-                    // define variables
-                    var sId, oChart;
-
-                    // define variables of methods
-                    var setIdAutomatically, setWidthHeight, render, showCursorAt, resize;
-
-                    /**
-                     * set id automatically
-                     */
-                    setIdAutomatically = function () {
+                    function setIdAutomatically() {
                         sId = 'multipleValueAxesId-' + scope.namespace;
                         element.attr('id', sId);
-                    };
+                    }
+                    function hasId() {
+						return sId === "" ? false : true;
+					}
 
-                    /**
-                     * set width height
-                     * @param w
-                     * @param h
-                     */
-                    setWidthHeight = function (w, h) {
+                    function setWidthHeight(w, h) {
                         if (w) element.css('width', w);
                         if (h) element.css('height', h);
-                    };
+                    }
 
-                    /**
-                     * render
-                     * @param chartData
-                     */
-                    render = function (chartData) {
+                    function renderUpdate(data) {
+						oChart.dataProvider = data;
+						oChart.validateData();
+					}
+
+                    function render(chartData) {
                         var options = {
                             "type": "serial",
                             "theme": "light",
@@ -54,13 +45,15 @@
                             "marginTop": 10,
                             "marginLeft": 70,
                             "marginRight": 70,
-                            "marginBottom": 30,
+                            "marginBottom": 40,
                             "legend": {
                                 "useGraphSettings": true,
                                 "autoMargins": false,
                                 "align" : "right",
                                 "position": "top",
-                                "valueWidth": 70
+                                "valueWidth": 70,
+								"markerSize": 10,
+								"valueAlign": "left"
                             },
                             "usePrefixes": true,
                             "dataProvider": chartData,
@@ -124,73 +117,71 @@
                                     "connect": false
                                 }
                             ],
-                            "chartCursor": {
-                                "categoryBalloonAlpha": 0.7,
-                                "fullWidth": true,
-                                "cursorAlpha": 0.1
-                            },
                             "categoryField": "time",
                             "categoryAxis": {
                                 "axisColor": "#DADADA",
                                 "startOnAxis": true,
                                 "gridPosition": "start",
-                                "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                	return valueText.substring( valueText.indexOf( " " ) + 1 );
+                                "labelFunction": function (valueText) {
+									return valueText.replace(/\s/, "<br>").replace(/-/g, ".").substring(2);
                                 }
-                            }
+                            },
+							"chartCursor": {
+								"categoryBalloonAlpha": 0.7,
+								"fullWidth": true,
+								"cursorAlpha": 0.1,
+								"listeners": [{
+									"event": "changed",
+									"method": function (event) {
+										scope.$emit("jvmMemoryChartDirective.cursorChanged." + scope.namespace, event);
+									}
+								}]
+							}
                         };
-                        $timeout(function () {
-                            oChart = AmCharts.makeChart(sId, options);
-                            oChart.chartCursor.addListener('changed', function (event) {
-                                scope.$emit('jvmMemoryChartDirective.cursorChanged.' + scope.namespace, event);
-                            });
-                        });
-                    };
+						oChart = AmCharts.makeChart(sId, options);
+						// var oChartCursor = new AmCharts.ChartCursor({
+						// 	"categoryBalloonAlpha": 0.7,
+						// 	"fullWidth": true,
+						// 	"cursorAlpha": 0.1
+						// });
+						// oChartCursor.addListener("changed", function (event) {
+						// 	scope.$emit("jvmMemoryChartDirective.cursorChanged." + scope.namespace, event);
+						// });
+						// oChart.addChartCursor( oChartCursor );
+                    }
 
-                    /**
-                     * show cursor at
-                     * @param category
-                     */
-                    showCursorAt = function (category) {
-                        if (category) {
-                            if (angular.isNumber(category)) {
-                                category = oChart.dataProvider[category].time;
-                            }
-                            oChart.chartCursor.showCursorAt(category);
-                        } else {
-                            oChart.chartCursor.hideCursor();
-                        }
-                    };
+					function showCursorAt(category) {
+						if (category) {
+							if (angular.isNumber(category)) {
+								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
+									try {
+										oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									} catch(e) {}
+									return;
+								}
+							}
+						}
+						oChart.chartCursor.hideCursor();
+					}
 
-                    /**
-                     * resize
-                     */
-                    resize = function () {
+                    function resize() {
                         if (oChart) {
                             oChart.validateNow();
                             oChart.validateSize();
                         }
-                    };
-
-                    /**
-                     * scope event on jvmMemoryChartDirective.initAndRenderWithData.namespace
-                     */
+                    }
                     scope.$on('jvmMemoryChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
-                        setIdAutomatically();
-                        setWidthHeight(w, h);
-                        render(data);
+						if ( hasId() ) {
+							renderUpdate( data );
+						} else {
+							setIdAutomatically();
+							setWidthHeight(w, h);
+							render(data);
+						}
                     });
-
-                    /**
-                     * scope event on jvmMemoryChartDirective.showCursorAt.namespace
-                     */
                     scope.$on('jvmMemoryChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
                         showCursorAt(category);
                     });
-
-                    /**
-                     * scope event on jvmMemoryChartDirective.resize.namespace
-                     */
                     scope.$on('jvmMemoryChartDirective.resize.' + scope.namespace, function (event) {
                         resize();
                     });

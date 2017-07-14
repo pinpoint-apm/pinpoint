@@ -16,51 +16,39 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.TraceFactoryWrapper;
 
 /**
  * @author Taejin Koo
  * @author emeroad
  * @author HyunGil Jeong
  */
-public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
+public class ActiveTraceFactory implements TraceFactory {
 
     private final TraceFactory delegate;
-    private final ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
+    private final ActiveTraceRepository activeTraceRepository;
 
-    private ActiveTraceFactory(TraceFactory delegate) {
+    private ActiveTraceFactory(TraceFactory delegate, ActiveTraceRepository activeTraceRepository) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
-        this.delegate = delegate;
-    }
-
-    public static TraceFactory wrap(TraceFactory traceFactory) {
-        return new ActiveTraceFactory(traceFactory);
-    }
-
-    @Override
-    public TraceFactory unwrap() {
-        final TraceFactory copy = this.delegate;
-        if (copy instanceof TraceFactoryWrapper) {
-            return ((TraceFactoryWrapper) copy).unwrap();
+        if (activeTraceRepository == null) {
+            throw new NullPointerException("activeTraceRepository must not be null");
         }
-        return copy;
+
+        this.delegate = delegate;
+        this.activeTraceRepository = activeTraceRepository;
+    }
+
+    public static TraceFactory wrap(TraceFactory traceFactory, ActiveTraceRepository activeTraceRepository) {
+        return new ActiveTraceFactory(traceFactory, activeTraceRepository);
     }
 
     @Override
     public Trace currentTraceObject() {
         return this.delegate.currentTraceObject();
-    }
-
-    @Override
-    public Trace currentRpcTraceObject() {
-        return this.delegate.currentRpcTraceObject();
     }
 
     @Override
@@ -77,8 +65,8 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
     }
 
     @Override
-    public Trace continueTraceObject(TraceId traceID) {
-        final Trace trace = this.delegate.continueTraceObject(traceID);
+    public Trace continueTraceObject(TraceId traceId) {
+        final Trace trace = this.delegate.continueTraceObject(traceId);
         // Sampled continuation
         attachTrace(trace);
         return trace;
@@ -91,13 +79,23 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
     }
 
     @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
-        return this.delegate.continueAsyncTraceObject(traceId, asyncId, startTime);
+    public Trace continueAsyncTraceObject(TraceId traceId) {
+        final Trace trace = this.delegate.continueAsyncTraceObject(traceId);
+        // Sampled continuation
+        attachTrace(trace);
+        return trace;
     }
 
     @Override
     public Trace newTraceObject() {
         final Trace trace = this.delegate.newTraceObject();
+        attachTrace(trace);
+        return trace;
+    }
+
+    @Override
+    public Trace newAsyncTraceObject() {
+        final Trace trace = this.delegate.newAsyncTraceObject();
         attachTrace(trace);
         return trace;
     }
@@ -122,10 +120,6 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
         }
         final long id = trace.getId();
         this.activeTraceRepository.remove(id);
-    }
-
-    public ActiveTraceLocator getActiveTraceLocator() {
-        return activeTraceRepository;
     }
 
 }

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
     private final boolean dumpBytecode;
     private final boolean dumpVerify;
     private final boolean dumpASM;
-    private final Set<String> dumpJvmClassNameSet;
+    private final Set<String> dumpClassInternalNameSet;
 
     private ASMBytecodeDisassembler disassembler = new ASMBytecodeDisassembler();
 
@@ -49,7 +49,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
         this.dumpVerify = profilerConfig.readBoolean(BYTECODE_DUMP_VERIFY, BYTECODE_DUMP_VERIFY_DEFAULT_VALUE);
         this.dumpASM = profilerConfig.readBoolean(BYTECODE_DUMP_ASM, BYTECODE_DUMP_ASM_DEFAULT_VALUE);
 
-        this.dumpJvmClassNameSet = getClassName(profilerConfig);
+        this.dumpClassInternalNameSet = getClassName(profilerConfig);
     }
 
     private Set<String> getClassName(ProfilerConfig profilerConfig) {
@@ -57,9 +57,9 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
         if (classNameList.isEmpty()) {
             return Collections.emptySet();
         } else {
-            final List<String> classList = StringUtils.splitAndTrim(classNameList, ",");
-            final List<String> jvmClassList = javaNameToJvmName(classList);
-            return new HashSet<String>(jvmClassList);
+            final List<String> classList = StringUtils.tokenizeToStringList(classNameList, ",");
+            final List<String> classInternalNameList = toInternalNames(classList);
+            return new HashSet<String>(classInternalNameList);
         }
     }
 
@@ -72,52 +72,59 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
         this.dumpVerify = dumpVerify;
         this.dumpASM = dumpASM;
 
-        List<String> jvmClassNameList = javaNameToJvmName(classNameList);
-        this.dumpJvmClassNameSet = new HashSet<String>(jvmClassNameList);
+        List<String> classInternalNameList = toInternalNames(classNameList);
+        this.dumpClassInternalNameSet = new HashSet<String>(classInternalNameList);
     }
 
-    private List<String> javaNameToJvmName(List<String> classNameList) {
-        List<String> jvmNameList = new ArrayList<String>(classNameList.size());
+    private List<String> toInternalNames(List<String> classNameList) {
+        List<String> classInternalNameList = new ArrayList<String>(classNameList.size());
 
         for (String className : classNameList) {
-            jvmNameList.add(JavaAssistUtils.javaNameToJvmName(className));
+            classInternalNameList.add(JavaAssistUtils.javaNameToJvmName(className));
         }
-        return jvmNameList;
+        return classInternalNameList;
     }
 
     @Override
-    public void dumpBytecode(String dumpMessage, final String jvmClassName, final byte[] bytes, ClassLoader classLoader) {
-        if (jvmClassName == null) {
-            throw new NullPointerException("jvmClassName must not be null");
+    public void dumpBytecode(String dumpMessage, final String classInternalName, final byte[] bytes, ClassLoader classLoader) {
+        if (classInternalName == null) {
+            throw new NullPointerException("classInternalName must not be null");
         }
 
-        if (!filterClassName(jvmClassName)) {
+        if (!filterClassName(classInternalName)) {
             return;
         }
 
 
         if (dumpBytecode) {
             final String dumpBytecode = this.disassembler.dumpBytecode(bytes);
-            logger.info("{} class:{} bytecode:{}", dumpMessage, jvmClassName, dumpBytecode);
+            logger.info("{} class:{} bytecode:{}", dumpMessage, classInternalName, dumpBytecode);
         }
 
         if (dumpVerify) {
             if (classLoader == null) {
-                logger.debug("classLoader is null, jvmClassName:{}", jvmClassName);
-                classLoader = ClassLoader.getSystemClassLoader();
+                logger.debug("classLoader is null, classInternalName:{}", classInternalName);
             }
+            classLoader = getClassLoader(classLoader);
             final String dumpVerify = this.disassembler.dumpVerify(bytes, classLoader);
-            logger.info("{} class:{} verify:{}", dumpMessage, jvmClassName, dumpVerify);
+            logger.info("{} class:{} verify:{}", dumpMessage, classInternalName, dumpVerify);
         }
 
         if (dumpASM) {
             final String dumpASM = this.disassembler.dumpASM(bytes);
-            logger.info("{} class:{} asm:{}", dumpMessage, jvmClassName, dumpASM);
+            logger.info("{} class:{} asm:{}", dumpMessage, classInternalName, dumpASM);
         }
     }
 
-    private boolean filterClassName(String className) {
-        return this.dumpJvmClassNameSet.contains(className);
+    private static ClassLoader getClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return ClassLoader.getSystemClassLoader();
+        }
+        return classLoader;
+    }
+
+    private boolean filterClassName(String classInternalName) {
+        return this.dumpClassInternalNameSet.contains(classInternalName);
     }
 }
 

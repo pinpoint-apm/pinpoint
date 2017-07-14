@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
-import com.navercorp.pinpoint.rpc.util.StringUtils;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
@@ -27,8 +28,10 @@ import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConv
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
 import com.navercorp.pinpoint.web.websocket.message.PongMessage;
 import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -43,11 +46,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ActiveThreadCountHandler extends TextWebSocketHandler implements PinpointWebSocketHandler {
 
-    private static final String APPLICATION_NAME_KEY = "applicationName";
+    public static final String APPLICATION_NAME_KEY = "applicationName";
     private static final String HEALTH_CHECK_WAIT_KEY = "pinpoint.healthCheck.wait";
 
     static final String API_ACTIVE_THREAD_COUNT = "activeThreadCount";
@@ -65,7 +68,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
-    private SimpleOrderedThreadPool webSocketflushExecutor;
+    private SimpleOrderedThreadPool webSocketFlushExecutor;
 
     private java.util.Timer flushTimer;
     private static final long DEFAULT_FLUSH_DELAY = 1000;
@@ -76,6 +79,9 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private final long healthCheckDelay;
 
     private java.util.Timer reactiveTimer;
+    
+    @Autowired(required=false)
+    ServerMapDataFilter serverMapDataFilter;
 
     public ActiveThreadCountHandler(AgentService agentService) {
         this(DEFAULT_REQUEST_MAPPING, agentService);
@@ -99,7 +105,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     @Override
     public void start() {
         PinpointThreadFactory flushThreadFactory = new PinpointThreadFactory(ClassUtils.simpleClassName(this) + "-Flush-Thread", true);
-        webSocketflushExecutor = new SimpleOrderedThreadPool(Runtime.getRuntime().availableProcessors(), 65535, flushThreadFactory);
+        webSocketFlushExecutor = new SimpleOrderedThreadPool(CpuUtils.cpuCount(), 65535, flushThreadFactory);
 
         flushTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-Flush-Timer", true);
         healthCheckTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-HealthCheck-Timer", true);
@@ -127,8 +133,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             reactiveTimer.cancel();
         }
 
-        if (webSocketflushExecutor != null) {
-            webSocketflushExecutor.shutdown();
+        if (webSocketFlushExecutor != null) {
+            webSocketFlushExecutor.shutdown();
         }
     }
 
@@ -192,26 +198,43 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     private void handleRequestMessage0(WebSocketSession webSocketSession, RequestMessage requestMessage) {
+        if (serverMapDataFilter != null && serverMapDataFilter.filter(webSocketSession, requestMessage)) {
+            closeSession(webSocketSession, serverMapDataFilter.getCloseStatus(requestMessage));
+            return;
+        }
+        
         String command = requestMessage.getCommand();
 
         if (API_ACTIVE_THREAD_COUNT.equals(command)) {
             String applicationName = MapUtils.getString(requestMessage.getParams(), APPLICATION_NAME_KEY);
             if (applicationName != null) {
                 synchronized (lock) {
-                    if (StringUtils.isEquals(applicationName, (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY))) {
+                    if (StringUtils.equals(applicationName, (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY))) {
                         return;
                     }
 
                     unbindingResponseAggregator(webSocketSession);
-                    bindingResponseAggregator(webSocketSession, applicationName);
+                    if (webSocketSession.isOpen()) {
+                        bindingResponseAggregator(webSocketSession, applicationName);
+                    } else {
+                        logger.warn("WebSocketSession is not opened. skip binding.");
+                    }
                 }
             }
+        }
+    }
+    
+    private void closeSession(WebSocketSession session, CloseStatus status) {
+        try {
+            session.close(status);
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
         }
     }
 
     private void handlePongMessage0(WebSocketSession webSocketSession, PongMessage pongMessage) {
         Object healthCheckWait = webSocketSession.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
-        if (healthCheckWait != null && healthCheckWait instanceof AtomicBoolean) {
+        if (healthCheckWait instanceof AtomicBoolean) {
             ((AtomicBoolean) healthCheckWait).compareAndSet(true, false);
         }
     }
@@ -285,7 +308,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 Collection<PinpointWebSocketResponseAggregator> values = aggregatorRepository.values();
                 for (final PinpointWebSocketResponseAggregator aggregator : values) {
                     try {
-                        aggregator.flush(webSocketflushExecutor);
+                        aggregator.flush(webSocketFlushExecutor);
                     } catch (Exception e) {
                         logger.warn("failed while flushing ActiveThreadCount to aggregator. applicationName:{}, error:{}", aggregator.getApplicationName(), e.getMessage(), e);
                     }
@@ -327,7 +350,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                     }
 
                     Object untilWait = session.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
-                    if (untilWait != null && untilWait instanceof AtomicBoolean) {
+                    if (untilWait instanceof AtomicBoolean) {
                         if (((AtomicBoolean) untilWait).get()) {
                             closeSession(session, CloseStatus.SESSION_NOT_RELIABLE);
                         }
@@ -347,7 +370,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                     }
 
                     Object untilWait = session.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
-                    if (untilWait != null && untilWait instanceof AtomicBoolean) {
+                    if (untilWait instanceof AtomicBoolean) {
                         ((AtomicBoolean) untilWait).compareAndSet(false, true);
                     } else {
                         session.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(true));
@@ -362,17 +385,10 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             }
         }
 
-        private void closeSession(WebSocketSession session, CloseStatus status) {
-            try {
-                session.close(status);
-            } catch (Exception e) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
 
         private void sendPingMessage(WebSocketSession session, TextMessage pingMessage) {
             try {
-                webSocketflushExecutor.execute(new OrderedWebSocketFlushRunnable(session, pingMessage, true));
+                webSocketFlushExecutor.execute(new OrderedWebSocketFlushRunnable(session, pingMessage, true));
             } catch (RuntimeException e) {
                 logger.warn("failed while to execute. error:{}.", e.getMessage(), e);
             }

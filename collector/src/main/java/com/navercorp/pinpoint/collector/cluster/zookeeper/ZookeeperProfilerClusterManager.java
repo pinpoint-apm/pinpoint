@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
@@ -28,20 +28,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHandler {
-
-    private static final Charset charset = Charset.forName("UTF-8");
-
-    private static final String PROFILER_SEPARATOR = "\r\n";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -136,23 +129,7 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
     }
 
     public List<String> getClusterData() {
-        byte[] contents = worker.getClusterData();
-        if (contents == null) {
-            return Collections.emptyList();
-        }
-
-
-        String clusterData = new String(contents, charset);
-        String[] allClusterData = clusterData.split(PROFILER_SEPARATOR);
-
-        List<String> result = new ArrayList<>(allClusterData.length);
-        for (String eachClusterData : allClusterData) {
-            if (!StringUtils.isBlank(eachClusterData)) {
-                result.add(eachClusterData);
-            }
-        }
-
-        return result;
+        return worker.getClusterList();
     }
 
     public void initZookeeperClusterData() {
@@ -172,8 +149,8 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
     }
 
     private boolean skipAgent(Map<Object, Object> agentProperties) {
-        String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-        String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
+        String applicationName = MapUtils.getString(agentProperties, HandshakePropertyType.APPLICATION_NAME.getName());
+        String agentId = MapUtils.getString(agentProperties, HandshakePropertyType.AGENT_ID.getName());
 
         if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId)) {
             return true;

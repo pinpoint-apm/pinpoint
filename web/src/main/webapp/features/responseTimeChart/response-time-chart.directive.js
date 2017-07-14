@@ -1,180 +1,150 @@
 (function() {
-	'use strict';
-	/**
-	 * (en)responseTimeChartDirective 
-	 * @ko responseTimeChartDirective
-	 * @group Directive
-	 * @name responseTimeChartDirective
-	 * @class
-	 */	
-	pinpointApp.constant('responseTimeChartDirectiveConfig', {
-	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
-	});
-	
-	pinpointApp.directive('responseTimeChartDirective', ['responseTimeChartDirectiveConfig', '$timeout', 'AnalyticsService', 'PreferenceService',
-        function (cfg, $timeout, analyticsService, preferenceService ) {
-			var responseTypeColor = preferenceService.getResponseTypeColor();
-            return {
-                template: '<div></div>',
-                replace: true,
-                restrict: 'EA',
-                scope: {
-                    namespace: '@' // string value
-                },
-                link: function postLink(scope, element, attrs) {
+	"use strict";
+	angular.module( "pinpointApp" ).directive( "responseTimeChartDirective", [
+		function () {
+			return {
+				template: "<div></div>",
+				replace: true,
+				restrict: "E",
+				scope: {
+					namespace: "@" // string value
+				},
+				link: function postLink(scope, element, attrs) {
 
-                    // define variables
-                    var id, oChart;
+					// define variables
+					var sId = "", oChart;
 
-                    // define variables of methods
-                    var setIdAutomatically, setWidthHeight, render, clickGraphItemListener, updateData, parseHistogramForAmcharts;
+					function setIdAutomatically() {
+						sId = 'multipleValueAxesId-' + scope.namespace;
+						element.attr('id', sId);
+					}
 
-                    /**
-                     * set id automatically
-                     */
-                    setIdAutomatically = function () {
-                        id = 'responseTimeId-' + scope.namespace;
-                        element.attr('id', id);
-                    };
+					function hasId() {
+						return sId === "" ? false : true;
+					}
 
-                    /**
-                     * set width height
-                     * @param w
-                     * @param h
-                     */
-                    setWidthHeight = function (w, h) {
-                        element.css('width', w || '100%');
-                        element.css('height', h || '150px');
-                    };
+					function setWidthHeight(w, h) {
+						if (w) element.css('width', w);
+						if (h) element.css('height', h);
+					}
 
-                    /**
-                     * render
-                     * @param data
-                     * @param useFilterTransaction
-                     * @param useChartCursor
-                     */
-                    render = function (data, useFilterTransaction, useChartCursor) {
-                        $timeout(function () {
-                            var options = {
-                                "type": "serial",
-                                "theme": "none",
-                                "dataProvider": data,
-                                "startDuration": 0,
-                                "valueAxes": [
-                                    {
-                                        "gridAlpha": 0.1,
-                                        "usePrefixes": true
-                                    }
-                                ],
-                                "graphs": [
-                                    {
-                                        "balloonText": useFilterTransaction ? '[[category]] filtering' : '',
-                                        "colorField": "color",
-                                        "labelText": "[[value]]",
-                                        "fillAlphas": 0.3,
-                                        "alphaField": "alpha",
-                                        "lineAlpha": 0.8,
-                                        "lineColor": "#787779",
-                                        "type": "column",
-                                        "valueField": "count"
-                                    }
-                                ],
-                                "categoryField": "responseTime",
-                                "categoryAxis": {
-                                    "gridAlpha": 0
-                                }
-                            };
-                            if (useChartCursor) {
-                                options["chartCursor"] = {
-                                    "fullWidth": true,
-                                    "categoryBalloonAlpha": 0.7,
-                                    "cursorColor": "#000000",
-                                    "cursorAlpha": 0,
-                                    "zoomable": false
-                                };
-                            }
-                            oChart = AmCharts.makeChart(id, options);
-//                            oChart.addListener('clickGraph', function(e) {
-//                            	$at($at.MAIN, $at.CLK_RESPONSE_GRAPH);
-//                            });
-                            oChart.addListener('clickGraphItem', function(event) {
-                            	if ( event.item.category == "Error" ) {
-									analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_RESPONSE_GRAPH);
-                            		scope.$emit('responseTimeChartDirective.showErrorTransacitonList', event.item.category );
-                            	}
-                            	if ( useFilterTransaction ) {
-                            		scope.$emit('responseTimeChartDirective.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);
-                            	}
-                            });
-                            if (useFilterTransaction) {
-                                oChart.addListener('clickGraphItem', clickGraphItemListener);
-                                oChart.addListener('rollOverGraphItem', function (e) {
-                                    e.event.target.style.cursor = 'pointer';
-                                });
-                            }
-                        });
-                    };
+					function renderUpdate(data) {
+						oChart.dataProvider = data;
+						oChart.validateData();
+					}
 
-                    /**
-                     * click graph item listener
-                     * @param event
-                     */
-                    clickGraphItemListener = function (event) {
-                        scope.$emit('responseTimeChartDirective.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);
-                    };
+					function render(chartData) {
+						var options = {
+							"type": "serial",
+							"theme": "light",
+							"autoMargins": false,
+							"marginTop": 10,
+							"marginLeft": 70,
+							"marginRight": 70,
+							"marginBottom": 40,
+							"legend": {
+								"useGraphSettings": true,
+								"autoMargins": true,
+								"align" : "right",
+								"position": "top",
+								"valueWidth": 70,
+								"markerSize": 10,
+								"valueAlign": "left"
+							},
+							"usePrefixes": true,
+							"dataProvider": chartData,
+							"valueAxes": [
+								{
+									"stackType": "regular",
+									"gridAlpha": 0,
+									"axisAlpha": 1,
+									"position": "left",
+									"title": "Response Time",
+									"minimum" : 0
+								}
+							],
+							"graphs": [
+								{
+									"balloonText": "[[description]] : [[value]]",
+									"legendValueText": "([[description]]) [[value]]",
+									"lineColor": "rgb(44, 160, 44)",
+									"fillColor": "rgb(44, 160, 44)",
+									"title": "AVG",
+									"descriptionField": "title",
+									"valueField": "avg",
+									"fillAlphas": 0.4,
+									"connect": false
+								}
+							],
+							"categoryField": "time",
+							"categoryAxis": {
+								"axisColor": "#DADADA",
+								"startOnAxis": true,
+								"gridPosition": "start",
+								"labelFunction": function (valueText) {
+									return valueText.replace(/\s/, "<br>").replace(/-/g, ".").substring(2);
+								}
+							},
+							"chartCursor": {
+								"categoryBalloonAlpha": 0.7,
+								"fullWidth": true,
+								"cursorAlpha": 0.1,
+								"listeners": [{
+									"event": "changed",
+									"method": function (event) {
+										scope.$emit("responseTimeChartDirective.cursorChanged." + scope.namespace, event);
+									}
+								}]
+							}
+						};
+						oChart = AmCharts.makeChart(sId, options);
+						// var oChartCursor = new AmCharts.ChartCursor({
+						// 	"categoryBalloonAlpha": 0.7,
+						// 	"fullWidth": true,
+						// 	"cursorAlpha": 0.1
+						// });
+						// oChartCursor.addListener("changed", function (event) {
+						// 	scope.$emit("responseTimeChartDirective.cursorChanged." + scope.namespace, event);
+						// });
+						// oChart.addChartCursor( oChartCursor );
+					}
+					function showCursorAt(category) {
+						if (category) {
+							if (angular.isNumber(category)) {
+								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
+									try {
+										oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									}catch(e) {}
+									return;
+								}
+							}
+						}
+						oChart.chartCursor.hideCursor();
+					}
+					function resize() {
+						if (oChart) {
+							oChart.validateNow();
+							oChart.validateSize();
+						}
+					}
+					scope.$on( "responseTimeChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h) {
+						if ( hasId() ) {
+							renderUpdate( data );
+						} else {
+							setIdAutomatically();
+							setWidthHeight(w, h);
+							render(data);
+						}
+					});
 
-                    /**
-                     * update data
-                     * @param data
-                     */
-                    updateData = function (data) {
-                	    oChart.dataProvider = data;
-                        $timeout(function () {
-                            oChart.validateData();
-                        });                	
-                    };
-
-                    /**
-                     * parse histogram for amcharts
-                     * @param data
-                     * @returns {Array}
-                     */
-                    parseHistogramForAmcharts = function (data) {
-                    	if ( angular.isUndefined( data ) ) {
-                    		data = preferenceService.getResponseTypeFormat();
-                    	}
-                        var newData = [],
-                            alpha = [0.2, 0.3, 0.4, 0.6, 0.6],
-                            i = 0;
-                        for (var key in data) {
-                            newData.push({
-                                responseTime: key,
-                                count: data[key],
-                                color: responseTypeColor[i],
-                                alpha: alpha[i++]
-                            });
-                        }
-                        return newData;
-                    };
-
-                    /**
-                     * scope event on responseTimeChartDirective.initAndRenderWithData.namespace
-                     */
-                    scope.$on('responseTimeChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useFilterTransaction, useChartCursor) {
-                        setIdAutomatically();
-                        setWidthHeight(w, h);
-                       	render(parseHistogramForAmcharts(data), useFilterTransaction, useChartCursor);
-                    });
-
-                    /**
-                     * scope event on responseTimeChartDirective.updateData.namespace
-                     */
-                    scope.$on('responseTimeChartDirective.updateData.' + scope.namespace, function (event, data) {
-                        updateData(parseHistogramForAmcharts(data));
-                    });
-
-                }
-            };
-        }
+					scope.$on( "responseTimeChartDirective.showCursorAt." + scope.namespace, function (event, category) {
+						showCursorAt(category);
+					});
+					scope.$on( "responseTimeChartDirective.resize." + scope.namespace, function (event) {
+						resize();
+					});
+				}
+			};
+		}
 	]);
 })();

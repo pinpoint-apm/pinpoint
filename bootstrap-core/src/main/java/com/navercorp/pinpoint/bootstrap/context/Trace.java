@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.bootstrap.context;
 
 
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public interface Trace extends StackOperation {
     // ----------------------------------------------
@@ -36,6 +38,11 @@ public interface Trace extends StackOperation {
 
     TraceId getTraceId();
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link SpanEventRecorder#recordNextAsyncContext()}
+     * This API will be removed in 1.8.0
+     */
+    @Deprecated
     AsyncTraceId getAsyncTraceId();
 
     boolean canSampled();
@@ -49,7 +56,7 @@ public interface Trace extends StackOperation {
     SpanEventRecorder currentSpanEventRecorder();
     
     void close();
-    
+
     TraceScope getScope(String name);
 
     TraceScope addScope(String name);

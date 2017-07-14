@@ -21,6 +21,8 @@ import java.util.List;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * @author emeroad
@@ -45,7 +47,7 @@ public class SpanAlign {
         this.spanEventBo = null;
         this.span = true;
         List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
-        if (spanEvents == null || spanEvents.isEmpty()) {
+        if (CollectionUtils.isEmpty(spanEvents)) {
             this.hasChild = false;
         } else {
             this.hasChild = true;
@@ -77,7 +79,7 @@ public class SpanAlign {
         return spanEventBo;
     }
 
-    public boolean isHasChild() {
+    public boolean hasChild() {
         return hasChild;
     }
 
@@ -129,6 +131,14 @@ public class SpanAlign {
         this.executionMilliseconds = executionMilliseconds;
     }
 
+    public long getCollectorAcceptTime() {
+        return spanBo.getCollectorAcceptTime();
+    }
+
+    public byte getLoggingTransactionInfo() {
+        return spanBo.getLoggingTransactionInfo();
+    }
+
     public long getLastTime() {
         if (isSpan()) {
             return spanBo.getStartTime() + spanBo.getElapsed();
@@ -154,14 +164,15 @@ public class SpanAlign {
     }
 
     public String getAgentId() {
-        if (isSpan()) {
-            return spanBo.getAgentId();
-        }
-        return spanEventBo.getAgentId();
+        return spanBo.getAgentId();
     }
 
     public String getApplicationId() {
         return spanBo.getApplicationId();
+    }
+
+    public long getAgentStartTime() {
+        return spanBo.getAgentStartTime();
     }
 
     public short getServiceType() {
@@ -172,7 +183,7 @@ public class SpanAlign {
     }
 
     public String getTransactionId() {
-        return spanBo.getTransactionId();
+        return TransactionIdUtils.formatString(spanBo.getTransactionId());
     }
     
     public long getSpanId() {
@@ -180,21 +191,36 @@ public class SpanAlign {
     }
     
     public boolean hasException() {
-        if(isSpan()) {
+        if (isSpan()) {
             return spanBo.hasException();
         }
         return spanEventBo.hasException();
     }
-    
+
+    public int getExceptionId() {
+        if (isSpan()) {
+            return spanBo.getExceptionId();
+        }
+        return spanEventBo.getExceptionId();
+    }
+
     public String getExceptionClass() {
-        if(isSpan()) {
+        if (isSpan()) {
             return spanBo.getExceptionClass();
         }
         return spanEventBo.getExceptionClass();
     }
+
+    public void setExceptionClass(String exceptionClass) {
+        if (isSpan()) {
+            spanBo.setExceptionClass(exceptionClass);
+        } else {
+            spanEventBo.setExceptionClass(exceptionClass);
+        }
+    }
     
     public String getExceptionMessage() {
-        if(isSpan()) {
+        if (isSpan()) {
             return spanBo.getExceptionMessage();
         }
         
@@ -202,22 +228,38 @@ public class SpanAlign {
     }
     
     public String getRemoteAddr() {
-        if(isSpan()) {
+        if (isSpan()) {
             return spanBo.getRemoteAddr();
         }
         
         return null;
     }
 
+    public int getApiId() {
+        if (isSpan()) {
+            return spanBo.getApiId();
+        } else {
+            return spanEventBo.getApiId();
+        }
+    }
+
     public List<AnnotationBo> getAnnotationBoList() {
-        if(isSpan()) {
+        if (isSpan()) {
             return spanBo.getAnnotationBoList();
         }
         return spanEventBo.getAnnotationBoList();
     }
+
+    public void setAnnotationBoList(List<AnnotationBo> annotationBoList) {
+        if (isSpan()) {
+            spanBo.setAnnotationBoList(annotationBoList);
+        } else {
+            spanEventBo.setAnnotationBoList(annotationBoList);
+        }
+    }
     
     public String getDestinationId() {
-        if(isSpan()) {
+        if (isSpan()) {
             return null;
         }
         

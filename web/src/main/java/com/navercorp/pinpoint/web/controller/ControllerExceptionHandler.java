@@ -48,7 +48,9 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     public ModelAndView defaultErrorHandler(HttpServletRequest request, Exception exception) throws Exception {
-        logger.warn("Error:{}", exception.getMessage(), exception);
+        Map<String, Object> requestResource = createRequestResource(request);
+        logger.warn("Failed to execute controller methods. message:{}, request:{}.", getExceptionMessage(exception), requestResource, exception);
+
         ModelAndView mav = new ModelAndView();
         mav.addObject("exception", createExceptionResource(request, exception));
         mav.setViewName(DEFAULT_ERROR_VIEW);

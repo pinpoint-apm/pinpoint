@@ -12,45 +12,57 @@
 		PAGE_NAME: "inspector",
 		SLASH: "/"
 	});
-	pinpointApp.controller("InspectorCtrl", [ "InspectorCtrlConfig", "$scope", "$timeout", "$routeParams", "locationService", "CommonUtilService", "UrlVoService", "AnalyticsService",
-	    function ( cfg, $scope, $timeout, $routeParams, locationService, CommonUtilService, UrlVoService, AnalyticsService) {
+	pinpointApp.controller("InspectorCtrl", [ "InspectorCtrlConfig", "$scope", "$routeParams", "$timeout", "SystemConfigurationService", "locationService", "CommonUtilService", "UrlVoService", "AnalyticsService",
+	    function ( cfg, $scope, $routeParams, $timeout, SystemConfigService, locationService, CommonUtilService, UrlVoService, AnalyticsService) {
+			$scope.selectedAgent = false;
+			$scope.showStatistic = SystemConfigService.get("showApplicationStat");
 			cfg.ID +=  CommonUtilService.getRandomNum();
 			AnalyticsService.send(AnalyticsService.CONST.INSPECTOR_PAGE);
 
 			$scope.$on( "up.changed.application", function ( event, invokerId, newAppName ) {
-				console.log( cfg.ID + " up.changed.application", invokerId );
 				UrlVoService.setApplication( newAppName );
 				UrlVoService.setAgentId( "" );
-	            changeLocation(function() {
-					$scope.$broadcast( "down.changed.application", invokerId );
-					$scope.$broadcast( "down.changed.agent.", invokerId, {} );
+				$timeout(function() {
+					changeLocation(function () {
+						$scope.$broadcast("down.changed.application", invokerId);
+					});
 				});
 			});
 			$scope.$on( "up.changed.period", function ( event, invokerId ) {
-				console.log( cfg.ID + " up.changed.period", invokerId );
 				changeLocation(function() {
 					$scope.$broadcast( "down.changed.period", true, invokerId );
 				});
 			});
 			$scope.$on( "up.changed.agent", function ( event, invokerId, agent, bInvokedByTop ) {
-				if ( UrlVoService.getAgentId() === agent.agentId ) { 	// when open page or change period
-					$scope.$broadcast( "down.changed.agent", invokerId, agent, bInvokedByTop );
-				} else {												// when select other agent
-					if ( CommonUtilService.isEmpty( agent.agentId ) === false ) {
-						UrlVoService.setAgentId( agent.agentId );
+				$scope.selectedAgent = true;
+				$timeout(function() {
+					if (agent && ( agent.agentId === UrlVoService.getAgentId() )) { 	// when open page or change period
+						$scope.$broadcast("down.changed.agent", invokerId, agent, bInvokedByTop);
+					} else {												// when select other agent
+						if (CommonUtilService.isEmpty(agent.agentId) === false) {
+							UrlVoService.setAgentId(agent.agentId);
+						}
+						changeLocation(function () {
+							$scope.$broadcast("down.changed.agent", invokerId, agent, bInvokedByTop);
+						});
 					}
-					changeLocation(function() {
-						$scope.$broadcast( "down.changed.agent", invokerId, agent, bInvokedByTop );
+				});
+			});
+			$scope.$on( "up.select.application", function ( event, invokerId ) {
+				$scope.selectedAgent = false;
+				UrlVoService.setAgentId("");
+				$timeout(function() {
+					changeLocation(function () {
+						$scope.$broadcast("down.select.application", invokerId);
 					});
-				}
+				});
 			});
 	        var changeLocation = function ( callback ) {
 				var newPath = getLocation();
-				console.log( "changeLocation : ", locationService.path() , newPath );
 	            if ( locationService.path() !== newPath ) {
                 	locationService.skipReload().path( newPath ).replace();
-					callback();
-	            }
+				}
+				callback();
 	        };
 	        var getLocation = function () {
 				var url = [
@@ -61,7 +73,6 @@
 					UrlVoService.getQueryEndDateTime()
 				].join( cfg.SLASH );
 
-				console.log( "getLocation :", UrlVoService.getAgentId() );
 	            if ( UrlVoService.getAgentId() !== "" ) {
 	                url += cfg.SLASH + UrlVoService.getAgentId();
 	            }

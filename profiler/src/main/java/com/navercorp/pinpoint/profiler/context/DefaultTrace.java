@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,92 +34,50 @@ import com.navercorp.pinpoint.profiler.context.storage.Storage;
  * @author jaehong.kim
  */
 public final class DefaultTrace implements Trace {
+
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
-    private static final boolean isTrace = logger.isTraceEnabled();
     private static final boolean isWarn = logger.isWarnEnabled();
 
     private final boolean sampling;
 
-    private final long id;
-    private final TraceId traceId;
-
     private final CallStack callStack;
 
-    private Storage storage;
+    private final Storage storage;
 
-    private final TraceContext traceContext;
-    private final WrappedSpanEventRecorder spanEventRecorder;
-    private final DefaultSpanRecorder spanRecorder;
+    private final Span span;
+    private final SpanRecorder spanRecorder;
+    private final WrappedSpanEventRecorder wrappedSpanEventRecorder;
+
+    private final AsyncContextFactory asyncContextFactory;
+
     private boolean closed = false;
 
     private Thread bindThread;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
-    public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
-        }
-        this.traceContext = traceContext;
-        this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
-        this.id = this.traceId.getTransactionSequence();
-        this.sampling = sampling;
 
-        final Span span = createSpan();
-        this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
-        this.spanRecorder.recordTraceId(traceId);
-        this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
-        this.callStack = createCallStack(traceContext.getProfilerConfig(), span);
+    public DefaultTrace(Span span, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
+                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
+
+        this.span = Assert.requireNonNull(span, "span must not be null");
+        this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
+        this.storage = Assert.requireNonNull(storage, "storage must not be null");
+        this.sampling = Assert.requireNonNull(sampling, "sampling must not be null");
+        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
+
+        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
+        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
+
         setCurrentThread();
     }
 
-    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, long transactionId, boolean sampling) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
-        }
-        if (continueTraceId == null) {
-            throw new NullPointerException("continueTraceId must not be null");
-        }
-        this.traceContext = traceContext;
-        this.traceId = continueTraceId;
-        this.id = transactionId;
-        this.sampling = sampling;
-
-        final Span span = createSpan();
-        this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
-        this.spanRecorder.recordTraceId(traceId);
-        this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
-        this.callStack = createCallStack(traceContext.getProfilerConfig(), span);
-        setCurrentThread();
+    private TraceRoot getTraceRoot0() {
+        return this.span.getTraceRoot();
     }
 
-    private CallStack createCallStack(ProfilerConfig profilerConfig, Span span) {
-        if (profilerConfig != null) {
-            final int maxCallStackDepth = profilerConfig.getCallStackMaxDepth();
-            return new CallStack(span, maxCallStackDepth);
-        } else {
-            return new CallStack(span);
-        }
-    }
-
-    private Span createSpan() {
-        Span span = new Span();
-        span.setAgentId(traceContext.getAgentId());
-        span.setApplicationName(traceContext.getApplicationName());
-        span.setAgentStartTime(traceContext.getAgentStartTime());
-        span.setApplicationServiceType(traceContext.getServerTypeCode());
-        span.markBeforeTime();
-
-        return span;
-    }
-
-    private SpanEventRecorder wrappedSpanEventRecorder(SpanEvent spanEvent) {
-        final WrappedSpanEventRecorder spanEventRecorder = this.spanEventRecorder;
-        spanEventRecorder.setWrapped(spanEvent);
-        return spanEventRecorder;
-    }
-
-    public void setStorage(Storage storage) {
-        this.storage = storage;
+    private SpanEventRecorder wrappedSpanEventRecorder(WrappedSpanEventRecorder wrappedSpanEventRecorder, SpanEvent spanEvent) {
+        wrappedSpanEventRecorder.setWrapped(spanEvent);
+        return wrappedSpanEventRecorder;
     }
 
     @Override
@@ -128,7 +88,7 @@ public final class DefaultTrace implements Trace {
     @Override
     public SpanEventRecorder traceBlockBegin(final int stackId) {
         // Set properties for the case when stackFrame is not used as part of Span.
-        final SpanEvent spanEvent = new SpanEvent(spanRecorder.getSpan());
+        final SpanEvent spanEvent = new SpanEvent(getTraceRoot0());
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
 
@@ -141,7 +101,7 @@ public final class DefaultTrace implements Trace {
             callStack.push(spanEvent);
         }
 
-        return wrappedSpanEventRecorder(spanEvent);
+        return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
     }
 
     @Override
@@ -197,17 +157,18 @@ public final class DefaultTrace implements Trace {
             }
             // skip
         } else {
-            Span span = spanRecorder.getSpan();
             if (span.isTimeRecording()) {
                 span.markAfterTime();
             }
             logSpan(span);
         }
 
-        if (this.storage != null) {
-            this.storage.close();
-            this.storage = null;
-        }
+        this.storage.close();
+
+    }
+
+    void flush() {
+        this.storage.flush();
     }
 
     /**
@@ -217,21 +178,17 @@ public final class DefaultTrace implements Trace {
      */
     @Override
     public TraceId getTraceId() {
-        return this.traceId;
+        return getTraceRoot0().getTraceId();
     }
 
     @Override
     public long getId() {
-        return this.id;
+        return getTraceRoot0().getLocalTransactionId();
     }
 
     @Override
     public long getStartTime() {
-        final DefaultSpanRecorder copy = this.spanRecorder;
-        if (copy == null) {
-            return 0;
-        }
-        return copy.getSpan().getStartTime();
+        return span.getStartTime();
     }
 
     @Override
@@ -257,23 +214,11 @@ public final class DefaultTrace implements Trace {
     }
 
     private void logSpan(SpanEvent spanEvent) {
-        if (isTrace) {
-            final Thread th = Thread.currentThread();
-            logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", spanEvent, th.getId(), th.getName());
-        }
-        if(this.storage != null) {
-            this.storage.store(spanEvent);
-        }
+        storage.store(spanEvent);
     }
 
     private void logSpan(Span span) {
-        if (isTrace) {
-            final Thread th = Thread.currentThread();
-            logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", span, th.getId(), th.getName());
-        }
-        if(this.storage != null) {
-            this.storage.store(span);
-        }
+        this.storage.store(span);
     }
 
     @Override
@@ -288,7 +233,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
-        return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), spanRecorder.getSpan().getStartTime());
+        return asyncContextFactory.newAsyncTraceId(getTraceRoot0());
     }
 
     @Override
@@ -305,16 +250,16 @@ public final class DefaultTrace implements Trace {
                 logger.warn("[DefaultTrace] Corrupted call stack found.", exception);
             }
             // make dummy.
-            spanEvent = new SpanEvent(spanRecorder.getSpan());
+            spanEvent = new SpanEvent(getTraceRoot0());
         }
 
-        return wrappedSpanEventRecorder(spanEvent);
+        return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
     }
 
     @Override
     public int getCallStackFrameId() {
         final SpanEvent spanEvent = callStack.peek();
-        if(spanEvent == null) {
+        if (spanEvent == null) {
             return ROOT_STACKID;
         } else {
             return spanEvent.getStackId();
@@ -329,5 +274,13 @@ public final class DefaultTrace implements Trace {
     @Override
     public TraceScope addScope(String name) {
         return scopePool.add(name);
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultTrace{" +
+                "sampling=" + sampling +
+                ", traceRoot=" + getTraceRoot0() +
+                '}';
     }
 }

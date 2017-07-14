@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale;
 
-import java.util.Map;
-import java.util.SortedMap;
-
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -34,85 +32,68 @@ public final class MetricMonitorValues {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricMonitorValues.class);
 
-    public static final String JVM_GC = "jvm.gc";
     // Serial collector
-    public static final String JVM_GC_SERIAL_OLDGEN_COUNT = JVM_GC + ".MarkSweepCompact.count";
-    public static final String JVM_GC_SERIAL_OLDGEN_TIME = JVM_GC + ".MarkSweepCompact.time";
-    public static final String JVM_GC_SERIAL_NEWGEN_COUNT = JVM_GC + ".Copy.count";
-    public static final String JVM_GC_SERIAL_NEWGEN_TIME = JVM_GC + ".Copy.time";
+    public static final String METRIC_GC_SERIAL_OLDGEN_COUNT = "MarkSweepCompact.count";
+    public static final String METRIC_GC_SERIAL_OLDGEN_TIME = "MarkSweepCompact.time";
+    public static final String METRIC_GC_SERIAL_NEWGEN_COUNT = "Copy.count";
+    public static final String METRIC_GC_SERIAL_NEWGEN_TIME = "Copy.time";
     // Parallel (Old) collector
-    public static final String JVM_GC_PS_OLDGEN_COUNT = JVM_GC + ".PS-MarkSweep.count";
-    public static final String JVM_GC_PS_OLDGEN_TIME = JVM_GC + ".PS-MarkSweep.time";
-    public static final String JVM_GC_PS_NEWGEN_COUNT = JVM_GC + ".PS-Scavenge.count";
-    public static final String JVM_GC_PS_NEWGEN_TIME = JVM_GC + ".PS-Scavenge.time";
+    public static final String METRIC_GC_PS_OLDGEN_COUNT = "PS-MarkSweep.count";
+    public static final String METRIC_GC_PS_OLDGEN_TIME = "PS-MarkSweep.time";
+    public static final String METRIC_GC_PS_NEWGEN_COUNT = "PS-Scavenge.count";
+    public static final String METRIC_GC_PS_NEWGEN_TIME = "PS-Scavenge.time";
     // CMS collector
-    public static final String JVM_GC_CMS_OLDGEN_COUNT = JVM_GC + ".ConcurrentMarkSweep.count";
-    public static final String JVM_GC_CMS_OLDGEN_TIME = JVM_GC + ".ConcurrentMarkSweep.time";
-    public static final String JVM_GC_CMS_NEWGEN_COUNT = JVM_GC + ".ParNew.count";
-    public static final String JVM_GC_CMS_NEWGEN_TIME = JVM_GC + ".ParNew.time";
+    public static final String METRIC_GC_CMS_OLDGEN_COUNT = "ConcurrentMarkSweep.count";
+    public static final String METRIC_GC_CMS_OLDGEN_TIME = "ConcurrentMarkSweep.time";
+    public static final String METRIC_GC_CMS_NEWGEN_COUNT = "ParNew.count";
+    public static final String METRIC_GC_CMS_NEWGEN_TIME = "ParNew.time";
     // G1 collector
-    public static final String JVM_GC_G1_OLDGEN_COUNT = JVM_GC + ".G1-Old-Generation.count";
-    public static final String JVM_GC_G1_OLDGEN_TIME = JVM_GC + ".G1-Old-Generation.time";
-    public static final String JVM_GC_G1_NEWGEN_COUNT = JVM_GC + ".G1-Young-Generation.count";
-    public static final String JVM_GC_G1_NEWGEN_TIME = JVM_GC + ".G1-Young-Generation.time";
+    public static final String METRIC_GC_G1_OLDGEN_COUNT = "G1-Old-Generation.count";
+    public static final String METRIC_GC_G1_OLDGEN_TIME = "G1-Old-Generation.time";
+    public static final String METRIC_GC_G1_NEWGEN_COUNT = "G1-Young-Generation.count";
+    public static final String METRIC_GC_G1_NEWGEN_TIME = "G1-Young-Generation.time";
 
-    public static final String JVM_MEMORY = "jvm.memory";
     // commons
-    public static final String JVM_MEMORY_HEAP_INIT = JVM_MEMORY + ".heap.init";
-    public static final String JVM_MEMORY_HEAP_USED = JVM_MEMORY + ".heap.used";
-    public static final String JVM_MEMORY_HEAP_COMMITTED = JVM_MEMORY + ".heap.committed";
-    public static final String JVM_MEMORY_HEAP_MAX = JVM_MEMORY + ".heap.max";
-    public static final String JVM_MEMORY_NONHEAP_INIT = JVM_MEMORY + ".non-heap.init";
-    public static final String JVM_MEMORY_NONHEAP_USED = JVM_MEMORY + ".non-heap.used";
-    public static final String JVM_MEMORY_NONHEAP_COMMITTED = JVM_MEMORY + ".non-heap.committed";
-    public static final String JVM_MEMORY_NONHEAP_MAX = JVM_MEMORY + ".non-heap.max";
-    public static final String JVM_MEMORY_TOTAL_INIT = JVM_MEMORY + ".total.init";
-    public static final String JVM_MEMORY_TOTAL_USED = JVM_MEMORY + ".total.used";
-    public static final String JVM_MEMORY_TOTAL_COMMITTED = JVM_MEMORY + ".total.committed";
-    public static final String JVM_MEMORY_TOTAL_MAX = JVM_MEMORY + ".total.max";
+    public static final String METRIC_MEMORY_HEAP_INIT = "heap.init";
+    public static final String METRIC_MEMORY_HEAP_USED = "heap.used";
+    public static final String METRIC_MEMORY_HEAP_COMMITTED = "heap.committed";
+    public static final String METRIC_MEMORY_HEAP_MAX = "heap.max";
+    public static final String METRIC_MEMORY_NONHEAP_INIT = "non-heap.init";
+    public static final String METRIC_MEMORY_NONHEAP_USED = "non-heap.used";
+    public static final String METRIC_MEMORY_NONHEAP_COMMITTED = "non-heap.committed";
+    public static final String METRIC_MEMORY_NONHEAP_MAX = "non-heap.max";
+    public static final String METRIC_MEMORY_TOTAL_INIT = "total.init";
+    public static final String METRIC_MEMORY_TOTAL_USED = "total.used";
+    public static final String METRIC_MEMORY_TOTAL_COMMITTED = "total.committed";
+    public static final String METRIC_MEMORY_TOTAL_MAX = "total.max";
     // Serial collector ( -XX:+UseSerialGC )
-    public static final String JVM_MEMORY_POOLS_SERIAL_CODE_CACHE_USAGE = JVM_MEMORY + ".pools.Code-Cache.usage";
-    public static final String JVM_MEMORY_POOLS_SERIAL_NEWGEN_USAGE = JVM_MEMORY + ".pools.Eden-Space.usage";
-    public static final String JVM_MEMORY_POOLS_SERIAL_OLDGEN_USAGE = JVM_MEMORY + ".pools.Tenured-Gen.usage";
-    public static final String JVM_MEMORY_POOLS_SERIAL_SURVIVOR_USAGE = JVM_MEMORY + ".pools.Survivor-Space.usage";
-    public static final String JVM_MEMORY_POOLS_SERIAL_PERMGEN_USAGE = JVM_MEMORY + ".pools.Perm-Gen.usage";
-    public static final String JVM_MEMORY_POOLS_SERIAL_METASPACE_USAGE = JVM_MEMORY + ".pools.Metaspace.usage";
+    public static final String METRIC_MEMORY_POOLS_SERIAL_CODE_CACHE_USAGE = "pools.Code-Cache.usage";
+    public static final String METRIC_MEMORY_POOLS_SERIAL_NEWGEN_USAGE = "pools.Eden-Space.usage";
+    public static final String METRIC_MEMORY_POOLS_SERIAL_OLDGEN_USAGE = "pools.Tenured-Gen.usage";
+    public static final String METRIC_MEMORY_POOLS_SERIAL_SURVIVOR_USAGE = "pools.Survivor-Space.usage";
+    public static final String METRIC_MEMORY_POOLS_SERIAL_PERMGEN_USAGE = "pools.Perm-Gen.usage";
+    public static final String METRIC_MEMORY_POOLS_SERIAL_METASPACE_USAGE = "pools.Metaspace.usage";
     // Parallel (Old) collector ( -XX:+UseParallelOldGC )
-    public static final String JVM_MEMORY_POOLS_PS_CODE_CACHE_USAGE = JVM_MEMORY + ".pools.Code-Cache.usage";
-    public static final String JVM_MEMORY_POOLS_PS_NEWGEN_USAGE = JVM_MEMORY + ".pools.PS-Eden-Space.usage";
-    public static final String JVM_MEMORY_POOLS_PS_OLDGEN_USAGE = JVM_MEMORY + ".pools.PS-Old-Gen.usage";
-    public static final String JVM_MEMORY_POOLS_PS_SURVIVOR_USAGE = JVM_MEMORY + ".pools.PS-Survivor-Space.usage";
-    public static final String JVM_MEMORY_POOLS_PS_PERMGEN_USAGE = JVM_MEMORY + ".pools.PS-Perm-Gen.usage";
-    public static final String JVM_MEMORY_POOLS_PS_METASPACE_USAGE = JVM_MEMORY + ".pools.Metaspace.usage";
+    public static final String METRIC_MEMORY_POOLS_PS_CODE_CACHE_USAGE = "pools.Code-Cache.usage";
+    public static final String METRIC_MEMORY_POOLS_PS_NEWGEN_USAGE = "pools.PS-Eden-Space.usage";
+    public static final String METRIC_MEMORY_POOLS_PS_OLDGEN_USAGE = "pools.PS-Old-Gen.usage";
+    public static final String METRIC_MEMORY_POOLS_PS_SURVIVOR_USAGE = "pools.PS-Survivor-Space.usage";
+    public static final String METRIC_MEMORY_POOLS_PS_PERMGEN_USAGE = "pools.PS-Perm-Gen.usage";
+    public static final String METRIC_MEMORY_POOLS_PS_METASPACE_USAGE = "pools.Metaspace.usage";
     // CMS collector ( -XX:+UseConcMarkSweepGC )
-    public static final String JVM_MEMORY_POOLS_CMS_CODE_CACHE_USAGE = JVM_MEMORY + ".pools.Code-Cache.usage";
-    public static final String JVM_MEMORY_POOLS_CMS_NEWGEN_USAGE = JVM_MEMORY + ".pools.Par-Eden-Space.usage";
-    public static final String JVM_MEMORY_POOLS_CMS_OLDGEN_USAGE = JVM_MEMORY + ".pools.CMS-Old-Gen.usage";
-    public static final String JVM_MEMORY_POOLS_CMS_SURVIVOR_USAGE = JVM_MEMORY + ".pools.Par-Survivor-Space.usage";
-    public static final String JVM_MEMORY_POOLS_CMS_PERMGEN_USAGE = JVM_MEMORY + ".pools.CMS-Perm-Gen.usage";
-    public static final String JVM_MEMORY_POOLS_CMS_METASPACE_USAGE = JVM_MEMORY + ".pools.Metaspace.usage";
+    public static final String METRIC_MEMORY_POOLS_CMS_CODE_CACHE_USAGE = "pools.Code-Cache.usage";
+    public static final String METRIC_MEMORY_POOLS_CMS_NEWGEN_USAGE = "pools.Par-Eden-Space.usage";
+    public static final String METRIC_MEMORY_POOLS_CMS_OLDGEN_USAGE = "pools.CMS-Old-Gen.usage";
+    public static final String METRIC_MEMORY_POOLS_CMS_SURVIVOR_USAGE = "pools.Par-Survivor-Space.usage";
+    public static final String METRIC_MEMORY_POOLS_CMS_PERMGEN_USAGE = "pools.CMS-Perm-Gen.usage";
+    public static final String METRIC_MEMORY_POOLS_CMS_METASPACE_USAGE = "pools.Metaspace.usage";
     // G1 collector ( -XX:+UseG1GC )
-    public static final String JVM_MEMORY_POOLS_G1_CODE_CACHE_USAGE = JVM_MEMORY + ".pools.Code-Cache.usage";
-    public static final String JVM_MEMORY_POOLS_G1_NEWGEN_USAGE = JVM_MEMORY + ".pools.G1-Eden-Space.usage";
-    public static final String JVM_MEMORY_POOLS_G1_OLDGEN_USAGE = JVM_MEMORY + ".pools.G1-Old-Gen.usage";
-    public static final String JVM_MEMORY_POOLS_G1_SURVIVOR_USAGE = JVM_MEMORY + ".pools.G1-Survivor-Space.usage";
-    public static final String JVM_MEMORY_POOLS_G1_PERMGEN_USAGE = JVM_MEMORY + ".pools.G1-Perm-Gen.usage";
-    public static final String JVM_MEMORY_POOLS_G1_METASPACE_USAGE = JVM_MEMORY + ".pools.Metaspace.usage";
-
-    public static final String CPU_LOAD = "cpu.load";
-    // CPU Load (JVM)
-    public static final String CPU_LOAD_JVM = CPU_LOAD + ".jvm";
-    // CPU Load (System)
-    public static final String CPU_LOAD_SYSTEM = CPU_LOAD + ".system";
-
-    public static final String TRANSACTION = "transaction";
-    public static final String TRANSACTION_SAMPLED_NEW = TRANSACTION + ".sampled.new";
-    public static final String TRANSACTION_SAMPLED_CONTINUATION = TRANSACTION + ".sampled.continuation";
-    public static final String TRANSACTION_UNSAMPLED_NEW = TRANSACTION + ".unsampled.new";
-    public static final String TRANSACTION_UNSAMPLED_CONTINUATION = TRANSACTION + ".unsampled.continuation";
-
-    public static final String ACTIVE_TRACE = "active.trace";
-    public static final String ACTIVE_TRACE_COUNT = ACTIVE_TRACE + ".count";
+    public static final String METRIC_MEMORY_POOLS_G1_CODE_CACHE_USAGE = "pools.Code-Cache.usage";
+    public static final String METRIC_MEMORY_POOLS_G1_NEWGEN_USAGE = "pools.G1-Eden-Space.usage";
+    public static final String METRIC_MEMORY_POOLS_G1_OLDGEN_USAGE = "pools.G1-Old-Gen.usage";
+    public static final String METRIC_MEMORY_POOLS_G1_SURVIVOR_USAGE = "pools.G1-Survivor-Space.usage";
+    public static final String METRIC_MEMORY_POOLS_G1_PERMGEN_USAGE = "pools.G1-Perm-Gen.usage";
+    public static final String METRIC_MEMORY_POOLS_G1_METASPACE_USAGE = "pools.Metaspace.usage";
 
     private MetricMonitorValues() {
     }
@@ -147,7 +128,7 @@ public final class MetricMonitorValues {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Gauge<T> getGauge(final SortedMap<String, Gauge<?>> gauges, final String key, final Gauge<T> defaultGauge) {
+    public static <T> Gauge<T> getGauge(final Map<String, Gauge<?>> gauges, final String key, final Gauge<T> defaultGauge) {
         if (gauges == null) {
             throw new NullPointerException("gauges must not be null");
         }
@@ -169,7 +150,7 @@ public final class MetricMonitorValues {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static Gauge<Long> getLongGauge(final SortedMap<String, Gauge> gauges, String key) {
+    public static Gauge<Long> getLongGauge(final Map<String, Gauge> gauges, String key) {
         if (gauges == null) {
             throw new NullPointerException("gauges must not be null");
         }
@@ -191,7 +172,7 @@ public final class MetricMonitorValues {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static Gauge<Double> getDoubleGauge(final SortedMap<String, Gauge> gauges, String key) {
+    public static Gauge<Double> getDoubleGauge(final Map<String, Gauge> gauges, String key) {
         if (gauges == null) {
             throw new NullPointerException("gauges must not be null");
         }

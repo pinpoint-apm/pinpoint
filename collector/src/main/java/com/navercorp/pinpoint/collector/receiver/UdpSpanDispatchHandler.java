@@ -17,23 +17,24 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.thrift.dto.*;
-
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
  */
 public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
 
-
     @Autowired()
     @Qualifier("spanHandler")
     private SimpleHandler spanDataHandler;
-
 
     @Autowired()
     @Qualifier("spanChunkHandler")
@@ -44,16 +45,18 @@ public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
     }
 
 
-
     @Override
-    SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
+    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+        List<SimpleHandler> simpleHandlerList = new ArrayList<>();
+
         if (tBase instanceof TSpan) {
-            return spanDataHandler;
+            simpleHandlerList.add(spanDataHandler);
         }
         if (tBase instanceof TSpanChunk) {
-            return spanChunkHandler;
+            simpleHandlerList.add(spanChunkHandler);
         }
 
-        return null;
+        return simpleHandlerList;
     }
+
 }

@@ -1,5 +1,5 @@
 <!-- Add your site or application content here -->
-<time-slider-directive></time-slider-directive>
+<time-slider-directive auto-loading="true"></time-slider-directive>
 
 <!-- Add your site or application content here -->
 <div class="main-container" ng-class="getMainContainerClass()">
@@ -7,12 +7,13 @@
         <server-map-directive></server-map-directive>
     </div>
 	<div style="position:absolute;top:0px;right:0px;overflow:hidden;width:100%;height:100%;">
-		<server-list-directive></server-list-directive>
+		<server-list-directive namespace="forFilteredMap"></server-list-directive>
 	</div>
 	<div class="sidebar" ng-class="sidebar" loading-directive="sidebarLoading" loading-message="Loading..." style="z-index:100;background-color:white">
         <sidebar-title-directive namespace="forFilteredMap"></sidebar-title-directive>
         <filter-information-directive namespace="forFilteredMap" ng-show="hasFilter"></filter-information-directive>
         <scatter-directive ng-show="hasScatter" namespace="forFilteredMap"></scatter-directive>
+		<grouped-application-list-directive></grouped-application-list-directive>
         <div class="info-details" ng-class="getInfoDetailsClass()">
             <node-info-details-directive></node-info-details-directive>
             <link-info-details-directive></link-info-details-directive>

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.mybatis.MyBatisPlugin;
 
 /**
@@ -41,7 +42,7 @@ public class SqlSessionOperationInterceptor extends SpanEventSimpleAroundInterce
             Throwable throwable) {
         recorder.recordServiceType(MyBatisPlugin.MYBATIS);
         recorder.recordException(throwable);
-        if (args != null && args.length > 0) {
+        if (ArrayUtils.hasLength(args)) {
             recorder.recordApiCachedString(getMethodDescriptor(), (String)args[0], 0);
         } else {
             recorder.recordApi(getMethodDescriptor());

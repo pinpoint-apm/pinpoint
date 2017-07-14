@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.arcus;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -29,15 +29,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.arcus.filter.ArcusMethodFilter;
 import com.navercorp.pinpoint.plugin.arcus.filter.FrontCacheMemcachedMethodFilter;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -46,33 +45,36 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        ArcusPluginConfig config = new ArcusPluginConfig(context.getConfig());
+        final ArcusPluginConfig config = new ArcusPluginConfig(context.getConfig());
 
-        boolean arcus = config.isArcus();
-        boolean memcached = config.isMemcached();
+        final boolean arcus = config.isArcus();
+        final boolean arcusAsync = config.isArcusAsync();
+        final boolean memcached = config.isMemcached();
+        final boolean memcachedAsync = config.isMemcachedAsync();
 
         if (arcus) {
             addArcusClientEditor(config);
-            addCollectionFutureEditor();
+            addCollectionFutureEditor(arcusAsync);
             addFrontCacheGetFutureEditor();
             addFrontCacheMemcachedClientEditor(config);
             addCacheManagerEditor();
 
             // add none operation future. over 1.5.4
-            addBTreeStoreGetFutureEditor();
-            addCollectionGetBulkFutureEditor();
-            addSMGetFutureFutureEditor();
+            addBTreeStoreGetFutureEditor(arcusAsync);
+            addCollectionGetBulkFutureEditor(arcusAsync);
+            addSMGetFutureFutureEditor(arcusAsync);
         }
 
         if (arcus || memcached) {
             addMemcachedClientEditor(config);
 
             addBaseOperationImplEditor();
-            addGetFutureEditor();
-            addOperationFutureEditor();
+            final boolean async = arcusAsync || memcachedAsync;
+            addGetFutureEditor(async);
+            addOperationFutureEditor(async);
             // add none operation future.
-            addImmediateFutureEditor();
-            addBulkGetFutureEditor();
+            addImmediateFutureEditor(async);
+            addBulkGetFutureEditor(async);
         }
     }
 
@@ -86,11 +88,12 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (target.hasMethod("addOp", "java.lang.String", "net.spy.memcached.ops.Operation")) {
                     boolean traceKey = config.isArcusKeyTrace();
 
-                    target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.SetCacheManagerInterceptor");
+                    final InstrumentMethod setCacheManagerMethod = InstrumentUtils.findMethod(target, "setCacheManager", "net.spy.memcached.CacheManager");
+                    setCacheManagerMethod.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.SetCacheManagerInterceptor");
 
                     for (InstrumentMethod m : target.getDeclaredMethods(new ArcusMethodFilter())) {
                         try {
-                            m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
+                            m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey), ArcusConstants.ARCUS_SCOPE);
                         } catch (Exception e) {
                             if (logger.isWarnEnabled()) {
                                 logger.warn("Unsupported method " + className + "." + m.getName(), e);
@@ -113,7 +116,10 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor");
-                target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
+
+                final InstrumentMethod constructorMethod = InstrumentUtils.findConstructor(target, "java.lang.String", "java.lang.String", "net.spy.memcached.ConnectionFactoryBuilder", "java.util.concurrent.CountDownLatch", "int", "int");
+                constructorMethod.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
+
                 return target.toBytecode();
             }
 
@@ -142,13 +148,15 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor");
                 target.addField("com.navercorp.pinpoint.plugin.arcus.CacheKeyAccessor");
-                target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
 
-                InstrumentMethod get0 = target.getDeclaredMethod("get", new String[]{"long", "java.util.concurrent.TimeUnit"});
-                get0.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
+                final InstrumentMethod constructorMethod = InstrumentUtils.findConstructor(target, "net.sf.ehcache.Element");
+                constructorMethod.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
 
-                InstrumentMethod get1 = target.getDeclaredMethod("get", new String[0]);
-                get1.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
+                final InstrumentMethod get0 = InstrumentUtils.findMethod(target, "get", "long", "java.util.concurrent.TimeUnit");
+                get0.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor", ArcusConstants.ARCUS_SCOPE);
+
+                final InstrumentMethod get1 = InstrumentUtils.findMethod(target, "get");
+                get1.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor", ArcusConstants.ARCUS_SCOPE);
 
                 return target.toBytecode();
             }
@@ -166,7 +174,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
                     try {
-                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
+                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey), ArcusConstants.ARCUS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + className + "." + m.getName(), e);
@@ -187,16 +195,17 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                if (target.hasDeclaredMethod("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"})) {
+                if (target.hasDeclaredMethod("addOp", "java.lang.String", "net.spy.memcached.ops.Operation")) {
                     target.addField("com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor");
-                    target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.AddOpInterceptor");
+                    final InstrumentMethod addOpMethod = InstrumentUtils.findMethod(target, "addOp", "java.lang.String", "net.spy.memcached.ops.Operation");
+                    addOpMethod.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.AddOpInterceptor");
                 }
 
                 boolean traceKey = config.isMemcachedKeyTrace();
 
                 for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
                     try {
-                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
+                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey), ArcusConstants.ARCUS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + className + "." + m.getName(), e);
@@ -217,17 +226,34 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField("com.navercorp.pinpoint.plugin.arcus.OperationAccessor");
-            target.addField(AsyncTraceIdAccessor.class.getName());
+            target.addField(AsyncContextAccessor.class.getName());
 
             // setOperation
-            InstrumentMethod setOperation = target.getDeclaredMethod("setOperation", new String[] { "net.spy.memcached.ops.Operation" });
+            InstrumentMethod setOperation = target.getDeclaredMethod("setOperation", "net.spy.memcached.ops.Operation");
             if (setOperation != null) {
                 setOperation.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureSetOperationInterceptor");
             }
 
             // cancel, get, set
             for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get", "set", "signalComplete"))) {
-                m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor");
+                m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor", ArcusConstants.ARCUS_FUTURE_SCOPE);
+            }
+
+            return target.toBytecode();
+        }
+    };
+
+    private static final TransformCallback FUTURE_SET_OPERATION_TRANSFORMER = new TransformCallback() {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField("com.navercorp.pinpoint.plugin.arcus.OperationAccessor");
+
+            // setOperation
+            InstrumentMethod setOperation = target.getDeclaredMethod("setOperation", "net.spy.memcached.ops.Operation");
+            if (setOperation != null) {
+                setOperation.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureSetOperationInterceptor");
             }
 
             return target.toBytecode();
@@ -240,48 +266,70 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            target.addField(AsyncTraceIdAccessor.class.getName());
+            target.addField(AsyncContextAccessor.class.getName());
             
             // cancel, get, set
             for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get"))) {
-                m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor");
+                m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor", ArcusConstants.ARCUS_FUTURE_SCOPE);
             }
 
             return target.toBytecode();
         }
     };
 
-    
-    private void addCollectionFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.CollectionFuture", FUTURE_TRANSFORMER);
+
+    private void addCollectionFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.CollectionFuture", FUTURE_TRANSFORMER);
+        } else {
+            transformTemplate.transform("net.spy.memcached.internal.CollectionFuture", FUTURE_SET_OPERATION_TRANSFORMER);
+        }
     }
 
-    private void addGetFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.GetFuture", FUTURE_TRANSFORMER);
+    private void addGetFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.GetFuture", FUTURE_TRANSFORMER);
+        } else {
+            transformTemplate.transform("net.spy.memcached.internal.GetFuture", FUTURE_SET_OPERATION_TRANSFORMER);
+        }
     }
 
-    private void addOperationFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.OperationFuture", FUTURE_TRANSFORMER);
+    private void addOperationFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.OperationFuture", FUTURE_TRANSFORMER);
+        } else {
+            transformTemplate.transform("net.spy.memcached.internal.OperationFuture", FUTURE_SET_OPERATION_TRANSFORMER);
+        }
     }
 
-    private void addImmediateFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.ImmediateFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addImmediateFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.ImmediateFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
-    private void addBulkGetFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.BulkGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addBulkGetFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.BulkGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
-    private void addBTreeStoreGetFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.BTreeStoreAndGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addBTreeStoreGetFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.BTreeStoreAndGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
-    private void addCollectionGetBulkFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.CollectionGetBulkFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addCollectionGetBulkFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.CollectionGetBulkFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
-    private void addSMGetFutureFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.SMGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addSMGetFutureFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.SMGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
     @Override

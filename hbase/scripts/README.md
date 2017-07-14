@@ -21,7 +21,6 @@ For example, you can create Pinpoint tables by running the following line from s
 * ApplicationIndex, HostApplicationMap  : Tables for applicationIds and agentIds registered under them
 * AgentInfo : Table for basic agent information ex) ip, hostname agentversion, start time, etc
 * AgentStat : Table for agent’s statistical data ex) cpuload, gc, heap etc
-* AgentStatAggr : Table for agent’s statistical data aggregated for long term view
 * AgentLifeCycle : Table for agent’s life cycle data.
 * AgentEvent : Table for various agent events ex) request for thread dump, etc
 * ApiMetaData : Meta-table for method information

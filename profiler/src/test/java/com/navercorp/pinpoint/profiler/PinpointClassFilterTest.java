@@ -32,7 +32,7 @@ public class PinpointClassFilterTest {
 
 
         final URLClassLoader agentClassLoader = new URLClassLoader(new URL[0]);
-        ClassFileFilter filter = new PinpointClassFilter(agentClassLoader);
+        ClassFileFilter filter = new PinpointClassFilter();
 
         final ClassLoader defaultClassLoader = ClassLoaderUtils.getDefaultClassLoader();
 
@@ -41,20 +41,5 @@ public class PinpointClassFilterTest {
         Assert.assertSame(filter.accept(defaultClassLoader, "java/test", null, null, null), ClassFileFilter.CONTINUE);
         Assert.assertSame(filter.accept(defaultClassLoader, "javax/test", null, null, null), ClassFileFilter.CONTINUE);
         Assert.assertSame(filter.accept(defaultClassLoader, "test", null, null, null), ClassFileFilter.CONTINUE);
-    }
-
-
-    @Test
-    public void testDoFilter_ClassLoader() throws Exception {
-
-        final URLClassLoader agentClassLoader = new URLClassLoader(new URL[0]);
-        ClassFileFilter filter = new PinpointClassFilter(agentClassLoader);
-
-        Assert.assertSame("bootstrap test", filter.accept(null, "test", null, null, null), ClassFileFilter.CONTINUE);
-
-        final ClassLoader defaultClassLoader = ClassLoaderUtils.getDefaultClassLoader();
-        Assert.assertSame(filter.accept(defaultClassLoader, "test", null, null, null), ClassFileFilter.CONTINUE);
-
-        Assert.assertSame(filter.accept(agentClassLoader, "test", null, null, null), ClassFileFilter.SKIP);
     }
 }

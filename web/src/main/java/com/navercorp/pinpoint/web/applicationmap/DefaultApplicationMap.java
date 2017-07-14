@@ -17,11 +17,13 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Node map
@@ -38,7 +40,7 @@ public class DefaultApplicationMap implements ApplicationMap {
 
 //    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
 
-    DefaultApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
+    public DefaultApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }

@@ -14,17 +14,26 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
+
+import java.security.ProtectionDomain;
+import java.util.List;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -34,12 +43,22 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  */
 public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    private static final String CUBRID_SCOPE = CubridConstants.CUBRID_SCOPE;
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
+    private final JdbcUrlParserV2 jdbcUrlParser = new CubridJdbcUrlParser();
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         CubridConfig config = new CubridConfig(context.getConfig());
-        
+
+        if (!config.isPluginEnable()) {
+            logger.info("Cubrid plugin is not executed because plugin enable value is false.");
+            return;
+        }
+        context.addJdbcUrlParser(jdbcUrlParser);
+
         addCUBRIDConnectionTransformer(config);
         addCUBRIDDriverTransformer();
         addCUBRIDPreparedStatementTransformer(config);
@@ -56,35 +75,68 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", CubridConstants.CUBRID_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", CubridConstants.CUBRID_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", CubridConstants.CUBRID_SCOPE);
+                // close
+                InstrumentUtils.findMethod(target, "close")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", CUBRID_SCOPE);
+
+                // createStatement
+                final String statementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "createStatement")
+                        .addScopedInterceptor(statementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int")
+                        .addScopedInterceptor(statementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
+                        .addScopedInterceptor(statementCreate, CUBRID_SCOPE);
+
+                // preparedStatement
+                final String preparedStatementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                // preparecall
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", CubridConstants.CUBRID_SCOPE);
+                    InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", CUBRID_SCOPE);
                 }
 
                 if (config.isProfileCommit()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", CubridConstants.CUBRID_SCOPE);
+                    InstrumentUtils.findMethod(target, "commit")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", CUBRID_SCOPE);
                 }
-
                 if (config.isProfileRollback()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", CubridConstants.CUBRID_SCOPE);
+                    InstrumentUtils.findMethod(target, "rollback")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", CUBRID_SCOPE);
                 }
 
                 return target.toBytecode();
             }
         });
     }
-    
+
     private void addCUBRIDDriverTransformer() {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDDriver", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new CubridJdbcUrlParser()), CubridConstants.CUBRID_SCOPE, ExecutionPolicy.ALWAYS);
+                InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2", va(CubridConstants.CUBRID), CUBRID_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }
@@ -104,10 +156,20 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), CubridConstants.CUBRID_SCOPE);
+                final String preparedStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "execute")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "executeQuery")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), CUBRID_SCOPE);
 
                 if (config.isTraceSqlBindValue()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", CubridConstants.CUBRID_SCOPE);
+                    MethodFilter filter = new PreparedStatementBindingMethodFilter();
+                    List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(filter);
+                    for (InstrumentMethod method : declaredMethods) {
+                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", CUBRID_SCOPE);
+                    }
                 }
 
                 return target.toBytecode();
@@ -126,7 +188,13 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", CubridConstants.CUBRID_SCOPE);
+                final String callableStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor";
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
+                        .addScopedInterceptor(callableStatementInterceptor, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
+                        .addScopedInterceptor(callableStatementInterceptor, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
+                        .addScopedInterceptor(callableStatementInterceptor, CUBRID_SCOPE);
 
                 return target.toBytecode();
             }
@@ -142,8 +210,19 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", CubridConstants.CUBRID_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", CubridConstants.CUBRID_SCOPE);
+                final String executeQueryInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
+                        .addScopedInterceptor(executeQueryInterceptor, CUBRID_SCOPE);
+
+                final String executeUpdateInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor";
+                InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, CUBRID_SCOPE);
 
                 return target.toBytecode();
             }

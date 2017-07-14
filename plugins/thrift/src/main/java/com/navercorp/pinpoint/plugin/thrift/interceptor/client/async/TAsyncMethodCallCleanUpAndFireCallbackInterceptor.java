@@ -16,24 +16,24 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 
 /**
  * @author HyunGil Jeong
  */
-public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
+public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
     public TAsyncMethodCallCleanUpAndFireCallbackInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         // Do nothing
     }
 

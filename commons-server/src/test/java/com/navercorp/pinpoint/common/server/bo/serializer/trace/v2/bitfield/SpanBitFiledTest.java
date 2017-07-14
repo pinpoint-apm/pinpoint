@@ -1,8 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitFiled;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SimpleServiceTypeEncodingStrategy;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import org.junit.Assert;
 import org.junit.Test;
@@ -74,7 +72,7 @@ public class SpanBitFiledTest {
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), SimpleServiceTypeEncodingStrategy.PREV_EQUALS);
+        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
     }
 
     @Test
@@ -85,12 +83,12 @@ public class SpanBitFiledTest {
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), SimpleServiceTypeEncodingStrategy.RAW);
+        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
 
         spanBitFiled.maskAll();
-        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), SimpleServiceTypeEncodingStrategy.RAW);
-        spanBitFiled.setApplicationServiceTypeEncodingStrategy(SimpleServiceTypeEncodingStrategy.PREV_EQUALS);
-        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), SimpleServiceTypeEncodingStrategy.PREV_EQUALS);
+        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
+        spanBitFiled.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.PREV_EQUALS);
+        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
     }
 
 

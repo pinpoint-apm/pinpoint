@@ -41,9 +41,9 @@ public class UDPChecker extends AbstractNetworkChecker {
     protected boolean check(InetSocketAddress address, byte[] requestData, byte[] expectedResponseData) {
         DatagramSocket socket = null;
         try {
-            socket = createSocket(address);
+            socket = createSocket();
 
-            write(socket, requestData);
+            write(socket, requestData, address);
             byte[] responseData = read(socket, expectedResponseData.length);
 
             return Arrays.equals(expectedResponseData, responseData);
@@ -57,6 +57,13 @@ public class UDPChecker extends AbstractNetworkChecker {
         return false;
     }
 
+    private DatagramSocket createSocket() throws IOException {
+        DatagramSocket socket = new DatagramSocket();
+
+        socket.setSoTimeout(3000);
+        return socket;
+    }
+
     private DatagramSocket createSocket(InetSocketAddress socketAddress) throws IOException {
         DatagramSocket socket = new DatagramSocket();
         socket.connect(socketAddress);
@@ -65,8 +72,8 @@ public class UDPChecker extends AbstractNetworkChecker {
         return socket;
     }
 
-    private void write(DatagramSocket socket, byte[] requestData) throws IOException {
-        DatagramPacket datagramPacket = new DatagramPacket(requestData, requestData.length);
+    private void write(DatagramSocket socket, byte[] requestData, InetSocketAddress address) throws IOException {
+        DatagramPacket datagramPacket = new DatagramPacket(requestData, requestData.length, address);
         socket.send(datagramPacket);
     }
 

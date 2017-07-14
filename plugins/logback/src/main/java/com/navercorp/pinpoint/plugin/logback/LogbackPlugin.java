@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,9 @@
 package com.navercorp.pinpoint.plugin.logback;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 /**
  * This modifier support slf4j 1.4.1 version and logback 0.9.8 version, or greater.
@@ -45,7 +45,10 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         
-        LogbackConfig config = new LogbackConfig(context.getConfig());
+        final LogbackConfig config = new LogbackConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("LogbackPlugin config:{}", config);
+        }
         
         if (!config.isLogbackLoggingTransactionInfo()) {
             logger.info("Logback plugin is not executed because logback transform enable config value is false.");
@@ -84,10 +87,20 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
                                 + "\nconstructor prototype : LoggingEvent(String fqcn, Logger logger, Level level, String message, Throwable throwable, Object[] argArray);");
                     return null;
                 }
-                
-                target.addInterceptor("com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor");
-                
+
+                final String interceptorClassName = "com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor";
+                addInterceptor(target, new String[0], interceptorClassName);
+                addInterceptor(target, new String[]{"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"}, interceptorClassName);
+
                 return target.toBytecode();
+            }
+
+            private void addInterceptor(InstrumentClass target, String[] parameterTypes, String interceptorClassName) throws InstrumentException {
+                InstrumentMethod constructor = InstrumentUtils.findConstructor(target, parameterTypes);
+                if (constructor == null) {
+                    throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(parameterTypes));
+                }
+                constructor.addInterceptor(interceptorClassName);
             }
         });
     }

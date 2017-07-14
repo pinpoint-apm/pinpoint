@@ -64,7 +64,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
     }
     
     public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
-        this(host, port, threadName, queueSize, timeout, SEND_BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
+        this(host, port, threadName, queueSize, timeout, sendBufferSize, DEFAULT_BUFFER_SIZE);
     }
 
     public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, int dataBufferSize) {

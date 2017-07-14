@@ -20,18 +20,21 @@ package com.navercorp.pinpoint.plugin.tomcat;
 import static org.mockito.Mockito.*;
 
 import java.util.Enumeration;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.test.MockTraceContextFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -39,7 +42,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.test.mock.MockTraceContext;
 
 /**
  * @author emeroad
@@ -47,10 +49,10 @@ import com.navercorp.pinpoint.test.mock.MockTraceContext;
 public class InvokeMethodInterceptorTest {
     
     @Mock
-    public HttpServletRequest request;
+    private HttpServletRequest request;
     
     @Mock
-    public HttpServletResponse response;
+    private HttpServletResponse response;
 
     private final MethodDescriptor descriptor = new DefaultMethodDescriptor("org.apache.catalina.core.StandardHostValve", "invoke", new String[] {"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"}, new String[] {"request", "response"});
 
@@ -62,6 +64,12 @@ public class InvokeMethodInterceptorTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+    }
+
+    private TraceContext spyTraceContext() {
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
+        return spy(traceContext);
     }
 
     @Test
@@ -77,14 +85,18 @@ public class InvokeMethodInterceptorTest {
         Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
-        TraceContext traceContext = new MockTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        TraceContext traceContext = spyTraceContext();
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
+        verify(traceContext, times(1)).newTraceObject();
+
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
+
+        verify(traceContext, times(2)).newTraceObject();
     }
 
     @Test
@@ -100,13 +112,22 @@ public class InvokeMethodInterceptorTest {
         Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
-        TraceContext traceContext = new MockTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        TraceContext traceContext = spyTraceContext();
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
         interceptor.before("target",  new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
+        verify(traceContext, never()).newTraceObject();
+        verify(traceContext, never()).disableSampling();
+        verify(traceContext, never()).continueTraceObject(any(TraceId.class));
+
+
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
+
+        verify(traceContext, never()).newTraceObject();
+        verify(traceContext, never()).disableSampling();
+        verify(traceContext, never()).continueTraceObject(any(TraceId.class));
     }
 
     @Test
@@ -114,7 +135,9 @@ public class InvokeMethodInterceptorTest {
 
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
-        when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn(UUID.randomUUID().toString());
+
+        TraceId  traceId = new DefaultTraceId("agentTest", System.currentTimeMillis(), 1);
+        when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn(traceId.getTransactionId());
         when(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn("PARENTSPANID");
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("false");
@@ -122,13 +145,17 @@ public class InvokeMethodInterceptorTest {
         Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
-        TraceContext traceContext = new MockTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        TraceContext traceContext = spyTraceContext();
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
+        verify(traceContext, times(1)).continueTraceObject(any(TraceId.class));
+
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
+
+        verify(traceContext, times(2)).continueTraceObject(any(TraceId.class));
     }
 }

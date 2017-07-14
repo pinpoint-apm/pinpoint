@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -25,10 +25,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
+import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 
 /**
  * @author Jongho Moon
@@ -36,6 +37,8 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  *
  */
 public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private TransformTemplate transformTemplate;
 
@@ -46,16 +49,46 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
      */
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addApplicationTypeDetector(new TomcatDetector());
 
-        TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
+        final TomcatConfig config = new TomcatConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("TomcatPlugin config:{}", config);
+        }
+        if (!config.isTomcatEnable()) {
+            logger.info("TomcatPlugin disabled");
+            return;
+        }
 
+        TomcatDetector tomcatDetector = new TomcatDetector(config.getTomcatBootstrapMains());
+        context.addApplicationTypeDetector(tomcatDetector);
+
+        if (shouldAddTransformers(config)) {
+            logger.info("Adding Tomcat transformers");
+            addTransformers(config);
+        } else {
+            logger.info("Not adding Tomcat transfomers");
+        }
+    }
+
+    private boolean shouldAddTransformers(TomcatConfig config) {
+        // Transform if conditional check is disabled
+        if (!config.isTomcatConditionalTransformEnable()) {
+            return true;
+        }
+        // Only transform if it's a Tomcat application or SpringBoot application
+        ConditionProvider conditionProvider = ConditionProvider.DEFAULT_CONDITION_PROVIDER;
+        boolean isTomcatApplication = conditionProvider.checkMainClass(config.getTomcatBootstrapMains());
+        boolean isSpringBootApplication = conditionProvider.checkMainClass(config.getSpringBootBootstrapMains());
+        return isTomcatApplication || isSpringBootApplication;
+}
+
+    private void addTransformers(TomcatConfig config) {
         if (config.isTomcatHidePinpointHeader()) {
             addRequestFacadeEditor();
         }
 
         addRequestEditor();
-        addStandardHostValveEditor(config);
+        addStandardHostValveEditor();
         addStandardServiceEditor();
         addTomcatConnectorEditor();
         addWebappLoaderEditor();
@@ -105,7 +138,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addStandardHostValveEditor(final TomcatConfiguration config) {
+    private void addStandardHostValveEditor() {
         transformTemplate.transform("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
 
             @Override
@@ -114,7 +147,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
                 if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", va(config.getTomcatExcludeUrlFilter()));
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor");
                 }
 
                 return target.toBytecode();
@@ -162,7 +195,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
                 // Tomcat 7
                 InstrumentMethod initInternalEditor = target.getDeclaredMethod("initInternal");
                 if (initInternalEditor != null) {
-                    initInternalEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
+                    initInternalEditor.addScopedInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor", TomcatConstants.TOMCAT_SERVLET_ASYNC_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -201,7 +234,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class.getName());
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
                 }

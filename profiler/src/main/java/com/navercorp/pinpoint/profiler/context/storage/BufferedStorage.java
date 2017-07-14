@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.*;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 import org.slf4j.Logger;
@@ -37,39 +39,40 @@ public class BufferedStorage implements Storage {
 
     private final int bufferSize;
 
+    private final TraceRoot traceRoot;
     private List<SpanEvent> storage;
     private final DataSender dataSender;
+
+    private final SpanPostProcessor spanPostProcessor;
     private final SpanChunkFactory spanChunkFactory;
 
-    public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
-        this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
-    }
 
-    public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory, int bufferSize) {
+    public BufferedStorage(TraceRoot traceRoot, DataSender dataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory, int bufferSize) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
+        }
+        if (spanPostProcessor == null) {
+            throw new NullPointerException("spanPostProcessor must not be null");
         }
         if (spanChunkFactory == null) {
             throw new NullPointerException("spanChunkFactory must not be null");
         }
+        this.traceRoot = traceRoot;
         this.dataSender = dataSender;
+        this.spanPostProcessor = spanPostProcessor;
         this.spanChunkFactory = spanChunkFactory;
         this.bufferSize = bufferSize;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
+        this.storage = allocateBuffer();
     }
 
     @Override
     public void store(SpanEvent spanEvent) {
-        List<SpanEvent> flushData = null;
+        final List<SpanEvent> storage = getBuffer();
         storage.add(spanEvent);
-        if (storage.size() >= bufferSize) {
-            // data copy
-            flushData = storage;
-            storage = new ArrayList<SpanEvent>(bufferSize);
-        }
 
-        if (flushData != null) {
-            final SpanChunk spanChunk = spanChunkFactory.create(flushData);
+        if (overflow(storage)) {
+            final List<SpanEvent> flushData = clearBuffer();
+            final SpanChunk spanChunk = spanChunkFactory.create(traceRoot, flushData);
             if (isDebug) {
                 logger.debug("[BufferedStorage] Flush span-chunk {}", spanChunk);
             }
@@ -77,14 +80,35 @@ public class BufferedStorage implements Storage {
         }
     }
 
+    private boolean overflow(List<SpanEvent> storage) {
+        return storage.size() >= bufferSize;
+    }
+
+
+    private List<SpanEvent> allocateBuffer() {
+        return new ArrayList<SpanEvent>(this.bufferSize);
+    }
+
+    private List<SpanEvent> getBuffer() {
+        List<SpanEvent> copy = this.storage;
+        if (copy == null) {
+            copy = allocateBuffer();
+            this.storage = copy;
+        }
+        return copy;
+    }
+
+    private List<SpanEvent> clearBuffer() {
+        final List<SpanEvent> copy = this.storage;
+        this.storage = null;
+        return copy;
+    }
+
     @Override
     public void store(Span span) {
-        List<SpanEvent> spanEventList;
-        spanEventList = storage;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
-
-        if (spanEventList != null && !spanEventList.isEmpty()) {
-            span.setSpanEventList((List) spanEventList);
+        final List<SpanEvent> storage = clearBuffer();
+        if (CollectionUtils.hasLength(storage)) {
+            span = spanPostProcessor.postProcess(span, storage);
         }
         dataSender.send(span);
 
@@ -94,12 +118,9 @@ public class BufferedStorage implements Storage {
     }
 
     public void flush() {
-        List<SpanEvent> spanEventList;
-        spanEventList = storage;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
-
-        if (spanEventList != null && !spanEventList.isEmpty()) {
-            final SpanChunk spanChunk = spanChunkFactory.create(spanEventList);
+        final List<SpanEvent> storage = clearBuffer();
+        if (CollectionUtils.hasLength(storage)) {
+            final SpanChunk spanChunk = spanChunkFactory.create(traceRoot, storage);
             dataSender.send(spanChunk);
             if (isDebug) {
                 logger.debug("flush span chunk {}", spanChunk);

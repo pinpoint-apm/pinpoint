@@ -17,6 +17,19 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.thrift.TBase;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -28,18 +41,6 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import org.apache.thrift.TBase;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timeout;
-import org.jboss.netty.util.Timer;
-import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author emeroad
@@ -56,20 +57,25 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private final PinpointClient client;
     private final Timer timer;
-    
+
     private final AtomicBoolean fireState = new AtomicBoolean(false);
 
     private final WriteFailFutureListener writeFailFutureListener;
 
 
-    private final HeaderTBaseSerializer serializer = HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer();
+    private final HeaderTBaseSerializer serializer;
 
     private final RetryQueue retryQueue = new RetryQueue();
 
     private AsyncQueueingExecutor<Object> executor;
 
     public TcpDataSender(PinpointClient client) {
+        this(client, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+    }
+
+    public TcpDataSender(PinpointClient client, HeaderTBaseSerializer serializer) {
         this.client = client;
+        this.serializer = serializer;
         this.timer = createTimer();
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
         this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
@@ -142,7 +148,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                 if (copy == null) {
                     return;
                 }
-                
+
                 if (futureListener != null) {
                     doRequest(copy, futureListener);
                 } else {
@@ -162,7 +168,8 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         write.setListener(writeFailFutureListener);
     }
 
-    private void doRequest(final byte[] requestPacket, final int retryCount, final Object targetClass) {
+    // Separate doRequest method to avoid creating unnecessary objects. (Generally, sending message is successed when firt attempt.)
+    private void doRequest(final byte[] requestPacket, final int maxRetryCount, final Object targetClass) {
         FutureListener futureListener = (new FutureListener<ResponseMessage>() {
             @Override
             public void onComplete(Future<ResponseMessage> future) {
@@ -175,18 +182,20 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                         if (result.isSuccess()) {
                             logger.debug("result success");
                         } else {
-                            logger.warn("request fail. clazz:{} Caused:{}", targetClass, result.getMessage());
-                            retryRequest(requestPacket, retryCount, targetClass.getClass().getSimpleName());
+                            logger.info("request fail. request:{} Caused:{}", targetClass, result.getMessage());
+                            RetryMessage retryMessage = new RetryMessage(1, maxRetryCount, requestPacket, targetClass.getClass().getSimpleName());
+                            retryRequest(retryMessage);
                         }
                     } else {
-                        logger.warn("Invalid ResponseMessage. {}", response);
+                        logger.warn("Invalid respose:{}", response);
                         // This is not retransmission. need to log for debugging
                         // it could be null
 //                        retryRequest(requestPacket);
                     }
                 } else {
-                    logger.warn("request fail. clazz:{} Caused:{}", targetClass, future.getCause().getMessage(), future.getCause());
-                    retryRequest(requestPacket, retryCount, targetClass.getClass().getSimpleName());
+                    logger.info("request fail. request:{} Caused:{}", targetClass, future.getCause().getMessage(), future.getCause());
+                    RetryMessage retryMessage = new RetryMessage(1, maxRetryCount, requestPacket, targetClass.getClass().getSimpleName());
+                    retryRequest(retryMessage);
                 }
             }
         });
@@ -194,8 +203,40 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         doRequest(requestPacket, futureListener);
     }
 
-    private void retryRequest(byte[] requestPacket, int retryCount, final String className) {
-        RetryMessage retryMessage = new RetryMessage(retryCount, requestPacket);
+    // Separate doRequest method to avoid creating unnecessary objects. (Generally, sending message is successed when firt attempt.)
+    private void doRequest(final RetryMessage retryMessage) {
+        FutureListener futureListener = (new FutureListener<ResponseMessage>() {
+            @Override
+            public void onComplete(Future<ResponseMessage> future) {
+                if (future.isSuccess()) {
+                    // Should cache?
+                    HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
+                    TBase<?, ?> response = deserialize(deserializer, future.getResult());
+                    if (response instanceof TResult) {
+                        TResult result = (TResult) response;
+                        if (result.isSuccess()) {
+                            logger.debug("result success");
+                        } else {
+                            logger.info("request fail. request:{}, Caused:{}", retryMessage, result.getMessage());
+                            retryRequest(retryMessage);
+                        }
+                    } else {
+                        logger.warn("Invalid response:{}", response);
+                        // This is not retransmission. need to log for debugging
+                        // it could be null
+//                        retryRequest(requestPacket);
+                    }
+                } else {
+                    logger.info("request fail. request:{}, caused:{}", retryMessage, future.getCause().getMessage(), future.getCause());
+                    retryRequest(retryMessage);
+                }
+            }
+        });
+
+        doRequest(retryMessage.getBytes(), futureListener);
+    }
+
+    private void retryRequest(RetryMessage retryMessage) {
         retryQueue.add(retryMessage);
         if (fireTimeout()) {
             timer.newTimeout(new TimerTask() {
@@ -209,7 +250,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                             return;
                         }
                         int fail = retryMessage.fail();
-                        doRequest(retryMessage.getBytes(), fail, className);
+                        doRequest(retryMessage);
                     }
                 }
             }, 1000 * 10, TimeUnit.MILLISECONDS);

@@ -52,8 +52,7 @@ public abstract class EchoTestServer<T extends TServer> {
 
         @SuppressWarnings("unchecked")
         @Override
-        public void echo(String message, @SuppressWarnings("rawtypes") AsyncMethodCallback resultHandler)
-                throws TException {
+        public void echo(String message, AsyncMethodCallback resultHandler) throws TException {
             try {
                 final String echo = this.syncHandler.echo(message);
                 resultHandler.onComplete(echo);

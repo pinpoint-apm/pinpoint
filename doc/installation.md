@@ -12,11 +12,12 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 1. HBase ([details](#hbase))
 	1. Set up HBase cluster - [Apache HBase](http://hbase.apache.org)
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
-2. Build Pinpoint (Only required if you're building from source)
+2. Build Pinpoint (Optional) - You do not need to build from source to use Pinpoint (binaries [here](https://github.com/naver/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
-	2. Set JAVA_6_HOME environment variable to JDK 6 home directory.
-	2. Set JAVA_7_HOME environment variable to JDK 7+ home directory.
-	3. Run `mvn install -Dmaven.test.skip=true` in Pinpoint home directory.
+	2. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
+	3. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
+	4. Set JAVA_8_HOME environment variable to JDK 8 home directory.
+	5. Run `./mvnw clean install -Dmaven.test.skip=true` (or `./mvnw.cmd` for Windows)
 3. Pinpoint Collector ([details](#pinpoint-collector))
 	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
 	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
@@ -36,11 +37,13 @@ Pinpoint uses HBase as its storage backend for the Collector and the Web.
 
 To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. The HBase compatibility table is given below:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
----------------- | ------------ | ------------ | ----------- | -----------
-1.0.x | yes | no | no | no 
-1.1.x | no | not tested | yes | not tested
-1.5.x | no | not tested | yes | not tested
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBase 1.2.x
+---------------- | ------------ | ------------ | ----------- | ----------- | -----------
+1.0.x | yes | no | no | no | no
+1.1.x | no | not tested | yes | not tested | not tested
+1.5.x | no | not tested | yes | not tested | not tested
+1.6.x | no | not tested | not tested | not tested | yes
+1.7.x | no | not tested | not tested | not tested | yes
 
 Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
 
@@ -64,24 +67,30 @@ There are two options:
 	In order to do so, the following **requirements** must be met:
 
 	* JDK 6 installed
-	* JDK 7+ installed
-	* Maven 3.2.x+ installed
-	* JAVA_6_HOME environment variable set to JDK 6 home directory.
-	* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+	* JDK 7 installed
+	* JDK 8 installed
+	* JAVA_6_HOME environment variable set to JDK 6 home directory (1.6.0_45 recommended).
+	* JAVA_7_HOME environment variable set to JDK 7 home directory (1.7.0_80 recommended).
+	* JAVA_8_HOME environment variable set to JDK 8 home directory.
 
-	JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
+	JDK 7+ and JAVA_7_HOME, JAVA_8_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
 
 	Additionally, the required Java version to run each Pinpoint component is given below:
 
 	Pinpoint Version | Agent | Collector | Web
 	---------------- | ----- | --------- | ---
-	1.0.x | 6+ | 6+ | 6+
-	1.1.x | 6+ | 7+ | 7+
-	1.5.x | 6+ | 7+ | 7+
+	1.0.x | 6-8 | 6+ | 6+
+	1.1.x | 6-8 | 7+ | 7+
+	1.5.x | 6-8 | 7+ | 7+
+	1.6.x | 6-8 | 7+ | 7+
+	1.7.x | 6-8 | 8+ | 8+
 
-	Once the above requirements are met, simply run the command below :
+	Once the above requirements are met, simply run the command below (you may need to add permission for **mvnw** so that it can be executed) :
 
-	`mvn install -Dmaven.test.skip=true`
+	`./mvnw install -Dmaven.test.skip=true`
+	
+	The default agent built this way will have log level set to DEBUG by default. If you're building an agent for release and need a higher log level, you can set maven profile to *release* when building :  
+	`./mvnw install -Prelease -Dmaven.test.skip=true`
 	
 	The guide will refer to the full path of the pinpoint home directory as `$PINPOINT_PATH`.
 
@@ -181,6 +190,11 @@ CATALINA_OPTS="$CATALINA_OPTS <b>-Dpinpoint.applicationName</b>=$APPLICATION_NAM
 </pre>
 
 Start up Tomcat to start profiling your web application.
+
+Some application servers require additional configuration and/or may have caveats. Please take a look at the links below for further details.
+* [JBoss](https://github.com/naver/pinpoint/tree/master/plugins/jboss#pinpoint-jboss-plugin-configuration)
+* [Jetty](https://github.com/naver/pinpoint/blob/master/plugins/jetty/README.md)
+* [Resin](https://github.com/naver/pinpoint/tree/master/plugins/resin#pinpoint-resin-plugin-configuration)
 
 ### Configuration
 

@@ -16,6 +16,21 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.web.dao.AgentEventDao;
+import com.navercorp.pinpoint.web.vo.AgentEvent;
+import com.navercorp.pinpoint.web.vo.DurationalAgentEvent;
+import com.navercorp.pinpoint.web.vo.Range;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,21 +38,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
-
-import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
-import com.navercorp.pinpoint.web.vo.DurationalAgentEvent;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.Range;
 
 /**
  * @author HyunGil Jeong
@@ -58,7 +58,6 @@ public class AgentEventServiceImpl implements AgentEventService {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        final boolean includeEventMessage = false;
         Set<AgentEventType> excludeEventTypes = EnumSet.noneOf(AgentEventType.class);
         for (int excludeEventTypeCode : excludeEventTypeCodes) {
             AgentEventType excludeEventType = AgentEventType.getTypeByCode(excludeEventTypeCode);
@@ -67,7 +66,7 @@ public class AgentEventServiceImpl implements AgentEventService {
             }
         }
         List<AgentEventBo> agentEventBos = this.agentEventDao.getAgentEvents(agentId, range, excludeEventTypes);
-        List<AgentEvent> agentEvents = createAgentEvents(agentEventBos, includeEventMessage);
+        List<AgentEvent> agentEvents = createAgentEvents(agentEventBos);
         Collections.sort(agentEvents, AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
         return agentEvents;
     }
@@ -92,7 +91,7 @@ public class AgentEventServiceImpl implements AgentEventService {
         return null;
     }
 
-    private List<AgentEvent> createAgentEvents(List<AgentEventBo> agentEventBos, boolean includeEventMessage) {
+    private List<AgentEvent> createAgentEvents(List<AgentEventBo> agentEventBos) {
         if (CollectionUtils.isEmpty(agentEventBos)) {
             return Collections.emptyList();
         }
@@ -100,9 +99,10 @@ public class AgentEventServiceImpl implements AgentEventService {
         PriorityQueue<DurationalAgentEvent> durationalAgentEvents = new PriorityQueue<>(agentEventBos.size(), AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
         for (AgentEventBo agentEventBo : agentEventBos) {
             if (agentEventBo.getEventType().isCategorizedAs(AgentEventTypeCategory.DURATIONAL)) {
-                durationalAgentEvents.add(createDurationalAgentEvent(agentEventBo, includeEventMessage));
+                durationalAgentEvents.add(createDurationalAgentEvent(agentEventBo, false));
             } else {
-                agentEvents.add(createAgentEvent(agentEventBo, includeEventMessage));
+                boolean hasMessage = !ArrayUtils.isEmpty(agentEventBo.getEventBody());
+                agentEvents.add(createAgentEvent(agentEventBo, hasMessage));
             }
         }
         long durationStartTimestamp = DurationalAgentEvent.UNKNOWN_TIMESTAMP;
@@ -131,6 +131,7 @@ public class AgentEventServiceImpl implements AgentEventService {
         return agentEvent;
     }
 
+    @Deprecated
     private DurationalAgentEvent createDurationalAgentEvent(AgentEventBo agentEventBo, boolean includeEventMessage) {
         DurationalAgentEvent durationalAgentEvent = new DurationalAgentEvent(agentEventBo);
         if (includeEventMessage) {

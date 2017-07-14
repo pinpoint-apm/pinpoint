@@ -22,14 +22,13 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -37,8 +36,6 @@ import java.util.List;
  */
 public class AnnotationBoDecoderTest {
 
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
-    
     private AnnotationSerializer serializer = new AnnotationSerializer();
 
     private AnnotationBoDecoder annotationBoDecoder = new AnnotationBoDecoder();
@@ -51,8 +48,8 @@ public class AnnotationBoDecoderTest {
         final AnnotationBo annotation = new AnnotationBo();
         annotation.setKey(AnnotationKey.API.getCode());
 
-        final String value = RandomStringUtils.random(RandomUtils.nextInt(20));
-        annotation.setByteValue(value.getBytes(UTF_8));
+        final String value = RandomStringUtils.random(RandomUtils.nextInt(0, 20));
+        annotation.setValue(value);
 
         final Buffer buffer = new AutomaticBuffer(128);
         this.serializer.writeAnnotationList(Lists.newArrayList(annotation), buffer);
@@ -62,8 +59,7 @@ public class AnnotationBoDecoderTest {
         Assert.assertEquals(decode.size(), 1);
         AnnotationBo decodedAnnotation = decode.get(0);
         Assert.assertEquals(annotation.getKey(), decodedAnnotation.getKey());
-        Assert.assertEquals(annotation.getValueType(), decodedAnnotation.getValueType());
-        Assert.assertArrayEquals(annotation.getByteValue(), decodedAnnotation.getByteValue());
+        Assert.assertEquals(annotation.getValue(), decodedAnnotation.getValue());
 
     }
 

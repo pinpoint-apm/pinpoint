@@ -52,9 +52,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         final SpanChunkBo spanChunk = new SpanChunkBo();
 
         final TransactionId transactionId = decodingContext.getTransactionId();
-
-        spanChunk.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        spanChunk.setTraceTransactionSequence(transactionId.getTransactionSequence());
+        spanChunk.setTransactionId(transactionId);
         spanChunk.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
 
@@ -70,9 +68,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         final SpanBo span = new SpanBo();
 
         final TransactionId transactionId = decodingContext.getTransactionId();
-        span.setTraceAgentId(transactionId.getAgentId());
-        span.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        span.setTraceTransactionSequence(transactionId.getTransactionSequence());
+        span.setTransactionId(transactionId);
         span.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
         SpanEventBo firstSpanEvent = readQualifier(span, qualifier);
@@ -123,8 +119,8 @@ public class SpanDecoderV0 implements SpanDecoder {
             span.setParentSpanId(-1);
         }
 
-        final int startTimeDelta = buffer.readVInt();
-        final long startTime = startTimeDelta + span.getCollectorAcceptTime();
+        final long startTimeDelta = buffer.readVLong();
+        final long startTime = span.getCollectorAcceptTime() - startTimeDelta;
         span.setStartTime(startTime);
         span.setElapsed(buffer.readVInt());
 
@@ -168,9 +164,9 @@ public class SpanDecoderV0 implements SpanDecoder {
     private List<SpanEventBo> readSpanEvent(Buffer buffer, SpanEventBo firstSpanEvent, SpanDecodingContext decodingContext) {
         final int spanEventSize = buffer.readVInt();
         if (spanEventSize <= 0) {
-            return new ArrayList<>();
+            return new ArrayList<SpanEventBo>();
         }
-        final List<SpanEventBo> spanEventBoList = new ArrayList<>();
+        final List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
         SpanEventBo prev = null;
         for (int i = 0; i < spanEventSize; i++) {
             SpanEventBo spanEvent;
@@ -333,7 +329,7 @@ public class SpanDecoderV0 implements SpanDecoder {
 
     private List<AnnotationBo> readAnnotationList(Buffer buffer, SpanDecodingContext decodingContext) {
         int annotationListSize = buffer.readVInt();
-        List<AnnotationBo> annotationBoList = new ArrayList<>(annotationListSize);
+        List<AnnotationBo> annotationBoList = new ArrayList<AnnotationBo>(annotationListSize);
 
 //        AnnotationBo prev = decodingContext.getPrevFirstAnnotationBo();
         AnnotationBo prev = null;
@@ -362,7 +358,6 @@ public class SpanDecoderV0 implements SpanDecoder {
         byte[] valueBytes = buffer.readPrefixedBytes();
         Object value = transcoder.decode(valueType, valueBytes);
 
-        current.setValueType(valueType);
         current.setValue(value);
         return current;
     }
@@ -377,7 +372,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         byte valueType = buffer.readByte();
         byte[] valueBytes = buffer.readPrefixedBytes();
         Object value = transcoder.decode(valueType, valueBytes);
-        annotation.setValueType(valueType);
+
         annotation.setValue(value);
         return annotation;
     }
@@ -400,8 +395,8 @@ public class SpanDecoderV0 implements SpanDecoder {
         if (firstSpanEventSequence == -1) {
 //            buffer.readByte();
             // spanEvent not exist ??
-            logger.info("firstSpanEvent is null. bug!!!!");
-            return null;
+            logger.warn("firstSpanEvent is null. bug!!!! firstSpanEventSequence:{}", firstSpanEventSequence);
+            throw new IllegalStateException("firstSpanEvent is null");
         } else {
             return readQualifierFirstSpanEvent(buffer);
         }

@@ -66,7 +66,7 @@
 						scope.serverCount = 0;
 						scope.errorServerCount = 0;
 						var p, p2;
-						if ( htLastNode.isAuthorized === false ) {
+						if ( angular.isUndefined( htLastNode.isAuthorized ) || htLastNode.isAuthorized === false ) {
 							scope.showServerListHtml = false;
 						} else {
 							if (htLastNode.sourceHistogram) {
@@ -114,6 +114,7 @@
 					scope.changeAgent = function() {
 						analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_CHANGE_AGENT_MAIN );
 						$rootScope.$broadcast("changedCurrentAgent.forMain", scope.currentAgent );
+						$rootScope.$broadcast("changedCurrentAgent.forFilteredMap", scope.currentAgent );
 					};
 					scope.showServerList = function() {
 						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
@@ -125,6 +126,7 @@
 	                scope.$on("sidebarTitleDirective.initialize." + scope.namespace, function (event, oSidebarTitleVoService, node, navbarVoService) {
 	                    initialize( oSidebarTitleVoService, node, navbarVoService );
 						initializeAgentList( node );
+						$rootScope.$broadcast("serverListDirective.setData", bIsNode, htLastNode, oNavbarVoService);
 	                });
 	
 	                /**

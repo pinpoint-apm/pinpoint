@@ -16,14 +16,16 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import static com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory.*;
+import com.navercorp.pinpoint.thrift.dto.TDeadlock;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import static com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory.*;
 
 /**
  * @author HyunGil Jeong
@@ -35,6 +37,7 @@ public enum AgentEventType {
     AGENT_UNEXPECTED_SHUTDOWN(10201, "Agent unexpected shutdown", Void.class, DURATIONAL, AGENT_LIFECYCLE),
     AGENT_CLOSED_BY_SERVER(10300, "Agent connection closed by server", Void.class, DURATIONAL, AGENT_LIFECYCLE),
     AGENT_UNEXPECTED_CLOSE_BY_SERVER(10301, "Agent connection unexpectedly closed by server", Void.class, DURATIONAL, AGENT_LIFECYCLE),
+    AGENT_DEADLOCK_DETECTED(10401, "Agent deadlock detected", TDeadlock.class, AGENT_LIFECYCLE),
     USER_THREAD_DUMP(20100, "Thread dump by user", TCommandThreadDumpResponse.class, USER_REQUEST, THREAD_DUMP),
     OTHER(-1, "Other event", String.class, AgentEventTypeCategory.OTHER);
     
@@ -47,7 +50,7 @@ public enum AgentEventType {
         this.code = code;
         this.desc = desc;
         this.messageType = messageType;
-        if (category == null || category.length == 0) {
+        if (ArrayUtils.isEmpty(category)) {
             this.category = Collections.emptySet();
         } else {
             this.category = new HashSet<AgentEventTypeCategory>(Arrays.asList(category));
@@ -87,9 +90,18 @@ public enum AgentEventType {
         }
         return null;
     }
-    
+
+    /**
+     * typo API
+     * @deprecated Since 1.7.0. Use {@link #getTypesByCategory}
+     */
+    @Deprecated
     public static Set<AgentEventType> getTypesByCatgory(AgentEventTypeCategory category) {
-        Set<AgentEventType> eventTypes = new HashSet<AgentEventType>();
+        return getTypesByCategory(category);
+    }
+
+    public static Set<AgentEventType> getTypesByCategory(AgentEventTypeCategory category) {
+        final Set<AgentEventType> eventTypes = new HashSet<AgentEventType>();
         for (AgentEventType eventType : AgentEventType.values()) {
             if (eventType.category.contains(category)) {
                 eventTypes.add(eventType);

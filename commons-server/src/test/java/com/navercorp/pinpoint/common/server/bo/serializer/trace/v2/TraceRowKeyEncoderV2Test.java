@@ -1,8 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash;
-import com.navercorp.pinpoint.common.server.bo.BasicSpan;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -29,24 +27,19 @@ public class TraceRowKeyEncoderV2Test {
         return new RowKeyDistributorByHashPrefix(oneByteSimpleHash);
     }
 
-    private RowKeyEncoder<BasicSpan> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
+    private RowKeyEncoder<TransactionId> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
 
     private RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2();
 
     @Test
     public void encodeRowKey() throws Exception {
 
-        SpanBo spanBo = new SpanBo();
-        spanBo.setTraceAgentId("traceAgentId");
-        spanBo.setTraceAgentStartTime(System.currentTimeMillis());
-        spanBo.setTraceTransactionSequence(RandomUtils.nextLong(0, 10000));
+        TransactionId spanTransactionId = new TransactionId("traceAgentId", System.currentTimeMillis(), RandomUtils.nextLong(0, 10000));
 
-        byte[] rowKey = traceRowKeyEncoder.encodeRowKey(spanBo);
+        byte[] rowKey = traceRowKeyEncoder.encodeRowKey(spanTransactionId);
         TransactionId transactionId = traceRowKeyDecoder.decodeRowKey(rowKey);
 
-        Assert.assertEquals(transactionId.getAgentId(), spanBo.getTraceAgentId());
-        Assert.assertEquals(transactionId.getAgentStartTime(), spanBo.getTraceAgentStartTime());
-        Assert.assertEquals(transactionId.getTransactionSequence(), spanBo.getTraceTransactionSequence());
+        Assert.assertEquals(transactionId, spanTransactionId);
 
     }
 

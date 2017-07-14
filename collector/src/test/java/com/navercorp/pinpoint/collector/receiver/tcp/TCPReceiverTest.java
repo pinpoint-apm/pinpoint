@@ -17,10 +17,13 @@
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
-import com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler;
-
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
@@ -36,7 +39,20 @@ public class TCPReceiverTest {
 
     @Test
     public void server() throws InterruptedException {
-        TCPReceiver tcpReceiver = new TCPReceiver(createConfiguration(), new UdpDispatchHandler());
+        DispatchWorker mockWorker = Mockito.mock(DispatchWorker.class);
+
+        TCPReceiver tcpReceiver = new TCPReceiver(createConfiguration(), new DispatchHandler() {
+
+            @Override
+            public void dispatchSendMessage(TBase<?, ?> tBase) {
+            }
+
+            @Override
+            public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
+                return new TResult(true);
+            }
+
+        }, mockWorker);
         try {
             tcpReceiver.start();
         } finally {

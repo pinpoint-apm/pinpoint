@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,37 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.commons.dbcp;
 
-import java.security.ProtectionDomain;
+package com.navercorp.pinpoint.plugin.commons.dbcp;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+
+import java.security.ProtectionDomain;
 
 /**
  * @author Jongho Moon
  */
 public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware {
-    public static final ServiceType DBCP_SERVICE_TYPE = ServiceTypeFactory.of(6050, "DBCP");
-    public static final String DBCP_SCOPE = "DBCP_SCOPE";
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
+    private  CommonsDbcpConfig config;
 
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
+        config = new CommonsDbcpConfig(context.getConfig());
+        if (!config.isPluginEnable()) {
+            logger.info("Disable commons dbcp option. 'profiler.jdbc.dbcp=false'");
+            return;
+        }
+
         addBasicDataSourceTransformer();
-        
-        boolean profileClose = context.getConfig().readBoolean("profiler.jdbc.dbcp.connectionclose", false);
-        
-        if (profileClose) {
+        if (config.isProfileClose()) {
             addPoolGuardConnectionWrapperTransformer();
         }
     }
@@ -54,7 +62,11 @@ public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceCloseInterceptor");
+
+                // closeMethod
+                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                closeMethod.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_CLOSE_CONNECTION, CommonsDbcpConstants.SCOPE);
+
                 return target.toBytecode();
             }
         });
@@ -66,10 +78,43 @@ public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceGetConnectionInterceptor");
+
+                if (isAvailableDataSourceMonitor(target)) {
+                    target.addField(CommonsDbcpConstants.ACCESSOR_DATASOURCE_MONITOR);
+
+                    // default constructor
+                    InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target);
+                    defaultConstructor.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_CONSTRUCTOR, CommonsDbcpConstants.SCOPE);
+
+                    // closeMethod
+                    InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                    closeMethod.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_CLOSE, CommonsDbcpConstants.SCOPE);
+                }
+
+                // getConnectionMethod
+                InstrumentMethod getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection");
+                getConnectionMethod.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_GET_CONNECTION, CommonsDbcpConstants.SCOPE);
+                getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection", new String[]{"java.lang.String", "java.lang.String"});
+                getConnectionMethod.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_GET_CONNECTION, CommonsDbcpConstants.SCOPE);
+
                 return target.toBytecode();
             }
         });
+    }
+
+    private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
+        boolean hasMethod = target.hasMethod("getUrl");
+        if (!hasMethod) {
+            return false;
+        }
+
+        hasMethod = target.hasMethod("getNumActive");
+        if (!hasMethod) {
+            return false;
+        }
+
+        hasMethod = target.hasMethod("getMaxActive");
+        return hasMethod;
     }
 
     @Override

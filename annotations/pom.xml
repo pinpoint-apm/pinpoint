@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint</artifactId>
+        <version>1.7.0-SNAPSHOT</version>
+    </parent>
+
+    <!--
+    Refer to hadoop-annotations module & google-guava
+    https://github.com/apache/hadoop/tree/trunk/hadoop-common-project/hadoop-annotations
+    https://github.com/google/guava/tree/master/guava/src/com/google/common/annotations
+    -->
+
+    <artifactId>pinpoint-annotations</artifactId>
+    <name>pinpoint-annotations</name>
+    <packaging>jar</packaging>
+
+
+</project>

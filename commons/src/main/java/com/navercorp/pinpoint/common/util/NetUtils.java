@@ -92,7 +92,7 @@ public final class NetUtils {
         }
 
         if (interfaces == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         while (interfaces.hasMoreElements()) {

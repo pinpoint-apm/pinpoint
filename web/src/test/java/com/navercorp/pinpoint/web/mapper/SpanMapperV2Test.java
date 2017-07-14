@@ -11,7 +11,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingC
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncodingContext;
-import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import java.util.List;
 public class SpanMapperV2Test {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AnnotationTranscoder transcoder = new AnnotationTranscoder();
     private final SpanDecoderV0 decoder = new SpanDecoderV0();
 
     @Test
@@ -96,11 +94,7 @@ public class SpanMapperV2Test {
     private AnnotationBo newAnnotation(int key, Object value) {
         AnnotationBo annotationBo = new AnnotationBo();
         annotationBo.setKey(key);
-
-        byte typeCode = transcoder.getTypeCode(value);
-        byte[] encode = transcoder.encode(value, typeCode);
         annotationBo.setValue(value);
-        annotationBo.setByteValue(encode);
         return annotationBo;
     }
 

@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @JsonSerialize(using = ScatterAgentMetaDataSerializer.class)
 public class ScatterAgentMetaData {

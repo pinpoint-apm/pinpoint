@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.SystemPropertyKey;
-import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -34,25 +34,28 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TException;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Taejin Koo
  */
 public class SpanStreamSendDataSerializerTest {
 
-    private static SpanChunkFactory spanChunkFactory;
+    private final String agentId = "agentId";
+    private final SpanChunkFactory spanChunkFactory
+            = new SpanChunkFactoryV1("applicationName", agentId, 0, ServiceType.STAND_ALONE);
 
-    @BeforeClass
-    public static void setUp() {
-        AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0, 0, "machineName", "127.0.0.1", ServiceType.STAND_ALONE,
-                JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
-        spanChunkFactory = new SpanChunkFactory(agentInformation);
+
+    private TraceRoot newInternalTraceId() {
+
+        TraceId traceId = new DefaultTraceId(agentId, 0, 100);
+        return new DefaultTraceRoot(traceId, agentId, System.currentTimeMillis(), 100);
     }
 
     @Test
@@ -63,7 +66,7 @@ public class SpanStreamSendDataSerializerTest {
 
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory();
 
-        SpanChunk spanChunk = spanChunkFactory.create(createSpanEventList(spanEventSize));
+        SpanChunk spanChunk = spanChunkFactory.create(newInternalTraceId(), createSpanEventList(spanEventSize));
         PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanChunkStream(factory.createSerializer(), spanChunk);
 
         Assert.assertEquals(spanEventSize + 1, partitionedByteBufferLocator.getPartitionedCount());
@@ -128,24 +131,25 @@ public class SpanStreamSendDataSerializerTest {
     }
 
     private Span createSpan(List<SpanEvent> spanEventList) {
-        DefaultTraceId traceId = new DefaultTraceId("test", 0, 1);
-        Span span = new Span();
+        TraceRoot traceRoot = newInternalTraceId();
 
+        final Span span = new Span(traceRoot);
         for (SpanEvent spanEvent : spanEventList) {
             span.addToSpanEventList(spanEvent);
         }
 
         span.setAgentId("agentId");
-        span.recordTraceId(traceId);
         return span;
     }
 
     private List<SpanEvent> createSpanEventList(int size) throws InterruptedException {
-        Span span = new Span();
 
+        TraceRoot traceRoot = newInternalTraceId();
+
+        Span span = new Span(traceRoot);
         List<SpanEvent> spanEventList = new ArrayList<SpanEvent>(size);
         for (int i = 0; i < size; i++) {
-            SpanEvent spanEvent = new SpanEvent(span);
+            SpanEvent spanEvent = new SpanEvent(traceRoot);
             spanEvent.markStartTime();
             Thread.sleep(1);
             spanEvent.markAfterTime();

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,30 @@ package com.navercorp.pinpoint.plugin.dubbo;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Jinkai.Ma
  */
 public final class DubboProviderDetector implements ApplicationTypeDetector {
+
+    private static final String DEFAULT_BOOTSTRAP_MAIN = "com.alibaba.dubbo.container.Main";
+
+    private static final String REQUIRED_CLASS = "com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker";
+
+    private List<String> bootstrapMains;
+
+    public DubboProviderDetector(List<String> bootstrapMains) {
+        if (CollectionUtils.isEmpty(bootstrapMains)) {
+            this.bootstrapMains = Arrays.asList(DEFAULT_BOOTSTRAP_MAIN);
+        } else {
+            this.bootstrapMains = bootstrapMains;
+        }
+    }
+
     @Override
     public ServiceType getApplicationType() {
         return DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE;
@@ -29,6 +48,7 @@ public final class DubboProviderDetector implements ApplicationTypeDetector {
 
     @Override
     public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass("com.alibaba.dubbo.container.Main") || provider.checkForClass("com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker");
+        return provider.checkMainClass(bootstrapMains) ||
+               provider.checkForClass(REQUIRED_CLASS);
     }
 }

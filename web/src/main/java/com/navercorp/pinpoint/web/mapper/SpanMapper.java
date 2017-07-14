@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.mapper;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
@@ -44,6 +43,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+
+import static com.navercorp.pinpoint.web.mapper.SpanMapperV2.*;
 
 /**
  * @author emeroad
@@ -79,8 +80,8 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
         final Cell[] rawCells = result.rawCells();
 
-        Map<Long, SpanBo> spanMap = new LinkedHashMap<>();
-        ListMultimap<Long, SpanEventBo> spanEventBoListMap = ArrayListMultimap.create();
+        Map<AgentKey, SpanBo> spanMap = new LinkedHashMap<>();
+        ListMultimap<AgentKey, SpanEventBo> spanEventBoListMap = ArrayListMultimap.create();
         ListMultimap<Long, AnnotationBo> annotationBoListMap = ArrayListMultimap.create();
 
         final SpanDecodingContext decodingContext = new SpanDecodingContext();
@@ -96,15 +97,18 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 
                 final SpanBo spanBo = spanDecoder.decodeSpanBo(qualifierBuffer, valueBuffer, decodingContext);
-                spanMap.put(spanBo.getSpanId(), spanBo);
+
+                AgentKey agentKey = newAgentKey(spanBo);
+                spanMap.put(agentKey, spanBo);
             } else if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_TERMINALSPAN)) {
 
                 final Buffer qualifier = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 
                 SpanEventBo spanEventBo = spanDecoder.decodeSpanEventBo(qualifier, valueBuffer, decodingContext);
-                long spanId = decodingContext.getSpanId();
-                spanEventBoListMap.put(spanId, spanEventBo);
+
+                AgentKey agentKey = newAgentKey(decodingContext);
+                spanEventBoListMap.put(agentKey, spanEventBo);
 
             } else if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_ANNOTATION)) {
 
@@ -121,9 +125,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         }
         decodingContext.finish();
 
-        for (Map.Entry<Long, SpanEventBo> spanBoEntry : spanEventBoListMap.entries()) {
-            final Long spanId = spanBoEntry.getKey();
-            SpanBo spanBo = spanMap.get(spanId);
+        for (Map.Entry<AgentKey, SpanEventBo> spanBoEntry : spanEventBoListMap.entries()) {
+            final AgentKey agentKey = spanBoEntry.getKey();
+            SpanBo spanBo = spanMap.get(agentKey);
             if (spanBo != null) {
                 SpanEventBo value = spanBoEntry.getValue();
                 spanBo.addSpanEvent(value);
@@ -144,15 +148,20 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
     }
 
-
-    private void addAnnotation(List<SpanBo> spanList, ListMultimap<Long, AnnotationBo> annotationMap) {
-        for (SpanBo bo : spanList) {
-            long spanID = bo.getSpanId();
-            List<AnnotationBo> anoList = annotationMap.get(spanID);
-            bo.setAnnotationBoList(anoList);
-        }
+    private AgentKey newAgentKey(SpanBo spanBo) {
+        return new AgentKey(spanBo.getApplicationId(), spanBo.getAgentId(), spanBo.getAgentStartTime(), spanBo.getSpanId());
     }
 
+    private AgentKey newAgentKey(SpanDecodingContext decodingContext) {
+        return new AgentKey(decodingContext.getApplicationId(), decodingContext.getAgentId(), decodingContext.getAgentStartTime(), decodingContext.getSpanId());
+    }
 
+    private void addAnnotation(List<SpanBo> spanList, ListMultimap<Long, AnnotationBo> annotationMap) {
+        for (SpanBo spanBo : spanList) {
+            long spanId = spanBo.getSpanId();
+            List<AnnotationBo> anoList = annotationMap.get(spanId);
+            spanBo.setAnnotationBoList(anoList);
+        }
+    }
 
 }

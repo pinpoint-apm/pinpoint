@@ -1,0 +1,28 @@
+{
+  "name": "amcharts3-dataloader",
+  "authors": [
+    "amCharts <contact@amcharts.com>"
+  ],
+  "description": "amCharts V3 Data Loader plugin",
+  "main": [
+    "dataloader.js"
+  ],
+  "keywords": [
+    "amcharts",
+    "charts",
+    "javascript",
+    "plugin"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "dependencies": {
+    "amcharts3": ">= 3.11.1"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://www.amcharts.com/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/amcharts/dataloader.git"
+  }
+}

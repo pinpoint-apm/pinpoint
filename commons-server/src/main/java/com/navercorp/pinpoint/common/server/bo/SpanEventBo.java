@@ -18,10 +18,6 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-
 /**
  * @author emeroad
  * @author jaehong.kim
@@ -31,14 +27,6 @@ public class SpanEventBo implements Event {
    // version 0 means that the type of prefix's size is int
 
     private byte version = 0;
-
-    private String agentId;
-    private String applicationId;
-    private long agentStartTime;
-
-    private String traceAgentId;
-    private long traceAgentStartTime;
-    private long traceTransactionSequence;
 
     private short sequence;
 
@@ -79,55 +67,6 @@ public class SpanEventBo implements Event {
     public void setVersion(byte version) {
         this.version = version;
     }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public long getAgentStartTime() {
-        return this.agentStartTime;
-    }
-
-    public void setAgentStartTime(long agentStartTime) {
-        this.agentStartTime = agentStartTime;
-    }
-
-    public String getTraceAgentId() {
-        return traceAgentId;
-    }
-
-    public void setTraceAgentId(String traceAgentId) {
-        this.traceAgentId = traceAgentId;
-    }
-
-    public long getTraceAgentStartTime() {
-        return traceAgentStartTime;
-    }
-
-    public void setTraceAgentStartTime(long traceAgentStartTime) {
-        this.traceAgentStartTime = traceAgentStartTime;
-    }
-
-    public long getTraceTransactionSequence() {
-        return traceTransactionSequence;
-    }
-
-    public void setTraceTransactionSequence(long traceTransactionSequence) {
-        this.traceTransactionSequence = traceTransactionSequence;
-    }
-
 
     public short getSequence() {
         return sequence;
@@ -283,18 +222,6 @@ public class SpanEventBo implements Event {
         StringBuilder builder = new StringBuilder();
         builder.append("{version=");
         builder.append(version);
-        builder.append(", agentId=");
-        builder.append(agentId);
-        builder.append(", applicationId=");
-        builder.append(applicationId);
-        builder.append(", agentStartTime=");
-        builder.append(agentStartTime);
-        builder.append(", traceAgentId=");
-        builder.append(traceAgentId);
-        builder.append(", traceAgentStartTime=");
-        builder.append(traceAgentStartTime);
-        builder.append(", traceTransactionSequence=");
-        builder.append(traceTransactionSequence);
         builder.append(", sequence=");
         builder.append(sequence);
         builder.append(", startElapsed=");

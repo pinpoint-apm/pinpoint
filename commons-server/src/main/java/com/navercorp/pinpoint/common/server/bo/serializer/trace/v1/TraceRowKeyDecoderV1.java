@@ -3,8 +3,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TransactionId;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**

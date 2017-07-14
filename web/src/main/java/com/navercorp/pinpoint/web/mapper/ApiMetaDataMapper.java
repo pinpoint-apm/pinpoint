@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import org.apache.hadoop.hbase.Cell;
@@ -76,13 +77,13 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             Buffer buffer = new FixedBuffer(value);
             String apiInfo = buffer.readPrefixedString();
             int lineNumber = buffer.readInt();
-            int type = 0;
+            MethodTypeEnum methodTypeEnum = MethodTypeEnum.DEFAULT;
             if (buffer.hasRemaining()) {
-                type = buffer.readInt();
+                methodTypeEnum = MethodTypeEnum.valueOf(buffer.readInt());
             }
             apiMetaDataBo.setApiInfo(apiInfo);
             apiMetaDataBo.setLineNumber(lineNumber);
-            apiMetaDataBo.setType(type);
+            apiMetaDataBo.setMethodTypeEnum(methodTypeEnum);
             apiMetaDataList.add(apiMetaDataBo);
             if (logger.isDebugEnabled()) {
                 logger.debug("read apiAnnotation:{}", apiMetaDataBo);

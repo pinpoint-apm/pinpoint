@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.thrift.dto.*;
 
 import org.apache.thrift.TBase;
@@ -65,7 +65,7 @@ public final class AnnotationValueMapper {
         } else if (value instanceof TBase) {
             throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
         }
-        String str = StringUtils.drop(value.toString());
+        String str = StringUtils.abbreviate(value.toString());
         annotation.setValue(TAnnotationValue.stringValue(str));
     }
 

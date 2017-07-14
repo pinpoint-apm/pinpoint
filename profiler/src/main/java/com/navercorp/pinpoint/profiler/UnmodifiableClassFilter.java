@@ -29,6 +29,10 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
 
     @Override
     public boolean accept(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
+        if (className == null) {
+            return SKIP;
+        }
+
         // fast skip java classes
         if (className.startsWith("java")) {
             if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {

@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -64,7 +63,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public List<Dot> selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Filter filter) {
+    public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -86,7 +85,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationId())) {
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     result.add(dot);
                 }
@@ -124,7 +123,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
                     // should find the filtering condition with the correct index
                     final TransactionMetadataQuery.QueryCondition filterQueryCondition = query.getQueryConditionByIndex(index);
 
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionId transactionId = span.getTransactionId();
                     final TransactionMetadataQuery.QueryCondition queryConditionKey = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
                     if (queryConditionKey.equals(filterQueryCondition)) {
                         result.add(span);
@@ -149,7 +148,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public ScatterData selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
+    public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -170,7 +169,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationId())) {
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     scatterData.addDot(dot);
                 }

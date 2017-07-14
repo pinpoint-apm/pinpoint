@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -93,7 +95,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                 final InstrumentMethod sendBase = target.getDeclaredMethod("sendBase", "java.lang.String", "org.apache.thrift.TBase");
                 if (sendBase != null) {
                     String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor";
-                    sendBase.addInterceptor(interceptor, va(traceServiceArgs));
+                    InterceptorScope thriftClientScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_CLIENT_SCOPE);
+                    sendBase.addScopedInterceptor(interceptor, va(traceServiceArgs), thriftClientScope, ExecutionPolicy.BOUNDARY);
                 }
 
                 // TServiceClient.receiveBase(TBase, String)
@@ -129,7 +132,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                 final InstrumentMethod call = target.getDeclaredMethod("call", "org.apache.thrift.async.TAsyncMethodCall");
                 if (call != null) {
                     String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncClientManagerCallInterceptor";
-                    call.addInterceptor(interceptor);
+                    InterceptorScope thriftClientScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_CLIENT_SCOPE);
+                    call.addScopedInterceptor(interceptor, thriftClientScope, ExecutionPolicy.BOUNDARY);
                 }
 
                 return target.toBytecode();
@@ -147,7 +151,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class.getName());
                 target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET_ADDRESS);
                 target.addGetter(ThriftConstants.FIELD_GETTER_T_NON_BLOCKING_TRANSPORT, ThriftConstants.T_ASYNC_METHOD_CALL_FIELD_TRANSPORT);
 
@@ -202,7 +206,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                         "org.apache.thrift.protocol.TProtocol");
                 if (process != null) {
                     String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.server.TBaseProcessorProcessInterceptor";
-                    process.addInterceptor(interceptor);
+                    InterceptorScope thriftServerScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_SERVER_SCOPE);
+                    process.addScopedInterceptor(interceptor, thriftServerScope, ExecutionPolicy.BOUNDARY);
                 }
 
                 return target.toBytecode();
@@ -227,7 +232,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                         "org.apache.thrift.protocol.TProtocol", "java.lang.Object");
                 if (process != null) {
                     String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.server.ProcessFunctionProcessInterceptor";
-                    process.addInterceptor(interceptor);
+                    InterceptorScope thriftServerScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_SERVER_SCOPE);
+                    process.addScopedInterceptor(interceptor, thriftServerScope, ExecutionPolicy.INTERNAL);
                 }
 
                 return target.toBytecode();
@@ -258,7 +264,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                 final InstrumentMethod process = target.getDeclaredMethod("process", "org.apache.thrift.server.AbstractNonblockingServer$AsyncFrameBuffer");
                 if (process != null) {
                     String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.server.async.TBaseAsyncProcessorProcessInterceptor";
-                    process.addInterceptor(interceptor);
+                    InterceptorScope thriftServerScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_SERVER_SCOPE);
+                    process.addScopedInterceptor(interceptor, thriftServerScope, ExecutionPolicy.BOUNDARY);
                 }
 
                 return target.toBytecode();
@@ -418,6 +425,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         addTProtocolInterceptors(config, "org.apache.thrift.protocol.TBinaryProtocol");
         addTProtocolInterceptors(config, "org.apache.thrift.protocol.TCompactProtocol");
         addTProtocolInterceptors(config, "org.apache.thrift.protocol.TJSONProtocol");
+        addTProtocolDecoratorEditor();
     }
 
     private void addTProtocolInterceptors(ThriftPluginConfig config, String tProtocolClassName) {
@@ -439,7 +447,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                     final InstrumentMethod writeFieldStop = target.getDeclaredMethod("writeFieldStop");
                     if (writeFieldStop != null) {
                         String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client.TProtocolWriteFieldStopInterceptor";
-                        writeFieldStop.addInterceptor(interceptor);
+                        InterceptorScope thriftClientScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_CLIENT_SCOPE);
+                        writeFieldStop.addScopedInterceptor(interceptor, thriftClientScope, ExecutionPolicy.INTERNAL);
                     }
                 }
 
@@ -450,15 +459,17 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                     final InstrumentMethod readFieldBegin = target.getDeclaredMethod("readFieldBegin");
                     if (readFieldBegin != null) {
                         String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor";
-                        readFieldBegin.addInterceptor(interceptor);
+                        InterceptorScope thriftServerScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_SERVER_SCOPE);
+                        readFieldBegin.addScopedInterceptor(interceptor, thriftServerScope, ExecutionPolicy.INTERNAL);
                     }
                     // TProtocol.readBool, TProtocol.readBinary, TProtocol.readI16, TProtocol.readI64
                     final List<InstrumentMethod> readTTypes = target.getDeclaredMethods(MethodFilters.name("readBool", "readBinary", "readI16", "readI64"));
                     if (readTTypes != null) {
                         String tTypeCommonInterceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor";
+                        InterceptorScope thriftServerScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_SERVER_SCOPE);
                         for (InstrumentMethod readTType : readTTypes) {
                             if (readTType != null) {
-                                readTType.addInterceptor(tTypeCommonInterceptor);
+                                readTType.addScopedInterceptor(tTypeCommonInterceptor, thriftServerScope, ExecutionPolicy.INTERNAL);
                             }
                         }
                     }
@@ -466,7 +477,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                     final InstrumentMethod readMessageEnd = target.getDeclaredMethod("readMessageEnd");
                     if (readMessageEnd != null) {
                         String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor";
-                        readMessageEnd.addInterceptor(interceptor);
+                        InterceptorScope thriftServerScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_SERVER_SCOPE);
+                        readMessageEnd.addScopedInterceptor(interceptor, thriftServerScope, ExecutionPolicy.INTERNAL);
                     }
 
                     // for async processors
@@ -475,13 +487,28 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                     final InstrumentMethod readMessageBegin = target.getDeclaredMethod("readMessageBegin");
                     if (readMessageBegin != null) {
                         String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageBeginInterceptor";
-                        readMessageBegin.addInterceptor(interceptor);
+                        InterceptorScope thriftServerScope = instrumentor.getInterceptorScope(ThriftScope.THRIFT_SERVER_SCOPE);
+                        readMessageBegin.addScopedInterceptor(interceptor, thriftServerScope, ExecutionPolicy.INTERNAL);
                     }
                 }
 
                 return target.toBytecode();
             }
 
+        });
+    }
+
+    private void addTProtocolDecoratorEditor() {
+        transformTemplate.transform("org.apache.thrift.protocol.TProtocolDecorator", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                target.addGetter(ThriftConstants.FIELD_GETTER_T_PROTOCOL, "concreteProtocol");
+                return target.toBytecode();
+            }
         });
     }
 

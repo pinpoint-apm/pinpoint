@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
@@ -103,7 +104,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
         }
 
         @Override
-        public void receive(T packet) {
+        public void receive(DatagramSocket localSocket, T packet) {
             if (isIgnoreAddress(packet.getAddress())) {
                 return;
             }
@@ -114,7 +115,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
             
             try {
                 tBase = deserializer.deserialize(packet.getData());
-                if (filter.filter(tBase, socketAddress) == TBaseFilter.BREAK) {
+                if (filter.filter(localSocket, tBase, socketAddress) == TBaseFilter.BREAK) {
                     return;
                 }
                 // dispatch signifies business logic execution

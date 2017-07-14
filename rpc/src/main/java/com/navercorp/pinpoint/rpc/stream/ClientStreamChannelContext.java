@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,8 +31,8 @@ public class ClientStreamChannelContext extends StreamChannelContext {
     private final AtomicReference<StreamCreateFailPacket> createFailPacketReference;
 
     public ClientStreamChannelContext(ClientStreamChannel clientStreamChannel, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-        AssertUtils.assertNotNull(clientStreamChannel);
-        AssertUtils.assertNotNull(clientStreamChannelMessageListener);
+        Assert.requireNonNull(clientStreamChannel, "clientStreamChannel must not be null");
+        Assert.requireNonNull(clientStreamChannelMessageListener, "clientStreamChannelMessageListener must not be null");
 
         this.clientStreamChannel = clientStreamChannel;
         this.clientStreamChannelMessageListener = clientStreamChannelMessageListener;

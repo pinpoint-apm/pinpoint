@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.regex.Pattern;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.TServiceClient;
@@ -110,7 +111,7 @@ public class ThriftUtils {
         }
         if (socketAddress instanceof InetSocketAddress) {
             InetSocketAddress addr = (InetSocketAddress)socketAddress;
-            return addr.getAddress().getHostAddress() + ":" + addr.getPort();
+            return HostAndPort.toHostAndPortString(addr.getAddress().getHostAddress(), addr.getPort());
         }
         return getSocketAddress(socketAddress);
     }
@@ -118,7 +119,7 @@ public class ThriftUtils {
     /**
      * Returns the hostname information retrieved from the given {@link SocketAddress}.
      * 
-     * @param inetSocketAddress the <tt>InetSocketAddress</tt> instance to retrieve the host information from
+     * @param socketAddress the <tt>SocketAddress</tt> instance to retrieve the host information from
      * @return the host retrieved from the given <tt>socketAddress</tt>,
      *      or {@literal ThriftConstants.UNKNOWN_ADDRESS} if it cannot be retrieved
      */
@@ -137,7 +138,7 @@ public class ThriftUtils {
     /**
      * Returns the hostname and port information retrieved from the given {@link SocketAddress}.
      * 
-     * @param inetSocketAddress the <tt>InetSocketAddress</tt> instance to retrieve the host/port information from
+     * @param socketAddress the <tt>SocketAddress</tt> instance to retrieve the host/port information from
      * @return the host/port retrieved from the given <tt>socketAddress</tt>,
      *      or {@literal ThriftConstants.UNKNOWN_ADDRESS} if it cannot be retrieved
      */
@@ -148,7 +149,7 @@ public class ThriftUtils {
         }
         if (socketAddress instanceof InetSocketAddress) {
             InetSocketAddress addr = (InetSocketAddress)socketAddress;
-            return addr.getHostName() + ":" + addr.getPort();
+            return HostAndPort.toHostAndPortString(addr.getHostName(), addr.getPort());
         }
         return getSocketAddress(socketAddress);
     }

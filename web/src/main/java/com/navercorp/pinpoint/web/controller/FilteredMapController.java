@@ -16,6 +16,17 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -28,16 +39,6 @@ import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
 
 /**
  *
@@ -79,9 +80,10 @@ public class FilteredMapController {
                                             @RequestParam("originTo") long originTo,
                                             @RequestParam(value = "filter", required = false) String filterText,
                                             @RequestParam(value = "hint", required = false) String filterHint,
-                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
+                                            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
         String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapData(applicationName, serviceTypeName, from, to, originTo, filterText, filterHint, limit);
+        return getFilteredServerMapData(applicationName, serviceTypeName, from, to, originTo, filterText, filterHint, limit, viewVersion);
     }
 
     /**
@@ -105,7 +107,8 @@ public class FilteredMapController {
                                             @RequestParam("originTo") long originTo,
                                             @RequestParam(value = "filter", required = false) String filterText,
                                             @RequestParam(value = "hint", required = false) String filterHint,
-                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
+                                            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
         limit = LimitUtils.checkRange(limit);
         final Filter filter = filterBuilder.build(filterText, filterHint);
         final Range range = new Range(from, to);
@@ -117,7 +120,7 @@ public class FilteredMapController {
         // needed to figure out already scanned ranged
         final Range scannerRange = new Range(lastScanTime, to);
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        ApplicationMap map = filteredMapService.selectApplicationMap(limitedScanResult.getScanData(), originalRange, scannerRange, filter);
+        ApplicationMap map = filteredMapService.selectApplicationMap(limitedScanResult.getScanData(), originalRange, scannerRange, filter, viewVersion);
 
         if (logger.isDebugEnabled()) {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateUtils.longToDateStr(lastScanTime));
@@ -140,9 +143,10 @@ public class FilteredMapController {
             @RequestParam("yGroupUnit") int yGroupUnit,
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
+            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
         String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapDataMadeOfDotGroup(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit);
+        return getFilteredServerMapDataMadeOfDotGroup(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion);
     }
 
 
@@ -158,7 +162,14 @@ public class FilteredMapController {
             @RequestParam("yGroupUnit") int yGroupUnit,
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
+            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
+        if (xGroupUnit <= 0) {
+            throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
+        }
+        if (yGroupUnit <= 0) {
+            throw new IllegalArgumentException("yGroupUnit(" + yGroupUnit + ") must be positive number");
+        }
 
         limit = LimitUtils.checkRange(limit);
         final Filter filter = filterBuilder.build(filterText, filterHint);
@@ -171,7 +182,7 @@ public class FilteredMapController {
         // needed to figure out already scanned ranged
         final Range scannerRange = new Range(lastScanTime, to);
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(limitedScanResult.getScanData(), originalRange, scannerRange, xGroupUnit, yGroupUnit, filter);
+        ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(limitedScanResult.getScanData(), originalRange, scannerRange, xGroupUnit, yGroupUnit, filter, viewVersion);
 
         if (logger.isDebugEnabled()) {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateUtils.longToDateStr(lastScanTime));
@@ -200,9 +211,10 @@ public class FilteredMapController {
             @RequestParam("period") long period,
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+            @RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit,
+            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
         String serviceTypeName = this.registry.findServiceType(serviceTypeCode).getName();
-        return getLastFilteredServerMapData(applicationName, serviceTypeName, period, filterText, filterHint, limit);
+        return getLastFilteredServerMapData(applicationName, serviceTypeName, period, filterText, filterHint, limit, viewVersion);
     }
 
     /**
@@ -223,14 +235,15 @@ public class FilteredMapController {
             @RequestParam("period") long period,
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+            @RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit,
+            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
         limit = LimitUtils.checkRange(limit);
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
     // TODO: since realtime query is enabled for now, calling parameters are fixed as "..., to, to, ..."
     // may need additional @RequestParam("originTo")
-        return getFilteredServerMapData(applicationName, serviceTypeName, from, to, to, filterText, filterHint, limit);
+        return getFilteredServerMapData(applicationName, serviceTypeName, from, to, to, filterText, filterHint, limit, viewVersion);
     }
 
 

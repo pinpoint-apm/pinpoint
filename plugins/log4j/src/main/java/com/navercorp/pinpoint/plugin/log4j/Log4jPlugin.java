@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,9 @@
 package com.navercorp.pinpoint.plugin.log4j;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 /**
  * This modifier support log4j 1.2.15 version, or greater.
@@ -41,10 +41,13 @@ public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private TransformTemplate transformTemplate;
     
-    
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        Log4jConfig config = new Log4jConfig(context.getConfig());
+        final Log4jConfig config = new Log4jConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("Log4jPlugin config:{}", config);
+        }
         
         if (!config.isLog4jLoggingTransactionInfo()) {
             logger.info("Log4j plugin is not executed because log4j transform enable config value is false.");
@@ -91,10 +94,21 @@ public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
                                 + "\nconstructor prototype : LoggingEvent(final String fqnOfCategoryClass, final Category logger, final long timeStamp, final Level level, final Object message, final String threadName, final ThrowableInformation throwable, final String ndc, final LocationInfo info, final java.util.Map properties);");
                     return null;
                 }
-                
-                target.addInterceptor("com.navercorp.pinpoint.plugin.log4j.interceptor.LoggingEventOfLog4jInterceptor");
-                
+
+                final String interceptorClassName = "com.navercorp.pinpoint.plugin.log4j.interceptor.LoggingEventOfLog4jInterceptor";
+                addInterceptor(target, new String[]{"java.lang.String", "org.apache.log4j.Category", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}, interceptorClassName);
+                addInterceptor(target, new String[]{"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}, interceptorClassName);
+                addInterceptor(target, new String[]{"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Level", "java.lang.Object", "java.lang.String", "org.apache.log4j.spi.ThrowableInformation", "java.lang.String", "org.apache.log4j.spi.LocationInfo", "java.util.Map"}, interceptorClassName);
+
                 return target.toBytecode();
+            }
+
+            private void addInterceptor(InstrumentClass target, String[] parameterTypes, String interceptorClassName) throws InstrumentException {
+                InstrumentMethod constructor = InstrumentUtils.findConstructor(target, parameterTypes);
+                if (constructor == null) {
+                    throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(parameterTypes));
+                }
+                constructor.addInterceptor(interceptorClassName);
             }
         });
     }

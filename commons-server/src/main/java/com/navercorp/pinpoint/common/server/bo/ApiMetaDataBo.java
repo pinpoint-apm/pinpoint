@@ -33,7 +33,7 @@ public class ApiMetaDataBo {
 
     private String apiInfo;
     private int lineNumber;
-    private int type;
+    private MethodTypeEnum methodTypeEnum = MethodTypeEnum.DEFAULT;
 
     public ApiMetaDataBo() {
     }
@@ -89,12 +89,15 @@ public class ApiMetaDataBo {
         this.lineNumber = lineNumber;
     }
     
-    public int getType() {
-        return type;
+    public MethodTypeEnum getMethodTypeEnum() {
+        return methodTypeEnum;
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void setMethodTypeEnum(MethodTypeEnum methodTypeEnum) {
+        if (methodTypeEnum == null) {
+            throw new NullPointerException("methodTypeEnum must not be null");
+        }
+        this.methodTypeEnum = methodTypeEnum;
     }
     
     public String getDescription() {

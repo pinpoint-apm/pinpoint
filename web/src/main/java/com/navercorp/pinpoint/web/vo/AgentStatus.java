@@ -98,6 +98,11 @@ public class AgentStatus {
 
     @Override
     public String toString() {
-        return "AgentStatus [agentId=" + agentId + ", eventTimestamp=" + eventTimestamp + ", state=" + state + "]";
+        final StringBuilder sb = new StringBuilder("AgentStatus{");
+        sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", eventTimestamp=").append(eventTimestamp);
+        sb.append(", state=").append(state);
+        sb.append('}');
+        return sb.toString();
     }
 }

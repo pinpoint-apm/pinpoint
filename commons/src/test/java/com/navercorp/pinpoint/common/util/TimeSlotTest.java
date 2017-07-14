@@ -39,8 +39,8 @@ public class TimeSlotTest {
         long currentTime = System.currentTimeMillis();
         long timeSlot = this.timeSlot.getTimeSlot(currentTime);
 
-        logger.info("{} currentTime ", currentTime);
-        logger.info("{} timeSlot", timeSlot);
+        logger.debug("{} currentTime ", currentTime);
+        logger.debug("{} timeSlot", timeSlot);
         Assert.assertTrue(currentTime >= timeSlot);
      }
 
@@ -49,8 +49,8 @@ public class TimeSlotTest {
         int slotTest = 60 * 1000;
         long timeSlot = this.timeSlot.getTimeSlot(slotTest);
 
-        logger.info("{} slotTest ", slotTest);
-        logger.info("{} timeSlot", timeSlot);
+        logger.debug("{} slotTest ", slotTest);
+        logger.debug("{} timeSlot", timeSlot);
         Assert.assertEquals(slotTest, timeSlot);
     }
 
@@ -60,8 +60,8 @@ public class TimeSlotTest {
         int slotTest = sourceTest + 1;
         long timeSlot = this.timeSlot.getTimeSlot(slotTest);
 
-        logger.info("{} slotTest ", slotTest);
-        logger.info("{} timeSlot", timeSlot);
+        logger.debug("{} slotTest ", slotTest);
+        logger.debug("{} timeSlot", timeSlot);
         Assert.assertEquals(sourceTest, timeSlot);
     }
 }

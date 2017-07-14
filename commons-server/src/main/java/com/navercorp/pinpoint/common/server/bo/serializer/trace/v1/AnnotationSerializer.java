@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
+import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -23,6 +24,8 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.TRACES_CF_ANNOTATI
 @Component
 public class AnnotationSerializer implements HbaseSerializer<SpanBo, Put> {
 
+    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
+    public static final byte VERSION = 0;
 
     @Override
     public void serialize(SpanBo spanBo, Put put, SerializationContext context) {
@@ -63,12 +66,16 @@ public class AnnotationSerializer implements HbaseSerializer<SpanBo, Put> {
 
     // for test
     public void writeAnnotation(AnnotationBo annotationBo, Buffer puffer) {
-        // int key;           // required 4
-        // int valueTypeCode; // required 4
-        // ByteBuffer value;  // optional 4 + buf.length
-        puffer.putByte(annotationBo.getRawVersion());
+
+        puffer.putByte(VERSION);
         puffer.putSVInt(annotationBo.getKey());
-        puffer.putByte(annotationBo.getRawValueType());
-        puffer.putPrefixedBytes(annotationBo.getByteValue());
+
+        Object value = annotationBo.getValue();
+
+        byte typeCode = transcoder.getTypeCode(value);
+        byte[] bytes = transcoder.encode(value, typeCode);
+
+        puffer.putByte(typeCode);
+        puffer.putPrefixedBytes(bytes);
     }
 }

@@ -19,14 +19,11 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.redis.CommandContext;
-import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
 /**
  * RedisConnection(nBase-ARC client) constructor interceptor - trace endPoint
@@ -34,7 +31,6 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  * @author jaehong.kim
  *
  */
-@Scope(value = RedisConstants.REDIS_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -63,14 +59,17 @@ public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterc
 
         try {
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof CommandContext) {
-                final CommandContext commandContext = (CommandContext) invocation.getAttachment();
+            final Object attachment = getAttachment(invocation);
+            if (attachment instanceof CommandContext) {
+                final CommandContext commandContext = (CommandContext) attachment;
                 if (methodDescriptor.getMethodName().equals("sendCommand")) {
                     commandContext.setWriteBeginTime(System.currentTimeMillis());
                 } else {
                     commandContext.setReadBeginTime(System.currentTimeMillis());
                 }
-                logger.debug("Set command context {}", commandContext);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Set command context {}", commandContext);
+                }
             }
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
@@ -90,8 +89,9 @@ public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterc
 
         try {
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof CommandContext) {
-                final CommandContext commandContext = (CommandContext) invocation.getAttachment();
+            final Object attachment = getAttachment(invocation);
+            if (attachment instanceof CommandContext) {
+                final CommandContext commandContext = (CommandContext) attachment;
                 if (methodDescriptor.getMethodName().equals("sendCommand")) {
                     commandContext.setWriteEndTime(System.currentTimeMillis());
                     commandContext.setWriteFail(throwable != null);
@@ -99,10 +99,20 @@ public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterc
                     commandContext.setReadEndTime(System.currentTimeMillis());
                     commandContext.setReadFail(throwable != null);
                 }
-                logger.debug("Set command context {}", commandContext);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Set command context {}", commandContext);
+                }
             }
         } catch (Throwable t) {
             logger.warn("Failed to AFTER process. {}", t.getMessage(), t);
         }
     }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
+    }
+
 }

@@ -1,5 +1,8 @@
 namespace java com.navercorp.pinpoint.thrift.dto
-
+// 1.6.x- : version = 0;
+// 1.7.x+ : version = 1;
+const i8 TRACE_V1 = 0;
+const i8 TRACE_V2 = 1;
 
 struct TIntStringValue {
      1: i32 intValue;
@@ -14,21 +17,21 @@ struct TIntStringStringValue {
 
 
 union TAnnotationValue {
-  1: string stringValue
-  2: bool boolValue;
-  3: i32 intValue;
-  4: i64 longValue;
-  5: i16 shortValue
-  6: double doubleValue;
-  7: binary binaryValue;
-  8: byte byteValue;
-  9: TIntStringValue intStringValue;
-  10: TIntStringStringValue intStringStringValue;
+    1: string stringValue
+    2: bool boolValue;
+    3: i32 intValue;
+    4: i64 longValue;
+    5: i16 shortValue
+    6: double doubleValue;
+    7: binary binaryValue;
+    8: i8 byteValue;
+    9: TIntStringValue intStringValue;
+    10: TIntStringStringValue intStringStringValue;
 }
 
 struct TAnnotation {
-  1: i32 key,
-  2: optional TAnnotationValue value
+    1: i32 key,
+    2: optional TAnnotationValue value
 }
 
 
@@ -36,94 +39,106 @@ struct TAnnotation {
 
 struct TSpanEvent {
 
-  7: optional i64 spanId
-  8: i16 sequence
+    7: optional i64 spanId
+    8: i16 sequence
 
-  9: i32 startElapsed
-  10: optional i32 endElapsed = 0
+    // 1.6.x- : delta of the span startTime
+    // 1.7.0+: delta of startTime of previous SpanEvent
+    //         If SpanEvent is the first SpanEvent, startElapsed is span startTime
+    9: i32 startElapsed = 0;
 
-  11: optional string rpc
-  12: i16 serviceType
-  13: optional string endPoint
+    10: optional i32 endElapsed = 0
 
-  14: optional list<TAnnotation> annotations
+    11: optional string rpc
+    12: i16 serviceType
+    13: optional string endPoint
 
-  15: optional i32 depth = -1
-  16: optional i64 nextSpanId = -1
+    14: optional list<TAnnotation> annotations
 
-  20: optional string destinationId
+    15: optional i32 depth = -1
+    16: optional i64 nextSpanId = -1
 
-  25: optional i32 apiId;
-  26: optional TIntStringValue exceptionInfo;
-  
-  30: optional i32 asyncId;
-  31: optional i32 nextAsyncId;
-  32: optional i16 asyncSequence;
+    20: optional string destinationId
+
+    25: optional i32 apiId;
+    26: optional TIntStringValue exceptionInfo;
+
+    30: optional i32 asyncId;
+    31: optional i32 nextAsyncId;
+    32: optional i16 asyncSequence;
 }
 
 struct TSpan {
 
-  1: string agentId
-  2: string applicationName
-  3: i64 agentStartTime
+    1: string agentId
+    2: string applicationName
+    3: i64 agentStartTime
 
-  // identical to agentId if null
-  //4: optional string traceAgentId
-  //5: i64 traceAgentStartTime;
-  //6: i64 traceTransactionSequence;
-  4: binary  transactionId;
+    // identical to agentId if null
+    //4: optional string traceAgentId
+    //5: i64 traceAgentStartTime;
+    //6: i64 traceTransactionSequence;
+    4: binary  transactionId;
 
-  7: i64 spanId
-  8: optional i64 parentSpanId = -1
+    7: i64 spanId
+    8: optional i64 parentSpanId = -1
 
-  // span event's startTimestamp
-  9: i64 startTime
-  10: optional i32 elapsed = 0
+    // span event's startTimestamp
+    9: i64 startTime
+    10: optional i32 elapsed = 0
 
-  11: optional string rpc
+    11: optional string rpc
 
-  12: i16 serviceType
-  13: optional string endPoint
-  14: optional string remoteAddr
+    12: i16 serviceType
+    13: optional string endPoint
+    14: optional string remoteAddr
 
-  15: optional list<TAnnotation> annotations
-  16: optional i16 flag = 0
+    15: optional list<TAnnotation> annotations
+    16: optional i16 flag = 0
 
-  17: optional i32 err
+    17: optional i32 err
 
-  18: optional list<TSpanEvent> spanEventList
+    18: optional list<TSpanEvent> spanEventList
 
-  19: optional string parentApplicationName
-  20: optional i16 parentApplicationType
-  21: optional string acceptorHost
+    19: optional string parentApplicationName
+    20: optional i16 parentApplicationType
+    21: optional string acceptorHost
 
-  25: optional i32 apiId;
-  26: optional TIntStringValue exceptionInfo;
+    25: optional i32 apiId;
+    26: optional TIntStringValue exceptionInfo;
   
-  30: optional i16 applicationServiceType;
-  31: optional byte loggingTransactionInfo;
+    30: optional i16 applicationServiceType;
+    31: optional i8 loggingTransactionInfo;
+
+    32: optional i8 version = TRACE_V2;
 }
 
 struct TSpanChunk {
-  1: string agentId
-  2: string applicationName
-  3: i64 agentStartTime
+    1: string agentId
+    2: string applicationName
+    3: i64 agentStartTime
 
-  4: i16 serviceType
+    // @deprecate (1.7.0)
+    4: i16 serviceType ( deprecated )
 
-  // identical to agentId if null
-//  5: optional string traceAgentId
-//  6: i64 traceAgentStartTime;
-//  7: i64 traceTransactionSequence;
+    // identical to agentId if null
+    //5: optional string traceAgentId
+    //6: i64 traceAgentStartTime;
+    //7: i64 traceTransactionSequence;
     5: binary  transactionId;
 
-  8: i64 spanId
+    8: i64 spanId
 
-  9: optional string endPoint
+    9: optional string endPoint
 
-  10: list<TSpanEvent> spanEventList
+    10: list<TSpanEvent> spanEventList
   
-  11: optional i16 applicationServiceType
+    11: optional i16 applicationServiceType
+
+    // @since 1.7.0 time for data compression
+    12: optional i64 keyTime;
+
+    13: optional i8 version = TRACE_V2;
 }
 
 
@@ -147,17 +162,17 @@ struct TSqlMetaData {
 
 
 struct TApiMetaData {
-  1: string agentId
-  2: i64 agentStartTime
+    1: string agentId
+    2: i64 agentStartTime
 
-  4: i32 apiId,
-  5: string apiInfo,
-  6: optional i32 line,
+    4: i32 apiId,
+    5: string apiInfo,
+    6: optional i32 line,
   
-  10: optional i32 type;
+    10: optional i32 type;
 }
 
 struct TResult {
-  1: bool success
-  2: optional string message
+    1: bool success
+    2: optional string message
 }

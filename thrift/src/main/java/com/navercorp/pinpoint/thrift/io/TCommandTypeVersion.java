@@ -53,7 +53,6 @@ public enum TCommandTypeVersion {
 
     V_1_5_0_SNAPSHOT("1.5.0-SNAPSHOT", V_1_1_1,
             TCommandType.ACTIVE_THREAD_COUNT, TCommandType.ACTIVE_THREAD_COUNT_RESPONSE,
-            TCommandType.ACTIVE_THREAD_DUMP, TCommandType.ACTIVE_THREAD_DUMP_RESPONSE,
             TCommandType.TRANSFER_RESPONSE),
     V_1_5_0("1.5.0", V_1_5_0_SNAPSHOT),
 
@@ -68,6 +67,14 @@ public enum TCommandTypeVersion {
     V_1_5_3_SNAPSHOT("1.5.3-SNAPSHOT", V_1_5_2),
 
     V_1_6_0_SNAPSHOT("1.6.0-SNAPSHOT", V_1_5_2),
+
+    V_1_6_0_RC1("1.6.0-RC1", V_1_6_0_SNAPSHOT),
+
+    V_1_6_0_RC2("1.6.0-RC2", V_1_6_0_RC1),
+
+    V_1_6_0("1.6.0", V_1_6_0_RC2),
+
+    V_1_6_1_SNAPSHOT("1.6.1-SNAPSHOT", V_1_6_0),
 
     UNKNOWN("UNKNOWN");
 
@@ -122,7 +129,7 @@ public enum TCommandTypeVersion {
 
     public static TCommandTypeVersion getVersion(String version) {
         if (version == null) {
-            throw new NullPointerException("version may not be null.");
+            throw new NullPointerException("version must not be null.");
         }
 
         for (TCommandTypeVersion versionType : TCommandTypeVersion.values()) {

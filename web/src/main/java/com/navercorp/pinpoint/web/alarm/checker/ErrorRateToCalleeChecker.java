@@ -24,14 +24,14 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
-public class ErrorRateToCalleeChecker extends AlarmChecker {
+public class ErrorRateToCalleeChecker extends LongValueAlarmChecker {
 
     public ErrorRateToCalleeChecker(DataCollector dataCollector, Rule rule) {
         super(rule, "%", dataCollector);
     }
 
     @Override
-    protected long getDetectedValue() {
+    protected Long getDetectedValue() {
         String calleName = rule.getNotes();
         return ((MapStatisticsCallerDataCollector)dataCollector).getCountRate(calleName, DataCategory.ERROR_RATE);
     }
@@ -40,4 +40,5 @@ public class ErrorRateToCalleeChecker extends AlarmChecker {
     public String getEmailMessage() {
         return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s) %s For From '%s' To '%s'.<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit, rule.getCheckerName(), rule.getApplicationId(), rule.getNotes());
     }
+
 }

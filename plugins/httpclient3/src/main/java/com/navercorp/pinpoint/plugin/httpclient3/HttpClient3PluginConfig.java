@@ -81,7 +81,7 @@ public class HttpClient3PluginConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
+        final StringBuilder sb = new StringBuilder("HttpClient3PluginConfig{");
         sb.append("param=").append(param);
         sb.append(", cookie=").append(cookie);
         sb.append(", cookieDumpType=").append(cookieDumpType);

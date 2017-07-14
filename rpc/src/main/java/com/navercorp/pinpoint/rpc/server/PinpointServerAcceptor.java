@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -26,8 +27,7 @@ import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import com.navercorp.pinpoint.rpc.util.CpuUtils;
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -108,10 +108,10 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private ServerBootstrap createBootStrap(int bossCount, int workerCount) {
         // profiler, collector
-        ExecutorService boss = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Server-Boss"));
+        ExecutorService boss = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Server-Boss", true));
         NioServerBossPool nioServerBossPool = new NioServerBossPool(boss, bossCount, ThreadNameDeterminer.CURRENT);
 
-        ExecutorService worker = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Server-Worker"));
+        ExecutorService worker = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Server-Worker", true));
         NioWorkerPool nioWorkerPool = new NioWorkerPool(worker, workerCount, ThreadNameDeterminer.CURRENT);
 
         NioServerSocketChannelFactory nioClientSocketChannelFactory = new NioServerSocketChannelFactory(nioServerBossPool, nioWorkerPool);
@@ -192,7 +192,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setIgnoreAddressList(InetAddress[] ignoreAddressList) {
-        AssertUtils.assertNotNull(ignoreAddressList, "ignoreAddressList must not be null");
+        Assert.requireNonNull(ignoreAddressList, "ignoreAddressList must not be null");
 
         this.ignoreAddressList = ignoreAddressList;
     }
@@ -203,7 +203,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setMessageListener(ServerMessageListener messageListener) {
-        AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
+        Assert.requireNonNull(messageListener, "messageListener must not be null");
 
         this.messageListener = messageListener;
     }
@@ -214,7 +214,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void addStateChangeEventHandler(ServerStateChangeEventHandler stateChangeEventHandler) {
-        AssertUtils.assertNotNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
+        Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
 
         this.stateChangeEventHandler.add(stateChangeEventHandler);
     }
@@ -225,7 +225,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        AssertUtils.assertNotNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
+        Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
 
         this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
     }

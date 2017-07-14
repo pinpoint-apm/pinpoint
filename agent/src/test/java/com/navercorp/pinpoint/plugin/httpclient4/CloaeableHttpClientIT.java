@@ -1,5 +1,5 @@
-/**
-z * Copyright 2014 NAVER Corp.
+/*
+ * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.navercorp.pinpoint.plugin.WebServer;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
@@ -32,6 +33,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestExecutor;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,13 +47,30 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author jaehong.kim
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({ "org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.4],[4.4.1],[4.5]" })
+@Dependency({ "org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.4],[4.4.1],[4.5]", "org.nanohttpd:nanohttpd:2.3.1"})
 public class CloaeableHttpClientIT {
+
+    private static WebServer webServer;
+
+    @BeforeClass
+    public static void BeforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
+    }
+
+    @AfterClass
+    public static void AfterClass() throws Exception {
+        final WebServer copy = webServer;
+        if (copy != null) {
+            copy.stop();
+            webServer = null;
+        }
+    }
+
     @Test
     public void test() throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            HttpGet httpget = new HttpGet("http://www.naver.com");
+            HttpGet httpget = new HttpGet(webServer.getCallHttpUrl());
             CloseableHttpResponse response = httpclient.execute(httpget);
             try {
                 HttpEntity entity = response.getEntity();
@@ -75,8 +95,17 @@ public class CloaeableHttpClientIT {
         verifier.printCache();
         
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", CloseableHttpClient.class.getMethod("execute", HttpUriRequest.class)));
-        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", PoolingHttpClientConnectionManager.class.getMethod("connect", HttpClientConnection.class, HttpRoute.class, int.class, HttpContext.class), annotation("http.internal.display", "www.naver.com:80")));
-        verifier.verifyTrace(event("HTTP_CLIENT_4", HttpRequestExecutor.class.getMethod("execute", HttpRequest.class, HttpClientConnection.class, HttpContext.class), null, null, "www.naver.com", annotation("http.url", "/"), annotation("http.status.code", 200), annotation("http.io", anyAnnotationValue())));
+        final String display = webServer.getHostAndPort();
+        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", PoolingHttpClientConnectionManager.class.getMethod("connect", HttpClientConnection.class, HttpRoute.class, int.class, HttpContext.class),
+                annotation("http.internal.display", display)));
+
+        final String destinationId = webServer.getHostAndPort();
+        verifier.verifyTrace(event("HTTP_CLIENT_4",
+                HttpRequestExecutor.class.getMethod("execute", HttpRequest.class, HttpClientConnection.class, HttpContext.class), null, null, destinationId,
+                annotation("http.url", "/"),
+                annotation("http.status.code", 200),
+                annotation("http.io", anyAnnotationValue())));
+
         verifier.verifyTraceCount(0);
     }
 }

@@ -33,7 +33,7 @@ public interface MapService {
      * @param range
      * @return
      */
-    ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption);
+    ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption, boolean includeHistograms);
 
     ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range);
 

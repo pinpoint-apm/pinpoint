@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.server.bo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
 
 /**
  * @author emeroad
@@ -34,9 +34,8 @@ public class SpanBo implements Event, BasicSpan {
     private String applicationId;
     private long agentStartTime;
 
-    private String traceAgentId;
-    private long traceAgentStartTime;
-    private long traceTransactionSequence;
+    private TransactionId transactionId;
+
     private long spanId;
     private long parentSpanId;
 
@@ -51,11 +50,11 @@ public class SpanBo implements Event, BasicSpan {
     private String endPoint;
     private int apiId;
 
-    private List<AnnotationBo> annotationBoList = new ArrayList<>();
+    private List<AnnotationBo> annotationBoList = new ArrayList<AnnotationBo>();
     private short flag; // optional
     private int errCode;
 
-    private List<SpanEventBo> spanEventBoList = new ArrayList<>();
+    private List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
 
     private long collectorAcceptTime;
 
@@ -94,8 +93,12 @@ public class SpanBo implements Event, BasicSpan {
         this.version = (byte) (version & 0xFF);
     }
 
-    public String getTransactionId() {
-        return TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionSequence);
+    public TransactionId getTransactionId() {
+        return this.transactionId;
+    }
+
+    public void setTransactionId(TransactionId transactionId) {
+        this.transactionId = transactionId;
     }
     
     public String getAgentId() {
@@ -140,32 +143,6 @@ public class SpanBo implements Event, BasicSpan {
     }
 
 
-    public String getTraceAgentId() {
-        return traceAgentId;
-    }
-
-    public void setTraceAgentId(String traceAgentId) {
-        this.traceAgentId = traceAgentId;
-    }
-
-    public long getTraceAgentStartTime() {
-        return traceAgentStartTime;
-    }
-
-    public void setTraceAgentStartTime(long traceAgentStartTime) {
-        this.traceAgentStartTime = traceAgentStartTime;
-    }
-
-
-    public long getTraceTransactionSequence() {
-        return traceTransactionSequence;
-    }
-
-    public void setTraceTransactionSequence(long traceTransactionSequence) {
-        this.traceTransactionSequence = traceTransactionSequence;
-    }
-
-
     public String getRpc() {
         return rpc;
     }
@@ -177,11 +154,6 @@ public class SpanBo implements Event, BasicSpan {
 
     public long getSpanId() {
         return spanId;
-    }
-
-    @Deprecated
-    public void setSpanID(long spanId) {
-        this.setSpanId(spanId);
     }
 
     public void setSpanId(long spanId) {
@@ -370,35 +342,35 @@ public class SpanBo implements Event, BasicSpan {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(256);
-        sb.append("SpanBo{");
-        sb.append("version=").append(version);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", applicationId='").append(applicationId).append('\'');
-        sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", traceAgentId='").append(traceAgentId).append('\'');
-        sb.append(", traceAgentStartTime=").append(traceAgentStartTime);
-        sb.append(", traceTransactionSequence=").append(traceTransactionSequence);
-        sb.append(", spanId=").append(spanId);
-        sb.append(", parentSpanId=").append(parentSpanId);
-        sb.append(", startTime=").append(startTime);
-        sb.append(", elapsed=").append(elapsed);
-        sb.append(", rpc='").append(rpc).append('\'');
-        sb.append(", serviceType=").append(serviceType);
-        sb.append(", acceptorHost=").append(acceptorHost);
-        sb.append(", endPoint='").append(endPoint).append('\'');
-        sb.append(", apiId=").append(apiId);
-        sb.append(", annotationBoList=").append(annotationBoList);
-        sb.append(", flag=").append(flag);
-        sb.append(", errCode=").append(errCode);
-        sb.append(", spanEventBoList=").append(spanEventBoList);
-        sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
-        sb.append(", hasException=").append(hasException);
-        sb.append(", exceptionId=").append(exceptionId);
-        sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
-        sb.append(", remoteAddr='").append(remoteAddr).append('\'');
-        sb.append(", applicationServiceType=").append(applicationServiceType);
-        sb.append('}');
-        return sb.toString();
+        return "SpanBo{" +
+                "version=" + version +
+                ", agentId='" + agentId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", agentStartTime=" + agentStartTime +
+                ", transactionId=" + transactionId +
+                ", spanId=" + spanId +
+                ", parentSpanId=" + parentSpanId +
+                ", parentApplicationId='" + parentApplicationId + '\'' +
+                ", parentApplicationServiceType=" + parentApplicationServiceType +
+                ", startTime=" + startTime +
+                ", elapsed=" + elapsed +
+                ", rpc='" + rpc + '\'' +
+                ", serviceType=" + serviceType +
+                ", endPoint='" + endPoint + '\'' +
+                ", apiId=" + apiId +
+                ", annotationBoList=" + annotationBoList +
+                ", flag=" + flag +
+                ", errCode=" + errCode +
+                ", spanEventBoList=" + spanEventBoList +
+                ", collectorAcceptTime=" + collectorAcceptTime +
+                ", hasException=" + hasException +
+                ", exceptionId=" + exceptionId +
+                ", exceptionMessage='" + exceptionMessage + '\'' +
+                ", exceptionClass='" + exceptionClass + '\'' +
+                ", applicationServiceType=" + applicationServiceType +
+                ", acceptorHost='" + acceptorHost + '\'' +
+                ", remoteAddr='" + remoteAddr + '\'' +
+                ", loggingTransactionInfo=" + loggingTransactionInfo +
+                '}';
     }
 }

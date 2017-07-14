@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc;
 
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public final class ClassPreLoader {
             serverAcceptor = new PinpointServerAcceptor();
             serverAcceptor.bind("127.0.0.1", port);
 
-            clientFactory = new PinpointClientFactory();
+            clientFactory = new DefaultPinpointClientFactory();
             client = clientFactory.connect("127.0.0.1", port);
             client.sendSync(new byte[0]);
 

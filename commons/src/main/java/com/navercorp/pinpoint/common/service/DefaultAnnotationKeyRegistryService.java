@@ -18,30 +18,36 @@ package com.navercorp.pinpoint.common.service;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyRegistry;
+import com.navercorp.pinpoint.common.util.logger.CommonLogger;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author emeroad
  */
 public class DefaultAnnotationKeyRegistryService implements AnnotationKeyRegistryService {
-    private final Logger logger = Logger.getLogger(DefaultServiceTypeRegistryService.class.getName());
+
+    private final CommonLogger logger;
 
     private final TraceMetadataLoaderService typeLoaderService;
     private final AnnotationKeyRegistry registry;
 
     public DefaultAnnotationKeyRegistryService() {
-        this(new DefaultTraceMetadataLoaderService());
+        this(new DefaultTraceMetadataLoaderService(), StdoutCommonLoggerFactory.INSTANCE);
     }
 
 
-    public DefaultAnnotationKeyRegistryService(TraceMetadataLoaderService typeLoaderService) {
+    public DefaultAnnotationKeyRegistryService(TraceMetadataLoaderService typeLoaderService, CommonLoggerFactory commonLogger) {
         if (typeLoaderService == null) {
             throw new NullPointerException("typeLoaderService must not be null");
         }
+        if (commonLogger == null) {
+            throw new NullPointerException("commonLogger must not be null");
+        }
+        this.logger = commonLogger.getLogger(DefaultAnnotationKeyRegistryService.class.getName());
         this.typeLoaderService = typeLoaderService;
         this.registry = buildAnnotationKeyRegistry();
     }
@@ -52,7 +58,7 @@ public class DefaultAnnotationKeyRegistryService implements AnnotationKeyRegistr
         StaticFieldLookUp<AnnotationKey> staticFieldLookUp = new StaticFieldLookUp<AnnotationKey>(AnnotationKey.class, AnnotationKey.class);
         List<AnnotationKey> lookup = staticFieldLookUp.lookup();
         for (AnnotationKey serviceType: lookup) {
-            if (logger.isLoggable(Level.INFO)) {
+            if (logger.isInfoEnabled()) {
                 logger.info("add Default AnnotationKey:" + serviceType);
             }
             builder.addAnnotationKey(serviceType);
@@ -60,7 +66,7 @@ public class DefaultAnnotationKeyRegistryService implements AnnotationKeyRegistr
 
         final List<AnnotationKey> types = typeLoaderService.getAnnotationKeys();
         for (AnnotationKey type : types) {
-            if (logger.isLoggable(Level.INFO)) {
+            if (logger.isInfoEnabled()) {
                 logger.info("add Plugin AnnotationKey:" + type);
             }
             builder.addAnnotationKey(type);

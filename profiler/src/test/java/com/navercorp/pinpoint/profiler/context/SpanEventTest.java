@@ -16,38 +16,46 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressorV1;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author emeroad
  */
 public class SpanEventTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    private final SpanEventCompressor<Long> compressorV1 = new SpanEventCompressorV1();
     @Test
     public void testMarkStartTime() throws Exception {
-        final DefaultTraceId traceId = new DefaultTraceId("agentTime", 0, 0);
-        Span span = new Span();
+        final DefaultTraceId traceId = new DefaultTraceId("agentId", 0, 0);
+        TraceRoot traceRoot = new DefaultTraceRoot(traceId, "agentId", System.currentTimeMillis(),0);
+
+        Span span = new Span(traceRoot);
         span.setAgentId("agentId");
-        span.recordTraceId(traceId);
         span.markBeforeTime();
         Thread.sleep(10);
         span.markAfterTime();
         logger.debug("span:{}", span);
 
-        final SpanEvent spanEvent = new SpanEvent(span);
+        final SpanEvent spanEvent = new SpanEvent(traceRoot);
         spanEvent.markStartTime();
         Thread.sleep(10);
         spanEvent.markAfterTime();
         logger.debug("spanEvent:{}", spanEvent);
+
+        compressorV1.compress(Collections.singletonList(spanEvent), span.getStartTime());
 
         Assert.assertEquals("startTime", span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getStartTime());
         Assert.assertEquals("endTime", span.getStartTime() + spanEvent.getStartElapsed() + spanEvent.getEndElapsed(), spanEvent.getAfterTime());

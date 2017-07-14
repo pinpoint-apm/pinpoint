@@ -39,7 +39,7 @@ public class HttpClient4PluginConfig {
     private boolean io;
 
     public HttpClient4PluginConfig(ProfilerConfig src) {
-        /**
+        /*
          * apache http client 4
          */
         this.param = src.readBoolean("profiler.apache.httpclient4.param", true);
@@ -93,7 +93,7 @@ public class HttpClient4PluginConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
+        final StringBuilder sb = new StringBuilder("HttpClient4PluginConfig{");
         sb.append("param=").append(param);
         sb.append(", cookie=").append(cookie);
         sb.append(", cookieDumpType=").append(cookieDumpType);

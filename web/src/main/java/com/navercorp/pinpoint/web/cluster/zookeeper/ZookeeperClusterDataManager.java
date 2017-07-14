@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
 import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.jboss.netty.util.HashedWheelTimer;
@@ -44,14 +43,11 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author koo.taejin
  */
-public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher {
-
-    static final long DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED = 30000;
+public class ZookeeperClusterDataManager implements ClusterDataManager, ZookeeperEventWatcher {
 
     private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
-    private static final String PINPOINT_WEB_CLUSTER_PATh = PINPOINT_CLUSTER_PATH + "/web";
+    private static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";
     private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
-
     private static final long SYNC_INTERVAL_TIME_MILLIS = 15 * 1000;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -83,7 +79,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
     @Override
     public void start() throws Exception {
         this.timer = createTimer();
-        this.client = new ZookeeperClient(connectAddress, sessionTimeout, this, DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+        this.client = new ZookeeperClient(connectAddress, sessionTimeout, this, ZookeeperClient.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
         this.client.connect();
     }
 
@@ -102,7 +98,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
     // not too much overhead, just logging
     @Override
     public boolean registerWebCluster(String zNodeName, byte[] contents) {
-        String zNodePath = clusterDataManagerHelper.bindingPathAndZNode(PINPOINT_WEB_CLUSTER_PATh, zNodeName);
+        String zNodePath = clusterDataManagerHelper.bindingPathAndZNode(PINPOINT_WEB_CLUSTER_PATH, zNodeName);
 
         logger.info("registerWebCluster() started. create UniqPath={}.", zNodePath);
 
@@ -118,7 +114,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
             return true;
         }
 
-        if (!clusterDataManagerHelper.pushWebClusterResource(client, job)) {
+        if (!clusterDataManagerHelper.pushZnode(client, job)) {
             timer.newTimeout(job, job.getRetryInterval(), TimeUnit.MILLISECONDS);
         }
 
@@ -175,7 +171,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
         if (changed) {
             PushWebClusterJob job = this.job.get();
             if (job != null) {
-                if (!clusterDataManagerHelper.pushWebClusterResource(client, job)) {
+                if (!clusterDataManagerHelper.pushZnode(client, job)) {
                     timer.newTimeout(job, job.getRetryInterval(), TimeUnit.MILLISECONDS);
                     result = false;
                 }
@@ -244,6 +240,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
         return timer;
     }
 
+    @Override
     public boolean isConnected() {
         return connected.get();
     }
@@ -287,7 +284,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
         }
     }
 
-    class PushWebClusterJob implements TimerTask {
+    class PushWebClusterJob implements PushZnodeJob {
         private final String zNodeName;
         private final byte[] contents;
         private final int retryInterval;
@@ -306,19 +303,22 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
                 return;
             }
 
-            if (!clusterDataManagerHelper.pushWebClusterResource(client, this)) {
+            if (!clusterDataManagerHelper.pushZnode(client, this)) {
                 timer.newTimeout(this, getRetryInterval(), TimeUnit.MILLISECONDS);
             }
         }
 
+        @Override
         public String getZNodePath() {
             return zNodeName;
         }
 
+        @Override
         public byte[] getContents() {
             return contents;
         }
 
+        @Override
         public int getRetryInterval() {
             return retryInterval;
         }

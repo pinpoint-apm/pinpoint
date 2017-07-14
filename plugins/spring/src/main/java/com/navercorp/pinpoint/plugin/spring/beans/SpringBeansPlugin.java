@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -32,13 +34,13 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
 public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware {
-
     public static final String SPRING_BEANS_MARK_ERROR = "profiler.spring.beans.mark.error";
     public static final String ENABLE = "profiler.spring.beans";
 
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private TransformTemplate transformTemplate;
 
     @Override
@@ -48,7 +50,19 @@ public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware
             return;
         }
 
-        addAbstractAutowireCapableBeanFactoryTransformer(context);
+        final SpringBeansConfig config = new SpringBeansConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("SpringBeans targets=" + config.getTargets());
+        }
+
+        if (config.hasTarget(SpringBeansTargetScope.COMPONENT_SCAN)) {
+            // since spring-context 2.5
+            addClassPathDefinitionScannerTransformer(context);
+        }
+
+        if (config.hasTarget(SpringBeansTargetScope.POST_PROCESSOR)) {
+            addAbstractAutowireCapableBeanFactoryTransformer(context);
+        }
     }
 
     private void addAbstractAutowireCapableBeanFactoryTransformer(final ProfilerPluginSetupContext context) {
@@ -73,7 +87,27 @@ public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware
                 return target.toBytecode();
             }
         });
+    }
 
+    private void addClassPathDefinitionScannerTransformer(final ProfilerPluginSetupContext context) {
+        final ProfilerConfig config = context.getConfig();
+        final boolean errorMark = config.readBoolean(SPRING_BEANS_MARK_ERROR, false);
+
+        transformTemplate.transform("org.springframework.context.annotation.ClassPathBeanDefinitionScanner", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                final BeanMethodTransformer beanTransformer = new BeanMethodTransformer(errorMark);
+                final ObjectFactory beanFilterFactory = ObjectFactory.byStaticFactory("com.navercorp.pinpoint.plugin.spring.beans.interceptor.TargetBeanFilter", "of", context.getConfig());
+
+                final InstrumentMethod method = target.getDeclaredMethod("doScan", "java.lang.String[]");
+                method.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.ClassPathDefinitionScannerDoScanInterceptor", va(loader, beanTransformer, beanFilterFactory));
+
+                return target.toBytecode();
+            }
+        });
     }
 
     @Override

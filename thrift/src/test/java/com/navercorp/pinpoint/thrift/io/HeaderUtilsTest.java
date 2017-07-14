@@ -22,9 +22,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.thrift.io.Header;
-import com.navercorp.pinpoint.thrift.io.HeaderUtils;
-
 /**
  * @author emeroad
  */
@@ -42,7 +39,7 @@ public class HeaderUtilsTest {
         Assert.assertTrue(HeaderUtils.validateSignature(error.getSignature()) != HeaderUtils.OK);
 
 
-        logger.info(header.toString());
+        logger.debug(header.toString());
     }
 
 }

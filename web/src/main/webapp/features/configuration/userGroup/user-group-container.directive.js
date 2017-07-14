@@ -1,8 +1,8 @@
 (function( $ ) {
 	"use strict";
 
-	pinpointApp.directive( "userGroupContainerDirective", [ "globalConfig",
-		function ( globalConfig ) {
+	pinpointApp.directive( "userGroupContainerDirective", [ "SystemConfigurationService",
+		function ( SystemConfigService ) {
 			return {
 				restrict: "EA",
 				replace: true,
@@ -15,7 +15,7 @@
 					scope.$on( "configuration.selectMenu", function( event, selectedName ) {
 						if ( myName === selectedName ) {
 							scope.$broadcast( "configuration.userGroup.show" );
-							scope.$broadcast( "pinpointUser.load", globalConfig.userDepartment );
+							scope.$broadcast( "pinpointUser.load", SystemConfigService.get("userDepartment") );
 							$element.show();
 						} else {
 							$element.hide();

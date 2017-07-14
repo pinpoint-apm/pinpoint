@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -32,7 +34,11 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.*;
-import com.navercorp.pinpoint.rpc.util.*;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
+import com.navercorp.pinpoint.rpc.util.IDGenerator;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -159,7 +165,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public void send(byte[] payload) {
-        AssertUtils.assertNotNull(payload, "payload may not be null.");
+        Assert.requireNonNull(payload, "payload must not be null.");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Send fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -170,7 +176,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public Future<ResponseMessage> request(byte[] payload) {
-        AssertUtils.assertNotNull(payload, "payload may not be null.");
+        Assert.requireNonNull(payload, "payload must not be null.");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Request fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -188,7 +194,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public void response(int requestId, byte[] payload) {
-        AssertUtils.assertNotNull(payload, "payload may not be null.");
+        Assert.requireNonNull(payload, "payload must not be null.");
         if (!isEnableCommunication()) {
             throw new IllegalStateException("Response fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -396,7 +402,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private List<Role> getRoles(List roleNames) {
         List<Role> roles = new ArrayList<Role>();
         for (Object roleName : roleNames) {
-            if (roleName instanceof String && !StringUtils.isEmpty((String) roleName)) {
+            if (roleName instanceof String && StringUtils.hasLength((String) roleName)) {
                 roles.add(Role.getValue((String) roleName));
             }
         }

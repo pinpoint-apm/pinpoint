@@ -30,6 +30,7 @@ import java.util.Map;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 public class ActiveTraceHistogramBo {
 
     private final byte version;

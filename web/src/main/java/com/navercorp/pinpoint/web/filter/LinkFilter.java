@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.agent.*;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  *
@@ -61,18 +63,28 @@ public class LinkFilter implements Filter {
 
     private final List<RpcHint> rpcHintList;
 
-    private final URLPatternFilter acceptURLFilter;
-
     private final ServiceTypeRegistryService serviceTypeRegistryService;
+    private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    public LinkFilter(FilterDescriptor filterDescriptor, FilterHint filterHint, ServiceTypeRegistryService serviceTypeRegistryService) {
+    private final URLPatternFilter acceptURLFilter;
+    private final URLPatternFilter rpcUrlFilter;
+
+    public LinkFilter(FilterDescriptor filterDescriptor, FilterHint filterHint, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
         if (filterDescriptor == null) {
             throw new NullPointerException("filter descriptor must not be null");
         }
         if (filterHint == null) {
             throw new NullPointerException("filterHint must not be null");
         }
+        if (serviceTypeRegistryService == null) {
+            throw new NullPointerException("serviceTypeRegistryService must not be null");
+        }
+        if (annotationKeyRegistryService == null) {
+            throw new NullPointerException("annotationKeyRegistryService must not be null");
+        }
+
         this.serviceTypeRegistryService = serviceTypeRegistryService;
+        this.annotationKeyRegistryService = annotationKeyRegistryService;
 
         final String fromServiceType = filterDescriptor.getFromServiceType();
         this.fromServiceDescList = serviceTypeRegistryService.findDesc(fromServiceType);
@@ -110,18 +122,27 @@ public class LinkFilter implements Filter {
         this.filterType = getFilterType();
         logger.info("filterType:{}", filterType);
 
-        this.rpcHintList = this.filterHint.getRpcHintList(fromApplicationName);
+        this.rpcHintList = this.filterHint.getRpcHintList(toApplicationName);
+
         // TODO fix : fromSpan base rpccall filter
-        this.acceptURLFilter = cratePatternFilter(filterDescriptor);
+        this.acceptURLFilter = createAcceptUrlFilter(filterDescriptor);
+        this.rpcUrlFilter = createRpcUrlFilter(filterDescriptor);
         logger.info("acceptURLFilter:{}", acceptURLFilter);
     }
 
-    private URLPatternFilter cratePatternFilter(FilterDescriptor filterDescriptor) {
-        if (filterDescriptor.getUrlPattern() == null) {
+    private URLPatternFilter createAcceptUrlFilter(FilterDescriptor filterDescriptor) {
+        if (StringUtils.isEmpty(filterDescriptor.getUrlPattern())) {
             return new BypassURLPatternFilter();
         }
         // TODO remove decode
         return new AcceptUrlFilter(filterDescriptor.getUrlPattern());
+    }
+
+    private URLPatternFilter createRpcUrlFilter(FilterDescriptor filterDescriptor) {
+        if (StringUtils.isEmpty(filterDescriptor.getUrlPattern())) {
+            return new BypassURLPatternFilter();
+        }
+        return new RpcURLPatternFilter(filterDescriptor.getUrlPattern(), serviceTypeRegistryService, annotationKeyRegistryService);
     }
 
     private ResponseTimeFilter createResponseTimeFilter(FilterDescriptor filterDescriptor) {
@@ -161,7 +182,7 @@ public class LinkFilter implements Filter {
         if (includeWas(fromServiceDescList) && includeWas(toServiceDescList)) {
             return FilterType.WAS_TO_WAS;
         }
-        if (includeServiceType(fromServiceDescList, ServiceType.USER) && includeWas(toServiceDescList)) {
+        if (includeUser(fromServiceDescList) && includeWas(toServiceDescList)) {
             return FilterType.USER_TO_WAS;
         }
         if (includeWas(fromServiceDescList) && includeUnknown(toServiceDescList)) {
@@ -259,10 +280,13 @@ public class LinkFilter implements Filter {
     }
 
     private boolean wasToUnknownFilter(List<SpanBo> transaction) {
-        /**
+        /*
          * WAS -> UNKNOWN
          */
         final List<SpanBo> fromNode = findFromNode(transaction);
+        if (!rpcUrlFilter.accept(fromNode)) {
+            return false;
+        }
         for (SpanBo span : fromNode) {
             final List<SpanEventBo> eventBoList = span.getSpanEventBoList();
             if (eventBoList == null) {
@@ -310,9 +334,9 @@ public class LinkFilter implements Filter {
      * WAS -> WAS
      */
     private boolean wasToWasFilter(List<SpanBo> transaction) {
-        /**
+        /*
          * WAS -> WAS
-         * if destination is a "WAS", the span of src and dest may exists. need to check if be circular or not.
+         * if destination is a "WAS", the span of src and dest may exist. need to check if be circular or not.
          * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
          */
 
@@ -336,9 +360,11 @@ public class LinkFilter implements Filter {
             return false;
         }
 
-        if (!rpcHintList.isEmpty()) {
+        // Check for url pattern should now be done on the caller side (from spans) as to spans are missing at this point
+        if (!rpcUrlFilter.accept(fromSpanList)) {
             return false;
         }
+
         // if agent filter is FromAgentFilter or AcceptAgentFilter(agent filter is not selected), url filtering is available.
         return fromBaseFilter(fromSpanList);
     }
@@ -372,26 +398,39 @@ public class LinkFilter implements Filter {
         // exceptional case
         // 1. remote call fail
         // 2. span packet lost.
+        if (rpcHintList.isEmpty()) {
+            // fast skip. There is nothing more we can do if rpcHintList is empty.
+            return false;
+        }
         for (SpanBo fromSpan : fromSpanList) {
             final List<SpanEventBo> eventBoList = fromSpan.getSpanEventBoList();
             if (eventBoList == null) {
                 continue;
             }
             for (SpanEventBo event : eventBoList) {
-                final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
-                if (!eventServiceType.isRpcClient() || !eventServiceType.isQueue()) {
-                    continue;
+                if (filterByRpcHints(rpcHintList, event)) {
+                    return true;
                 }
-                if (!eventServiceType.isRecordStatistics()) {
-                    continue;
-                }
-                // check rpc call fail
-                for (RpcHint rpcHint : rpcHintList) {
-                    for (RpcType rpcType : rpcHint.getRpcTypeList()) {
-                        if (rpcType.isMatched(event.getDestinationId(), eventServiceType.getCode())) {
-                            if (checkResponseCondition(event.getEndElapsed(), event.hasException())) {
-                                return true;
-                            }
+            }
+        }
+        return false;
+    }
+
+    private boolean filterByRpcHints(List<RpcHint> rpcHintList, SpanEventBo event) {
+        final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
+        if (!eventServiceType.isRecordStatistics()) {
+            return false;
+        }
+        if (eventServiceType.isRpcClient() || eventServiceType.isQueue()) {
+            // check rpc call fail
+            // There are also cases where multiple applications receiving the same request from the caller node
+            // but not all of them have agents installed. RpcHint is used for such cases as acceptUrlFilter will
+            // reject these transactions.
+            for (RpcHint rpcHint : rpcHintList) {
+                for (RpcType rpcType : rpcHint.getRpcTypeList()) {
+                    if (rpcType.isMatched(event.getDestinationId(), eventServiceType.getCode())) {
+                        if (checkResponseCondition(event.getEndElapsed(), event.hasException())) {
+                            return true;
                         }
                     }
                 }
@@ -445,16 +484,16 @@ public class LinkFilter implements Filter {
     private List<SpanBo> findNode(List<SpanBo> nodeList, String findApplicationName, List<ServiceType> findServiceCode, AgentFilter agentFilter) {
         List<SpanBo> findList = null;
         for (SpanBo span : nodeList) {
-                final ServiceType applicationServiceType = serviceTypeRegistryService.findServiceType(span.getApplicationServiceType());
-                if (findApplicationName.equals(span.getApplicationId()) && includeServiceType(findServiceCode, applicationServiceType)) {
-                    // apply preAgentFilter
-                    if (agentFilter.accept(span.getAgentId())) {
-                        if (findList == null) {
-                            findList = new ArrayList<>();
-                        }
-                        findList.add(span);
+            final ServiceType applicationServiceType = serviceTypeRegistryService.findServiceType(span.getApplicationServiceType());
+            if (findApplicationName.equals(span.getApplicationId()) && includeServiceType(findServiceCode, applicationServiceType)) {
+                // apply preAgentFilter
+                if (agentFilter.accept(span.getAgentId())) {
+                    if (findList == null) {
+                        findList = new ArrayList<>();
                     }
+                    findList.add(span);
                 }
+            }
         }
         if (findList == null) {
             return Collections.emptyList();
@@ -466,6 +505,15 @@ public class LinkFilter implements Filter {
 
     private boolean isToNode(String applicationId, ServiceType serviceType) {
         return this.toApplicationName.equals(applicationId) && includeServiceType(this.toServiceDescList, serviceType);
+    }
+
+    private boolean includeUser(List<ServiceType> serviceTypeList) {
+        for (ServiceType serviceType : serviceTypeList) {
+            if (serviceType.isUser()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean includeUnknown(List<ServiceType> serviceTypeList) {

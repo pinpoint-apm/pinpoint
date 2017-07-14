@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,12 +29,12 @@ public final class ListUtils {
     private ListUtils() {
     }
 
+    /**
+     * @deprecated Since 1.6.1. Use {@link CollectionUtils#isEmpty(Collection)}
+     */
+    @Deprecated
     public static boolean isEmpty(List list) {
-        if (list == null || list.isEmpty()) {
-            return true;
-        }
-
-        return false;
+        return CollectionUtils.isEmpty(list);
     }
 
     public static <V> boolean addIfValueNotNull(List<V> list, V value) {
@@ -41,42 +44,45 @@ public final class ListUtils {
 
         return list.add(value);
     }
-    
+
     public static <V> boolean addAllIfAllValuesNotNull(List<V> list, V[] values) {
         if (values == null) {
             return false;
         }
-        
+
         for (V value : values) {
             if (value == null) {
                 return false;
             }
         }
-        
+
         for (V value : values) {
             list.add(value);
         }
-        
+
         return true;
     }
-    
+
     public static <V> void addAllExceptNullValue(List<V> list, V[] values) {
         if (values == null) {
             return;
         }
-        
+
         for (V value : values) {
             addIfValueNotNull(list, value);
         }
     }
-    
+
     public static <V> V getFirst(List<V> list) {
         return getFirst(list, null);
     }
 
     public static <V> V getFirst(List<V> list, V defaultValue) {
+        if (list == null) {
+            return defaultValue;
+        }
+
         int size = list.size();
-        
         if (size > 0) {
             return list.get(0);
         } else {
@@ -86,9 +92,12 @@ public final class ListUtils {
 
     public static <V> boolean isFirst(List<V> list, V object) {
         V first = getFirst(list);
+        if (first == null) {
+            return object == null;
+        }
         return first.equals(object);
     }
-    
+
     public static <V> V get(List<V> list, int index, V defaultValue) {
         try {
             return list.get(index);
@@ -101,10 +110,13 @@ public final class ListUtils {
     public static <V> V getLast(List<V> list) {
         return getLast(list, null);
     }
-    
+
     public static <V> V getLast(List<V> list, V defaultValue) {
+        if (list == null) {
+            return defaultValue;
+        }
+
         int size = list.size();
-        
         if (size > 0) {
             return list.get(size - 1);
         } else {
@@ -114,7 +126,10 @@ public final class ListUtils {
 
     public static <V> boolean isLast(List<V> list, V object) {
         V last = getLast(list);
+        if (last == null) {
+            return object == null;
+        }
         return last.equals(object);
     }
-    
+
 }

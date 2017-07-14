@@ -90,8 +90,7 @@ public class SpanStreamSendDataPlaner extends AbstractSpanStreamSendDataPlaner {
         spanChunk.setApplicationNameIsSet(true);
         spanChunk.setAgentStartTime(span.getStartTime());
         spanChunk.setAgentStartTimeIsSet(true);
-        spanChunk.setServiceType(span.getServiceType());
-        spanChunk.setServiceTypeIsSet(true);
+
         spanChunk.setTransactionId(span.getTransactionId());
         spanChunk.setTransactionIdIsSet(true);
         spanChunk.setSpanId(span.getSpanId());

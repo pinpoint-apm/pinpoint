@@ -16,13 +16,17 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.Handler;
-import com.navercorp.pinpoint.thrift.dto.*;
-
+import com.navercorp.pinpoint.collector.handler.AgentEventHandler;
+import com.navercorp.pinpoint.collector.handler.AgentStatHandlerV2;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -30,24 +34,28 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 public class UdpDispatchHandler extends AbstractDispatchHandler {
 
-    @Autowired()
-    @Qualifier("agentStatHandler")
-    private Handler agentStatHandler;
+    @Autowired
+    private AgentStatHandlerV2 agentStatHandler;
 
+    @Autowired
+    private AgentEventHandler agentEventHandler;
 
     public UdpDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override
-    Handler getHandler(TBase<?, ?> tBase) {
+    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+        List<SimpleHandler> simpleHandlerList = new ArrayList<>();
 
         // To change below code to switch table make it a little bit faster.
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         if (tBase instanceof TAgentStat || tBase instanceof TAgentStatBatch) {
-            return agentStatHandler;
+            simpleHandlerList.add(agentStatHandler);
+            simpleHandlerList.add(agentEventHandler);
         }
-        return null;
+
+        return simpleHandlerList;
     }
 
 }

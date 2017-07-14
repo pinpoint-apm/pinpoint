@@ -195,6 +195,14 @@ public class LoadFactor {
 
     @Override
     public String toString() {
-        return "LoadFactor [timeseriesValue=" + timeseriesValueList + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", range=" + range + ", successCount=" + successCount + ", failedCount=" + failedCount + "]";
+        final StringBuilder sb = new StringBuilder("LoadFactor{");
+        sb.append(", timeseriesValueList=").append(timeseriesValueList);
+        sb.append(", timeseriesSlotIndex=").append(timeseriesSlotIndex);
+        sb.append(", range=").append(range);
+        sb.append(", successCount=").append(successCount);
+        sb.append(", failedCount=").append(failedCount);
+        sb.append(", timeWindow=").append(timeWindow);
+        sb.append('}');
+        return sb.toString();
     }
 }

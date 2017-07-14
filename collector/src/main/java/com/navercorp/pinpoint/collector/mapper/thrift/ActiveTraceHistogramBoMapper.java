@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Component
 public class ActiveTraceHistogramBoMapper implements ThriftBoMapper<ActiveTraceHistogramBo, TActiveTraceHistogram> {
 

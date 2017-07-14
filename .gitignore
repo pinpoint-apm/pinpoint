@@ -1,6 +1,7 @@
 /.project
 /.settings/
 /.idea
+/.vscode/
 /deploy
 /target
 /build/

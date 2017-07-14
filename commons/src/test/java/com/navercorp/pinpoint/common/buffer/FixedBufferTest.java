@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.buffer;
 
 import com.google.common.primitives.Ints;
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +35,7 @@ import java.util.Random;
  * @author emeroad
  */
 public class FixedBufferTest {
-    public static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    public static final Charset UTF8_CHARSET = Charsets.UTF_8;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Random random = new Random();
@@ -141,9 +142,9 @@ public class FixedBufferTest {
 
         Assert.assertEquals("check data", test, trimString);
 
-        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, "UTF-8");
+        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, UTF8_CHARSET.name());
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        Assert.assertEquals("check pad", padString, new String(padBytes, Charset.forName("UTF-8")));
+        Assert.assertEquals("check pad", padString, new String(padBytes, UTF8_CHARSET));
 
     }
 
@@ -380,7 +381,7 @@ public class FixedBufferTest {
         if (offset != -1) {
             Assert.assertEquals(buffer.getOffset(), offset);
         } else {
-            logger.info("{} offsetSize:{}", v, buffer.getOffset());
+            logger.debug("{} offsetSize:{}", v, buffer.getOffset());
         }
         buffer.setOffset(0);
         int readV = buffer.readVInt();
@@ -423,12 +424,12 @@ public class FixedBufferTest {
             try {
                 int i = buffer.readVInt();
             } catch (IllegalArgumentException e) {
-                logger.info(e.getMessage(), e);
+                logger.debug(e.getMessage(), e);
                 String binaryString = BytesUtils.toString(bytes);
-                logger.info(binaryString);
+                logger.debug(binaryString);
                 for (byte aByte : bytes) {
                     String code = String.valueOf((int) aByte);
-                    logger.info(code);
+                    logger.debug(code);
                 }
                 return;
             }
@@ -446,12 +447,12 @@ public class FixedBufferTest {
             try {
                 long i = buffer.readVLong();
             } catch (IllegalArgumentException e) {
-                logger.info(e.getMessage(), e);
+                logger.debug(e.getMessage(), e);
                 String binaryString = BytesUtils.toString(bytes);
-                logger.info(binaryString);
+                logger.debug(binaryString);
                 for (byte aByte : bytes) {
                     String code = String.valueOf((int) aByte);
-                    logger.info(code);
+                    logger.debug(code);
                 }
                 return;
             }
@@ -490,7 +491,7 @@ public class FixedBufferTest {
         if (offset != -1) {
             Assert.assertEquals(buffer.getOffset(), offset);
         } else {
-            logger.info("{} offsetSize:{}", v, buffer.getOffset());
+            logger.debug("{} offsetSize:{}", v, buffer.getOffset());
         }
         buffer.setOffset(0);
         int readV = buffer.readSVInt();

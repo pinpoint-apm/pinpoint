@@ -19,9 +19,11 @@ package com.navercorp.pinpoint.web.filter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -48,6 +50,9 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
     @Autowired
     private ServiceTypeRegistryService serviceTypeRegistryService;
+
+    @Autowired
+    private AnnotationKeyRegistryService annotationKeyRegistryService;
 
     @Override
     public Filter build(String filterText) {
@@ -87,7 +92,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
             return null;
         }
         try {
-            return URLDecoder.decode(value, "UTF-8");
+            return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("UTF8 decodeFail. value:" + value);
         }
@@ -121,7 +126,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
             }
 
             logger.debug("FilterDescriptor={}", descriptor);
-            final LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService);
+            final LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
             result.add(linkFilter);
         }
         return result;

@@ -33,7 +33,8 @@ public class ByteBufferUtils {
     }
 
     public static int getRemaining(ByteBuffer[] byteBuffers) {
-        if (byteBuffers == null || byteBuffers.length == 0) {
+
+        if (com.navercorp.pinpoint.common.util.ArrayUtils.isEmpty(byteBuffers)) {
             return 0;
         }
 

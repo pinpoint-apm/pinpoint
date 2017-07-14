@@ -14,17 +14,25 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.jtds;
 
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+
+import java.security.ProtectionDomain;
+import java.util.List;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -33,11 +41,24 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  */
 public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    private static final String JTDS_SCOPE = JtdsConstants.JTDS_SCOPE;
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
+    private final JdbcUrlParserV2 jdbcUrlParser = new JtdsJdbcUrlParser();
+
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         JtdsConfig config = new JtdsConfig(context.getConfig());
+
+        if (!config.isPluginEnable()) {
+            logger.info("Jtds plugin is not executed because plugin enable value is false.");
+            return;
+        }
+
+        context.addJdbcUrlParser(jdbcUrlParser);
 
         addConnectionTransformer(config);
         addDriverTransformer();
@@ -54,20 +75,54 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", JtdsConstants.JTDS_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", JtdsConstants.JTDS_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", JtdsConstants.JTDS_SCOPE);
+                // close
+                InstrumentUtils.findMethod(target, "close")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", JTDS_SCOPE);
+
+                // createStatement
+                final String statementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "createStatement")
+                        .addScopedInterceptor(statementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int")
+                        .addScopedInterceptor(statementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
+                        .addScopedInterceptor(statementCreate, JTDS_SCOPE);
+
+                // preparedStatement
+                final String preparedStatementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+                // preparecall
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", JtdsConstants.JTDS_SCOPE);
+                    InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", JTDS_SCOPE);
                 }
 
                 if (config.isProfileCommit()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", JtdsConstants.JTDS_SCOPE);
+                    InstrumentUtils.findMethod(target, "commit")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", JTDS_SCOPE);
                 }
 
                 if (config.isProfileRollback()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", JtdsConstants.JTDS_SCOPE);
+                    InstrumentUtils.findMethod(target, "rollback")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", JTDS_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -85,7 +140,8 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new JtdsJdbcUrlParser()), JtdsConstants.JTDS_SCOPE, ExecutionPolicy.ALWAYS);
+                InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2", va(JtdsConstants.MSSQL), JTDS_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }
@@ -105,10 +161,20 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), JtdsConstants.JTDS_SCOPE);
+                final String preparedStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "execute")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "executeQuery")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
 
                 if (config.isTraceSqlBindValue()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", JtdsConstants.JTDS_SCOPE);
+                    MethodFilter filter = new PreparedStatementBindingMethodFilter();
+                    List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(filter);
+                    for (InstrumentMethod method : declaredMethods) {
+                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", JTDS_SCOPE);
+                    }
                 }
 
                 return target.toBytecode();
@@ -127,7 +193,13 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", JtdsConstants.JTDS_SCOPE);
+                final String callableStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor";
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
+                        .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
+                        .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
+                        .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
 
                 return target.toBytecode();
             }
@@ -143,8 +215,19 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", JtdsConstants.JTDS_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", JtdsConstants.JTDS_SCOPE);
+                final String executeQueryInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
+                        .addScopedInterceptor(executeQueryInterceptor, JTDS_SCOPE);
+
+                final String executeUpdateInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor";
+                InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
 
                 return target.toBytecode();
             }

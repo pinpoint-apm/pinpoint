@@ -12,7 +12,6 @@
     height: 100%;
     border: 0;
     border-right: 1px solid #ddd;
-    overflow: auto;
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
     border-radius: 0;
@@ -40,6 +39,12 @@
     margin-top: 20px;
     margin-bottom: 40px;
 }
+.statistic .inspector-container .chart-collection {
+    border: 1px solid #FFF;
+}
+.statistic hr {
+    border-top: 1px solid #FFF;
+}
 
 .main-spy {
     margin-left: 238px;
@@ -50,7 +55,71 @@
 .inspector-datepicker {
     width: 190px !important;
 }
-
+.agent-list-directive {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.agent-list-directive .scroll-wrapper{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.agent-list-directive .scroll-inner-wrapper{
+    width: 238px;
+    height: 100%;
+    overflow: auto;
+    position: absolute;
+    border-bottom:74px solid transparent;
+}
+.agent-list-directive .application {
+    color: #428bca;
+    cursor: pointer;
+    padding: 7px 4px 5px 10px;
+    font-size: 12px;
+    border-bottom: 1px solid #EDEDED;
+}
+.agent-list-directive .application > span {
+    float: right;
+    height: 29px;
+    margin-top: -7px;
+    padding-top: 9px;
+    margin-right: -4px;
+    border-radius: 0px;
+}
+.agent-list-directive .application > div {
+    overflow : hidden;
+    white-space : nowrap;
+    text-overflow : ellipsis;
+}
+.agent-list-directive .application > div > span:first-child {
+    color: #FFF;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 1px 3px;
+    margin-right: 4px;
+    border-radius: 50%;
+    font-family: arial;
+    background-color: #4E4E4E;
+}
+.agent-list-directive .application.active {
+    color: #FFF;
+    background-color: #0088CC;
+}
+.agent-list-directive .application.active > div > span:first-child {
+    color: #4E4E4E;
+    background-color: #FFF;
+}
+.agent-list-directive .application.active:hover {
+    color: #FFF;
+    background-color: #0088CC;
+}
+.agent-list-directive .application:hover {
+    background-color: #eeeeee;
+}
+.agent-list-directive .application img {
+    padding-right: 4px;
+}
 .agent-list-directive .searchbox {
     height: 38px;
     border-bottom: 1px solid #EDEDED;
@@ -61,11 +130,11 @@
     margin: 5px 0px 0px 8px;
 }
 .agent-list-directive .searchbox span {
-    top: 11px;
-    right: 6px;
+    float: right;
     cursor:pointer;
-    position: absolute;
     font-size: 14px;
+    padding-top: 9px;
+    padding-right: 6px;
 }
 
 .agent-list-directive .nav li > a:hover,
@@ -192,7 +261,7 @@
 }
 .timeSlider .x-axis line {
     stroke: #FFF;
-    stroke-width: .5;
+    stroke-width: 0.5;
     stroke-linecap: square;
 }
 .timeSlider .left-handler rect, .timeSlider .right-handler rect {
@@ -243,4 +312,72 @@
 }
 .timeSlider .time-series-signboard text {
     fill: #BBB;
+}
+
+#data-source-chart .not-found {
+    margin-left: 10px;
+}
+#data-source-chart .type-selector {
+    float: right;
+    width: 100px;
+    color: #000;
+    border: 1px solid #DDD;
+    cursor: pointer;
+    padding: 4px;
+    text-align: center;
+    margin-top: -4px;
+    margin-right: 10px;
+}
+#data-source-chart .type-select-layer {
+    right: 39px;
+    width:400px;
+    height: 200px;
+    border: 2px solid #444;
+    display: none;
+    z-index: 1000;
+    padding: 10px;
+    position: absolute;
+    margin-top: 7px;
+    background-color: #FFF;
+}
+#data-source-chart .type-select-layer > div {
+    color: #000;
+    padding-left: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #DDD;
+}
+#data-source-chart .type-select-layer > div button {
+    width: 80px;
+}
+#data-source-chart .type-select-layer > div.wrapper {
+    height: 153px;
+    position: relative;
+    overflow-y: auto;
+}
+#data-source-chart .type-select-layer ul {
+    padding-top: 10px;
+    padding-left: 0px;
+}
+#data-source-chart .type-select-layer li {
+    display: inline-block;
+    list-style: none;
+    padding: 4px 5px 4px 3px;
+}
+#data-source-chart .type-select-layer label {
+    margin-left: 6px;
+}
+#data-source-chart .panel-body {
+    padding: 8px 15px;
+}
+#data-source-chart table {
+    margin-bottom: 0px;
+}
+#data-source-chart td {
+    padding: 2px 4px;
+    font-size: 12px;
+    text-align: center;
+
+}
+#data-source-chart tr:nth-child(2n) td {
+    background-color: #FFF;
 }

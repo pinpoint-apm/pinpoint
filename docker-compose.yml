@@ -1,7 +1,7 @@
 pinpoint-hbase:
   container_name: pinpoint-hbase
   hostname: hbase
-  image: naver/pinpoint-hbase:1.6.0-SNAPSHOT
+  image: naver/pinpoint-hbase:1.7.0-SNAPSHOT
   restart: always
   expose:
     - "2181"
@@ -25,7 +25,7 @@ pinpoint-mysql:
 pinpoint-collector:
   container_name: pinpoint-collector
   hostname: collector
-  image: naver/pinpoint-collector:1.6.0-SNAPSHOT
+  image: naver/pinpoint-collector:1.7.0-SNAPSHOT
   restart: always
   expose:
     - "9994"
@@ -52,7 +52,7 @@ pinpoint-collector:
 pinpoint-web:
   container_name: pinpoint-web
   hostname: web
-  image: naver/pinpoint-web:1.6.0-SNAPSHOT
+  image: naver/pinpoint-web:1.7.0-SNAPSHOT
   restart: always
   expose:
     - "8080"
@@ -75,7 +75,7 @@ pinpoint-web:
 
 # only example
 #pinpoint-agent:
-#  image: naver/pinpoint-agent:1.6.0-SNAPSHOT
+#  image: naver/pinpoint-agent:1.7.0-SNAPSHOT
 #  net: "none"
 #  restart: unless-stopped
 #  volumes:

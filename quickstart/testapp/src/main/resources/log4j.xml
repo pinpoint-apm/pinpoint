@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration PUBLIC
-  "-//APACHE//DTD LOG4J 1.2//EN" "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
+        "-//APACHE//DTD LOG4J 1.2//EN" "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
 <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.EnhancedPatternLayout">
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}:%-3L) %m%n" />
+            <!-- %L(line number) option is extremely slow. -->
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}:%-3L) %m%n"/>
         </layout>
     </appender>
-    
+
     <logger name="com.navercorp.pinpoint.testapp" additivity="false">
-        <level value="INFO" />
-        <appender-ref ref="console" />
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
     </logger>
-    
+
     <logger name="org.springframework" additivity="false">
-        <level value="INFO" />
-        <appender-ref ref="console" />
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
     </logger>
-    
+
     <root>
-        <priority value="WARN" />
+        <priority value="WARN"/>
     </root>
 </log4j:configuration>

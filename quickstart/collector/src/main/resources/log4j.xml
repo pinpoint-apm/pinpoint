@@ -4,9 +4,8 @@
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.EnhancedPatternLayout">
-            <param name="ConversionPattern" value="%d{MM-dd HH:mm:ss} [%-5p](%-35c{1.}:%L) %m%n"/>
-            <!-- %L make a huge performance degradation in order to print out line numbers -->
-            <!--<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}) %m%n" />-->
+            <!-- %L(line number) option is extremely slow. -->
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}:%-3L) %m%n"/>
         </layout>
     </appender>
 
@@ -15,10 +14,9 @@
         <param name="Append" value="true"/>
         <param name="DatePattern" value="'.'yyyy-MM-dd"/>
         <layout class="org.apache.log4j.EnhancedPatternLayout">
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}) %m%n"/>
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}) %m%n"/>
         </layout>
     </appender>
-
 
     <logger name="com.navercorp.pinpoint" additivity="false">
         <level value="DEBUG"/>
@@ -30,7 +28,6 @@
         <appender-ref ref="console"/>
     </logger>
 
-
     <logger name="org.apache.zookeeper" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
@@ -41,10 +38,8 @@
         <appender-ref ref="console"/>
     </logger>
 
-    <!--
-        state ����͸��� �ΰ�. ���� ���߽� �α� ������� �����ϴٸ� log level�� WARN�̻����� �Ұ�
-    -->
     <logger name="com.navercorp.pinpoint.collector.StateReport" additivity="false">
+        <!-- disable : WARN -->
         <level value="WARN"/>
         <appender-ref ref="stat-appender"/>
     </logger>

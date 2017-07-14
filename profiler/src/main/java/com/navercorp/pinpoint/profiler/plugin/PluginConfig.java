@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -45,38 +43,18 @@ public class PluginConfig {
     private final JarFile pluginJarFile;
     private String pluginJarURLExternalForm;
 
-    private final ProfilerPlugin plugin;
-
-    private final Instrumentation instrumentation;
-    private final InstrumentClassPool classPool;
-    private final String bootstrapCoreJarPath;
-
     private final ClassNameFilter pluginPackageFilter;
 
-    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentClassPool classPool, String bootstrapCoreJarPath, ClassNameFilter pluginPackageFilter) {
+    public PluginConfig(URL pluginJar, ClassNameFilter pluginPackageFilter) {
         if (pluginJar == null) {
             throw new NullPointerException("pluginJar must not be null");
         }
-        if (plugin == null) {
-            throw new NullPointerException("plugin must not be null");
-        }
         this.pluginJar = pluginJar;
         this.pluginJarFile = createJarFile(pluginJar);
-        this.plugin = plugin;
-
-        this.instrumentation = instrumentation;
-        this.classPool = classPool;
-        this.bootstrapCoreJarPath = bootstrapCoreJarPath;
 
         this.pluginPackageFilter = pluginPackageFilter;
     }
 
-
-
-
-    public ProfilerPlugin getPlugin() {
-        return plugin;
-    }
 
     public URL getPluginJar() {
         return pluginJar;
@@ -104,21 +82,18 @@ public class PluginConfig {
         }
     }
 
-    public Instrumentation getInstrumentation() {
-        return instrumentation;
-    }
-
-    public InstrumentClassPool getClassPool() {
-        return classPool;
-    }
-
-    public String getBootstrapCoreJarPath() {
-        return bootstrapCoreJarPath;
-    }
 
     public ClassNameFilter getPluginPackageFilter() {
         return pluginPackageFilter;
     }
 
-
+    @Override
+    public String toString() {
+        return "PluginConfig{" +
+                "pluginJar=" + pluginJar +
+                ", pluginJarFile=" + pluginJarFile +
+                ", pluginJarURLExternalForm='" + pluginJarURLExternalForm + '\'' +
+                ", pluginPackageFilter=" + pluginPackageFilter +
+                '}';
+    }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
+
+import com.navercorp.pinpoint.common.Charsets;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -47,10 +49,10 @@ import java.util.Scanner;
  * We have referred OrderedThreadPoolExecutor ParentRunner of JUnit.
  *
  * @author Jongho Moon
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
-    private static final String DEFAULT_ENCODING = "UTF-8";
+    private static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
 
     private final boolean testOnSystemClassLoader;
     private final boolean testOnChildClassLoader;

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.storage;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +28,10 @@ import org.slf4j.LoggerFactory;
  */
 public class LogStorageFactory implements StorageFactory {
 
-    private final static Storage DEFAULT_STORAGE = new LogStorage();
+    public final static Storage DEFAULT_STORAGE = new LogStorage();
 
     @Override
-    public Storage createStorage() {
+    public Storage createStorage(TraceRoot traceRoot) {
          // reuse because it has no states.
         return DEFAULT_STORAGE;
     }

@@ -59,6 +59,9 @@ HEAP USAGE RATE
 
 JVM CPU USAGE RATE
    Triggered when the application's CPU usage(%) exceeds the configured threshold.
+
+DATASOURCE CONNECTION USAGE RATE
+   Triggered when the application's DataSource connection usage(%) exceeds the configured threshold.
 ```
 
 
@@ -72,6 +75,9 @@ public class AlarmMessageSenderImple implements AlarmMessageSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    private UserGroupService userGroupService;
+    
     @Override
     public void sendSms(AlarmChecker checker, int sequenceCount) {
         List<String> receivers = userGroupService.selectPhoneNumberOfMember(checker.getUserGroupId());
@@ -223,6 +229,9 @@ HEAP USAGE RATE
 
 JVM CPU USAGE RATE
    applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
+
+DATASOURCE CONNECTION USAGE RATE
+   applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
 ```
 
 
@@ -239,6 +248,9 @@ pipoint-web에서 제공하는 `com.navercorp.pinpoint.web.alarm.AlarmMessageSen
 public class AlarmMessageSenderImple implements AlarmMessageSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private UserGroupService userGroupService;
 
     @Override
     public void sendSms(AlarmChecker checker, int sequenceCount) {

@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -44,7 +43,6 @@ public class SpanChunkHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
     @Autowired
@@ -82,7 +80,7 @@ public class SpanChunkHandler implements SimpleHandler {
                     final int elapsed = spanEvent.getEndElapsed();
                     final boolean hasException = spanEvent.hasException();
 
-                    /**
+                    /*
                      * save information to draw a server map based on statistics
                      */
                     // save the information of caller (the spanevent that span called)
@@ -111,7 +109,7 @@ public class SpanChunkHandler implements SimpleHandler {
     }
 
     private ServiceType getApplicationServiceType(SpanChunkBo spanChunk) {
-        final short applicationServiceTypeCode = spanChunk.getApplicationServiceType();;
+        final short applicationServiceTypeCode = spanChunk.getApplicationServiceType();
         return registry.findServiceType(applicationServiceTypeCode);
     }
 }

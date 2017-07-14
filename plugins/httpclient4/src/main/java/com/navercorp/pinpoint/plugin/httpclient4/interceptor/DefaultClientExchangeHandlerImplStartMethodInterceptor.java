@@ -18,6 +18,10 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import java.io.IOException;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -30,9 +34,7 @@ import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.protocol.HTTP;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -48,7 +50,6 @@ import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
@@ -65,16 +66,16 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
 
-    private boolean param;
-    protected boolean cookie;
-    protected DumpType cookieDumpType;
+    private final boolean param;
+    protected final boolean cookie;
+    protected final DumpType cookieDumpType;
     protected SimpleSampler cookieSampler;
 
-    protected boolean entity;
-    protected DumpType entityDumpType;
+    protected final boolean entity;
+    protected final DumpType entityDumpType;
     protected SimpleSampler entitySampler;
 
     protected boolean statusCode;
@@ -148,12 +149,12 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         try {
             if (isAsynchronousInvocation(target, args)) {
                 // set asynchronous trace
-                final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+
                 // check type isAsynchronousInvocation()
-                ((AsyncTraceIdAccessor)((ResultFutureGetter)target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                ((AsyncContextAccessor)((ResultFutureGetter)target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                    logger.debug("Set AsyncContext {}", asyncContext);
                 }
             }
         } catch (Throwable t) {
@@ -187,8 +188,8 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             return false;
         }
 
-        if (!(future instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", HttpClient4Constants.METADATA_ASYNC_TRACE_ID);
+        if (!(future instanceof AsyncContextAccessor)) {
+            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", HttpClient4Constants.METADATA_ASYNC_CONTEXT);
             return false;
         }
 
@@ -281,7 +282,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
-                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(value, 1024));
                 }
 
                 // Can a cookie have 2 or more values?
@@ -298,7 +299,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
                 final HttpEntity entity = entityRequest.getEntity();
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
-                        final String entityString = entityUtilsToString(entity, "UTF8", 1024);
+                        final String entityString = entityUtilsToString(entity, Charsets.UTF_8_NAME, 1024);
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityString);
                     }
                 }
@@ -326,7 +327,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     @SuppressWarnings("deprecation")
     public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws Exception {
         if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
+            throw new IllegalArgumentException("HTTP entity must not be null");
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
             return "HTTP entity is too large to be buffered in memory length:" + entity.getContentLength();
@@ -374,7 +375,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
      */
     public static String getContentCharSet(final HttpEntity entity) throws ParseException {
         if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
+            throw new IllegalArgumentException("HTTP entity must not be null");
         }
         String charset = null;
         if (entity.getContentType() != null) {

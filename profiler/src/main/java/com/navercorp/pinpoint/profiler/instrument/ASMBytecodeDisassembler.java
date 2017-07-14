@@ -20,7 +20,7 @@ public class ASMBytecodeDisassembler {
     private final int crFlag;
 
     public ASMBytecodeDisassembler() {
-        this(ClassReader.EXPAND_FRAMES, ClassWriter.COMPUTE_FRAMES);
+        this(0, 0);
     }
 
     public ASMBytecodeDisassembler(int crFlag, int cwFlag) {

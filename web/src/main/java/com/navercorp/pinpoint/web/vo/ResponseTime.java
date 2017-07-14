@@ -116,12 +116,12 @@ public class ResponseTime {
 
     @Override
     public String toString() {
-        return "ResponseTime{" +
-                "applicationName='" + applicationName + '\'' +
-                ", applicationServiceType=" + applicationServiceType +
-                ", timeStamp=" + timeStamp +
-                ", responseHistogramMap=" + responseHistogramMap +
-                '}';
+        final StringBuilder sb = new StringBuilder("ResponseTime{");
+        sb.append("applicationName='").append(applicationName).append('\'');
+        sb.append(", applicationServiceType=").append(applicationServiceType);
+        sb.append(", timeStamp=").append(timeStamp);
+        sb.append(", responseHistogramMap=").append(responseHistogramMap);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

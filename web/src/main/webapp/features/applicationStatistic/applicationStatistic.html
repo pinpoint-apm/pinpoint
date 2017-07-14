@@ -1,0 +1,49 @@
+<div class="inspector-container" style="height:100%">
+	<div>
+		<div class="slider">
+			<div class="slider-command">
+				<div class="btn-group" style="margin-right:22px">
+					<button type="button" class="btn btn-default btn-success btn-sm" ng-click="movePrev2()"><span class="glyphicon glyphicon-backward"></span></button>
+					<button type="button" class="btn btn-default btn-success btn-sm" ng-click="moveNext2()"><span class="glyphicon glyphicon-forward"></span></button>
+					<button type="button" class="btn btn-default btn-success btn-sm" ng-click="moveHead2()"><span class="glyphicon glyphicon-fast-forward"></span></button>
+				</div>
+				<div class="btn-group" style="margin-right:4px;">
+					<button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomInTimeSlider2()"><span class="glyphicon glyphicon-plus"></span></button>
+					<button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomOutTimeSlider2()"><span class="glyphicon glyphicon-minus"></span></button>
+				</div>
+
+				<div class="input-group input-group-sm" style="width:189px;margin-right:4px;">
+					 <span class="input-group-btn">
+						 <button class="btn btn-default btn-success"><span class="current-point"></span></button>
+					 </span>
+					<input type="text" class="form-control" value="{{targetPicker}}">
+				</div>
+			</div>
+			<span>Timeline</span>
+			<svg id="timeSlider-for-application-statistic" class="timeSlider" width="100%" height="90px" style="margin-top:6px"></svg>
+		</div>
+		<div class="chart-collection">
+			<div class="row">
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statHeapTooltip" style="cursor:pointer;float:right;"></span> Heap Usage</h4>
+					<statistic-chart-directive namespace="heap"></statistic-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statPermGenTooltip" style="cursor:pointer;float:right;"></span> PermGen Usage</h4>
+					<statistic-chart-directive namespace="non-heap"></statistic-chart-directive>
+				</div>
+			</div>
+			<hr/>
+			<div class="row">
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statJVMCpuTooltip" style="cursor:pointer;float:right;"></span> JVM Cpu Usage</h4>
+					<statistic-chart-directive namespace="jvm"></statistic-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statSystemCpuTooltip" style="cursor:pointer;float:right;"></span> System Cpu Usage</h4>
+					<statistic-chart-directive namespace="system"></statistic-chart-directive>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

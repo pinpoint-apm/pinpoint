@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.plugin.redis.interceptor;
 
 import java.net.URI;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.plugin.redis.EndPointUtils;
 import redis.clients.jedis.JedisShardInfo;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -30,9 +32,8 @@ import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
 /**
  * Jedis (redis client) constructor interceptor
  * - trace endPoint
- * 
- * @author jaehong.kim
  *
+ * @author jaehong.kim
  */
 public class JedisConstructorInterceptor implements AroundInterceptor {
 
@@ -53,35 +54,33 @@ public class JedisConstructorInterceptor implements AroundInterceptor {
                 return;
             }
 
-            final StringBuilder endPoint = new StringBuilder();
-            // first arg is host
-            if (args[0] instanceof String) {
-                endPoint.append(args[0]);
-                // second arg is port
-                if (args.length >= 2 && args[1] instanceof Integer) {
-                    endPoint.append(":").append(args[1]);
-                } else {
-                    // set default port
-                    endPoint.append(":").append(6379);
-                }
-            } else if (args[0] instanceof URI) {
-                final URI uri = (URI) args[0];
-                endPoint.append(uri.getHost());
-                endPoint.append(":");
-                endPoint.append(uri.getPort());
-            } else if (args[0] instanceof JedisShardInfo) {
-                final JedisShardInfo info = (JedisShardInfo) args[0];
-                endPoint.append(info.getHost());
-                endPoint.append(":");
-                endPoint.append(info.getPort());
-            }
-            ((EndPointAccessor)target)._$PINPOINT$_setEndPoint(endPoint.toString());
+            final String endPoint = getEndPoint(args);
+            ((EndPointAccessor) target)._$PINPOINT$_setEndPoint(endPoint);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
             }
         }
     }
+
+    private String getEndPoint(Object[] args) {
+
+        // first arg is host
+        final Object argZero = args[0];
+        if (argZero instanceof String) {
+            return EndPointUtils.getEndPoint(args);
+        } else if (argZero instanceof URI) {
+            final URI uri = (URI) argZero;
+
+            return HostAndPort.toHostAndPortString(uri.getHost(), uri.getPort());
+        } else if (argZero instanceof JedisShardInfo) {
+            final JedisShardInfo info = (JedisShardInfo) argZero;
+
+            return HostAndPort.toHostAndPortString(info.getHost(), info.getPort());
+        }
+        return "";
+    }
+
 
     private boolean validate(final Object target, final Object[] args) {
         if (args == null || args.length == 0 || args[0] == null) {

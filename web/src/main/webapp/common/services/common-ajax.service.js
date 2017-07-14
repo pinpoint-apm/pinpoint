@@ -8,9 +8,9 @@
 	 * @class
 	 */
 	pinpointApp.constant( "CommonAjaxServiceConfig", {
-		"serverTimeUrl" : "/serverTime.pinpoint",
-		"applicationListUrl": "/applications.pinpoint",
-		"realtimeSummaryNLoadDataUrl": "/getResponseTimeHistogramData.pinpoint"
+		"serverTimeUrl" : "serverTime.pinpoint",
+		"applicationListUrl": "applications.pinpoint",
+		"realtimeSummaryNLoadDataUrl": "getResponseTimeHistogramData.pinpoint"
 	});
 	
 	pinpointApp.service( "CommonAjaxService", [ "CommonAjaxServiceConfig", "$http", function( cfg, $http ) {

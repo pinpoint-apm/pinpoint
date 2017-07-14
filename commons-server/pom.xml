@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-commons-server</artifactId>
@@ -12,9 +12,12 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jdk.version>1.7</jdk.version>
-        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
-        <sniffer.artifactid>java17</sniffer.artifactid>
+        <!-- jdk.version 1.6 : for profiler-test compatibility -->
+        <!-- jdk.home 1.8 : for hbase compatibility -->
+        <jdk.version>1.6</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <test.jdk.home>${jdk.home}</test.jdk.home>
+        <sniffer.artifactid>java16</sniffer.artifactid>
     </properties>
 
     <dependencies>
@@ -32,6 +35,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-hbase</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -53,8 +60,8 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- commons module may be used at agent so there will be problems. you should set optional -->
@@ -96,11 +103,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
             <scope>test</scope>
         </dependency>
 

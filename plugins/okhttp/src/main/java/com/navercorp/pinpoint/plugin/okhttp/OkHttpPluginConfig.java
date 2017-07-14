@@ -25,21 +25,26 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class OkHttpPluginConfig {
 
-    private boolean param = false;
-    private boolean cookie = false;
-    private DumpType cookieDumpType = DumpType.EXCEPTION;
-    private int cookieSamplingRate = 1;
-    private boolean statusCode = true;
-
+    private final boolean enable;
+    private final boolean param;
+    private final boolean cookie;
+    private final int cookieSamplingRate;
+    private final boolean statusCode;
     private final boolean async;
+    private DumpType cookieDumpType;
 
     public OkHttpPluginConfig(ProfilerConfig src) {
+        this.enable = src.readBoolean("profiler.okhttp.enable", true);
         this.param = src.readBoolean("profiler.okhttp.param", false);
         this.cookie = src.readBoolean("profiler.okhttp.cookie", false);
         this.cookieDumpType = src.readDumpType("profiler.okhttp.cookie.dumptype", DumpType.EXCEPTION);
         this.cookieSamplingRate = src.readInt("profiler.okhttp.cookie.sampling.rate", 1);
         this.statusCode = src.readBoolean("profiler.okhttp.entity.statuscode", true);
         this.async = src.readBoolean("profiler.okhttp.async", true);
+    }
+
+    public boolean isEnable() {
+        return enable;
     }
 
     public boolean isParam() {

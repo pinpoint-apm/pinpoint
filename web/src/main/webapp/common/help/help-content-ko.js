@@ -54,6 +54,12 @@
 					},{
 						name: "JVM CPU USAGE RATE",
 						desc: "applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다."
+					},{
+						name: "DATASOURCE CONNECTION USAGE RATE",
+						desc: "applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다."
+					}, {
+						name: "DEADLOCK OCCURRENCE",
+						desc: "applicaiton에서 데드락 상태가 탐지되면 알람이 전송된다."
 					}]
 				}]
 			}
@@ -89,6 +95,18 @@
 					}, {
 						name: "Outbound",
 						desc: "선택된 노드를 기준으로 나가는 탐색 깊이"
+					}]
+				}]
+			},
+			bidirectional : {
+				mainStyle: "",
+				title: '<img src="images/bidirect_on.png" width="22px" height="22px" style="margin-top:-4px;"> Bidirectional Search',
+				desc: "서버맵의 탐색 방법을 설정합니다.",
+				category : [{
+					title: "[범례]",
+					items: [{
+						name: "Bidirectional",
+						desc: "모든 노드들에 대해 양방향 탐색을 하여 선택된 노드와 직접적인 연관이 없는 노드들도 탐색됩니다.<br>주의 : 이 옵션을 선택하시면 필요 이상으로 복잡한 서버맵이 조회될 수 있습니다."
 					}]
 				}]
 			},
@@ -221,7 +239,7 @@
 					}]
 				},{
 					title: "[기능]",
-					image: "<img src='/images/help/scatter_01.png' width='200px' height='125px'>",
+					image: "<img src='images/help/scatter_01.png' width='200px' height='125px'>",
 					items: [{
 						name: "<span class='glyphicon glyphicon-plus'></span>",
 						desc: "마우스로 영역을 드래그하여 드래그 된 영역에 속한 트랜잭션의 상세정보를 조회할 수 있습니다."
@@ -529,7 +547,7 @@
 						name: "Used",
 						desc: "현재 사용 중인 heap 사이즈"
 					},{
-						name: "FCG",
+						name: "FGC",
 						desc: "Full garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
 					}]
 				}]
@@ -547,7 +565,7 @@
 						name: "Used",
 						desc: "현재 사용 중인 heap 사이즈"
 					},{
-						name: "FCG",
+						name: "FGC",
 						desc: "Full garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
 					}]
 				}]
@@ -591,6 +609,60 @@
                     }]
                 }]
             },
+			activeThread: {
+				mainStyle: "",
+				title: "Active Thread",
+				desc: "사용자 request를 처리하는 agent의 active thread 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Fast (1s)",
+						desc: "현재 소요시간이 1초 이하인 thread 갯수"
+					},{
+						name: "Normal (3s)",
+						desc: "현재 소요시간이 1초 초과, 3초 이하인 thread 갯수"
+					},{
+						name: "Slow (5s)",
+						desc: "현재 소요시간이 3초 초과, 5초 이하인 thread 갯수"
+					},{
+						name: "Very Slow (slow)",
+						desc: "현재 소요시간이 5초를 넘고 있는 thread 갯수"
+					}]
+				}]
+			},
+			dataSource: {
+				mainStyle: "",
+				title: "Data Source",
+				desc: "에이전트의 DataSource 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Active Avg",
+						desc: "사용한 Connection의 평균 갯수"
+					},{
+						name: "Active Max",
+						desc: "사용한 Connection의 최대 갯수"
+					},{
+						name: "Total Max",
+						desc: "사용이 가능한 Connection의 최대 갯수"
+					},{
+						name: "Type",
+						desc: "DB Connection Pool 종류"
+					}]
+				}]
+			},
+			responseTime: {
+				mainStyle: "",
+				title: "Response time",
+				desc: "에이전트의 Response Time의 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Avg",
+						desc: "평균 Response Time (단위 millisecond)"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>해당 agent는 {{application1}}이 아닌 {{application2}}에 포함되어 있습니다.<br>",
 				"원인은 다음 중 하나입니다.<hr>",
@@ -598,7 +670,82 @@
 				"2.{{agentId}}의 agent가 {{application2}}에도 등록 된 경우<hr>",
 				"1의 경우 {{application1}}과 {{agentId}}간의 매핑 저보를 삭제해야 합니다<br>",
 				"2의 경우 중복 등록 된 agent의 id를 변경해야 합니다.</div>"
-			].join("")
+			].join(""),
+			statHeap: {
+				mainStyle: "",
+				title: "Heap",
+				desc: "Agent들이 사용하는 JVM Heap 사이즈 정보",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들이  사용하는  Heap 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들이 사용하는 Heap의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들이 사용하는 Heap 중 가장 작은 값"
+					}]
+				}]
+			},
+			statPermGen: {
+				mainStyle: "",
+				title: "PermGen",
+				desc: "Agent들이 사용하는 JVM Permgen 사이즈 정보",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들이 사용하는 perm 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들이 사용하는 perm의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들이 사용하는 perm 중 가장 작은 값"
+					}]
+				}]
+			},
+			statJVMCpu: {
+				mainStyle: "",
+				title: "JVM Cpu Usage",
+				desc: "Agent들이 사용하는 JVM cpu 사용량 - 멀티코어 CPU의 경우, 전체 코어 사용량의 평균입니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들이 사용하는 JVM cpu 사용량 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들이 사용하는 JVM cpu 사용량의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들이 사용하는 JVM cpu 사용량 중 가장 작은 값"
+					}]
+				}]
+			},
+			statSystemCpu: {
+				mainStyle: "",
+				title: "System Cpu Usage",
+				desc: "Agent 서버들의 시스템 cpu 사용량 - 멀티코어 CPU의 경우, 전체 코어 사용량의 평균입니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 서버들의 시스템 cpu 사용량 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 서버들의 시스템 cpu 사용량 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent 서버들의 시스템 cpu 사용량 중 가장 작은 값"
+					},{
+						name: "",
+						desc: "<span style='color:#2ca02c'>Java1.6 시스템 CPU 사용량은 수집되지 않습니다.<br>Java1.7+ 시스템 CPU 사용량이 수집됩니다.</span>"
+					}]
+				}]
+			}
 		},
 		callTree: {
 			column: {
@@ -615,7 +762,7 @@
 						desc: "메소드 시작부터 종료까지의 시간"
 					},{
 						name: "Exec(%)",
-						desc: "<img src='/images/help/callTree_01.png'/>"
+						desc: "<img src='images/help/callTree_01.png'/>"
 					},{
 						name: "",
 						desc: "<span style='background-color:#FFFFFF;color:#5bc0de'>옅은 파란색</span><br/>트랜잭션 전체 실행 시간 대 exec 시간의 비율"

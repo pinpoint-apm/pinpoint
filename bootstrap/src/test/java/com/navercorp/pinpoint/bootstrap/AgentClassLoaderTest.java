@@ -41,7 +41,7 @@ public class AgentClassLoaderTest {
     public void boot() throws IOException, ClassNotFoundException {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
         agentClassLoader.setBootClass("com.navercorp.pinpoint.bootstrap.DummyAgent");
-        AgentOption option = new DefaultAgentOption("test", new DummyInstrumentation(), new DefaultProfilerConfig(), new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+        AgentOption option = new DefaultAgentOption(new DummyInstrumentation(), "testCaseAgent", "testCaseAppName", new DefaultProfilerConfig(), new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
         agentClassLoader.boot(option);
         // TODO need verification - implementation for obtaining logger changed
 //        PLoggerBinder loggerBinder = (PLoggerBinder) agentClassLoader.initializeLoggerBinder();
@@ -56,7 +56,7 @@ public class AgentClassLoaderTest {
         CodeSource codeSource = protectionDomain.getCodeSource();
         URL location = codeSource.getLocation();
 
-        logger.info("lib location:" + location);
+        logger.debug("lib location:{}", location);
         String path = location.getPath();
         // file:/D:/nhn_source/pinpoint_project/pinpoint-tomcat-profiler/target/classes/
         int dirPath = path.lastIndexOf("target/classes/");

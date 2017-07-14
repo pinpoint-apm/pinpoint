@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author emeroad
@@ -39,6 +41,18 @@ public interface TraceContext {
     Trace continueTraceObject(Trace trace);
 
     Trace newTraceObject();
+
+    /**
+     * internal experimental api
+     */
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    Trace newAsyncTraceObject();
+
+    /**
+     * internal experimental api
+     */
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    Trace continueAsyncTraceObject(TraceId traceId);
 
     Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
 
@@ -65,7 +79,7 @@ public interface TraceContext {
 
     boolean cacheSql(ParsingResult parsingResult);
 
-    TraceId createTraceId(String transactionId, long parentSpanID, long spanID, short flags);
+    TraceId createTraceId(String transactionId, long parentSpanId, long spanId, short flags);
 
     Trace disableSampling();
 
@@ -73,5 +87,13 @@ public interface TraceContext {
 
     ServerMetaDataHolder getServerMetaDataHolder();
 
+    /**
+     * internal api
+     * @deprecated Since 1.7.0
+     */
+    @Deprecated
     int getAsyncId();
+
+    JdbcContext getJdbcContext();
+
 }

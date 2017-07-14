@@ -63,7 +63,7 @@ public class DotExtractor {
         Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
         final List<Dot> dotList = getDotList(spanApplication);
 
-        final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+        final TransactionId transactionId = span.getTransactionId();
         final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
         dotList.add(dot);
         logger.trace("Application:{} Dot:{}", spanApplication, dot);

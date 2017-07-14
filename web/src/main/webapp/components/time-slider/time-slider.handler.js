@@ -52,7 +52,7 @@
         });
         this.handlerGrip.drag(function(dx, dy, x, y, event) {
             var newX = x - self.opt.margin;
-            if ( self._isInRestirctionZone( newX ) === false ) return;
+            if ( self._isInRestrictionZone( newX ) === false ) return;
             self.handlerGroup.attr({ transform: "translate(" + newX + ", 0)" });
             lastX = newX;
             self.callbackDrag( newX );
@@ -76,7 +76,7 @@
             "transform": "translate(" + x + ", 0)"
         }, this.opt.duration, mina.easeout);
     };
-    ts.Handler.prototype._isInRestirctionZone = function( x ) {
+    ts.Handler.prototype._isInRestrictionZone = function( x ) {
         return ( x <= this.opt.zone[0] || x >= this.opt.zone[1] ) ? false : true;
     };
     ts.Handler.prototype.setZone = function( start, end ) {

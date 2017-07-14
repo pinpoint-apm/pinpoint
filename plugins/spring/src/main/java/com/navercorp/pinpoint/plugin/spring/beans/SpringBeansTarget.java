@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,11 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans;
 
+import com.navercorp.pinpoint.bootstrap.util.AntPathMatcher;
+import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
+import com.navercorp.pinpoint.bootstrap.util.RegexPathMatcher;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,43 +28,68 @@ import java.util.regex.Pattern;
  * @author jaehong.kim
  */
 public class SpringBeansTarget {
-    private List<Pattern> namePatterns;
-    private List<Pattern> classPatterns;
+    public static final String ANT_STYLE_PATTERN_PREFIX = "antstyle";
+    public static final String REGEX_PATTERN_PREFIX = "regex";
+
+    private SpringBeansTargetScope scope = SpringBeansTargetScope.COMPONENT_SCAN;
+    private List<String> basePackages;
+    private List<PathMatcher> namePatterns;
+    private List<PathMatcher> classPatterns;
     private List<String> annotations;
 
     public boolean isValid() {
-        if (namePatterns != null && !namePatterns.isEmpty()) {
+        if (CollectionUtils.hasLength(basePackages)) {
             return true;
         }
 
-        if (classPatterns != null && !classPatterns.isEmpty()) {
+        if (CollectionUtils.hasLength(namePatterns)) {
             return true;
         }
 
-        if (annotations != null && !annotations.isEmpty()) {
+        if (CollectionUtils.hasLength(classPatterns)) {
+            return true;
+        }
+
+        if (CollectionUtils.hasLength(annotations)) {
             return true;
         }
 
         return false;
     }
 
-    public void setNamePatterns(String namePatternRegex) {
-        this.namePatterns = compilePattern(split(namePatternRegex));
+    public void setScope(final String scope) {
+        this.scope = SpringBeansTargetScope.get(scope);
     }
 
-    public List<Pattern> getNamePatterns() {
+    public SpringBeansTargetScope getScope() {
+        return scope;
+    }
+
+    public void setBasePackages(final String basePackages) {
+        this.basePackages = split(basePackages);
+    }
+
+    public List<String> getBasePackages() {
+        return basePackages;
+    }
+
+    public void setNamePatterns(final String namePatternRegex) {
+        this.namePatterns = compilePattern(split(namePatternRegex), "/");
+    }
+
+    public List<PathMatcher> getNamePatterns() {
         return namePatterns;
     }
 
-    public void setClassPatterns(String classPatternRegex) {
-        this.classPatterns = compilePattern(split(classPatternRegex));
+    public void setClassPatterns(final String classPatternRegex) {
+        this.classPatterns = compilePattern(split(classPatternRegex), ".");
     }
 
-    public List<Pattern> getClassPatterns() {
+    public List<PathMatcher> getClassPatterns() {
         return classPatterns;
     }
 
-    public void setAnnotations(String annotations) {
+    public void setAnnotations(final String annotations) {
         this.annotations = split(annotations);
     }
 
@@ -67,17 +97,16 @@ public class SpringBeansTarget {
         return annotations;
     }
 
-    private List<String> split(String values) {
+    List<String> split(final String values) {
         if (values == null) {
             return Collections.emptyList();
         }
 
-        String[] tokens = values.split(",");
-        List<String> result = new ArrayList<String>(tokens.length);
+        final String[] tokens = values.split(",");
+        final List<String> result = new ArrayList<String>(tokens.length);
 
         for (String token : tokens) {
-            String trimmed = token.trim();
-
+            final String trimmed = token.trim();
             if (!trimmed.isEmpty()) {
                 result.add(trimmed);
             }
@@ -86,22 +115,45 @@ public class SpringBeansTarget {
         return result;
     }
 
-    private List<Pattern> compilePattern(List<String> patternStrings) {
-        if (patternStrings == null || patternStrings.isEmpty()) {
+    List<PathMatcher> compilePattern(List<String> patternStrings, final String separator) {
+        if (CollectionUtils.isEmpty(patternStrings)) {
             return null;
         }
-        List<Pattern> beanNamePatterns = new ArrayList<Pattern>(patternStrings.size());
+
+        final List<PathMatcher> pathMatchers = new ArrayList<PathMatcher>(patternStrings.size());
         for (String patternString : patternStrings) {
-            Pattern pattern = Pattern.compile(patternString);
-            beanNamePatterns.add(pattern);
+            final int prefixEnd = patternString.indexOf(":");
+            if (prefixEnd != -1) {
+                final String prefix = patternString.substring(0, prefixEnd).trim();
+                if (prefix.equals(ANT_STYLE_PATTERN_PREFIX)) {
+                    final String trimmed = patternString.substring(prefixEnd + 1).trim();
+                    if (!trimmed.isEmpty()) {
+                        pathMatchers.add(new AntPathMatcher(trimmed, separator));
+                    }
+                    continue;
+                } else if (prefix.equals(REGEX_PATTERN_PREFIX)) {
+                    final String trimmed = patternString.substring(prefixEnd + 1).trim();
+                    if (!trimmed.isEmpty()) {
+                        final Pattern pattern = Pattern.compile(trimmed);
+                        pathMatchers.add(new RegexPathMatcher(pattern));
+                    }
+                    continue;
+                }
+            }
+
+            final Pattern pattern = Pattern.compile(patternString);
+            pathMatchers.add(new RegexPathMatcher(pattern));
         }
-        return beanNamePatterns;
+
+        return pathMatchers;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("{");
-        sb.append("namePatterns=").append(namePatterns);
+        sb.append("scope=").append(scope);
+        sb.append(", basePackages=").append(basePackages);
+        sb.append(", namePatterns=").append(namePatterns);
         sb.append(", classPatterns=").append(classPatterns);
         sb.append(", annotations=").append(annotations);
         sb.append('}');

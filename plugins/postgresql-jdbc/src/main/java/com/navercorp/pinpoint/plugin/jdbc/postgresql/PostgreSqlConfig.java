@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,22 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  *
  */
 public class PostgreSqlConfig {
+    private final boolean pluginEnable;
     private final boolean profileSetAutoCommit;
     private final boolean profileCommit;
     private final boolean profileRollback;
     private final int maxSqlBindValueSize; 
 
     public PostgreSqlConfig(ProfilerConfig config) {
+        this.pluginEnable = config.readBoolean("profiler.jdbc.postgresql", false);
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.postgresql.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.postgresql.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.postgresql.rollback", false);
         this.maxSqlBindValueSize = config.readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
+    }
+
+    public boolean isPluginEnable() {
+        return pluginEnable;
     }
 
     public boolean isProfileSetAutoCommit() {
@@ -51,6 +57,6 @@ public class PostgreSqlConfig {
     
     @Override
     public String toString() {
-        return "PostgreSqlConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
+        return "PostgreSqlConfig [pluginEnable="+ pluginEnable + ",profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
     }
 }

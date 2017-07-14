@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -38,43 +37,33 @@ public class HbaseTraceCompatibilityDao implements TraceDao {
         return slave.selectSpan(transactionId);
     }
 
-    @Override
-    public List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId) {
-        List<SpanBo> spanBos = this.master.selectSpanAndAnnotation(transactionId);
-        if (CollectionUtils.isNotEmpty(spanBos)) {
-            return spanBos;
-        }
-
-        return slave.selectSpanAndAnnotation(transactionId);
-    }
 
     @Override
     public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList) {
         List<List<SpanBo>> spanBos = this.master.selectSpans(transactionIdList);
         if (CollectionUtils.isNotEmpty(spanBos)) {
-            return spanBos;
+            for (List<SpanBo> spanBo : spanBos) {
+                if (CollectionUtils.isNotEmpty(spanBo)) {
+                    return spanBos;
+                }
+            }
         }
 
         return slave.selectSpans(transactionIdList);
     }
 
     @Override
-    public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList) {
+    public List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList) {
         List<List<SpanBo>> spanBos = this.master.selectAllSpans(transactionIdList);
         if (CollectionUtils.isNotEmpty(spanBos)) {
-            return spanBos;
+            for (List<SpanBo> spanBo : spanBos) {
+                if (CollectionUtils.isNotEmpty(spanBo)) {
+                    return spanBos;
+                }
+            }
         }
 
         return slave.selectAllSpans(transactionIdList);
     }
 
-    @Override
-    public List<SpanBo> selectSpans(TransactionId transactionId) {
-        List<SpanBo> spanBos = this.master.selectSpans(transactionId);
-        if (CollectionUtils.isNotEmpty(spanBos)) {
-            return spanBos;
-        }
-
-        return slave.selectSpans(transactionId);
-    }
 }

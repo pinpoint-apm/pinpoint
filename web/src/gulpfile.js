@@ -302,7 +302,7 @@ gulp.task('pinpoint-js', function() {
 		'features/sidebar/title/sidebar-title.directive.js',
 		'features/sidebar/filter/filter-information.directive.js',
 		'features/distributedCallFlow/distributed-call-flow.directive.js',
-		'features/responseTimeChart/response-time-chart.directive.js',
+		'features/responseTimeSummaryChart/response-time-summary-chart.directive.js',
 		'features/loadChart/load-chart.directive.js',
 		'features/jvmMemoryChart/jvm-memory-chart.directive.js',
 		'features/cpuLoadChart/cpu-load-chart.directive.js',

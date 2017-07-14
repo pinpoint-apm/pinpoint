@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,43 @@
 package com.navercorp.pinpoint.plugin.commons.dbcp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.plugin.commons.dbcp.DataSourceMonitorAccessor;
+import com.navercorp.pinpoint.plugin.commons.dbcp.DbcpDataSourceMonitor;
 
 /**
- * Maybe we should trace get of Datasource.
- * @author emeroad
+ * @author Taejin Koo
  */
-@Scope(CommonsDbcpPlugin.DBCP_SCOPE)
-@TargetMethod(name="close")
-public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class DataSourceCloseInterceptor implements AroundInterceptor {
 
-    public DataSourceCloseInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+    private final TraceContext traceContext;
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final MethodDescriptor methodDescriptor;
+
+    public DataSourceCloseInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
+        this.traceContext = traceContext;
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
+        this.methodDescriptor = methodDescriptor;
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
+    public void before(Object target, Object[] args) {
+        if ((target instanceof DataSourceMonitorAccessor)) {
+            DbcpDataSourceMonitor dataSourceMonitor = ((DataSourceMonitorAccessor) target)._$PINPOINT$_getDataSourceMonitor();
+
+            if (dataSourceMonitor != null) {
+                ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(null);
+                dataSourceMonitor.close();
+                dataSourceMonitorRegistry.unregister(dataSourceMonitor);
+            }
+        }
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordServiceType(CommonsDbcpPlugin.DBCP_SERVICE_TYPE);
-        trace.recordApi(getMethodDescriptor());
-        trace.recordException(throwable);
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+
     }
+
 }

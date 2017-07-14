@@ -138,7 +138,7 @@ public class UserGroupController {
     
     @RequestMapping(value = "/member", method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
+    public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember, @RequestHeader(value=SSO_USER, required=false) String userId) {
         if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getUserGroupId())) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
@@ -147,7 +147,7 @@ public class UserGroupController {
         }
 
         if (webProperties.isOpenSource() == false) {
-            boolean isValid = checkValid(userGroupMember.getUserId(), userGroupMember.getUserGroupId());
+            boolean isValid = checkValid(userId, userGroupMember.getUserGroupId());
             if (isValid == false) {
                 Map<String, String> result = new HashMap<>();
                 result.put("errorCode", "500");
@@ -176,7 +176,7 @@ public class UserGroupController {
 
     @RequestMapping(value = "/member", method = RequestMethod.DELETE)
     @ResponseBody
-    public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
+    public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember, @RequestHeader(value=SSO_USER, required=false) String userId) {
         if (StringUtils.isEmpty(userGroupMember.getUserGroupId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
@@ -184,7 +184,7 @@ public class UserGroupController {
             return result;
         }
         if (webProperties.isOpenSource() == false) {
-            boolean isValid = checkValid(userGroupMember.getUserId(), userGroupMember.getUserGroupId());
+            boolean isValid = checkValid(userId, userGroupMember.getUserGroupId());
             if (isValid == false) {
                 Map<String, String> result = new HashMap<>();
                 result.put("errorCode", "500");

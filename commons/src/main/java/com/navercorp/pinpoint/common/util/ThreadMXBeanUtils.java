@@ -93,7 +93,7 @@ public final class ThreadMXBeanUtils {
     }
 
     public static List<ThreadInfo> findThread(String threadName) {
-        Asserts.notNull(threadName, "threadName may not be null.");
+        Assert.requireNonNull(threadName, "threadName must not be null.");
 
         ThreadInfo[] threadInfos = dumpAllThread();
         if (threadInfos == null) {
@@ -124,6 +124,10 @@ public final class ThreadMXBeanUtils {
     public static boolean findThreadName(String threadName) {
         final ThreadInfo[] threadInfos = dumpAllThread();
         return findThreadName(threadInfos, threadName);
+    }
+
+    public static long[] findDeadlockedThreads() {
+        return THREAD_MX_BEAN.findDeadlockedThreads();
     }
 
 }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class AnnotationKeyTest {
     @Test
     public void getCode() {
         TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService();
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, StdoutCommonLoggerFactory.INSTANCE);
 
         AnnotationKey annotationKey = annotationKeyRegistryService.findAnnotationKey(AnnotationKey.API.getCode());
         Assert.assertEquals(annotationKey, AnnotationKey.API);

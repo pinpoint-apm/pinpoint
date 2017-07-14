@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -45,6 +46,9 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final RedisPluginConfig config = new RedisPluginConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("RedisPlugin config:{}", config);
+        }
         final boolean pipelineEnabled = config.isPipelineEnabled();
 
         // jedis
@@ -109,10 +113,10 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name(JedisMethodNames.get()), MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
                     try {
-                        method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor", va(config.isIo()));
+                        method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor", va(config.isIo()), RedisConstants.REDIS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
-                            logger.warn("Unsupported method " + method, e);
+                            logger.warn("Unsupported method {}", method, e);
                         }
                     }
                 }
@@ -154,7 +158,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name("sendCommand", "read"), MethodFilters.modifierNot(Modifier.PRIVATE)))) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.ProtocolSendCommandAndReadMethodInterceptor");
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.ProtocolSendCommandAndReadMethodInterceptor", RedisConstants.REDIS_SCOPE, ExecutionPolicy.INTERNAL);
                 }
 
                 return target.toBytecode();
@@ -201,10 +205,10 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name(JedisPipelineMethodNames.get()), MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
                     try {
-                        method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor", va(config.isIo()));
+                        method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor", va(config.isIo()), RedisConstants.REDIS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
-                            logger.warn("Unsupported method " + method, e);
+                            logger.warn("Unsupported method {}", method, e);
                         }
                     }
                 }

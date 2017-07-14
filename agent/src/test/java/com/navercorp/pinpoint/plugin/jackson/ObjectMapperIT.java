@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +42,9 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 // 2.7.0, 2.7.1 has JDK6 compatibility issue - https://github.com/FasterXML/jackson-databind/issues/1134
 @Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.0.6],[2.1.5],[2.2.4],[2.3.4],[2.4.6],[2.5.4,2.6.max],[2.7.2,)"})
 public class ObjectMapperIT {
-    
+
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
+
     /**
      * 
      */
@@ -106,7 +109,7 @@ public class ObjectMapperIT {
     @Test
     public void testReadValue() throws Exception {
         String json_str = "{\"name\" : \"Jackson\"}";
-        byte[] json_b = json_str.getBytes("UTF-8");
+        byte[] json_b = json_str.getBytes(UTF_8);
     
         mapper.readValue(json_str, __POJO.class);
         mapper.readValue(json_b, __POJO.class);
