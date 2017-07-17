@@ -236,6 +236,39 @@ public class JoinApplicationStatBoTest {
         assertEquals("id4_4", joinMemoryBo5.getMaxNonHeapAgentId());
     }
 
+    private class ComparatorImpl2 implements Comparator<JoinMemoryBo> {
+        @Override
+        public int compare(JoinMemoryBo bo1, JoinMemoryBo bo2) {
+            return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
+        }
+    }
+
+    private JoinApplicationStatBo createJoinApplicationStatBo2(final String id, final long timestamp, final int plus) {
+        final JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
+        joinApplicationStatBo.setId(id);
+        joinApplicationStatBo.setJoinMemoryBoList(createJoinMemoryBoList2(id, timestamp, plus));
+        joinApplicationStatBo.setTimestamp(timestamp);
+        joinApplicationStatBo.setStatType(StatType.APP_STST);
+        return joinApplicationStatBo;
+    }
+
+    private List<JoinMemoryBo> createJoinMemoryBoList2(final String id, final long currentTime, int plus) {
+        final List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo(id, currentTime, 3000 + plus, 2000 + plus, 5000 + plus, id + "_1", id + "_2", 500 + plus, 50 + plus, 600 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo(id, currentTime + 5000, 4000 + plus, 1000 + plus, 7000 + plus, id + "_1", id + "_2", 400 + plus, 150 + plus, 600 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo(id, currentTime + 10000, 5000 + plus, 3000 + plus, 8000 + plus, id + "_1", id + "_2", 200 + plus, 100 + plus, 200 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo(id, currentTime + 15000, 1000 + plus, 100 + plus, 3000 + plus, id + "_1", id + "_2", 100 + plus, 900 + plus, 1000 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo(id, currentTime + + 20000, 2000 + plus, 1000 + plus, 6000 + plus, id + "_1", id + "_2", 300 + plus, 100 + plus, 2900 + plus, id + "_3", id + "_4");
+
+        joinMemoryBoList.add(joinMemoryBo1);
+        joinMemoryBoList.add(joinMemoryBo2);
+        joinMemoryBoList.add(joinMemoryBo3);
+        joinMemoryBoList.add(joinMemoryBo4);
+        joinMemoryBoList.add(joinMemoryBo5);
+
+        return joinMemoryBoList;
+    }
+
     @Test
     public void joinApplicationStatBoByTimeSlice3Test() {
         List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
@@ -354,37 +387,166 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinMemoryBoList.get(4).getHeapUsed(), 7800);
     }
 
-    private class ComparatorImpl2 implements Comparator<JoinMemoryBo> {
+    @Test
+    public void joinApplicationStatBoByTimeSlice5Test() {
+        final long currentTime = 1487149800000L; // 18:10:00 15 2 2017
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+        joinApplicationStatBoList.add(createJoinApplicationStatBo3("id1", currentTime, 10));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo3("id2", currentTime + 1000, -40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo3("id3", currentTime + 2000, -30));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo3("id4", currentTime + 3000, 40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo3("id5", currentTime + 4000, -50));
+        JoinApplicationStatBo resultJoinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        List<JoinTransactionBo> joinTransactionBoList = resultJoinApplicationStatBo.getJoinTransactionBoList();
+        Collections.sort(joinTransactionBoList, new ComparatorImpl3());
+        assertJoinTransactionBoList(joinTransactionBoList);
+    }
+
+    private class ComparatorImpl3 implements Comparator<JoinTransactionBo> {
         @Override
-        public int compare(JoinMemoryBo bo1, JoinMemoryBo bo2) {
+        public int compare(JoinTransactionBo bo1, JoinTransactionBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
         }
     }
 
-    private JoinApplicationStatBo createJoinApplicationStatBo2(final String id, final long timestamp, final int plus) {
+    private JoinApplicationStatBo createJoinApplicationStatBo3(final String id, final long timestamp, final int plus) {
         final JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
         joinApplicationStatBo.setId(id);
-        joinApplicationStatBo.setJoinMemoryBoList(createJoinMemoryBoList2(id, timestamp, plus));
+        joinApplicationStatBo.setJoinTransactionBoList(createJoinTransactionBoList3(id, timestamp, plus));
         joinApplicationStatBo.setTimestamp(timestamp);
         joinApplicationStatBo.setStatType(StatType.APP_STST);
         return joinApplicationStatBo;
     }
 
-    private List<JoinMemoryBo> createJoinMemoryBoList2(final String id, final long currentTime, int plus) {
-        final List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
-        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo(id, currentTime, 3000 + plus, 2000 + plus, 5000 + plus, id + "_1", id + "_2", 500 + plus, 50 + plus, 600 + plus, id + "_3", id + "_4");
-        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo(id, currentTime + 5000, 4000 + plus, 1000 + plus, 7000 + plus, id + "_1", id + "_2", 400 + plus, 150 + plus, 600 + plus, id + "_3", id + "_4");
-        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo(id, currentTime + 10000, 5000 + plus, 3000 + plus, 8000 + plus, id + "_1", id + "_2", 200 + plus, 100 + plus, 200 + plus, id + "_3", id + "_4");
-        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo(id, currentTime + 15000, 1000 + plus, 100 + plus, 3000 + plus, id + "_1", id + "_2", 100 + plus, 900 + plus, 1000 + plus, id + "_3", id + "_4");
-        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo(id, currentTime + + 20000, 2000 + plus, 1000 + plus, 6000 + plus, id + "_1", id + "_2", 300 + plus, 100 + plus, 2900 + plus, id + "_3", id + "_4");
+    private List<JoinTransactionBo> createJoinTransactionBoList3(final String id, final long currentTime, int plus) {
+        final List<JoinTransactionBo> joinTransactionBoList = new ArrayList<JoinTransactionBo>();
 
-        joinMemoryBoList.add(joinMemoryBo1);
-        joinMemoryBoList.add(joinMemoryBo2);
-        joinMemoryBoList.add(joinMemoryBo3);
-        joinMemoryBoList.add(joinMemoryBo4);
-        joinMemoryBoList.add(joinMemoryBo5);
+        JoinTransactionBo joinTransactionBo1 = new JoinTransactionBo(id, 5000, 100 + plus, 60 + plus, id + "_1", 200 + plus, id + "_2", currentTime);
+        JoinTransactionBo joinTransactionBo2 = new JoinTransactionBo(id, 5000, 300 + plus, 150 + plus, id + "_1", 400 + plus, id + "_2", currentTime + 5000);
+        JoinTransactionBo joinTransactionBo3 = new JoinTransactionBo(id, 5000, 200 + plus, 130 + plus, id + "_1", 300 + plus, id + "_2", currentTime + 10000);
+        JoinTransactionBo joinTransactionBo4 = new JoinTransactionBo(id, 5000, 400 + plus, 200 + plus, id + "_1", 450 + plus, id + "_2", currentTime + 15000);
+        JoinTransactionBo joinTransactionBo5 = new JoinTransactionBo(id, 5000, 350 + plus, 170 + plus, id + "_1", 600 + plus, id + "_2", currentTime + 20000);
 
-        return joinMemoryBoList;
+        joinTransactionBoList.add(joinTransactionBo1);
+        joinTransactionBoList.add(joinTransactionBo2);
+        joinTransactionBoList.add(joinTransactionBo3);
+        joinTransactionBoList.add(joinTransactionBo4);
+        joinTransactionBoList.add(joinTransactionBo5);
+
+
+        for (JoinTransactionBo joinTransactionBo : joinTransactionBoList) {
+            System.out.println(joinTransactionBo);
+        }
+
+        return joinTransactionBoList;
+    }
+
+
+    private void assertJoinTransactionBoList(List<JoinTransactionBo> joinTransactionBoList) {
+        assertEquals(joinTransactionBoList.size(), 5);
+
+        JoinTransactionBo joinTransactionBo1 = joinTransactionBoList.get(0);
+        assertEquals(joinTransactionBo1.getId(), "id1");
+        assertEquals(joinTransactionBo1.getTimestamp(), 1487149800000L);
+        assertEquals(joinTransactionBo1.getTotalCount(), 86);
+        assertEquals(joinTransactionBo1.getMinTotalCount(), 10);
+        assertEquals(joinTransactionBo1.getMinTotalCountAgentId(), "id5_1");
+        assertEquals(joinTransactionBo1.getMaxTotalCount(), 240);
+        assertEquals(joinTransactionBo1.getMaxTotalCountAgentId(), "id4_2");
+
+        JoinTransactionBo joinTransactionBo2 = joinTransactionBoList.get(1);
+        assertEquals(joinTransactionBo2.getId(), "id1");
+        assertEquals(joinTransactionBo2.getTimestamp(), 1487149805000L);
+        assertEquals(joinTransactionBo2.getTotalCount(), 286);
+        assertEquals(joinTransactionBo2.getMinTotalCount(), 100);
+        assertEquals(joinTransactionBo2.getMinTotalCountAgentId(), "id5_1");
+        assertEquals(joinTransactionBo2.getMaxTotalCount(), 440);
+        assertEquals(joinTransactionBo2.getMaxTotalCountAgentId(), "id4_2");
+
+        JoinTransactionBo joinTransactionBo3 = joinTransactionBoList.get(2);
+        assertEquals(joinTransactionBo3.getId(), "id1");
+        assertEquals(joinTransactionBo3.getTimestamp(), 1487149810000L);
+        assertEquals(joinTransactionBo3.getTotalCount(), 186);
+        assertEquals(joinTransactionBo3.getMinTotalCount(), 80);
+        assertEquals(joinTransactionBo3.getMinTotalCountAgentId(), "id5_1");
+        assertEquals(joinTransactionBo3.getMaxTotalCount(), 340);
+        assertEquals(joinTransactionBo3.getMaxTotalCountAgentId(), "id4_2");
+
+        JoinTransactionBo joinTransactionBo4 = joinTransactionBoList.get(3);
+        assertEquals(joinTransactionBo4.getId(), "id1");
+        assertEquals(joinTransactionBo4.getTimestamp(), 1487149815000L);
+        assertEquals(joinTransactionBo4.getTotalCount(), 386);
+        assertEquals(joinTransactionBo4.getMinTotalCount(), 150);
+        assertEquals(joinTransactionBo4.getMinTotalCountAgentId(), "id5_1");
+        assertEquals(joinTransactionBo4.getMaxTotalCount(), 490);
+        assertEquals(joinTransactionBo4.getMaxTotalCountAgentId(), "id4_2");
+
+        JoinTransactionBo joinTransactionBo5 = joinTransactionBoList.get(4);
+        assertEquals(joinTransactionBo5.getId(), "id1");
+        assertEquals(joinTransactionBo5.getTimestamp(), 1487149820000L);
+        assertEquals(joinTransactionBo5.getTotalCount(), 336);
+        assertEquals(joinTransactionBo5.getMinTotalCount(), 120);
+        assertEquals(joinTransactionBo5.getMinTotalCountAgentId(), "id5_1");
+        assertEquals(joinTransactionBo5.getMaxTotalCount(), 640);
+        assertEquals(joinTransactionBo5.getMaxTotalCountAgentId(), "id4_2");
+    }
+
+    @Test
+    public void joinApplicationStatBoByTimeSlice6Test() {
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+
+        List<JoinTransactionBo> joinTransactionBoList1 = new ArrayList<JoinTransactionBo>();
+        JoinTransactionBo joinTransactionBo1_1 = new JoinTransactionBo("agent1", 5000, 100, 60, "agent1", 200, "agent1", 1498462545000L);
+        JoinTransactionBo joinTransactionBo1_2 = new JoinTransactionBo("agent2", 5000, 100, 60, "agent2", 200, "agent2", 1498462550000L);
+        JoinTransactionBo joinTransactionBo1_3 = new JoinTransactionBo("agent3", 5000, 100, 60, "agent3", 200, "agent3", 1498462555000L);
+        joinTransactionBoList1.add(joinTransactionBo1_1);
+        joinTransactionBoList1.add(joinTransactionBo1_2);
+        joinTransactionBoList1.add(joinTransactionBo1_3);
+        JoinApplicationStatBo joinApplicationStatBo1 = new JoinApplicationStatBo();
+        joinApplicationStatBo1.setId("test_app");
+        joinApplicationStatBo1.setJoinTransactionBoList(joinTransactionBoList1);
+        joinApplicationStatBo1.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo1);
+
+        List<JoinTransactionBo> joinTransactionBoList2 = new ArrayList<JoinTransactionBo>();
+        JoinTransactionBo joinTransactionBo2_1 = new JoinTransactionBo("agent1", 5000, 50, 20, "agent1", 230, "agent1", 1498462545000L);
+        JoinTransactionBo joinTransactionBo2_2 = new JoinTransactionBo("agent2", 5000, 200, 60, "agent2", 400, "agent2", 1498462550000L);
+        JoinTransactionBo joinTransactionBo2_3 = new JoinTransactionBo("agent3", 5000, 500, 10, "agent3", 100, "agent3", 1498462555000L);
+        JoinTransactionBo joinTransactionBo2_4 = new JoinTransactionBo("agent3", 5000, 400, 60, "agent3", 500, "agent3", 1498462560000L);
+        joinTransactionBoList2.add(joinTransactionBo2_1);
+        joinTransactionBoList2.add(joinTransactionBo2_2);
+        joinTransactionBoList2.add(joinTransactionBo2_3);
+        joinTransactionBoList2.add(joinTransactionBo2_4);
+        JoinApplicationStatBo joinApplicationStatBo2 = new JoinApplicationStatBo();
+        joinApplicationStatBo2.setId("test_app");
+        joinApplicationStatBo2.setJoinTransactionBoList(joinTransactionBoList2);
+        joinApplicationStatBo2.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo2);
+
+        List<JoinTransactionBo> joinTransactionBoList3 = new ArrayList<JoinTransactionBo>();
+        JoinTransactionBo joinTransactionBo3_1 = new JoinTransactionBo("agent1", 5000, 150, 20, "agent1", 230, "agent1", 1498462545000L);
+        JoinTransactionBo joinTransactionBo3_2 = new JoinTransactionBo("agent2", 5000, 300, 10, "agent2", 400, "agent2", 1498462550000L);
+        JoinTransactionBo joinTransactionBo3_3 = new JoinTransactionBo("agent3", 5000, 30, 5, "agent3", 100, "agent3", 1498462565000L);
+        joinTransactionBoList3.add(joinTransactionBo3_1);
+        joinTransactionBoList3.add(joinTransactionBo3_2);
+        joinTransactionBoList3.add(joinTransactionBo3_3);
+        JoinApplicationStatBo joinApplicationStatBo3 = new JoinApplicationStatBo();
+        joinApplicationStatBo3.setId("test_app");
+        joinApplicationStatBo3.setJoinTransactionBoList(joinTransactionBoList3);
+        joinApplicationStatBo3.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo3);
+
+        JoinApplicationStatBo joinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        assertEquals(joinApplicationStatBo.getId(), "test_app");
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1498462545000L);
+        List<JoinTransactionBo> joinTransactionBoList = joinApplicationStatBo.getJoinTransactionBoList();
+        Collections.sort(joinTransactionBoList, new ComparatorImpl3());
+        assertEquals(joinTransactionBoList.size(), 5);
+        assertEquals(joinTransactionBoList.get(0).getTotalCount(), 100);
+        assertEquals(joinTransactionBoList.get(1).getTotalCount(), 200);
+        assertEquals(joinTransactionBoList.get(2).getTotalCount(), 300);
+        assertEquals(joinTransactionBoList.get(3).getTotalCount(), 400);
+        assertEquals(joinTransactionBoList.get(4).getTotalCount(), 30);
     }
 
     @Test
@@ -418,12 +580,26 @@ public class JoinApplicationStatBoTest {
         joinMemoryBoList.add(joinMemoryBo5);
         joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
 
+        List<JoinTransactionBo> joinTransactionBoList = new ArrayList<JoinTransactionBo>();
+        JoinTransactionBo joinTransactionBo1 = new JoinTransactionBo("agent1", 5000, 150, 20, "agent1", 230, "agent1", 1498462565000L);
+        JoinTransactionBo joinTransactionBo2 = new JoinTransactionBo("agent2", 5000, 300, 10, "agent2", 400, "agent2", 1498462570000L);
+        JoinTransactionBo joinTransactionBo3 = new JoinTransactionBo("agent3", 5000, 30, 5, "agent3", 100, "agent3", 1498462575000L);
+        JoinTransactionBo joinTransactionBo4 = new JoinTransactionBo("agent4", 5000, 30, 5, "agent4", 100, "agent4", 1498462580000L);
+        JoinTransactionBo joinTransactionBo5 = new JoinTransactionBo("agent5", 5000, 30, 5, "agent5", 100, "agent5", 1498462585000L);
+        joinTransactionBoList.add(joinTransactionBo1);
+        joinTransactionBoList.add(joinTransactionBo2);
+        joinTransactionBoList.add(joinTransactionBo3);
+        joinTransactionBoList.add(joinTransactionBo4);
+        joinTransactionBoList.add(joinTransactionBo5);
+        joinAgentStatBo.setJoinTransactionBoList(joinTransactionBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
         assertEquals(joinApplicationStatBoList.size(), 1);
         JoinApplicationStatBo joinApplicationStatBo = joinApplicationStatBoList.get(0);
         assertEquals(joinApplicationStatBo.getId(), "test_app");
         assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 5);
         assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 5);
+        assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 5);
     }
 
     @Test
@@ -457,6 +633,19 @@ public class JoinApplicationStatBoTest {
         joinMemoryBoList.add(joinMemoryBo5);
         joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
 
+        List<JoinTransactionBo> joinTransactionBoList = new ArrayList<JoinTransactionBo>();
+        JoinTransactionBo joinTransactionBo1 = new JoinTransactionBo("agent1", 5000, 150, 20, "agent1", 230, "agent1", 1498462545000L);
+        JoinTransactionBo joinTransactionBo2 = new JoinTransactionBo("agent2", 5000, 300, 10, "agent2", 400, "agent2", 1498462550000L);
+        JoinTransactionBo joinTransactionBo3 = new JoinTransactionBo("agent3", 5000, 30, 5, "agent3", 100, "agent3", 1498462555000L);
+        JoinTransactionBo joinTransactionBo4 = new JoinTransactionBo("agent4", 5000, 30, 5, "agent4", 100, "agent4", 1498462560000L);
+        JoinTransactionBo joinTransactionBo5 = new JoinTransactionBo("agent5", 5000, 30, 5, "agent5", 100, "agent5", 1498462565000L);
+        joinTransactionBoList.add(joinTransactionBo1);
+        joinTransactionBoList.add(joinTransactionBo2);
+        joinTransactionBoList.add(joinTransactionBo3);
+        joinTransactionBoList.add(joinTransactionBo4);
+        joinTransactionBoList.add(joinTransactionBo5);
+        joinAgentStatBo.setJoinTransactionBoList(joinTransactionBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
         assertEquals(joinApplicationStatBoList.size(), 2);
         for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
@@ -464,9 +653,11 @@ public class JoinApplicationStatBoTest {
             if (joinApplicationStatBo.getTimestamp() == 1498462560000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 2);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462500000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 3);
+                assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 3);
             } else {
                 fail();
             }
@@ -504,6 +695,19 @@ public class JoinApplicationStatBoTest {
         joinMemoryBoList.add(joinMemoryBo5);
         joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
 
+        List<JoinTransactionBo> joinTransactionBoList = new ArrayList<JoinTransactionBo>();
+        JoinTransactionBo joinTransactionBo1 = new JoinTransactionBo("agent1", 5000, 150, 20, "agent1", 230, "agent1", 1498462545000L);
+        JoinTransactionBo joinTransactionBo2 = new JoinTransactionBo("agent2", 5000, 300, 10, "agent2", 400, "agent2", 1498462550000L);
+        JoinTransactionBo joinTransactionBo3 = new JoinTransactionBo("agent3", 5000, 30, 5, "agent3", 100, "agent3", 1498462555000L);
+        JoinTransactionBo joinTransactionBo4 = new JoinTransactionBo("agent4", 5000, 30, 5, "agent4", 100, "agent4", 1498462560000L);
+        JoinTransactionBo joinTransactionBo5 = new JoinTransactionBo("agent5", 5000, 30, 5, "agent5", 100, "agent5", 1498462565000L);
+        joinTransactionBoList.add(joinTransactionBo1);
+        joinTransactionBoList.add(joinTransactionBo2);
+        joinTransactionBoList.add(joinTransactionBo3);
+        joinTransactionBoList.add(joinTransactionBo4);
+        joinTransactionBoList.add(joinTransactionBo5);
+        joinAgentStatBo.setJoinTransactionBoList(joinTransactionBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 10000);
         assertEquals(joinApplicationStatBoList.size(), 3);
         for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
@@ -511,12 +715,15 @@ public class JoinApplicationStatBoTest {
             if (joinApplicationStatBo.getTimestamp() == 1498462560000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 2);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462540000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 1);
+                assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 1);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462550000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 2);
             } else {
                 fail();
             }

@@ -40,7 +40,6 @@ public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, Jo
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private static JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
     private static ApplicationCache applicationCache;
-    private static long RANGE_TIME = 1000 * 60;
 
 
     public void setApplicationCache(ApplicationCache applicationCache) {
