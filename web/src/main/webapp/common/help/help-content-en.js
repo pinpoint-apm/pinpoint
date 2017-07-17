@@ -720,9 +720,15 @@
 					},{
 						name: "MIN",
 						desc: "Smallest system CPU usage of agents"
+					}]
+				},{
+					title: "[Reference]",
+					items: [{
+						name: "Java 1.6",
+						desc: "Only the JVM's CPU usage is collected"
 					},{
-						name: "",
-						desc: "<span style='color:#2ca02c'>Java1.6 Only the JVM's CPU usage is collected<br>Java1.7+ Both the JVM's and the system's CPU usage are collected</span>"
+						name: "Java 1.7+",
+						desc: "Both the JVM's and the system's CPU usage are collected"
 					}]
 				}]
 			}
