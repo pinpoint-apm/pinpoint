@@ -98,7 +98,7 @@ public class PostgreSqlJdbcUrlParser implements JdbcUrlParserV2 {
         // 1.2.3.4:5678 In case of replication driver could have multiple values
         // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
-        List<String> hostList = new ArrayList<String>(1);
+        List<String> hostList = new ArrayList<>(1);
         hostList.add(host);
         // String port = maker.next().after(':').before('/').value();
 

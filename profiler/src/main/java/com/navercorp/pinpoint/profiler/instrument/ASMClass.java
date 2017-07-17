@@ -147,7 +147,7 @@ public class ASMClass implements InstrumentClass {
             throw new NullPointerException("methodFilter must not be null");
         }
 
-        final List<InstrumentMethod> candidateList = new ArrayList<InstrumentMethod>();
+        final List<InstrumentMethod> candidateList = new ArrayList<>();
         for (ASMMethodNodeAdapter methodNode : this.classNode.getDeclaredMethods()) {
             final InstrumentMethod method = new ASMMethod(this.objectBinderFactory, this.pluginContext, this.interceptorRegistryBinder, apiMetaDataService, this, methodNode);
             if (methodFilter.accept(method)) {
@@ -572,7 +572,7 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public List<InstrumentClass> getNestedClasses(ClassFilter filter) {
-        final List<InstrumentClass> nestedClasses = new ArrayList<InstrumentClass>();
+        final List<InstrumentClass> nestedClasses = new ArrayList<>();
         for (ASMClassNodeAdapter innerClassNode : this.classNode.getInnerClasses()) {
             final ASMNestedClass nestedClass = new ASMNestedClass(objectBinderFactory, this.pluginContext, this.interceptorRegistryBinder, apiMetaDataService, this.classLoader, innerClassNode);
             if (filter.accept(nestedClass)) {

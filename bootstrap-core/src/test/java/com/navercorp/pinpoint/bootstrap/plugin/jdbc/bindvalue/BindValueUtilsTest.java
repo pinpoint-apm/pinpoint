@@ -116,7 +116,7 @@ public class BindValueUtilsTest {
     // #737 https://github.com/naver/pinpoint/issues/737
     @Test
     public void test_734_bug_regression() throws Exception {
-        Map<Integer, String> bindValue = new HashMap<Integer, String>();
+        Map<Integer, String> bindValue = new HashMap<>();
         bindValue.put(1, "1");
         bindValue.put(2, "2");
         // skip 3
@@ -128,7 +128,7 @@ public class BindValueUtilsTest {
 
     @Test
     public void test_index_error_zero() throws Exception {
-        Map<Integer, String> bindValue = new HashMap<Integer, String>();
+        Map<Integer, String> bindValue = new HashMap<>();
         bindValue.put(0, "0");
 
         String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
@@ -137,7 +137,7 @@ public class BindValueUtilsTest {
 
     @Test
     public void test_index_error_negative() throws Exception {
-        Map<Integer, String> bindValue = new HashMap<Integer, String>();
+        Map<Integer, String> bindValue = new HashMap<>();
         bindValue.put(-2, "-2");
 
         String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
@@ -146,7 +146,7 @@ public class BindValueUtilsTest {
 
     @Test
     public void test_index_error_complex() throws Exception {
-        Map<Integer, String> bindValue = new HashMap<Integer, String>();
+        Map<Integer, String> bindValue = new HashMap<>();
         bindValue.put(-2, "-2");
         bindValue.put(0, "0");
         bindValue.put(1, "1");

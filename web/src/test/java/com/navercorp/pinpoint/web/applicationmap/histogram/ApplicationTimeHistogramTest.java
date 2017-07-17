@@ -60,7 +60,7 @@ public class ApplicationTimeHistogramTest {
     }
 
     private List<ResponseTime> createResponseTime(Application app) {
-        List<ResponseTime> responseTimeList = new ArrayList<ResponseTime>();
+        List<ResponseTime> responseTimeList = new ArrayList<>();
 
         ResponseTime one = new ResponseTime(app.getName(), app.getServiceType(), 0);
         one.addResponseTime("test", (short) 1000, 1);

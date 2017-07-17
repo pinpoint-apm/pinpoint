@@ -463,7 +463,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
     }
 
     public Map<String, Object> ReadCookieMap(HttpServletRequest request) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         try {
             Cookie[] cookies = request.getCookies();
             if (null != cookies && cookies.length > 0) {

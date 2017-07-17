@@ -54,7 +54,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<JvmGcBo> createJvmGcBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<JvmGcBo> jvmGcBos = new ArrayList<JvmGcBo>(numValues);
+        List<JvmGcBo> jvmGcBos = new ArrayList<>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> heapUseds = TestAgentStatDataPointFactory.LONG.createFluctuatingValues(
@@ -112,7 +112,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<JvmGcDetailedBo> createJvmGcDetailedBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<JvmGcDetailedBo>(numValues);
+        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> gcNewCounts = TestAgentStatDataPointFactory.LONG.createIncreasingValues(
@@ -157,7 +157,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<CpuLoadBo> createCpuLoadBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<CpuLoadBo> cpuLoadBos = new ArrayList<CpuLoadBo>(numValues);
+        List<CpuLoadBo> cpuLoadBos = new ArrayList<>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Double> jvmCpuLoads = createRandomPercentageValues(numValues);
@@ -180,7 +180,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<TransactionBo> createTransactionBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<TransactionBo> transactionBos = new ArrayList<TransactionBo>(numValues);
+        List<TransactionBo> transactionBos = new ArrayList<>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> collectIntervals = TestAgentStatDataPointFactory.LONG.createFluctuatingValues(
@@ -234,7 +234,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<ActiveTraceBo> createActiveTraceBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<ActiveTraceBo> activeTraceBos = new ArrayList<ActiveTraceBo>(numValues);
+        List<ActiveTraceBo> activeTraceBos = new ArrayList<>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Integer> fastTraceCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
@@ -249,7 +249,7 @@ public class TestAgentStatFactory {
             activeTraceBo.setTimestamp(timestamps.get(i));
             activeTraceBo.setHistogramSchemaType(histogramSchemaType);
             if (RANDOM.nextInt(5) > 0) {
-                Map<SlotType, Integer> activeTraceCounts = new HashMap<SlotType, Integer>();
+                Map<SlotType, Integer> activeTraceCounts = new HashMap<>();
                 activeTraceCounts.put(SlotType.FAST, fastTraceCounts.get(i));
                 activeTraceCounts.put(SlotType.NORMAL, normalTraceCounts.get(i));
                 activeTraceCounts.put(SlotType.SLOW, slowTraceCounts.get(i));
@@ -269,7 +269,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<ResponseTimeBo> createResponseTimeBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<ResponseTimeBo> responseTimeBos = new ArrayList<ResponseTimeBo>(numValues);
+        List<ResponseTimeBo> responseTimeBos = new ArrayList<>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> avgs = TestAgentStatDataPointFactory.LONG.createRandomValues(0L, 1000L, numValues);
@@ -290,7 +290,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<DeadlockBo> createDeadlockBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<DeadlockBo> deadlockBos = new ArrayList<DeadlockBo>(numValues);
+        List<DeadlockBo> deadlockBos = new ArrayList<>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Integer> deadlockCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
@@ -314,7 +314,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<DataSourceListBo> createDataSourceListBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(numValues);
+        List<DataSourceListBo> dataSourceListBos = new ArrayList<>(numValues);
 
         for (int i = 0; i < numValues; ++i) {
             int maxConnectionSize = RandomUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
@@ -365,7 +365,7 @@ public class TestAgentStatFactory {
     }
 
     private static List<Double> createRandomPercentageValues(int numValues) {
-        List<Double> values = new ArrayList<Double>(numValues);
+        List<Double> values = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             int randomInt = RANDOM.nextInt(101);
             double value = randomInt;

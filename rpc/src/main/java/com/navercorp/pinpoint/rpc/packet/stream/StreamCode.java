@@ -77,7 +77,7 @@ public enum StreamCode {
     }
 
     private static Map<Short, StreamCode> initializeCodeMapping() {
-        Map<Short, StreamCode> codeMap = new HashMap<Short, StreamCode>();
+        Map<Short, StreamCode> codeMap = new HashMap<>();
         for (StreamCode streamCode : StreamCode.values()) {
             codeMap.put(streamCode.value, streamCode);
         }

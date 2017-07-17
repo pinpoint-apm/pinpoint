@@ -248,7 +248,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     private Map<String, SimpleClassMetadata> parse(List<FileBinary> fileBinaryList) {
-        Map<String, SimpleClassMetadata> parseMap = new HashMap<String, SimpleClassMetadata>();
+        Map<String, SimpleClassMetadata> parseMap = new HashMap<>();
         for (FileBinary fileBinary : fileBinaryList) {
             SimpleClassMetadata classNode = parseClass(fileBinary);
             parseMap.put(classNode.getClassName(), classNode);

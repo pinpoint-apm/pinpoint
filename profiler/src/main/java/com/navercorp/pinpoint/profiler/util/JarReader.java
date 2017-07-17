@@ -67,7 +67,7 @@ public class JarReader {
 
         String jarFileName = jarFile.getName();
         Enumeration<JarEntry> entries = jarFile.entries();
-        List<FileBinary> fileBinaryList = new ArrayList<FileBinary>();
+        List<FileBinary> fileBinaryList = new ArrayList<>();
         while (entries.hasMoreElements()) {
             final JarEntry jarEntry = entries.nextElement();
             if (jarEntryFilter.filter(jarEntry)) {

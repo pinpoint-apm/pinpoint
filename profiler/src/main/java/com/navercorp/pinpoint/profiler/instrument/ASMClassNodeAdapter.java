@@ -128,7 +128,7 @@ public class ASMClassNodeAdapter {
             return new String[0];
         }
 
-        final List<String> list = new ArrayList<String>();
+        final List<String> list = new ArrayList<>();
         for (String name : interfaces) {
             if (name != null) {
                 list.add(JavaAssistUtils.jvmNameToJavaName(name));
@@ -178,7 +178,7 @@ public class ASMClassNodeAdapter {
             throw new IllegalStateException("not supported operation, skipCode option is true.");
         }
 
-        final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<ASMMethodNodeAdapter>();
+        final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<>();
         if (this.classNode.methods == null) {
             return methodNodes;
         }
@@ -442,7 +442,7 @@ public class ASMClassNodeAdapter {
             return Collections.EMPTY_LIST;
         }
 
-        final List<ASMClassNodeAdapter> innerClasses = new ArrayList<ASMClassNodeAdapter>();
+        final List<ASMClassNodeAdapter> innerClasses = new ArrayList<>();
         final List<InnerClassNode> innerClassNodes = this.classNode.innerClasses;
         for (InnerClassNode node : innerClassNodes) {
             if (node.name == null) {

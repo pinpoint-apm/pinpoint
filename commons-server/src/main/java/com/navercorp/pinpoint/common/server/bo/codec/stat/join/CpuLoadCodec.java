@@ -67,7 +67,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
 
         final int numValues = joinCpuLoadBoList.size();
         valueBuffer.putVInt(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder jvmCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder minJvmCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         StringEncodingStrategy.Analyzer.Builder minJvmCpuAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
@@ -170,7 +170,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
         List<Long> maxSystemCpuLoads = this.codec.decodeValues(valueBuffer, maxSystemCpuLoadEncodingStrategy, numValues);
         List<String> maxSysCpuAgentIds = this.codec.decodeValues(valueBuffer, maxSysCpuAgentIdEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinCpuLoadBoList = new ArrayList<JoinStatBo>(numValues);
+        List<JoinStatBo> joinCpuLoadBoList = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             JoinCpuLoadBo joinCpuLoadBo = new JoinCpuLoadBo();
             joinCpuLoadBo.setId(id);

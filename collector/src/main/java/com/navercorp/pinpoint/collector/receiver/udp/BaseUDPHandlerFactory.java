@@ -70,7 +70,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
             return null;
         }
         try {
-            List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
+            List<InetAddress> inetAddressList = new ArrayList<>();
             for (int i = 0; i < l4IpList.size(); i++) {
                 String l4Ip = l4IpList.get(i);
                 if (StringUtils.isBlank(l4Ip)) {

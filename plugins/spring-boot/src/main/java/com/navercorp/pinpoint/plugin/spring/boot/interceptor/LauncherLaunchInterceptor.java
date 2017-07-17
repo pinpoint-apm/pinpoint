@@ -59,7 +59,7 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
         String serviceName = createServiceName(target);
         URLClassLoader classLoader = (URLClassLoader) args[2];
         URL[] urls = classLoader.getURLs();
-        List<String> loadedJarNames = new ArrayList<String>(extractLibJarNamesFromURLs(urls));
+        List<String> loadedJarNames = new ArrayList<>(extractLibJarNamesFromURLs(urls));
         ServerMetaDataHolder holder = this.traceContext.getServerMetaDataHolder();
         holder.addServiceInfo(serviceName, loadedJarNames);
         holder.notifyListeners();
@@ -93,7 +93,7 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
         if (urls == null) {
             return Collections.emptySet();
         }
-        Set<String> libJarNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        Set<String> libJarNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         for (URL url : urls) {
             try {
                 String libJarName = extractLibJarName(url);

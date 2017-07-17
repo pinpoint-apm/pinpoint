@@ -46,7 +46,7 @@ public class AlarmPartitionerTest {
             
             @Override
             public List<Application> selectAllApplicationNames() {
-                List<Application> apps = new LinkedList<Application>();
+                List<Application> apps = new LinkedList<>();
                 
                 for(int i = 0; i <= 37; i++) {
                     apps.add(new Application("app" + i, ServiceType.STAND_ALONE));

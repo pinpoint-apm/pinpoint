@@ -30,7 +30,7 @@ public final class IntHashMapUtils {
         if (target == null) {
             throw new NullPointerException("target must not be null");
         }
-        final IntHashMap<V> copyMap = new IntHashMap<V>();
+        final IntHashMap<V> copyMap = new IntHashMap<>();
         for (Map.Entry<Integer, V> entry : target.entrySet()) {
             copyMap.put(entry.getKey(), entry.getValue());
         }

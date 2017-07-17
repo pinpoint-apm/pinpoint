@@ -124,7 +124,7 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
                 } else {
                     bestStrategy = REPEAT_COUNT;
                 }
-                List<Short> values = new ArrayList<Short>(this.values);
+                List<Short> values = new ArrayList<>(this.values);
                 this.values.clear();
                 return new Analyzer(bestStrategy, values);
             }

@@ -45,7 +45,7 @@ public class ReplaceListCompactProtocolTest {
     @Before
     public void before() {
         // add dummy span-event list
-        List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>();
+        List<TSpanEvent> spanEventList = new ArrayList<>();
         spanEventList.add(new TSpanEvent());
         span.setSpanEventList(spanEventList);
         span.setSpanEventListIsSet(true);
@@ -56,7 +56,7 @@ public class ReplaceListCompactProtocolTest {
 
     @Test
     public void replace() throws Exception {
-        List<ByteArrayOutput> nodes01 = new ArrayList<ByteArrayOutput>();
+        List<ByteArrayOutput> nodes01 = new ArrayList<>();
         final AtomicInteger writeTo01 = new AtomicInteger(0);
         nodes01.add(new ByteArrayOutput() {
             public void writeTo(OutputStream out) throws IOException {
@@ -65,7 +65,7 @@ public class ReplaceListCompactProtocolTest {
         });
 
         final AtomicInteger writeTo02 = new AtomicInteger(0);
-        List<ByteArrayOutput> nodes02 = new ArrayList<ByteArrayOutput>();
+        List<ByteArrayOutput> nodes02 = new ArrayList<>();
         nodes02.add(new ByteArrayOutput() {
             public void writeTo(OutputStream out) throws IOException {
                 writeTo02.incrementAndGet();

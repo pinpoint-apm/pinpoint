@@ -134,7 +134,7 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
                     }
                 }
 
-                List<String> values = new ArrayList<String>(this.values);
+                List<String> values = new ArrayList<>(this.values);
                 this.values.clear();
 
                 return new Analyzer(bestStrategy, values);

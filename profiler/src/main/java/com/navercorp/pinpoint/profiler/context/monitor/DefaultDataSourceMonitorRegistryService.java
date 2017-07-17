@@ -66,8 +66,8 @@ public class DefaultDataSourceMonitorRegistryService implements DataSourceMonito
 
     @Override
     public List<DataSourceMonitorWrapper> getPluginMonitorWrapperList() {
-        List<DataSourceMonitorWrapper> pluginMonitorList = new ArrayList<DataSourceMonitorWrapper>(repository.size());
-        List<DataSourceMonitorWrapper> disabledPluginMonitorList = new ArrayList<DataSourceMonitorWrapper>();
+        List<DataSourceMonitorWrapper> pluginMonitorList = new ArrayList<>(repository.size());
+        List<DataSourceMonitorWrapper> disabledPluginMonitorList = new ArrayList<>();
 
         for (DataSourceMonitorWrapper dataSourceMonitorWrapper : repository) {
             if (dataSourceMonitorWrapper.isDisabled()) {

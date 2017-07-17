@@ -313,7 +313,7 @@ public class AgentInfoSenderTest {
 
         TcpDataSender dataSender = new TcpDataSender(pinpointClient);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, getAgentInfo()).sendInterval(agentInfoSendRetryIntervalMs).build();
-        final List<ServerMetaData> serverMetaDataObjects = new ArrayList<ServerMetaData>();
+        final List<ServerMetaData> serverMetaDataObjects = new ArrayList<>();
         serverMetaDataObjects.add(new DefaultServerMetaData("server1", Collections.<String> emptyList(), Collections.<Integer, String> emptyMap(), Collections.<ServiceInfo> emptyList()));
         serverMetaDataObjects.add(new DefaultServerMetaData("server2", Collections.<String> emptyList(), Collections.<Integer, String> emptyMap(), Collections.<ServiceInfo> emptyList()));
         serverMetaDataObjects.add(new DefaultServerMetaData("server3", Collections.<String> emptyList(), Collections.<Integer, String> emptyMap(), Collections.<ServiceInfo> emptyList()));
@@ -345,7 +345,7 @@ public class AgentInfoSenderTest {
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch endLatch = new CountDownLatch(threadCount);
         final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        final Queue<Throwable> exceptions = new ConcurrentLinkedQueue<Throwable>();
+        final Queue<Throwable> exceptions = new ConcurrentLinkedQueue<>();
 
         ResponseServerMessageListener delayedServerListener = new ResponseServerMessageListener(requestCount, successCount);
 

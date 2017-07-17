@@ -29,7 +29,7 @@ public class UnKnownDatabaseInfo {
     public static final DatabaseInfo INSTANCE;
 
     static{
-        final List<String> urls = new ArrayList<String>();
+        final List<String> urls = new ArrayList<>();
         urls.add("unknown");
         INSTANCE = new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", urls, "unknown", false);
     }
@@ -39,7 +39,7 @@ public class UnKnownDatabaseInfo {
     }
 
     public static DatabaseInfo createUnknownDataBase(ServiceType type, ServiceType executeQueryType, String url) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add("error");
         return new DefaultDatabaseInfo(type, executeQueryType, url, url, list, "error", false);
     }

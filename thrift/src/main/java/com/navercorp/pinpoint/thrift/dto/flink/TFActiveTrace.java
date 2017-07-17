@@ -101,7 +101,7 @@ public class TFActiveTrace implements org.apache.thrift.TBase<TFActiveTrace, TFA
   private static final _Fields optionals[] = {_Fields.HISTOGRAM};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
     tmpMap.put(_Fields.HISTOGRAM, new org.apache.thrift.meta_data.FieldMetaData("histogram", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TFActiveTraceHistogram.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -214,7 +214,7 @@ public class TFActiveTrace implements org.apache.thrift.TBase<TFActiveTrace, TFA
 
   @Override
   public int hashCode() {
-    List<Object> list = new ArrayList<Object>();
+    List<Object> list = new ArrayList<>();
 
     boolean present_histogram = true && (isSetHistogram());
     list.add(present_histogram);

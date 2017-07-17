@@ -48,7 +48,7 @@ public class ServiceTypeRegistry {
     }
 
     private Map<String, ServiceType> buildNameLookupTable(Collection<ServiceType> serviceTypes) {
-        final Map<String, ServiceType> copy = new HashMap<String, ServiceType>();
+        final Map<String, ServiceType> copy = new HashMap<>();
 
         for (ServiceType serviceType : serviceTypes) {
             final ServiceType duplicated = copy.put(serviceType.getName(), serviceType);
@@ -85,7 +85,7 @@ public class ServiceTypeRegistry {
     }
 
     private Map<String, List<ServiceType>> buildDescLookupTable(Collection<ServiceType> serviceTypes) {
-        final Map<String, List<ServiceType>> table = new HashMap<String, List<ServiceType>>();
+        final Map<String, List<ServiceType>> table = new HashMap<>();
 
         for (ServiceType serviceType : serviceTypes) {
             if (serviceType.isRecordStatistics()) {
@@ -104,7 +104,7 @@ public class ServiceTypeRegistry {
 
     private static Map<String, List<ServiceType>> unmodifiableMap(Map<String, List<ServiceType>> table) {
         // value of this table will be exposed. so make them unmodifiable.
-        final Map<String, List<ServiceType>> copy = new HashMap<String, List<ServiceType>>(table.size());
+        final Map<String, List<ServiceType>> copy = new HashMap<>(table.size());
 
         for (Map.Entry<String, List<ServiceType>> entry : table.entrySet()) {
             List<ServiceType> newValue = Collections.unmodifiableList(entry.getValue());

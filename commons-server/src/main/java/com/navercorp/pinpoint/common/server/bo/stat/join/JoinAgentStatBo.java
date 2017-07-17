@@ -73,13 +73,13 @@ public class JoinAgentStatBo implements JoinStatBo {
             return newJoinAgentStatBo;
         }
 
-        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>();
         for (JoinAgentStatBo joinAgentStatBo : joinAgentStatBoList) {
             joinCpuLoadBoList.addAll(joinAgentStatBo.getJoinCpuLoadBoList());
         }
 
         JoinCpuLoadBo joinCpuLoadBo = JoinCpuLoadBo.joinCpuLoadBoList(joinCpuLoadBoList, joinCpuLoadBoList.get(0).getTimestamp());
-        List<JoinCpuLoadBo> newJoinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+        List<JoinCpuLoadBo> newJoinCpuLoadBoList = new ArrayList<>();
         newJoinCpuLoadBoList.add(joinCpuLoadBo);
         newJoinAgentStatBo.setJoinCpuLoadBoList(newJoinCpuLoadBoList);
         newJoinAgentStatBo.setId(joinCpuLoadBo.getId());

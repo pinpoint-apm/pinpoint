@@ -160,7 +160,7 @@ public class PartitionedByteBufferLocator {
     public static class Builder {
 
         private byte[] buffer;
-        private List<Index> indexList = new ArrayList<Index>();
+        private List<Index> indexList = new ArrayList<>();
 
         public void setBuffer(byte[] buffer) {
             this.buffer = buffer;

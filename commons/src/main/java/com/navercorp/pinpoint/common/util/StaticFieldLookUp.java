@@ -78,7 +78,7 @@ public class StaticFieldLookUp<T> {
         if (filter == null) {
             throw new NullPointerException("filter must not be null");
         }
-        final List<T> lookup = new ArrayList<T>();
+        final List<T> lookup = new ArrayList<>();
 
         Field[] declaredFields = targetClazz.getDeclaredFields();
         for (Field field : declaredFields) {

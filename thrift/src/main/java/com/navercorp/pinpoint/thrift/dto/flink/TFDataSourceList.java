@@ -108,7 +108,7 @@ public class TFDataSourceList implements org.apache.thrift.TBase<TFDataSourceLis
   // isset id assignments
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
     tmpMap.put(_Fields.DATA_SOURCE_LIST, new org.apache.thrift.meta_data.FieldMetaData("dataSourceList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TFDataSource.class))));
@@ -131,7 +131,7 @@ public class TFDataSourceList implements org.apache.thrift.TBase<TFDataSourceLis
    */
   public TFDataSourceList(TFDataSourceList other) {
     if (other.isSetDataSourceList()) {
-      List<TFDataSource> __this__dataSourceList = new ArrayList<TFDataSource>(other.dataSourceList.size());
+      List<TFDataSource> __this__dataSourceList = new ArrayList<>(other.dataSourceList.size());
       for (TFDataSource other_element : other.dataSourceList) {
         __this__dataSourceList.add(new TFDataSource(other_element));
       }
@@ -248,7 +248,7 @@ public class TFDataSourceList implements org.apache.thrift.TBase<TFDataSourceLis
 
   @Override
   public int hashCode() {
-    List<Object> list = new ArrayList<Object>();
+    List<Object> list = new ArrayList<>();
 
     boolean present_dataSourceList = true && (isSetDataSourceList());
     list.add(present_dataSourceList);

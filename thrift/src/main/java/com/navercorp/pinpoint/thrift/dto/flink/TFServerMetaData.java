@@ -119,7 +119,7 @@ public class TFServerMetaData implements org.apache.thrift.TBase<TFServerMetaDat
   private static final _Fields optionals[] = {_Fields.SERVER_INFO, _Fields.VM_ARGS, _Fields.SERVICE_INFOS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
     tmpMap.put(_Fields.SERVER_INFO, new org.apache.thrift.meta_data.FieldMetaData("serverInfo", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.VM_ARGS, new org.apache.thrift.meta_data.FieldMetaData("vmArgs", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -143,11 +143,11 @@ public class TFServerMetaData implements org.apache.thrift.TBase<TFServerMetaDat
       this.serverInfo = other.serverInfo;
     }
     if (other.isSetVmArgs()) {
-      List<String> __this__vmArgs = new ArrayList<String>(other.vmArgs);
+      List<String> __this__vmArgs = new ArrayList<>(other.vmArgs);
       this.vmArgs = __this__vmArgs;
     }
     if (other.isSetServiceInfos()) {
-      List<TFServiceInfo> __this__serviceInfos = new ArrayList<TFServiceInfo>(other.serviceInfos.size());
+      List<TFServiceInfo> __this__serviceInfos = new ArrayList<>(other.serviceInfos.size());
       for (TFServiceInfo other_element : other.serviceInfos) {
         __this__serviceInfos.add(new TFServiceInfo(other_element));
       }
@@ -371,7 +371,7 @@ public class TFServerMetaData implements org.apache.thrift.TBase<TFServerMetaDat
 
   @Override
   public int hashCode() {
-    List<Object> list = new ArrayList<Object>();
+    List<Object> list = new ArrayList<>();
 
     boolean present_serverInfo = true && (isSetServerInfo());
     list.add(present_serverInfo);

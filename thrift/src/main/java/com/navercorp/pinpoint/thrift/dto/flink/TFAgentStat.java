@@ -159,7 +159,7 @@ public class TFAgentStat implements org.apache.thrift.TBase<TFAgentStat, TFAgent
   private static final _Fields optionals[] = {_Fields.AGENT_ID, _Fields.START_TIMESTAMP, _Fields.TIMESTAMP, _Fields.COLLECT_INTERVAL, _Fields.GC, _Fields.CPU_LOAD, _Fields.TRANSACTION, _Fields.ACTIVE_TRACE, _Fields.DATA_SOURCE_LIST, _Fields.METADATA};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
     tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.START_TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("startTimestamp", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -726,7 +726,7 @@ public class TFAgentStat implements org.apache.thrift.TBase<TFAgentStat, TFAgent
 
   @Override
   public int hashCode() {
-    List<Object> list = new ArrayList<Object>();
+    List<Object> list = new ArrayList<>();
 
     boolean present_agentId = true && (isSetAgentId());
     list.add(present_agentId);
