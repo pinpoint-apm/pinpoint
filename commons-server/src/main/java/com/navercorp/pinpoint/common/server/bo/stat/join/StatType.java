@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
+
 /**
  * @author minwoo.jung
  */
@@ -37,6 +39,8 @@ public enum StatType {
 
     private final byte typeCode;
     private final String name;
+
+    private static final IntHashMap<StatType> STAT_TYPE_MAP = toStatTypeMap();
 
     private StatType(int typeCode, String name) {
         if (typeCode < 0 || typeCode > 255) {
@@ -64,12 +68,19 @@ public enum StatType {
     }
 
     public static StatType fromTypeCode(byte typeCode) {
-        for (StatType agentStatType : StatType.values()) {
-            if (agentStatType.typeCode == typeCode) {
-                return agentStatType;
-            }
+        final StatType statType = STAT_TYPE_MAP.get(typeCode);
+        if (statType == null) {
+            return UNKNOWN;
         }
-        return UNKNOWN;
+        return statType;
+    }
+
+    private static IntHashMap<StatType> toStatTypeMap() {
+        final IntHashMap<StatType> map = new IntHashMap<StatType>();
+        for (StatType agentStatType : StatType.values()) {
+            map.put(agentStatType.getTypeCode(), agentStatType);
+        }
+        return map;
     }
 
 

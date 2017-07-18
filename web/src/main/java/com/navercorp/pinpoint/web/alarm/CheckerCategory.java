@@ -40,8 +40,10 @@ import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollect
 import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author minwoo.jung
@@ -151,9 +153,11 @@ public enum CheckerCategory {
             return new DeadlockChecker((AgentEventDataCollector) dataCollector, rule);
         }
     };
+    private static final Set<CheckerCategory> CHECKER_CATEGORIES = EnumSet.allOf(CheckerCategory.class);
+
     
     public static CheckerCategory getValue(String value) {
-        for (CheckerCategory category : CheckerCategory.values()) {
+        for (CheckerCategory category : CHECKER_CATEGORIES) {
             if (category.getName().equalsIgnoreCase(value)) {
                 return category;
             }
@@ -162,9 +166,9 @@ public enum CheckerCategory {
     }
 
     public static List<String> getNames() {
-        List<String> names = new LinkedList<>();
-        
-        for (CheckerCategory category : CheckerCategory.values()) {
+
+        final List<String> names = new ArrayList<>(CHECKER_CATEGORIES.size());
+        for (CheckerCategory category : CHECKER_CATEGORIES) {
             names.add(category.getName());
         }
         

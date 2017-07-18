@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.rpc.common;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,15 +54,21 @@ public enum SocketStateCode {
     private final byte id;
     private final Set<SocketStateCode> validBeforeStateSet;
 
+    private static final Set<SocketStateCode> ALL_STATE_CODES = EnumSet.allOf(SocketStateCode.class);
+
     SocketStateCode(byte id, SocketStateCode... validBeforeStates) {
         this.id = id;
-        this.validBeforeStateSet = new HashSet<SocketStateCode>();
+        this.validBeforeStateSet = asSet(validBeforeStates);
+    }
 
-        if (validBeforeStates != null) {
-            for (SocketStateCode eachStateCode : validBeforeStates) {
-                this.validBeforeStateSet.add(eachStateCode);
-            }
+    private Set<SocketStateCode> asSet(SocketStateCode[] validBeforeStates) {
+        if (ArrayUtils.isEmpty(validBeforeStates)) {
+            return Collections.emptySet();
         }
+
+        final Set<SocketStateCode> temp  = new HashSet<SocketStateCode>();
+        Collections.addAll(temp, validBeforeStates);
+        return temp;
     }
 
     public boolean canChangeState(SocketStateCode nextState) {
@@ -160,9 +170,8 @@ public enum SocketStateCode {
     }
 
     public static SocketStateCode getStateCode(byte id) {
-        SocketStateCode[] allStateCodes = SocketStateCode.values();
 
-        for (SocketStateCode code : allStateCodes) {
+        for (SocketStateCode code : ALL_STATE_CODES) {
             if (code.id == id) {
                 return code;
             }

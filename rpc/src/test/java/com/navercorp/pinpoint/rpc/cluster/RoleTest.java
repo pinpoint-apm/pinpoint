@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,29 +16,17 @@
 
 package com.navercorp.pinpoint.rpc.cluster;
 
-import java.util.EnumSet;
-import java.util.Set;
+import org.junit.Assert;
+import org.junit.Test;
+
 
 /**
- * @author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public enum Role {
-
-    CALLER, CALLEE, ROUTER, UNKNOWN;
-
-    private static final Set<Role> ROLES = EnumSet.allOf(Role.class);
-
-    public static Role getValue(String name) {
-        if (name == null) {
-            return UNKNOWN;
-        }
-        for (Role role : ROLES) {
-            if (name.equals(role.name())) {
-                return role;
-            }
-        }
-
-        return UNKNOWN;
+public class RoleTest {
+    @Test
+    public void getValue() throws Exception {
+        Assert.assertEquals(Role.getValue("ROUTER"), Role.ROUTER);
     }
 
 }
