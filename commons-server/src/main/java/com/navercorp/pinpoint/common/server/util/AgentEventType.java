@@ -22,6 +22,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,17 +47,22 @@ public enum AgentEventType {
     private final Class<?> messageType;
     private final Set<AgentEventTypeCategory> category;
 
+    private static final Set<AgentEventType> AGENT_EVENT_TYPE = EnumSet.allOf(AgentEventType.class);
+
     AgentEventType(int code, String desc, Class<?> messageType, AgentEventTypeCategory... category) {
         this.code = code;
         this.desc = desc;
         this.messageType = messageType;
-        if (ArrayUtils.isEmpty(category)) {
-            this.category = Collections.emptySet();
-        } else {
-            this.category = new HashSet<AgentEventTypeCategory>(Arrays.asList(category));
-        }
+        this.category = asSet(category);
     }
-    
+
+    private Set<AgentEventTypeCategory> asSet(AgentEventTypeCategory[] category) {
+        if (ArrayUtils.isEmpty(category)) {
+           return Collections.emptySet();
+       }
+       return EnumSet.copyOf(Arrays.asList(category));
+    }
+
     public int getCode() {
         return this.code;
     }
@@ -83,7 +89,7 @@ public enum AgentEventType {
     }
     
     public static AgentEventType getTypeByCode(int code) {
-        for (AgentEventType eventType : AgentEventType.values()) {
+        for (AgentEventType eventType : AGENT_EVENT_TYPE) {
             if (eventType.code == code) {
                 return eventType;
             }
@@ -102,7 +108,7 @@ public enum AgentEventType {
 
     public static Set<AgentEventType> getTypesByCategory(AgentEventTypeCategory category) {
         final Set<AgentEventType> eventTypes = new HashSet<AgentEventType>();
-        for (AgentEventType eventType : AgentEventType.values()) {
+        for (AgentEventType eventType : AGENT_EVENT_TYPE) {
             if (eventType.category.contains(category)) {
                 eventTypes.add(eventType);
             }

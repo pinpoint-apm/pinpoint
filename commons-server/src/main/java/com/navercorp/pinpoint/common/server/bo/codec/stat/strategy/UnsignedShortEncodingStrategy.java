@@ -26,7 +26,9 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -36,6 +38,7 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
     REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER));
 
     private final EncodingStrategy<Short> delegate;
+    private static final Set<UnsignedShortEncodingStrategy> UNSIGNED_SHORT_ENCODING_STRATEGY = EnumSet.allOf(UnsignedShortEncodingStrategy.class);
 
     UnsignedShortEncodingStrategy(EncodingStrategy<Short> delegate) {
         this.delegate = delegate;
@@ -57,7 +60,8 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
     }
 
     public static UnsignedShortEncodingStrategy getFromCode(int code) {
-        for (UnsignedShortEncodingStrategy encodingStrategy : UnsignedShortEncodingStrategy.values()) {
+
+        for (UnsignedShortEncodingStrategy encodingStrategy : UNSIGNED_SHORT_ENCODING_STRATEGY) {
             if (encodingStrategy.getCode() == (code & 0xFF)) {
                 return encodingStrategy;
             }

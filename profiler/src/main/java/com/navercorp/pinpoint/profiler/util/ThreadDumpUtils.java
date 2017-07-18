@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
@@ -25,11 +26,32 @@ import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
 public class ThreadDumpUtils {
+
+    private static final Map<Thread.State, TThreadState> THREAD_STATE_MAP = toTThreadStateMap();
+
+    private static Map<Thread.State, TThreadState>  toTThreadStateMap() {
+
+        final EnumMap<Thread.State, TThreadState> threadStateMap = new EnumMap<Thread.State, TThreadState>(Thread.State.class);
+
+        for (Thread.State threadState : Thread.State.values()) {
+            final String threadStateName = threadState.name();
+            for (TThreadState tState : TThreadState.values()) {
+                if (tState.name().equalsIgnoreCase(threadStateName)) {
+                    threadStateMap.put(threadState, tState);
+                }
+            }
+        }
+        Assert.state(threadStateMap.size() == Thread.State.values().length, "TThreadStateEnumMap create fail. ");
+        return threadStateMap;
+    }
+
 
     public static TThreadDump createTThreadDump(Thread thread) {
         ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(thread);
@@ -82,14 +104,11 @@ public class ThreadDumpUtils {
         if (threadState == null) {
             throw new NullPointerException("threadState must not be null");
         }
-
-        String threadStateName = threadState.name();
-        for (TThreadState state : TThreadState.values()) {
-            if (state.name().equalsIgnoreCase(threadStateName)) {
-                return state;
-            }
+        final TThreadState tThreadState = THREAD_STATE_MAP.get(threadState);
+        if (tThreadState == null) {
+            return TThreadState.UNKNOWN;
         }
-        return TThreadState.UNKNOWN;
+        return tThreadState;
     }
 
     private static void setThreadInfo(TThreadDump threadDump, ThreadInfo threadInfo) {
