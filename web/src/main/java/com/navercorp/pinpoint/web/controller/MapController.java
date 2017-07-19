@@ -80,11 +80,12 @@ public class MapController {
                                     @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
                                     @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
                                     @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+                                    @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly,
                                     @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(range);
 
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional);
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
@@ -113,11 +114,12 @@ public class MapController {
                                     @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
                                     @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
                                     @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+                                    @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly,
                                     @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(range);
 
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional);
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
@@ -177,6 +179,7 @@ public class MapController {
                                         @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
                                         @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
                                         @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+                                        @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly,
                                         @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
 
         long to = TimeUtils.getDelayLastTime();
@@ -185,7 +188,7 @@ public class MapController {
         final Range range = new Range(from, to);
         this.dateLimit.limit(range);
 
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional);
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
@@ -210,6 +213,7 @@ public class MapController {
                                         @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
                                         @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
                                         @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+                                        @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly,
                                         @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
 
         long to = TimeUtils.getDelayLastTime();
@@ -218,7 +222,7 @@ public class MapController {
         final Range range = new Range(from, to);
         this.dateLimit.limit(range);
 
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional);
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);

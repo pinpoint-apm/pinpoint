@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service.map;
 
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,10 +51,12 @@ public class LinkSelectorFactory {
         this.serverMapDataFilter = serverMapDataFilter;
     }
 
-    public LinkSelector create(LinkSelectorType linkSelectorType) {
+    public LinkSelector create(SearchOption searchOption) {
+        LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
+
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
         VirtualLinkProcessor virtualLinkProcessor = new VirtualLinkProcessor(linkDataMapService, virtualLinkMarker);
-        ApplicationsMapCreator applicationsMapCreator = applicationsMapCreatorFactory.create(virtualLinkMarker);
+        ApplicationsMapCreator applicationsMapCreator = applicationsMapCreatorFactory.create(searchOption, virtualLinkMarker);
         if (linkSelectorType == LinkSelectorType.UNIDIRECTIONAL) {
             return new UnidirectionalLinkSelector(applicationsMapCreator, virtualLinkProcessor, serverMapDataFilter);
         } else {
