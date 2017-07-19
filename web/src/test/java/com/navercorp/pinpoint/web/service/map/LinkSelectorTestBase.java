@@ -57,9 +57,6 @@ public abstract class LinkSelectorTestBase {
 
     protected final Range range = new Range(0, 100);
 
-    protected final SearchOption oneDepth = new SearchOption(1, 1);
-    protected final SearchOption twoDepth = new SearchOption(2, 2);
-
     protected LinkDataMapService linkDataMapService;
     protected HostApplicationMapDao hostApplicationMapDao;
     protected LinkSelectorFactory linkSelectorFactory;
@@ -87,8 +84,9 @@ public abstract class LinkSelectorTestBase {
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap select = linkSelector.select(APP_A, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap select = linkSelector.select(APP_A, range, searchOption);
 
         Assert.assertEquals(select.size(), 0);
         Assert.assertEquals(select.getTotalCount(), 0);
@@ -110,8 +108,9 @@ public abstract class LinkSelectorTestBase {
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, searchOption);
 
         Assert.assertEquals(linkData.size(), 1);
         Assert.assertEquals(linkData.getTotalCount(), callCount_A_B);
@@ -142,8 +141,9 @@ public abstract class LinkSelectorTestBase {
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, searchOption);
 
         Assert.assertEquals(linkData.size(), numTargets);
         Assert.assertEquals(linkData.getTotalCount(), numTargets * callCount_A_APP);
@@ -180,8 +180,9 @@ public abstract class LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
         // depth 1
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, searchOption);
 
         Assert.assertEquals(linkData.size(), 1);
         Assert.assertEquals(linkData.getTotalCount(), callCount_A_B);
@@ -193,8 +194,9 @@ public abstract class LinkSelectorTestBase {
         Assert.assertEquals(linkData.getTargetLinkDataList().size(), 0);
 
         // depth 2
-        LinkSelector linkSelector2 = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData_depth2 = linkSelector2.select(APP_A, range, twoDepth);
+        SearchOption searchOption2 = new SearchOption(2, 2, getLinkSelectorType(), false);
+        LinkSelector linkSelector2 = linkSelectorFactory.create(searchOption2);
+        LinkDataDuplexMap linkData_depth2 = linkSelector2.select(APP_A, range, searchOption2);
         Assert.assertEquals(linkData_depth2.size(), 2);
         Assert.assertEquals(linkData_depth2.getTotalCount(), callCount_A_B + callCount_B_C);
 
@@ -228,8 +230,9 @@ public abstract class LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, searchOption);
 
         // Then
         Assert.assertEquals(1, linkData.size());
@@ -264,10 +267,11 @@ public abstract class LinkSelectorTestBase {
 
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(linkDataMap);
-        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<AcceptApplication>());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData = linkSelector.select(APP_B, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_B, range, searchOption);
 
         Assert.assertEquals(linkData.size(), 1);
         Assert.assertEquals(linkData.getTotalCount(), callCount_A_B);
@@ -303,10 +307,11 @@ public abstract class LinkSelectorTestBase {
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(linkDataMap_B_C);
 
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<AcceptApplication>());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData = linkSelector.select(APP_C, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_C, range, searchOption);
 
         Assert.assertEquals(linkData.size(), 1);
         Assert.assertEquals(linkData.getTotalCount(), callCount_B_C);
@@ -317,8 +322,9 @@ public abstract class LinkSelectorTestBase {
         Assert.assertEquals(linkData.getTotalCount(), callCount_B_C);
 
         // depth 2
-        LinkSelector linkSelector2 = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData_depth2 = linkSelector2.select(APP_C, range, twoDepth);
+        SearchOption searchOption2 = new SearchOption(2, 2, getLinkSelectorType(), false);
+        LinkSelector linkSelector2 = linkSelectorFactory.create(searchOption2);
+        LinkDataDuplexMap linkData_depth2 = linkSelector2.select(APP_C, range, searchOption2);
         Assert.assertEquals(linkData_depth2.size(), 2);
 
         LinkKey linkKey_A_B = new LinkKey(APP_A, APP_B);
@@ -368,8 +374,9 @@ public abstract class LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, searchOption);
 
         // Then
         LinkData linkData_A_B = linkData.getSourceLinkData(new LinkKey(APP_A, APP_B));
@@ -448,8 +455,9 @@ public abstract class LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
+        SearchOption searchOption = new SearchOption(1, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, searchOption);
 
         // Then
         assertSource_Target_TotalCount("APP_A -> APP_B", linkData, new LinkKey(APP_A, APP_B), callCount_proxy_B + callCount_B);
@@ -529,9 +537,9 @@ public abstract class LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_C), any(Range.class))).thenReturn(apiAcceptApplications);
 
         // When
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        SearchOption in1_out2_options = new SearchOption(2, 1);
-        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, in1_out2_options);
+        SearchOption searchOption = new SearchOption(2, 1, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, searchOption);
 
         // Then
         LinkData linkData_A_B = linkData.getSourceLinkData(new LinkKey(APP_A, APP_B));

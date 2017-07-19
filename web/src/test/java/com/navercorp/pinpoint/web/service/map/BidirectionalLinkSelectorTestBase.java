@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.apache.hadoop.hbase.shaded.org.junit.Assert;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -117,8 +118,9 @@ public abstract class BidirectionalLinkSelectorTestBase extends LinkSelectorTest
         });
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(APP_A, range, twoDepth);
+        SearchOption searchOption = new SearchOption(2, 2, getLinkSelectorType(), false);
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(APP_A, range, searchOption);
 
         // APP_IN_IN -> APP_IN (callee)
         LinkKey linkKey_IN_IN_to_IN = new LinkKey(APP_IN_IN, APP_IN);

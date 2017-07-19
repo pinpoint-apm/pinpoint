@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service.map;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +64,17 @@ public class ApplicationsMapCreatorFactory {
         }
     }
 
-    public ApplicationsMapCreator create(VirtualLinkMarker virtualLinkMarker) {
-        RpcCallReplacer rpcCallReplacer = new RpcCallReplacer(hostApplicationMapDao, virtualLinkMarker);
-        ApplicationMapCreator applicationMapCreator = new DefaultApplicationMapCreator(linkDataMapService, rpcCallReplacer);
+    public ApplicationsMapCreator create(SearchOption searchOption, VirtualLinkMarker virtualLinkMarker) {
+        LinkDataMapProcessors callerLinkDataMapProcessors = new LinkDataMapProcessors();
+        callerLinkDataMapProcessors.addLinkDataMapProcessor(new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker));
+        if (searchOption.isWasOnly()) {
+            callerLinkDataMapProcessors.addLinkDataMapProcessor(new WasOnlyProcessor());
+        }
+
+        LinkDataMapProcessor calleeLinkDataMapProcessor = LinkDataMapProcessor.NO_OP;
+
+        ApplicationMapCreator applicationMapCreator = new DefaultApplicationMapCreator(linkDataMapService, callerLinkDataMapProcessors, calleeLinkDataMapProcessor);
+
         if (mode.equalsIgnoreCase("parallel")) {
             return new ParallelApplicationsMapCreator(applicationMapCreator, executorService);
         }

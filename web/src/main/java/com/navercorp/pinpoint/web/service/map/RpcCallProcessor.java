@@ -38,7 +38,7 @@ import java.util.Set;
  *
  * @author HyunGil Jeong
  */
-public class RpcCallReplacer {
+public class RpcCallProcessor implements LinkDataMapProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -50,7 +50,7 @@ public class RpcCallReplacer {
 
     private final AcceptApplicationLocalCache rpcAcceptApplicationCache = new AcceptApplicationLocalCache();
 
-    public RpcCallReplacer(HostApplicationMapDao hostApplicationMapDao, VirtualLinkMarker virtualLinkMarker) {
+    public RpcCallProcessor(HostApplicationMapDao hostApplicationMapDao, VirtualLinkMarker virtualLinkMarker) {
         if (hostApplicationMapDao == null) {
             throw new NullPointerException("hostApplicationMapDao must not be null");
         }
@@ -61,7 +61,8 @@ public class RpcCallReplacer {
         this.virtualLinkMarker = virtualLinkMarker;
     }
 
-    public LinkDataMap replaceRpcCalls(LinkDataMap linkDataMap, Range range) {
+    @Override
+    public LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range) {
         final LinkDataMap replacedLinkDataMap = new LinkDataMap();
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final List<LinkData> replacedLinkDatas = replaceLinkData(linkData, range);
@@ -73,38 +74,37 @@ public class RpcCallReplacer {
 
     private List<LinkData> replaceLinkData(LinkData linkData, Range range) {
         final Application toApplication = linkData.getToApplication();
-        if (!toApplication.getServiceType().isRpcClient() && !toApplication.getServiceType().isQueue()) {
-            return Collections.singletonList(linkData);
-        }
+        if (toApplication.getServiceType().isRpcClient() || toApplication.getServiceType().isQueue()) {
+            // rpc client's destination could have an agent installed in which case the link data must be replaced to point
+            // to the destination application.
+            logger.debug("Finding accept applications for {}, {}", toApplication, range);
+            final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), range);
+            logger.debug("Found accept applications: {}", acceptApplicationList);
+            if (!CollectionUtils.isEmpty(acceptApplicationList)) {
+                if (acceptApplicationList.size() == 1) {
+                    logger.debug("Application info replaced. {} => {}", linkData, acceptApplicationList);
 
-        // rpc client's destination could have an agent installed in which case the link data must be replaced to point
-        // to the destination application.
-        logger.debug("Finding accept applications for {}, {}", toApplication, range);
-        final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), range);
-        logger.debug("Found accept applications: {}", acceptApplicationList);
-        if (!CollectionUtils.isEmpty(acceptApplicationList)) {
-            if (acceptApplicationList.size() == 1) {
-                logger.debug("Application info replaced. {} => {}", linkData, acceptApplicationList);
-
-                AcceptApplication first = acceptApplicationList.iterator().next();
-                final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), first.getApplication());
-                acceptedLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
-                return Collections.singletonList(acceptedLinkData);
+                    AcceptApplication first = acceptApplicationList.iterator().next();
+                    final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), first.getApplication());
+                    acceptedLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
+                    return Collections.singletonList(acceptedLinkData);
+                } else {
+                    // special case - there are more than 2 nodes grouped by a single url
+                    return virtualLinkMarker.createVirtualLinkData(linkData, toApplication, acceptApplicationList);
+                }
             } else {
-                // special case - there are more than 2 nodes grouped by a single url
-                return virtualLinkMarker.createVirtualLinkData(linkData, toApplication, acceptApplicationList);
-            }
-        } else {
-            // for queues, accept application may not exist if no consumers have an agent installed
-            if (toApplication.getServiceType().isQueue()) {
-                return Collections.singletonList(linkData);
-            } else {
-                final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
-                final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown);
-                unknownLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
-                return Collections.singletonList(unknownLinkData);
+                // for queues, accept application may not exist if no consumers have an agent installed
+                if (toApplication.getServiceType().isQueue()) {
+                    return Collections.singletonList(linkData);
+                } else {
+                    final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
+                    final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown);
+                    unknownLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
+                    return Collections.singletonList(unknownLinkData);
+                }
             }
         }
+        return Collections.singletonList(linkData);
     }
 
     private Set<AcceptApplication> findAcceptApplications(Application fromApplication, String host, Range range) {
