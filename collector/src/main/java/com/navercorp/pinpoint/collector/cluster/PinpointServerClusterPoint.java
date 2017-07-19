@@ -28,6 +28,7 @@ import org.apache.thrift.TBase;
 import org.springframework.util.NumberUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -53,18 +54,7 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
         this.version = MapUtils.getString(properties, HandshakePropertyType.VERSION.getName());
         Assert.isTrue(!StringUtils.isBlank(version), "Version must not be null or empty.");
 
-        this.supportCommandList = new ArrayList<>();
-        Object supportCommandCodeList = properties.get(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName());
-        if (supportCommandCodeList instanceof List) {
-            for (Object supportCommandCode : (List)supportCommandCodeList) {
-                if (supportCommandCode instanceof Number) {
-                    TCommandType commandType = TCommandType.getType(NumberUtils.convertNumberToTargetClass((Number) supportCommandCode, Short.class));
-                    if (commandType != null) {
-                        supportCommandList.add(commandType);
-                    }
-                }
-            }
-        }
+        this.supportCommandList = newSupportCommandList(properties);
 
         this.applicationName = MapUtils.getString(properties, HandshakePropertyType.APPLICATION_NAME.getName());
         Assert.isTrue(!StringUtils.isBlank(applicationName), "ApplicationName must not be null or empty.");
@@ -74,6 +64,25 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
 
         this.startTimeStamp = MapUtils.getLong(properties, HandshakePropertyType.START_TIMESTAMP.getName());
         Assert.isTrue(startTimeStamp > 0, "StartTimeStamp is must greater than zero.");
+    }
+
+    private List<TCommandType> newSupportCommandList(Map<Object, Object> properties) {
+        final Object supportCommandCodeList = properties.get(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName());
+        if (!(supportCommandCodeList instanceof List)) {
+            return Collections.emptyList();
+        }
+
+        final List<TCommandType> result = new ArrayList<>();
+        for (Object supportCommandCode : (List)supportCommandCodeList) {
+            if (supportCommandCode instanceof Number) {
+                TCommandType commandType = TCommandType.getType(NumberUtils.convertNumberToTargetClass((Number) supportCommandCode, Short.class));
+                if (commandType != null) {
+                    result.add(commandType);
+                }
+            }
+        }
+        return result;
+
     }
 
     @Override
