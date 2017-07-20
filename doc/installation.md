@@ -14,10 +14,11 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
 2. Build Pinpoint (Optional) - You do not need to build from source to use Pinpoint (binaries [here](https://github.com/naver/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
-	2. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
-	3. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
-	4. Set JAVA_8_HOME environment variable to JDK 8 home directory.
-	5. Run `./mvnw clean install -Dmaven.test.skip=true` (or `./mvnw.cmd` for Windows)
+	2. Set JAVA_HOME environment varible to JDK 7+ home directory.
+	3. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
+	4. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
+	5. Set JAVA_8_HOME environment variable to JDK 8 home directory.
+	6. Run `./mvnw clean install -Dmaven.test.skip=true` (or `./mvnw.cmd` for Windows)
 3. Pinpoint Collector ([details](#pinpoint-collector))
 	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
 	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
@@ -69,6 +70,7 @@ There are two options:
 	* JDK 6 installed
 	* JDK 7 installed
 	* JDK 8 installed
+	* JAVA_HOME environment variable set to JDK 7+ home directory.
 	* JAVA_6_HOME environment variable set to JDK 6 home directory (1.6.0_45 recommended).
 	* JAVA_7_HOME environment variable set to JDK 7 home directory (1.7.0_80 recommended).
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
