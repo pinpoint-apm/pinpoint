@@ -122,7 +122,7 @@
 	                        oServerMap.clear();
 	                    }
 	                    oProgressBarService.setLoading(10);
-	
+
 	                    htLastQuery = {
 	                        applicationName: applicationName,
 	                        serviceTypeName: serviceTypeName,
@@ -132,6 +132,7 @@
 	                        callerRange: scope.oNavbarVoService.getCallerRange(),
 	                        calleeRange: scope.oNavbarVoService.getCalleeRange(),
 							bidirectional: scope.oNavbarVoService.getBidirectional(),
+							wasOnly: scope.oNavbarVoService.getWasOnly(),
 	                        period: period,
 	                        filter: $window.encodeURIComponent(filterText),
 	                        hint: hintText ? $window.encodeURIComponent(hintText) : false

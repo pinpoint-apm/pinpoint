@@ -36,7 +36,8 @@
 	            to: query.to,
 	            callerRange: query.callerRange,
 	            calleeRange: query.calleeRange,
-				bidirectional: query.bidirectional
+				bidirectional: query.bidirectional,
+				wasOnly: query.wasOnly
 	        };
 	    	if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
 	    		data.serviceTypeName = query.serviceTypeName; 

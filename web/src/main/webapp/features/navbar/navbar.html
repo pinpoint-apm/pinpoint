@@ -47,8 +47,11 @@
 
                             </div>
                         </div>
-                    </li>	
-                    <li class="divider-vertical"></li>
+                    </li>
+					<li ng-hide="bIsInspector">
+						<button class="btn btn-default btn-xs {{wasOnly ? 'btn-info': ''}}" style="height:30px;font-size:11px;line-height:1;{{wasOnly ? 'color:none': 'color:#DDD'}}" ng-click="checkWasOnly($event)">WAS<br>ONLY</button>
+					</li>
+					<li class="divider-vertical"></li>
                     <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
                             <div class="btn-group btn-group-sm" style="margin-top:0px;width:386px;float:left;">
