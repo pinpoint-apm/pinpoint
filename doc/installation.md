@@ -153,12 +153,20 @@ If downloaded, unzip the Pinpint Agent file. You should have a **pinpoint-agent*
 ```
 pinpoint-agent
 |-- boot
+|   |-- pinpoint-annotations-$VERSION.jar
 |   |-- pinpoint-bootstrap-core-$VERSION.jar
+|   |-- pinpoint-bootstrap-core-optional-$VERSION.jar
+|   |-- pinpoint-commons-$VERSION.jar
 |-- lib
+|   |-- log4j.xml
 |   |-- pinpoint-profiler-$VERSION.jar
 |   |-- pinpoint-profiler-optional-$VERSION.jar
 |   |-- pinpoint-rpc-$VERSION.jar
 |   |-- pinpoint-thrift-$VERSION.jar
+|   |-- ...
+|-- plugin
+|   |-- pinpoint-activemq-client-plugin-$VERSION.jar
+|   |-- pinpoint-arcus-plugin-$VERSION.jar
 |   |-- ...
 |-- pinpoint-bootstrap-$VERSION.jar
 |-- pinpoint.config
@@ -166,6 +174,8 @@ pinpoint-agent
 The path to this directory should look like *$PINPOINT_PATH/agent/target/pinpoint-agent* if you built it manually.
 
 You may move/extract the contents of **pinpoint-agent** directory to any location of your choice. The guide will refer to the full path of this directory as `$AGENT_PATH`.
+
+> Note that you may change the agent's log level by modifying the *log4j.xml* located in the *lib* directory above.
 
 ### Installation
 Pinpoint Agent runs as a java agent attached to an application to be profiled (such as Tomcat). 
