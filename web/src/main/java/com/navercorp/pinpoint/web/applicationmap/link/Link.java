@@ -16,81 +16,283 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
-import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory.LinkType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.histogram.*;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.LinkSerializer;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
-import com.navercorp.pinpoint.web.vo.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.LinkKey;
+import com.navercorp.pinpoint.web.vo.Range;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
- * An interface for describing a relationship between apps in application map
+ * A class that describes a relationship between apps in application map
  *
  * @author netspider
  * @author emeroad
+ * @author HyunGil Jeong
  */
 @JsonSerialize(using = LinkSerializer.class)
-public interface Link {
+public class Link {
 
-    String LINK_DELIMITER = "~";
+    private static final String LINK_DELIMITER = "~";
 
-    Application getFilterApplication();
+    private final LinkType linkType;
 
-    LinkKey getLinkKey();
+    // specifies who created the link.
+    // indicates whether it was automatically created by the source, or if it was manually created by the target.
+    private final CreateType createType;
 
-    LinkType getLinkType();
+    private final Node fromNode;
+    private final Node toNode;
 
-    Node getFrom();
+    private final Range range;
 
-    Node getTo();
+    private final LinkStateResolver linkStateResolver = LinkStateResolver.DEFAULT_LINK_STATE_RESOLVER;
 
-    Range getRange();
+    private final LinkCallDataMap sourceLinkCallDataMap = new LinkCallDataMap();
 
-    String getLinkName();
+    private final LinkCallDataMap targetLinkCallDataMap = new LinkCallDataMap();
 
-    LinkCallDataMap getSourceLinkCallDataMap();
+    private Histogram linkHistogram;
 
-    LinkCallDataMap getTargetLinkCallDataMap();
-    
-    CreateType getCreateType();
+    public Link(CreateType createType, Node fromNode, Node toNode, Range range) {
+        this(LinkType.DETAILED, createType, fromNode, toNode, range);
+    }
+
+    public Link(LinkType linkType, CreateType createType, Node fromNode, Node toNode, Range range) {
+        if (linkType == null) {
+            throw new NullPointerException("linkType must not be null");
+        }
+        if (createType == null) {
+            throw new NullPointerException("createType must not be null");
+        }
+        if (fromNode == null) {
+            throw new NullPointerException("fromNode must not be null");
+        }
+        if (toNode == null) {
+            throw new NullPointerException("toNode must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        this.linkType = linkType;
+        this.createType = createType;
+
+        this.fromNode = fromNode;
+        this.toNode = toNode;
+
+        this.range = range;
+    }
+
+    public Application getFilterApplication() {
+        // User link: need to look at WAS, not from
+        // Since User is a virtual link, we cannot filter by User
+        if (fromNode.getServiceType() == ServiceType.USER) {
+            return toNode.getApplication();
+        }
+        // same goes for virtual queue nodes
+        if (!fromNode.getServiceType().isWas() && fromNode.getServiceType().isQueue()) {
+            return toNode.getApplication();
+        }
+        return fromNode.getApplication();
+    }
+
+    public LinkKey getLinkKey() {
+        return new LinkKey(fromNode.getApplication(), toNode.getApplication());
+    }
+
+    public LinkType getLinkType() {
+        return linkType;
+    }
+
+    public Node getFrom() {
+        return fromNode;
+    }
+
+    public Node getTo() {
+        return toNode;
+    }
+
+    public Range getRange() {
+        return range;
+    }
+
+    public String getLinkName() {
+        return createLinkName(fromNode, toNode);
+    }
+
+    public static String createLinkName(Node fromNode, Node toNode) {
+        return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
+    }
+
+    public LinkCallDataMap getSourceLinkCallDataMap() {
+        return sourceLinkCallDataMap;
+    }
+
+    public LinkCallDataMap getTargetLinkCallDataMap() {
+        return targetLinkCallDataMap;
+    }
+
+    public CreateType getCreateType() {
+        return createType;
+    }
 
     @JsonIgnore
-    AgentHistogramList getSourceList();
+    public AgentHistogramList getSourceList() {
+        return sourceLinkCallDataMap.getSourceList();
+    }
 
-    AgentHistogramList getTargetList();
+    public AgentHistogramList getTargetList() {
+        return sourceLinkCallDataMap.getTargetList();
+    }
 
-    Histogram getHistogram();
+    public Histogram getHistogram() {
+        if (linkHistogram == null) {
+            linkHistogram = createHistogram0();
+        }
+        return linkHistogram;
+    }
 
-    Histogram getTargetHistogram();
+    private Histogram createHistogram0() {
+        // need serviceType of target (callee)
+        // ie. Tomcat -> Arcus: we need arcus type
+        final LinkCallDataMap findMap = getLinkCallDataMap();
+        AgentHistogramList targetList = findMap.getTargetList();
+        return targetList.mergeHistogram(toNode.getServiceType());
+    }
 
-    List<ResponseTimeViewModel> getLinkApplicationTimeSeriesHistogram();
+    private LinkCallDataMap getLinkCallDataMap() {
+        switch (createType) {
+            case Source:
+                return sourceLinkCallDataMap;
+            case Target:
+                return targetLinkCallDataMap;
+            default:
+                throw new IllegalArgumentException("invalid CreateType:" + createType);
+        }
+    }
 
-    List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram();
+    public Histogram getTargetHistogram() {
+        // need serviceType of target (callee)
+        // ie. Tomcat -> Arcus: we need Arcus type
+        AgentHistogramList targetList = targetLinkCallDataMap.getTargetList();
+        return targetList.mergeHistogram(toNode.getServiceType());
+    }
 
-    List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram();
+    public List<ResponseTimeViewModel> getLinkApplicationTimeSeriesHistogram() {
+        if (createType == CreateType.Source)  {
+            return getSourceApplicationTimeSeriesHistogram();
+        } else {
+            return getTargetApplicationTimeSeriesHistogram();
+        }
+    }
 
-    ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData();
+    public List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram() {
+        ApplicationTimeHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
+        return histogramData.createViewModel();
+    }
 
-    void addSource(LinkCallDataMap sourceLinkCallDataMap);
+    private ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
+        // we need Target (to)'s time since time in link is RPC-based
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
+        return builder.build(sourceLinkCallDataMap.getLinkDataList());
+    }
 
-    void addTarget(LinkCallDataMap targetLinkCallDataMap);
+    public List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram() {
+        ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
+        return targetApplicationTimeHistogramData.createViewModel();
+    }
 
-    AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram();
+    public ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData() {
+        // we need Target (to)'s time since time in link is RPC-based
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
+        return builder.build(targetLinkCallDataMap.getLinkDataList());
+    }
 
-    AgentTimeHistogram getTargetAgentTimeHistogram();
+    public void addSource(LinkCallDataMap sourceLinkCallDataMap) {
+        this.sourceLinkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
+    }
 
-    Collection<Application> getSourceLinkTargetAgentList();
+    public void addTarget(LinkCallDataMap targetLinkCallDataMap) {
+        this.targetLinkCallDataMap.addLinkDataMap(targetLinkCallDataMap);
+    }
 
-    String getLinkState();
+    public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
+        // we need Target (to)'s time since time in link is RPC-based
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
+        AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(sourceLinkCallDataMap);
+        AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
+        return agentResponseTimeViewModelList;
+    }
 
-    Boolean getLinkAlert();
+    public AgentTimeHistogram getTargetAgentTimeHistogram() {
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
+        AgentTimeHistogram agentTimeHistogram = builder.buildSource(targetLinkCallDataMap);
+        return agentTimeHistogram;
+    }
 
-    boolean isWasToWasLink();
+    public Collection<Application> getSourceLinkTargetAgentList() {
+        Set<Application> agentList = new HashSet<>();
+        Collection<LinkCallData> linkDataList = sourceLinkCallDataMap.getLinkDataList();
+        for (LinkCallData linkCallData : linkDataList) {
+            agentList.add(new Application(linkCallData.getTarget(), linkCallData.getTargetServiceType()));
+        }
+        return agentList;
+    }
+
+    public String getLinkState() {
+        return linkStateResolver.resolve(this);
+    }
+
+    public Boolean getLinkAlert() {
+        return linkStateResolver.isAlert(this);
+    }
+
+    public boolean isWasToWasLink() {
+        return this.fromNode.getApplication().getServiceType().isWas() && this.toNode.getApplication().getServiceType().isWas();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Link that = (Link) o;
+
+        if (!fromNode.equals(that.fromNode)) return false;
+        if (!toNode.equals(that.toNode)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fromNode.hashCode();
+        result = 31 * result + toNode.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultLink{" +
+                "from=" + fromNode +
+                " -> to=" + toNode +
+                '}';
+    }
 }

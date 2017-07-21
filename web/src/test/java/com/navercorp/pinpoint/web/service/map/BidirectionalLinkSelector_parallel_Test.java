@@ -16,16 +16,13 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.web.service.LinkDataMapService;
-
 /**
  * @author HyunGil Jeong
  */
 public class BidirectionalLinkSelector_parallel_Test extends BidirectionalLinkSelectorTestBase {
 
     @Override
-    protected ApplicationsMapCreatorFactory createApplicationsMapCreatorFactory(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao) {
-        return new ApplicationsMapCreatorFactory("parallel", 16, hostApplicationMapDao, linkDataMapService);
+    protected ApplicationsMapCreatorFactory createApplicationsMapCreatorFactory() {
+        return new ApplicationsMapCreatorFactory("parallel", 16);
     }
 }

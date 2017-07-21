@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map.processor;
 
 import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.service.map.AcceptApplication;
+import com.navercorp.pinpoint.web.service.map.VirtualLinkMarker;
+import com.navercorp.pinpoint.web.service.map.processor.RpcCallProcessor;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;

@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerIn
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -301,8 +302,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private ApplicationMap createMap(Range range, Range scanRange, List<List<SpanBo>> filterList, int version) {
-
-        // TODO inject TimeWindow from elsewhere 
+        // TODO inject TimeWindow from elsewhere
         final TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
 
 
@@ -373,6 +373,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
 
         ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(range);
+        applicationMapBuilder.linkType(LinkType.DETAILED);
         applicationMapBuilder.includeNodeHistogram(nodeHistogramFactory);
         applicationMapBuilder.includeServerInfo(serverInstanceListFactory);
         ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap);
@@ -398,7 +399,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private void recordSpanResponseTime(Application application, SpanBo span, ResponseHistogramBuilder responseHistogramBuilder, long timeStamp) {
         responseHistogramBuilder.addHistogram(application, span, timeStamp);
     }
-
 
     private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataDuplexMap linkDataDuplexMap, Map<Long, SpanBo> transactionSpanMap) {
         /*
@@ -525,6 +525,4 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         }
         return transactionIdList;
     }
-
-
 }

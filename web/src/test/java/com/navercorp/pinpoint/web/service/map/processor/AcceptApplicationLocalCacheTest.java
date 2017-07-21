@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map.processor;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -19,18 +19,24 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.MapService;
+import com.navercorp.pinpoint.web.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.util.Limiter;
-import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,8 +44,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author emeroad
- * @author netspid
+ * @author netspider
  * @author jaehong.kim
+ * @author HyunGil Jeong
  */
 @Controller
 public class MapController {
@@ -48,6 +55,9 @@ public class MapController {
 
     @Autowired
     private MapService mapService;
+
+    @Autowired
+    private ResponseTimeHistogramService responseTimeHistogramService;
 
     @Autowired
     private Limiter dateLimit;
@@ -80,8 +90,7 @@ public class MapController {
                                     @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
                                     @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
                                     @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-                                    @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly,
-                                    @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
+                                    @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(range);
 
@@ -90,10 +99,8 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(application, range, searchOption, includeHistograms);
+        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED);
     }
-
-
 
     /**
      * Server map data query within from ~ to timeframe
@@ -114,8 +121,7 @@ public class MapController {
                                     @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
                                     @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
                                     @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-                                    @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly,
-                                    @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
+                                    @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(range);
 
@@ -124,10 +130,72 @@ public class MapController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return selectApplicationMap(application, range, searchOption, includeHistograms);
+        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED);
     }
 
-    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, boolean includeHistograms) {
+    /**
+     * Server map data query within from ~ to timeframe
+     *
+     * @param applicationName
+     * @param serviceTypeCode
+     * @param from
+     * @param to
+     * @return
+     */
+    @RequestMapping(value = "/getServerMapDataV2", method = RequestMethod.GET, params="serviceTypeCode")
+    @ResponseBody
+    public MapWrap getServerMapDataV2(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly) {
+        final Range range = new Range(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC);
+    }
+
+    /**
+     * Server map data query within from ~ to timeframe
+     *
+     * @param applicationName
+     * @param serviceTypeName
+     * @param from
+     * @param to
+     * @return
+     */
+    @RequestMapping(value = "/getServerMapDataV2", method = RequestMethod.GET, params="serviceTypeName")
+    @ResponseBody
+    public MapWrap getServerMapDataV2(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeName") String serviceTypeName,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue ="false", required = false) boolean wasOnly) {
+        final Range range = new Range(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC);
+    }
+
+    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -140,7 +208,7 @@ public class MapController {
 
         logger.info("getServerMap() application:{} range:{} searchOption:{}", application, range, searchOption);
 
-        ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption, includeHistograms);
+        ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption, nodeType, linkType);
         
         return new MapWrap(map);
     }
@@ -162,73 +230,6 @@ public class MapController {
         }
     }
 
-    /**
-     * Server map data query for the last "Period" timeframe
-     *
-     * @param applicationName
-     * @param serviceTypeCode
-     * @param period
-     * @return
-     */
-    @RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET, params="serviceTypeCode")
-    @ResponseBody
-    public MapWrap getLastServerMapData(
-                                        @RequestParam("applicationName") String applicationName,
-                                        @RequestParam("serviceTypeCode") short serviceTypeCode,
-                                        @RequestParam("period") long period,
-                                        @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-                                        @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
-                                        @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-                                        @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly,
-                                        @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
-
-        long to = TimeUtils.getDelayLastTime();
-        long from = to - period;
-
-        final Range range = new Range(from, to);
-        this.dateLimit.limit(range);
-
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
-
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
-
-        return selectApplicationMap(application, range, searchOption, includeHistograms);
-    }
-
-    /**
-     * Server map data query for the last "Period" timeframe
-     *
-     * @param applicationName
-     * @param serviceTypeName
-     * @param period
-     * @return
-     */
-    @RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET, params="serviceTypeName")
-    @ResponseBody
-    public MapWrap getLastServerMapData(
-                                        @RequestParam("applicationName") String applicationName,
-                                        @RequestParam("serviceTypeName") String serviceTypeName,
-                                        @RequestParam("period") long period,
-                                        @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-                                        @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
-                                        @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-                                        @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly,
-                                        @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
-
-        long to = TimeUtils.getDelayLastTime();
-        long from = to - period;
-
-        final Range range = new Range(from, to);
-        this.dateLimit.limit(range);
-
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
-
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-        return selectApplicationMap(application, range, searchOption, includeHistograms);
-    }
-
     @RequestMapping(value = "/getResponseTimeHistogramData", method = RequestMethod.GET, params = "serviceTypeName")
     @ResponseBody
     public ApplicationTimeHistogramViewModel getResponseTimeHistogramData(
@@ -241,9 +242,66 @@ public class MapController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        ApplicationTimeHistogramViewModel applicationTimeHistogramViewModel = mapService.selectResponseTimeHistogramData(application, range);
+        ApplicationTimeHistogramViewModel applicationTimeHistogramViewModel = responseTimeHistogramService.selectResponseTimeHistogramData(application, range);
 
         return applicationTimeHistogramViewModel;
+
     }
 
+    @RequestMapping(value = "/getResponseTimeHistogramDataV2", method = RequestMethod.POST)
+    @ResponseBody
+    public NodeHistogramSummary postResponseTimeHistogramDataV2(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestBody ApplicationPair applicationPair) {
+        final Range range = new Range(from, to);
+        dateLimit.limit(range);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        Application fromApplication = null;
+        String fromApplicationName = applicationPair.getFromApplicationName();
+        if (!StringUtils.isEmpty(fromApplicationName)) {
+            fromApplication = applicationFactory.createApplication(fromApplicationName, applicationPair.getFromServiceTypeCode());
+        }
+
+        Application toApplication = null;
+        String toApplicationName = applicationPair.getToApplicationName();
+        if (!StringUtils.isEmpty(toApplicationName)) {
+            toApplication = applicationFactory.createApplication(toApplicationName, applicationPair.getToServiceTypeCode());
+        }
+
+        return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplication, toApplication);
+    }
+
+    @RequestMapping(value = "/getResponseTimeHistogramDataV2", method = RequestMethod.GET)
+    @ResponseBody
+    public NodeHistogramSummary getResponseTimeHistogramDataV2(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "fromApplicationName", required = false) String fromApplicationName,
+            @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
+            @RequestParam(value = "toApplicationName", required = false) String toApplicationName,
+            @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode) {
+        final Range range = new Range(from, to);
+        dateLimit.limit(range);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        Application fromApplication = null;
+        if (!StringUtils.isEmpty(fromApplicationName)) {
+            fromApplication = applicationFactory.createApplication(fromApplicationName, fromServiceTypeCode);
+        }
+
+        Application toApplication = null;
+        if (!StringUtils.isEmpty(toApplicationName)) {
+            toApplication = applicationFactory.createApplication(toApplicationName, toServiceTypeCode);
+        }
+
+        return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplication, toApplication);
+    }
 }

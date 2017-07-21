@@ -24,12 +24,13 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerInst
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory.LinkType;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkListFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -51,6 +52,7 @@ public class ApplicationMapBuilder {
     private final NodeHistogramAppenderFactory nodeHistogramAppenderFactory;
     private final ServerInfoAppenderFactory serverInfoAppenderFactory;
 
+    private NodeType nodeType;
     private LinkType linkType;
     private NodeHistogramFactory nodeHistogramFactory;
     private ServerInstanceListFactory serverInstanceListFactory;
@@ -68,6 +70,11 @@ public class ApplicationMapBuilder {
         this.range = range;
         this.nodeHistogramAppenderFactory = nodeHistogramAppenderFactory;
         this.serverInfoAppenderFactory = serverInfoAppenderFactory;
+    }
+
+    public ApplicationMapBuilder nodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
+        return this;
     }
 
     public ApplicationMapBuilder linkType(LinkType linkType) {
@@ -91,7 +98,12 @@ public class ApplicationMapBuilder {
         NodeList nodeList = new NodeList();
         LinkList emptyLinkList = new LinkList();
 
-        Node node = new Node(application);
+        NodeType nodeType = this.nodeType;
+        if (nodeType == null) {
+            nodeType = NodeType.DETAILED;
+        }
+
+        Node node = new Node(nodeType, application);
         if (serverInstanceListFactory != null) {
             ServerInstanceList runningInstances = serverInstanceListFactory.createWasNodeInstanceList(node, range.getTo());
             if (runningInstances.getInstanceCount() > 0) {
@@ -116,12 +128,17 @@ public class ApplicationMapBuilder {
         }
         logger.info("Building application map");
 
+        NodeType nodeType = this.nodeType;
+        if (nodeType == null) {
+            nodeType = NodeType.DETAILED;
+        }
+
         LinkType linkType = this.linkType;
         if (linkType == null) {
             linkType = LinkType.DETAILED;
         }
 
-        NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
+        NodeList nodeList = NodeListFactory.createNodeList(nodeType, linkDataDuplexMap);
         LinkList linkList = LinkListFactory.createLinkList(linkType, nodeList, linkDataDuplexMap, range);
 
         NodeHistogramFactory nodeHistogramFactory = this.nodeHistogramFactory;

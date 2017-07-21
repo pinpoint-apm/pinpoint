@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * @author HyunGil Jeong
  */
-public class VirtualLinkProcessor {
+public class VirtualLinkHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -46,7 +46,7 @@ public class VirtualLinkProcessor {
 
     private final VirtualLinkMarker virtualLinkMarker;
 
-    public VirtualLinkProcessor(LinkDataMapService linkDataMapService, VirtualLinkMarker virtualLinkMarker) {
+    public VirtualLinkHandler(LinkDataMapService linkDataMapService, VirtualLinkMarker virtualLinkMarker) {
         if (linkDataMapService == null) {
             throw new NullPointerException("linkDataMapService must not be null");
         }

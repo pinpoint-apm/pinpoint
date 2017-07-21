@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map.processor;
+
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.vo.Range;
 
 /**
  * @author HyunGil Jeong
  */
-public class UnidirectionalLinkSelector_parallel_Test extends UnidirectionalLinkSelectorTestBase {
+public interface LinkDataMapProcessor {
 
-    @Override
-    protected ApplicationsMapCreatorFactory createApplicationsMapCreatorFactory() {
-        return new ApplicationsMapCreatorFactory("parallel", 16);
-    }
+    LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range);
+
+    LinkDataMapProcessor NO_OP = new LinkDataMapProcessor() {
+        @Override
+        public LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range) {
+            return linkDataMap;
+        }
+    };
 }

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 /**
  * @author HyunGil Jeong
  */
-public class UnidirectionalLinkSelector_parallel_Test extends UnidirectionalLinkSelectorTestBase {
-
-    @Override
-    protected ApplicationsMapCreatorFactory createApplicationsMapCreatorFactory() {
-        return new ApplicationsMapCreatorFactory("parallel", 16);
-    }
+public enum NodeType {
+    BASIC,
+    DETAILED
 }

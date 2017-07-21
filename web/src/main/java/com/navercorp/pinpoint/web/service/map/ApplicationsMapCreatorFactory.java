@@ -17,9 +17,6 @@
 package com.navercorp.pinpoint.web.service.map;
 
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.web.service.LinkDataMapService;
-import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,22 +38,14 @@ public class ApplicationsMapCreatorFactory {
 
     private final String mode;
 
-    private final LinkDataMapService linkDataMapService;
-
-    private final HostApplicationMapDao hostApplicationMapDao;
-
     private final ExecutorService executorService;
 
     @Autowired
     public ApplicationsMapCreatorFactory(
             @Value("#{pinpointWebProps['web.servermap.creator.mode'] ?: 'serial'}") String mode,
-            @Value("#{pinpointWebProps['web.servermap.creator.parallel.maxthreads'] ?: '16'}") int threadCount,
-            HostApplicationMapDao hostApplicationMapDao,
-            LinkDataMapService linkDataMapService) {
+            @Value("#{pinpointWebProps['web.servermap.creator.parallel.maxthreads'] ?: '16'}") int threadCount) {
         logger.info("ApplicationsMapCreatorFactory mode : {}", mode);
         this.mode = mode;
-        this.linkDataMapService = linkDataMapService;
-        this.hostApplicationMapDao = hostApplicationMapDao;
         if (this.mode.equalsIgnoreCase("parallel")) {
             this.executorService = Executors.newFixedThreadPool(threadCount, new PinpointThreadFactory("Pinpoint-parallel-link-selector", true));
         } else {
@@ -64,17 +53,7 @@ public class ApplicationsMapCreatorFactory {
         }
     }
 
-    public ApplicationsMapCreator create(SearchOption searchOption, VirtualLinkMarker virtualLinkMarker) {
-        LinkDataMapProcessors callerLinkDataMapProcessors = new LinkDataMapProcessors();
-        callerLinkDataMapProcessors.addLinkDataMapProcessor(new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker));
-        if (searchOption.isWasOnly()) {
-            callerLinkDataMapProcessors.addLinkDataMapProcessor(new WasOnlyProcessor());
-        }
-
-        LinkDataMapProcessor calleeLinkDataMapProcessor = LinkDataMapProcessor.NO_OP;
-
-        ApplicationMapCreator applicationMapCreator = new DefaultApplicationMapCreator(linkDataMapService, callerLinkDataMapProcessors, calleeLinkDataMapProcessor);
-
+    public ApplicationsMapCreator create(ApplicationMapCreator applicationMapCreator) {
         if (mode.equalsIgnoreCase("parallel")) {
             return new ParallelApplicationsMapCreator(applicationMapCreator, executorService);
         }

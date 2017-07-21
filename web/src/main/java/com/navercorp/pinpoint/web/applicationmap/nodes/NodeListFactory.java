@@ -30,24 +30,24 @@ public class NodeListFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeListFactory.class);
 
-    public static NodeList createNodeList(LinkDataDuplexMap linkDataDuplexMap) {
+    public static NodeList createNodeList(NodeType nodeType, LinkDataDuplexMap linkDataDuplexMap) {
         NodeList nodeList = new NodeList();
-        createNode(nodeList, linkDataDuplexMap.getSourceLinkDataMap());
+        createNode(nodeList, nodeType, linkDataDuplexMap.getSourceLinkDataMap());
         logger.debug("node size:{}", nodeList.size());
-        createNode(nodeList, linkDataDuplexMap.getTargetLinkDataMap());
+        createNode(nodeList, nodeType, linkDataDuplexMap.getTargetLinkDataMap());
         logger.debug("node size:{}", nodeList.size());
 
         logger.debug("allNode:{}", nodeList.getNodeList());
         return nodeList;
     }
 
-    private static void createNode(NodeList nodeList, LinkDataMap linkDataMap) {
+    private static void createNode(NodeList nodeList, NodeType nodeType, LinkDataMap linkDataMap) {
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplication = linkData.getFromApplication();
             // FROM is either a CLIENT or a node
             // cannot be RPC. Already converted to unknown.
             if (!fromApplication.getServiceType().isRpcClient()) {
-                final boolean success = addNode(nodeList, fromApplication);
+                final boolean success = addNode(nodeList, nodeType, fromApplication);
                 if (success) {
                     logger.debug("createSourceNode:{}", fromApplication);
                 }
@@ -58,7 +58,7 @@ public class NodeListFactory {
             final Application toApplication = linkData.getToApplication();
             // FROM -> TO : TO is either a CLIENT or a node
             if (!toApplication.getServiceType().isRpcClient()) {
-                final boolean success = addNode(nodeList, toApplication);
+                final boolean success = addNode(nodeList, nodeType, toApplication);
                 if (success) {
                     logger.debug("createTargetNode:{}", toApplication);
                 }
@@ -68,11 +68,11 @@ public class NodeListFactory {
         }
     }
 
-    private static boolean addNode(NodeList nodeList, Application application) {
+    private static boolean addNode(NodeList nodeList, NodeType nodeType, Application application) {
         if (nodeList.containsNode(application)) {
             return false;
         }
-        Node fromNode = new Node(application);
+        Node fromNode = new Node(nodeType, application);
         return nodeList.addNode(fromNode);
     }
 }
