@@ -31,6 +31,7 @@
 		this.CONST.CALLSTACK = "CallStack";
 		this.CONST.MIXEDVIEW = "MixedView";
 		this.CONST.INSPECTOR = "Inspector";
+		this.CONST.REALTIME = "RealTime";
 
 		this.CONST.VERSION = "Version";
 		this.CONST.CLK_APPLICATION = "ClickApplication";

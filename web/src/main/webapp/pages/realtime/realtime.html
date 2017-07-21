@@ -114,17 +114,17 @@
 	<div style="display:inline-block;margin-left:20px;color:#FFF;font-size: 18px;padding-top: 8px">
 		<img ng-src="images/icons/{{serviceType}}.png" width="25px" height="25px" style="background-color:white;margin-bottom:4px;margin-right:4px "/>
 		<span>{{applicationName}}</span>
-		<span>- REALTIME CHART</span>
+		<span>- REALTIME ACTIVE THREAD CHART</span>
 	</div>
 </div>
-<div style="color:white;height:28px;padding: 4px 4px;background-color:#5cb85c;">
-	<span class="ng-binding">Server Count : {{serverTotalCount}} ( {{from}} ~ {{to}} ) </span>
+<div style="color:white;height:28px;padding: 4px 4px;background-color:#6f6f6f;font-family:sans-serif">
+	<span style="font-weight:lighter">Total Servers : </span><span style="font-weight:bolder;font-size:18px;">{{serverTotalCount}}</span> <span>[ {{from}} ~ {{to}} ]</span>
 </div>
 <div class="realtime-page">
 	<div class="agent-chart-list" ng-click="showAgentInfo($event)">
 	</div>
 	<div class="connection-message">
-		<h4></h4>
+		<h4 style="padding-top:300px;"></h4>
 		<button type="button" class="btn btn-warning" style="display:none" ng-click="retryConnection()"><span class="glyphicon glyphicon-repeat"></span> Retry</button>
 	</div>
 </div>
