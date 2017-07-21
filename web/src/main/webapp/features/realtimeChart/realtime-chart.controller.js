@@ -51,8 +51,8 @@
 		}
 	});
 	
-	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$location", "$rootScope", "$compile", "$timeout", "$window", "$http",  "SystemConfigurationService", "LocalStorageManagerService", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
-	    function (cfg, $scope, $element, $location, $rootScope, $compile, $timeout, $window, $http, SystemConfigService, LocalStorageManagerService, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
+	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$location", "$rootScope", "$compile", "$timeout", "$window", "SystemConfigurationService", "LocalStorageManagerService", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
+	    function (cfg, $scope, $element, $location, $rootScope, $compile, $timeout, $window, SystemConfigService, LocalStorageManagerService, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 	    	var TIMEOUT_MAX_COUNT = 10;
@@ -86,9 +86,13 @@
 			var timeoutResult = null;
 			tooltipService.init( "realtime" );
 
+			$scope.maxPageSize = webSocketService.getPagingSize();
+			$scope.pagingValue = [];
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
 	    	$scope.agentChartColor 	= ["rgba(44, 160, 44, .8)", "rgba(60, 129, 250, .8)", 	"rgba(248, 199, 49, .8)", 	"rgba(246, 145, 36, .8)"];
 	    	$scope.requestLabelNames= [ "1s", "3s", "5s", "Slow"];
+	    	$scope.serverTotalCount = 0;
+			$scope.showServerPaging = false;
 	    	$scope.bInitialized = false;
 
 			$(document).on("visibilitychange", function() {
@@ -205,6 +209,7 @@
 			        	
 			        	var applicationData = responseData[cfg.keys.ACTIVE_THREAD_COUNTS];
 			        	var aRequestSum = getSumOfRequestType( applicationData );
+						setServerTotalCount( Object.keys(applicationData).length );
 			        	addSumYValue( aRequestSum );
 			        	
 			        	broadcastData( applicationData, aRequestSum, responseData[cfg.keys.TIME_STAMP] );
@@ -229,6 +234,9 @@
 	        		
 	        		showAgentChart( agentIndexAndCount );
 	        		agentIndexAndCount++;
+	        		if ( agentIndexAndCount >= $scope.maxPageSize ) {
+	        			break;
+					}
 	        	}
 	        	checkNotUseAgentChart( agentIndexAndCount );
         		$scope.$broadcast('realtimeChartDirective.onData.sum', aRequestSum, timeStamp, maxY, bAllError );
@@ -342,6 +350,7 @@
 	        		bottom: -parseInt(LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height)
 	        	}, 500, function() {
 	        	});
+	        	setServerTotalCount(0);
 	        }
 	        function showPopup() {
 				var savedHeight = LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height;
@@ -359,6 +368,32 @@
 	        function setPinColor() {
 	        	$elPin.css("color", bIsPinned ? "red": "");
 	        }
+	        function arrayIndexFill( length ) {
+				var arr = [];
+				for( var i = 2 ; i <= length ; i++ ) {
+					arr.push(i);
+				}
+				return arr;
+			}
+	        function setServerTotalCount(count) {
+				$scope.serverTotalCount = count;
+				if ( count <= $scope.maxPageSize  ) {
+					$scope.showServerPaging = false;
+					$scope.pagingValue = [];
+				} else {
+					$scope.showServerPaging = true;
+					var pageSize = count / $scope.maxPageSize  + ( count % $scope.maxPageSize  > 0 ? 1 : 0 );
+					$scope.pagingValue = arrayIndexFill(pageSize);
+				}
+			}
+			$scope.openRATChart = function( page ) {
+				$window.open(
+					getOpenUrl() +
+					"/realtime/" + currentApplicationName + "@" + currentServiceType + "/" + page,
+					"RealTime Active Thread Chart Paging View [" + page + "]",
+					"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
+				);
+			};
 	        $scope.$on( "realtimeChartController.close", function () {
 	        	hidePopup();
 	        	var prevShowRealtimeChart = bShowRealtimeChart;
@@ -411,6 +446,9 @@
 	        	setPinColor();
 	        };
 	        $scope.showAgentInfo = function( $event ) {
+	        	if ( $( $event.target ).hasClass("paging") || $( $event.target ).parent().hasClass("paging") ) {
+	        		return;
+				}
 				if ( SystemConfigService.get("showActiveThreadDump") === true ) {
 					var $target = $( $event.target );
 					if ($target.hasClass("agent-chart-list")) {

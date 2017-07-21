@@ -56,6 +56,9 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 	}).when('/threadDump/:application/:agentId', {
 		templateUrl: 'pages/threadDump/threadDump.html',
 		controller: 'ThreadDumpCtrl'
+	}).when('/realtime/:application/:page', {
+		templateUrl: 'pages/realtime/realtime.html',
+		controller: 'RealtimeCtrl'
     }).otherwise({
         redirectTo: '/main'
     });
