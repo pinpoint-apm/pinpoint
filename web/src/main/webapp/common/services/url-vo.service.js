@@ -19,6 +19,7 @@
 		 var callee = UserConfigService.getCallee();
 		 var caller = UserConfigService.getCaller();
 		 var bidirectional = UserConfigService.getBidirectional();
+		 var wasOnly = UserConfigService.getWasOnly();
 		 var oPeriodType = PreferenceService.getPeriodType();
 		 var aPeriodTime = PreferenceService.getPeriodTime();
 
@@ -100,6 +101,10 @@
 		 	bidirectional = c;
 		 	return this;
 		 };
+		 this.setWasOnly = function( c ) {
+		 	wasOnly = c;
+		 	return this;
+		 }
 		 // 검색 시간 범위
 		 this.getPeriod = function() {
 			 return minutePeriod;
