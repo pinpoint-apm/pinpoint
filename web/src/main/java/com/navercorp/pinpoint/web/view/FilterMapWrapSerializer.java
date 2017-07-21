@@ -50,7 +50,7 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
             jgen.writeStartObject();
             for (ApplicationScatterScanResult scatterScanResult : applicationScatterScanResult) {
                 Application application = scatterScanResult.getApplication();
-                String name = application.getName() + Node.NODE_DELIMITER + application.getServiceType().toString();
+                String name = Node.createNodeName(application);
                 jgen.writeObjectField(name, scatterScanResult.getScatterScanResult());
             }
             jgen.writeEndObject();
@@ -64,7 +64,7 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
 
             for (Map.Entry<Application, ScatterData> entry : applicationScatterDataMap.entrySet()) {
                 Application application = entry.getKey();
-                String name = application.getName() + Node.NODE_DELIMITER + application.getServiceType().toString();
+                String name = Node.createNodeName(application);
                 jgen.writeFieldName(name);
 
                 ScatterData scatterData = entry.getValue();

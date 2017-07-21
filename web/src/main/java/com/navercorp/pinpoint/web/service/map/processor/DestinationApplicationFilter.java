@@ -14,23 +14,37 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map.processor;
 
+import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Set;
 
 /**
- * Filters out link data pointing to terminal and unknown nodes.
- *
  * @author HyunGil Jeong
  */
-public class WasOnlyProcessor implements LinkDataMapProcessor {
+public class DestinationApplicationFilter implements LinkDataMapProcessor {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Set<Application> destinationApplications;
+
+    public DestinationApplicationFilter(Application destinationApplication) {
+        if (destinationApplication == null) {
+            throw new NullPointerException("destinationApplication must not be null");
+        }
+        this.destinationApplications = Sets.newHashSet(destinationApplication);
+    }
+
+    public DestinationApplicationFilter(Collection<Application> destinationApplications) {
+        if (destinationApplications == null) {
+            throw new NullPointerException("destinationApplications must not be null");
+        }
+        this.destinationApplications = Sets.newHashSet(destinationApplications);
+    }
 
     @Override
     public LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range) {
@@ -45,12 +59,9 @@ public class WasOnlyProcessor implements LinkDataMapProcessor {
 
     private boolean accept(LinkData linkData) {
         final Application toApplication = linkData.getToApplication();
-        boolean isDestinationTerminal = toApplication.getServiceType().isTerminal();
-        boolean isDestinationUnknown = toApplication.getServiceType().isUnknown();
-        if (isDestinationTerminal || isDestinationUnknown) {
-            logger.debug("Filtering linkData : {}", linkData);
-            return false;
+        if (destinationApplications.contains(toApplication)) {
+            return true;
         }
-        return true;
+        return false;
     }
 }

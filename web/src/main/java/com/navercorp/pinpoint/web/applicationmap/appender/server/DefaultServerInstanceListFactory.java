@@ -58,7 +58,7 @@ public class DefaultServerInstanceListFactory implements ServerInstanceListFacto
 
     @Override
     public ServerInstanceList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
-        return createTerminalNodeInstanceList(queueNode, linkDataDuplexMap);
+        return createEmptyNodeInstanceList();
     }
 
     @Override

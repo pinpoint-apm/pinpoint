@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.apache.hadoop.hbase.shaded.org.junit.Assert;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.Collections;
 import java.util.HashSet;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -118,9 +118,8 @@ public abstract class UnidirectionalLinkSelectorTestBase extends LinkSelectorTes
         });
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        SearchOption searchOption = new SearchOption(2, 2, getLinkSelectorType(), false);
-        LinkSelector linkSelector = linkSelectorFactory.create(searchOption);
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(APP_A, range, searchOption);
+        LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(APP_A), range, 2, 2);
 
         // APP_IN_IN -> APP_IN -> APP_A(selected) -> APP_OUT -> APP_OUT_OUT
         //                 |-> APP_IN_OUT   APP_OUT_IN -^

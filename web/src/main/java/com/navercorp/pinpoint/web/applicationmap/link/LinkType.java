@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
-
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.vo.Range;
+package com.navercorp.pinpoint.web.applicationmap.link;
 
 /**
  * @author HyunGil Jeong
  */
-public interface LinkDataMapProcessor {
-
-    LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range);
-
-    LinkDataMapProcessor NO_OP = new LinkDataMapProcessor() {
-        @Override
-        public LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range) {
-            return linkDataMap;
-        }
-    };
+public enum LinkType {
+    BASIC,
+    DETAILED
 }

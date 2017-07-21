@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map.processor;
 
 import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  * @author emeroad
  */
-public class RpcApplication {
+class RpcApplication {
     private final String host;
     private final Application application;
 
-    public RpcApplication(String rpcUrl, Application sourceApplication) {
+    RpcApplication(String rpcUrl, Application sourceApplication) {
         if (rpcUrl == null) {
             throw new NullPointerException("rpcUrl must not be null");
         }

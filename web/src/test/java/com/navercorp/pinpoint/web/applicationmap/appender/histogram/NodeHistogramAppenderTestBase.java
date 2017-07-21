@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
@@ -116,7 +115,7 @@ public abstract class NodeHistogramAppenderTestBase {
         String toNodeAgent = "test-database";
         nodeList.addNode(toNode);
 
-        Link link = LinkFactory.createLink(CreateType.Source, fromNode, toNode, range);
+        Link link = new Link(CreateType.Source, fromNode, toNode, range);
         HistogramSlot fastSlot = toNode.getServiceType().getHistogramSchema().getFastSlot();
         HistogramSlot normalSlot = toNode.getServiceType().getHistogramSchema().getNormalSlot();
         HistogramSlot slowSlot = toNode.getServiceType().getHistogramSchema().getSlowSlot();
@@ -172,7 +171,7 @@ public abstract class NodeHistogramAppenderTestBase {
         String toNodeAgent2 = "test-database2";
         nodeList.addNode(toNode);
 
-        Link link = LinkFactory.createLink(CreateType.Source, fromNode, toNode, range);
+        Link link = new Link(CreateType.Source, fromNode, toNode, range);
         HistogramSlot fastSlot = toNode.getServiceType().getHistogramSchema().getFastSlot();
         HistogramSlot normalSlot = toNode.getServiceType().getHistogramSchema().getNormalSlot();
         // [testApp] test-app -> [testDatabase] test-database1
@@ -230,13 +229,13 @@ public abstract class NodeHistogramAppenderTestBase {
         String cacheNodeAgent = "test-cache";
         nodeList.addNode(cacheNode);
 
-        Link databaseLink = LinkFactory.createLink(CreateType.Source, fromNode, databaseNode, range);
+        Link databaseLink = new Link(CreateType.Source, fromNode, databaseNode, range);
         HistogramSlot databaseSlowSlot = databaseNode.getServiceType().getHistogramSchema().getSlowSlot();
         long databaseCallSlowCount = 50L;
         databaseLink.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), databaseNodeAgent, databaseNode.getServiceType(), databaseSlowSlot, databaseCallSlowCount));
         linkList.addLink(databaseLink);
 
-        Link cacheLink = LinkFactory.createLink(CreateType.Source, fromNode, cacheNode, range);
+        Link cacheLink = new Link(CreateType.Source, fromNode, cacheNode, range);
         HistogramSlot cacheFastSlot = cacheNode.getServiceType().getHistogramSchema().getFastSlot();
         HistogramSlot cacheSlowSlot = cacheNode.getServiceType().getHistogramSchema().getSlowSlot();
         long cacheCallFastCount = 199L;
@@ -299,7 +298,7 @@ public abstract class NodeHistogramAppenderTestBase {
         String wasNodeAgent2 = "was-2";
         nodeList.addNode(wasNode);
 
-        Link link = LinkFactory.createLink(CreateType.Target, userNode, wasNode, range);
+        Link link = new Link(CreateType.Target, userNode, wasNode, range);
         HistogramSlot fastSlot = wasNode.getServiceType().getHistogramSchema().getFastSlot();
         HistogramSlot normalSlot = wasNode.getServiceType().getHistogramSchema().getNormalSlot();
         // [userNode] user -> [wasNode] was-1

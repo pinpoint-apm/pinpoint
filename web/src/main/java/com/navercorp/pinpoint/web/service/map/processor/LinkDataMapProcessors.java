@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map.processor;
 
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -27,9 +27,9 @@ import java.util.List;
  */
 public class LinkDataMapProcessors implements LinkDataMapProcessor {
 
-    List<LinkDataMapProcessor> linkDataMapProcessors = new ArrayList<>();
+    private List<LinkDataMapProcessor> linkDataMapProcessors = new ArrayList<>();
 
-    void addLinkDataMapProcessor(LinkDataMapProcessor linkDataMapProcessor) {
+    public void addLinkDataMapProcessor(LinkDataMapProcessor linkDataMapProcessor) {
         if (linkDataMapProcessor == null) {
             return;
         }

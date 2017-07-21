@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
+import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
-import com.navercorp.pinpoint.web.vo.SearchOption;
+import com.navercorp.pinpoint.web.service.map.processor.LinkDataMapProcessor;
+import com.navercorp.pinpoint.web.service.map.processor.LinkDataMapProcessors;
+import com.navercorp.pinpoint.web.service.map.processor.RpcCallProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,35 +35,53 @@ public class LinkSelectorFactory {
 
     private final ApplicationsMapCreatorFactory applicationsMapCreatorFactory;
 
+    private final HostApplicationMapDao hostApplicationMapDao;
+
     private final ServerMapDataFilter serverMapDataFilter;
 
     @Autowired(required = false)
     public LinkSelectorFactory(
             LinkDataMapService linkDataMapService,
-            ApplicationsMapCreatorFactory appliationsMapCreatorFactory) {
-        this(linkDataMapService, appliationsMapCreatorFactory, null);
+            ApplicationsMapCreatorFactory appliationsMapCreatorFactory,
+            HostApplicationMapDao hostApplicationMapDao) {
+        this(linkDataMapService, appliationsMapCreatorFactory, hostApplicationMapDao, null);
     }
 
     @Autowired(required = false)
     public LinkSelectorFactory(
             LinkDataMapService linkDataMapService,
             ApplicationsMapCreatorFactory appliationsMapCreatorFactory,
+            HostApplicationMapDao hostApplicationMapDao,
             ServerMapDataFilter serverMapDataFilter) {
         this.linkDataMapService = linkDataMapService;
         this.applicationsMapCreatorFactory = appliationsMapCreatorFactory;
+        this.hostApplicationMapDao = hostApplicationMapDao;
         this.serverMapDataFilter = serverMapDataFilter;
     }
 
-    public LinkSelector create(SearchOption searchOption) {
-        LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
+    public LinkSelector createLinkSelector(LinkSelectorType linkSelectorType) {
+        return createLinkSelector(linkSelectorType, LinkDataMapProcessor.NO_OP, LinkDataMapProcessor.NO_OP);
+    }
 
+    public LinkSelector createLinkSelector(LinkSelectorType linkSelectorType, LinkDataMapProcessor callerLinkDataMapProcessor, LinkDataMapProcessor calleeLinkDataMapProcessor) {
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
-        VirtualLinkProcessor virtualLinkProcessor = new VirtualLinkProcessor(linkDataMapService, virtualLinkMarker);
-        ApplicationsMapCreator applicationsMapCreator = applicationsMapCreatorFactory.create(searchOption, virtualLinkMarker);
-        if (linkSelectorType == LinkSelectorType.UNIDIRECTIONAL) {
-            return new UnidirectionalLinkSelector(applicationsMapCreator, virtualLinkProcessor, serverMapDataFilter);
+        VirtualLinkHandler virtualLinkHandler = new VirtualLinkHandler(linkDataMapService, virtualLinkMarker);
+
+        LinkDataMapProcessors callerLinkDataMapProcessors = new LinkDataMapProcessors();
+        callerLinkDataMapProcessors.addLinkDataMapProcessor(new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker));
+        callerLinkDataMapProcessors.addLinkDataMapProcessor(callerLinkDataMapProcessor);
+
+        LinkDataMapProcessors calleeLinkDataMapProcessors = new LinkDataMapProcessors();
+        calleeLinkDataMapProcessors.addLinkDataMapProcessor(calleeLinkDataMapProcessor);
+
+        ApplicationMapCreator applicationMapCreator = new DefaultApplicationMapCreator(linkDataMapService, callerLinkDataMapProcessors, calleeLinkDataMapProcessors);
+
+        ApplicationsMapCreator applicationsMapCreator = applicationsMapCreatorFactory.create(applicationMapCreator);
+
+        if (LinkSelectorType.UNIDIRECTIONAL == linkSelectorType) {
+            return new UnidirectionalLinkSelector(applicationsMapCreator, virtualLinkHandler, serverMapDataFilter);
         } else {
-            return new BidirectionalLinkSelector(applicationsMapCreator, virtualLinkProcessor, serverMapDataFilter);
+            return new BidirectionalLinkSelector(applicationsMapCreator, virtualLinkHandler, serverMapDataFilter);
         }
     }
 }

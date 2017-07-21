@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -35,6 +36,7 @@ import java.util.List;
 /**
  * @author emeroad
  * @author netspider
+ * @author HyunGil Jeong
  */
 public class LinkSerializer extends JsonSerializer<Link> {
     @Override
@@ -67,14 +69,14 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeNumberField("slowCount", histogram.getSlowCount());
 
         jgen.writeObjectField("histogram", histogram);
-
-        // data showing how agents call each of their respective links
-        writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
-        writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
-
         writeTimeSeriesHistogram(link, jgen);
-        writeSourceAgentTimeSeriesHistogram(link, jgen);
 
+        if (LinkType.DETAILED == link.getLinkType()) {
+            // data showing how agents call each of their respective links
+            writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
+            writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
+            writeSourceAgentTimeSeriesHistogram(link, jgen);
+        }
 
 //        String state = link.getLinkState();
 //        jgen.writeStringField("state", state); // for go.js

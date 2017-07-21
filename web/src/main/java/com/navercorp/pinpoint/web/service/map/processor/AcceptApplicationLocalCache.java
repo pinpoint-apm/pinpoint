@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map.processor;
 
 import com.google.common.collect.Sets;
+import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -30,7 +31,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author emeroad
  * @author HyunGil Jeong
  */
-public class AcceptApplicationLocalCache {
+class AcceptApplicationLocalCache {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
