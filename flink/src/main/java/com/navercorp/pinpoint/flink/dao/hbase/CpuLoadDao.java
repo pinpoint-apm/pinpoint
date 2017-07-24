@@ -36,7 +36,6 @@ import java.util.List;
  */
 public class CpuLoadDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final byte[] STAT_METADATA_CF = Bytes.toBytes("S");
 
     private static HbaseTemplate2 hbaseTemplate2 = null;
     private static ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory = null;

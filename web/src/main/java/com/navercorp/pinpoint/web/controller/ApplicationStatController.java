@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.web.service.ApplicationCpuLoadService;
 import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationMemoryService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationTransactionService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -71,6 +72,15 @@ public class ApplicationStatController {
         @Autowired
         public ApplicationMemoryController(ApplicationMemoryService applicationMemoryService) {
             super(applicationMemoryService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getApplicationStat/transaction/chart")
+    public static class ApplicationTransactionController extends ApplicationStatController {
+        @Autowired
+        public ApplicationTransactionController(ApplicationTransactionService applicationTransactionService) {
+            super(applicationTransactionService);
         }
     }
 }
