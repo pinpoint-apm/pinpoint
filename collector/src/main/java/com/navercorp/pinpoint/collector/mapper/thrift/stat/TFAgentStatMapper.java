@@ -39,7 +39,7 @@ public class TFAgentStatMapper {
 
         insertTFCpuLoad(tFAgentStatMap, agentStatBo.getCpuLoadBos(), agentId, startTimestamp);
         insertTFJvmGc(tFAgentStatMap, agentStatBo.getJvmGcBos(), agentId, startTimestamp);
-        //insertTFTransaction(tFAgentStatMap, agentStatBo.getTransactionBos(), agentId, startTimestamp);
+        insertTFTransaction(tFAgentStatMap, agentStatBo.getTransactionBos(), agentId, startTimestamp);
 
         return new ArrayList<>(tFAgentStatMap.values());
     }

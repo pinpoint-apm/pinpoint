@@ -40,12 +40,14 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private static final long serialVersionUID = 1L;
     private static CpuLoadDao cpuLoadDao;
     private static MemoryDao memoryDao;
+    private static TransactionDao transactionDao;
 
     private TableName APPLICATION_STAT_AGGRE;
 
-    public StatisticsDao(CpuLoadDao cpuLoadDao, MemoryDao memoryDao) {
+    public StatisticsDao(CpuLoadDao cpuLoadDao, MemoryDao memoryDao, TransactionDao transactionDao) {
         this.cpuLoadDao = cpuLoadDao;
         this.memoryDao = memoryDao;
+        this.transactionDao = transactionDao;
     }
 
     @Override
@@ -73,11 +75,13 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private void insertJoinApplicationStatBo(JoinApplicationStatBo joinApplicationStatBo) {
         List<JoinStatBo> joinCpuLoadBoList = castJoinStatBoList(joinApplicationStatBo.getJoinCpuLoadBoList());
         List<JoinStatBo> joinMemoryBoList = castJoinStatBoList(joinApplicationStatBo.getJoinMemoryBoList());
+        List<JoinStatBo> joinTransactionBoList = castJoinStatBoList(joinApplicationStatBo.getJoinTransactionBoList());
         if (joinApplicationStatBo.getStatType() == StatType.APP_STST_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
         } else {
             cpuLoadDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinCpuLoadBoList, StatType.APP_CPU_LOAD);
             memoryDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinMemoryBoList, StatType.APP_MEMORY_USED);
+            transactionDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinTransactionBoList, StatType.APP_TRANSACTION_COUNT);
         }
     }
 

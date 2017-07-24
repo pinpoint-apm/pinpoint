@@ -18,14 +18,13 @@ package com.navercorp.pinpoint.flink.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TransactionSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,23 +34,23 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class MemoryDao {
+public class TransactionDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static HbaseTemplate2 hbaseTemplate2 = null;
     private static ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory = null;
-    private static MemorySerializer memorySerializer = null;
+    private static TransactionSerializer transactionSerializer = null;
     private static TableName APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
 
-    public MemoryDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, MemorySerializer memorySerializer) {
+    public TransactionDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, TransactionSerializer transactionSerializer) {
         this.hbaseTemplate2 = hbaseTemplate2;
         this.applicationStatHbaseOperationFactory = applicationStatHbaseOperationFactory;
-        this.memorySerializer = memorySerializer;
+        this.transactionSerializer = transactionSerializer;
     }
 
-    public void insert(String id, long timestamp, List<JoinStatBo> joinMemoryBoList, StatType statType) {
-        logger.info("[insert] " + new Date(timestamp) + " : ("+ joinMemoryBoList + " )");
-        List<Put> cpuLoadPuts = applicationStatHbaseOperationFactory.createPuts(id, joinMemoryBoList, statType, memorySerializer);
+    public void insert(String id, long timestamp, List<JoinStatBo> joinTransactionBoList, StatType statType) {
+        logger.info("[insert] " + new Date(timestamp) + " : ("+ joinTransactionBoList + " )");
+        List<Put> cpuLoadPuts = applicationStatHbaseOperationFactory.createPuts(id, joinTransactionBoList, statType, transactionSerializer);
         if (!cpuLoadPuts.isEmpty()) {
             List<Put> rejectedPuts = hbaseTemplate2.asyncPut(APPLICATION_STAT_AGGRE, cpuLoadPuts);
             if (CollectionUtils.isNotEmpty(rejectedPuts)) {

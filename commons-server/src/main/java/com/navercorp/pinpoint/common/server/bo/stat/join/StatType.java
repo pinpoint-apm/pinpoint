@@ -26,14 +26,18 @@ public enum StatType {
     APP_STST(1, "Application stat"),
     APP_CPU_LOAD(2, "Application Cpu Usage"),
     APP_MEMORY_USED(3, "Application Memory Usage"),
+    APP_TRANSACTION_COUNT(4, "Application Transaction Count"),
 
-    APP_STST_AGGRE(50, "Application stst aggregation"),
-    APP_CPU_LOAD_AGGRE(51, "Application Cpu Usage aggregation"),
-    APP_MEMORY_USED_AGGRE(52, "Application Memory Usage aggregation"),
 
-    AGENT_STST_AGGRE(100, "Agent stst aggregation"),
-    AGENT_CPU_LOAD_AGGRE(101, "Agent Cpu Usage aggregation"),
-    AGENT_MEMORY_USED_AGGRE(102, "Agent Memory Usage aggregation");
+    APP_STST_AGGRE(51, "Application stst aggregation"),
+    APP_CPU_LOAD_AGGRE(52, "Application Cpu Usage aggregation"),
+    APP_MEMORY_USED_AGGRE(53, "Application Memory Usage aggregation"),
+    APP_TRANSACTION_COUNT_AGGRE(54, "Application Transaction Count aggregation"),
+
+    AGENT_STST_AGGRE(101, "Agent stst aggregation"),
+    AGENT_CPU_LOAD_AGGRE(102, "Agent Cpu Usage aggregation"),
+    AGENT_MEMORY_USED_AGGRE(103, "Agent Memory Usage aggregation"),
+    AGENT_TRANSACTION_COUNT_AGGRE(104, "Agent Transaction Count aggregation");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 
