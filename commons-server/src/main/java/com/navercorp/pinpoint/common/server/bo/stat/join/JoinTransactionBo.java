@@ -26,7 +26,6 @@ public class JoinTransactionBo implements JoinStatBo {
 
     private String id = UNKNOWN_ID;
     private long collectInterval = UNCOLLECTED_VALUE;
-
     private long totalCount = UNCOLLECTED_VALUE;
     private String maxTotalCountAgentId = UNKNOWN_AGENT;
     private long maxTotalCount = UNCOLLECTED_VALUE;
@@ -37,7 +36,7 @@ public class JoinTransactionBo implements JoinStatBo {
     public JoinTransactionBo() {
     }
 
-    public JoinTransactionBo(String id, long collectInterval, long totalCount, long minTotalCount, String minTotalCountAgentId, long maxTotalCount, String maxTotalCountAgentId,long timestamp) {
+    public JoinTransactionBo(String id, long collectInterval, long totalCount, long minTotalCount, String minTotalCountAgentId, long maxTotalCount, String maxTotalCountAgentId, long timestamp) {
         this.id = id;
         this.collectInterval = collectInterval;
         this.totalCount = totalCount;
@@ -166,5 +165,23 @@ public class JoinTransactionBo implements JoinStatBo {
             ", minTotalCount=" + minTotalCount +
             ", collectInterval=" + collectInterval +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JoinTransactionBo that = (JoinTransactionBo) o;
+
+        if (collectInterval != that.collectInterval) return false;
+        if (totalCount != that.totalCount) return false;
+        if (maxTotalCount != that.maxTotalCount) return false;
+        if (minTotalCount != that.minTotalCount) return false;
+        if (timestamp != that.timestamp) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (maxTotalCountAgentId != null ? !maxTotalCountAgentId.equals(that.maxTotalCountAgentId) : that.maxTotalCountAgentId != null) return false;
+        return minTotalCountAgentId != null ? minTotalCountAgentId.equals(that.minTotalCountAgentId) : that.minTotalCountAgentId == null;
+
     }
 }
