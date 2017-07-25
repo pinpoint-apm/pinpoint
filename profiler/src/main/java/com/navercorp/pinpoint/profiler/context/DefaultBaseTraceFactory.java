@@ -152,7 +152,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final Storage storage = storageFactory.createStorage(traceRoot);
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
-        final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory.createStorage(traceRoot));
+        final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory);
         final AsyncState asyncState = new ListenableAsyncState(asyncStateListener);
 
         final boolean sampling = true;
@@ -179,7 +179,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final Storage storage = storageFactory.createStorage(traceRoot);
             final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
-            final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory.createStorage(traceRoot));
+            final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory);
             final AsyncState asyncState = new ListenableAsyncState(asyncStateListener);
 
 
