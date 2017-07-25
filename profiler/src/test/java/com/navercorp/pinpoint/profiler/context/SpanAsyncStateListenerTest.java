@@ -17,46 +17,59 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
+@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
 public class SpanAsyncStateListenerTest {
 
+    @Mock
+    private Span span;
+    @Mock
+    private StorageFactory storageFactory;
+    @Mock
+    private Storage storage;
 
     @Test
     public void onComplete() throws Exception {
-        Span span = mock(Span.class);
-        Storage storage = mock(Storage.class);
+        when(storageFactory.createStorage(or((TraceRoot)isNull(), (TraceRoot)any()))).thenReturn(storage);
 
-        ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storage);
+
+        ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storageFactory);
         listener.finish();
 
-        verify(span, times(1)).isTimeRecording();
-        verify(storage, times(1)).store(span);
+        verify(span).isTimeRecording();
+        verify(storage).store(span);
 
         //
         listener.finish();
-        verify(span, times(1)).isTimeRecording();
-        verify(storage, times(1)).store(span);
+        verify(span).isTimeRecording();
+        verify(storage).store(span);
     }
 
     @Test
     public void onComplete_check_atomicity() throws Exception {
-        Span span = mock(Span.class);
-        Storage storage = mock(Storage.class);
+        when(storageFactory.createStorage(or((TraceRoot)isNull(), (TraceRoot)any()))).thenReturn(storage);
 
-        ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storage);
+        ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storageFactory);
         listener.finish();
         listener.finish();
-        verify(span, times(1)).isTimeRecording();
-        verify(storage, times(1)).store(span);
+        verify(span).isTimeRecording();
+        verify(storage).store(span);
     }
 
 

@@ -160,10 +160,6 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.removeTraceObject();
     }
 
-    public AgentInformation getAgentInformation() {
-        return agentInformation;
-    }
-
     @Override
     public String getAgentId() {
         return this.agentInformation.getAgentId();
