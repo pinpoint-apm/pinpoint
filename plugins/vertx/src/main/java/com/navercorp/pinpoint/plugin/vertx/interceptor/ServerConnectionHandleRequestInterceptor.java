@@ -225,7 +225,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     }
 
     private Trace createTrace(final HttpServerRequestImpl request) {
-        final String requestURI = request.uri();
+        final String requestURI = request.path();
         if (requestURI != null && excludeUrlFilter.filter(requestURI)) {
             // skip request.
             if (isTrace) {
@@ -238,7 +238,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         if (!sampling) {
             final Trace trace = traceContext.disableSampling();
             if (isDebug) {
-                logger.debug("Remote call sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.uri(), request.remoteAddress());
+                logger.debug("Remote call sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.path(), request.remoteAddress());
             }
             if (!initScope(trace)) {
                 // invalid scope.
@@ -256,11 +256,11 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
                 final SpanRecorder recorder = trace.getSpanRecorder();
                 recordRootSpan(recorder, request);
                 if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.uri(), request.remoteAddress());
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.path(), request.remoteAddress());
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.uri(), request.remoteAddress());
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.path(), request.remoteAddress());
                 }
             }
             if (!initScope(trace)) {
@@ -277,11 +277,11 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
                 final SpanRecorder recorder = trace.getSpanRecorder();
                 recordRootSpan(recorder, request);
                 if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.uri(), request.remoteAddress());
+                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.path(), request.remoteAddress());
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.uri(), request.remoteAddress());
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.path(), request.remoteAddress());
                 }
             }
 
@@ -329,7 +329,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private void recordRootSpan(final SpanRecorder recorder, final HttpServerRequestImpl request) {
         // root
         recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER);
-        final String requestURL = request.uri();
+        final String requestURL = request.path();
         if (requestURL != null) {
             recorder.recordRpcName(requestURL);
         }

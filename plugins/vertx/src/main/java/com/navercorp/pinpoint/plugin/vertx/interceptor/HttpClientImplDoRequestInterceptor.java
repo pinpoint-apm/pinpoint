@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import io.vertx.core.http.HttpClientRequest;
 
@@ -87,10 +89,17 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             recorder.recordException(throwable);
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
 
+            final String hostAndPort = toHostAndPort(args);
+            if(hostAndPort != null) {
+                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
+                if (isDebug) {
+                    logger.debug("Set hostAndPort {}", hostAndPort);
+                }
+            }
+
             if (request != null) {
                 // make asynchronous trace-id
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-
                 ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
                     logger.debug("Set asyncContext {}", asyncContext);
@@ -117,5 +126,20 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
         }
 
         return true;
+    }
+
+    private String toHostAndPort(final Object[] args) {
+        if (args != null && (args.length == 5 || args.length == 6)) {
+            if (args[1] instanceof String && args[2] instanceof Integer) {
+                final String host = (String) args[1];
+                final int port = (Integer) args[2];
+                return HostAndPort.toHostAndPortString(host, port);
+            }
+        }
+
+        if (isDebug) {
+            logger.debug("Invalid args[]. args={}.", args);
+        }
+        return null;
     }
 }

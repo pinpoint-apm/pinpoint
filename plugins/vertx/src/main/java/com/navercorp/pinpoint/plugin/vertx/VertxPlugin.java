@@ -51,8 +51,16 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
     public void setup(ProfilerPluginSetupContext context) {
         final VertxConfig config = new VertxConfig(context.getConfig());
         if (!config.isEnable() || (!config.isEnableHttpServer() && !config.isEnableHttpClient())) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Disable VertxPlugin.");
+            }
             return;
         }
+
+        if (logger.isInfoEnabled()) {
+            logger.info("Enable VertxPlugin. version range=[3.3, 3.4]");
+        }
+
         // for vertx.io 3.3.x, 3.4.x
         final VertxDetector vertxDetector = new VertxDetector(config.getBootstrapMains());
         context.addApplicationTypeDetector(vertxDetector);
@@ -62,7 +70,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             // add async field & interceptor
             addHandlerInterceptor(basePackageNames);
             if (logger.isInfoEnabled()) {
-                logger.info("Adding Vertx Handler base-packages {}.", config.getHandlerBasePackageNames());
+                logger.info("Adding Vertx Handler. base-packages={}.", config.getHandlerBasePackageNames());
             }
 
             // runOnContext, executeBlocking
@@ -267,19 +275,10 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                     doRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor");
                 }
 
-                // 3.4.1, 3.4.2
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("createRequest"))) {
-                    if (method != null) {
-                        // scoped for 3.4.2
-                        method.addScopedInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor", VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
-                    }
-                }
 
-                // connection for 3.3.x, 3.4.0, 3.4.1, 3.4.2
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("getConnectionForRequest"))) {
-                    if (method != null) {
-                        method.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplGetConnectionForRequest");
-                    }
+                final InstrumentMethod createRequestMethod = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
+                if (createRequestMethod != null) {
+                    createRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor");
                 }
 
                 return target.toBytecode();
@@ -300,18 +299,6 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                     if (method != null) {
                         method.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplDoHandleResponseInterceptor");
                     }
-                }
-
-                // for completionHandler, writeHead(), connect().
-                final InstrumentMethod sendHeadMethod = target.getDeclaredMethod("sendHead", "io.vertx.core.Handler");
-                if (sendHeadMethod != null) {
-                    sendHeadMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplInterceptor");
-                }
-
-                // for stream.writeHeadWithContent().
-                final InstrumentMethod writeMethod = target.getDeclaredMethod("write", "io.netty.buffer.ByteBuf", "boolean");
-                if (writeMethod != null) {
-                    writeMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplInterceptor");
                 }
 
                 // for stream.writeHead(), stream.writeHeadWithContent(), headersCompletionHandler.
