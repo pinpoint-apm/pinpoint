@@ -32,6 +32,7 @@ import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
@@ -778,9 +779,10 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         final Object actual = popSpan();
 
         final TraceRoot traceRoot = getTraceRoot(actual);
+        final Shared shared = traceRoot.getShared();
 
-        if (traceRoot.getLoggingInfo() != loggingInfo.getCode()) {
-            LoggingInfo loggingTransactionInfo = LoggingInfo.searchByCode(traceRoot.getLoggingInfo());
+        if (shared.getLoggingInfo() != loggingInfo.getCode()) {
+            LoggingInfo loggingTransactionInfo = LoggingInfo.searchByCode(shared.getLoggingInfo());
 
             if (loggingTransactionInfo != null) {
                 throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "] but was [" + loggingTransactionInfo.getName() + "]. expected: " + loggingInfo.getName() + ", was: " + loggingTransactionInfo.getName());

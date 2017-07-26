@@ -89,7 +89,7 @@ public class SpanChunkFactoryV1 implements SpanChunkFactory {
         final TraceId traceId = traceRoot.getTraceId();
         spanChunk.setSpanId(traceId.getSpanId());
 
-        spanChunk.setEndPoint(traceRoot.getEndPoint());
+        spanChunk.setEndPoint(traceRoot.getShared().getEndPoint());
         return spanChunk;
     }
 }

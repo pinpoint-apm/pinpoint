@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +66,7 @@ public class AsyncTrace implements Trace {
     @Override
     public long getId() {
         if (this.entryPoint) {
-            return this.trace.getId();
+            return traceRoot.getLocalTransactionId();
         }
 
         return -1;
@@ -76,7 +75,7 @@ public class AsyncTrace implements Trace {
     @Override
     public long getStartTime() {
         if (this.entryPoint) {
-            return this.trace.getStartTime();
+            return this.traceRoot.getTraceStartTime();
         }
 
         return 0;
@@ -85,7 +84,7 @@ public class AsyncTrace implements Trace {
     @Override
     public Thread getBindThread() {
         if (this.entryPoint) {
-            return this.trace.getBindThread();
+            return this.traceRoot.getShared().getThread();
         }
 
         return null;
@@ -93,7 +92,7 @@ public class AsyncTrace implements Trace {
 
     @Override
     public TraceId getTraceId() {
-        return trace.getTraceId();
+        return this.traceRoot.getTraceId();
     }
 
     @Override
@@ -103,7 +102,7 @@ public class AsyncTrace implements Trace {
 
     @Override
     public boolean isRoot() {
-        return trace.isRoot();
+        return this.traceRoot.getTraceId().isRoot();
     }
 
     @Override

@@ -61,6 +61,9 @@ public class DefaultAsyncContext implements InternalAsyncContext {
         return asyncId;
     }
 
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
+    }
 
     @Override
     public Trace continueAsyncTraceObject() {

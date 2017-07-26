@@ -61,8 +61,8 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
         span.setExceptionInfo(exceptionClassId, exceptionMessage);
         if (markError) {
-            final TraceRoot internalTraceId = span.getTraceRoot();
-            internalTraceId.maskErrorCode(1);
+            final TraceRoot traceRoot = span.getTraceRoot();
+            traceRoot.getShared().maskErrorCode(1);
         }
     }
 
@@ -88,6 +88,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordRpcName(String rpc) {
         span.setRpc(rpc);
+        span.getTraceRoot().getShared().setRpcName(rpc);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordEndPoint(String endPoint) {
         span.setEndPoint(endPoint);
-        span.getTraceRoot().setEndPoint(endPoint);
+        span.getTraceRoot().getShared().setEndPoint(endPoint);
     }
 
     @Override
@@ -130,8 +131,8 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     
     @Override
     public void recordLogging(LoggingInfo loggingInfo) {
-        final TraceRoot internalTraceId = span.getTraceRoot();
-        internalTraceId.setLoggingInfo(loggingInfo.getCode());
+        final TraceRoot traceRoot = span.getTraceRoot();
+        traceRoot.getShared().setLoggingInfo(loggingInfo.getCode());
     }
     
     @Override
