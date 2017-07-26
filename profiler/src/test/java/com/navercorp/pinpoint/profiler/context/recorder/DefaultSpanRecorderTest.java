@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -30,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -39,6 +41,8 @@ public class DefaultSpanRecorderTest {
 
     @Mock
     private TraceRoot traceRoot;
+    @Mock
+    private Shared shared;
     @Mock
     private TraceId traceId;
     @Mock
@@ -53,7 +57,6 @@ public class DefaultSpanRecorderTest {
 
     @Test
     public void testRecordApiId() throws Exception {
-
         Span span = new Span(traceRoot);
 
         SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
@@ -67,6 +70,8 @@ public class DefaultSpanRecorderTest {
     @Test
     public void testRecordEndPoint() throws Exception {
 
+        when(traceRoot.getShared()).thenReturn(shared);
+
         Span span = new Span(traceRoot);
 
         SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
@@ -75,7 +80,7 @@ public class DefaultSpanRecorderTest {
         recorder.recordEndPoint(endPoint);
 
         Assert.assertEquals(span.getEndPoint(), endPoint);
-        verify(traceRoot).setEndPoint(endPoint);
+        verify(traceRoot.getShared()).setEndPoint(endPoint);
     }
 
 }

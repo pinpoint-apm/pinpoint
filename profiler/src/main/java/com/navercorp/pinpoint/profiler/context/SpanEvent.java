@@ -57,7 +57,7 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
     public void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
         setExceptionInfo(exceptionClassId, exceptionMessage);
         if (markError) {
-            traceRoot.maskErrorCode(1);
+            traceRoot.getShared().maskErrorCode(1);
         }
     }
 

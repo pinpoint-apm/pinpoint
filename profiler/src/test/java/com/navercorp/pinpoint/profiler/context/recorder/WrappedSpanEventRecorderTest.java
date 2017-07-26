@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -40,6 +41,9 @@ public class WrappedSpanEventRecorderTest {
     private TraceRoot traceRoot;
 
     @Mock
+    private Shared shared;
+
+    @Mock
     private AsyncContextFactory asyncContextFactory;
 
     @Mock
@@ -50,6 +54,8 @@ public class WrappedSpanEventRecorderTest {
 
     @Test
     public void testSetExceptionInfo_RootMarkError() throws Exception {
+        when(traceRoot.getShared()).thenReturn(shared);
+
         SpanEvent spanEvent = new SpanEvent(traceRoot);
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
         recorder.setWrapped(spanEvent);
@@ -59,7 +65,7 @@ public class WrappedSpanEventRecorderTest {
         recorder.recordException(false, exception1);
 
         Assert.assertEquals("Exception recoding", exceptionMessage1, spanEvent.getExceptionInfo().getStringValue());
-        verify(traceRoot, never()).maskErrorCode(anyInt());
+        verify(shared, never()).maskErrorCode(anyInt());
 
 
         final String exceptionMessage2 = "exceptionMessage2";
@@ -67,7 +73,7 @@ public class WrappedSpanEventRecorderTest {
         recorder.recordException(true, exception2);
 
         Assert.assertEquals("Exception recoding", exceptionMessage2, spanEvent.getExceptionInfo().getStringValue());
-        verify(traceRoot, only()).maskErrorCode(1);
+        verify(shared, only()).maskErrorCode(1);
     }
 
     @Test

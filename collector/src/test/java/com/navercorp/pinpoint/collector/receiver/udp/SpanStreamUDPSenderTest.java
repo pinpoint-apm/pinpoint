@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamUdpSender;
 import com.navercorp.pinpoint.thrift.dto.TResult;
@@ -86,6 +87,9 @@ public class SpanStreamUDPSenderTest {
         final TraceRoot traceRoot = mock(TraceRoot.class);
         TraceId traceId = mock(TraceId.class);
         Mockito.when(traceRoot.getTraceId()).thenReturn(traceId);
+
+        Shared shared = mock(Shared.class);
+        Mockito.when(traceRoot.getShared()).thenReturn(shared);
         return traceRoot;
     }
 

@@ -29,21 +29,14 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  */
 public class DefaultTraceRoot implements TraceRoot {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private static final AtomicReferenceFieldUpdater<DefaultTraceRoot, String> END_POINT_UPDATER = AtomicReferenceFieldUpdater.newUpdater(DefaultTraceRoot.class, String.class, "endPoint");
     private final TraceId traceId;
     private final String agentId;
     private final long localTransactionId;
 
     private ByteBuffer compactTransactionId;
-    private long traceStartTime;
+    private final long traceStartTime;
 
-
-    private int errorCode;
-    private byte loggingInfo;
-    @SuppressWarnings("unused")
-    private volatile String endPoint;
+    private final Shared shared = new DefaultShared();
 
 
     public DefaultTraceRoot(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
@@ -135,43 +128,11 @@ public class DefaultTraceRoot implements TraceRoot {
     }
 
     @Override
-    public void maskErrorCode(int errorCode) {
-        synchronized (this) {
-//            TODO Refactor bit masking rule
-//            this.errorCode |= errorCode;
-            this.errorCode = errorCode;
-        }
+    public Shared getShared() {
+        return shared;
     }
 
-    public int getErrorCode() {
-        synchronized (this) {
-            return errorCode;
-        }
-    }
 
-    public void setLoggingInfo(byte loggingInfo) {
-        synchronized (this) {
-            this.loggingInfo = loggingInfo;
-        }
-    }
-
-    public byte getLoggingInfo() {
-        synchronized (this) {
-            return loggingInfo;
-        }
-    }
-
-    public void setEndPoint(String endPoint) {
-        final boolean updated = END_POINT_UPDATER.compareAndSet(this, null, endPoint);
-        if (!updated) {
-            // for debug
-            logger.debug("already set EndPoint {}", endPoint);
-        }
-    }
-
-    public String getEndPoint() {
-        return END_POINT_UPDATER.get(this);
-    }
 
 
     @Override
