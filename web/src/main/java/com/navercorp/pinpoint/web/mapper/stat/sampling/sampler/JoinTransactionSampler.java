@@ -17,12 +17,14 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
  * @author minwoo.jung
  */
+@Component
 public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransactionBo> {
 
     @Override

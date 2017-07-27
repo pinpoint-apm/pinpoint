@@ -23,12 +23,14 @@ import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationStatChartGroup;
 import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationTransactionChartGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * @author minwoo.jung
  */
+@Service
 public class ApplicationTransactionService implements ApplicationStatChartService {
 
     @Autowired
