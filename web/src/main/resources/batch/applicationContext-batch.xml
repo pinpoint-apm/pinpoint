@@ -23,14 +23,12 @@
  
  	<batch:job-repository id="jobRepository" data-source="dataSource"/>
 	
-	<bean id="jobRegistry"	class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
 	
 	<bean id="jobRegistryBeanPostProcessor" class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
     	<property name="jobRegistry" ref="jobRegistry"/>
     </bean>
-    
-    <util:properties id="batchProps" location="classpath:batch.properties"/>
-	
+
 	<bean id="jobFailListener" class="com.navercorp.pinpoint.web.batch.JobFailListener"/>
 	
 </beans>
