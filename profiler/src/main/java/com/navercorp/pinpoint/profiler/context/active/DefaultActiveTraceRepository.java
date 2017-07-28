@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -77,22 +78,29 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     @Override
     public List<ActiveTraceInfo> collect() {
         final Collection<ActiveTrace> copied = this.activeTraceInfoMap.values();
-        List<ActiveTraceInfo> collectData = new ArrayList<ActiveTraceInfo>(copied.size());
+        if (copied.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final List<ActiveTraceInfo> collectData = new ArrayList<ActiveTraceInfo>(copied.size());
         for (ActiveTrace trace : copied) {
             final long startTime = trace.getStartTime();
             // not started
             if (startTime > 0) {
-                if (trace.isSampled()) {
-                    ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime, trace.getBindThread(), true, trace.getTransactionId(), trace.getEntryPoint());
-                    collectData.add(activeTraceInfo);
-                } else {
-                    // clear Trace reference
-                    ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime, trace.getBindThread());
-                    collectData.add(activeTraceInfo);
-                }
+                final ActiveTraceInfo snapshot = snapshot(trace);
+                collectData.add(snapshot);
             }
         }
         return collectData;
+    }
+
+    private ActiveTraceInfo snapshot(ActiveTrace trace) {
+        if (trace.isSampled()) {
+            return new ActiveTraceInfo(trace.getId(), trace.getStartTime(), trace.getBindThread(), true, trace.getTransactionId(), trace.getEntryPoint());
+        } else {
+            // clear Trace reference
+            return new ActiveTraceInfo(trace.getId(), trace.getStartTime(), trace.getBindThread());
+        }
     }
 
     @Override
