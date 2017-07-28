@@ -17,19 +17,19 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultActiveTraceHistogram implements ActiveTraceHistogram {
-    private static final int SLOT_SIZE = 4;
+    static final int SLOT_SIZE = 4;
 
     private final HistogramSchema histogramSchema;
     private int fast;
@@ -70,13 +70,7 @@ public class DefaultActiveTraceHistogram implements ActiveTraceHistogram {
 
     @Override
     public List<Integer> getActiveTraceCounts() {
-        List<Integer> activeTraceCount = new ArrayList<Integer>(SLOT_SIZE);
-        activeTraceCount.add(fast);
-        activeTraceCount.add(normal);
-        activeTraceCount.add(slow);
-        activeTraceCount.add(verySlow);
-
-        return activeTraceCount;
+        return Ints.asList(fast, normal, slow, verySlow);
     }
 
 

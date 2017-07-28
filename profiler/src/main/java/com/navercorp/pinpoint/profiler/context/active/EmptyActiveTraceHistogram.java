@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,13 +28,19 @@ import java.util.List;
  * @author Woonduk Kang(emeroad)
  */
 public class EmptyActiveTraceHistogram implements ActiveTraceHistogram {
-    private static final int SLOT_SIZE = 4;
-    private static final List<Integer> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<Integer>(SLOT_SIZE));
 
+    private static final int SLOT_SIZE = DefaultActiveTraceHistogram.SLOT_SIZE;
+    private final List<Integer> zeroList;
     private final HistogramSchema histogramSchema;
+
 
     public EmptyActiveTraceHistogram(HistogramSchema histogramSchema) {
         this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema must not be null");
+
+        this.zeroList = Collections.unmodifiableList(Ints.asList(0, 0, 0, 0));
+        if (zeroList.size() != SLOT_SIZE) {
+            throw new IllegalStateException("zeroList.size() must be " + SLOT_SIZE);
+        }
     }
 
     @Override
@@ -44,7 +50,7 @@ public class EmptyActiveTraceHistogram implements ActiveTraceHistogram {
 
     @Override
     public List<Integer> getActiveTraceCounts() {
-        return EMPTY_LIST;
+        return zeroList;
     }
 
 

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.active;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
+import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.List;
 
@@ -28,7 +29,6 @@ import java.util.List;
  */
 public class ActiveTraceHistogramFactory {
 
-
     private final ActiveTraceRepository activeTraceRepository;
     private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
 
@@ -36,21 +36,18 @@ public class ActiveTraceHistogramFactory {
 
 
     public ActiveTraceHistogramFactory(ActiveTraceRepository activeTraceRepository) {
-        if (activeTraceRepository == null) {
-            throw new NullPointerException("activeTraceRepository must not be null");
-        }
-        this.activeTraceRepository = activeTraceRepository;
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
     }
 
     public ActiveTraceHistogram createHistogram() {
 
-        final long currentTime = System.currentTimeMillis();
-        final DefaultActiveTraceHistogram histogram = new DefaultActiveTraceHistogram(histogramSchema);
-
-        List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceRepository.collect();
+        final List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceRepository.collect();
         if (collectedActiveTraceInfo.isEmpty()) {
             return emptyActiveTraceHistogram;
         }
+
+        final long currentTime = System.currentTimeMillis();
+        final DefaultActiveTraceHistogram histogram = new DefaultActiveTraceHistogram(histogramSchema);
         for (ActiveTraceInfo activeTraceInfo : collectedActiveTraceInfo) {
             final int elapsedTime = (int) (currentTime - activeTraceInfo.getStartTime());
             final HistogramSlot slot = histogramSchema.findHistogramSlot(elapsedTime, false);
