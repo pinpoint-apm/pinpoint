@@ -57,7 +57,7 @@ public class JobLaunchSupport implements InitializingBean {
             return null;
         }
         try {
-            Job    job = locator.getJob(jobName);
+            Job job = locator.getJob(jobName);
             return launcher.run(job, params);
         } catch (Exception e) {
             throw new IllegalStateException(e);

@@ -43,4 +43,8 @@ public class BatchJobLauncher extends JobLaunchSupport {
         run("agentCountJob", createTimeParameter());
     }
 
+    public void flinkCheckJob() {
+        run("flinkCheckJob", createTimeParameter());
+    }
+
 }

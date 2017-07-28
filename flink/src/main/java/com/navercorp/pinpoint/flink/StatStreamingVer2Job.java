@@ -157,6 +157,6 @@ public class StatStreamingVer2Job implements Serializable {
 //            })
 //            .writeUsingOutputFormat(statisticsDao);
 
-        env.execute("Aggregation Stat Data 2");
+        env.execute("Aggregation Stat Data");
     }
 }
