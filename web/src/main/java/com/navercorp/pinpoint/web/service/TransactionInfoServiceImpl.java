@@ -159,8 +159,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         final SpanAlignPopulate spanAlignPopulate = new SpanAlignPopulate();
         List<Record> recordList = spanAlignPopulate.populateSpanRecord(callTreeIterator);
-        logger.debug("RecordList:{}", recordList);
-
         if (viewPointSpanAlign != null) {
             // mark the record to be used as focus
             long beginTimeStamp = viewPointSpanAlign.getStartTime();
