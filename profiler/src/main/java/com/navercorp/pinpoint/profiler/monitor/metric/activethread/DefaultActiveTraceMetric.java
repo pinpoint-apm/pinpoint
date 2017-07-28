@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.metric.activethread;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
 
 import java.util.List;
