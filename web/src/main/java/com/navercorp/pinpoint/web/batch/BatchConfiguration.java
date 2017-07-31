@@ -39,11 +39,12 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 @Configuration
 @Conditional(BatchConfiguration.Condition.class)
 @ImportResource("classpath:/batch/applicationContext-batch-schedule.xml")
-public class BatchConfiguration implements InitializingBean{
+public class BatchConfiguration implements InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
     private Properties properties;
 
     private List<String> flinkServerList;
+    private String batchServerIp;
 
     public void setProperties(Properties properties) {
         this.properties = properties;
@@ -57,25 +58,30 @@ public class BatchConfiguration implements InitializingBean{
     private void readPropertyValues(Properties properties) {
         logger.info("pinpoint-batch.properties read.");
 
+        batchServerIp = readString(properties, "batch.server.ip", null);
         String[] flinkServers = StringUtils.split(readString(properties, "batch.flink.server", null), ",");
         if (flinkServers == null) {
             this.flinkServerList = Collections.emptyList();
         } else {
             this.flinkServerList = new ArrayList<>(flinkServers.length);
-            for (String l4Ip : flinkServers) {
-                if (!StringUtils.isEmpty(l4Ip)) {
-                    this.flinkServerList.add(StringUtils.trim(l4Ip));
+            for (String flinkServer : flinkServers) {
+                if (!StringUtils.isEmpty(flinkServer)) {
+                    this.flinkServerList.add(StringUtils.trim(flinkServer));
                 }
             }
         }
     }
 
-    private  String readString(Properties properties, String propertyName, String defaultValue) {
+    private String readString(Properties properties, String propertyName, String defaultValue) {
         final String result = properties.getProperty(propertyName, defaultValue);
         if (logger.isInfoEnabled()) {
             logger.info("{}={}", propertyName, result);
         }
         return result ;
+    }
+
+    public String getBatchServerIp() {
+        return batchServerIp;
     }
 
     static class Condition implements ConfigurationCondition {
