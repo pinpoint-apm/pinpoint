@@ -28,9 +28,14 @@
 	                window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
 
 					var removeTag = function( text ) {
-						return text.replace( /</g, "&lt;" ).replace( />/g, "$gt;" );
+						if ( text === undefined || text === null ) {
+							return "";
+						} else {
+							return text.replace(/</g, "&lt;").replace(/>/g, "$gt;");
+						}
 					};
 					var getAuthorizeView = function( bIsAuthorized, text ) {
+
 						if ( bIsAuthorized ) {
 							return removeTag( text );
 						} else {
