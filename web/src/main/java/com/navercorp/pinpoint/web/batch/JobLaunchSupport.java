@@ -42,15 +42,11 @@ public class JobLaunchSupport implements InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
+    private BatchConfiguration batchConfiguration;
+    @Autowired
     private JobLocator locator;
     @Autowired
     private JobLauncher launcher;
-
-    private String batchServerIp;
-
-    public void setBatchServerIp(String batchServerIp) {
-        this.batchServerIp = batchServerIp;
-    }
 
     public JobExecution run(String jobName, JobParameters params) {
         if(!decisionBatchServer()) {
@@ -82,7 +78,7 @@ public class JobLaunchSupport implements InitializingBean {
                 InetAddress next = inets.nextElement();
 
                 if (next instanceof Inet4Address) {
-                    if (next.getHostAddress().equals(batchServerIp)) {
+                    if (next.getHostAddress().equals(batchConfiguration.getBatchServerIp())) {
                         return true;
                     }
                 }
