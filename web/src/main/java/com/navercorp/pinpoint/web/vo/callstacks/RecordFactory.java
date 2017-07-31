@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.util.ApiDescription;
 import com.navercorp.pinpoint.common.server.util.ApiDescriptionParser;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +117,7 @@ public class RecordFactory {
     }
     
     public Record getException(final int depth, final int parentId, final SpanAlign align) {
-        if(!align.hasException()) {
+        if (!align.hasException()) {
             return null;
         }
         
@@ -124,8 +125,8 @@ public class RecordFactory {
                 getNextId(), 
                 parentId, 
                 false, 
-                getSimpleExceptionName(align.getExceptionClass()), 
-                align.getExceptionMessage(), 
+                getSimpleExceptionName(align.getExceptionClass()),
+                getArgumentFromExceptionMessage(align.getExceptionMessage()),
                 0L, 0L, 0, null, null, null, null, false, true, 
                 align.getTransactionId(), 
                 align.getSpanId(), 
@@ -135,7 +136,11 @@ public class RecordFactory {
         
         return record;
     }
-    
+
+    private String getArgumentFromExceptionMessage(String exceptionMessage) {
+        return StringUtils.defaultString(exceptionMessage, "");
+    }
+
     private String getSimpleExceptionName(String exceptionClass) {
         if (exceptionClass == null) {
             return "";
@@ -150,7 +155,7 @@ public class RecordFactory {
 
     public List<Record> getAnnotations(final int depth, final int parentId, SpanAlign align) {
         List<Record> list = new ArrayList<>();
-        for(AnnotationBo annotation : align.getAnnotationBoList()) {
+        for (AnnotationBo annotation : align.getAnnotationBoList()) {
             final AnnotationKey key = findAnnotationKey(annotation.getKey());
             if (key.isViewInRecordSet()) {
                 final Record record = new Record(depth, 
@@ -173,12 +178,16 @@ public class RecordFactory {
                 getNextId(), 
                 parentId, 
                 false, 
-                method, 
-                argument, 
+                method,
+                getArgumentFromParameter(argument),
                 0L, 0L, 0, null, null, null, null, false, false, null, 0, 0,
                 MethodTypeEnum.DEFAULT, true);
     }
-    
+
+    private String getArgumentFromParameter(String argument) {
+        return StringUtils.defaultString(argument, "null");
+    }
+
 
     int getParentId(final CallTreeNode node) {
         final CallTreeNode parent = node.getParent();
