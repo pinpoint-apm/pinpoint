@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter;
@@ -69,6 +70,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private AnnotationKeyRegistryService annotationKeyRegistryService;
+
+    @Autowired
+    private StringMetaDataDao stringMetaDataDao;
 
     @Autowired(required=false)
     private MetaDataFilter metaDataFilter;
@@ -345,7 +349,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
 
             final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);
-            final RecordFactory factory = new RecordFactory(registry, annotationKeyRegistryService);
+            final RecordFactory factory = new RecordFactory(registry, annotationKeyRegistryService, stringMetaDataDao);
 
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.
             while (callTreeIterator.hasNext()) {

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.tomcat.aspect;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
+import com.navercorp.pinpoint.plugin.tomcat.TomcatHttpHeaderHolder;
 
 import java.util.Enumeration;
 
@@ -32,7 +32,7 @@ public abstract class RequestFacadeAspect {
 
     @PointCut
     public String getHeader(String name) {
-        if (Header.hasHeader(name)) {
+        if (TomcatHttpHeaderHolder.hasHeader(name)) {
             return null;
         }
         return __getHeader(name);
@@ -44,7 +44,7 @@ public abstract class RequestFacadeAspect {
 
     @PointCut
     public Enumeration getHeaders(String name) {
-        final Enumeration headers = Header.getHeaders(name);
+        final Enumeration headers = TomcatHttpHeaderHolder.getHeaders(name);
         if (headers != null) {
             return headers;
         }
@@ -58,7 +58,7 @@ public abstract class RequestFacadeAspect {
     @PointCut
     public Enumeration getHeaderNames() {
         final Enumeration enumeration = __getHeaderNames();
-        return Header.filteredHeaderNames(enumeration);
+        return TomcatHttpHeaderHolder.filteredHeaderNames(enumeration);
     }
 
     @JointPoint

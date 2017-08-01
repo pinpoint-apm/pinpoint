@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -163,6 +163,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean propagateInterceptorException = false;
     private boolean supportLambdaExpressions = true;
+
+    private boolean proxyHttpHeaderEnable = true;
+    private List<String> proxyHttpHeaderNames = Collections.emptyList();
+    private boolean proxyHttpHeaderHidden = true;
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -436,6 +440,21 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return instrumentMatcherCacheConfig;
     }
 
+    @Override
+    public List<String> getProxyHttpHeaderNames() {
+        return proxyHttpHeaderNames;
+    }
+
+    @Override
+    public boolean isProxyHttpHeaderEnable() {
+        return proxyHttpHeaderEnable;
+    }
+
+    @Override
+    public boolean isProxyHttpHeaderHidden() {
+        return proxyHttpHeaderHidden;
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
@@ -537,6 +556,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
         this.supportLambdaExpressions = readBoolean("profiler.lambda.expressions.support", true);
 
+        // proxy http header names
+        this.proxyHttpHeaderEnable = readBoolean("profiler.proxy.http.header.enable", true);
+        this.proxyHttpHeaderNames = readList("profiler.proxy.http.header.names");
+        this.proxyHttpHeaderHidden = readBoolean("profiler.proxy.http.header.hidden", true);
+
         logger.info("configuration loaded successfully.");
     }
 
@@ -604,7 +628,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             return Collections.emptyList();
         }
         String[] orders = value.trim().split(",");
-        return Arrays.asList(orders);
+        final List<String> list = new ArrayList<String>(orders.length);
+        for (String order : orders) {
+            final String trimmed = order.trim();
+            if (!trimmed.isEmpty()) {
+                list.add(trimmed);
+            }
+        }
+        return list;
     }
 
     @Override

@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
@@ -43,12 +45,14 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
     private final Filter<String> excludeUrlFilter;
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
 
     public AbstractServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
 
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext);
 
         traceContext.cacheApi(JETTY_SYNC_API_TAG);
     }
@@ -236,6 +240,19 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             recordParentInfo(recorder, request);
         }
         recorder.recordApi(JETTY_SYNC_API_TAG);
+
+        // record proxy HTTP headers.
+        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
+            @Override
+            public String read(String name) {
+                return request.getHeader(name);
+            }
+
+            @Override
+            public void remove(String name) {
+                // TODO
+            }
+        });
     }
 
     /**
