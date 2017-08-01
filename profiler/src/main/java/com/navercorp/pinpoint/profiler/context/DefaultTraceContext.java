@@ -157,7 +157,11 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public Trace removeTraceObject() {
-        return traceFactory.removeTraceObject();
+        final Trace trace = traceFactory.removeTraceObject();
+        if (!trace.canSampled()) {
+            trace.close();
+        }
+        return trace;
     }
 
     @Override

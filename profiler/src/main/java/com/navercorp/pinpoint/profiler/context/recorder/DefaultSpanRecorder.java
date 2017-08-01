@@ -34,8 +34,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  *
  */
 public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorder {
-    private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private static final boolean isDebug = logger.isDebugEnabled();
     
     private final Span span;
     private final boolean isRoot;

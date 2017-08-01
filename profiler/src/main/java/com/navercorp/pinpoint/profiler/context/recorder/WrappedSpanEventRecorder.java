@@ -43,8 +43,8 @@ import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
  *
  */
 public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder {
-    private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     private final AsyncContextFactory asyncContextFactory;
     private final AsyncState asyncState;

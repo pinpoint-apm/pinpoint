@@ -64,7 +64,11 @@ public class Span extends TSpan implements FrameAttachment {
     }
 
     public void markAfterTime() {
-        final int after = (int)(System.currentTimeMillis() - this.getStartTime());
+        markAfterTime(System.currentTimeMillis());
+    }
+
+    public void markAfterTime(long currentTime) {
+        final int after = (int)(currentTime - this.getStartTime());
 
         // TODO  have to change int to long
         if (after != 0) {

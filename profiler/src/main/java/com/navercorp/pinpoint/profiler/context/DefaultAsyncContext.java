@@ -35,7 +35,7 @@ public class DefaultAsyncContext implements InternalAsyncContext {
     private static final AtomicIntegerFieldUpdater<DefaultAsyncContext> ASYNC_SEQUENCE_UPDATER
             = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncContext.class, "asyncSequence");
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncContext.class);
 
     private final TraceRoot traceRoot;
     private final int asyncId;

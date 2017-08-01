@@ -53,7 +53,7 @@ public class DefaultAsyncTraceContext implements AsyncTraceContext {
         final Reference<Trace> reference = checkAndGet();
 
         final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
-        final Trace trace = baseTraceFactory .continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
+        final Trace trace = baseTraceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
 
         bind(reference, trace);
         return reference;

@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.profiler.context.active.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ReuseResponseTimeCollector;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 
 import org.apache.thrift.TBase;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -38,8 +38,6 @@ import static org.hamcrest.CoreMatchers.is;
  */
 public class ActiveThreadServiceTest {
 
-    // defence weakReference
-    private List<ActiveTrace> weakList;
     private long activeTraceId = 0;
 
     private static final int FAST_COUNT = 1;
@@ -54,14 +52,11 @@ public class ActiveThreadServiceTest {
     private static final int VERY_SLOW_COUNT = 4;
     private static final long VERY_SLOW_EXECUTION_TIME = 5500;
 
-    @Before
-    public void setUp() throws Exception {
-        this.weakList = new ArrayList<ActiveTrace>();
-    }
 
     @Test
     public void serviceTest1() throws InterruptedException {
-        ActiveTraceRepository activeTraceRepository = new DefaultActiveTraceRepository();
+        ResponseTimeCollector responseTimeCollector = new ReuseResponseTimeCollector();
+        ActiveTraceRepository activeTraceRepository = new DefaultActiveTraceRepository(responseTimeCollector);
 
         addActiveTrace(activeTraceRepository, FAST_EXECUTION_TIME, FAST_COUNT);
         addActiveTrace(activeTraceRepository, NORMAL_EXECUTION_TIME, NORMAL_COUNT);
@@ -83,17 +78,16 @@ public class ActiveThreadServiceTest {
 
     private void addActiveTrace(ActiveTraceRepository activeTraceRepository, long executionTime, int addCount) {
         for (int i = 0; i < addCount; i++) {
-            ActiveTrace activeTrace = createActiveTrace(executionTime);
-            this.weakList.add(activeTrace);
-            activeTraceRepository.put(activeTrace);
+            TraceRoot traceRoot = createTraceRoot(executionTime);
+            activeTraceRepository.register(traceRoot);
         }
     }
 
-    private ActiveTrace createActiveTrace(long executionTime) {
-        ActiveTrace activeTrace = Mockito.mock(ActiveTrace.class);
-        Mockito.when(activeTrace.getStartTime()).thenReturn(System.currentTimeMillis() - executionTime);
-        Mockito.when(activeTrace.getId()).thenReturn(nextLocalTransactionId());
-        return activeTrace;
+    private TraceRoot createTraceRoot(long executionTime) {
+        TraceRoot traceRoot = Mockito.mock(TraceRoot.class);
+        Mockito.when(traceRoot.getTraceStartTime()).thenReturn(System.currentTimeMillis() - executionTime);
+        Mockito.when(traceRoot.getLocalTransactionId()).thenReturn(nextLocalTransactionId());
+        return traceRoot;
     }
 
     private long nextLocalTransactionId() {

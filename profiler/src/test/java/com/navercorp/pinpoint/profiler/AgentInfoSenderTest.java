@@ -54,6 +54,7 @@ import org.springframework.util.SocketUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -554,4 +555,12 @@ public class AgentInfoSenderTest {
         Assert.assertTrue(pass);
     }
 
+    @Test
+    public void test() {
+        Integer a = new Integer(1);
+        Integer b = 2;
+
+        Integer integer = Integer.valueOf(1);
+        System.out.println("a=" + System.identityHashCode(a) + " valueOf:" + System.identityHashCode(integer));
+    }
 }

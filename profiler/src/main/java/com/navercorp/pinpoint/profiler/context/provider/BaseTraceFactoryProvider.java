@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
@@ -50,10 +51,12 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
     private final SpanFactory spanFactory;
     private final RecorderFactory recorderFactory;
 
+    private final ActiveTraceRepository activeTraceRepository;
+
     @Inject
     public BaseTraceFactoryProvider(TraceRootFactory traceRootFactory, StorageFactory storageFactory, Sampler sampler,
                                     IdGenerator idGenerator, Provider<AsyncContextFactory> asyncContextFactoryProvider,
-                                    CallStackFactory callStackFactory, SpanFactory spanFactory, RecorderFactory recorderFactory) {
+                                    CallStackFactory callStackFactory, SpanFactory spanFactory, RecorderFactory recorderFactory, ActiveTraceRepository activeTraceRepository) {
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
 
         this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
@@ -65,13 +68,15 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
 
         this.spanFactory = Assert.requireNonNull(spanFactory, "spanFactory must not be null");
         this.recorderFactory = Assert.requireNonNull(recorderFactory, "recorderFactory must not be null");
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
+
     }
 
     @Override
     public BaseTraceFactory get() {
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator,
-                asyncContextFactory, spanFactory, recorderFactory);
+                asyncContextFactory, spanFactory, recorderFactory, activeTraceRepository);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
         }
