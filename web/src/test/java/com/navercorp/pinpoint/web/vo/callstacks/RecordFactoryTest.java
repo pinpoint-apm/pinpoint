@@ -17,14 +17,20 @@
 package com.navercorp.pinpoint.web.vo.callstacks;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,7 +40,13 @@ public class RecordFactoryTest {
     private RecordFactory newRecordFactory() {
         ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
         AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
-        return new RecordFactory(serviceTypeRegistryService, annotationKeyRegistryService);
+        StringMetaDataDao stringMetaDataDao = new StringMetaDataDao() {
+            @Override
+            public List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
+                return Collections.EMPTY_LIST;
+            }
+        };
+        return new RecordFactory(serviceTypeRegistryService, annotationKeyRegistryService, stringMetaDataDao);
     }
 
     public void get() {

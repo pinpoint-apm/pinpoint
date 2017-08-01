@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,6 +28,10 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeader;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderParser;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderReadable;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
@@ -57,6 +62,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final Filter<String> excludeUrlFilter;
     private final Filter<String> excludeProfileMethodFilter;
     private final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
@@ -77,6 +83,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         }
         this.isTraceRequestParam = tomcatConfig.isTomcatTraceRequestParam();
         this.excludeProfileMethodFilter = tomcatConfig.getTomcatExcludeProfileMethodFilter();
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext);
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -277,6 +284,14 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             recordParentInfo(recorder, request);
         }
         recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+
+        // record proxy HTTP header.
+        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderReadable() {
+            @Override
+            public String read(String name) {
+                return request.getHeader(name);
+            }
+        });
     }
 
     private void recordParentInfo(SpanRecorder recorder, HttpServletRequest request) {

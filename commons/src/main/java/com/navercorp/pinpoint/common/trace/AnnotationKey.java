@@ -84,6 +84,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>120</td><td>netty.address</td></tr>
  * <tr><td>200</td><td>cxf.operation</td></tr>
  * <tr><td>201</td><td>cxf.args</td></tr>
+ * <tr><td>300</td><td>PROXY_HTTP_HEADER</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
  * <tr><td>9001</td><td>jackson.json.length</td></tr>
  * <tr><td>9002</td><td>json-lib.json.length</td></tr>
@@ -193,4 +194,5 @@ public interface AnnotationKey {
 
     AnnotationKey ASYNC = AnnotationKeyFactory.of(-100, "Asynchronous Invocation", VIEW_IN_RECORD_SET);
 
+    AnnotationKey PROXY_HTTP_HEADER = AnnotationKeyFactory.of(300, "PROXY_HTTP_HEADER", VIEW_IN_RECORD_SET);
 }
