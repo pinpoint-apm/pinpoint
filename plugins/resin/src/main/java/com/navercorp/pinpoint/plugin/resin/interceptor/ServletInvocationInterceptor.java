@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
@@ -20,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
@@ -40,9 +43,7 @@ import com.navercorp.pinpoint.plugin.resin.TraceAccessor;
 import com.navercorp.pinpoint.plugin.resin.VersionAccessor;
 
 /**
- * 
  * @author huangpengjie@fang.com
- *
  */
 public class ServletInvocationInterceptor implements AroundInterceptor {
 
@@ -67,9 +68,9 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
     private final SimpleSampler cookieSampler;
 
     private final DumpType cookieDumpType;
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
 
     public ServletInvocationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super();
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
 
@@ -87,6 +88,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         this.isTraceCookies = resinConfig.isTraceCookies();
         this.cookieSampler = SimpleSamplerFactory.createSampler(isTraceCookies, resinConfig.getCookieSamplingRate());
         this.cookieDumpType = resinConfig.getCookieDumpType();
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext);
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -328,6 +330,19 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
             recordParentInfo(recorder, request);
         }
         recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+
+        // record proxy HTTP headers.
+        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
+            @Override
+            public String read(String name) {
+                return request.getHeader(name);
+            }
+
+            @Override
+            public void remove(String name) {
+                // TODO
+            }
+        });
     }
 
     private void recordParentInfo(SpanRecorder recorder, HttpServletRequest request) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
+/**
+ * @author jaehong.kim
+ */
+public interface ProxyHttpHeaderHandler {
 
-import org.junit.Assert;
+    String read(String name);
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
-
-
-public class HeaderTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Test
-    public void testToString() throws Exception {
-        logger.debug("{}", Header.HTTP_FLAGS);
-    }
+    void remove(String name);
 }

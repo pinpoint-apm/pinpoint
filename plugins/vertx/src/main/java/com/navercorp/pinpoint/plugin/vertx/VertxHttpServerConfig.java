@@ -15,9 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.config.*;
-
-import java.util.List;
+import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
+import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
+import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 
 /**
  * @author jaehong.kim
