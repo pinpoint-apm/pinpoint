@@ -125,6 +125,8 @@ public interface ProfilerConfig {
 
     InstrumentMatcherCacheConfig getInstrumentMatcherCacheConfig();
 
+    List<String> getProxyHttpHeaderNames();
+
     String readString(String propertyName, String defaultValue);
 
     int readInt(String propertyName, int defaultValue);

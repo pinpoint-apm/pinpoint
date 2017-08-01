@@ -55,7 +55,6 @@ public class VertxConfigTest {
         assertEquals(false, config.isEnable());
         assertEquals(false, config.isEnableHttpServer());
         assertEquals(false, config.isEnableHttpClient());
-        assertEquals(1, config.getBootstrapMains().size());
-        assertEquals("", config.getBootstrapMains().get(0));
+        assertEquals(0, config.getBootstrapMains().size());
     }
 }
