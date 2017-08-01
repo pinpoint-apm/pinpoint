@@ -16,28 +16,42 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.response;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
 
 /**
  * @author Taejin Koo
  */
-public class ReuseResponseTimeCollector {
+public class ReuseResponseTimeCollector implements ResponseTimeCollector {
 
     private volatile ResponseTimeCollector currentResponseTimeCollector;
 
+    @Inject
     public ReuseResponseTimeCollector() {
         this.currentResponseTimeCollector = new ResponseTimeCollector();
     }
 
+    @Override
     public void add(long value) {
         this.currentResponseTimeCollector.add(value);
     }
 
+    @Override
     public ResponseTimeValue resetAndGetValue() {
-        ResponseTimeValue result = new ResponseTimeValue0(currentResponseTimeCollector.getTotalValue(), currentResponseTimeCollector.getTransactionCount());
-        this.currentResponseTimeCollector = new ResponseTimeCollector();
 
+        final ResponseTimeCollector reset = reset();
+
+        final long totalValue = reset.getTotalValue();
+        final  long transactionCount = reset.getTransactionCount();
+        ResponseTimeValue result = new ResponseTimeValue0(totalValue, transactionCount);
         return result;
+    }
+
+    private ResponseTimeCollector reset() {
+        final ResponseTimeCollector newValue = new ResponseTimeCollector();
+        final ResponseTimeCollector copy = this.currentResponseTimeCollector;
+        this.currentResponseTimeCollector = newValue;
+        return copy;
     }
 
     private static class ResponseTimeCollector {
@@ -65,10 +79,6 @@ public class ReuseResponseTimeCollector {
     }
 
     private static class ResponseTimeValue0 implements ResponseTimeValue {
-
-        public long getTotalResponseTime() {
-            return totalResponseTime;
-        }
 
         private final long totalResponseTime;
         private final long transactionCount;

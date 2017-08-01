@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.util.ActiveThreadDumpUtils;
@@ -58,7 +58,7 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
     }
 
     private List<TActiveThreadDump> getActiveThreadDumpList(TCmdActiveThreadDump request) {
-        List<ActiveTraceInfo> activeTraceInfoList = activeTraceRepository.collect();
+        List<ActiveTraceSnapshot> activeTraceInfoList = activeTraceRepository.collect();
 
         int limit = request.getLimit();
         if (limit > 0) {
@@ -70,14 +70,14 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
         return getActiveThreadDumpList(request, limit, activeTraceInfoList);
     }
 
-    private List<TActiveThreadDump> getActiveThreadDumpList(TCmdActiveThreadDump request, int limit, List<ActiveTraceInfo> activeTraceInfoList) {
+    private List<TActiveThreadDump> getActiveThreadDumpList(TCmdActiveThreadDump request, int limit, List<ActiveTraceSnapshot> activeTraceInfoList) {
         int targetThreadNameListSize = request.getThreadNameListSize();
         int localTraceIdListSize = request.getLocalTraceIdListSize();
         boolean filterEnable = (targetThreadNameListSize + localTraceIdListSize) > 0;
 
         List<TActiveThreadDump> activeThreadDumpList = new ArrayList<TActiveThreadDump>(Math.min(limit, activeTraceInfoList.size()));
         if (filterEnable) {
-            for (ActiveTraceInfo activeTraceInfo : activeTraceInfoList) {
+            for (ActiveTraceSnapshot activeTraceInfo : activeTraceInfoList) {
                 if (!ActiveThreadDumpUtils.isTraceThread(activeTraceInfo, request.getThreadNameList(), request.getLocalTraceIdList())) {
                     continue;
                 }
@@ -90,7 +90,7 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
                 }
             }
         } else {
-            for (ActiveTraceInfo activeTraceInfo : activeTraceInfoList) {
+            for (ActiveTraceSnapshot activeTraceInfo : activeTraceInfoList) {
                 TActiveThreadDump activeThreadDump = createActiveThreadDump(activeTraceInfo);
                 if (activeThreadDump != null) {
                     if (limit > activeThreadDumpList.size()) {
@@ -103,7 +103,7 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
         return activeThreadDumpList;
     }
 
-    private TActiveThreadDump createActiveThreadDump(ActiveTraceInfo activeTraceInfo) {
+    private TActiveThreadDump createActiveThreadDump(ActiveTraceSnapshot activeTraceInfo) {
         Thread thread = activeTraceInfo.getThread();
         TThreadDump threadDump = createThreadDump(thread, true);
         if (threadDump != null) {
@@ -124,7 +124,7 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
         }
     }
 
-    private TActiveThreadDump createTActiveThreadDump(ActiveTraceInfo activeTraceInfo, TThreadDump threadDump) {
+    private TActiveThreadDump createTActiveThreadDump(ActiveTraceSnapshot activeTraceInfo, TThreadDump threadDump) {
         TActiveThreadDump activeThreadDump = new TActiveThreadDump();
         activeThreadDump.setStartTime(activeTraceInfo.getStartTime());
         activeThreadDump.setLocalTraceId(activeTraceInfo.getLocalTraceId());

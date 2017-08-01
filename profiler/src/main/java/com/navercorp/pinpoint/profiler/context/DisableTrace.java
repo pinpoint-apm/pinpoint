@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 
 
@@ -34,11 +36,13 @@ public class DisableTrace implements Trace {
     private final long startTime;
     private final Thread bindThread;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
-    
-    public DisableTrace(long id) {
+    private final ActiveTraceHandle handle;
+
+    public DisableTrace(long id, long startTime, Thread bindThread, ActiveTraceHandle handle) {
         this.id = id;
-        this.startTime = System.currentTimeMillis();
-        this.bindThread = Thread.currentThread();
+        this.startTime = startTime;
+        this.bindThread = Assert.requireNonNull(bindThread, "bindThread must not be null");
+        this.handle = Assert.requireNonNull(handle, "handle must not be null");
     }
 
     @Override
@@ -109,6 +113,8 @@ public class DisableTrace implements Trace {
 
     @Override
     public void close() {
+        final long purgeTime = System.currentTimeMillis();
+        handle.purge(purgeTime);
     }
 
 

@@ -87,7 +87,7 @@ public class ActiveTraceRepositoryTest {
         // When
         ListenableFuture<List<TraceThreadTuple>> futures = executeTransactions(awaitLatch, executeLatch, newTransactionCount, expectedSampledContinuationCount, expectedUnsampledContinuationCount);
         executeLatch.await();
-        List<ActiveTraceInfo> activeTraceInfos = this.activeTraceRepository.collect();
+        List<ActiveTraceSnapshot> activeTraceInfos = this.activeTraceRepository.collect();
         awaitLatch.countDown();
         List<TraceThreadTuple> executedTraces = futures.get();
         Map<Long, TraceThreadTuple> executedTraceMap = new HashMap<Long, TraceThreadTuple>(executedTraces.size());
@@ -102,7 +102,7 @@ public class ActiveTraceRepositoryTest {
         assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
         
-        for (ActiveTraceInfo activeTraceInfo : activeTraceInfos) {
+        for (ActiveTraceSnapshot activeTraceInfo : activeTraceInfos) {
             TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTraceId());
             assertEquals(executedTrace.id, activeTraceInfo.getLocalTraceId());
             assertEquals(executedTrace.startTime, activeTraceInfo.getStartTime());

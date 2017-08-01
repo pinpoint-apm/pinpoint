@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 
 import java.util.Comparator;
 import java.util.List;
@@ -31,7 +31,7 @@ public class ActiveThreadDumpUtils {
 
     private static final ActiveTraceInfoComparator ACTIVE_TRACE_INFO_COMPARATOR = new ActiveTraceInfoComparator();
 
-    public static boolean isTraceThread(ActiveTraceInfo activeTraceInfo, List<String> threadNameList, List<Long> traceIdList) {
+    public static boolean isTraceThread(ActiveTraceSnapshot activeTraceInfo, List<String> threadNameList, List<Long> traceIdList) {
         Thread thread = activeTraceInfo.getThread();
         if (thread == null) {
             return false;
@@ -57,13 +57,13 @@ public class ActiveThreadDumpUtils {
         return ACTIVE_TRACE_INFO_COMPARATOR;
     }
 
-    private static class ActiveTraceInfoComparator implements  Comparator<ActiveTraceInfo> {
+    private static class ActiveTraceInfoComparator implements  Comparator<ActiveTraceSnapshot> {
 
         private static final int CHANGE_TO_NEW_ELEMENT = 1;
         private static final int KEEP_OLD_ELEMENT = -1;
 
         @Override
-        public int compare(ActiveTraceInfo oldElement, ActiveTraceInfo newElement) {
+        public int compare(ActiveTraceSnapshot oldElement, ActiveTraceSnapshot newElement) {
             long diff = oldElement.getStartTime() - newElement.getStartTime();
 
             if (diff <= 0) {

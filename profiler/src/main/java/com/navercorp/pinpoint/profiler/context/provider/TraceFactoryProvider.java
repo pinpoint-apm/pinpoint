@@ -23,10 +23,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceFactory;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
-import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,20 +36,14 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
     private final Binder<Trace> binder;
 
-    private final ActiveTraceRepository activeTraceRepository;
-
     private final Provider<BaseTraceFactory> baseTraceFactoryProvider;
 
 
     @Inject
-    public TraceFactoryProvider(Provider<BaseTraceFactory> baseTraceFactoryProvider, Binder<Trace> binder,
-                                Provider<ActiveTraceRepository> activeTraceRepositoryProvider) {
+    public TraceFactoryProvider(Provider<BaseTraceFactory> baseTraceFactoryProvider, Binder<Trace> binder) {
 
         this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider must not be null");
         this.binder = Assert.requireNonNull(binder, "binder must not be null");
-
-        Assert.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider must not be null");
-        this.activeTraceRepository = activeTraceRepositoryProvider.get();
 
     }
 
@@ -61,22 +52,10 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
         final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
 
-        TraceFactory traceFactory = newTraceFactory(baseTraceFactory, binder);
-        if (this.activeTraceRepository != null) {
-            this.logger.debug("enable ActiveTrace");
-            traceFactory = ActiveTraceFactory.wrap(traceFactory, this.activeTraceRepository);
-        }
+        TraceFactory traceFactory = new DefaultTraceFactory(baseTraceFactory, binder);
 
         return traceFactory;
     }
 
-    private TraceFactory newTraceFactory(BaseTraceFactory baseTraceFactory, Binder<Trace> binder) {
-        return new DefaultTraceFactory(baseTraceFactory, binder);
-    }
-
-    private boolean isDebugEnabled() {
-        final Logger logger = LoggerFactory.getLogger(DefaultBaseTraceFactory.class);
-        return logger.isDebugEnabled();
-    }
 
 }

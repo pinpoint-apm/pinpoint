@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,69 +16,60 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
+
 /**
  * @author Taejin Koo
  */
-public class ActiveTraceInfo {
+public class UnsampledActiveTraceSnapshot implements ActiveTraceSnapshot {
 
     private final long localTraceId;
     private final long startTime;
     private final Thread thread;
-    private final boolean sampled;
-    private final String transactionId;
-    private final String entryPoint;
 
-    public ActiveTraceInfo(long id, long startTime) {
-        this(id, startTime, null);
-    }
-
-    public ActiveTraceInfo(long id, long startTime, Thread thread) {
-        this(id, startTime, thread, false, null, null);
-    }
-
-    public ActiveTraceInfo(long id, long startTime, Thread thread, boolean sampled, String transactionId, String entryPoint) {
+    public UnsampledActiveTraceSnapshot(long id, long startTime, Thread thread) {
         this.localTraceId = id;
         this.startTime = startTime;
+        // @Nullable
         this.thread = thread;
-
-        this.sampled = sampled;
-        this.transactionId = transactionId;
-        this.entryPoint = entryPoint;
     }
 
+
+    @Override
     public long getLocalTraceId() {
         return localTraceId;
     }
 
+    @Override
     public long getStartTime() {
         return startTime;
     }
 
+    @Override
     public Thread getThread() {
         return thread;
     }
 
+    @Override
     public boolean isSampled() {
-        return sampled;
+        return false;
     }
 
+    @Override
     public String getTransactionId() {
-        return transactionId;
+        return null;
     }
 
+    @Override
     public String getEntryPoint() {
-        return entryPoint;
+        return null;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ActiveTraceInfo{");
+        final StringBuilder sb = new StringBuilder("UnsampledActiveTraceSnapshot{");
         sb.append("localTraceId=").append(localTraceId);
         sb.append(", startTime=").append(startTime);
         sb.append(", thread=").append(thread);
-        sb.append(", sampled=").append(sampled);
-        sb.append(", transactionId='").append(transactionId).append('\'');
-        sb.append(", entryPoint='").append(entryPoint).append('\'');
         sb.append('}');
         return sb.toString();
     }

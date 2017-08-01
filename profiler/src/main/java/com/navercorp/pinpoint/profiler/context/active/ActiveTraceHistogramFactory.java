@@ -41,14 +41,14 @@ public class ActiveTraceHistogramFactory {
 
     public ActiveTraceHistogram createHistogram() {
 
-        final List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceRepository.collect();
+        final List<ActiveTraceSnapshot> collectedActiveTraceInfo = activeTraceRepository.collect();
         if (collectedActiveTraceInfo.isEmpty()) {
             return emptyActiveTraceHistogram;
         }
 
         final long currentTime = System.currentTimeMillis();
         final DefaultActiveTraceHistogram histogram = new DefaultActiveTraceHistogram(histogramSchema);
-        for (ActiveTraceInfo activeTraceInfo : collectedActiveTraceInfo) {
+        for (ActiveTraceSnapshot activeTraceInfo : collectedActiveTraceInfo) {
             final int elapsedTime = (int) (currentTime - activeTraceInfo.getStartTime());
             final HistogramSlot slot = histogramSchema.findHistogramSlot(elapsedTime, false);
             histogram.increment(slot);

@@ -16,22 +16,23 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.response;
 
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author Taejin Koo
  */
 public class DefaultResponseTimeMetric implements ResponseTimeMetric {
 
-    private final ActiveTraceRepository activeTraceRepository;
+    private final ResponseTimeCollector responseTimeCollector;
 
-    public DefaultResponseTimeMetric(ActiveTraceRepository activeTraceRepository) {
-        this.activeTraceRepository = activeTraceRepository;
+    public DefaultResponseTimeMetric(ResponseTimeCollector responseTimeCollector) {
+        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
+
     }
 
     @Override
     public ResponseTimeValue responseTimeValue() {
-        return activeTraceRepository.getLatestCompletedActiveTraceResponseTimeValue();
+        return responseTimeCollector.resetAndGetValue();
     }
 
 }

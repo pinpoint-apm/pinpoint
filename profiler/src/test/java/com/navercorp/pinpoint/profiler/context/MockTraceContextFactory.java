@@ -53,6 +53,8 @@ import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ReuseResponseTimeCollector;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
@@ -138,10 +140,10 @@ public class MockTraceContextFactory {
 
         Provider<BaseTraceFactory> baseTraceFactoryProvider = new BaseTraceFactoryProvider(traceRootFactory, storageFactory,
                 sampler, idGenerator, asyncContextFactoryProvider,
-                callStackFactory, spanFactory, recorderFactory);
+                callStackFactory, spanFactory, recorderFactory, activeTraceRepository);
         asyncTraceContextProvider.setBaseTraceFactoryProvider(baseTraceFactoryProvider);
 
-        final Provider<TraceFactory> traceFactoryBuilder = new TraceFactoryProvider(baseTraceFactoryProvider, binder, Providers.of(activeTraceRepository));
+        final Provider<TraceFactory> traceFactoryBuilder = new TraceFactoryProvider(baseTraceFactoryProvider, binder);
         final TraceFactory traceFactory = traceFactoryBuilder.get();
 
 
@@ -167,7 +169,8 @@ public class MockTraceContextFactory {
 
     private static ActiveTraceRepository newActiveTraceRepository() {
         if (TRACE_ACTIVE_THREAD) {
-            return new DefaultActiveTraceRepository();
+            ResponseTimeCollector responseTimeCollector = new ReuseResponseTimeCollector();
+            return new DefaultActiveTraceRepository(responseTimeCollector);
         }
         return null;
     }

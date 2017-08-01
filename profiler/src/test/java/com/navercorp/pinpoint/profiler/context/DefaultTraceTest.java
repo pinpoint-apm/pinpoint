@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -86,7 +87,7 @@ public class DefaultTraceTest {
         final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder);
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
         trace.traceBlockBegin();
         trace.traceBlockBegin();
         trace.traceBlockEnd();

@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 
 /**
  * @author jaehong.kim
@@ -25,16 +27,15 @@ import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 public class ListenableAsyncState implements AsyncState {
 
     private final AsyncStateListener asyncStateListener;
+    private final ActiveTraceHandle activeTraceHandle;
 
     private boolean setup = false;
     private boolean await = false;
     private boolean finish = false;
 
-    public ListenableAsyncState(AsyncStateListener asyncStateListener) {
-        if (asyncStateListener == null) {
-            throw new NullPointerException("asyncStateListener must not be null");
-        }
-        this.asyncStateListener = asyncStateListener;
+    public ListenableAsyncState(AsyncStateListener asyncStateListener, ActiveTraceHandle activeTraceHandle) {
+        this.asyncStateListener = Assert.requireNonNull(asyncStateListener, "asyncStateListener must not be null");
+        this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle must not be null");
     }
 
     @Override
@@ -48,6 +49,8 @@ public class ListenableAsyncState implements AsyncState {
         }
         if (finished) {
             this.asyncStateListener.finish();
+            final long purgeTime = System.currentTimeMillis();
+            this.activeTraceHandle.purge(purgeTime);
         }
     }
 
@@ -60,6 +63,15 @@ public class ListenableAsyncState implements AsyncState {
 
     @Override
     public boolean await() {
+        final boolean await = await0();
+        if (await == false) {
+            final long purgeTime = System.currentTimeMillis();
+            activeTraceHandle.purge(purgeTime);
+        }
+        return await;
+    }
+
+    private boolean await0() {
         synchronized (this) {
             if (!this.setup || this.finish) {
                 return false;
