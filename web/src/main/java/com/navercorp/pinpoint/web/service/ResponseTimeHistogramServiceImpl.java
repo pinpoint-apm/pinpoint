@@ -26,6 +26,9 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceL
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkListFactory;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
@@ -49,6 +52,7 @@ import com.navercorp.pinpoint.web.service.map.processor.SourceApplicationFilter;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.slf4j.Logger;
@@ -185,5 +189,49 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         ServerInstanceList serverInstanceList = serverInstanceListFactory.createEmptyNodeInstanceList();
         NodeHistogram emptyNodeHistogram = new NodeHistogram(application, range);
         return new NodeHistogramSummary(serverInstanceList, emptyNodeHistogram);
+    }
+
+    @Override
+    public LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, Range range) {
+        if (fromApplication == null) {
+            throw new NullPointerException("fromApplication must not be null");
+        }
+        if (toApplication == null) {
+            throw new NullPointerException("toApplication must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+
+        LinkDataDuplexMap linkDataDuplexMap;
+        ServiceType fromApplicationServiceType = fromApplication.getServiceType();
+        CreateType createType = CreateType.Target;
+        // For user or queue originating links, we must scan using to applications
+        if (fromApplicationServiceType.isUser() || fromApplicationServiceType.isQueue()) {
+            createType = CreateType.Source;
+            LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(fromApplication);
+            LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);
+            linkDataDuplexMap = linkSelector.select(Collections.singletonList(toApplication), range, 0, 1);
+        } else {
+            LinkDataMapProcessor destinationApplication = new DestinationApplicationFilter(toApplication);
+            LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplication, LinkDataMapProcessor.NO_OP);
+            linkDataDuplexMap = linkSelector.select(Collections.singletonList(fromApplication), range, 1, 0);
+        }
+
+        NodeList nodeList = NodeListFactory.createNodeList(NodeType.DETAILED, linkDataDuplexMap);
+        LinkList linkList = LinkListFactory.createLinkList(LinkType.DETAILED, nodeList, linkDataDuplexMap, range);
+        LinkKey linkKey = new LinkKey(fromApplication, toApplication);
+        Link link = linkList.getLink(linkKey);
+        if (link == null) {
+            return createEmptyLinkHistogramSummary(createType, fromApplication, toApplication, range);
+        }
+        return new LinkHistogramSummary(link);
+    }
+
+    private LinkHistogramSummary createEmptyLinkHistogramSummary(CreateType createType, Application fromApplication, Application toApplication, Range range) {
+        Node fromNode = new Node(fromApplication);
+        Node toNode = new Node(toApplication);
+        Link emptyLink = new Link(createType, fromNode, toNode, range);
+        return new LinkHistogramSummary(emptyLink);
     }
 }

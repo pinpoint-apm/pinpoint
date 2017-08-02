@@ -39,6 +39,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 public class LinkSerializer extends JsonSerializer<Link> {
+
     @Override
     public void serialize(Link link, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
@@ -67,6 +68,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeNumberField("totalCount", histogram.getTotalCount()); // for go.js
         jgen.writeNumberField("errorCount", histogram.getTotalErrorCount());
         jgen.writeNumberField("slowCount", histogram.getSlowCount());
+
 
         jgen.writeObjectField("histogram", histogram);
         writeTimeSeriesHistogram(link, jgen);

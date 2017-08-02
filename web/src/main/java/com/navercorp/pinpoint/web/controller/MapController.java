@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
@@ -303,5 +304,30 @@ public class MapController {
         }
 
         return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplication, toApplication);
+    }
+
+    @RequestMapping(value = "/getLinkTimeHistogramData", method = RequestMethod.GET)
+    @ResponseBody
+    public LinkHistogramSummary getLinkTimeHistogramData(
+            @RequestParam(value = "fromApplicationName", required = false) String fromApplicationName,
+            @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
+            @RequestParam(value = "toApplicationName", required = false) String toApplicationName,
+            @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        final Range range = new Range(from, to);
+        dateLimit.limit(range);
+
+        Application fromApplication = null;
+        if (!StringUtils.isEmpty(fromApplicationName)) {
+            fromApplication = applicationFactory.createApplication(fromApplicationName, fromServiceTypeCode);
+        }
+
+        Application toApplication = null;
+        if (!StringUtils.isEmpty(toApplicationName)) {
+            toApplication = applicationFactory.createApplication(toApplicationName, toServiceTypeCode);
+        }
+
+        return responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
     }
 }
