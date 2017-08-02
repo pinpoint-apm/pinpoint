@@ -17,6 +17,7 @@
         <module>ning-asynchttpclient</module>
         <module>resttemplate</module>
         <module>gson</module>
+        <module>netty</module>
         <module>jackson</module>
         <module>cubrid-jdbc</module>
         <module>mysql-jdbc</module>
@@ -74,6 +75,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-resttemplate-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-netty-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
