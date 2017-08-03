@@ -83,9 +83,11 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
 
         // for Terminal nodes, create AgentLevel histogram
         if (terminalApplication.getServiceType().isTerminal()) {
+            LinkCallDataMap mergeSource = new LinkCallDataMap();
             final Map<String, Histogram> agentHistogramMap = new HashMap<>();
             for (Link link : toLinkList) {
                 LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
+                mergeSource.addLinkDataMap(sourceLinkCallDataMap);
                 AgentHistogramList targetList = sourceLinkCallDataMap.getTargetList();
                 for (AgentHistogram histogram : targetList.getAgentHistogramList()) {
                     Histogram find = agentHistogramMap.get(histogram.getId());
@@ -97,17 +99,11 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
                 }
                 nodeHistogram.setAgentHistogramMap(agentHistogramMap);
             }
-        }
 
-        LinkCallDataMap mergeSource = new LinkCallDataMap();
-        for (Link link : toLinkList) {
-            LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-            mergeSource.addLinkDataMap(sourceLinkCallDataMap);
+            AgentTimeHistogramBuilder agentTimeBuilder = new AgentTimeHistogramBuilder(terminalApplication, range);
+            AgentTimeHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeSource);
+            nodeHistogram.setAgentTimeHistogram(agentTimeHistogram);
         }
-
-        AgentTimeHistogramBuilder agentTimeBuilder = new AgentTimeHistogramBuilder(terminalApplication, range);
-        AgentTimeHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeSource);
-        nodeHistogram.setAgentTimeHistogram(agentTimeHistogram);
 
         return nodeHistogram;
     }

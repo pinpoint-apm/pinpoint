@@ -16,55 +16,40 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 /**
  * @author HyunGil Jeong
  */
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
+@JsonPropertyOrder({"applicationName", "serviceTypeCode"})
 public class ApplicationPair {
 
-    private String fromApplicationName;
-    private short fromServiceTypeCode;
-    private String toApplicationName;
-    private short toServiceTypeCode;
+    private String applicationName;
+    private short serviceTypeCode;
 
-    public String getFromApplicationName() {
-        return fromApplicationName;
+    public String getApplicationName() {
+        return applicationName;
     }
 
-    public void setFromApplicationName(String fromApplicationName) {
-        this.fromApplicationName = fromApplicationName;
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
-    public short getFromServiceTypeCode() {
-        return fromServiceTypeCode;
+    public short getServiceTypeCode() {
+        return serviceTypeCode;
     }
 
-    public void setFromServiceTypeCode(short fromServiceTypeCode) {
-        this.fromServiceTypeCode = fromServiceTypeCode;
-    }
-
-    public String getToApplicationName() {
-        return toApplicationName;
-    }
-
-    public void setToApplicationName(String toApplicationName) {
-        this.toApplicationName = toApplicationName;
-    }
-
-    public short getToServiceTypeCode() {
-        return toServiceTypeCode;
-    }
-
-    public void setToServiceTypeCode(short toServiceTypeCode) {
-        this.toServiceTypeCode = toServiceTypeCode;
+    public void setServiceTypeCode(short serviceTypeCode) {
+        this.serviceTypeCode = serviceTypeCode;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("NodeKeysParam{");
-        sb.append("fromApplicationName='").append(fromApplicationName).append('\'');
-        sb.append(", fromServiceTypeCode=").append(fromServiceTypeCode);
-        sb.append(", toApplicationName='").append(toApplicationName).append('\'');
-        sb.append(", toServiceTypeCode=").append(toServiceTypeCode);
+        final StringBuilder sb = new StringBuilder("ApplicationPair{");
+        sb.append("applicationName='").append(applicationName).append('\'');
+        sb.append(", serviceTypeCode=").append(serviceTypeCode);
         sb.append('}');
         return sb.toString();
     }

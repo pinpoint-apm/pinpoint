@@ -30,18 +30,24 @@ import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
+import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -256,54 +262,30 @@ public class MapController {
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestBody ApplicationPair applicationPair) {
+            @RequestBody ApplicationPairs applicationPairs) {
         final Range range = new Range(from, to);
         dateLimit.limit(range);
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        Application fromApplication = null;
-        String fromApplicationName = applicationPair.getFromApplicationName();
-        if (!StringUtils.isEmpty(fromApplicationName)) {
-            fromApplication = applicationFactory.createApplication(fromApplicationName, applicationPair.getFromServiceTypeCode());
-        }
+        List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
+        List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
 
-        Application toApplication = null;
-        String toApplicationName = applicationPair.getToApplicationName();
-        if (!StringUtils.isEmpty(toApplicationName)) {
-            toApplication = applicationFactory.createApplication(toApplicationName, applicationPair.getToServiceTypeCode());
-        }
-
-        return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplication, toApplication);
+        return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplications, toApplications);
     }
 
-    @RequestMapping(value = "/getResponseTimeHistogramDataV2", method = RequestMethod.GET)
-    @ResponseBody
-    public NodeHistogramSummary getResponseTimeHistogramDataV2(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam(value = "fromApplicationName", required = false) String fromApplicationName,
-            @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
-            @RequestParam(value = "toApplicationName", required = false) String toApplicationName,
-            @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode) {
-        final Range range = new Range(from, to);
-        dateLimit.limit(range);
-
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
-
-        Application fromApplication = null;
-        if (!StringUtils.isEmpty(fromApplicationName)) {
-            fromApplication = applicationFactory.createApplication(fromApplicationName, fromServiceTypeCode);
+    private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {
+        if (CollectionUtils.isEmpty(applicationPairs)) {
+            return Collections.emptyList();
         }
-
-        Application toApplication = null;
-        if (!StringUtils.isEmpty(toApplicationName)) {
-            toApplication = applicationFactory.createApplication(toApplicationName, toServiceTypeCode);
+        List<Application> applications = new ArrayList<>(applicationPairs.size());
+        for (ApplicationPair applicationPair : applicationPairs) {
+            String applicationName = applicationPair.getApplicationName();
+            short serviceTypeCode = applicationPair.getServiceTypeCode();
+            Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+            applications.add(application);
         }
-
-        return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplication, toApplication);
+        return applications;
     }
 
     @RequestMapping(value = "/getLinkTimeHistogramData", method = RequestMethod.GET)

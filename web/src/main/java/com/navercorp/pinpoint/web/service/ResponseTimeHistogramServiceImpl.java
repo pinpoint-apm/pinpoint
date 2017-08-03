@@ -61,7 +61,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,15 +104,25 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     }
 
     @Override
-    public NodeHistogramSummary selectNodeHistogramData(Application application, Range range, Application fromApplication, Application toApplication) {
+    public NodeHistogramSummary selectNodeHistogramData(Application application, Range range, List<Application> fromApplications, List<Application> toApplications) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
+        if (fromApplications == null) {
+            throw new NullPointerException("fromApplications must not be null");
+        }
+        if (toApplications == null) {
+            throw new NullPointerException("toApplications must not be null");
+        }
+
         Node node = new Node(application);
         ServiceType applicationServiceType = application.getServiceType();
+
+        List<Application> sourceApplications = fromApplications;
+        List<Application> destinationApplications = toApplications;
 
         if (applicationServiceType.isWas()) {
             NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(application, range);
@@ -121,12 +130,12 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             ServerInstanceList serverInstanceList = serverInstanceListFactory.createWasNodeInstanceList(node, range.getTo());
             return new NodeHistogramSummary(serverInstanceList, nodeHistogram);
         } else if (applicationServiceType.isTerminal() || applicationServiceType.isUnknown()) {
-            if (fromApplication == null) {
+            if (sourceApplications.isEmpty()) {
                 return createEmptyNodeHistogramSummary(application, range);
             }
             LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(application);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
-            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(fromApplication), range, 1, 0);
+            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, range, 1, 0);
 
             ServerInstanceList serverInstanceList = serverInstanceListFactory.createEmptyNodeInstanceList();
             if (applicationServiceType.isTerminal()) {
@@ -139,26 +148,23 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             return new NodeHistogramSummary(serverInstanceList, nodeHistogram);
         } else if (applicationServiceType.isQueue()) {
             LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(application);
-            List<Application> fromApplications = new ArrayList<>();
-            if (fromApplication == null) {
-                if (toApplication == null) {
+            if (sourceApplications.isEmpty()) {
+                if (destinationApplications.isEmpty()) {
                     return createEmptyNodeHistogramSummary(application, range);
                 }
                 // Retrieve callers
                 LinkDataMapProcessor applicationFilter = new ApplicationFilter(application);
                 LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, applicationFilter);
-                LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(toApplication), range, 0, 2);
+                LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, range, 0, 2);
 
                 LinkDataMap linkDataMap = destinationApplicationFilter.processLinkDataMap(linkDataDuplexMap.getTargetLinkDataMap(), range);
                 for (LinkData linkData : linkDataMap.getLinkDataList()) {
-                    fromApplications.add(linkData.getFromApplication());
+                    sourceApplications.add(linkData.getFromApplication());
                 }
-            } else {
-                fromApplications.add(fromApplication);
             }
             // Check using from applications first for caller's link data
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
-            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(fromApplications, range, 1, 0);
+            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, range, 1, 0);
 
             ServerInstanceList serverInstanceList = serverInstanceListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap);
 
@@ -167,12 +173,12 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             NodeHistogram nodeHistogram = nodeHistogramFactory.createQueueNodeHistogram(application, range, linkList);
             return new NodeHistogramSummary(serverInstanceList, nodeHistogram);
         } else if (applicationServiceType.isUser()) {
-            if (toApplication == null) {
+            if (destinationApplications.isEmpty()) {
                 return createEmptyNodeHistogramSummary(application, range);
             }
             LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(application);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);
-            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(toApplication), range, 0, 1);
+            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(destinationApplications, range, 0, 1);
 
             ServerInstanceList serverInstanceList = serverInstanceListFactory.createUserNodeInstanceList();
 
