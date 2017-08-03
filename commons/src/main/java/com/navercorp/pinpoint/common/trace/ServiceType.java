@@ -149,6 +149,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9120</td><td>HYSTRIX_COMMAND</td></tr>
  * <tr><td>9130</td><td>VERTX_HTTP_CLIENT</td></tr>
  * <tr><td>9131</td><td>VERTX_HTTP_CLIENT_INTERNAL</td></tr>
+ * <tr><td>9140</td><td>REST_TEMPLATE</td></tr>
  * <tr><td>9150</td><td>NETTY</td></tr>
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
