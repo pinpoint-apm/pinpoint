@@ -274,6 +274,43 @@ public class MapController {
         return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplications, toApplications);
     }
 
+    @RequestMapping(value = "/getResponseTimeHistogramDataV2", method = RequestMethod.GET)
+    @ResponseBody
+    public NodeHistogramSummary getResponseTimeHistogramDataV2(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false) List<String> fromApplicationNames,
+            @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false) List<Short> fromServiceTypeCodes,
+            @RequestParam(value = "toApplicationNames", defaultValue = "", required = false) List<String> toApplicationNames,
+            @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false) List<Short> toServiceTypeCodes) {
+        final Range range = new Range(from, to);
+        dateLimit.limit(range);
+
+        if (fromApplicationNames.size() != fromServiceTypeCodes.size()) {
+            throw new IllegalArgumentException("fromApplicationNames and fromServiceTypeCodes must have the same number of elements");
+        }
+        if (toApplicationNames.size() != toServiceTypeCodes.size()) {
+            throw new IllegalArgumentException("toApplicationNames and toServiceTypeCodes must have the same number of elements");
+        }
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        List<Application> fromApplications = new ArrayList<>(fromApplicationNames.size());
+        for (int i = 0; i < fromApplicationNames.size(); ++i) {
+            Application fromApplication = applicationFactory.createApplication(fromApplicationNames.get(i), fromServiceTypeCodes.get(i));
+            fromApplications.add(fromApplication);
+        }
+        List<Application> toApplications = new ArrayList<>(toApplicationNames.size());
+        for (int i = 0; i < toApplicationNames.size(); ++i) {
+            Application toApplication = applicationFactory.createApplication(toApplicationNames.get(i), toServiceTypeCodes.get(i));
+            toApplications.add(toApplication);
+        }
+
+        return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplications, toApplications);
+    }
+
     private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {
         if (CollectionUtils.isEmpty(applicationPairs)) {
             return Collections.emptyList();
