@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
+import java.util.List;
+
 /**
  * @author HyunGil Jeong
  */
@@ -29,7 +31,7 @@ public interface ResponseTimeHistogramService {
 
     ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range);
 
-    NodeHistogramSummary selectNodeHistogramData(Application application, Range range, Application fromApplication, Application toApplication);
+    NodeHistogramSummary selectNodeHistogramData(Application application, Range range, List<Application> fromApplications, List<Application> toApplications);
 
     LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, Range range);
 }
