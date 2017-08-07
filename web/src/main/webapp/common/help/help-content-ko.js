@@ -751,6 +751,24 @@
 						desc: "Java1.7+ 시스템 CPU 사용량이 수집됩니다."
 					}]
 				}]
+			},
+			statTPS: {
+				mainStyle: "",
+				title: "TPS",
+				desc: "Agent들에 인입된 초당 트랜잭션 수",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들의 트랜잭션 수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들의 트랙잭션 수의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들의 트랜잭션 수 중 가장 작은 값"
+					}]
+				}]
 			}
 		},
 		callTree: {

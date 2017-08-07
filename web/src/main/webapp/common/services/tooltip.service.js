@@ -92,6 +92,10 @@
 		"statSystemCpu": {
 			"position": "top",
 			"trigger": "click"
+		},
+		"statTPS": {
+			"position": "top",
+			"trigger": "click"
 		}
 	});
 
@@ -154,6 +158,9 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.statJVMCpu); };
 				case "statSystemCpu":
 					return function() { return helpContentTemplate(helpContentService.inspector.statSystemCpu); };
+				case "statTPS":
+					return function() { return helpContentTemplate(helpContentService.inspector.statTPS); };
+
 			}
 		}
 	}]);

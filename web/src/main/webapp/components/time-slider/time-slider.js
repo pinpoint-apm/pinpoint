@@ -192,11 +192,11 @@
         this.oPositionManager.zoomOut();
         this.reset();
     };
-	TimeSlider.prototype.resetTimeSeriesAndSelectionZone = function( aSelectionFromTo, aFromTo ) {
+	TimeSlider.prototype.resetTimeSeriesAndSelectionZone = function( aSelectionFromTo, aFromTo, selectedTime ) {
 		this.oPositionManager.setSliderTimeSeries( aFromTo[0], aFromTo[1] );
 		this.oPositionManager.setSelectionStartTime( aSelectionFromTo[0] );
 		this.oPositionManager.setSelectionEndTime( aSelectionFromTo[1] );
-		this.oPositionManager.setSelectTime( aSelectionFromTo[1] );
+		this.oPositionManager.setSelectTime( selectedTime || aSelectionFromTo[1] );
 		this.emptyData();
 		this.reset();
 	};
@@ -230,6 +230,9 @@
     TimeSlider.prototype.setSelectTime = function( time ) {
         this.oSelectionManager.setSelectTime( time );
     };
+    TimeSlider.prototype.getSelectTime = function() {
+    	return this.oPositionManager.getSelectTime();
+	}
 
     TimeSlider.GROUP_TYPE = {
         TOP_BASE: "top-base",

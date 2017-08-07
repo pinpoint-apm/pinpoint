@@ -26,9 +26,9 @@
 					function initTime( time ) {
 						scope.targetPicker = moment( time ).format( "YYYY-MM-DD HH:mm:ss" );
 					}
-					function initTimeSlider( aSelectionFromTo, aFromTo ) {
+					function initTimeSlider( aSelectionFromTo, aFromTo, selectedTime ) {
 						if ( timeSlider !== null ) {
-							timeSlider.resetTimeSeriesAndSelectionZone( aSelectionFromTo, aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ) );
+							timeSlider.resetTimeSeriesAndSelectionZone( aSelectionFromTo, aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ), selectedTime );
 						} else {
 							timeSlider = new TimeSlider( "timeSlider-for-agent-info", {
 								"width": $("#timeSlider-for-agent-info").get(0).getBoundingClientRect().width,
@@ -44,10 +44,15 @@
 								scope.selectTime = time;
 								loadAgentInfo( time );
 								initTime( time );
+								sendUpTimeSliderTimeInfo( timeSlider.getSliderTimeSeries(), timeSlider.getSelectionTimeSeries(), time );
 							}).addEvent("changeSelectionZone", function( aTime ) {
 								loadChartData( scope.agent.agentId, aTime, getPeriod(aTime[0], aTime[1] ), function() {});
+								sendUpTimeSliderTimeInfo( timeSlider.getSliderTimeSeries(), aTime, timeSlider.getSelectTime() );
 							}).addEvent("changeSliderTimeSeries", function( aEvents ) {});
 						}
+					}
+					function sendUpTimeSliderTimeInfo( sliderTimeSeries, sliderSelectionTimeSeries, sliderSelectedTime ) {
+						scope.$emit("up.changed.timeSliderOption", sliderTimeSeries, sliderSelectionTimeSeries, sliderSelectedTime );
 					}
 					function getPeriod( from, to ) {
 						return (to - from) / 1000 / 60;
@@ -424,7 +429,7 @@
 							return '';
 						}
 					};
-					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop ) {
+					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop, sliderTimeSeriesOption ) {
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {
 							scope.hasAgentData = false;
@@ -443,15 +448,22 @@
 						scope.chartGroup = null;
 						scope.currentServiceInfo = initServiceInfo(agent);
 
-						var aFromTo, period, aSelectionFromTo = [];
+						var aFromTo, period, aSelectionFromTo = [], selectedTime;
 						if ( timeSlider === null || bInvokedByTop ) {
 							aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
 							aSelectionFromTo[1] = UrlVoService.getQueryEndTime();
 							period = UrlVoService.getPeriod();
 						} else {
-							aSelectionFromTo = timeSlider.getSelectionTimeSeries();
-							aFromTo = timeSlider.getSliderTimeSeries();
-							period = getPeriod(aSelectionFromTo[0], aSelectionFromTo[1]);
+							if ( sliderTimeSeriesOption === undefined || sliderTimeSeriesOption === null ) {
+								aSelectionFromTo = timeSlider.getSelectionTimeSeries();
+								aFromTo = timeSlider.getSliderTimeSeries();
+								// period = getPeriod(aSelectionFromTo[0], aSelectionFromTo[1]);
+								period = UrlVoService.getPeriod();
+							} else {
+								aSelectionFromTo = sliderTimeSeriesOption["selectionTimeSeries"];
+								aFromTo = sliderTimeSeriesOption["timeSeries"];
+								selectedTime = sliderTimeSeriesOption["selectedTime"];
+							}
 						}
 						if ( scope.selectTime === -1 || bInvokedByTop ) {
 							scope.selectTime = UrlVoService.getQueryEndTime();
@@ -461,15 +473,15 @@
 							}
 						}
 						loadChartData(agent.agentId, aSelectionFromTo, period, function() {
-							initTimeSliderUI( aSelectionFromTo, aFromTo );
+							initTimeSliderUI( aSelectionFromTo, aFromTo, selectedTime );
 						});
 
 						initTooltip();
 
 					});
-					function initTimeSliderUI( aSelectionFromTo, aFromTo ) {
-						initTime( scope.selectTime );
-						initTimeSlider( aSelectionFromTo, aFromTo );
+					function initTimeSliderUI( aSelectionFromTo, aFromTo, selectedTime ) {
+						initTime( selectedTime || scope.selectTime );
+						initTimeSlider( aSelectionFromTo, aFromTo, selectedTime );
 						getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
 
