@@ -16,29 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.gc;
 
-import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
-
 /**
- * Unknown garbage collector metrics
- *
  * @author HyunGil Jeong
  */
-public class UnknownGarbageCollectorMetric implements GarbageCollectorMetric {
+public class UnknownDetailedGarbageCollectorMetric implements DetailedGarbageCollectorMetric {
 
-    private static final GarbageCollectorMetricSnapshot UNSUPPORTED_SNAPSHOT = new GarbageCollectorMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
-
-    @Override
-    public TJvmGcType getGcType() {
-        return TJvmGcType.UNKNOWN;
-    }
+    private static final DetailedGarbageCollectorMetricSnapshot UNSUPPORTED_SNAPSHOT = new DetailedGarbageCollectorMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
 
     @Override
-    public GarbageCollectorMetricSnapshot getSnapshot() {
+    public DetailedGarbageCollectorMetricSnapshot getSnapshot() {
         return UNSUPPORTED_SNAPSHOT;
     }
 
     @Override
     public String toString() {
-        return "Unknown garbage collector metric";
+        return "Unknown detailed garbage collector metric";
     }
+
 }

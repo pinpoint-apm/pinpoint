@@ -17,19 +17,21 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.jvmgc;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetricSnapshot;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcCommonMetricCollector implements JvmGcMetricCollector {
+public class BasicJvmGcMetricCollector implements JvmGcMetricCollector {
 
     private final MemoryMetric memoryMetric;
-
     private final GarbageCollectorMetric garbageCollectorMetric;
 
-    public JvmGcCommonMetricCollector(MemoryMetric memoryMetric, GarbageCollectorMetric garbageCollectorMetric) {
+    public BasicJvmGcMetricCollector(MemoryMetric memoryMetric, GarbageCollectorMetric garbageCollectorMetric) {
         if (memoryMetric == null) {
             throw new NullPointerException("memoryMetric must not be null");
         }
@@ -43,19 +45,22 @@ public class JvmGcCommonMetricCollector implements JvmGcMetricCollector {
     @Override
     public TJvmGc collect() {
         TJvmGc jvmGc = new TJvmGc();
-        jvmGc.setJvmMemoryHeapMax(memoryMetric.heapMax());
-        jvmGc.setJvmMemoryHeapUsed(memoryMetric.heapUsed());
-        jvmGc.setJvmMemoryNonHeapMax(memoryMetric.nonHeapMax());
-        jvmGc.setJvmMemoryNonHeapUsed(memoryMetric.nonHeapUsed());
-        jvmGc.setJvmGcOldCount(garbageCollectorMetric.gcOldCount());
-        jvmGc.setJvmGcOldTime(garbageCollectorMetric.gcOldTime());
-        jvmGc.setType(garbageCollectorMetric.gcType());
+        TJvmGcType jvmGcType = garbageCollectorMetric.getGcType();
+        MemoryMetricSnapshot memoryMetricSnapshot = memoryMetric.getSnapshot();
+        GarbageCollectorMetricSnapshot garbageCollectorMetricSnapshot = garbageCollectorMetric.getSnapshot();
+        jvmGc.setJvmMemoryHeapMax(memoryMetricSnapshot.getHeapMax());
+        jvmGc.setJvmMemoryHeapUsed(memoryMetricSnapshot.getHeapUsed());
+        jvmGc.setJvmMemoryNonHeapMax(memoryMetricSnapshot.getNonHeapMax());
+        jvmGc.setJvmMemoryNonHeapUsed(memoryMetricSnapshot.getNonHeapUsed());
+        jvmGc.setJvmGcOldCount(garbageCollectorMetricSnapshot.getGcOldCount());
+        jvmGc.setJvmGcOldTime(garbageCollectorMetricSnapshot.getGcOldTime());
+        jvmGc.setType(jvmGcType);
         return jvmGc;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("JvmGcCommonMetricCollector{");
+        final StringBuilder sb = new StringBuilder("BasicJvmGcMetricCollector{");
         sb.append("memoryMetric=").append(memoryMetric);
         sb.append(", garbageCollectorMetric=").append(garbageCollectorMetric);
         sb.append('}');

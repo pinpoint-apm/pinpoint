@@ -19,17 +19,33 @@ package com.navercorp.pinpoint.profiler.monitor.metric.memory;
 /**
  * @author HyunGil Jeong
  */
-public class UnknownMemoryMetric implements MemoryMetric {
+public class MemoryMetricSnapshot {
 
-    private static final MemoryMetricSnapshot UNSUPPORTED_SNAPSHOT = new MemoryMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
+    private final long heapMax;
+    private final long heapUsed;
+    private final long nonHeapMax;
+    private final long nonHeapUsed;
 
-    @Override
-    public MemoryMetricSnapshot getSnapshot() {
-        return UNSUPPORTED_SNAPSHOT;
+    MemoryMetricSnapshot(long heapMax, long heapUsed, long nonHeapMax, long nonHeapUsed) {
+        this.heapMax = heapMax;
+        this.heapUsed = heapUsed;
+        this.nonHeapMax = nonHeapMax;
+        this.nonHeapUsed = nonHeapUsed;
     }
 
-    @Override
-    public String toString() {
-        return "Unknown memory metric";
+    public long getHeapMax() {
+        return heapMax;
+    }
+
+    public long getHeapUsed() {
+        return heapUsed;
+    }
+
+    public long getNonHeapMax() {
+        return nonHeapMax;
+    }
+
+    public long getNonHeapUsed() {
+        return nonHeapUsed;
     }
 }
