@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.monitor.metric.gc.DefaultGarbageCollectorMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.DefaultDetailedGarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorType;
-import com.navercorp.pinpoint.profiler.monitor.metric.gc.UnknownGarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.UnknownDetailedGarbageCollectorMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,33 +32,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author dawidmalina
  * @author HyunGil Jeong
  */
-public class GarbageCollectorMetricProvider implements Provider<GarbageCollectorMetric> {
+public class DetailedGarbageCollectorMetricProvider implements Provider<DetailedGarbageCollectorMetric> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Inject
-    public GarbageCollectorMetricProvider() {
+    public DetailedGarbageCollectorMetricProvider() {
+
     }
 
     @Override
-    public GarbageCollectorMetric get() {
-        GarbageCollectorMetric garbageCollectorMetric = null;
+    public DetailedGarbageCollectorMetric get() {
+        DetailedGarbageCollectorMetric detailedGarbageCollectorMetric = null;
         Map<String, GarbageCollectorMXBean> garbageCollectorMap = createGarbageCollectorMap();
         for (GarbageCollectorType garbageCollectorType : GarbageCollectorType.values()) {
             if (garbageCollectorMap.containsKey(garbageCollectorType.oldGenName())) {
                 GarbageCollectorMXBean garbageCollectorMXBean = garbageCollectorMap.get(garbageCollectorType.oldGenName());
-                garbageCollectorMetric = new DefaultGarbageCollectorMetric(garbageCollectorType, garbageCollectorMXBean);
+                detailedGarbageCollectorMetric = new DefaultDetailedGarbageCollectorMetric(garbageCollectorType, garbageCollectorMXBean);
                 break;
             }
         }
-        if (garbageCollectorMetric == null) {
-            garbageCollectorMetric = new UnknownGarbageCollectorMetric();
+        if (detailedGarbageCollectorMetric == null) {
+            detailedGarbageCollectorMetric = new UnknownDetailedGarbageCollectorMetric();
         }
-        logger.info("loaded : {}", garbageCollectorMetric);
-        return garbageCollectorMetric;
+        logger.info("loaded : {}", detailedGarbageCollectorMetric);
+        return detailedGarbageCollectorMetric;
     }
 
     private Map<String, GarbageCollectorMXBean> createGarbageCollectorMap() {

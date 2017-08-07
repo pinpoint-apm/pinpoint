@@ -16,22 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.navercorp.pinpoint.profiler.monitor.metric.memory.CmsGcMemoryMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.memory.G1GcMemoryMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.memory.DefaultMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.memory.ParallelGcMemoryMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.memory.SerialGcMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.UnknownMemoryMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Set;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 
 /**
  * @author dawidmalina
@@ -41,28 +35,16 @@ public class MemoryMetricProvider implements Provider<MemoryMetric> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final MemoryUsageGaugeSet memoryUsageGaugeSet = new MemoryUsageGaugeSet();
-
     @Inject
     public MemoryMetricProvider() {
     }
 
     @Override
     public MemoryMetric get() {
-        Map<String, Metric> memoryUsageMetrics = memoryUsageGaugeSet.getMetrics();
-        Set<String> metricNames = memoryUsageMetrics.keySet();
-
-        MemoryMetric memoryMetric;
-        if (metricNames.contains(MetricMonitorValues.METRIC_MEMORY_POOLS_SERIAL_OLDGEN_USAGE)) {
-            memoryMetric = new SerialGcMemoryMetric(memoryUsageMetrics);
-        } else if (metricNames.contains(MetricMonitorValues.METRIC_MEMORY_POOLS_PS_OLDGEN_USAGE)) {
-            memoryMetric = new ParallelGcMemoryMetric(memoryUsageMetrics);
-        } else if (metricNames.contains(MetricMonitorValues.METRIC_MEMORY_POOLS_CMS_OLDGEN_USAGE)) {
-            memoryMetric = new CmsGcMemoryMetric(memoryUsageMetrics);
-        } else if (metricNames.contains(MetricMonitorValues.METRIC_MEMORY_POOLS_G1_OLDGEN_USAGE)) {
-            memoryMetric = new G1GcMemoryMetric(memoryUsageMetrics);
-        } else {
-            memoryMetric = new UnknownMemoryMetric(memoryUsageMetrics);
+        MemoryMetric memoryMetric = new UnknownMemoryMetric();
+        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+        if (memoryMXBean != null) {
+            memoryMetric = new DefaultMemoryMetric(memoryMXBean);
         }
         logger.info("loaded : {}", memoryMetric);
         return memoryMetric;

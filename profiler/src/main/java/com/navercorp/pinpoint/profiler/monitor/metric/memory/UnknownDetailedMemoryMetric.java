@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.gc;
-
-import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
+package com.navercorp.pinpoint.profiler.monitor.metric.memory;
 
 /**
- * Unknown garbage collector metrics
+ * Metric for unknown detailed memory usages
  *
  * @author HyunGil Jeong
  */
-public class UnknownGarbageCollectorMetric implements GarbageCollectorMetric {
+public class UnknownDetailedMemoryMetric implements DetailedMemoryMetric {
 
-    private static final GarbageCollectorMetricSnapshot UNSUPPORTED_SNAPSHOT = new GarbageCollectorMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
+    private static final DetailedMemoryMetricSnapshot UNSUPPORTED_SNAPSHOT = new DetailedMemoryMetricSnapshot(
+            UNCOLLECTED_USAGE,
+            UNCOLLECTED_USAGE,
+            UNCOLLECTED_USAGE,
+            UNCOLLECTED_USAGE,
+            UNCOLLECTED_USAGE,
+            UNCOLLECTED_USAGE);
 
     @Override
-    public TJvmGcType getGcType() {
-        return TJvmGcType.UNKNOWN;
-    }
-
-    @Override
-    public GarbageCollectorMetricSnapshot getSnapshot() {
+    public DetailedMemoryMetricSnapshot getSnapshot() {
         return UNSUPPORTED_SNAPSHOT;
     }
 
     @Override
     public String toString() {
-        return "Unknown garbage collector metric";
+        return "Unknown detailed memory metric";
     }
 }

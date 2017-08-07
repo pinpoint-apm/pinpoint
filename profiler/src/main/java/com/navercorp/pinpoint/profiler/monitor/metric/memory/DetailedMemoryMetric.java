@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.gc;
-
-import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
+package com.navercorp.pinpoint.profiler.monitor.metric.memory;
 
 /**
+ * @author dawidmalina
  * @author HyunGil Jeong
  */
-public interface GarbageCollectorMetric {
+public interface DetailedMemoryMetric {
 
-    long UNCOLLECTED_VALUE = -1L;
+    double UNCOLLECTED_USAGE = -1D;
 
-    TJvmGcType getGcType();
+    DetailedMemoryMetricSnapshot getSnapshot();
 
-    GarbageCollectorMetricSnapshot getSnapshot();
 }

@@ -41,7 +41,6 @@ import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
-import com.navercorp.pinpoint.profiler.context.DefaultAsyncTraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
@@ -105,6 +104,8 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSour
 import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedGarbageCollectorMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedMemoryMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.GarbageCollectorMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.JvmGcMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.MemoryMetricProvider;
@@ -139,7 +140,9 @@ import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMe
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
@@ -298,7 +301,9 @@ public class ApplicationContextModule extends AbstractModule {
 
     private void bindAgentStatComponent() {
         bind(MemoryMetric.class).toProvider(MemoryMetricProvider.class).in(Scopes.SINGLETON);
+        bind(DetailedMemoryMetric.class).toProvider(DetailedMemoryMetricProvider.class).in(Scopes.SINGLETON);
         bind(GarbageCollectorMetric.class).toProvider(GarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
+        bind(DetailedGarbageCollectorMetric.class).toProvider(DetailedGarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
         bind(JvmGcMetricCollector.class).toProvider(JvmGcMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         bind(CpuLoadMetric.class).toProvider(CpuLoadMetricProvider.class).in(Scopes.SINGLETON);
