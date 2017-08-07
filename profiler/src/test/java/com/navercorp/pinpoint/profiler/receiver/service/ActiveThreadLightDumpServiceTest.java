@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.mock;
@@ -161,7 +163,8 @@ public class ActiveThreadLightDumpServiceTest {
     private List<WaitingJob> createWaitingJobList(int createActiveTraceRepositorySize) {
         List<WaitingJob> waitingJobList = new ArrayList<WaitingJob>();
         for (int i = 0; i < createActiveTraceRepositorySize; i++) {
-            waitingJobList.add(new WaitingJob(100));
+            WaitingJob latchJob = new WaitingJob(1000 * 10);
+            waitingJobList.add(latchJob);
         }
         return waitingJobList;
     }
@@ -250,8 +253,8 @@ public class ActiveThreadLightDumpServiceTest {
 
     private static class WaitingJob implements Runnable {
 
+        private final CountDownLatch latch = new CountDownLatch(1);
         private final long timeIntervalMillis;
-        private boolean close = false;
 
         public WaitingJob(long timeIntervalMillis) {
             this.timeIntervalMillis = timeIntervalMillis;
@@ -259,17 +262,15 @@ public class ActiveThreadLightDumpServiceTest {
 
         @Override
         public void run() {
-            while (!close) {
-                try {
-                    Thread.sleep(timeIntervalMillis);
-                } catch (InterruptedException e) {
-                    close = true;
-                }
+            try {
+                latch.await(timeIntervalMillis, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
 
         public void close() {
-            this.close = true;
+            latch.countDown();
         }
 
     }
