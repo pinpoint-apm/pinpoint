@@ -154,26 +154,6 @@
             <artifactId>log4j</artifactId>
         </dependency>
 
-        <!-- serving performance metrics -->
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-jvm</artifactId>
-        </dependency>
-        <!--<dependency> -->
-        <!--<groupId>io.dropwizard.metrics</groupId> -->
-        <!--<artifactId>metrics-json</artifactId> -->
-        <!--<version>${metrics.version}</version> -->
-        <!--</dependency> -->
-        <!--<dependency> -->
-        <!--<groupId>io.dropwizard.metrics</groupId> -->
-        <!--<artifactId>metrics-healthchecks</artifactId> -->
-        <!--<version>${metrics.version}</version> -->
-        <!--</dependency> -->
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -40,7 +40,6 @@ public class ProfilerLibClass implements LibClass {
 
             "org.apache.commons.lang",
             "org.apache.log4j",
-            "com.codahale.metrics",
             "com.nhncorp.nelo2"
     };
 
