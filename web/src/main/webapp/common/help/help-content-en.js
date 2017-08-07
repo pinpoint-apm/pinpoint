@@ -710,7 +710,7 @@
 				title: "System pu Usage",
 				desc: "CPU usage of agents' whole system - For multi-core CPUs, displays the average CPU usage of all the cores.",
 				category: [{
-					title: "[범례]",
+					title: "[Legend]",
 					items: [{
 						name: "MAX",
 						desc: "Largest system CPU usage of agents"
@@ -729,6 +729,24 @@
 					},{
 						name: "Java 1.7+",
 						desc: "Both the JVM's and the system's CPU usage are collected"
+					}]
+				}]
+			},
+			statTPS: {
+				mainStyle: "",
+				title: "TPS",
+				desc: "Number of transactions received by the agents per second",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Highest TPS of the agents"
+					},{
+						name: "AVG",
+						desc: "Average TPS of the agents"
+					},{
+						name: "MIN",
+						desc: "Lowest TPS of the agents"
 					}]
 				}]
 			}

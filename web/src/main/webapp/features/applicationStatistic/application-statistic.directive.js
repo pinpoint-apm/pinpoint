@@ -12,9 +12,13 @@
 				link: function postLink(scope, element, attrs) {
 					cfg.ID += CommonUtilService.getRandomNum();
 
-					scope.$on( "down.select.application", function () {
-						initTimeSliderUI();
-						loadStatChart( UrlVoService.getQueryStartTime(), UrlVoService.getQueryEndTime() );
+					scope.$on( "down.select.application", function (event, invokeId, sliderTimeSeriesOption) {
+						initTimeSliderUI(sliderTimeSeriesOption);
+						if ( sliderTimeSeriesOption === undefined || sliderTimeSeriesOption === null ) {
+							loadStatChart(UrlVoService.getQueryStartTime(), UrlVoService.getQueryEndTime());
+						} else {
+							loadStatChart(sliderTimeSeriesOption["selectionTimeSeries"][0], sliderTimeSeriesOption["selectionTimeSeries"][1]);
+						}
 					});
 					scope.$on( "down.changed.application", function () {
 						initTimeSliderUI();
@@ -30,6 +34,7 @@
 						TooltipService.init( "statPermGen" );
 						TooltipService.init( "statJVMCpu" );
 						TooltipService.init( "statSystemCpu" );
+						TooltipService.init( "statTPS" );
 					}
 					function loadStatChart(from, to) {
 						var oParam = {
@@ -75,6 +80,18 @@
 									console.log("error");
 								}
 							});
+							AgentAjaxService.getStatTPS( oParam, function(chartData) {
+								if ( angular.isUndefined(chartData.exception) ) {
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.tps", makeChartData({
+										id: "transactionPerSecond",
+										title: "Transaction Per Second",
+										isAvailable: false,
+										maximum: false
+									}, "Transactions(count)", ["Avg", "Max", "Min"], chartData.charts["TRANSACTION_COUNT"]), "100%", "270px");
+								} else {
+									console.log("error");
+								}
+							});
 						}
 					}
 					function makeChartData(chartProperty, chartTitle, legendTitles, chartData) {
@@ -113,40 +130,56 @@
 
 					scope.selectTime = -1;
 					var timeSlider = null;
-					function initTimeSliderUI() {
-						var aSelectionFromTo = [];
-						aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
-						aSelectionFromTo[1] = UrlVoService.getQueryEndTime();
-						if ( scope.selectTime === -1 ) {
-							scope.selectTime = UrlVoService.getQueryEndTime();
+					function initTimeSliderUI( sliderTimeSeriesOption ) {
+						if ( sliderTimeSeriesOption === undefined || sliderTimeSeriesOption === null ) {
+							var aSelectionFromTo = [];
+							aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
+							aSelectionFromTo[1] = UrlVoService.getQueryEndTime();
+							if (scope.selectTime === -1) {
+								scope.selectTime = UrlVoService.getQueryEndTime();
+							}
+							initTime(scope.selectTime);
+							initTimeSlider(aSelectionFromTo);
+							getTimelineList(calcuSliderTimeSeries(aSelectionFromTo));
+						} else {
+							scope.selectTime = sliderTimeSeriesOption["selectedTime"];
+							initTime(scope.selectTime);
+							initTimeSlider( sliderTimeSeriesOption["selectionTimeSeries"], sliderTimeSeriesOption["timeSeries"], sliderTimeSeriesOption["selectedTime"] );
+							getTimelineList(sliderTimeSeriesOption["timeSeries"]);
 						}
-						initTime( scope.selectTime );
-						initTimeSlider( aSelectionFromTo );
-						getTimelineList( calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
 					function initTime( time ) {
 						scope.targetPicker = moment( time ).format( "YYYY-MM-DD HH:mm:ss" );
 					}
-					function initTimeSlider( aSelectionFromTo ) {
+					function initTimeSlider( aSelectionFromTo, aFromTo, selectedTime ) {
 						if ( timeSlider !== null ) {
-							timeSlider.resetTimeSeriesAndSelectionZone( aSelectionFromTo, calcuSliderTimeSeries( aSelectionFromTo ) );
+							if ( aFromTo && selectedTime ) {
+								timeSlider.resetTimeSeriesAndSelectionZone(aSelectionFromTo, aFromTo, selectedTime);
+							} else {
+								timeSlider.resetTimeSeriesAndSelectionZone(aSelectionFromTo, calcuSliderTimeSeries( aSelectionFromTo ) );
+							}
 						} else {
 							timeSlider = new TimeSlider( "timeSlider-for-application-statistic", {
 								"width": $("#timeSlider-for-application-statistic").get(0).getBoundingClientRect().width,
 								"height": 90,
 								"handleSrc": "images/handle.png",
-								"timeSeries": calcuSliderTimeSeries( aSelectionFromTo ),
+								"timeSeries": aFromTo || calcuSliderTimeSeries( aSelectionFromTo ),
 								"handleTimeSeries": aSelectionFromTo,
-								"selectTime": aSelectionFromTo[1],
+								"selectTime": selectedTime || aSelectionFromTo[1],
 								"timelineData": {}
 							}).addEvent("clickEvent", function( aEvent ) {
 							}).addEvent("selectTime", function( time ) {
 								scope.selectTime = time;
 								initTime( time );
+								sendUpTimeSliderTimeInfo( timeSlider.getSliderTimeSeries(), timeSlider.getSelectionTimeSeries(), time );
 							}).addEvent("changeSelectionZone", function( aTime ) {
 								loadStatChart( aTime[0], aTime[1] );
+								sendUpTimeSliderTimeInfo( timeSlider.getSliderTimeSeries(), aTime, timeSlider.getSelectTime() );
 							}).addEvent("changeSliderTimeSeries", function( aEvents ) {});
 						}
+					}
+					function sendUpTimeSliderTimeInfo( sliderTimeSeries, sliderSelectionTimeSeries, sliderSelectedTime ) {
+						scope.$emit("up.changed.timeSliderOption", sliderTimeSeries, sliderSelectionTimeSeries, sliderSelectedTime );
 					}
 					function calcuSliderTimeSeries( aFromTo ) {
 						var from = aFromTo[0], to = aFromTo[1];

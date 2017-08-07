@@ -78,6 +78,7 @@
             this.timeSlider.oPositionManager.setSelectionStartPosition( x );
 
 			if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
+				this.timeSlider.oPositionManager.setSelectTime( newLeftTime );
 				this.oSelectionPoint.onMouseClick( x );
 				this.timeSlider.fireEvent( "selectTime", newLeftTime );
 			}
@@ -92,6 +93,7 @@
             this.timeSlider.oPositionManager.setSelectionEndPosition( newRightX );
 
 			if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
+				this.timeSlider.oPositionManager.setSelectTime( aNewSelectionTimeSeries[1] );
 				this.oSelectionPoint.onMouseClick( newRightX );
 				this.timeSlider.fireEvent( "selectTime", aNewSelectionTimeSeries[1] );
 			}
@@ -108,6 +110,7 @@
             this.timeSlider.oPositionManager.setSelectionEndPosition( x );
 
 			if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
+				this.timeSlider.oPositionManager.setSelectTime( newRightTime );
 				this.oSelectionPoint.onMouseClick( x );
 				this.timeSlider.fireEvent( "selectTime", newRightTime );
 			}
@@ -122,6 +125,7 @@
             this.timeSlider.oPositionManager.setSelectionStartPosition( newLeftX );
 
             if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
+				this.timeSlider.oPositionManager.setSelectTime( aNewSelectionTimeSeries[0] );
                 this.oSelectionPoint.onMouseClick( newLeftX );
                 this.timeSlider.fireEvent( "selectTime", aNewSelectionTimeSeries[0] );
             }
