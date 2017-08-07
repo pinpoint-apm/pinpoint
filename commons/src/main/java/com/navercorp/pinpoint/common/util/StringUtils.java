@@ -44,6 +44,20 @@ public class StringUtils {
         return string != null && string.length() > 0;
     }
 
+    public static boolean hasText(String string) {
+        if (isEmpty(string)) {
+            return false;
+        }
+
+        final int length = string.length();
+        for (int i = 0; i < length; i++) {
+            if (!Character.isWhitespace(string.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static <T> int getLength(final String string) {
         return getLength(string, 0);
     }
