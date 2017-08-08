@@ -94,11 +94,13 @@ public interface ProfilerConfig {
 
     int getIoBufferingBufferSize();
 
-    int getProfileJvmCollectInterval();
-
     String getProfilerJvmVendorName();
 
-    boolean isProfilerJvmCollectDetailedMetrics();
+    int getProfileJvmStatCollectIntervalMs();
+
+    int getProfileJvmStatBatchSendCount();
+
+    boolean isProfilerJvmStatCollectDetailedMetrics();
 
     long getAgentInfoSendRetryInterval();
 

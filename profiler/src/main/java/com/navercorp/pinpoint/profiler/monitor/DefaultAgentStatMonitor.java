@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
@@ -41,8 +43,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
-    private static final long DEFAULT_COLLECTION_INTERVAL_MS = 1000 * 5;
-    private static final int DEFAULT_NUM_COLLECTIONS_PER_SEND = 6;
+    private static final long MIN_COLLECTION_INTERVAL_MS = 1000;
+    private static final long MAX_COLLECTION_INTERVAL_MS = 1000 * 5;
+    private static final long DEFAULT_COLLECTION_INTERVAL_MS = DefaultProfilerConfig.DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
+    private static final int DEFAULT_NUM_COLLECTIONS_PER_SEND = DefaultProfilerConfig.DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final long collectionIntervalMs;
@@ -54,14 +58,15 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     @Inject
     public DefaultAgentStatMonitor(@StatDataSender DataSender dataSender,
                                    @AgentId String agentId, @AgentStartTime long agentStartTimestamp,
-                                   @Named("AgentStatCollector") AgentStatMetricCollector<TAgentStat> agentStatCollector) {
-        this(dataSender, agentId, agentStartTimestamp, agentStatCollector, DEFAULT_COLLECTION_INTERVAL_MS, DEFAULT_NUM_COLLECTIONS_PER_SEND);
+                                   @Named("AgentStatCollector") AgentStatMetricCollector<TAgentStat> agentStatCollector,
+                                   ProfilerConfig profilerConfig) {
+        this(dataSender, agentId, agentStartTimestamp, agentStatCollector, profilerConfig.getProfileJvmStatCollectIntervalMs(), profilerConfig.getProfileJvmStatBatchSendCount());
     }
 
     public DefaultAgentStatMonitor(DataSender dataSender,
                                    String agentId, long agentStartTimestamp,
                                    AgentStatMetricCollector<TAgentStat> agentStatCollector,
-                                   long collectionInterval, int numCollectionsPerBatch) {
+                                   long collectionIntervalMs, int numCollectionsPerBatch) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
@@ -71,7 +76,16 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
         if (agentStatCollector == null) {
             throw new NullPointerException("agentStatCollector must not be null");
         }
-        this.collectionIntervalMs = collectionInterval;
+        if (collectionIntervalMs < MIN_COLLECTION_INTERVAL_MS) {
+            collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;
+        }
+        if (collectionIntervalMs > MAX_COLLECTION_INTERVAL_MS) {
+            collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;
+        }
+        if (numCollectionsPerBatch < 1) {
+            numCollectionsPerBatch = DEFAULT_NUM_COLLECTIONS_PER_SEND;
+        }
+        this.collectionIntervalMs = collectionIntervalMs;
         this.collectJob = new CollectJob(dataSender, agentId, agentStartTimestamp, agentStatCollector, numCollectionsPerBatch);
 
         preLoadClass(agentId, agentStartTimestamp, agentStatCollector);

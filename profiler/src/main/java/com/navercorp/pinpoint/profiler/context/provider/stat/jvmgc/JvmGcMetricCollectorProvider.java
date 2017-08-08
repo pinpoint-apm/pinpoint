@@ -61,7 +61,7 @@ public class JvmGcMetricCollectorProvider implements Provider<JvmGcMetricCollect
         if (detailedGarbageCollectorMetricProvider == null) {
             throw new NullPointerException("detailedGarbageCollectorMetricProvider must not be null");
         }
-        this.collectDetailedMetrics = profilerConfig.isProfilerJvmCollectDetailedMetrics();
+        this.collectDetailedMetrics = profilerConfig.isProfilerJvmStatCollectDetailedMetrics();
         this.memoryMetricProivider = memoryMetricProivider;
         this.detailedMemoryMetricProvider = detailedMemoryMetricProvider;
         this.garbageCollectorMetricProvider = garbageCollectorMetricProvider;

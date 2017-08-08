@@ -47,6 +47,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public static final String INSTRUMENT_ENGINE_JAVASSIST = "JAVASSIST";
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
 
+    public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
+    public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
+
     public interface ValueResolver {
         String resolve(String value, Properties properties);
     }
@@ -144,9 +147,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean ioBufferingEnable;
     private int ioBufferingBufferSize;
 
-    private int profileJvmCollectInterval;
     private String profileJvmVendorName;
-    private boolean profilerJvmCollectDetailedMetrics;
+    private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
+    private int profileJvmStatBatchSendCount = DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
+    private boolean profilerJvmStatCollectDetailedMetrics;
 
     private Filter<String> profilableClassFilter = new SkipFilter<String>();
 
@@ -349,18 +353,23 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public int getProfileJvmCollectInterval() {
-        return profileJvmCollectInterval;
-    }
-
-    @Override
     public String getProfilerJvmVendorName() {
         return profileJvmVendorName;
     }
 
     @Override
-    public boolean isProfilerJvmCollectDetailedMetrics() {
-        return profilerJvmCollectDetailedMetrics;
+    public int getProfileJvmStatCollectIntervalMs() {
+        return profileJvmStatCollectIntervalMs;
+    }
+
+    @Override
+    public int getProfileJvmStatBatchSendCount() {
+        return profileJvmStatBatchSendCount;
+    }
+
+    @Override
+    public boolean isProfilerJvmStatCollectDetailedMetrics() {
+        return profilerJvmStatCollectDetailedMetrics;
     }
 
     @Override
@@ -501,9 +510,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
 
         // JVM
-        this.profileJvmCollectInterval = readInt("profiler.jvm.collect.interval", 1000);
         this.profileJvmVendorName = readString("profiler.jvm.vendor.name", null);
-        this.profilerJvmCollectDetailedMetrics = readBoolean("profiler.jvm.collect.detailed.metrics", false);
+        this.profileJvmStatCollectIntervalMs = readInt("profiler.jvm.stat.collect.interval", DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS);
+        this.profileJvmStatBatchSendCount = readInt("profiler.jvm.stat.batch.send.count", DEFAULT_NUM_AGENT_STAT_BATCH_SEND);
+        this.profilerJvmStatCollectDetailedMetrics = readBoolean("profiler.stat.jvm.collect.detailed.metrics", false);
 
         this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 
@@ -673,9 +683,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", samplingRate=").append(samplingRate);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
         sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
-        sb.append(", profileJvmCollectInterval=").append(profileJvmCollectInterval);
         sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
-        sb.append(", profilerJvmCollectDetailedMetrics=").append(profilerJvmCollectDetailedMetrics);
+        sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
+        sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
+        sb.append(", profilerJvmStatCollectDetailedMetrics=").append(profilerJvmStatCollectDetailedMetrics);
         sb.append(", profilableClassFilter=").append(profilableClassFilter);
         sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
