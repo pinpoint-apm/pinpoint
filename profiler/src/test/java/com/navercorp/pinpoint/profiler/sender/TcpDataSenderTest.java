@@ -76,8 +76,8 @@ public class TcpDataSenderTest {
             }
 
             @Override
-            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-                logger.debug("ping received {} {} ", pingPacket, pinpointServer);
+            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
+                logger.debug("ping received packet:{}, remote:{}", pingPacket, pinpointServer);
             }
         });
         serverAcceptor.bind(HOST, PORT);

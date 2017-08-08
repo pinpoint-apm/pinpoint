@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
@@ -98,8 +98,8 @@ public class ClusterAcceptor implements ClusterConnectionProvider {
         }
 
         @Override
-        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-            logger.debug("ping received {} {} ", pingPacket, pinpointServer);
+        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
+            logger.debug("ping received packet:{}, remote:{}", pingPacket, pinpointServer);
         }
 
     }

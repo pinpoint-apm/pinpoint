@@ -234,8 +234,8 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             return;
         }
         logger.debug("{} writePing() started. channel:{}", objectUniqName, channel);
-        
-        PingPacket pingPacket = new PingPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
+
+        PingPayloadPacket pingPacket = new PingPayloadPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
         write0(pingPacket, pingWriteFailFutureListener);
     }
 
@@ -245,14 +245,14 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         }
         logger.debug("{} sendPing() started.", objectUniqName);
 
-        PingPacket pingPacket = new PingPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
+        PingPayloadPacket pingPacket = new PingPayloadPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
         ChannelFuture future = write0(pingPacket);
         future.awaitUninterruptibly();
         if (!future.isSuccess()) {
             Throwable cause = future.getCause();
             throw new PinpointSocketException("send ping failed. Error:" + cause.getMessage(), cause);
         }
-        
+
         logger.debug("{} sendPing() completed.", objectUniqName);
     }
 
