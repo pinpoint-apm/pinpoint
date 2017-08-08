@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -203,7 +203,7 @@ public class TCPReceiver {
             }
 
             @Override
-            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
                 recordPing(pingPacket, pinpointServer);
             }
         });
@@ -218,7 +218,7 @@ public class TCPReceiver {
         worker.execute(new RequestResponseDispatch(requestPacket, pinpointSocket));
     }
 
-    private void recordPing(PingPacket pingPacket, PinpointServer pinpointServer) {
+    private void recordPing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
         final int eventCounter = pingPacket.getPingId();
         long pingTimestamp = System.currentTimeMillis();
         try {

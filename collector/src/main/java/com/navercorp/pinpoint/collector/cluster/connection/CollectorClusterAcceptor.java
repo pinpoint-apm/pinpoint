@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -116,8 +116,8 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
         }
 
         @Override
-        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-            logger.info("handle ping {}", pingPacket);
+        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
+            logger.info("ping received packet:{}, remote:{}", pingPacket, pinpointServer);
         }
 
     }
@@ -139,8 +139,8 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
 
         @Override
         public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
-
         }
+
     }
 
 }

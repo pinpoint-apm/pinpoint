@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -76,8 +76,8 @@ public class TcpDataSenderReconnectTest {
             }
 
             @Override
-            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-                logger.debug("ping received {} {} ", pingPacket, pinpointServer);
+            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
+                logger.debug("ping received packet:{}, remote:{}", pingPacket, pinpointServer);
             }
         });
         serverAcceptor.bind(HOST, PORT);

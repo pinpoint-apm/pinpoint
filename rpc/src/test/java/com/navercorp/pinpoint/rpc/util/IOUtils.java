@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.rpc.util;
 
 import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.rpc.TestAwaitUtils;
-import org.junit.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +28,10 @@ import java.net.Socket;
  * @author Taejin Koo
  */
 public final class IOUtils {
+
+    public static byte[] read(final InputStream inputStream) throws IOException {
+        return read(inputStream, 100, 1000);
+    }
 
     public static byte[] read(final InputStream inputStream, long waitUnitTime, long maxWaitTime) throws IOException {
         boolean isReceived = TestAwaitUtils.await(new TestAwaitTaskUtils() {
@@ -42,10 +45,10 @@ public final class IOUtils {
                 }
                 return false;
             }
-        }, 100, 1000);
+        }, waitUnitTime, maxWaitTime);
 
         if (!isReceived) {
-            Assert.fail("no available data");
+            throw new IOException("no available data");
         }
 
         int availableSize = inputStream.available();
