@@ -29,11 +29,28 @@ import com.navercorp.pinpoint.rpc.common.CyclicStateChecker;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.Packet;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
+import com.navercorp.pinpoint.rpc.packet.PingSimplePacket;
+import com.navercorp.pinpoint.rpc.packet.PongPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.stream.*;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
@@ -46,7 +63,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -79,7 +100,9 @@ public class DefaultPinpointServer implements PinpointServer {
     private final ChannelFutureListener responseWriteFailListener;
     
     private final WriteFailFutureListener pongWriteFutureListener = new WriteFailFutureListener(logger, "pong write fail.", "pong write success.");
-    
+
+    private final HealthCheckManager healthCheckManager;
+    private boolean healthCheckStarted = false;
     
     public DefaultPinpointServer(Channel channel, PinpointServerConfig serverConfig) {
         this(channel, serverConfig, null);
@@ -118,6 +141,8 @@ public class DefaultPinpointServer implements PinpointServer {
         this.stateChecker = new CyclicStateChecker(5);
 
         this.localClusterOption = serverConfig.getClusterOption();
+
+        this.healthCheckManager = serverConfig.getHealthChecker();
     }
     
     public void start() {
@@ -317,6 +342,10 @@ public class DefaultPinpointServer implements PinpointServer {
                 handleClosePacket(channel);
                 return;
             }
+            case PacketType.CONTROL_PING_PAYLOAD: {
+                handlePingPacket(channel, (PingPayloadPacket) message);
+                return;
+            }
             case PacketType.CONTROL_PING: {
                 handlePingPacket(channel, (PingPacket) message);
                 return;
@@ -421,26 +450,59 @@ public class DefaultPinpointServer implements PinpointServer {
     }
     
     private void handlePingPacket(Channel channel, PingPacket packet) {
+        logger.debug("{} handleLegacyPingPacket() started. packet:{}", objectUniqName, packet);
+
+        if (!healthCheckStarted) {
+            healthCheckManager.receivedPingAndStartPingSend(channel, PingPacket.PING_PACKET);
+            healthCheckStarted = true;
+        }
+
+        // packet without status value
+        if (packet == PingPacket.PING_PACKET) {
+            writePong(channel);
+            return;
+        }
+
+        PingPayloadPacket pingPayloadPacket = new PingPayloadPacket(packet.getPingId(), packet.getStateVersion(), packet.getStateCode());
+        handlePingPacket0(channel, pingPayloadPacket);
+    }
+
+    private void handlePingPacket(Channel channel, PingPayloadPacket packet) {
         logger.debug("{} handlePingPacket() started. packet:{}", objectUniqName, packet);
-        
+
+        if (!healthCheckStarted) {
+            healthCheckManager.receivedPingAndStartPingSend(channel, PingSimplePacket.PING_PACKET);
+            healthCheckStarted = true;
+        }
+
+        handlePingPacket0(channel, packet);
+    }
+
+    private void handlePingPacket0(Channel channel, PingPayloadPacket packet) {
         SocketStateCode statusCode = state.getCurrentStateCode();
 
         if (statusCode.getId() == packet.getStateCode()) {
             stateChecker.unmark();
-            
+
             messageListener.handlePing(packet, this);
 
-            PongPacket pongPacket = PongPacket.PONG_PACKET;
-            ChannelFuture write = channel.write(pongPacket);
-            write.addListener(pongWriteFutureListener);
+            writePong(channel);
         } else {
             logger.warn("Session state sync failed. channel:{}, packet:{}, server-state:{}", channel, packet, statusCode);
-            
+
             if (stateChecker.markAndCheckCondition()) {
                 state.toErrorSyncStateSession();
                 stop();
+            } else {
+                writePong(channel);
             }
         }
+    }
+
+    private void writePong(Channel channel) {
+        PongPacket pongPacket = PongPacket.PONG_PACKET;
+        ChannelFuture write = channel.write(pongPacket);
+        write.addListener(pongWriteFutureListener);
     }
 
     private Map<String, Object> createHandshakeResponse(HandshakeResponseCode responseCode, boolean isFirst) {
