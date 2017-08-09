@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -139,7 +139,7 @@ public class TCPReceiver {
             }
 
             @Override
-            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
             }
         });
         this.serverAcceptor.bind(configuration.getTcpListenIp(), configuration.getTcpListenPort());

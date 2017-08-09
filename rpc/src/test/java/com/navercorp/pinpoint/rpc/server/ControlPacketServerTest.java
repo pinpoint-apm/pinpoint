@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
@@ -235,9 +235,9 @@ public class ControlPacketServerTest {
         }
 
         @Override
-        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-
+        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
         }
+
     }
 
 }

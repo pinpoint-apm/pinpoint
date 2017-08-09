@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.rpc.util;
 
 import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.rpc.TestAwaitUtils;
-import org.junit.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +44,7 @@ public final class IOUtils {
         }, 100, 1000);
 
         if (!isReceived) {
-            Assert.fail("no available data");
+            throw new IOException("no available data");
         }
 
         int availableSize = inputStream.available();
