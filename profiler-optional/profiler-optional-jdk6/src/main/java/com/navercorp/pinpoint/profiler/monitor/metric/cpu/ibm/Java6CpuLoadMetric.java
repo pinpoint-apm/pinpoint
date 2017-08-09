@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.cpu.ibm;
 
-import com.codahale.metrics.Gauge;
-import com.ibm.lang.management.OperatingSystemMXBean;
-import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.cpu.JvmCpuUsageCalculator;
 
-import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 
 /**
@@ -29,78 +28,32 @@ import java.lang.management.RuntimeMXBean;
  */
 public class Java6CpuLoadMetric implements CpuLoadMetric {
 
-    private static final int CPU_COUNT = CpuUtils.cpuCount();
+    private final JvmCpuUsageCalculator jvmCpuUsageCalculator = new JvmCpuUsageCalculator();
+    private final com.ibm.lang.management.OperatingSystemMXBean operatingSystemMXBean;
+    private final RuntimeMXBean runtimeMXBean;
 
-    private static final int UNSUPPORTED = -1;
-    private static final int UNINITIALIZED = -1;
-
-    private final Gauge<Double> jvmCpuLoadGauge;
-    private final Gauge<Double> systemCpuLoadGauge;
-
-    public Java6CpuLoadMetric() {
-        final OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        final RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        jvmCpuLoadGauge = createJvmCpuLoadGauge(operatingSystemMXBean, runtimeMXBean);
-        systemCpuLoadGauge = createSystemCpuLoadGauge(operatingSystemMXBean);
+    public Java6CpuLoadMetric(OperatingSystemMXBean operatingSystemMXBean, RuntimeMXBean runtimeMXBean) {
+        if (operatingSystemMXBean == null) {
+            throw new NullPointerException("operatingSystemMXBean must not be null");
+        }
+        this.operatingSystemMXBean = (com.ibm.lang.management.OperatingSystemMXBean) operatingSystemMXBean;
+        this.runtimeMXBean = runtimeMXBean;
     }
 
     @Override
-    public Double jvmCpuLoad() {
-        return jvmCpuLoadGauge.getValue();
-    }
-
-    @Override
-    public Double systemCpuLoad() {
-        return systemCpuLoadGauge.getValue();
+    public CpuLoadMetricSnapshot getSnapshot() {
+        double jvmCpuUsage = UNCOLLECTED_USAGE;
+        if (runtimeMXBean != null) {
+            long cpuTimeNS = operatingSystemMXBean.getProcessCpuTimeByNS();
+            long upTimeMS = runtimeMXBean.getUptime();
+            jvmCpuUsage = jvmCpuUsageCalculator.getJvmCpuUsage(cpuTimeNS, upTimeMS);
+        }
+        double systemCpuUsage = operatingSystemMXBean.getSystemCpuLoad();
+        return new CpuLoadMetricSnapshot(jvmCpuUsage, systemCpuUsage);
     }
 
     @Override
     public String toString() {
         return "CpuLoadMetric for IBM Java 1.6";
-    }
-
-    private Gauge<Double> createJvmCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean, final RuntimeMXBean runtimeMXBean) {
-        return new Gauge<Double>() {
-
-            private long lastCpuTimeNS = UNINITIALIZED;
-            private long lastUpTimeMS = UNINITIALIZED;
-
-            @Override
-            public Double getValue() {
-
-                final long cpuTimeNS = operatingSystemMXBean.getProcessCpuTimeByNS();
-                if (cpuTimeNS == UNSUPPORTED) {
-                    return UNSUPPORTED_GAUGE.getValue();
-                }
-                final long upTimeMS = runtimeMXBean.getUptime();
-
-                if (this.lastCpuTimeNS == UNINITIALIZED || this.lastUpTimeMS == UNINITIALIZED) {
-                    this.lastCpuTimeNS = cpuTimeNS;
-                    this.lastUpTimeMS = upTimeMS;
-                    return 0.0D;
-                }
-
-                final long totalCpuTimeNS = cpuTimeNS - lastCpuTimeNS;
-                final long diffUpTimeMS = upTimeMS - lastUpTimeMS;
-                final long totalUpTimeNS = (diffUpTimeMS * 1000000) * CPU_COUNT;
-
-                final double cpuLoad = totalUpTimeNS > 0 ?
-                        Math.min(100F, totalCpuTimeNS / (float)totalUpTimeNS) : UNSUPPORTED;
-
-                this.lastCpuTimeNS = cpuTimeNS;
-                this.lastUpTimeMS = upTimeMS;
-
-                return cpuLoad;
-            }
-        };
-    }
-
-    private Gauge<Double> createSystemCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
-        return new Gauge<Double>() {
-            @Override
-            public Double getValue() {
-                return operatingSystemMXBean.getSystemCpuLoad();
-            }
-        };
     }
 }
