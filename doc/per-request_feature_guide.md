@@ -197,7 +197,7 @@ Pinpoint Web only adds link buttons - you should implement the logic to retrieve
 If you want to expose your agent’s log messages, please follow the steps below.
 
 **step 1**
-You should implement a controller that receives transactionId, spanId, transanction_start_time as parameters and retrieve the logs yourself. 
+You should implement a controller that receives transactionId, spanId, transaction_start_time as parameters and retrieve the logs yourself. 
 We do not yet provide a way to retrieve the logs.
 
 example)
@@ -224,8 +224,8 @@ log.button.name= log
 ```
 
 **step 3**
-Pinpoint 1.5.0 or later, we improve button to decided enable/disable depending on wherether or not being logged.
-You should implement interceptor for using logging appender to add logic wherether or not being logged. you also should create plugin for logging appdender internally.
+Pinpoint 1.5.0 or later, we improve button to decided enable/disable depending on whether or not being logged.
+You should implement interceptor for using logging appender to add logic whether or not being logged. you also should create plugin for logging appdender internally.
 Please refer to Pinpoint Profiler Plugin Sample([Link](https://github.com/naver/pinpoint-plugin-sample)).
 Location added logic of interceptor is method to log for data of LoggingEvent in appender class. you should review your appender class and find method.
 This is interceptor example.
@@ -452,7 +452,7 @@ ex) logback - logback.xml
 
 **2-3 로그 출력 확인**
 
-Pinpoint agent가 적용된 서비스를 동작하여 log message에 아래와 같이 tansactionId, spanId 정보가 출력되는것을 확인하면 된다.
+Pinpoint agent가 적용된 서비스를 동작하여 log message에 아래와 같이 transactionId, spanId 정보가 출력되는것을 확인하면 된다.
 
 ```
 2015-04-04 14:35:20 [INFO](ContentInfoCollector:76 ) [txId : agent^14252^17 spanId : 1224] get content name : TECH
