@@ -19,24 +19,21 @@ package com.navercorp.pinpoint.profiler.monitor.metric.cpu;
 /**
  * @author HyunGil Jeong
  */
-public interface CpuLoadMetric {
+public class CpuLoadMetricSnapshot {
 
-    double UNCOLLECTED_USAGE = -1D;
+    private final double jvmCpuUsage;
+    private final double systemCpuUsage;
 
-    CpuLoadMetric UNSUPPORTED_CPU_LOAD_METRIC = new CpuLoadMetric() {
+    public CpuLoadMetricSnapshot(double jvmCpuUsage, double systemCpuUsage) {
+        this.jvmCpuUsage = jvmCpuUsage;
+        this.systemCpuUsage = systemCpuUsage;
+    }
 
-        private final CpuLoadMetricSnapshot uncollectedSnapshot = new CpuLoadMetricSnapshot(UNCOLLECTED_USAGE, UNCOLLECTED_USAGE);
+    public double getJvmCpuUsage() {
+        return jvmCpuUsage;
+    }
 
-        @Override
-        public CpuLoadMetricSnapshot getSnapshot() {
-            return uncollectedSnapshot;
-        }
-
-        @Override
-        public String toString() {
-            return "Unsupported CpuLoadMetric";
-        }
-    };
-
-    CpuLoadMetricSnapshot getSnapshot();
+    public double getSystemCpuUsage() {
+        return systemCpuUsage;
+    }
 }
