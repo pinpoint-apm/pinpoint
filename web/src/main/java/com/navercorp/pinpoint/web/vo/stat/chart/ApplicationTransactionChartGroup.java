@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.TransactionPoint.UncollectedTransactionPointCreater;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,10 +43,21 @@ public class ApplicationTransactionChartGroup implements ApplicationStatChartGro
         List<Point> transactionList = new ArrayList<>(aggreJoinTransactionBoList.size());
 
         for (AggreJoinTransactionBo aggreJoinTransactionBo : aggreJoinTransactionBoList) {
-            transactionList.add(new TransactionPoint(aggreJoinTransactionBo.getTimestamp(), aggreJoinTransactionBo.getMinTotalCount(), aggreJoinTransactionBo.getMinTotalCountAgentId(), aggreJoinTransactionBo.getMaxTotalCount(), aggreJoinTransactionBo.getMaxTotalCountAgentId(), aggreJoinTransactionBo.getTotalCount()));
+            double minTotalCount = calculateTPS(aggreJoinTransactionBo.getMinTotalCount(), aggreJoinTransactionBo.getCollectInterval());
+            double maxTotalCount = calculateTPS(aggreJoinTransactionBo.getMaxTotalCount(), aggreJoinTransactionBo.getCollectInterval());
+            double totalCount = calculateTPS(aggreJoinTransactionBo.getTotalCount(), aggreJoinTransactionBo.getCollectInterval());
+            transactionList.add(new TransactionPoint(aggreJoinTransactionBo.getTimestamp(), minTotalCount, aggreJoinTransactionBo.getMinTotalCountAgentId(), maxTotalCount, aggreJoinTransactionBo.getMaxTotalCountAgentId(), totalCount));
         }
 
         transactionChartMap.put(TransactionChartType.TRANSACTION_COUNT,  new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_TRANSACTION_POINT).build(transactionList));
+    }
+
+    private double calculateTPS(double value, long timeMs) {
+        if (value <= 0) {
+            return value;
+        }
+
+        return BigDecimal.valueOf(value / (timeMs / 1000D)).setScale(1, RoundingMode.HALF_UP).doubleValue();
     }
 
     @Override

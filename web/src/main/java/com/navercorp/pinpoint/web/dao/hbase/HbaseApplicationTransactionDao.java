@@ -59,12 +59,12 @@ public class HbaseApplicationTransactionDao implements ApplicationTransactionDao
     }
 
     private List<AggreJoinTransactionBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinTransactionBo> aggreJoinCpuLoadBoList = new ArrayList<>(aggregationStatDataList.size());
+        List<AggreJoinTransactionBo> aggreJoinTransactionBoList = new ArrayList<>(aggregationStatDataList.size());
 
         for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinCpuLoadBoList.add((AggreJoinTransactionBo) aggregationStatData);
+            aggreJoinTransactionBoList.add((AggreJoinTransactionBo) aggregationStatData);
         }
 
-        return aggreJoinCpuLoadBoList;
+        return aggreJoinTransactionBoList;
     }
 }
