@@ -334,6 +334,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             "applicationId='" + applicationId + '\'' +
             ", joinCpuLoadBoList=" + joinCpuLoadBoList +
             ", joinMemoryBoList=" + joinMemoryBoList +
+            ", joinTransactionBoList=" + joinTransactionBoList +
             ", timestamp=" + timestamp +
             ", statType=" + statType +
             '}';

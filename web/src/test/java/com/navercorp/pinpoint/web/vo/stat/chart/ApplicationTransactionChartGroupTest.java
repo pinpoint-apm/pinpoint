@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,11 +68,18 @@ public class ApplicationTransactionChartGroupTest {
     }
 
     private void testTranCount(TransactionPoint transactionPoint, AggreJoinTransactionBo aggreJoinTransactionBo) {
-        assertEquals(transactionPoint.getyValForAvg(), aggreJoinTransactionBo.getTotalCount(), 0);
-        assertEquals(transactionPoint.getyValForMin(), aggreJoinTransactionBo.getMinTotalCount(), 0);
-        assertEquals(transactionPoint.getyValForMax(), aggreJoinTransactionBo.getMaxTotalCount(), 0);
+        assertEquals(transactionPoint.getyValForAvg(), calculateTPS(aggreJoinTransactionBo.getTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getyValForMin(), calculateTPS(aggreJoinTransactionBo.getMinTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getyValForMax(), calculateTPS(aggreJoinTransactionBo.getMaxTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
         assertEquals(transactionPoint.getAgentIdForMin(), aggreJoinTransactionBo.getMinTotalCountAgentId());
         assertEquals(transactionPoint.getAgentIdForMax(), aggreJoinTransactionBo.getMaxTotalCountAgentId());
     }
 
+    private double calculateTPS(double value, long timeMs) {
+        if (value <= 0) {
+            return value;
+        }
+
+        return BigDecimal.valueOf(value / (timeMs / 1000D)).setScale(1, RoundingMode.HALF_UP).doubleValue();
+    }
 }
