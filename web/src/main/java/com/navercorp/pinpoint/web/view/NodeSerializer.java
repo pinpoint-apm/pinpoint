@@ -77,12 +77,24 @@ public class NodeSerializer extends JsonSerializer<Node>  {
 
         if (serverInstanceList == null) {
             jgen.writeNumberField("instanceCount", 0);
+            jgen.writeNumberField("instanceErrorCount", 0);
             writeEmptyArray(jgen, "agentIds");
             if (NodeType.DETAILED == node.getNodeType()) {
                 writeEmptyObject(jgen, "serverList");
             }
         } else {
             jgen.writeNumberField("instanceCount", serverInstanceList.getInstanceCount());
+            long instanceErrorCount = 0;
+            NodeHistogram nodeHistogram = node.getNodeHistogram();
+            if (nodeHistogram!= null) {
+                Map<String, Histogram> agentHistogramMap = node.getNodeHistogram().getAgentHistogramMap();
+                if (agentHistogramMap != null) {
+                    instanceErrorCount = agentHistogramMap.values().stream()
+                            .filter(agentHistogram -> agentHistogram.getTotalErrorCount() > 0)
+                            .count();
+                }
+            }
+            jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
             jgen.writeArrayFieldStart("agentIds");
             for (String agentId : serverInstanceList.getAgentIdList()) {
                 jgen.writeString(agentId);
