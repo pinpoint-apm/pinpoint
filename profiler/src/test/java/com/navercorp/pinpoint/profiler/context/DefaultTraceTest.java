@@ -22,8 +22,10 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
@@ -45,6 +47,8 @@ import static org.mockito.Mockito.when;
 public class DefaultTraceTest {
 
     private final String agentId = "agentId";
+    private final long agentStartTime = System.currentTimeMillis();
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
     @Mock
     private TraceRoot traceRoot;
@@ -78,7 +82,7 @@ public class DefaultTraceTest {
         CallStackFactory callStackFactory = new CallStackFactoryV1(64);
         CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
-        SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, 0, ServiceType.STAND_ALONE);
+        SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, 0, ServiceType.STAND_ALONE, encoder);
 
         SpanStorage storage = new SpanStorage(traceRoot, LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
 

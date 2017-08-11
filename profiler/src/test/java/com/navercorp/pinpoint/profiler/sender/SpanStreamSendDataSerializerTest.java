@@ -25,7 +25,9 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -48,14 +50,17 @@ import static org.mockito.Mockito.mock;
 public class SpanStreamSendDataSerializerTest {
 
     private final String agentId = "agentId";
+    private final long agentStartTime = System.currentTimeMillis();
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+
     private final SpanChunkFactory spanChunkFactory
-            = new SpanChunkFactoryV1("applicationName", agentId, 0, ServiceType.STAND_ALONE);
+            = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
 
 
     private TraceRoot newInternalTraceId() {
 
-        TraceId traceId = new DefaultTraceId(agentId, 0, 100);
-        return new DefaultTraceRoot(traceId, agentId, System.currentTimeMillis(), 100);
+        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 100);
+        return new DefaultTraceRoot(traceId, agentId, agentStartTime, 100);
     }
 
     @Test

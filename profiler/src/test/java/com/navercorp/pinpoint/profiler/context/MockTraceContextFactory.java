@@ -33,9 +33,11 @@ import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceIdFactory;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.method.DefaultPredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.monitor.DisabledJdbcContext;
@@ -86,6 +88,8 @@ public class MockTraceContextFactory {
 
     private final TraceContext traceContext;
 
+    private final TransactionIdEncoder transactionIdEncoder;
+
     public static TraceContext newTestTraceContext(ProfilerConfig profilerConfig) {
         MockTraceContextFactory mockTraceContextFactory = newTestTraceContextFactory(profilerConfig);
         return mockTraceContextFactory.getTraceContext();
@@ -116,6 +120,7 @@ public class MockTraceContextFactory {
         final long agentStartTime = agentInformation.getStartTime();
         final ServiceType agentServiceType = agentInformation.getServerType();
         this.enhancedDataSender = new LoggingDataSender();
+        this.transactionIdEncoder= new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
         this.apiMetaDataService = new DefaultApiMetaDataService(agentId, agentStartTime, enhancedDataSender);
         this.stringMetaDataService = new DefaultStringMetaDataService(agentId, agentStartTime, enhancedDataSender);
@@ -125,7 +130,7 @@ public class MockTraceContextFactory {
 
         CallStackFactory callStackFactory = new CallStackFactoryV1(64);
         TraceIdFactory traceIdFactory = new DefaultTraceIdFactory(agentId, agentStartTime);
-        SpanFactory spanFactory = new DefaultSpanFactory(applicationName, agentId, agentStartTime, agentServiceType);
+        SpanFactory spanFactory = new DefaultSpanFactory(applicationName, agentId, agentStartTime, agentServiceType, transactionIdEncoder);
 
         final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
         final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry = new DefaultPredefinedMethodDescriptorRegistry(apiMetaDataService);

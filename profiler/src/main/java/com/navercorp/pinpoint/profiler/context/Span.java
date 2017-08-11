@@ -41,9 +41,7 @@ public class Span extends TSpan implements FrameAttachment {
         if (traceRoot == null) {
             throw new NullPointerException("traceRoot must not be null");
         }
-
         this.traceRoot = traceRoot;
-        this.setTransactionId(traceRoot.getCompactTransactionId());
 
         final TraceId traceId = traceRoot.getTraceId();
         this.setSpanId(traceId.getSpanId());

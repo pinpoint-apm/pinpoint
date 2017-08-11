@@ -20,10 +20,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV2;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
@@ -39,26 +41,20 @@ public class SpanChunkFactoryProvider implements Provider<SpanChunkFactory> {
     private final long agentStartTime;
     private final ServiceType applicationServiceType;
     private final TraceDataFormatVersion version;
+    private final TransactionIdEncoder transactionIdEncoder;
 
 
     @Inject
     public SpanChunkFactoryProvider(ProfilerConfig profilerConfig, @ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
-                                    @ApplicationServerType ServiceType applicationServiceType) {
+                                    @ApplicationServerType ServiceType applicationServiceType, TransactionIdEncoder transactionIdEncoder) {
 
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (applicationServiceType == null) {
-            throw new NullPointerException("applicationServiceType must not be null");
-        }
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
 
-        this.applicationName = applicationName;
-        this.agentId = agentId;
         this.agentStartTime = agentStartTime;
-        this.applicationServiceType = applicationServiceType;
+        this.applicationServiceType = Assert.requireNonNull(applicationServiceType, "applicationServiceType must not be null");
+        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder must not be null");
+
 
         this.version = TraceDataFormatVersion.getTraceDataFormatVersion(profilerConfig);
     }
@@ -67,10 +63,10 @@ public class SpanChunkFactoryProvider implements Provider<SpanChunkFactory> {
     @Override
     public SpanChunkFactory get() {
         if (this.version == TraceDataFormatVersion.V2) {
-            return new SpanChunkFactoryV2(applicationName, agentId, agentStartTime, applicationServiceType);
+            return new SpanChunkFactoryV2(applicationName, agentId, agentStartTime, applicationServiceType, transactionIdEncoder);
         }
         if (this.version == TraceDataFormatVersion.V1) {
-            return new SpanChunkFactoryV1(applicationName, agentId, agentStartTime, applicationServiceType);
+            return new SpanChunkFactoryV1(applicationName, agentId, agentStartTime, applicationServiceType, transactionIdEncoder);
         }
         throw new UnsupportedOperationException("unknown version :" + version);
     }

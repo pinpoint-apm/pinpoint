@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressorV2;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -37,26 +39,21 @@ public class SpanChunkFactoryV2 implements SpanChunkFactory {
     private final String agentId;
     private final long agentStartTime;
     private final ServiceType applicationServiceType;
+    private final TransactionIdEncoder transactionIdEncoder;
 
     private final SpanEventCompressor<Long> spanEventCompressor = new SpanEventCompressorV2();
 
-    public SpanChunkFactoryV2(String applicationName, String agentId, long agentStartTime, ServiceType applicationServiceType) {
 
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (applicationServiceType == null) {
-            throw new NullPointerException("applicationServiceType must not be null");
-        }
+    public SpanChunkFactoryV2(String applicationName, String agentId, long agentStartTime, ServiceType applicationServiceType, TransactionIdEncoder transactionIdEncoder) {
 
-        this.applicationName = applicationName;
-        this.agentId = agentId;
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.agentStartTime = agentStartTime;
-        this.applicationServiceType = applicationServiceType;
+        this.applicationServiceType = Assert.requireNonNull(applicationServiceType, "applicationServiceType must not be null");
+        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder must not be null");
+
     }
+
 
     @Override
     public SpanChunk create(TraceRoot traceRoot, final List<SpanEvent> spanEventList) {
@@ -84,10 +81,10 @@ public class SpanChunkFactoryV2 implements SpanChunkFactory {
         // TODO change data compression timing to another thread  eg: DataSender thread
         spanEventCompressor.compress(spanEventList, keyTime);
 
-        final ByteBuffer transactionId = traceRoot.getCompactTransactionId();
+        final TraceId traceId = traceRoot.getTraceId();
+        final ByteBuffer transactionId = transactionIdEncoder.encodeTransactionId(traceId);
         spanChunk.setTransactionId(transactionId);
 
-        final TraceId traceId = traceRoot.getTraceId();
         spanChunk.setSpanId(traceId.getSpanId());
         spanChunk.setEndPoint(traceRoot.getShared().getEndPoint());
 

@@ -8,7 +8,9 @@ import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.sender.HeaderTBaseSerializerPoolFactory;
 import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendData;
@@ -35,7 +37,10 @@ import static org.mockito.Mockito.mock;
 
 public class SpanChunkStreamSendDataPlanerTest {
 
-    private String agentId = "agentId";
+    private final String agentId = "agentId";
+    private final long agentStartTime = System.currentTimeMillis();
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+
     private SpanChunkFactory spanChunkFactory;
     private TraceRoot traceRoot;
 
@@ -48,7 +53,7 @@ public class SpanChunkStreamSendDataPlanerTest {
         HeaderTBaseSerializerPoolFactory serializerFactory = new HeaderTBaseSerializerPoolFactory(true, 1000, true);
         this.objectPool = new ObjectPool<HeaderTBaseSerializer>(serializerFactory, 16);
 
-        this.spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, 0, ServiceType.STAND_ALONE);
+        this.spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
         this.traceRoot = newTraceRoot();
     }
 
