@@ -17,12 +17,17 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
+
+import java.nio.ByteBuffer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,30 +38,29 @@ public class DefaultSpanFactory implements SpanFactory {
     private final String agentId;
     private final long agentStartTime;
     private final ServiceType applicationServiceType;
+    private final TransactionIdEncoder transactionIdEncoder;
 
     @Inject
     public DefaultSpanFactory(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
-                                   @ApplicationServerType ServiceType applicationServiceType) {
-
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (applicationServiceType == null) {
-            throw new NullPointerException("applicationServiceType must not be null");
-        }
-
-        this.applicationName = applicationName;
-        this.agentId = agentId;
+                                   @ApplicationServerType ServiceType applicationServiceType, TransactionIdEncoder transactionIdEncoder) {
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.agentStartTime = agentStartTime;
-        this.applicationServiceType = applicationServiceType;
+        this.applicationServiceType = Assert.requireNonNull(applicationServiceType, "applicationServiceType must not be null");
+        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder must not be null");
+
     }
 
     @Override
     public Span newSpan(TraceRoot traceRoot) {
+        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+
         final Span span = new Span(traceRoot);
+
+        final TraceId traceId = traceRoot.getTraceId();
+        final ByteBuffer transactionId = transactionIdEncoder.encodeTransactionId(traceId);
+        span.setTransactionId(transactionId);
+
         span.setAgentId(agentId);
         span.setApplicationName(applicationName);
         span.setAgentStartTime(agentStartTime);

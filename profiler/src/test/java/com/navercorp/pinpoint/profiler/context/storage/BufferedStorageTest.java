@@ -26,7 +26,9 @@ import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
 import com.navercorp.pinpoint.profiler.context.SpanPostProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.sender.CountingDataSender;
 
 import org.junit.Assert;
@@ -36,8 +38,13 @@ import org.junit.Test;
 public class BufferedStorageTest {
 
 
+    private final String agentId = "agentId";
+    private final long agentStartTime = System.currentTimeMillis();
     private final SpanPostProcessor spanPostProcessor = new SpanPostProcessorV1();
-    private final SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
+
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+
+    private final SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
     private final CountingDataSender countingDataSender = new CountingDataSender();
     private TraceRoot internalTraceId;
 
@@ -48,8 +55,8 @@ public class BufferedStorageTest {
     }
 
     private TraceRoot newInternalTraceId() {
-        TraceId traceId = new DefaultTraceId("agentId", 0, 100);
-        return new DefaultTraceRoot(traceId, "agentId", System.currentTimeMillis(), 100);
+        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 100);
+        return new DefaultTraceRoot(traceId, agentId, agentStartTime, 100);
     }
 
     @Test

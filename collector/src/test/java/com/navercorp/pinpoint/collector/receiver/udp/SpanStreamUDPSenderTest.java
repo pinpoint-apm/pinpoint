@@ -27,8 +27,10 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamUdpSender;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
@@ -166,8 +168,10 @@ public class SpanStreamUDPSenderTest {
     }
 
     private SpanChunk createSpanChunk(TraceRoot traceRoot, int spanEventSize) throws InterruptedException {
-
-        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
+        final String agentId = "agentId";
+        final long agentStartTime = System.currentTimeMillis();
+        final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, transactionIdEncoder);
 
         List<SpanEvent> originalSpanEventList = createSpanEventList(traceRoot, spanEventSize);
         SpanChunk spanChunk = spanChunkFactory.create(traceRoot, originalSpanEventList);

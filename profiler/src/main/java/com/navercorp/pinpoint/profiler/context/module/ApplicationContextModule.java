@@ -54,10 +54,12 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.method.DefaultPredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
@@ -213,6 +215,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(IdGenerator.class).to(AtomicIdGenerator.class).in(Scopes.SINGLETON);
         bind(AsyncIdGenerator.class).to(DefaultAsyncIdGenerator.class).in(Scopes.SINGLETON);
         bind(TransactionCounter.class).to(DefaultTransactionCounter.class).in(Scopes.SINGLETON);
+        bind(TransactionIdEncoder.class).to(DefaultTransactionIdEncoder.class).in(Scopes.SINGLETON);
 
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
 

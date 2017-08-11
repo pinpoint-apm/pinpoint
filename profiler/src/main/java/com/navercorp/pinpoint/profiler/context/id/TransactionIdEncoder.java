@@ -18,17 +18,12 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 
+import java.nio.ByteBuffer;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface TraceRoot {
+public interface TransactionIdEncoder {
 
-    TraceId getTraceId();
-
-    long getLocalTransactionId();
-
-    long getTraceStartTime();
-
-    Shared getShared();
-
+    ByteBuffer encodeTransactionId(TraceId traceId);
 }

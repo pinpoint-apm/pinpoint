@@ -23,7 +23,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
@@ -51,6 +53,8 @@ public class TraceTest {
     private final String agentId = "agent";
     private final long agentStartTime = System.currentTimeMillis();
     private final long traceStartTime = agentStartTime + 100;
+
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
     @Mock
     private AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
@@ -135,7 +139,7 @@ public class TraceTest {
     }
 
     private Span newSpan(TraceRoot traceRoot) {
-        final SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, agentStartTime, ServiceType.STAND_ALONE);
+        final SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
         return spanFactory.newSpan(traceRoot);
     }
 
