@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTrace;
 import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
@@ -29,6 +29,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -181,7 +182,8 @@ public class ActiveThreadDumpServiceTest {
     private ActiveTraceSnapshot createActiveTraceInfo(long startTime, Runnable runnable) {
         Thread thread = pinpointThreadFactory.newThread(runnable);
         thread.start();
-        return new UnsampledActiveTraceSnapshot(idGenerator.incrementAndGet(), startTime, thread);
+        long id = thread.getId();
+        return new UnsampledActiveTraceSnapshot(idGenerator.incrementAndGet(), startTime, id);
     }
 
     private List<Long> getOldTimeList(int maxCount) {
@@ -197,7 +199,10 @@ public class ActiveThreadDumpServiceTest {
 
         List<String> threadNameList = new ArrayList<String>(size);
         for (int i = 0; i < size; i++) {
-            threadNameList.add(copied.get(i).getThread().getName());
+
+            final ActiveTraceSnapshot activeTraceSnapshot = copied.get(i);
+            ThreadInfo thread = ThreadMXBeanUtils.findThread(activeTraceSnapshot.getThreadId());
+            threadNameList.add(thread.getThreadName());
         }
 
         return threadNameList;
@@ -208,7 +213,7 @@ public class ActiveThreadDumpServiceTest {
 
         List<Long> localTraceIdList = new ArrayList<Long>(size);
         for (int i = 0; i < size; i++) {
-            localTraceIdList.add(copied.get(i).getLocalTraceId());
+            localTraceIdList.add(copied.get(i).getLocalTransactionId());
         }
 
         return localTraceIdList;
@@ -226,6 +231,15 @@ public class ActiveThreadDumpServiceTest {
         when(activeTraceRepository.collect()).thenReturn(activeTraceInfoList);
 
         return new ActiveThreadDumpService(activeTraceRepository);
+    }
+
+    @Test
+    public void testGetLimit() {
+        final int maxThreadDumpLimit = ActiveThreadDumpService.MAX_THREAD_DUMP_LIMIT;
+        Assert.assertEquals(ActiveThreadDumpService.getLimit(-1), maxThreadDumpLimit);
+        Assert.assertEquals(ActiveThreadDumpService.getLimit(0), maxThreadDumpLimit);
+        Assert.assertEquals(ActiveThreadDumpService.getLimit(1000), 1000);
+        Assert.assertEquals(ActiveThreadDumpService.getLimit(maxThreadDumpLimit +  100), maxThreadDumpLimit);
     }
 
     private TCmdActiveThreadDump createRequest(int limit, List<String> threadNameList, List<Long> localTraceIdList) {

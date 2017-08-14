@@ -24,18 +24,18 @@ public class UnsampledActiveTraceSnapshot implements ActiveTraceSnapshot {
 
     private final long localTraceId;
     private final long startTime;
-    private final Thread thread;
+    private final long threadId;
 
-    public UnsampledActiveTraceSnapshot(long id, long startTime, Thread thread) {
+    public UnsampledActiveTraceSnapshot(long id, long startTime, long threadId) {
         this.localTraceId = id;
         this.startTime = startTime;
         // @Nullable
-        this.thread = thread;
+        this.threadId = threadId;
     }
 
 
     @Override
-    public long getLocalTraceId() {
+    public long getLocalTransactionId() {
         return localTraceId;
     }
 
@@ -45,8 +45,8 @@ public class UnsampledActiveTraceSnapshot implements ActiveTraceSnapshot {
     }
 
     @Override
-    public Thread getThread() {
-        return thread;
+    public long getThreadId() {
+        return threadId;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class UnsampledActiveTraceSnapshot implements ActiveTraceSnapshot {
         final StringBuilder sb = new StringBuilder("UnsampledActiveTraceSnapshot{");
         sb.append("localTraceId=").append(localTraceId);
         sb.append(", startTime=").append(startTime);
-        sb.append(", thread=").append(thread);
+        sb.append(", threadId=").append(threadId);
         sb.append('}');
         return sb.toString();
     }

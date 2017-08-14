@@ -100,8 +100,8 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         return activeTraceRepository.register(traceRoot);
     }
 
-    private ActiveTraceHandle registerActiveTrace(long localTransactionId, long startTime, Thread thread) {
-        return activeTraceRepository.register(localTransactionId, startTime, thread);
+    private ActiveTraceHandle registerActiveTrace(long localTransactionId, long startTime, long threadId) {
+        return activeTraceRepository.register(localTransactionId, startTime, threadId);
     }
 
 
@@ -235,9 +235,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
     private Trace newDisableTrace0(long id) {
         final long traceStartTime = System.currentTimeMillis();
-        final Thread thread = Thread.currentThread();
-        final ActiveTraceHandle activeTraceHandle = registerActiveTrace(id, traceStartTime, thread);
-        final Trace disableTrace = new DisableTrace(id, traceStartTime, thread, activeTraceHandle);
+        final long threadId = Thread.currentThread().getId();
+        final ActiveTraceHandle activeTraceHandle = registerActiveTrace(id, traceStartTime, threadId);
+        final Trace disableTrace = new DisableTrace(id, traceStartTime, threadId, activeTraceHandle);
         return disableTrace;
     }
 

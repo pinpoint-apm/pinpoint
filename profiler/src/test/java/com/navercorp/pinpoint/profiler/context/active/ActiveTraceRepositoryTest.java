@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
 import org.junit.Before;
@@ -103,10 +104,10 @@ public class ActiveTraceRepositoryTest {
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
         
         for (ActiveTraceSnapshot activeTraceInfo : activeTraceInfos) {
-            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTraceId());
-            assertEquals(executedTrace.id, activeTraceInfo.getLocalTraceId());
-            assertEquals(executedTrace.startTime, activeTraceInfo.getStartTime());
-            assertEquals(executedTrace.thread, activeTraceInfo.getThread());
+            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTransactionId());
+            assertEquals(executedTrace.getId(), activeTraceInfo.getLocalTransactionId());
+            assertEquals(executedTrace.getStartTime(), activeTraceInfo.getStartTime());
+            assertEquals(executedTrace.getThreadId(), activeTraceInfo.getThreadId());
         }
     }
 
@@ -131,7 +132,8 @@ public class ActiveTraceRepositoryTest {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
-                    return new TraceThreadTuple(traceContext.newTraceObject(), Thread.currentThread());
+                    long id = Thread.currentThread().getId();
+                    return new TraceThreadTuple(traceContext.newTraceObject(), id);
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
@@ -146,7 +148,9 @@ public class ActiveTraceRepositoryTest {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
-                    return new TraceThreadTuple(traceContext.continueTraceObject(new DefaultTraceId("agentId", 0L, id)), Thread.currentThread());
+                    TraceId agentId1 = new DefaultTraceId("agentId", 0L, id);
+                    Trace agentId = traceContext.continueTraceObject(agentId1);
+                    return new TraceThreadTuple(agentId, Thread.currentThread().getId());
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
@@ -161,7 +165,8 @@ public class ActiveTraceRepositoryTest {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
-                    return new TraceThreadTuple(traceContext.disableSampling(), Thread.currentThread());
+                    long id = Thread.currentThread().getId();
+                    return new TraceThreadTuple(traceContext.disableSampling(), id);
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
@@ -174,15 +179,27 @@ public class ActiveTraceRepositoryTest {
     private static class TraceThreadTuple {
         private final long id;
         private final long startTime;
-        private final Thread thread;
+        private final long threadId;
 
-        private TraceThreadTuple(Trace trace, Thread thread) {
+        private TraceThreadTuple(Trace trace, long threadId) {
             if (trace == null) {
                 throw new NullPointerException("trace must not be null");
             }
             this.id = trace.getId();
             this.startTime = trace.getStartTime();
-            this.thread = thread;
+            this.threadId = threadId;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public long getThreadId() {
+            return threadId;
         }
     }
 

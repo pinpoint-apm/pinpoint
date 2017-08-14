@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import org.apache.thrift.TBase;
 
+import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -77,8 +79,9 @@ public class ActiveThreadLightDumpService implements ProfilerRequestCommandServi
 
         List<TActiveThreadLightDump> activeThreadDumpList = new ArrayList<TActiveThreadLightDump>(Math.min(limit, activeTraceInfoList.size()));
         if (filterEnable) {
+            final List<String> threadNameList = request.getThreadNameList();
             for (ActiveTraceSnapshot activeTraceInfo : activeTraceInfoList) {
-                if (!ActiveThreadDumpUtils.isTraceThread(activeTraceInfo, request.getThreadNameList(), request.getLocalTraceIdList())) {
+                if (!ActiveThreadDumpUtils.isTraceThread(activeTraceInfo, threadNameList, request.getLocalTraceIdList())) {
                     continue;
                 }
 
@@ -104,27 +107,29 @@ public class ActiveThreadLightDumpService implements ProfilerRequestCommandServi
     }
 
     private TActiveThreadLightDump createActiveLightThreadDump(ActiveTraceSnapshot activeTraceInfo) {
-        Thread thread = activeTraceInfo.getThread();
-        if (thread == null) {
+        final long threadId = activeTraceInfo.getThreadId();
+        if (threadId == -1) {
             return null;
         }
-        TThreadLightDump threadDump = createThreadDump(thread);
+        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(threadId, 0);
+        TThreadLightDump threadDump = createTThreadLightDump(threadInfo);
         return createActiveThreadDump(activeTraceInfo, threadDump);
     }
 
 
-    private TThreadLightDump createThreadDump(Thread thread) {
+    private TThreadLightDump createTThreadLightDump(ThreadInfo threadInfo) {
         TThreadLightDump threadDump = new TThreadLightDump();
-        threadDump.setThreadName(thread.getName());
-        threadDump.setThreadId(thread.getId());
-        threadDump.setThreadState(ThreadDumpUtils.toTThreadState(thread.getState()));
+        threadDump.setThreadName(threadInfo.getThreadName());
+        threadDump.setThreadId(threadInfo.getThreadId());
+
+        threadDump.setThreadState(ThreadDumpUtils.toTThreadState(threadInfo.getThreadState()));
         return threadDump;
     }
 
     private TActiveThreadLightDump createActiveThreadDump(ActiveTraceSnapshot activeTraceInfo, TThreadLightDump threadDump) {
         TActiveThreadLightDump activeThreadDump = new TActiveThreadLightDump();
         activeThreadDump.setStartTime(activeTraceInfo.getStartTime());
-        activeThreadDump.setLocalTraceId(activeTraceInfo.getLocalTraceId());
+        activeThreadDump.setLocalTraceId(activeTraceInfo.getLocalTransactionId());
         activeThreadDump.setThreadDump(threadDump);
 
         if (activeTraceInfo.isSampled()) {

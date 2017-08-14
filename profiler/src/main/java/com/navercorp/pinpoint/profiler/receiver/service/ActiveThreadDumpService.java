@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
@@ -37,6 +38,9 @@ import java.util.List;
  */
 public class ActiveThreadDumpService implements ProfilerRequestCommandService {
 
+    private static final String JAVA = "JAVA";
+    // TODO extract config
+    static final int MAX_THREAD_DUMP_LIMIT = 1024 * 5;
     private final ActiveTraceRepository activeTraceRepository;
 
     public ActiveThreadDumpService(ActiveTraceRepository activeTraceRepository) {
@@ -50,7 +54,7 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
         List<TActiveThreadDump> activeThreadDumpList = getActiveThreadDumpList(request);
 
         TCmdActiveThreadDumpRes response = new TCmdActiveThreadDumpRes();
-        response.setType("JAVA");
+        response.setType(JAVA);
         response.setSubType(JvmUtils.getType().name());
         response.setVersion(JvmUtils.getVersion().name());
         response.setThreadDumps(activeThreadDumpList);
@@ -60,14 +64,20 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
     private List<TActiveThreadDump> getActiveThreadDumpList(TCmdActiveThreadDump request) {
         List<ActiveTraceSnapshot> activeTraceInfoList = activeTraceRepository.collect();
 
-        int limit = request.getLimit();
-        if (limit > 0) {
+        final int limit = getLimit(request.getLimit());
+        if (activeTraceInfoList.size() > limit) {
             Collections.sort(activeTraceInfoList, ActiveThreadDumpUtils.getActiveTraceInfoComparator());
-        } else {
-            limit = Integer.MAX_VALUE;
         }
 
         return getActiveThreadDumpList(request, limit, activeTraceInfoList);
+    }
+
+    @VisibleForTesting
+    static int getLimit(int limit) {
+        if (0 >= limit) {
+            return MAX_THREAD_DUMP_LIMIT;
+        }
+        return Math.min(limit, MAX_THREAD_DUMP_LIMIT);
     }
 
     private List<TActiveThreadDump> getActiveThreadDumpList(TCmdActiveThreadDump request, int limit, List<ActiveTraceSnapshot> activeTraceInfoList) {
@@ -75,7 +85,8 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
         int localTraceIdListSize = request.getLocalTraceIdListSize();
         boolean filterEnable = (targetThreadNameListSize + localTraceIdListSize) > 0;
 
-        List<TActiveThreadDump> activeThreadDumpList = new ArrayList<TActiveThreadDump>(Math.min(limit, activeTraceInfoList.size()));
+        final int arrayLength = Math.min(limit, activeTraceInfoList.size());
+        List<TActiveThreadDump> activeThreadDumpList = new ArrayList<TActiveThreadDump>(arrayLength);
         if (filterEnable) {
             for (ActiveTraceSnapshot activeTraceInfo : activeTraceInfoList) {
                 if (!ActiveThreadDumpUtils.isTraceThread(activeTraceInfo, request.getThreadNameList(), request.getLocalTraceIdList())) {
@@ -104,30 +115,30 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
     }
 
     private TActiveThreadDump createActiveThreadDump(ActiveTraceSnapshot activeTraceInfo) {
-        Thread thread = activeTraceInfo.getThread();
-        TThreadDump threadDump = createThreadDump(thread, true);
+        final long threadId = activeTraceInfo.getThreadId();
+        TThreadDump threadDump = createThreadDump(threadId, true);
         if (threadDump != null) {
             return createTActiveThreadDump(activeTraceInfo, threadDump);
         }
         return null;
     }
 
-    private TThreadDump createThreadDump(Thread thread, boolean isIncludeStackTrace) {
-        if (thread == null) {
+    private TThreadDump createThreadDump(long threadId, boolean isIncludeStackTrace) {
+        if (threadId == -1) {
             return null;
         }
 
         if (isIncludeStackTrace) {
-            return ThreadDumpUtils.createTThreadDump(thread);
+            return ThreadDumpUtils.createTThreadDump(threadId);
         } else {
-            return ThreadDumpUtils.createTThreadDump(thread, 0);
+            return ThreadDumpUtils.createTThreadDump(threadId, 0);
         }
     }
 
     private TActiveThreadDump createTActiveThreadDump(ActiveTraceSnapshot activeTraceInfo, TThreadDump threadDump) {
         TActiveThreadDump activeThreadDump = new TActiveThreadDump();
         activeThreadDump.setStartTime(activeTraceInfo.getStartTime());
-        activeThreadDump.setLocalTraceId(activeTraceInfo.getLocalTraceId());
+        activeThreadDump.setLocalTraceId(activeTraceInfo.getLocalTransactionId());
         activeThreadDump.setThreadDump(threadDump);
 
         if (activeTraceInfo.isSampled()) {

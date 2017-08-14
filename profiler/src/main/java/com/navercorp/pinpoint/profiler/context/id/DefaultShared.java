@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,7 @@ public class DefaultShared implements Shared {
     @SuppressWarnings("unused")
     private volatile String rpc;
 
-    private volatile Thread thread;
+    private volatile long threadId;
 
 
     @Override
@@ -105,12 +104,12 @@ public class DefaultShared implements Shared {
     }
 
     @Override
-    public void setThread(Thread thread) {
-        this.thread = Assert.requireNonNull(thread, "thread must not be null");
+    public void setThreadId(long threadId) {
+        this.threadId = threadId;
     }
 
     @Override
-    public Thread getThread() {
-        return thread;
+    public long getThreadId() {
+        return threadId;
     }
 }

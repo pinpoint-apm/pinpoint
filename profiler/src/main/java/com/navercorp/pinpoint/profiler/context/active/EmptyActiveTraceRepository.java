@@ -47,7 +47,7 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
     }
 
     @Override
-    public ActiveTraceHandle register(long localTransactionId, long startTime, Thread thread) {
+    public ActiveTraceHandle register(long localTransactionId, long startTime, long threadId) {
         return new EmptyActiveTraceHandle(startTime);
     }
 

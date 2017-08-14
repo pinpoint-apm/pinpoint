@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 
+import java.lang.management.ThreadInfo;
 import java.util.Comparator;
 import java.util.List;
 
@@ -32,25 +35,49 @@ public class ActiveThreadDumpUtils {
     private static final ActiveTraceInfoComparator ACTIVE_TRACE_INFO_COMPARATOR = new ActiveTraceInfoComparator();
 
     public static boolean isTraceThread(ActiveTraceSnapshot activeTraceInfo, List<String> threadNameList, List<Long> traceIdList) {
-        Thread thread = activeTraceInfo.getThread();
-        if (thread == null) {
+        final long threadId = activeTraceInfo.getThreadId();
+        if (threadId == -1) {
             return false;
         }
 
-        if (traceIdList != null) {
-            long traceId = activeTraceInfo.getLocalTraceId();
-            if (traceIdList.contains(traceId)) {
-                return true;
-            }
+        final long localTransactionId = activeTraceInfo.getLocalTransactionId();
+        if (findLocalTransactionId(traceIdList, localTransactionId)) {
+            return true;
         }
 
-        if (threadNameList != null) {
-            if (threadNameList.contains(thread.getName())) {
-                return true;
-            }
+
+        if (findThreadName(threadNameList, threadId)) {
+            return true;
         }
 
         return false;
+    }
+
+    private static boolean findThreadName(List<String> threadNameList, long threadId) {
+        if (CollectionUtils.isEmpty(threadNameList)) {
+            return false;
+        }
+
+        final ThreadInfo thread = ThreadMXBeanUtils.findThread(threadId);
+        if (filterThreadName(threadNameList, thread.getThreadName())) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean findLocalTransactionId(List<Long> traceIdList, long localTransactionId) {
+        if (CollectionUtils.isEmpty(traceIdList)) {
+            return false;
+        }
+        if (traceIdList.contains(localTransactionId)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean filterThreadName(List<String> threadNameList, String threadName) {
+        return threadNameList.contains(threadName);
     }
 
     public static ActiveTraceInfoComparator getActiveTraceInfoComparator() {

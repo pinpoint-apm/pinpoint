@@ -20,11 +20,11 @@ package com.navercorp.pinpoint.profiler.context.active;
  * @author Woonduk Kang(emeroad)
  */
 public interface ActiveTraceSnapshot {
-    long getLocalTraceId();
+    long getLocalTransactionId();
 
     long getStartTime();
 
-    Thread getThread();
+    long getThreadId();
 
     boolean isSampled();
 

@@ -32,7 +32,7 @@ public class SampledActiveTraceSnapshot implements ActiveTraceSnapshot {
     }
 
     @Override
-    public long getLocalTraceId() {
+    public long getLocalTransactionId() {
         return traceRoot.getLocalTransactionId();
     }
 
@@ -42,8 +42,8 @@ public class SampledActiveTraceSnapshot implements ActiveTraceSnapshot {
     }
 
     @Override
-    public Thread getThread() {
-        return traceRoot.getShared().getThread();
+    public long getThreadId() {
+        return traceRoot.getShared().getThreadId();
     }
 
     @Override
