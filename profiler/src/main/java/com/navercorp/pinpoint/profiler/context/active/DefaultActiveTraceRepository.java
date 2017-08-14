@@ -89,13 +89,13 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     }
 
     @Override
-    public ActiveTraceHandle register(long localTransactionId, long startTime, Thread thread) {
-        final ActiveTrace activeTrace = newUnsampledActiveTrace(localTransactionId, startTime, thread);
+    public ActiveTraceHandle register(long localTransactionId, long startTime, long threadId) {
+        final ActiveTrace activeTrace = newUnsampledActiveTrace(localTransactionId, startTime, threadId);
         return register0(activeTrace);
     }
 
-    private ActiveTrace newUnsampledActiveTrace(long localTransactionId, long startTime, Thread thread) {
-        return new UnsampledActiveTrace(localTransactionId, startTime, thread);
+    private ActiveTrace newUnsampledActiveTrace(long localTransactionId, long startTime, long threadId) {
+        return new UnsampledActiveTrace(localTransactionId, startTime, threadId);
     }
 
     private ActiveTraceHandle register0(ActiveTrace activeTrace) {
@@ -118,13 +118,13 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     // @ThreadSafe
     @Override
     public List<ActiveTraceSnapshot> collect() {
-        final Collection<ActiveTrace> copied = this.activeTraceInfoMap.values();
-        if (copied.isEmpty()) {
+        final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
+        if (activeTraceCollection.isEmpty()) {
             return Collections.emptyList();
         }
 
-        final List<ActiveTraceSnapshot> collectData = new ArrayList<ActiveTraceSnapshot>(copied.size());
-        for (ActiveTrace trace : copied) {
+        final List<ActiveTraceSnapshot> collectData = new ArrayList<ActiveTraceSnapshot>(activeTraceCollection.size());
+        for (ActiveTrace trace : activeTraceCollection) {
             final long startTime = trace.getStartTime();
             // not started
             if (startTime > 0) {

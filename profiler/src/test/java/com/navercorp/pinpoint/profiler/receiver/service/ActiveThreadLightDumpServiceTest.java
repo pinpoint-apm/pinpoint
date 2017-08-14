@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
@@ -28,6 +29,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -118,13 +120,13 @@ public class ActiveThreadLightDumpServiceTest {
 
         try {
             List<ActiveTraceSnapshot> activeTraceInfoList = createMockActiveTraceInfoList(CREATE_SIZE, DEFAULT_TIME_MILLIS, TIME_DIFF_INTERVAL, waitingJobList);
-            List<ActiveTraceSnapshot> copied = shuffle(activeTraceInfoList);
+            List<ActiveTraceSnapshot> activeTraceSnapshotList = shuffle(activeTraceInfoList);
 
             int targetThreadNameSize = 3;
-            List<String> threadNameList = extractThreadNameList(copied.subList(0, targetThreadNameSize), targetThreadNameSize);
+            List<String> threadNameList = extractThreadNameList(activeTraceSnapshotList.subList(0, targetThreadNameSize), targetThreadNameSize);
 
             int targetTraceIdSize = 3;
-            List<Long> localTraceIdList = extractLocalTraceIdList(copied.subList(targetThreadNameSize, CREATE_SIZE), targetTraceIdSize);
+            List<Long> localTraceIdList = extractLocalTraceIdList(activeTraceSnapshotList.subList(targetThreadNameSize, CREATE_SIZE), targetTraceIdSize);
             TCmdActiveThreadLightDump tCmdActiveThreadDump = createRequest(0, threadNameList, localTraceIdList);
 
             ActiveThreadLightDumpService service = createService(activeTraceInfoList);
@@ -182,7 +184,7 @@ public class ActiveThreadLightDumpServiceTest {
     private ActiveTraceSnapshot createActiveTraceInfo(long startTime, Runnable runnable) {
         Thread thread = pinpointThreadFactory.newThread(runnable);
         thread.start();
-        return new UnsampledActiveTraceSnapshot(idGenerator.incrementAndGet(), startTime, thread);
+        return new UnsampledActiveTraceSnapshot(idGenerator.incrementAndGet(), startTime, thread.getId());
     }
 
     private List<Long> getOldTimeList(int maxCount) {
@@ -194,31 +196,34 @@ public class ActiveThreadLightDumpServiceTest {
     }
 
     private List<String> extractThreadNameList(List<ActiveTraceSnapshot> activeTraceInfoList, int size) {
-        List<ActiveTraceSnapshot> copied = shuffle(activeTraceInfoList);
+        List<ActiveTraceSnapshot> activeTraceSnapshotList = shuffle(activeTraceInfoList);
 
         List<String> threadNameList = new ArrayList<String>(size);
         for (int i = 0; i < size; i++) {
-            threadNameList.add(copied.get(i).getThread().getName());
+            final ActiveTraceSnapshot activeTraceSnapshot = activeTraceSnapshotList.get(i);
+            final long threadId = activeTraceSnapshot.getThreadId();
+            ThreadInfo thread = ThreadMXBeanUtils.findThread(threadId);
+            threadNameList.add(thread.getThreadName());
         }
 
         return threadNameList;
     }
 
     private List<Long> extractLocalTraceIdList(List<ActiveTraceSnapshot> activeTraceInfoList, int size) {
-        List<ActiveTraceSnapshot> copied = shuffle(activeTraceInfoList);
+        List<ActiveTraceSnapshot> activeTraceSnapshotList = shuffle(activeTraceInfoList);
 
         List<Long> localTraceIdList = new ArrayList<Long>(size);
         for (int i = 0; i < size; i++) {
-            localTraceIdList.add(copied.get(i).getLocalTraceId());
+            localTraceIdList.add(activeTraceSnapshotList.get(i).getLocalTransactionId());
         }
 
         return localTraceIdList;
     }
 
     private <E> List<E> shuffle(List<E> list) {
-        ArrayList<E> copied = new ArrayList<E>(list);
-        Collections.shuffle(copied, ThreadLocalRandom.current());
-        return copied;
+        List<E> result = new ArrayList<E>(list);
+        Collections.shuffle(result, ThreadLocalRandom.current());
+        return result;
     }
 
     private ActiveThreadLightDumpService createService(List<ActiveTraceSnapshot> activeTraceInfoList) {

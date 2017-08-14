@@ -24,13 +24,13 @@ public class UnsampledActiveTrace implements ActiveTrace {
 
     private final long id;
     private final long startTime;
-    private final Thread thread;
+    private final long threadId;
 
-    UnsampledActiveTrace(long id, long startTime, Thread thread) {
+    UnsampledActiveTrace(long id, long startTime, long threadId) {
         this.id = id;
         this.startTime = startTime;
         // @Nullable
-        this.thread = thread;
+        this.threadId = threadId;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class UnsampledActiveTrace implements ActiveTrace {
 
     @Override
     public ActiveTraceSnapshot snapshot() {
-        return new UnsampledActiveTraceSnapshot(id, startTime, thread);
+        return new UnsampledActiveTraceSnapshot(id, startTime, threadId);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class UnsampledActiveTrace implements ActiveTrace {
         return "UnsampledActiveTrace{" +
                 "id=" + id +
                 ", startTime=" + startTime +
-                ", thread=" + thread +
+                ", threadId=" + threadId +
                 '}';
     }
 }

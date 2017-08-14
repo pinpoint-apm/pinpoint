@@ -216,15 +216,21 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
     @Override
     public Thread getBindThread() {
-        return getTraceRoot().getShared().getThread();
+        return null;
+    }
+
+    @Override
+    public long getThreadId() {
+        return getTraceRoot().getShared().getThreadId();
     }
 
     private void setCurrentThread() {
-        this.setBindThread(Thread.currentThread());
+        final long threadId = Thread.currentThread().getId();
+        this.setBindThread(threadId);
     }
 
-    private void setBindThread(Thread thread) {
-        getTraceRoot().getShared().setThread(thread);
+    private void setBindThread(long threadId) {
+        getTraceRoot().getShared().setThreadId(threadId);
     }
 
 

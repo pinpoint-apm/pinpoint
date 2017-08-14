@@ -29,6 +29,6 @@ public interface ActiveTraceRepository {
 
     ActiveTraceHandle register(TraceRoot traceRoot);
 
-    ActiveTraceHandle register(long localTransactionId, long startTime, Thread thread);
+    ActiveTraceHandle register(long localTransactionId, long startTime, long threadId);
 
 }

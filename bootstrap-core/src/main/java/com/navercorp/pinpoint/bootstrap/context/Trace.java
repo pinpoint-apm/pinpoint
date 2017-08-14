@@ -32,7 +32,10 @@ public interface Trace extends StackOperation {
 
     long getStartTime();
 
+    @Deprecated
     Thread getBindThread();
+
+    long getThreadId();
 
     //------------------------------------------------
 

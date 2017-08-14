@@ -83,11 +83,16 @@ public class AsyncTrace implements Trace {
 
     @Override
     public Thread getBindThread() {
+        return null;
+    }
+
+    @Override
+    public long getThreadId() {
         if (this.entryPoint) {
-            return this.traceRoot.getShared().getThread();
+            return this.traceRoot.getShared().getThreadId();
         }
 
-        return null;
+        return -1;
     }
 
     @Override
