@@ -62,7 +62,7 @@ public class PinpointServerStateTest {
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             client = clientFactory.connect("127.0.0.1", bindPort);
-            assertAvaiableWritableSocket(serverAcceptor);
+            assertAvailableWritableSocket(serverAcceptor);
 
             List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
             PinpointSocket pinpointServer = pinpointServerList.get(0);
@@ -96,7 +96,7 @@ public class PinpointServerStateTest {
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             client = clientFactory.connect("127.0.0.1", bindPort);
-            assertAvaiableWritableSocket(serverAcceptor);
+            assertAvailableWritableSocket(serverAcceptor);
 
             List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
             PinpointSocket pinpointServer = pinpointServerList.get(0);
@@ -155,7 +155,7 @@ public class PinpointServerStateTest {
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             client = clientFactory.connect("127.0.0.1", bindPort);
-            assertAvaiableWritableSocket(serverAcceptor);
+            assertAvailableWritableSocket(serverAcceptor);
 
             List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
             PinpointSocket pinpointServer = pinpointServerList.get(0);
@@ -180,7 +180,7 @@ public class PinpointServerStateTest {
         return channelBuffer.toByteBuffer().array();
     }
 
-    private void assertAvaiableWritableSocket(final PinpointServerAcceptor serverAcceptor) {
+    private void assertAvailableWritableSocket(final PinpointServerAcceptor serverAcceptor) {
         boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
             @Override
             public boolean checkCompleted() {

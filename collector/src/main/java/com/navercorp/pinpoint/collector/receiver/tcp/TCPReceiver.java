@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
-import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
@@ -26,7 +25,7 @@ import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
@@ -53,7 +52,6 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -66,7 +64,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -77,7 +74,6 @@ public class TCPReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
-    private final ThreadFactory tcpWorkerThreadFactory = new PinpointThreadFactory("Pinpoint-TCP-Worker", true);
     private final DispatchHandler dispatchHandler;
     private final PinpointServerAcceptor serverAcceptor;
 
@@ -89,9 +85,6 @@ public class TCPReceiver {
 
     private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory<>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory());
-
-    @Autowired(required = false)
-    private MetricRegistry metricRegistry;
 
     @Resource(name = "agentEventWorker")
     private ExecutorService agentEventWorker;
@@ -110,15 +103,10 @@ public class TCPReceiver {
     }
 
     public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler, DispatchWorker worker, PinpointServerAcceptor serverAcceptor, ZookeeperClusterService service) {
-        if (configuration == null) {
-            throw new NullPointerException("collector configuration must not be null");
-        }
-        if (dispatchHandler == null) {
-            throw new NullPointerException("dispatchHandler must not be null");
-        }
-        if (worker == null) {
-            throw new NullPointerException("worker may not be null");
-        }
+        Assert.requireNonNull(configuration, "configuration must not be null");
+        Assert.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        Assert.requireNonNull(worker, "worker must not be null");
+        Assert.requireNonNull(serverAcceptor, "serverAcceptor must not be null");
 
         this.configuration = configuration;
 
