@@ -70,8 +70,8 @@ public class DefaultTransactionIdEncoder implements TransactionIdEncoder {
     }
 
 
-    private ByteBuffer encode(String agentId, long agentStartTime, long transactionSequence) {
-        return TransactionIdUtils.formatByteBuffer(agentId, agentStartTime, transactionSequence);
+    private byte[] encode(String agentId, long agentStartTime, long transactionSequence) {
+        return TransactionIdUtils.formatBytes(agentId, agentStartTime, transactionSequence);
     }
 
     private byte[] encodeAgentIdAndTransactionSequence(byte[] agentIdCache, long agentStartTime, long transactionSequence) {
@@ -103,14 +103,14 @@ public class DefaultTransactionIdEncoder implements TransactionIdEncoder {
     /**
      * skip agentId + agentStartTime
      */
-    private ByteBuffer encode(long transactionSequence) {
+    private byte[] encode(long transactionSequence) {
         final byte[] encode = encodeTransactionSequence(agentIdAndStartTimeCache, transactionSequence);
-        return ByteBuffer.wrap(encode);
+        return encode;
     }
 
-    private  ByteBuffer encode(long agentStartTime, long transactionSequence) {
+    private  byte[] encode(long agentStartTime, long transactionSequence) {
         final byte[] encode = encodeAgentIdAndTransactionSequence(agentIdCache, agentStartTime, transactionSequence);
-        return ByteBuffer.wrap(encode);
+        return encode;
     }
 
     private boolean isCompressedType(TraceId traceId) {
@@ -124,6 +124,10 @@ public class DefaultTransactionIdEncoder implements TransactionIdEncoder {
             throw new NullPointerException("traceId must not be null");
         }
 
+        return ByteBuffer.wrap(encodeTransaction0(traceId));
+    }
+
+    private byte[] encodeTransaction0(TraceId traceId) {
         if (isCompressedType(traceId)) {
             final long transactionSequence = traceId.getTransactionSequence();
             if (this.agentStartTime == traceId.getAgentStartTime()) {
