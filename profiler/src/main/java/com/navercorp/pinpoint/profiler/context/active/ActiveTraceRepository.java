@@ -25,6 +25,8 @@ import java.util.List;
  */
 public interface ActiveTraceRepository {
 
+    ActiveTraceHistogram getActiveTraceHistogram();
+
     List<ActiveTraceSnapshot> collect();
 
     ActiveTraceHandle register(TraceRoot traceRoot);

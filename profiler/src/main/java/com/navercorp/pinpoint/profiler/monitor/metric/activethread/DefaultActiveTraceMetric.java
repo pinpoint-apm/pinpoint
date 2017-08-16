@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.activethread;
 
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
 
 import java.util.List;
@@ -27,19 +28,17 @@ import java.util.List;
  */
 public class DefaultActiveTraceMetric implements ActiveTraceMetric {
 
-    private final ActiveTraceHistogramFactory activeTraceHistogramFactory;
+    private final ActiveTraceRepository activeTraceRepository;
 
-    public DefaultActiveTraceMetric(ActiveTraceHistogramFactory activeTraceHistogramFactory) {
-        if (activeTraceHistogramFactory == null) {
-            throw new NullPointerException("activeTraceHistogramFactory must not be null");
-        }
-        this.activeTraceHistogramFactory = activeTraceHistogramFactory;
+    public DefaultActiveTraceMetric(ActiveTraceRepository activeTraceRepository) {
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
     }
 
     @Override
     public TActiveTraceHistogram activeTraceHistogram() {
-        ActiveTraceHistogram activeTraceHistogram = activeTraceHistogramFactory.createHistogram();
-        int histogramSchemaTypeCode = activeTraceHistogram.getHistogramSchema().getTypeCode();
+        final ActiveTraceHistogram activeTraceHistogram = activeTraceRepository.getActiveTraceHistogram();
+        final int histogramSchemaTypeCode = activeTraceHistogram.getHistogramSchema().getTypeCode();
+
         List<Integer> activeTraceCounts = activeTraceHistogram.getActiveTraceCounts();
 
         TActiveTraceHistogram tActiveTraceHistogram = new TActiveTraceHistogram();

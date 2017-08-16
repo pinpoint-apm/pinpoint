@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.activethread;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.active.EmptyActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.DefaultActiveTraceMetric;
 
@@ -40,11 +40,10 @@ public class ActiveTraceMetricProvider implements Provider<ActiveTraceMetric> {
 
     @Override
     public ActiveTraceMetric get() {
-        if (activeTraceRepository == null) {
+        if (activeTraceRepository instanceof EmptyActiveTraceRepository) {
             return ActiveTraceMetric.UNSUPPORTED_ACTIVE_TRACE_METRIC;
         } else {
-            ActiveTraceHistogramFactory activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceRepository);
-            return new DefaultActiveTraceMetric(activeTraceHistogramFactory);
+            return new DefaultActiveTraceMetric(activeTraceRepository);
         }
     }
 }

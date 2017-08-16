@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
@@ -61,7 +60,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
     private final List<ServerStreamChannel> streamChannelRepository = new CopyOnWriteArrayList<ServerStreamChannel>();
 
-    private final ActiveTraceHistogramFactory activeTraceHistogramFactory;
+    private final ActiveTraceRepository activeTraceRepository;
 
     public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
         this(activeTraceRepository, DEFAULT_FLUSH_DELAY);
@@ -71,7 +70,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         if (activeTraceRepository == null) {
             throw new NullPointerException("activeTraceRepository");
         }
-        this.activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceRepository);
+        this.activeTraceRepository = activeTraceRepository;
         this.flushDelay = flushDelay;
     }
 
@@ -97,7 +96,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     }
 
     private TCmdActiveThreadCountRes getActiveThreadCountResponse() {
-        ActiveTraceHistogram activeTraceHistogram = this.activeTraceHistogramFactory.createHistogram();
+        ActiveTraceHistogram activeTraceHistogram = this.activeTraceRepository.getActiveTraceHistogram();
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
         response.setHistogramSchemaType(activeTraceHistogram.getHistogramSchema().getTypeCode());

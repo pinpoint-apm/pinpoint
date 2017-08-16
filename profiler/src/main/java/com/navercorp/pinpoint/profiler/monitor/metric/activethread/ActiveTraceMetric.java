@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
  */
 public interface ActiveTraceMetric {
 
-    ActiveTraceMetric UNSUPPORTED_ACTIVE_TRACE_METRIC = new ActiveTraceMetric() {
+    ActiveTraceMetric
+            UNSUPPORTED_ACTIVE_TRACE_METRIC = new ActiveTraceMetric() {
         @Override
         public TActiveTraceHistogram activeTraceHistogram() {
             return null;
