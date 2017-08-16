@@ -88,11 +88,12 @@
 		});
     };
     ts.StateLine.prototype.setDefaultStateLineColor = function( color ) {
-        this._defaultBaseColor = color;
+        this._defaultBaseColor = color ;
         // if ( this._hasDurationData === true ) return;
-		this._resetBaseLineColor(color);
+		this._resetBaseLineColor(this._defaultBaseColor);
     };
     ts.StateLine.prototype._resetBaseLineColor = function( baseColor ) {
+    	baseColor = baseColor ||  ts.StatusColor.BASE;
         // var self = this;
         this._aBaseLine.forEach(function( elLine ) {
 			// elLine.attr("fill", self._hasDurationData === true ? baseColor : self._defaultBaseColor );
