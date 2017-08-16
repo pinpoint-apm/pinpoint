@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
@@ -30,9 +31,15 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
 
     private final ResponseTimeCollector responseTimeCollector;
 
+    private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
+
     public EmptyActiveTraceRepository(ResponseTimeCollector responseTimeCollector) {
         this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
+    }
 
+    @Override
+    public ActiveTraceHistogram getActiveTraceHistogram() {
+        return emptyActiveTraceHistogram;
     }
 
     @Override

@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
@@ -46,6 +48,9 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     private final ConcurrentMap<ActiveTraceHandle, ActiveTrace> activeTraceInfoMap;
 
     private final ResponseTimeCollector responseTimeCollector;
+
+    private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
+    private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(histogramSchema);
 
     public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector) {
         this(responseTimeCollector, DEFAULT_MAX_ACTIVE_TRACE_SIZE);
@@ -118,19 +123,19 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     // @ThreadSafe
     @Override
     public List<ActiveTraceSnapshot> collect() {
-        final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
-        if (activeTraceCollection.isEmpty()) {
+        if (this.activeTraceInfoMap.isEmpty()) {
             return Collections.emptyList();
         }
-
+        final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
         final List<ActiveTraceSnapshot> collectData = new ArrayList<ActiveTraceSnapshot>(activeTraceCollection.size());
         for (ActiveTrace trace : activeTraceCollection) {
             final long startTime = trace.getStartTime();
             // not started
-            if (startTime > 0) {
-                final ActiveTraceSnapshot snapshot = trace.snapshot();
-                collectData.add(snapshot);
+            if (!isStarted(startTime)) {
+                continue;
             }
+            final ActiveTraceSnapshot snapshot = trace.snapshot();
+            collectData.add(snapshot);
         }
         if (isDebug) {
             logger.debug("activeTraceSnapshot size:{}", collectData.size());
@@ -138,6 +143,32 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
         return collectData;
     }
 
+    // @ThreadSafe
+    @Override
+    public ActiveTraceHistogram getActiveTraceHistogram() {
+        if (this.activeTraceInfoMap.isEmpty()) {
+            return emptyActiveTraceHistogram;
+        }
+        final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
+
+        final long currentTime = System.currentTimeMillis();
+        final DefaultActiveTraceHistogram histogram = new DefaultActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
+        for (ActiveTrace activeTraceInfo : activeTraceCollection) {
+            final long startTime = activeTraceInfo.getStartTime();
+            if (!isStarted(startTime)) {
+                continue;
+            }
+            final int elapsedTime = (int) (currentTime - startTime);
+            final HistogramSlot slot = histogramSchema.findHistogramSlot(elapsedTime, false);
+            histogram.increment(slot);
+        }
+
+        return histogram;
+    }
+
+    private boolean isStarted(long startTime) {
+        return startTime > 0;
+    }
 
 
     private class DefaultActiveTraceHandle implements ActiveTraceHandle {
