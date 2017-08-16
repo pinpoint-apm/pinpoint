@@ -30,8 +30,6 @@
 					scope.timeList = PreferenceService.getUpdateTimes();
 					scope.timeCountDown = 10;
 
-					initialize();
-
 					function initialize() {
 						scope.periodType = UrlVoService.getPeriodType(); // getPeriodType();
 						scope.readablePeriod = UrlVoService.getReadablePeriod();// || PreferenceService.getPeriod();
@@ -157,7 +155,7 @@
 						}
 					}
 					function setDateTime($picker, time) {
-						$picker.datetimepicker('setDate', time ? new Date(time) : new Date());
+						$picker.datetimepicker("setDate", time ? new Date(time) : new Date());
 					}
 					function broadcast() {
 						UrlVoService.setPeriodType( scope.periodType );
@@ -285,10 +283,9 @@
 					scope.isNotRangePeriod = function() {
 						return scope.periodType !== oPeriodType.RANGE;
 					};
-					// scope.$on( "down.initialize", function( event, invokerId ) {
-					// 	console.log( "period-selector. down.initialize", invokerId );
-					// 	initialize();
-					// });
+					scope.$on( "period-selector.initialize", function() {
+						initialize();
+					});
 				}
 			};
 		}
