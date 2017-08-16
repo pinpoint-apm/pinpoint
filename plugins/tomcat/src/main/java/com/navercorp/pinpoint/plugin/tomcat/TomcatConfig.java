@@ -128,6 +128,7 @@ public class TomcatConfig {
         sb.append(", tomcatRealIpHeader='").append(tomcatRealIpHeader).append('\'');
         sb.append(", tomcatRealIpEmptyValue='").append(tomcatRealIpEmptyValue).append('\'');
         sb.append(", tomcatExcludeProfileMethodFilter=").append(tomcatExcludeProfileMethodFilter);
+        sb.append(", springBootBootstrapMains=").append(springBootBootstrapMains);
         sb.append('}');
         return sb.toString();
     }

@@ -19,6 +19,7 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
   private static final org.apache.thrift.protocol.TField BYTE_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("byteValue", org.apache.thrift.protocol.TType.BYTE, (short)8);
   private static final org.apache.thrift.protocol.TField INT_STRING_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("intStringValue", org.apache.thrift.protocol.TType.STRUCT, (short)9);
   private static final org.apache.thrift.protocol.TField INT_STRING_STRING_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("intStringStringValue", org.apache.thrift.protocol.TType.STRUCT, (short)10);
+  private static final org.apache.thrift.protocol.TField LONG_INT_INT_BYTE_BYTE_STRING_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("longIntIntByteByteStringValue", org.apache.thrift.protocol.TType.STRUCT, (short)11);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -31,7 +32,8 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
     BINARY_VALUE((short)7, "binaryValue"),
     BYTE_VALUE((short)8, "byteValue"),
     INT_STRING_VALUE((short)9, "intStringValue"),
-    INT_STRING_STRING_VALUE((short)10, "intStringStringValue");
+    INT_STRING_STRING_VALUE((short)10, "intStringStringValue"),
+    LONG_INT_INT_BYTE_BYTE_STRING_VALUE((short)11, "longIntIntByteByteStringValue");
 
     private static final java.util.Map<java.lang.String, _Fields> byName = new java.util.HashMap<java.lang.String, _Fields>();
 
@@ -66,6 +68,8 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
           return INT_STRING_VALUE;
         case 10: // INT_STRING_STRING_VALUE
           return INT_STRING_STRING_VALUE;
+        case 11: // LONG_INT_INT_BYTE_BYTE_STRING_VALUE
+          return LONG_INT_INT_BYTE_BYTE_STRING_VALUE;
         default:
           return null;
       }
@@ -128,6 +132,8 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TIntStringValue.class)));
     tmpMap.put(_Fields.INT_STRING_STRING_VALUE, new org.apache.thrift.meta_data.FieldMetaData("intStringStringValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TIntStringStringValue.class)));
+    tmpMap.put(_Fields.LONG_INT_INT_BYTE_BYTE_STRING_VALUE, new org.apache.thrift.meta_data.FieldMetaData("longIntIntByteByteStringValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TLongIntIntByteByteStringValue.class)));
     metaDataMap = java.util.Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TAnnotationValue.class, metaDataMap);
   }
@@ -213,6 +219,12 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
     return x;
   }
 
+  public static TAnnotationValue longIntIntByteByteStringValue(TLongIntIntByteByteStringValue value) {
+    TAnnotationValue x = new TAnnotationValue();
+    x.setLongIntIntByteByteStringValue(value);
+    return x;
+  }
+
 
   @Override
   protected void checkType(_Fields setField, java.lang.Object value) throws java.lang.ClassCastException {
@@ -267,6 +279,11 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
           break;
         }
         throw new java.lang.ClassCastException("Was expecting value of type TIntStringStringValue for field 'intStringStringValue', but got " + value.getClass().getSimpleName());
+      case LONG_INT_INT_BYTE_BYTE_STRING_VALUE:
+        if (value instanceof TLongIntIntByteByteStringValue) {
+          break;
+        }
+        throw new java.lang.ClassCastException("Was expecting value of type TLongIntIntByteByteStringValue for field 'longIntIntByteByteStringValue', but got " + value.getClass().getSimpleName());
       default:
         throw new java.lang.IllegalArgumentException("Unknown field id " + setField);
     }
@@ -369,6 +386,16 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
           }
+        case LONG_INT_INT_BYTE_BYTE_STRING_VALUE:
+          if (field.type == LONG_INT_INT_BYTE_BYTE_STRING_VALUE_FIELD_DESC.type) {
+            TLongIntIntByteByteStringValue longIntIntByteByteStringValue;
+            longIntIntByteByteStringValue = new TLongIntIntByteByteStringValue();
+            longIntIntByteByteStringValue.read(iprot);
+            return longIntIntByteByteStringValue;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
         default:
           throw new java.lang.IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -420,6 +447,10 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
       case INT_STRING_STRING_VALUE:
         TIntStringStringValue intStringStringValue = (TIntStringStringValue)value_;
         intStringStringValue.write(oprot);
+        return;
+      case LONG_INT_INT_BYTE_BYTE_STRING_VALUE:
+        TLongIntIntByteByteStringValue longIntIntByteByteStringValue = (TLongIntIntByteByteStringValue)value_;
+        longIntIntByteByteStringValue.write(oprot);
         return;
       default:
         throw new java.lang.IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -473,6 +504,11 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
           intStringStringValue = new TIntStringStringValue();
           intStringStringValue.read(iprot);
           return intStringStringValue;
+        case LONG_INT_INT_BYTE_BYTE_STRING_VALUE:
+          TLongIntIntByteByteStringValue longIntIntByteByteStringValue;
+          longIntIntByteByteStringValue = new TLongIntIntByteByteStringValue();
+          longIntIntByteByteStringValue.read(iprot);
+          return longIntIntByteByteStringValue;
         default:
           throw new java.lang.IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -524,6 +560,10 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
         TIntStringStringValue intStringStringValue = (TIntStringStringValue)value_;
         intStringStringValue.write(oprot);
         return;
+      case LONG_INT_INT_BYTE_BYTE_STRING_VALUE:
+        TLongIntIntByteByteStringValue longIntIntByteByteStringValue = (TLongIntIntByteByteStringValue)value_;
+        longIntIntByteByteStringValue.write(oprot);
+        return;
       default:
         throw new java.lang.IllegalStateException("Cannot write union with unknown field " + setField_);
     }
@@ -552,6 +592,8 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
         return INT_STRING_VALUE_FIELD_DESC;
       case INT_STRING_STRING_VALUE:
         return INT_STRING_STRING_VALUE_FIELD_DESC;
+      case LONG_INT_INT_BYTE_BYTE_STRING_VALUE:
+        return LONG_INT_INT_BYTE_BYTE_STRING_VALUE_FIELD_DESC;
       default:
         throw new java.lang.IllegalArgumentException("Unknown field id " + setField);
     }
@@ -716,6 +758,20 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
     value_ = value;
   }
 
+  public TLongIntIntByteByteStringValue getLongIntIntByteByteStringValue() {
+    if (getSetField() == _Fields.LONG_INT_INT_BYTE_BYTE_STRING_VALUE) {
+      return (TLongIntIntByteByteStringValue)getFieldValue();
+    } else {
+      throw new java.lang.RuntimeException("Cannot get field 'longIntIntByteByteStringValue' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setLongIntIntByteByteStringValue(TLongIntIntByteByteStringValue value) {
+    if (value == null) throw new java.lang.NullPointerException();
+    setField_ = _Fields.LONG_INT_INT_BYTE_BYTE_STRING_VALUE;
+    value_ = value;
+  }
+
   public boolean isSetStringValue() {
     return setField_ == _Fields.STRING_VALUE;
   }
@@ -763,6 +819,11 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
 
   public boolean isSetIntStringStringValue() {
     return setField_ == _Fields.INT_STRING_STRING_VALUE;
+  }
+
+
+  public boolean isSetLongIntIntByteByteStringValue() {
+    return setField_ == _Fields.LONG_INT_INT_BYTE_BYTE_STRING_VALUE;
   }
 
 
