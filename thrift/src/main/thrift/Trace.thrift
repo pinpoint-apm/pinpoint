@@ -15,6 +15,14 @@ struct TIntStringStringValue {
     3: optional string stringValue2;
 }
 
+struct TLongIntIntByteByteStringValue {
+    1: i64 longValue;
+    2: i32 intValue1;
+    3: optional i32 intValue2;
+    4: optional i8 byteValue1;
+    5: optional i8 byteValue2;
+    6: optional string stringValue;
+}
 
 union TAnnotationValue {
     1: string stringValue
@@ -27,15 +35,13 @@ union TAnnotationValue {
     8: i8 byteValue;
     9: TIntStringValue intStringValue;
     10: TIntStringStringValue intStringStringValue;
+    11: TLongIntIntByteByteStringValue longIntIntByteByteStringValue;
 }
 
 struct TAnnotation {
     1: i32 key,
     2: optional TAnnotationValue value
 }
-
-
-
 
 struct TSpanEvent {
 

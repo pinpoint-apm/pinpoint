@@ -22,6 +22,10 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeader;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderParser;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderReadable;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
@@ -34,6 +38,7 @@ import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerMethodDescriptor;
 import io.vertx.core.http.impl.HttpServerRequestImpl;
 import io.vertx.core.http.impl.HttpServerResponseImpl;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,6 +56,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final Filter<String> excludeUrlFilter;
     private final Filter<String> excludeProfileMethodFilter;
     private final RemoteAddressResolver<HttpServerRequestImpl> remoteAddressResolver;
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
@@ -70,6 +76,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         }
         this.isTraceRequestParam = config.isTraceRequestParam();
         this.excludeProfileMethodFilter = config.getExcludeProfileMethodFilter();
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext);
 
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
     }
@@ -350,6 +357,14 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             recordParentInfo(recorder, request);
         }
         recorder.recordApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
+
+        // record proxy HTTP header.
+        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderReadable() {
+            @Override
+            public String read(String name) {
+                return request.getHeader(name);
+            }
+        });
     }
 
     private void recordParentInfo(SpanRecorder recorder, HttpServerRequestImpl request) {
@@ -368,7 +383,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     }
 
     private String getRequestParameter(HttpServerRequestImpl request, int eachLimit, int totalLimit) {
-        if(request.params() == null) {
+        if (request.params() == null) {
             return "";
         }
 
@@ -447,7 +462,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
         @Override
         public String resolve(T servletRequest) {
-            if(servletRequest.remoteAddress() != null) {
+            if (servletRequest.remoteAddress() != null) {
                 return servletRequest.remoteAddress().toString();
             }
             return "unknown";
