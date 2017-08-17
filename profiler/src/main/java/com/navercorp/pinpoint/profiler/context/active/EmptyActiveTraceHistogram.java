@@ -17,30 +17,20 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 
-import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class EmptyActiveTraceHistogram implements ActiveTraceHistogram {
 
-    private static final int SLOT_SIZE = DefaultActiveTraceHistogram.SLOT_SIZE;
-    private final List<Integer> zeroList;
     private final HistogramSchema histogramSchema;
 
 
     public EmptyActiveTraceHistogram(HistogramSchema histogramSchema) {
         this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema must not be null");
-
-        this.zeroList = Collections.unmodifiableList(Ints.asList(0, 0, 0, 0));
-        if (zeroList.size() != SLOT_SIZE) {
-            throw new IllegalStateException("zeroList.size() must be " + SLOT_SIZE);
-        }
     }
 
     @Override
@@ -49,9 +39,25 @@ public class EmptyActiveTraceHistogram implements ActiveTraceHistogram {
     }
 
     @Override
-    public List<Integer> getActiveTraceCounts() {
-        return zeroList;
+    public int getFastCount() {
+        return 0;
     }
+
+    @Override
+    public int getNormalCount() {
+        return 0;
+    }
+
+    @Override
+    public int getSlowCount() {
+        return 0;
+    }
+
+    @Override
+    public int getVerySlowCount() {
+        return 0;
+    }
+
 
 
 }
