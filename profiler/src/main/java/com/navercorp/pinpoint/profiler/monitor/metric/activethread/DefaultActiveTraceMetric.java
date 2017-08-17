@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.monitor.metric.activethread;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
 
@@ -36,13 +37,15 @@ public class DefaultActiveTraceMetric implements ActiveTraceMetric {
 
     @Override
     public TActiveTraceHistogram activeTraceHistogram() {
-        final ActiveTraceHistogram activeTraceHistogram = activeTraceRepository.getActiveTraceHistogram();
-        final int histogramSchemaTypeCode = activeTraceHistogram.getHistogramSchema().getTypeCode();
+        final long currentTimeMillis = System.currentTimeMillis();
+        final ActiveTraceHistogram histogram = activeTraceRepository.getActiveTraceHistogram(currentTimeMillis);
+        final int histogramSchemaTypeCode = histogram.getHistogramSchema().getTypeCode();
 
-        List<Integer> activeTraceCounts = activeTraceHistogram.getActiveTraceCounts();
 
         TActiveTraceHistogram tActiveTraceHistogram = new TActiveTraceHistogram();
         tActiveTraceHistogram.setHistogramSchemaType(histogramSchemaTypeCode);
+
+        final List<Integer> activeTraceCounts = ActiveTraceHistogramUtils.asList(histogram);
         tActiveTraceHistogram.setActiveTraceCount(activeTraceCounts);
         return tActiveTraceHistogram;
     }

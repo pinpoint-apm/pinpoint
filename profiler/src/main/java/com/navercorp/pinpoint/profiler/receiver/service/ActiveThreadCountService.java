@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
@@ -96,12 +97,17 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     }
 
     private TCmdActiveThreadCountRes getActiveThreadCountResponse() {
-        ActiveTraceHistogram activeTraceHistogram = this.activeTraceRepository.getActiveTraceHistogram();
+
+        final long currentTime = System.currentTimeMillis();
+        final ActiveTraceHistogram histogram = this.activeTraceRepository.getActiveTraceHistogram(currentTime);
+
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
-        response.setHistogramSchemaType(activeTraceHistogram.getHistogramSchema().getTypeCode());
-        response.setActiveThreadCount(activeTraceHistogram.getActiveTraceCounts());
-        response.setTimeStamp(System.currentTimeMillis());
+        response.setHistogramSchemaType(histogram.getHistogramSchema().getTypeCode());
+
+        final List<Integer> activeTraceCounts = ActiveTraceHistogramUtils.asList(histogram);
+        response.setActiveThreadCount(activeTraceCounts);
+        response.setTimeStamp(currentTime);
 
         return response;
     }

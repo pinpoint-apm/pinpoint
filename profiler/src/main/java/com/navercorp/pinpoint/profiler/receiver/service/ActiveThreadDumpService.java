@@ -40,7 +40,9 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
 
     private static final String JAVA = "JAVA";
     // TODO extract config
-    static final int MAX_THREAD_DUMP_LIMIT = 1024 * 5;
+    // See DefaultActiveTraceRepository.DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10
+    static final int MAX_THREAD_DUMP_LIMIT = 1024 * 2;
+
     private final ActiveTraceRepository activeTraceRepository;
 
     public ActiveThreadDumpService(ActiveTraceRepository activeTraceRepository) {

@@ -17,25 +17,22 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 
-import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.util.List;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultActiveTraceHistogram implements ActiveTraceHistogram {
-    static final int SLOT_SIZE = 4;
 
     private final HistogramSchema histogramSchema;
-    private int fast;
-    private int normal;
-    private int slow;
-    private int verySlow;
+
+    private int fastCount;
+    private int normalCount;
+    private int slowCount;
+    private int verySlowCount;
 
     public DefaultActiveTraceHistogram(HistogramSchema histogramSchema) {
         this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema must not be null");
@@ -47,16 +44,16 @@ public class DefaultActiveTraceHistogram implements ActiveTraceHistogram {
         final SlotType slotType = slot.getSlotType();
         switch (slotType) {
             case FAST:
-                this.fast++;
+                this.fastCount++;
                 return;
             case NORMAL:
-                this.normal++;
+                this.normalCount++;
                 return;
             case SLOW:
-                this.slow++;
+                this.slowCount++;
                 return;
             case VERY_SLOW:
-                this.verySlow++;
+                this.verySlowCount++;
                 return;
             default:
                 throw new UnsupportedOperationException("slot type:" + slot);
@@ -69,8 +66,23 @@ public class DefaultActiveTraceHistogram implements ActiveTraceHistogram {
     }
 
     @Override
-    public List<Integer> getActiveTraceCounts() {
-        return Ints.asList(fast, normal, slow, verySlow);
+    public int getFastCount() {
+        return fastCount;
+    }
+
+    @Override
+    public int getNormalCount() {
+        return normalCount;
+    }
+
+    @Override
+    public int getSlowCount() {
+        return slowCount;
+    }
+
+    @Override
+    public int getVerySlowCount() {
+        return verySlowCount;
     }
 
 

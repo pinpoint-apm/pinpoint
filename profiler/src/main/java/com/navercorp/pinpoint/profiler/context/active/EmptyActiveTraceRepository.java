@@ -38,7 +38,7 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
     }
 
     @Override
-    public ActiveTraceHistogram getActiveTraceHistogram() {
+    public ActiveTraceHistogram getActiveTraceHistogram(long timeStamp) {
         return emptyActiveTraceHistogram;
     }
 

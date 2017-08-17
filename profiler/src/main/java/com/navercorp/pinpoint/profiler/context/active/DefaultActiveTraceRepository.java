@@ -145,14 +145,14 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
 
     // @ThreadSafe
     @Override
-    public ActiveTraceHistogram getActiveTraceHistogram() {
+    public ActiveTraceHistogram getActiveTraceHistogram(long currentTime) {
         if (this.activeTraceInfoMap.isEmpty()) {
             return emptyActiveTraceHistogram;
         }
         final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
 
-        final long currentTime = System.currentTimeMillis();
-        final DefaultActiveTraceHistogram histogram = new DefaultActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
+
+        final DefaultActiveTraceHistogram histogram = new DefaultActiveTraceHistogram(histogramSchema);
         for (ActiveTrace activeTraceInfo : activeTraceCollection) {
             final long startTime = activeTraceInfo.getStartTime();
             if (!isStarted(startTime)) {

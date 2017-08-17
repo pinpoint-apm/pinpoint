@@ -25,7 +25,7 @@ import java.util.List;
  */
 public interface ActiveTraceRepository {
 
-    ActiveTraceHistogram getActiveTraceHistogram();
+    ActiveTraceHistogram getActiveTraceHistogram(long timeStamp);
 
     List<ActiveTraceSnapshot> collect();
 
