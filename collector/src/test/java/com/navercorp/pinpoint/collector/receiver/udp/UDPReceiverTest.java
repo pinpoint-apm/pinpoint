@@ -36,6 +36,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -101,29 +103,29 @@ public class UDPReceiverTest {
         datagramSocket.close();
     }
 
+    private final AtomicInteger zeroPacketCounter = new AtomicInteger();
+    void interceptValidatePacket(DatagramPacket packet) {
+        if (packet.getLength() == 0) {
+            zeroPacketCounter.incrementAndGet();
+        }
+    }
 
     @Test
     public void datagramPacket_length_zero() {
         DataReceiver receiver = null;
         DatagramSocket datagramSocket = null;
 
-        CountDownLatch latch = new CountDownLatch(2);
-        DispatchWorkerOption option = new DispatchWorkerOption("test", 1, 10);
-        DispatchWorker mockWorker = mockDispatchWorker(latch, option);
+        CountDownLatch latch = new CountDownLatch(1);
+        DispatchWorker mockWorker = mockDispatchWorker(latch);
         PacketHandlerFactory packetHandlerFactory = mock(PacketHandlerFactory.class);
 
         try {
+
             receiver = new UDPReceiver("test", packetHandlerFactory, ADDRESS, PORT, 8, mockWorker) {
-                private int readCount = 0;
                 @Override
-                protected PooledObject<DatagramPacket> read0(DatagramSocket socket) {
-                    if (readCount == 0) {
-                        readCount++;
-                        PooledObject mock = mock(PooledObject.class);
-                        when(mock.getObject()).thenReturn(new DatagramPacket(new byte[0], 0));
-                        return mock;
-                    }
-                    return super.read0(socket);
+                boolean validatePacket(DatagramPacket packet) {
+                    interceptValidatePacket(packet);
+                    return super.validatePacket(packet);
                 }
             };
             receiver.start();
@@ -131,11 +133,11 @@ public class UDPReceiverTest {
             datagramSocket = new DatagramSocket();
             datagramSocket.connect(new InetSocketAddress(ADDRESS, PORT));
 
-            // Size 0 is not send in java, but L4 is possible.
             datagramSocket.send(new DatagramPacket(new byte[0], 0));
             datagramSocket.send(new DatagramPacket(new byte[1], 1));
 
-            latch.await(3000, TimeUnit.MILLISECONDS);
+            Assert.assertTrue(latch.await(30000, TimeUnit.MILLISECONDS));
+            Assert.assertEquals(zeroPacketCounter.get(), 1);
             Mockito.verify(mockWorker).execute(any(Runnable.class));
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
@@ -148,7 +150,8 @@ public class UDPReceiverTest {
         }
     }
 
-    private DispatchWorker mockDispatchWorker(CountDownLatch latch, DispatchWorkerOption option) {
+    private DispatchWorker mockDispatchWorker(CountDownLatch latch) {
+        DispatchWorkerOption option = new DispatchWorkerOption("test", 1, 10);
         DispatchWorker mockWorker = new DispatchWorker(option) {
             @Override
             public void execute(Runnable runnable) {

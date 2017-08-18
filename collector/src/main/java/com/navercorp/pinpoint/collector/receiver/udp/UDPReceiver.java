@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -103,26 +102,19 @@ public class UDPReceiver implements DataReceiver {
         if (logger.isInfoEnabled()) {
             logger.info("start ioThread localAddress:{}, IoThread:{}", this.socket.getLocalAddress(), Thread.currentThread().getName());
         }
-        final SocketAddress localSocketAddress = socket.getLocalSocketAddress();
-        final boolean debugEnabled = logger.isDebugEnabled();
 
         // need shutdown logic
         while (state.get()) {
-            PooledObject<DatagramPacket> pooledPacket = read0(socket);
+            final PooledObject<DatagramPacket> pooledPacket = read0(socket);
             if (pooledPacket == null) {
-                continue;
-            }
-            final DatagramPacket packet = pooledPacket.getObject();
-            if (packet.getLength() == 0) {
-                if (debugEnabled) {
-                    logger.debug("length is 0 ip:{}, port:{}", packet.getAddress(), packet.getPort());
-                }
                 continue;
             }
             Runnable dispatchTask = wrapDispatchTask(pooledPacket);
             worker.execute(dispatchTask);
         }
+
         if (logger.isInfoEnabled()) {
+            final SocketAddress localSocketAddress = socket.getLocalSocketAddress();
             logger.info("stop ioThread localAddress:{}, IoThread:{}", localSocketAddress, Thread.currentThread().getName());
         }
     }
@@ -140,8 +132,8 @@ public class UDPReceiver implements DataReceiver {
         return lazyExecution;
     }
 
-    @VisibleForTesting
-    PooledObject<DatagramPacket> read0(final DatagramSocket socket) {
+
+    private PooledObject<DatagramPacket> read0(final DatagramSocket socket) {
         boolean success = false;
         PooledObject<DatagramPacket> pooledObject = datagramPacketPool.getObject();
         if (pooledObject == null) {
@@ -175,7 +167,24 @@ public class UDPReceiver implements DataReceiver {
                 pooledObject.returnObject();
             }
         }
+        if (!validatePacket(packet)) {
+            pooledObject.returnObject();
+            return null;
+        }
         return pooledObject;
+    }
+
+    @VisibleForTesting
+    boolean validatePacket(DatagramPacket packet) {
+        // L4 health check packet
+        if (packet.getLength() == 0) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("length is 0 ip:{}, port:{}", packet.getAddress(), packet.getPort());
+            }
+            return false;
+        }
+
+        return true;
     }
 
     private DatagramSocket createSocket(int receiveBufferSize) {
