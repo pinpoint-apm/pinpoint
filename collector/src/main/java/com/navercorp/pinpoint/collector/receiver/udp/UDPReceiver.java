@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.collector.util.PooledObject;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -77,34 +79,19 @@ public class UDPReceiver implements DataReceiver {
     private final AtomicBoolean state = new AtomicBoolean(true);
 
     public UDPReceiver(String receiverName, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, String bindAddress, int port, int receiverBufferSize, DispatchWorker worker) {
-        if (receiverName != null) {
-            this.logger = LoggerFactory.getLogger(receiverName);
-        } else {
-            this.logger = LoggerFactory.getLogger(this.getClass());
-        }
+        this.receiverName = Objects.requireNonNull(receiverName);
+        this.logger = LoggerFactory.getLogger(receiverName);
 
-        if (packetHandlerFactory == null) {
-            throw new NullPointerException("packetHandlerFactory must not be null");
-        }
-        if (bindAddress == null) {
-            throw new NullPointerException("bindAddress must not be null");
-        }
-        if (worker == null) {
-            throw new NullPointerException("worker must not be null");
-        }
+        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress must not be null");
+        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
+        this.worker = Objects.requireNonNull(worker, "worker must not be null");
 
-        this.receiverName = receiverName;
-        this.bindAddress = bindAddress;
         this.port = port;
         this.socket = createSocket(receiverBufferSize);
-
-        this.packetHandlerFactory = packetHandlerFactory;
-
-        this.worker = worker;
     }
 
-    public void afterPropertiesSet() {
-        Assert.notNull(packetHandlerFactory, "packetHandlerFactory must not be null");
+    private void prepare() {
+        Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
 
         final int packetPoolSize = getPacketPoolSize();
         this.datagramPacketPool = new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
@@ -130,7 +117,7 @@ public class UDPReceiver implements DataReceiver {
                 if (debugEnabled) {
                     logger.debug("length is 0 ip:{}, port:{}", packet.getAddress(), packet.getPort());
                 }
-                return;
+                continue;
             }
             Runnable dispatchTask = wrapDispatchTask(pooledPacket);
             worker.execute(dispatchTask);
@@ -153,7 +140,8 @@ public class UDPReceiver implements DataReceiver {
         return lazyExecution;
     }
 
-    private PooledObject<DatagramPacket> read0(final DatagramSocket socket) {
+    @VisibleForTesting
+    PooledObject<DatagramPacket> read0(final DatagramSocket socket) {
         boolean success = false;
         PooledObject<DatagramPacket> pooledObject = datagramPacketPool.getObject();
         if (pooledObject == null) {
@@ -230,7 +218,7 @@ public class UDPReceiver implements DataReceiver {
     @Override
     public void start() {
         logger.info("{} start.", receiverName);
-        afterPropertiesSet();
+        prepare();
         final DatagramSocket socket = this.socket;
         if (socket == null) {
             throw new IllegalStateException("socket is null.");
@@ -258,11 +246,13 @@ public class UDPReceiver implements DataReceiver {
         if (socket != null) {
             socket.close();
         }
-        shutdownExecutor(io, "IoExecutor");
+        if (io != null) {
+            shutdownExecutor(io, "IoExecutor");
+        }
     }
 
     private void shutdownExecutor(ExecutorService executor, String executorName) {
-        logger.info("{] shutdown.", executorName);
+        logger.info("{} shutdown.", executorName);
         executor.shutdown();
         try {
             executor.awaitTermination(1000 * 10, TimeUnit.MILLISECONDS);
