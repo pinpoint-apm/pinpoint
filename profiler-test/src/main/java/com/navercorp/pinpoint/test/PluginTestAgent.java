@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -118,7 +119,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyServerInfo(String expected) {
-        String actualName = this.pluginApplicationContextModule.getServerMetaDataListener().getServerMetaData().getServerInfo();
+        String actualName = getServerMetaData().getServerInfo();
 
         if (!actualName.equals(expected)) {
             throw new AssertionError("ResolvedExpectedTrace server name [" + expected + "] but was [" + actualName + "]");
@@ -127,7 +128,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyConnector(String protocol, int port) {
-        Map<Integer, String> connectorMap = this.pluginApplicationContextModule.getServerMetaDataListener().getServerMetaData().getConnectors();
+        Map<Integer, String> connectorMap = getServerMetaData().getConnectors();
         String actualProtocol = connectorMap.get(port);
 
         if (actualProtocol == null || !actualProtocol.equals(protocol)) {
@@ -137,7 +138,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyService(String name, List<String> libs) {
-        List<ServiceInfo> serviceInfos = this.pluginApplicationContextModule.getServerMetaDataListener().getServerMetaData().getServiceInfos();
+        List<ServiceInfo> serviceInfos = getServerMetaData().getServiceInfos();
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             if (serviceInfo.getServiceName().equals(name)) {
@@ -718,6 +719,10 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     private OrderedSpanRecorder getRecorder() {
         return this.pluginApplicationContextModule.getOrderedSpanRecorder();
+    }
+
+    private ServerMetaData getServerMetaData() {
+        return this.pluginApplicationContextModule.getServerMetaData();
     }
 
     private Object popSpan() {

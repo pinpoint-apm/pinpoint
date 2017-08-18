@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -26,70 +24,51 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
-import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
-import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
+import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder.ServerMetaDataListener;
-import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
-import com.navercorp.pinpoint.thrift.dto.TServiceInfo;
 
 /**
  * @author emeroad
  * @author koo.taejin
  * @author HyunGil Jeong
  */
-public class AgentInfoSender implements ServerMetaDataListener {
+public class AgentInfoSender {
     // refresh daily
-    public static final long DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000L;
+    private static final long DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000L;
     // retry every 3 seconds
-    public static final long DEFAULT_AGENT_INFO_SEND_INTERVAL_MS = 3 * 1000L;
+    private static final long DEFAULT_AGENT_INFO_SEND_INTERVAL_MS = 3 * 1000L;
     // retry 3 times per attempt
-    public static final int DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT = 3;
+    private static final int DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT = 3;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentInfoSender.class);
-    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-agentInfo-sender", true);
-
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(THREAD_FACTORY);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ThreadFactory threadFactory = new PinpointThreadFactory("Pinpoint-agentInfo-sender", true);
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(threadFactory);
 
     private final EnhancedDataSender dataSender;
+    private final AgentInfoFactory agentInfoFactory;
     private final long refreshIntervalMs;
     private final long sendIntervalMs;
     private final int maxTryPerAttempt;
-    private final AgentInformation agentInformation;
-    private final JvmInformation jvmInformation;
-
-    private volatile ServerMetaData serverMetaData;
 
     private AgentInfoSender(Builder builder) {
         this.dataSender = builder.dataSender;
-        this.agentInformation = builder.agentInformation;
-        this.jvmInformation = builder.jvmInformation;
+        this.agentInfoFactory = builder.agentInfoFactory;
         this.refreshIntervalMs = builder.refreshIntervalMs;
         this.sendIntervalMs = builder.sendIntervalMs;
         this.maxTryPerAttempt = builder.maxTryPerAttempt;
     }
 
-    @Override
-    public void publishServerMetaData(ServerMetaData serverMetaData) {
-        this.serverMetaData = serverMetaData;
-        submit(this.maxTryPerAttempt);
-    }
-
     public void start() {
-        submit(Integer.MAX_VALUE);
+        sendAgentInfo(Integer.MAX_VALUE);
         this.executor.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                submit(maxTryPerAttempt);
+                refresh();
             }
         }, this.refreshIntervalMs, this.refreshIntervalMs, TimeUnit.MILLISECONDS);
     }
@@ -101,56 +80,18 @@ public class AgentInfoSender implements ServerMetaDataListener {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        LOGGER.info("AgentInfoSender stopped");
+        logger.info("AgentInfoSender stopped");
     }
 
-    private void submit(final int maxTryPerAttempt) {
-        new AgentInfoSendRunnableWrapper(new AgentInfoSendRunnable(), maxTryPerAttempt).repeatWithFixedDelay(this.executor, 0, this.sendIntervalMs, TimeUnit.MILLISECONDS);
+    public void refresh() {
+        sendAgentInfo(this.maxTryPerAttempt);
     }
 
-    private TAgentInfo createTAgentInfo() {
-        final TAgentInfo agentInfo = new TAgentInfo();
-        agentInfo.setIp(this.agentInformation.getHostIp());
-        agentInfo.setHostname(this.agentInformation.getMachineName());
-        agentInfo.setPorts("");
-        agentInfo.setAgentId(this.agentInformation.getAgentId());
-        agentInfo.setApplicationName(this.agentInformation.getApplicationName());
-        agentInfo.setPid(this.agentInformation.getPid());
-        agentInfo.setStartTimestamp(this.agentInformation.getStartTime());
-        agentInfo.setServiceType(this.agentInformation.getServerType().getCode());
-        agentInfo.setVmVersion(this.agentInformation.getJvmVersion());
-        agentInfo.setAgentVersion(Version.VERSION);
-        if (this.serverMetaData != null) {
-            agentInfo.setServerMetaData(createTServiceInfo());
-        }
-        agentInfo.setJvmInfo(createTJvmInfo());
-        return agentInfo;
-    }
-
-    private TServerMetaData createTServiceInfo() {
-        TServerMetaData tServerMetaData = new TServerMetaData();
-        tServerMetaData.setServerInfo(serverMetaData.getServerInfo());
-        tServerMetaData.setVmArgs(serverMetaData.getVmArgs());
-        List<TServiceInfo> tServiceInfos = new ArrayList<TServiceInfo>();
-        for (ServiceInfo serviceInfo : serverMetaData.getServiceInfos()) {
-            TServiceInfo tServiceInfo = new TServiceInfo();
-            tServiceInfo.setServiceName(serviceInfo.getServiceName());
-            tServiceInfo.setServiceLibs(serviceInfo.getServiceLibs());
-            tServiceInfos.add(tServiceInfo);
-        }
-        tServerMetaData.setServiceInfos(tServiceInfos);
-        return tServerMetaData;
-    }
-
-    private TJvmInfo createTJvmInfo() {
-        TJvmInfo tJvmInfo = new TJvmInfo();
-        tJvmInfo.setVmVersion(this.jvmInformation.getJvmVersion());
-        TJvmGcType gcType = TJvmGcType.findByValue(this.jvmInformation.getGcTypeCode());
-        if (gcType == null) {
-            gcType = TJvmGcType.UNKNOWN;
-        }
-        tJvmInfo.setGcType(gcType);
-        return tJvmInfo;
+    private void sendAgentInfo(int maxTries) {
+        TAgentInfo agentInfo = agentInfoFactory.createAgentInfo();
+        AgentInfoSendRunnable agentInfoSendRunnable = new AgentInfoSendRunnable(agentInfo);
+        AgentInfoSendRunnableWrapper wrapper = new AgentInfoSendRunnableWrapper(agentInfoSendRunnable, maxTries);
+        wrapper.repeatWithFixedDelay(this.executor, 0, this.sendIntervalMs, TimeUnit.MILLISECONDS);
     }
 
     private static class AgentInfoSendRunnableWrapper implements Runnable {
@@ -190,14 +131,14 @@ public class AgentInfoSender implements ServerMetaDataListener {
         private final AgentInfoSenderListener agentInfoSenderListener = new AgentInfoSenderListener(this.isSuccessful);
         private final TAgentInfo agentInfo;
 
-        private AgentInfoSendRunnable() {
-            this.agentInfo = createTAgentInfo();
+        private AgentInfoSendRunnable(TAgentInfo agentInfo) {
+            this.agentInfo = agentInfo;
         }
 
         @Override
         public void run() {
             if (!isSuccessful.get()) {
-                LOGGER.info("Sending AgentInfo {}", agentInfo);
+                logger.info("Sending AgentInfo {}", agentInfo);
                 dataSender.request(this.agentInfo, this.agentInfoSenderListener);
             }
         }
@@ -209,29 +150,20 @@ public class AgentInfoSender implements ServerMetaDataListener {
 
     public static class Builder {
         private final EnhancedDataSender dataSender;
-        private final AgentInformation agentInformation;
-        private final JvmInformation jvmInformation;
+        private final AgentInfoFactory agentInfoFactory;
         private long refreshIntervalMs = DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS;
         private long sendIntervalMs = DEFAULT_AGENT_INFO_SEND_INTERVAL_MS;
         private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
 
-        Builder(EnhancedDataSender dataSender, AgentInformation agentInformation) {
-            this(dataSender, agentInformation, new JvmInformationProvider().get());
-        }
-
-        public Builder(EnhancedDataSender dataSender, AgentInformation agentInformation, JvmInformation jvmInformation) {
+        public Builder(EnhancedDataSender dataSender, AgentInfoFactory agentInfoFactory) {
             if (dataSender == null) {
                 throw new NullPointerException("enhancedDataSender must not be null");
             }
-            if (agentInformation == null) {
-                throw new NullPointerException("agentInformation must not be null");
-            }
-            if (jvmInformation == null) {
-                throw new NullPointerException("jvmInformation must not be null");
+            if (agentInfoFactory == null) {
+                throw new NullPointerException("agentInfoFactory must not be null");
             }
             this.dataSender = dataSender;
-            this.agentInformation = agentInformation;
-            this.jvmInformation = jvmInformation;
+            this.agentInfoFactory = agentInfoFactory;
         }
 
         public Builder refreshInterval(long refreshIntervalMs) {
