@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,33 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test;
+package com.navercorp.pinpoint.profiler.context;
+
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder.ServerMetaDataListener;
+import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 
 /**
  * @author HyunGil Jeong
  */
-public class TestableServerMetaDataListener implements ServerMetaDataListener {
-    
-    private volatile ServerMetaData serverMetaData;
+public interface ServerMetaDataRegistryService {
 
-    @Override
-    public void publishServerMetaData(ServerMetaData serverMetaData) {
-        this.serverMetaData = serverMetaData;
+    void setServerName(String serverName);
+
+    void addConnector(String protocol, int port);
+
+    void addServiceInfo(ServiceInfo serviceInfo);
+
+    ServerMetaData getServerMetaData();
+
+    boolean addListener(OnChangeListener listener);
+
+    boolean removeListener(OnChangeListener listener);
+
+    void notifyListeners();
+
+    interface OnChangeListener {
+        void onServerMetaDataChange();
     }
-    
-    public ServerMetaData getServerMetaData() {
-        return this.serverMetaData;
-    }
-    
+
 }

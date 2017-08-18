@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
@@ -69,6 +70,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final AgentInformation agentInformation;
     private final AgentOption agentOption;
+    private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
@@ -128,6 +130,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
         this.agentInformation = injector.getInstance(AgentInformation.class);
         logger.info("agentInformation:{}", agentInformation);
+        this.serverMetaDataRegistryService = injector.getInstance(ServerMetaDataRegistryService.class);
 
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
@@ -198,7 +201,9 @@ public class DefaultApplicationContext implements ApplicationContext {
         return this.agentInformation;
     }
 
-
+    public ServerMetaDataRegistryService getServerMetaDataRegistryService() {
+        return this.serverMetaDataRegistryService;
+    }
 
     @Override
     public void start() {

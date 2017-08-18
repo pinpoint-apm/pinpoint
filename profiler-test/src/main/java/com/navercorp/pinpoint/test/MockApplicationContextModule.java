@@ -19,7 +19,8 @@ package com.navercorp.pinpoint.test;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.util.Providers;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -45,6 +46,8 @@ public class MockApplicationContextModule extends AbstractModule {
     public MockApplicationContextModule() {
     }
 
+    private ServerMetaDataRegistryService serverMetaDataRegistryService;
+
     @Override
     protected void configure() {
 
@@ -67,10 +70,8 @@ public class MockApplicationContextModule extends AbstractModule {
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
         bind(EnhancedDataSender.class).toInstance(enhancedDataSender);
 
-        ServerMetaDataHolder serverMetaDataHolder = newServerMetaDataHolder();
-        logger.debug("serverMetaDataHolder:{}", serverMetaDataHolder);
-        bind(ServerMetaDataHolder.class).toInstance(serverMetaDataHolder);
-
+        ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
+        bind(ServerMetaDataRegistryService.class).toInstance(serverMetaDataRegistryService);
 
         bind(PluginContextLoadResult.class).toProvider(MockPluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
     }
@@ -91,15 +92,16 @@ public class MockApplicationContextModule extends AbstractModule {
         return new TestTcpDataSender();
     }
 
+    private ServerMetaDataRegistryService newServerMetaDataRegistryService() {
+        List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
+        ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(vmArgs);
+        this.serverMetaDataRegistryService = serverMetaDataRegistryService;
+        return serverMetaDataRegistryService;
+    }
+
     protected StorageFactory newStorageFactory(DataSender spanDataSender) {
         logger.debug("newStorageFactory dataSender:{}", spanDataSender);
         StorageFactory storageFactory = new SimpleSpanStorageFactory(spanDataSender);
         return storageFactory;
-    }
-
-    protected ServerMetaDataHolder newServerMetaDataHolder() {
-        List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        ServerMetaDataHolder serverMetaDataHolder = new ResettableServerMetaDataHolder(vmArgs);
-        return serverMetaDataHolder;
     }
 }

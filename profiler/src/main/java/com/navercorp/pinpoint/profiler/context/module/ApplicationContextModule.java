@@ -42,6 +42,7 @@ import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
@@ -66,6 +67,7 @@ import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.context.provider.ActiveTraceRepositoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.AgentInfoFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
@@ -90,6 +92,7 @@ import com.navercorp.pinpoint.profiler.context.provider.PinpointClientProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanChunkFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
@@ -155,6 +158,7 @@ import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
@@ -205,6 +209,7 @@ public class ApplicationContextModule extends AbstractModule {
 
         bindDataTransferComponent();
 
+        bind(ServerMetaDataRegistryService.class).toProvider(ServerMetaDataRegistryServiceProvider.class).in(Scopes.SINGLETON);
         bind(ServerMetaDataHolder.class).toProvider(ServerMetaDataHolderProvider.class).in(Scopes.SINGLETON);
         bind(StorageFactory.class).toProvider(StorageFactoryProvider.class).in(Scopes.SINGLETON);
 
@@ -251,6 +256,7 @@ public class ApplicationContextModule extends AbstractModule {
         bindAgentStatComponent();
 
         bind(JvmInformation.class).toProvider(JvmInformationProvider.class).in(Scopes.SINGLETON);
+        bind(AgentInfoFactory.class).toProvider(AgentInfoFactoryProvider.class).in(Scopes.SINGLETON);
         bind(DeadlockMonitor.class).toProvider(DeadlockMonitorProvider.class).in(Scopes.SINGLETON);
         bind(AgentInfoSender.class).toProvider(AgentInfoSenderProvider.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);

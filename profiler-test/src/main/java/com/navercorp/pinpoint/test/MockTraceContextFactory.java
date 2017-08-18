@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.Binder;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalBinder;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
@@ -123,7 +125,8 @@ public class MockTraceContextFactory {
         this.idGenerator = new AtomicIdGenerator();
         this.activeTraceRepository = newActiveTraceRepository();
 
-        this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
+        ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(RuntimeMXBeanUtils.getVmArgs());
+        this.serverMetaDataHolder = new DefaultServerMetaDataHolder(serverMetaDataRegistryService);
 
         final String applicationName = agentInformation.getAgentId();
         final String agentId = agentInformation.getAgentId();
@@ -208,11 +211,6 @@ public class MockTraceContextFactory {
 
     public ActiveTraceRepository getActiveTraceRepository() {
         return activeTraceRepository;
-    }
-
-
-    public ServerMetaDataHolder getServerMetaDataHolder() {
-        return serverMetaDataHolder;
     }
 
     public EnhancedDataSender getEnhancedDataSender() {

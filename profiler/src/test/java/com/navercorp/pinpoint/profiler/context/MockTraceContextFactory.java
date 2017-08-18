@@ -18,7 +18,6 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.google.inject.Provider;
-import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -113,7 +112,8 @@ public class MockTraceContextFactory {
         this.idGenerator = new AtomicIdGenerator();
         this.activeTraceRepository = newActiveTraceRepository();
 
-        this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
+        ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(RuntimeMXBeanUtils.getVmArgs());
+        this.serverMetaDataHolder = new DefaultServerMetaDataHolder(serverMetaDataRegistryService);
 
         final String applicationName = agentInformation.getAgentId();
         final String agentId = agentInformation.getAgentId();

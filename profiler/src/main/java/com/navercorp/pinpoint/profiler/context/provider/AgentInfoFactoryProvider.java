@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,27 +18,30 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * @author HyunGil Jeong
  */
-public class ServerMetaDataHolderProvider implements Provider<ServerMetaDataHolder> {
+public class AgentInfoFactoryProvider implements Provider<AgentInfoFactory> {
 
+    private final AgentInformation agentInformation;
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
+    private final JvmInformation jvmInformation;
 
     @Inject
-    public ServerMetaDataHolderProvider(ServerMetaDataRegistryService serverMetaDataRegistryService) {
+    public AgentInfoFactoryProvider(AgentInformation agentInformation, ServerMetaDataRegistryService serverMetaDataRegistryService, JvmInformation jvmInformation) {
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
         this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService must not be null");
+        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation must not be null");
     }
 
     @Override
-    public ServerMetaDataHolder get() {
-        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(serverMetaDataRegistryService);
-        return serverMetaDataHolder;
+    public AgentInfoFactory get() {
+        return new AgentInfoFactory(agentInformation, serverMetaDataRegistryService, jvmInformation);
     }
-
 }
