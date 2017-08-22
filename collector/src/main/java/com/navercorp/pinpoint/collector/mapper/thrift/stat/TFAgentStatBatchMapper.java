@@ -48,7 +48,7 @@ public class TFAgentStatBatchMapper {
     private long getStartTimestamp(AgentStatBo agentStatBo) {
         List<CpuLoadBo> cpuLoadBos = agentStatBo.getCpuLoadBos();
 
-        if (CollectionUtils.isEmpty(cpuLoadBos)) {
+        if (CollectionUtils.isEmpty(cpuLoadBos) == false) {
             CpuLoadBo cpuLoadBo = cpuLoadBos.get(0);
 
             if (cpuLoadBo != null) {
