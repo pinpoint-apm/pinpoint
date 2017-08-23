@@ -142,8 +142,14 @@ public class RecordFactory {
             final AnnotationKey key = findAnnotationKey(annotation.getKey());
             if (key.isViewInRecordSet()) {
                 final String title = buildAnnotationTitle(key, annotation, align);
+                if (title == null) {
+                    continue;
+                }
                 final String arguments = buildAnnotationArguments(annotation, align);
-                Record record = new AnnotationRecord(depth, getNextId(), parentId, title, arguments, annotation.isAuthorized());
+                if (arguments == null) {
+                    continue;
+                }
+                final Record record = new AnnotationRecord(depth, getNextId(), parentId, title, arguments, annotation.isAuthorized());
                 list.add(record);
             }
         }
@@ -153,8 +159,12 @@ public class RecordFactory {
 
     String buildAnnotationTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, SpanAlign align) {
         if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
+            if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
+                return PROXY_TITLE_PREFIX + PROXY_TITLE_SUFFIX;
+            }
+
             final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
-            List<StringMetaDataBo> list = this.stringMetaDataDao.getStringMetaData(align.getAgentId(), align.getAgentStartTime(), value.getIntValue1());
+            final List<StringMetaDataBo> list = this.stringMetaDataDao.getStringMetaData(align.getAgentId(), align.getAgentStartTime(), value.getIntValue1());
             if (list.size() == 0) {
                 return PROXY_TITLE_PREFIX + "STRING-META-DATA-NOT-FOUND" + PROXY_TITLE_SUFFIX;
             }
@@ -165,7 +175,12 @@ public class RecordFactory {
 
     String buildAnnotationArguments(final AnnotationBo annotationBo, final SpanAlign spanAlign) {
         if (annotationBo.getKey() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
-            return buildProxyHttpHeaderAnnotationArguments((LongIntIntByteByteStringValue) annotationBo.getValue(), spanAlign.getStartTime());
+            if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
+                return "Unsupported type(collector server needs to be upgraded)";
+            }
+
+            final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
+            return buildProxyHttpHeaderAnnotationArguments(value, spanAlign.getStartTime());
         }
         return annotationBo.getValue().toString();
     }
@@ -277,18 +292,18 @@ public class RecordFactory {
             buffer.append("over an hour");
         } else if (millis > MINUTE) {
             final long minutes = toMinutes(millis);
-            if(minutes > 0) {
+            if (minutes > 0) {
                 buffer.append(minutes).append("m ");
             }
             final long seconds = toSecond(millis);
-            if(seconds > 0) {
+            if (seconds > 0) {
                 buffer.append(seconds).append("s ");
             }
             buffer.append(toMillis(millis)).append('.');
             buffer.append(micros).append("ms");
         } else if (millis > SECOND) {
             final long seconds = toSecond(millis);
-            if(seconds > 0) {
+            if (seconds > 0) {
                 buffer.append(seconds).append("s ");
             }
             buffer.append(toMillis(millis)).append('.');
