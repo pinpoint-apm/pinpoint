@@ -44,6 +44,25 @@
         <property name="properties" ref="pinpoint_collector_properties"/>
     </bean>
 
+    <bean id="deprecatedConfig" class="com.navercorp.pinpoint.collector.config.DeprecatedConfiguration">
+        <constructor-arg ref="pinpoint_collector_properties"/>
+    </bean>
+
+    <bean id="baseDataReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
+        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="deprecatedConfig"/>
+    </bean>
+
+    <bean id="statReceiverConfig" class="com.navercorp.pinpoint.collector.config.StatReceiverConfiguration">
+        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="deprecatedConfig"/>
+    </bean>
+
+    <bean id="spanReceiverConfig" class="com.navercorp.pinpoint.collector.config.SpanReceiverConfiguration">
+        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="deprecatedConfig"/>
+    </bean>
+
     <import resource="classpath:applicationContext-hbase.xml"/>
 
     <bean id="daoAutoFlusher" class="com.navercorp.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
@@ -87,14 +106,14 @@
         <constructor-arg ref="tcpDispatchHandler"/>
     </bean>
 
-    <bean id="udpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler"/>
-    <bean id="udpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-        <constructor-arg ref="udpDispatchHandler"/>
+    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler"/>
+    <bean id="statDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+        <constructor-arg ref="statDispatchHandler"/>
     </bean>
 
-    <bean id="udpSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpSpanDispatchHandler"/>
-    <bean id="udpSpanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-        <constructor-arg ref="udpSpanDispatchHandler"/>
+    <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler"/>
+    <bean id="spanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+        <constructor-arg ref="spanDispatchHandler"/>
     </bean>
 
     <!-- Serializer Factory Beans -->
@@ -199,38 +218,15 @@
         <constructor-arg ref="clusterPointRouter"/>
     </bean>
 
-    <!-- TCPReceiver related Beans -->
-    <bean id="tcpWorkerOption" class="com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption">
-        <constructor-arg index="0" value="TCPReceiver-Worker"/>
-        <constructor-arg index="1" value="#{collectorConfiguration.tcpWorkerThread}"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.tcpWorkerQueueSize}"/>
-        <constructor-arg index="3" value="1"/>
-        <constructor-arg index="4" value="#{collectorConfiguration.tcpWorkerMonitor}"/>
-    </bean>
-
-    <bean id="tcpWorker" class="com.navercorp.pinpoint.collector.receiver.DispatchWorker">
-        <constructor-arg index="0" ref="tcpWorkerOption" />
-    </bean>
-
-    <bean id="serverAcceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor"/>
-
     <util:list id="channelStateChangeEventHandlers" value-type="com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler">
         <ref bean="agentLifeCycleChangeEventHandler"/> 
     </util:list>
 
-    <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver" depends-on="tcpWorker">
-        <constructor-arg type="com.navercorp.pinpoint.collector.config.CollectorConfiguration" ref="collectorConfiguration"/>
+    <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.AgentBaseDataReceiver" >
+        <constructor-arg type="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration" ref="baseDataReceiverConfig"/>
+        <constructor-arg value="#{collectorConfiguration.l4IpList}"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandlerWrapper"/>
-        <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchWorker" ref="tcpWorker"/>
-        <constructor-arg type="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor" ref="serverAcceptor"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
-    </bean>
-
-    <!-- UDPSpanReceiver related Beans -->
-    <bean id="udpSpanBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
-        <constructor-arg index="0" ref="udpSpanDispatchHandlerWrapper"/>
-        <constructor-arg index="1" ref="tBaseFilterChain"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.l4IpList}"/>
     </bean>
 
     <bean id="tBaseFilterChain" class="com.navercorp.pinpoint.collector.receiver.udp.TBaseFilterChain">
@@ -243,53 +239,16 @@
 
     <bean id="networkAvailabilityCheckPacketFilter" class="com.navercorp.pinpoint.collector.receiver.udp.NetworkAvailabilityCheckPacketFilter"/>
 
-    <bean id="spanWorkerOption" class="com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption">
-        <constructor-arg index="0" value="Pinpoint-UDP-Span-Worker"/>
-        <constructor-arg index="1" value="#{collectorConfiguration.udpSpanWorkerThread}"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
-        <constructor-arg index="3" value="100"/>
-        <constructor-arg index="4" value="#{collectorConfiguration.udpSpanWorkerMonitor}"/>
+    <bean id="spanReceiver" class="com.navercorp.pinpoint.collector.receiver.SpanReceiver">
+        <constructor-arg index="0" ref="spanReceiverConfig" />
+        <constructor-arg index="1" value="#{collectorConfiguration.l4IpList}"/>
+        <constructor-arg index="2" ref="spanDispatchHandlerWrapper"/>
     </bean>
 
-    <bean id="spanWorker" class="com.navercorp.pinpoint.collector.receiver.DispatchWorker">
-        <constructor-arg index="0" ref="spanWorkerOption" />
-    </bean>
-
-    <bean id="udpSpanReceiver" class="com.navercorp.pinpoint.collector.receiver.udp.UDPReceiver" depends-on="spanWorker">
-        <constructor-arg index="0" value="Pinpoint-UDP-Span"/>
-        <constructor-arg index="1" ref="udpSpanBasePacketHandler"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.udpSpanListenIp}"/>
-        <constructor-arg index="3" value="#{collectorConfiguration.udpSpanListenPort}"/>
-        <constructor-arg index="4" value="#{collectorConfiguration.udpSpanSocketReceiveBufferSize}"/>
-        <constructor-arg index="5" ref="spanWorker"/>
-    </bean>
-
-    <!-- UDPStatReceiver related Beans -->
-    <bean id="udpStatBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
-        <constructor-arg index="0" ref="udpDispatchHandlerWrapper"/>
-        <constructor-arg index="1" ref="tBaseFilterChain"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.l4IpList}"/>
-    </bean>
-
-    <bean id="statWorkerOption" class="com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption">
-        <constructor-arg index="0" value="Pinpoint-UDP-Stat-Worker"/>
-        <constructor-arg index="1" value="#{collectorConfiguration.udpStatWorkerThread}"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
-        <constructor-arg index="3" value="100"/>
-        <constructor-arg index="4" value="#{collectorConfiguration.udpStatWorkerMonitor}"/>
-    </bean>
-
-    <bean id="statWorker" class="com.navercorp.pinpoint.collector.receiver.DispatchWorker">
-        <constructor-arg index="0" ref="statWorkerOption" />
-    </bean>
-
-    <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.udp.UDPReceiver" depends-on="statWorker">
-        <constructor-arg index="0" value="Pinpoint-UDP-Stat"/>
-        <constructor-arg index="1"  ref="udpStatBasePacketHandler"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.udpStatListenIp}"/>
-        <constructor-arg index="3" value="#{collectorConfiguration.udpStatListenPort}"/>
-        <constructor-arg index="4" value="#{collectorConfiguration.udpStatSocketReceiveBufferSize}"/>
-        <constructor-arg index="5" ref="statWorker"/>
+    <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.StatReceiver" >
+        <constructor-arg index="0" ref="statReceiverConfig" />
+        <constructor-arg index="1" value="#{collectorConfiguration.l4IpList}"/>
+        <constructor-arg index="2"  ref="statDispatchHandlerWrapper"/>
     </bean>
     
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">

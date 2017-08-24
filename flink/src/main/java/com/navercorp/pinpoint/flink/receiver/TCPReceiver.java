@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.flink.receiver;
 
 import com.codahale.metrics.MetricRegistry;
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
-import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.collector.receiver.tcp.SendPacketHandler;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
@@ -30,14 +30,9 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +40,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetAddress;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -59,69 +54,39 @@ public class TCPReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
-    private final DispatchHandler dispatchHandler;
+    private final String bindIp;
+    private final int bindPort;
+
+    private PinpointServerAcceptor serverAcceptor;
+
     private final DispatchWorker worker;
+    private final SendPacketHandler sendPacketHandler;
 
-    private final PinpointServerAcceptor serverAcceptor;
-    private final CollectorConfiguration configuration;
-    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new FlinkHeaderTBaseDeserializerFactory());
-
+    private final List<String> ignoreAddressList;
 
     @Autowired(required = false)
     private MetricRegistry metricRegistry;
 
-    public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler, DispatchWorker worker, PinpointServerAcceptor serverAcceptor) {
-        if (configuration == null) {
-            throw new NullPointerException("collector configuration must not be null");
-        }
-        if (dispatchHandler == null) {
-            throw new NullPointerException("dispatchHandler must not be null");
-        }
-        if (worker == null) {
-            throw new NullPointerException("worker may not be null");
-        }
+    public TCPReceiver(DispatchHandler dispatchHandler, DispatchWorker worker, String bindIp, int bindPort, List<String> ignoreAddressList) {
+        this.bindIp = Objects.requireNonNull(bindIp, "bindIp must not be null");
+        Assert.isTrue(bindPort > 0, "bindPort must be greater than 0");
+        this.bindPort = bindPort;
 
-        this.dispatchHandler = dispatchHandler;
-        this.worker = worker;
-        this.configuration = configuration;
-        this.serverAcceptor = serverAcceptor;
-    }
+        this.worker = Objects.requireNonNull(worker, "worker must not be null");
 
-    public void afterPropertiesSet() {
-        setL4TcpChannel(serverAcceptor, configuration.getL4IpList());
-    }
+        Objects.requireNonNull(dispatchHandler, " must not be null");
+        this.sendPacketHandler = new SendPacketHandler(dispatchHandler, new ThreadLocalHeaderTBaseDeserializerFactory<>(new FlinkHeaderTBaseDeserializerFactory()));
 
-    private void setL4TcpChannel(PinpointServerAcceptor serverFactory, List<String> l4ipList) {
-        if (l4ipList == null) {
-            return;
-        }
-        try {
-            List<InetAddress> inetAddressList = new ArrayList<>();
-            for (int i = 0; i < l4ipList.size(); i++) {
-                String l4Ip = l4ipList.get(i);
-                if (StringUtils.isBlank(l4Ip)) {
-                    continue;
-                }
-
-                InetAddress address = InetAddress.getByName(l4Ip);
-                if (address != null) {
-                    inetAddressList.add(address);
-                }
-            }
-
-            InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
-            serverFactory.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
-        } catch (UnknownHostException e) {
-            logger.warn("l4ipList error {}", l4ipList, e);
-        }
+        this.ignoreAddressList = ignoreAddressList;
     }
 
     @PostConstruct
     public void start() {
-        afterPropertiesSet();
+        PinpointServerAcceptor acceptor = new PinpointServerAcceptor();
+        prepare(acceptor);
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
-        this.serverAcceptor.setMessageListener(new ServerMessageListener() {
+        acceptor.setMessageListener(new ServerMessageListener() {
 
             @Override
             public HandshakeResponseCode handleHandshake(Map properties) {
@@ -142,11 +107,46 @@ public class TCPReceiver {
             public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
             }
         });
-        this.serverAcceptor.bind(configuration.getTcpListenIp(), configuration.getTcpListenPort());
+        acceptor.bind(bindIp, bindPort);
+        this.serverAcceptor = acceptor;
+    }
+
+    private void prepare(PinpointServerAcceptor acceptor) {
+        setL4TcpChannel(acceptor, ignoreAddressList);
+    }
+
+    private void setL4TcpChannel(PinpointServerAcceptor acceptor, List<String> l4ipList) {
+        if (l4ipList == null) {
+            return;
+        }
+        try {
+            List<InetAddress> inetAddressList = new ArrayList<>();
+            for (int i = 0; i < l4ipList.size(); i++) {
+                String l4Ip = l4ipList.get(i);
+                if (StringUtils.isBlank(l4Ip)) {
+                    continue;
+                }
+
+                InetAddress address = InetAddress.getByName(l4Ip);
+                if (address != null) {
+                    inetAddressList.add(address);
+                }
+            }
+
+            InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
+            acceptor.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
+        } catch (UnknownHostException e) {
+            logger.warn("l4ipList error {}", l4ipList, e);
+        }
     }
 
     private void receive(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-        worker.execute(new Dispatch(sendPacket.getPayload(), pinpointSocket.getRemoteAddress()));
+        worker.execute(new Runnable() {
+            @Override
+            public void run() {
+                sendPacketHandler.handle(sendPacket, pinpointSocket);
+            }
+        });
     }
 
     private void requestResponse(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
@@ -156,42 +156,9 @@ public class TCPReceiver {
     @PreDestroy
     public void stop() {
         logger.info("Pinpoint-TCP-Server stop");
-        serverAcceptor.close();
-    }
-
-    private class Dispatch implements Runnable {
-        private final byte[] bytes;
-        private final SocketAddress remoteAddress;
-
-        private Dispatch(byte[] bytes, SocketAddress remoteAddress) {
-            if (bytes == null) {
-                throw new NullPointerException("bytes");
-            }
-            this.bytes = bytes;
-            this.remoteAddress = remoteAddress;
-        }
-
-        @Override
-        public void run() {
-            try {
-                TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
-                dispatchHandler.dispatchSendMessage(tBase);
-            } catch (TException e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
-                }
-                if (logger.isDebugEnabled()) {
-                    logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
-                }
-            } catch (Exception e) {
-                // there are cases where invalid headers are received
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
-                }
-                if (logger.isDebugEnabled()) {
-                    logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
-                }
-            }
+        if (serverAcceptor != null) {
+            serverAcceptor.close();
         }
     }
+
 }

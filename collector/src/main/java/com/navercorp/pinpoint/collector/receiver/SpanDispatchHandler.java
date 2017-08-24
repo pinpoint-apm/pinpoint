@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
+public class SpanDispatchHandler extends AbstractDispatchHandler {
 
     @Autowired()
     @Qualifier("spanHandler")
@@ -40,7 +40,7 @@ public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
     @Qualifier("spanChunkHandler")
     private SimpleHandler spanChunkHandler;
 
-    public UdpSpanDispatchHandler() {
+    public SpanDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
