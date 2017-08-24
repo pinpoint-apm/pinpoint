@@ -32,7 +32,7 @@ import java.util.List;
  * @author emeroad
  * @author hyungil.jeong
  */
-public class UdpDispatchHandler extends AbstractDispatchHandler {
+public class StatDispatchHandler extends AbstractDispatchHandler {
 
     @Autowired
     private AgentStatHandlerV2 agentStatHandler;
@@ -40,7 +40,7 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
     @Autowired
     private AgentEventHandler agentEventHandler;
 
-    public UdpDispatchHandler() {
+    public StatDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.collector.util.PooledObject;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
@@ -54,10 +55,9 @@ public class UDPReceiver implements DataReceiver {
 
     private final Logger logger;
 
-    private final String bindAddress;
-    private final int port;
+    private final String name;
 
-    private final String receiverName;
+    private final InetSocketAddress bindAddress;
 
     // increasing ioThread size wasn't very effective
     private final int ioThreadSize = CpuUtils.cpuCount();
@@ -77,15 +77,15 @@ public class UDPReceiver implements DataReceiver {
 
     private final AtomicBoolean state = new AtomicBoolean(true);
 
-    public UDPReceiver(String receiverName, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, String bindAddress, int port, int receiverBufferSize, DispatchWorker worker) {
-        this.receiverName = Objects.requireNonNull(receiverName);
-        this.logger = LoggerFactory.getLogger(receiverName);
+    public UDPReceiver(String name, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, DispatchWorker worker, int receiverBufferSize, InetSocketAddress bindAddress) {
+        this.name = Objects.requireNonNull(name);
+        this.logger = LoggerFactory.getLogger(name);
 
         this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress must not be null");
         this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
         this.worker = Objects.requireNonNull(worker, "worker must not be null");
 
-        this.port = port;
+        Assert.isTrue(receiverBufferSize > 0, "receiverBufferSize must be greater than 0");
         this.socket = createSocket(receiverBufferSize);
     }
 
@@ -95,7 +95,7 @@ public class UDPReceiver implements DataReceiver {
         final int packetPoolSize = getPacketPoolSize();
         this.datagramPacketPool = new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
 
-        this.io = (ThreadPoolExecutor) Executors.newCachedThreadPool(new PinpointThreadFactory(receiverName + "-Io", true));
+        this.io = (ThreadPoolExecutor) Executors.newCachedThreadPool(new PinpointThreadFactory(name + "-Io", true));
     }
 
     private void receive(final DatagramSocket socket) {
@@ -204,15 +204,12 @@ public class UDPReceiver implements DataReceiver {
         }
     }
 
-    private void bindSocket(DatagramSocket socket, String bindAddress, int port) {
-        if (socket == null) {
-            throw new NullPointerException("socket must not be null");
-        }
+    private void bindSocket(DatagramSocket socket, InetSocketAddress bindAddress) {
         try {
-            logger.info("DatagramSocket.bind() {}/{}", bindAddress, port);
-            socket.bind(new InetSocketAddress(bindAddress, port));
+            logger.info("DatagramSocket.bind() {}/{}", bindAddress.getHostString(), bindAddress.getPort());
+            socket.bind(bindAddress);
         } catch (SocketException ex) {
-            throw new IllegalStateException("Socket bind Fail. port:" + port + " Caused:" + ex.getMessage(), ex);
+            throw new IllegalStateException("Socket bind Fail. port:" + bindAddress.getPort() + " Caused:" + ex.getMessage(), ex);
         }
     }
 
@@ -226,13 +223,16 @@ public class UDPReceiver implements DataReceiver {
     @PostConstruct
     @Override
     public void start() {
-        logger.info("{} start.", receiverName);
+        if (logger.isInfoEnabled()) {
+            logger.info("{} start() started", name);
+        }
+
         prepare();
         final DatagramSocket socket = this.socket;
         if (socket == null) {
             throw new IllegalStateException("socket is null.");
         }
-        bindSocket(socket, bindAddress, port);
+        bindSocket(socket, bindAddress);
 
         logger.info("UDP Packet reader:{} started.", ioThreadSize);
         for (int i = 0; i < ioThreadSize; i++) {
@@ -244,12 +244,18 @@ public class UDPReceiver implements DataReceiver {
             });
         }
 
+        if (logger.isInfoEnabled()) {
+            logger.info("{} start() completed", name);
+        }
     }
 
     @PreDestroy
     @Override
     public void shutdown() {
-        logger.info("{} shutdown.", this.receiverName);
+        if (logger.isInfoEnabled()) {
+            logger.info("{} shutdown() started", this.name);
+        }
+
         state.set(false);
         // is it okay to just close here?
         if (socket != null) {
@@ -257,6 +263,10 @@ public class UDPReceiver implements DataReceiver {
         }
         if (io != null) {
             shutdownExecutor(io, "IoExecutor");
+        }
+
+        if (logger.isInfoEnabled()) {
+            logger.info("{} shutdown() completed", this.name);
         }
     }
 

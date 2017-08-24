@@ -33,6 +33,15 @@
         <property name="properties" ref="pinpoint_flink_properties"/>
     </bean>
 
+    <bean id="deprecatedConfig" class="com.navercorp.pinpoint.collector.config.DeprecatedConfiguration">
+        <constructor-arg ref="pinpoint_flink_properties"/>
+    </bean>
+
+    <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
+        <constructor-arg ref="pinpoint_flink_properties"/>
+        <constructor-arg ref="deprecatedConfig"/>
+    </bean>
+
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TbaseFlatMapper">
         <property name="applicationCache" ref="applicationCache"/>
     </bean>
@@ -105,24 +114,26 @@
     <!-- TCPReceiver related Beans -->
     <bean id="flinkWorkerOption" class="com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption">
         <constructor-arg index="0" value="Pinpoint-Flink-Worker"/>
-        <constructor-arg index="1" value="#{flinkConfiguration.tcpWorkerThread}"/>
-        <constructor-arg index="2" value="#{flinkConfiguration.tcpWorkerQueueSize}"/>
+        <constructor-arg index="1" value="#{tcpReceiverConfig.workerThreadSize}"/>
+        <constructor-arg index="2" value="#{tcpReceiverConfig.workerQueueSize}"/>
         <constructor-arg index="3" value="1"/>
-        <constructor-arg index="4" value="#{flinkConfiguration.tcpWorkerMonitor}"/>
-    </bean>
-
-    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.DispatchWorker">
-        <constructor-arg index="0" ref="flinkWorkerOption"/>
+        <constructor-arg index="4" value="#{tcpReceiverConfig.workerMonitorEnable}"/>
     </bean>
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry"/>
 
-    <bean id="tcpReceiver" class="com.navercorp.pinpoint.flink.receiver.TCPReceiver" lazy-init="true" depends-on="flinkWorker">
-        <constructor-arg index="0" ref="flinkConfiguration"/>
-        <constructor-arg index="1" ref="tcpDispatchHandlerWrapper"/>
-        <constructor-arg index="2" ref="flinkWorker"/>
-        <constructor-arg index="3" ref="serverAcceptor"/>
+    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.DispatchWorker" init-method="start" destroy-method="shutdown">
+        <constructor-arg index="0" ref="flinkWorkerOption"/>
+        <property name="metricRegistry" ref="metricRegistry"/>
     </bean>
+
+    <bean id="tcpReceiver" class="com.navercorp.pinpoint.flink.receiver.TCPReceiver" lazy-init="true" depends-on="flinkWorker">
+        <constructor-arg index="0" ref="tcpDispatchHandlerWrapper"/>
+        <constructor-arg index="1" ref="flinkWorker"/>
+        <constructor-arg index="2" ref="#{tcpReceiverConfig.bindIp}"/>
+        <constructor-arg index="3" ref="#{tcpReceiverConfig.bindPort}"/>
+        <constructor-arg index="4" ref="#{flinkConfiguration.l4IpList}"/>
+   </bean>
 
     <bean id="tcpSourceFunction" class="com.navercorp.pinpoint.flink.receiver.TcpSourceFunction"/>
 </beans>

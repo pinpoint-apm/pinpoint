@@ -22,10 +22,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +38,6 @@ public class DispatchWorker {
     private final DispatchWorkerOption option;
     private final AtomicInteger rejectedCount = new AtomicInteger(0);
 
-    @Autowired
     private MetricRegistry metricRegistry;
 
     private ExecutorService worker;
@@ -52,7 +48,14 @@ public class DispatchWorker {
         this.option = option;
     }
 
-    @PostConstruct
+    public MetricRegistry getMetricRegistry() {
+        return metricRegistry;
+    }
+
+    public void setMetricRegistry(MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
+    }
+
     public void start() {
         logger.info("{} start.", getName());
         ExecutorService worker = createWorker(getName(), getThreadSize(), getQueueSize());
@@ -72,7 +75,6 @@ public class DispatchWorker {
         return ExecutorFactory.newFixedThreadPool(threadSize, queueSize, workerName, true);
     }
 
-    @PreDestroy
     public void shutdown() {
         logger.info("{] shutdown.", getName());
         worker.shutdown();

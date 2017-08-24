@@ -33,6 +33,10 @@ public class DispatchWorkerOption {
         this(name, threadSize, queueSize, 100);
     }
 
+    public DispatchWorkerOption(String name, int threadSize, int queueSize, boolean enableCollectMetric) {
+        this(name, threadSize, queueSize, 100, enableCollectMetric);
+    }
+
     public DispatchWorkerOption(String name, int threadSize, int queueSize, int recordLogRate) {
         this(name, threadSize, queueSize, recordLogRate, false);
     }
