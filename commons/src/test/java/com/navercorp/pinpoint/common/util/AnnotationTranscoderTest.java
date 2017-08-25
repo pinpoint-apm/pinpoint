@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.util;
 
 
+import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 
 import com.navercorp.pinpoint.thrift.dto.TLongIntIntByteByteStringValue;
@@ -172,6 +173,22 @@ public class AnnotationTranscoderTest {
         Assert.assertEquals(value.getStringValue(), decode.getStringValue());
     }
 
+    @Test
+    public void testIntBooleanIntBoolean() {
+        AnnotationTranscoder transcoder = new AnnotationTranscoder();
+        TIntBooleanIntBooleanValue value = new TIntBooleanIntBooleanValue();
+        value.setIntValue1(10);
+        value.setBoolValue1(false);
+        value.setIntValue2(5000);
+        value.setBoolValue2(true);
+
+        byte[] encode = transcoder.encode(value, AnnotationTranscoder.CODE_INT_BOOLEAN_INT_BOOLEAN);
+        IntBooleanIntBooleanValue decode = (IntBooleanIntBooleanValue) transcoder.decode(AnnotationTranscoder.CODE_INT_BOOLEAN_INT_BOOLEAN, encode);
+        Assert.assertEquals(value.getIntValue1(), decode.getIntValue1());
+        Assert.assertEquals(false, decode.isBooleanValue1());
+        Assert.assertEquals(value.getIntValue2(), decode.getIntValue2());
+        Assert.assertEquals(true, decode.isBooleanValue2());
+    }
 
     private void write(int value) throws TException {
         TCompactProtocol.Factory factory = new TCompactProtocol.Factory();

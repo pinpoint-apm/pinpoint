@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
+import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TLongIntIntByteByteStringValue;
@@ -51,6 +52,7 @@ public class AnnotationTranscoder {
     static final byte CODE_INT_STRING = 20;
     static final byte CODE_INT_STRING_STRING = 21;
     static final byte CODE_LONG_INT_INT_BYTE_BYTE_STRING = 22;
+    static final byte CODE_INT_BOOLEAN_INT_BOOLEAN = 23;
 
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
@@ -99,6 +101,8 @@ public class AnnotationTranscoder {
                 return decodeIntStringStringValue(data);
             case CODE_LONG_INT_INT_BYTE_BYTE_STRING:
                 return decodeLongIntIntByteByteStringValue(data);
+            case CODE_INT_BOOLEAN_INT_BOOLEAN:
+                return decodeIntBooleanIntBooleanValue(data);
         }
         throw new IllegalArgumentException("unsupported DataType:" + dataType);
     }
@@ -135,6 +139,8 @@ public class AnnotationTranscoder {
             return CODE_INT_STRING_STRING;
         } else if (o instanceof TLongIntIntByteByteStringValue) {
             return CODE_LONG_INT_INT_BYTE_BYTE_STRING;
+        } else if (o instanceof TIntBooleanIntBooleanValue) {
+            return CODE_INT_BOOLEAN_INT_BOOLEAN;
         }
         return CODE_TOSTRING;
     }
@@ -186,6 +192,8 @@ public class AnnotationTranscoder {
                 return encodeIntStringStringValue(o);
             case CODE_LONG_INT_INT_BYTE_BYTE_STRING:
                 return encodeLongIntIntByteByteStringValue(o);
+            case CODE_INT_BOOLEAN_INT_BOOLEAN:
+                return encodeIntBooleanIntBooleanValue(o);
         }
         throw new IllegalArgumentException("unsupported DataType:" + typeCode + " data:" + o);
     }
@@ -257,7 +265,7 @@ public class AnnotationTranscoder {
         final Buffer buffer = new FixedBuffer(data);
         final byte bitField = buffer.readByte();
         final long longValue = buffer.readVLong();
-        final int intValue1 = buffer.readVInt();
+        final int intValue1 = buffer.readSVInt();
 
         int intValue2 = -1;
         if (BitFieldUtils.testBit(bitField, 0)) {
@@ -292,7 +300,7 @@ public class AnnotationTranscoder {
         final Buffer buffer = new AutomaticBuffer(bufferSize);
         buffer.putByte(bitField);
         buffer.putVLong(value.getLongValue());
-        buffer.putVInt(value.getIntValue1());
+        buffer.putSVInt(value.getIntValue1());
         if (value.isSetIntValue2()) {
             buffer.putVInt(value.getIntValue2());
         }
@@ -305,6 +313,28 @@ public class AnnotationTranscoder {
         if (value.isSetStringValue()) {
             buffer.putPrefixedBytes(stringValue);
         }
+        return buffer.getBuffer();
+    }
+
+    private Object decodeIntBooleanIntBooleanValue(byte[] data) {
+        final Buffer buffer = new FixedBuffer(data);
+        final int intValue1 = buffer.readVInt();
+        final boolean booleanValue1 = buffer.readBoolean();
+        final int intValue2 = buffer.readVInt();
+        final boolean booleanValue2 = buffer.readBoolean();
+
+        return new IntBooleanIntBooleanValue(intValue1, booleanValue1, intValue2, booleanValue2);
+    }
+
+    private byte[] encodeIntBooleanIntBooleanValue(Object o) {
+        final TIntBooleanIntBooleanValue value = (TIntBooleanIntBooleanValue) o;
+
+        // int + int
+        final Buffer buffer = new AutomaticBuffer(8);
+        buffer.putVInt(value.getIntValue1());
+        buffer.putBoolean(value.isBoolValue1());
+        buffer.putVInt(value.getIntValue2());
+        buffer.putBoolean(value.isBoolValue2());
         return buffer.getBuffer();
     }
 

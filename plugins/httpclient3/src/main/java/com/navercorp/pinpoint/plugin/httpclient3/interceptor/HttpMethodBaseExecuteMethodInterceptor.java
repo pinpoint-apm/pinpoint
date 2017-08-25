@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.httpclient3.CommandContextFormatter;
 import org.apache.commons.httpclient.HttpConnection;
@@ -317,8 +315,8 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
 
     private void recordIo(SpanEventRecorder recorder, HttpClient3CallContext callContext) {
         if (io) {
-            String commandContextString = CommandContextFormatter.format(callContext);
-            recorder.recordAttribute(AnnotationKey.HTTP_IO, commandContextString);
+            IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) callContext.getWriteElapsedTime(), callContext.isWriteFail(), (int) callContext.getReadElapsedTime(), callContext.isReadFail());
+            recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
         }
     }
 
@@ -355,12 +353,12 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                         if (StringUtils.isEmpty(charSet)) {
                             charSet = HttpConstants.DEFAULT_CONTENT_CHARSET;
                         }
-                        
+
                         if (entity instanceof ByteArrayRequestEntity || entity instanceof StringRequestEntity) {
                             entityValue = entityUtilsToString(entity, charSet);
                         } else {
                             entityValue = entity.getClass() + " (ContentType:" + entity.getContentType() + ")";
-                        } 
+                        }
 
                         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityValue);
@@ -375,9 +373,9 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private String entityUtilsToString(RequestEntity entity, String charSet) throws Exception {
         FixedByteArrayOutputStream outStream = new FixedByteArrayOutputStream(MAX_READ_SIZE);
         entity.writeRequest(outStream);
-        
+
         String entityValue = outStream.toString(charSet);
-        
+
         if (entity.getContentLength() > MAX_READ_SIZE) {
             StringBuilder sb = new StringBuilder();
             sb.append(entityValue);
@@ -386,7 +384,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             sb.append(" )");
             return sb.toString();
         }
-        
+
         return entityValue;
     }
 

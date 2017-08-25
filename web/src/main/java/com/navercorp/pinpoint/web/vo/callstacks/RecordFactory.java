@@ -17,12 +17,10 @@ package com.navercorp.pinpoint.web.vo.callstacks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
-import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -30,8 +28,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.util.ApiDescription;
 import com.navercorp.pinpoint.common.server.util.ApiDescriptionParser;
-import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
@@ -43,13 +39,6 @@ import org.slf4j.LoggerFactory;
  * @author minwoo.jung
  */
 public class RecordFactory {
-    private static final long DAY = TimeUnit.DAYS.toMillis(1);
-    private static final long HOUR = TimeUnit.HOURS.toMillis(1);
-    private static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
-    private static final long SECOND = TimeUnit.SECONDS.toMillis(1);
-    private static final String PROXY_TITLE_PREFIX = "PROXY(";
-    private static final String PROXY_TITLE_SUFFIX = ")";
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // spans with id = 0 are regarded as root - start at 1
@@ -57,12 +46,12 @@ public class RecordFactory {
     private ServiceTypeRegistryService registry;
     private AnnotationKeyRegistryService annotationKeyRegistryService;
     private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
-    private final StringMetaDataDao stringMetaDataDao;
+    private final AnnotationRecordFormatter annotationRecordFormatter;
 
     public RecordFactory(final ServiceTypeRegistryService registry, final AnnotationKeyRegistryService annotationKeyRegistryService, final StringMetaDataDao stringMetaDataDao) {
         this.registry = registry;
         this.annotationKeyRegistryService = annotationKeyRegistryService;
-        this.stringMetaDataDao = stringMetaDataDao;
+        this.annotationRecordFormatter = new AnnotationRecordFormatter(stringMetaDataDao);
     }
 
     public Record get(final CallTreeNode node, final String argument) {
@@ -141,14 +130,8 @@ public class RecordFactory {
         for (AnnotationBo annotation : align.getAnnotationBoList()) {
             final AnnotationKey key = findAnnotationKey(annotation.getKey());
             if (key.isViewInRecordSet()) {
-                final String title = buildAnnotationTitle(key, annotation, align);
-                if (title == null) {
-                    continue;
-                }
-                final String arguments = buildAnnotationArguments(annotation, align);
-                if (arguments == null) {
-                    continue;
-                }
+                final String title = this.annotationRecordFormatter.formatTitle(key, annotation, align);
+                final String arguments = this.annotationRecordFormatter.formatArguments(key, annotation, align);
                 final Record record = new AnnotationRecord(depth, getNextId(), parentId, title, arguments, annotation.isAuthorized());
                 list.add(record);
             }
@@ -156,181 +139,6 @@ public class RecordFactory {
 
         return list;
     }
-
-    String buildAnnotationTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, SpanAlign align) {
-        if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
-            if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
-                return PROXY_TITLE_PREFIX + PROXY_TITLE_SUFFIX;
-            }
-
-            final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
-            final List<StringMetaDataBo> list = this.stringMetaDataDao.getStringMetaData(align.getAgentId(), align.getAgentStartTime(), value.getIntValue1());
-            if (list.size() == 0) {
-                return PROXY_TITLE_PREFIX + "STRING-META-DATA-NOT-FOUND" + PROXY_TITLE_SUFFIX;
-            }
-            return PROXY_TITLE_PREFIX + list.get(0).getStringValue() + PROXY_TITLE_SUFFIX;
-        }
-        return annotationKey.getName();
-    }
-
-    String buildAnnotationArguments(final AnnotationBo annotationBo, final SpanAlign spanAlign) {
-        if (annotationBo.getKey() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
-            if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
-                return "Unsupported type(collector server needs to be upgraded)";
-            }
-
-            final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
-            return buildProxyHttpHeaderAnnotationArguments(value, spanAlign.getStartTime());
-        }
-        return annotationBo.getValue().toString();
-    }
-
-    String buildProxyHttpHeaderAnnotationArguments(final LongIntIntByteByteStringValue value, final long startTimeMillis) {
-        final StringBuilder sb = new StringBuilder(150);
-        if (value.getLongValue() != 0) {
-            sb.append(toDifferenceTimeFormat(value.getLongValue(), startTimeMillis));
-        }
-        if (value.getIntValue2() != -1) {
-            appendComma(sb);
-            sb.append(toDurationTimeFormat(value.getIntValue2()));
-        }
-        if (value.getByteValue1() != -1) {
-            appendComma(sb);
-            sb.append("idle: ").append(value.getByteValue1()).append("%");
-        }
-        if (value.getByteValue2() != -1) {
-            appendComma(sb);
-            sb.append("busy: ").append(value.getByteValue2()).append("%");
-        }
-        if (value.getStringValue() != null) {
-            appendComma(sb);
-            sb.append("app: ").append(value.getStringValue());
-        }
-
-        return sb.toString();
-    }
-
-    private void appendComma(final StringBuilder buffer) {
-        if (buffer.length() > 0) {
-            buffer.append(", ");
-        }
-    }
-
-    String toDifferenceTimeFormat(final long proxyTimeMillis, final long startTimeMillis) {
-        final StringBuilder buffer = new StringBuilder(60);
-        final long difference = startTimeMillis - proxyTimeMillis;
-        final long absoluteDifference = Math.abs(difference);
-        if (absoluteDifference > (DAY * 2)) {
-            buffer.append("days");
-        } else if (absoluteDifference > DAY) {
-            buffer.append("a day");
-        } else if (absoluteDifference > HOUR) {
-            final long hours = toHours(absoluteDifference);
-            if (hours > 0) {
-                buffer.append(hours).append("h ");
-            }
-            final long minutes = toMinutes(absoluteDifference);
-            if (minutes > 0) {
-                buffer.append(minutes).append("m ");
-            }
-            final long seconds = toSecond(absoluteDifference);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            final long millis = toMillis(absoluteDifference);
-            if (millis > 0) {
-                buffer.append(millis).append("ms");
-            }
-        } else if (absoluteDifference > MINUTE) {
-            final long minutes = toMinutes(absoluteDifference);
-            if (minutes > 0) {
-                buffer.append(minutes).append("m ");
-            }
-            final long seconds = toSecond(absoluteDifference);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            final long millis = toMillis(absoluteDifference);
-            if (millis > 0) {
-                buffer.append(millis).append("ms");
-            }
-        } else if (absoluteDifference > SECOND) {
-            final long seconds = toSecond(absoluteDifference);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            final long millis = toMillis(absoluteDifference);
-            if (millis > 0) {
-                buffer.append(millis).append("ms");
-            }
-        } else {
-            buffer.append(toMillis(absoluteDifference)).append("ms");
-        }
-
-        if (difference > 0) {
-            buffer.append(" ago");
-        } else {
-            buffer.append(" from now");
-        }
-
-        buffer.append('(');
-        if (TimeUnit.MILLISECONDS.toDays(proxyTimeMillis) == TimeUnit.MILLISECONDS.toDays(startTimeMillis)) {
-            buffer.append(DateUtils.longToDateStr(proxyTimeMillis, "HH:mm:ss SSS"));
-        } else {
-            buffer.append(DateUtils.longToDateStr(proxyTimeMillis));
-        }
-        buffer.append(')');
-        return buffer.toString();
-    }
-
-    String toDurationTimeFormat(final int durationTimeMicroseconds) {
-        StringBuilder buffer = new StringBuilder(30);
-        buffer.append("duration: ");
-        final long millis = durationTimeMicroseconds / 1000;
-        final long micros = durationTimeMicroseconds % 1000;
-        if (millis > HOUR) {
-            buffer.append("over an hour");
-        } else if (millis > MINUTE) {
-            final long minutes = toMinutes(millis);
-            if (minutes > 0) {
-                buffer.append(minutes).append("m ");
-            }
-            final long seconds = toSecond(millis);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            buffer.append(toMillis(millis)).append('.');
-            buffer.append(micros).append("ms");
-        } else if (millis > SECOND) {
-            final long seconds = toSecond(millis);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            buffer.append(toMillis(millis)).append('.');
-            buffer.append(micros).append("ms");
-        } else {
-            buffer.append(toMillis(millis)).append('.');
-            buffer.append(micros).append("ms");
-        }
-        return buffer.toString();
-    }
-
-    long toHours(final long timeMillis) {
-        return (timeMillis / HOUR) % 24;
-    }
-
-    long toMinutes(final long timeMillis) {
-        return (timeMillis / MINUTE) % 60;
-    }
-
-    long toSecond(final long timeMillis) {
-        return (timeMillis / SECOND) % 60;
-    }
-
-    long toMillis(final long timeMillis) {
-        return timeMillis % 1000;
-    }
-
 
     public Record getParameter(final int depth, final int parentId, final String method, final String argument) {
         return new ParameterRecord(depth, getNextId(), parentId, method, argument);

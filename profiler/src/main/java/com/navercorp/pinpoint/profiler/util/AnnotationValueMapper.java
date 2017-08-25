@@ -17,11 +17,13 @@
 package com.navercorp.pinpoint.profiler.util;
 
 
+import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
+import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.thrift.dto.TLongIntIntByteByteStringValue;
 import org.apache.thrift.TBase;
 
@@ -81,6 +83,11 @@ public final class AnnotationValueMapper {
                 tvalue.setStringValue(v.getStringValue());
             }
             annotation.setValue(TAnnotationValue.longIntIntByteByteStringValue(tvalue));
+            return;
+        } else if(value instanceof IntBooleanIntBooleanValue) {
+            final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) value;
+            final TIntBooleanIntBooleanValue tvalue = new TIntBooleanIntBooleanValue(v.getIntValue1(), v.isBooleanValue1(), v.getIntValue2(), v.isBooleanValue2());
+            annotation.setValue(TAnnotationValue.intBooleanIntBooleanValue(tvalue));
             return;
         } else if (value instanceof TBase) {
             throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
