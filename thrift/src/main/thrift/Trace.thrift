@@ -24,6 +24,13 @@ struct TLongIntIntByteByteStringValue {
     6: optional string stringValue;
 }
 
+struct TIntBooleanIntBooleanValue {
+    1: i32 intValue1;
+    2: bool boolValue1;
+    3: i32 intValue2;
+    4: bool boolValue2;
+}
+
 union TAnnotationValue {
     1: string stringValue
     2: bool boolValue;
@@ -36,6 +43,7 @@ union TAnnotationValue {
     9: TIntStringValue intStringValue;
     10: TIntStringStringValue intStringStringValue;
     11: TLongIntIntByteByteStringValue longIntIntByteByteStringValue;
+    12: TIntBooleanIntBooleanValue intBooleanIntBooleanValue;
 }
 
 struct TAnnotation {
