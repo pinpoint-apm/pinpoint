@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -64,7 +63,6 @@ public class MockApplicationContextModule extends AbstractModule {
         bind(StorageFactory.class).toInstance(storageFactory);
 
         bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
-        bind(PinpointClient.class).toProvider(Providers.of((PinpointClient)null));
 
         EnhancedDataSender enhancedDataSender = newTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
