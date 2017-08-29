@@ -18,28 +18,35 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class TcpDataSenderProvider implements Provider<EnhancedDataSender> {
-    private final Provider<PinpointClient> client;
+    private final ProfilerConfig profilerConfig;
+    private final Provider<PinpointClientFactory> clientFactoryProvider;
 
     @Inject
-    public TcpDataSenderProvider(Provider<PinpointClient> client) {
-        if (client == null) {
-            throw new NullPointerException("client must not be null");
+    public TcpDataSenderProvider(ProfilerConfig profilerConfig, Provider<PinpointClientFactory> clientFactoryProvider) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (clientFactoryProvider == null) {
+            throw new NullPointerException("clientFactoryProvider must not be null");
         }
 
-        this.client = client;
+        this.profilerConfig = profilerConfig;
+        this.clientFactoryProvider = clientFactoryProvider;
     }
 
     @Override
     public EnhancedDataSender get() {
-        PinpointClient pinpointClient = client.get();
-        return new TcpDataSender(pinpointClient);
+        PinpointClientFactory clientFactory = clientFactoryProvider.get();
+
+        return new TcpDataSender(profilerConfig.getCollectorTcpServerIp(), profilerConfig.getCollectorTcpServerPort(), clientFactory);
     }
 }

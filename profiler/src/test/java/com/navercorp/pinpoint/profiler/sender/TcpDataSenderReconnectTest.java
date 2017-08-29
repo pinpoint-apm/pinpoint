@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.profiler.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.profiler.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
@@ -30,7 +29,6 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import org.junit.Assert;
 import org.junit.Test;
@@ -90,13 +88,12 @@ public class TcpDataSenderReconnectTest {
         PinpointServerAcceptor oldAcceptor = serverAcceptorStart();
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        PinpointClient client = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
 
-        TcpDataSender sender = new TcpDataSender(client);
+        TcpDataSender sender = new TcpDataSender(HOST, PORT, clientFactory);
         waitClientConnected(oldAcceptor);
 
         oldAcceptor.close();
-        waitClientDisconnected(client);
+        waitClientDisconnected(sender);
 
         logger.debug("Server start------------------");
         PinpointServerAcceptor serverAcceptor = serverAcceptorStart();
@@ -110,7 +107,6 @@ public class TcpDataSenderReconnectTest {
         sender.stop();
 
         serverAcceptor.close();
-        client.close();
         clientFactory.release();
     }
     
@@ -122,11 +118,11 @@ public class TcpDataSenderReconnectTest {
         return clientFactory;
     }
 
-    private void waitClientDisconnected(final PinpointClient client) {
+    private void waitClientDisconnected(final TcpDataSender sender) {
         boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
             @Override
             public boolean checkCompleted() {
-                return !client.isConnected();
+                return !sender.isConnected();
             }
         });
 

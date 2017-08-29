@@ -88,7 +88,6 @@ import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParsingServicePro
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ObjectBinderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.PinpointClientProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
@@ -159,7 +158,6 @@ import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 
@@ -280,11 +278,10 @@ public class ApplicationContextModule extends AbstractModule {
     private void bindDataTransferComponent() {
         // create tcp channel
 
+        bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+
         bind(PinpointClientFactory.class).toProvider(PinpointClientFactoryProvider.class).in(Scopes.SINGLETON);
         bind(EnhancedDataSender.class).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
-        bind(PinpointClient.class).toProvider(PinpointClientProvider.class).in(Scopes.SINGLETON);
-
-        bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
 
         bind(DataSender.class).annotatedWith(SpanDataSender.class)
                 .toProvider(UdpSpanDataSenderProvider.class).in(Scopes.SINGLETON);

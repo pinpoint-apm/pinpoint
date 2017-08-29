@@ -18,13 +18,15 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import org.junit.After;
 import org.junit.Assert;
@@ -96,9 +98,7 @@ public class TcpDataSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
         
-        PinpointClient client = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
-        
-        TcpDataSender sender = new TcpDataSender(client);
+        TcpDataSender sender = new TcpDataSender(HOST, PORT, clientFactory);
         try {
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
@@ -108,10 +108,6 @@ public class TcpDataSenderTest {
             Assert.assertTrue(received);
         } finally {
             sender.stop();
-            
-            if (client != null) {
-                client.close();
-            }
             
             if (clientFactory != null) {
                 clientFactory.release();

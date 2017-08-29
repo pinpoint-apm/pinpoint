@@ -25,20 +25,19 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +61,6 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final TraceContext traceContext;
 
     private final PinpointClientFactory clientFactory;
-    private final PinpointClient client;
     private final EnhancedDataSender tcpDataSender;
 
     private final DataSender statDataSender;
@@ -119,9 +117,6 @@ public class DefaultApplicationContext implements ApplicationContext {
 
         this.clientFactory = injector.getInstance(PinpointClientFactory.class);
         logger.info("clientFactory:{}", clientFactory);
-
-        this.client = injector.getInstance(PinpointClient.class);
-        logger.info("client:{}", client);
 
         this.tcpDataSender = injector.getInstance(EnhancedDataSender.class);
         logger.info("tcpDataSender:{}", tcpDataSender);
@@ -229,10 +224,6 @@ public class DefaultApplicationContext implements ApplicationContext {
         final EnhancedDataSender tcpDataSender = this.tcpDataSender;
         if (tcpDataSender != null) {
             tcpDataSender.stop();
-        }
-        final PinpointClient client = this.client;
-        if (client != null) {
-            client.close();
         }
         final PinpointClientFactory clientFactory = this.clientFactory;
         if (clientFactory != null) {
