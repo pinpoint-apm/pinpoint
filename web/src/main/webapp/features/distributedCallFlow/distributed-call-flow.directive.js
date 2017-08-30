@@ -408,11 +408,13 @@
 	
 	                    grid.onDblClick.subscribe(function (e, args) {
 	                        isSingleClick = false;
-	                        $(e.target).popover({
-	                        	content: function() {
-									return decodeURIComponent( this.getAttribute("data-content") );
-								}
-							}).popover('toggle');
+	                        if ( $(e.target).hasClass("dcf-popover") ) {
+								$(e.target).popover({
+									content: function () {
+										return decodeURIComponent(this.getAttribute("data-content"));
+									}
+								}).popover('toggle');
+							}
 	                    });
 	
 	                    grid.onCellChange.subscribe(function (e, args) {
