@@ -24,12 +24,10 @@
     	var oHandlers;
 		var retryCount = 0;
 		var pagingSize = 30;
-		var protocol = "http";
 
-	    this.open = function( handlers, currentProtocol ) {
+	    this.open = function( handlers ) {
 	    	webSocket = null;
 	    	oHandlers = handlers;
-	    	protocol = currentProtocol === "http" ? "ws" : "wss";
         	if ( angular.isDefined( WebSocket ) ) {
 				connectWebSocket();
 	            return true;
