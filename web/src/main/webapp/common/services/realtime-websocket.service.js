@@ -24,10 +24,12 @@
     	var oHandlers;
 		var retryCount = 0;
 		var pagingSize = 30;
+		var protocol = "http";
 
-	    this.open = function( handlers ) {
+	    this.open = function( handlers, currentProtocol ) {
 	    	webSocket = null;
 	    	oHandlers = handlers;
+	    	protocol = currentProtocol === "http" ? "ws" : "wss";
         	if ( angular.isDefined( WebSocket ) ) {
 				connectWebSocket();
 	            return true;
@@ -56,9 +58,9 @@
 	    };
 	    this.getPagingSize = function() {
 			return pagingSize;
-		}
+		};
 		function connectWebSocket() {
-			webSocket = new WebSocket("ws://" + location.host + location.pathname + cfg.wsUrl);
+			webSocket = new WebSocket((location.protocol.indexOf("https") === -1 ? "ws://" : "wss://") + location.host + location.pathname + cfg.wsUrl);
 			webSocket.onopen = function(event) {
 				bIsOpenConnection = true;
 				connectTime = lastReceiveTime = Date.now();
