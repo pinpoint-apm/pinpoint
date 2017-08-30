@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
@@ -31,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -64,7 +64,8 @@ public class DataReceiverGroupTest {
             udpDataSender = new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), "test", 10, 1000, 1024 * 64 * 100);
 
             pinpointClientFactory = createPinpointClientFactory();
-            tcpDataSender = new TcpDataSender("127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
+            InetSocketAddress address = new InetSocketAddress("127.0.0.1", mockConfig.getTcpBindPort());
+            tcpDataSender = new TcpDataSender(address, pinpointClientFactory);
 
             udpDataSender.send(new TResult());
 
@@ -104,7 +105,8 @@ public class DataReceiverGroupTest {
             Assert.assertFalse(sendLatch.await(1000, TimeUnit.MILLISECONDS));
 
             pinpointClientFactory = createPinpointClientFactory();
-            tcpDataSender = new TcpDataSender("127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
+            InetSocketAddress address = new InetSocketAddress("127.0.0.1", mockConfig.getTcpBindPort());
+            tcpDataSender = new TcpDataSender(address, pinpointClientFactory);
 
             Assert.assertTrue(tcpDataSender.isConnected());
 
@@ -141,7 +143,8 @@ public class DataReceiverGroupTest {
             Assert.assertTrue(sendLatch.await(1000, TimeUnit.MILLISECONDS));
 
             pinpointClientFactory = createPinpointClientFactory();
-            tcpDataSender = new TcpDataSender("127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
+            InetSocketAddress address = new InetSocketAddress("127.0.0.1", mockConfig.getTcpBindPort());
+            tcpDataSender = new TcpDataSender(address, pinpointClientFactory);
 
             Assert.assertFalse(tcpDataSender.isConnected());
         } finally {
@@ -172,16 +175,6 @@ public class DataReceiverGroupTest {
         try {
             if (dataSender != null) {
                 dataSender.stop();
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-    }
-
-    private void closeClient(PinpointClient client) {
-        try {
-            if (client != null) {
-                client.close();
             }
         } catch (Exception e) {
             // ignore

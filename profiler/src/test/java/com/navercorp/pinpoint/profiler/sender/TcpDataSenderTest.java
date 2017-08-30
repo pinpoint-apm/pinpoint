@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -97,8 +98,9 @@ public class TcpDataSenderTest {
         this.sendLatch = new CountDownLatch(2);
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        
-        TcpDataSender sender = new TcpDataSender(HOST, PORT, clientFactory);
+
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender sender = new TcpDataSender(address, clientFactory);
         try {
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));

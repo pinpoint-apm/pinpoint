@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Queue;
@@ -101,7 +102,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, clientFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, clientFactory);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).build();
 
         try {
@@ -128,7 +130,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, socketFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, socketFactory);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .maxTryPerAttempt(maxTryPerAttempt)
                 .sendInterval(agentInfoSendRetryIntervalMs)
@@ -158,7 +161,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, socketFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, socketFactory);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .maxTryPerAttempt(maxTryPerAttempt)
                 .sendInterval(agentInfoSendRetryIntervalMs)
@@ -194,7 +198,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, socketFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, socketFactory);
         dataSender.addReconnectEventListener(new PinpointClientReconnectEventListener() {
             @Override
             public void reconnectPerformed(PinpointClient client) {
@@ -241,7 +246,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, clientFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, clientFactory);
         dataSender.addReconnectEventListener(new PinpointClientReconnectEventListener() {
             @Override
             public void reconnectPerformed(PinpointClient client) {
@@ -295,7 +301,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, socketFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, socketFactory);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .refreshInterval(agentInfoSendRefreshIntervalMs)
                 .sendInterval(agentInfoSendRetryIntervalMs)
@@ -327,7 +334,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, clientFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, clientFactory);
         final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).build();
         serverMetaDataRegistryService.addListener(new ServerMetaDataRegistryService.OnChangeListener() {
             @Override
@@ -370,7 +378,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, clientFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, clientFactory);
         final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).build();
         serverMetaDataRegistryService.addListener(new ServerMetaDataRegistryService.OnChangeListener() {
             @Override
@@ -428,7 +437,8 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = new TcpDataSender(HOST, PORT, clientFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender dataSender = new TcpDataSender(address, clientFactory);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .sendInterval(agentInfoSendRetryIntervalMs)
                 .maxTryPerAttempt(maxTryPerAttempt)
