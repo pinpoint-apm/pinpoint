@@ -46,6 +46,8 @@ public interface ProfilerConfig {
 
     String getStatDataSenderSocketType();
 
+    String getStatDataSenderTransportType();
+
     int getSpanDataSenderWriteQueueSize();
 
     int getSpanDataSenderSocketSendBufferSize();
@@ -73,6 +75,8 @@ public interface ProfilerConfig {
     int getSpanDataSenderSocketTimeout();
 
     String getSpanDataSenderSocketType();
+
+    String getSpanDataSenderTransportType();
 
     int getSpanDataSenderChunkSize();
 

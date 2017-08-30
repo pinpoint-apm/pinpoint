@@ -93,13 +93,14 @@ import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanChunkFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.UdpSpanDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.UdpStatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricCollectorProvider;
@@ -279,14 +280,16 @@ public class ApplicationContextModule extends AbstractModule {
         // create tcp channel
 
         bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
-
-        bind(PinpointClientFactory.class).toProvider(PinpointClientFactoryProvider.class).in(Scopes.SINGLETON);
+        bind(PinpointClientFactory.class).annotatedWith(DefaultClientFactory.class).
+                toProvider(PinpointClientFactoryProvider.class).in(Scopes.SINGLETON);
         bind(EnhancedDataSender.class).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
 
+        bind(PinpointClientFactory.class).annotatedWith(SpanStatClientFactory.class).
+                toProvider(SpanStatClientFactoryProvider.class).in(Scopes.SINGLETON);
         bind(DataSender.class).annotatedWith(SpanDataSender.class)
-                .toProvider(UdpSpanDataSenderProvider.class).in(Scopes.SINGLETON);
+                .toProvider(SpanDataSenderProvider.class).in(Scopes.SINGLETON);
         bind(DataSender.class).annotatedWith(StatDataSender.class)
-                .toProvider(UdpStatDataSenderProvider.class).in(Scopes.SINGLETON);
+                .toProvider(StatDataSenderProvider.class).in(Scopes.SINGLETON);
     }
 
     private void bindServiceComponent() {

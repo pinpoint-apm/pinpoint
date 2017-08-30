@@ -63,8 +63,9 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final PinpointClientFactory clientFactory;
     private final EnhancedDataSender tcpDataSender;
 
-    private final DataSender statDataSender;
+    private final PinpointClientFactory spanStatClientFactory;
     private final DataSender spanDataSender;
+    private final DataSender statDataSender;
 
     private final AgentInformation agentInformation;
     private final AgentOption agentOption;
@@ -109,13 +110,16 @@ public class DefaultApplicationContext implements ApplicationContext {
         ClassFileTransformer classFileTransformer = wrap(classFileDispatcher);
         instrumentation.addTransformer(classFileTransformer, true);
 
+        this.spanStatClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanStatClientFactory.class));
+        logger.info("spanStatClientFactory:{}", spanStatClientFactory);
+
         this.spanDataSender = newUdpSpanDataSender();
         logger.info("spanDataSender:{}", spanDataSender);
 
         this.statDataSender = newUdpStatDataSender();
         logger.info("statDataSender:{}", statDataSender);
 
-        this.clientFactory = injector.getInstance(PinpointClientFactory.class);
+        this.clientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, DefaultClientFactory.class));
         logger.info("clientFactory:{}", clientFactory);
 
         this.tcpDataSender = injector.getInstance(EnhancedDataSender.class);
@@ -133,7 +137,6 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     public ClassFileTransformer wrap(ClassFileTransformerDispatcher classFileTransformerDispatcher) {
-
         final boolean enableBytecodeDump = profilerConfig.readBoolean(ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP, ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP_DEFAULT_VALUE);
         if (enableBytecodeDump) {
             logger.info("wrapBytecodeDumpTransformer");
@@ -147,7 +150,6 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     private DataSender newUdpStatDataSender() {
-
         Key<DataSender> statDataSenderKey = Key.get(DataSender.class, StatDataSender.class);
         return injector.getInstance(statDataSenderKey);
     }
@@ -216,6 +218,9 @@ public class DefaultApplicationContext implements ApplicationContext {
         // Need to process stop
         this.spanDataSender.stop();
         this.statDataSender.stop();
+        if (spanStatClientFactory != null) {
+            spanStatClientFactory.release();
+        }
 
         closeTcpDataSender();
     }

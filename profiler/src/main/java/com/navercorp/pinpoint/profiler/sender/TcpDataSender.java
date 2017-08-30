@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TcpDataSender extends AbstractDataSender implements EnhancedDataSender {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger;
     static {
         // preClassLoad
         ChannelBuffers.buffer(2);
@@ -71,19 +71,19 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private AsyncQueueingExecutor<Object> executor;
 
-    public TcpDataSender(String host, int port, PinpointClientFactory clientFactory) {
-        this(new InetSocketAddress(host, port), clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
-    }
-
-    public TcpDataSender(String host, int port, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
-        this(new InetSocketAddress(host, port), clientFactory, serializer);
-    }
-
     public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory) {
-        this(address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+        this(null, address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
     }
 
     public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
+        this(null, address, clientFactory, serializer);
+    }
+
+    public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory) {
+        this(name, address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+    }
+
+    public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
         if (address == null) {
             throw new NullPointerException("address must not be null");
         }
@@ -94,17 +94,30 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
             throw new NullPointerException("serializer must not be null");
         }
 
+        String executorName = "Pinpoint-TcpDataSender-Executor";
+        if (name != null) {
+            logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + name);
+            executorName = String.format("Pinpoint-TcpDataSender(%s)-Executor", name);
+        } else {
+            logger = LoggerFactory.getLogger(this.getClass());
+        }
+
         PinpointClient client = ClientFactoryUtils.createPinpointClient(address, clientFactory);
 
         this.client = client;
         this.serializer = serializer;
-        this.timer = createTimer();
+        this.timer = createTimer(name);
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
-        this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
+        this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
     }
 
-    private Timer createTimer() {
-        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-DataSender-Timer", 100, TimeUnit.MILLISECONDS, 512);
+    private Timer createTimer(String name) {
+        String timerName = "Pinpoint-TcpDataSender-Timer";
+        if (name != null) {
+            timerName = String.format("Pinpoint-TcpDataSender(%s)-Timer", name);
+        }
+
+        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer(timerName, 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         return timer;
     }

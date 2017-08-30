@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Map;
 
@@ -89,7 +90,8 @@ public class TcpDataSenderReconnectTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender sender = new TcpDataSender(HOST, PORT, clientFactory);
+        InetSocketAddress address = new InetSocketAddress(HOST, PORT);
+        TcpDataSender sender = new TcpDataSender(address, clientFactory);
         waitClientConnected(oldAcceptor);
 
         oldAcceptor.close();
