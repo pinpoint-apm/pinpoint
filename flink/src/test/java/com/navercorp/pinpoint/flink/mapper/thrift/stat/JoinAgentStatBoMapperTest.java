@@ -16,10 +16,7 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.thrift.dto.flink.*;
 import org.junit.Test;
 
@@ -215,6 +212,88 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinTransactionBo2.getMaxTotalCountAgentId(), agentId);
         assertEquals(joinTransactionBo2.getMinTotalCount(), 124);
         assertEquals(joinTransactionBo2.getMinTotalCountAgentId(), agentId);
+    }
+
+    @Test
+    public void map4Test() {
+        final String agentId = "testAgent";
+        final JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274138454L);
+        tFAgentStatBatch.setAgentId(agentId);
+
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(agentId);
+        tFAgentStat.setTimestamp(1491274148454L);
+
+        final TFActiveTraceHistogram tFActiveTraceHistogram = new TFActiveTraceHistogram();
+        List<Integer> activeTraceCount = new ArrayList<>(4);
+        activeTraceCount.add(10);
+        activeTraceCount.add(20);
+        activeTraceCount.add(40);
+        activeTraceCount.add(50);
+        tFActiveTraceHistogram.setVersion((short)2);
+        tFActiveTraceHistogram.setHistogramSchemaType(1);
+        tFActiveTraceHistogram.setActiveTraceCount(activeTraceCount);
+
+        final TFActiveTrace tfActiveTrace = new TFActiveTrace();
+        tfActiveTrace.setHistogram(tFActiveTraceHistogram);
+        tFAgentStat.setActiveTrace(tfActiveTrace);
+
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(agentId);
+        tFAgentStat2.setTimestamp(1491275148454L);
+        tFAgentStat2.setCollectInterval(5000);
+
+        final TFActiveTraceHistogram tFActiveTraceHistogram2 = new TFActiveTraceHistogram();
+        List<Integer> activeTraceCount2 = new ArrayList<>(4);
+        activeTraceCount2.add(11);
+        activeTraceCount2.add(21);
+        activeTraceCount2.add(41);
+        activeTraceCount2.add(51);
+        tFActiveTraceHistogram2.setVersion((short)2);
+        tFActiveTraceHistogram2.setHistogramSchemaType(1);
+        tFActiveTraceHistogram2.setActiveTraceCount(activeTraceCount2);
+
+        final TFActiveTrace tfActiveTrace2 = new TFActiveTrace();
+        tfActiveTrace2.setHistogram(tFActiveTraceHistogram2);
+        tFAgentStat2.setActiveTrace(tfActiveTrace2);
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
+        assertEquals(joinAgentStatBo.getId(), agentId);
+        assertEquals(joinAgentStatBo.getAgentStartTimestamp(), 1491274138454L);
+        assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
+
+        List<JoinActiveTraceBo> joinActiveTraceBoList = joinAgentStatBo.getJoinActiveTraceBoList();
+        assertEquals(joinActiveTraceBoList.size(), 2);
+
+        JoinActiveTraceBo joinActiveTraceBo = joinActiveTraceBoList.get(0);
+        assertEquals(joinActiveTraceBo.getId(), agentId);
+        assertEquals(joinActiveTraceBo.getTimestamp(), 1491274148454L);
+        assertEquals(joinActiveTraceBo.getVersion(), 2);
+        assertEquals(joinActiveTraceBo.getHistogramSchemaType(), 1);
+        assertEquals(joinActiveTraceBo.getTotalCount(), 120);
+        assertEquals(joinActiveTraceBo.getMaxTotalCount(), 120);
+        assertEquals(joinActiveTraceBo.getMaxTotalCountAgentId(), agentId);
+        assertEquals(joinActiveTraceBo.getMinTotalCount(), 120);
+        assertEquals(joinActiveTraceBo.getMinTotalCountAgentId(), agentId);
+
+        JoinActiveTraceBo joinActiveTraceBo2 = joinActiveTraceBoList.get(1);
+        assertEquals(joinActiveTraceBo2.getId(), agentId);
+        assertEquals(joinActiveTraceBo2.getTimestamp(), 1491275148454L);
+        assertEquals(joinActiveTraceBo2.getVersion(), 2);
+        assertEquals(joinActiveTraceBo2.getHistogramSchemaType(), 1);
+        assertEquals(joinActiveTraceBo2.getTotalCount(), 124);
+        assertEquals(joinActiveTraceBo2.getMaxTotalCount(), 124);
+        assertEquals(joinActiveTraceBo2.getMaxTotalCountAgentId(), agentId);
+        assertEquals(joinActiveTraceBo2.getMinTotalCount(), 124);
+        assertEquals(joinActiveTraceBo2.getMinTotalCountAgentId(), agentId);
     }
 
 }
