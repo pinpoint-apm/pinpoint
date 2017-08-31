@@ -81,9 +81,10 @@ public class AnnotationRecordFormatter {
     String buildProxyHttpHeaderAnnotationArguments(final LongIntIntByteByteStringValue value, final long startTimeMillis) {
         final StringBuilder sb = new StringBuilder(150);
         if (value.getLongValue() != 0) {
-            sb.append(toDifferenceTimeFormat(value.getLongValue(), startTimeMillis));
+            final boolean approximately = value.getIntValue2() == 0;
+            sb.append(toDifferenceTimeFormat(value.getLongValue(), startTimeMillis, approximately));
         }
-        if (value.getIntValue2() != -1) {
+        if (value.getIntValue2() > 0) {
             appendComma(sb);
             sb.append(toDurationTimeFormat(value.getIntValue2()));
         }
@@ -109,10 +110,14 @@ public class AnnotationRecordFormatter {
         }
     }
 
-    String toDifferenceTimeFormat(final long proxyTimeMillis, final long startTimeMillis) {
+    String toDifferenceTimeFormat(final long proxyTimeMillis, final long startTimeMillis, boolean approximately) {
         final StringBuilder buffer = new StringBuilder(60);
         final long difference = startTimeMillis - proxyTimeMillis;
         final long absoluteDifference = Math.abs(difference);
+        if(approximately) {
+            buffer.append("about ");
+        }
+
         if (absoluteDifference > (DAY * 2)) {
             buffer.append("days");
         } else if (absoluteDifference > DAY) {
