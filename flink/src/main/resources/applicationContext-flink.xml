@@ -69,12 +69,16 @@
     <bean id="joinTransactionCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionCodec"/>
     <bean id="transactionEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionEncoder"/>
     <bean id="transactionSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TransactionSerializer"/>
+    <bean id="joinActiveTraceCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceCodec"/>
+    <bean id="activeTraceEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceEncoder"/>
+    <bean id="activeTraceSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ActiveTraceSerializer"/>
 
 
     <bean id="statisticsDao" class="com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao">
         <constructor-arg index="0" ref="cpuLoadDao"/>
         <constructor-arg index="1" ref="memoryDao"/>
         <constructor-arg index="2" ref="transactionDao"/>
+        <constructor-arg index="3" ref="activeTraceDao"/>
     </bean>
 
     <bean id="cpuLoadDao" class="com.navercorp.pinpoint.flink.dao.hbase.CpuLoadDao">
@@ -93,6 +97,12 @@
         <constructor-arg index="0" ref="hbaseTemplate"/>
         <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="2" ref="transactionSerializer"/>
+    </bean>
+
+    <bean id="activeTraceDao" class="com.navercorp.pinpoint.flink.dao.hbase.ActiveTraceDao">
+        <constructor-arg index="0" ref="hbaseTemplate"/>
+        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
+        <constructor-arg index="2" ref="activeTraceSerializer"/>
     </bean>
 
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
@@ -130,9 +140,9 @@
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.flink.receiver.TCPReceiver" lazy-init="true" depends-on="flinkWorker">
         <constructor-arg index="0" ref="tcpDispatchHandlerWrapper"/>
         <constructor-arg index="1" ref="flinkWorker"/>
-        <constructor-arg index="2" ref="#{tcpReceiverConfig.bindIp}"/>
-        <constructor-arg index="3" ref="#{tcpReceiverConfig.bindPort}"/>
-        <constructor-arg index="4" ref="#{flinkConfiguration.l4IpList}"/>
+        <constructor-arg index="2" value="#{tcpReceiverConfig.bindIp}"/>
+        <constructor-arg index="3" value="#{tcpReceiverConfig.bindPort}"/>
+        <constructor-arg index="4" value="#{flinkConfiguration.l4IpList}"/>
    </bean>
 
     <bean id="tcpSourceFunction" class="com.navercorp.pinpoint.flink.receiver.TcpSourceFunction"/>

@@ -49,7 +49,7 @@ public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, Jo
     @Override
     public void flatMap(TBase tBase, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
         if (tBase instanceof TFAgentStatBatch) {
-            logger.info("raw data : {}" + tBase);
+            logger.info("raw data : {}", tBase);
             final TFAgentStatBatch tFAgentStatBatch = (TFAgentStatBatch) tBase;
             final JoinAgentStatBo joinAgentStatBo;
             try {

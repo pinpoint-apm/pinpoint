@@ -61,7 +61,6 @@ public class StatStreamingVer2Job implements Serializable {
         // set data source
         final TcpSourceFunction tcpSourceFunction = bootstrap.getTcpSourceFuncation();
         final StreamExecutionEnvironment env = bootstrap.createStreamExecutionEnvironment();
-//        env.setParallelism(1);
         DataStreamSource<TBase> rawData = env.addSource(tcpSourceFunction);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         bootstrap.setSourceFunctionParallel(rawData);

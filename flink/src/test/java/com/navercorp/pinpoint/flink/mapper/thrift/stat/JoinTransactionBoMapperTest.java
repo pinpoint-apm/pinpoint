@@ -43,7 +43,6 @@ public class JoinTransactionBoMapperTest {
         tFTransaction.setUnsampledContinuationCount(50);
         tFAgentStat.setTransaction(tFTransaction);
 
-
         final JoinTransactionBoMapper joinTransactionBoMapper = new JoinTransactionBoMapper();
         final JoinTransactionBo joinTransactionBo = joinTransactionBoMapper.map(tFAgentStat);
 

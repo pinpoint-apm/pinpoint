@@ -42,7 +42,7 @@ public class JoinTransactionBoTest {
         joinTransactionBoList.add(joinTransactionBo4);
         joinTransactionBoList.add(joinTransactionBo5);
 
-        JoinTransactionBo joinTransactionBo = joinTransactionBo1.joinTransactionBoLIst(joinTransactionBoList, 1496988667231L);
+        JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoLIst(joinTransactionBoList, 1496988667231L);
         assertEquals("agent1", joinTransactionBo.getId());
         assertEquals(1496988667231L, joinTransactionBo.getTimestamp());
         assertEquals(5000, joinTransactionBo.getCollectInterval());
