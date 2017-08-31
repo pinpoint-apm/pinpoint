@@ -138,6 +138,8 @@ public class ProxyHttpHeaderParser {
             final DateFormat dateFormat = CACHE.get();
             final Date date = dateFormat.parse(value);
             header.setReceivedTimeMillis(date.getTime());
+            // mark of nginx.
+            header.setDurationTimeMicroseconds(0);
             header.setValid(true);
         } catch (ParseException ignored) {
         }
