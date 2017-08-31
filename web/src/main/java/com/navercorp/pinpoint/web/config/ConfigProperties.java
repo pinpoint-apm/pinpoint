@@ -55,6 +55,9 @@ public class ConfigProperties {
     @Value("#{pinpointWebProps['config.show.applicationStat'] ?: false}")
     private boolean showApplicationStat;
 
+    @Value("#{pinpointWebProps['websocket.allowedOrigins']}")
+    private String webSocketAllowedOrigins;
+
     public String getSecurityGuideUrl() {
         return securityGuideUrl;
     }
@@ -95,6 +98,10 @@ public class ConfigProperties {
         return this.showApplicationStat;
     }
 
+    public String getWebSocketAllowedOrigins() {
+        return webSocketAllowedOrigins;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ConfigProperties{");
@@ -107,7 +114,10 @@ public class ConfigProperties {
         sb.append(", enableServerMapRealTime=").append(enableServerMapRealTime);
         sb.append(", openSource=").append(openSource);
         sb.append(", securityGuideUrl='").append(securityGuideUrl).append('\'');
+        sb.append(", showApplicationStat=").append(showApplicationStat);
+        sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
         sb.append('}');
         return sb.toString();
     }
+
 }
