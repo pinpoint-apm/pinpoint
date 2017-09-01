@@ -62,7 +62,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+    private static final long DEFAULT_TIMEOUT_MILLIS = 3 * 1000;
     private static final long CHANNEL_CLOSE_MAXIMUM_WAITING_TIME_MILLIS = 3 * 1000;
     private static final int HEALTH_CHECK_INTERVAL_TIME_MILLIS = 5 * 60 * 1000;
     private static final int WORKER_COUNT = CpuUtils.workerCount();
@@ -89,7 +89,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final ClusterOption clusterOption;
 
-    private long defaultRequestTimeout = DEFAULT_TIMEOUTMILLIS;
+    private long defaultRequestTimeout = DEFAULT_TIMEOUT_MILLIS;
 
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();

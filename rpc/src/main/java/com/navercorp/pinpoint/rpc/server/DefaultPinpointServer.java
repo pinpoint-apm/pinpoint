@@ -290,9 +290,7 @@ public class DefaultPinpointServer implements PinpointServer {
         
         SocketStateChangeResult stateChangeResult = state.toBeingClose();
         if (stateChangeResult.isChange()) {
-            final ChannelFuture writeFuture = this.channel.write(ServerClosePacket.DEFAULT_SERVER_CLOSE_PACKET);
-            writeFuture.addListener(serverCloseWriteListener);
-
+            ChannelFuture writeFuture = write0(ServerClosePacket.DEFAULT_SERVER_CLOSE_PACKET, serverCloseWriteListener);
             logger.info("{} sendClosePacket() completed.", objectUniqName);
             return writeFuture;
         } else {
@@ -383,11 +381,11 @@ public class DefaultPinpointServer implements PinpointServer {
         streamChannelManager.messageReceived(streamPacket);
     }
 
-    private void handleHandshake(ControlHandshakePacket handshakepacket) {
-        logger.info("{} handleHandshake() started. Packet:{}", objectUniqName, handshakepacket);
+    private void handleHandshake(ControlHandshakePacket handshakePacket) {
+        logger.info("{} handleHandshake() started. Packet:{}", objectUniqName, handshakePacket);
         
-        int requestId = handshakepacket.getRequestId();
-        Map<Object, Object> handshakeData = decodeHandshakePacket(handshakepacket);
+        int requestId = handshakePacket.getRequestId();
+        Map<Object, Object> handshakeData = decodeHandshakePacket(handshakePacket);
         HandshakeResponseCode responseCode = messageListener.handleHandshake(handshakeData);
         boolean isFirst = setChannelProperties(handshakeData);
         if (isFirst) {
@@ -497,9 +495,7 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     private void writePong(Channel channel) {
-        PongPacket pongPacket = PongPacket.PONG_PACKET;
-        ChannelFuture write = channel.write(pongPacket);
-        write.addListener(pongWriteFutureListener);
+        write0(PongPacket.PONG_PACKET, pongWriteFutureListener);
     }
 
     private Map<String, Object> createHandshakeResponse(HandshakeResponseCode responseCode, boolean isFirst) {
@@ -530,8 +526,7 @@ public class DefaultPinpointServer implements PinpointServer {
         try {
             byte[] resultPayload = ControlMessageEncodingUtils.encode(data);
             ControlHandshakeResponsePacket packet = new ControlHandshakeResponsePacket(requestId, resultPayload);
-
-            channel.write(packet);
+            write0(packet);
         } catch (ProtocolException e) {
             logger.warn(e.getMessage(), e);
         }

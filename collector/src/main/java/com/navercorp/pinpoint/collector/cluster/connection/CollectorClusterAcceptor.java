@@ -91,9 +91,9 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
         private final String clusterId;
         private final MessageListener routeMessageListener;
 
-        public ClusterServerMessageListener(String clusterId, MessageListener routeMessageListene) {
+        public ClusterServerMessageListener(String clusterId, MessageListener routeMessageListener) {
             this.clusterId = clusterId;
-            this.routeMessageListener = routeMessageListene;
+            this.routeMessageListener = routeMessageListener;
         }
 
         @Override

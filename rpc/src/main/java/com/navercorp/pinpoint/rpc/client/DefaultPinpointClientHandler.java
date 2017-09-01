@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultPinpointClientHandler extends SimpleChannelHandler implements PinpointClientHandler {
 
     private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
-    private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+    private static final long DEFAULT_TIMEOUT_MILLIS = 3 * 1000;
 
     private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
     private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = Integer.MAX_VALUE;
@@ -62,7 +62,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private volatile Channel channel;
     
-    private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
+    private long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
     
     private int maxHandshakeCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
@@ -93,7 +93,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
     
     public DefaultPinpointClientHandler(DefaultPinpointClientFactory clientFactory) {
-        this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
+        this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUT_MILLIS);
     }
 
     public DefaultPinpointClientHandler(DefaultPinpointClientFactory clientFactory, long pingDelay, long handshakeRetryInterval, long timeoutMillis) {

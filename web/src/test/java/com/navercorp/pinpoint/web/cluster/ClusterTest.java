@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
+import com.navercorp.pinpoint.web.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.web.TestAwaitUtils;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
-import com.navercorp.pinpoint.web.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.web.TestAwaitUtils;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.KeeperException;
@@ -35,8 +35,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
@@ -45,6 +43,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
@@ -253,13 +254,13 @@ public class ClusterTest {
 
         byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
-        String[] registeredIplist = new String(contents).split("\r\n");
+        String[] registeredIpList = new String(contents).split("\r\n");
 
         List<String> ipList = NetUtils.getLocalV4IpList();
 
-        Assert.assertEquals(registeredIplist.length, ipList.size());
+        Assert.assertEquals(registeredIpList.length, ipList.size());
 
-        for (String ip : registeredIplist) {
+        for (String ip : registeredIpList) {
             Assert.assertTrue(ipList.contains(ip));
         }
     }

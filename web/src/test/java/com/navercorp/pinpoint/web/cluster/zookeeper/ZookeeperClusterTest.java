@@ -97,7 +97,7 @@ public class ZookeeperClusterTest {
             manager.start();
             awaitClusterManagerConnected(manager);
 
-            awaitCheckAgentRegisted(manager, "a", "b", 1L);
+            awaitCheckAgentRegistered(manager, "a", "b", 1L);
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(1, agentList.size());
             Assert.assertEquals("test", agentList.get(0));
@@ -139,13 +139,13 @@ public class ZookeeperClusterTest {
             manager.start();
             awaitClusterManagerConnected(manager);
 
-            awaitCheckAgentRegisted(manager, "a", "b", 1L);
+            awaitCheckAgentRegistered(manager, "a", "b", 1L);
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(1, agentList.size());
             Assert.assertEquals("test", agentList.get(0));
 
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
-            awaitCheckAgentRegisted(manager, "c", "d", 2L);
+            awaitCheckAgentRegistered(manager, "c", "d", 2L);
 
             agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(1, agentList.size());
@@ -156,7 +156,7 @@ public class ZookeeperClusterTest {
             Assert.assertEquals("test", agentList.get(0));
 
             zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
-            awaitCheckAgentUnRegisted(manager, "a", "b", 1L);
+            awaitCheckAgentUnRegistered(manager, "a", "b", 1L);
 
             agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(0, agentList.size());
@@ -184,7 +184,7 @@ public class ZookeeperClusterTest {
         Assert.assertTrue(await);
     }
 
-    private void awaitCheckAgentRegisted(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
+    private void awaitCheckAgentRegistered(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
         boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
             @Override
             public boolean checkCompleted() {
@@ -194,7 +194,7 @@ public class ZookeeperClusterTest {
         Assert.assertTrue(await);
     }
 
-    private void awaitCheckAgentUnRegisted(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
+    private void awaitCheckAgentUnRegistered(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
         boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
             @Override
             public boolean checkCompleted() {
@@ -224,13 +224,13 @@ public class ZookeeperClusterTest {
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
         byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
-        String[] registeredIplist = new String(contents).split("\r\n");
+        String[] registeredIpList = new String(contents).split("\r\n");
 
         List<String> ipList = NetUtils.getLocalV4IpList();
 
-        Assert.assertEquals(registeredIplist.length, ipList.size());
+        Assert.assertEquals(registeredIpList.length, ipList.size());
 
-        for (String ip : registeredIplist) {
+        for (String ip : registeredIpList) {
             Assert.assertTrue(ipList.contains(ip));
         }
     }
