@@ -58,7 +58,7 @@ public class LinkListFactory {
 
             // rpc client missing
             if (toNode == null) {
-                logger.warn("toNode rcp client not found:{}", toApplicationId);
+                logger.warn("toNode rpc client not found:{}", toApplicationId);
                 continue;
             }
 
@@ -90,7 +90,7 @@ public class LinkListFactory {
 
             // rpc client missing
             if (fromNode == null) {
-                logger.warn("fromNode rcp client not found:{}", toApplicationId);
+                logger.warn("fromNode rpc client not found:{}", toApplicationId);
                 continue;
             }
 

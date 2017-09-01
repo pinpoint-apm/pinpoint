@@ -41,7 +41,7 @@ public enum ActiveThreadCountErrorType {
     private final short code;
     private final String message;
     private final List<String> errorMessageList;
-    private static final String LINE_DELEMETER = "-";
+    private static final String LINE_DELIMITER = "-";
 
     ActiveThreadCountErrorType(short code, String message, String... candidateErrorMessages) {
         this.code = code;
