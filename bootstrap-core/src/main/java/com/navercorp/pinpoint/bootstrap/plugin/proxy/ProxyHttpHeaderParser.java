@@ -46,22 +46,24 @@ public class ProxyHttpHeaderParser {
         }
 
         // if apache
-        if (isApacheHttpd(value)) {
-            return parseApacheHttpd(value);
-        } else if (isNginx(value)) {
-            return parseNginx(value);
-        } else if(isApp(value)) {
+        if (isReceivedTimeFormat(value)) {
+            return parseReceivedTimeFormat(value);
+        } else if (isNginxMsecFormat(value)) {
+            return parseNginxMsecFormat(value);
+        } else if (isNginxDateGmtFormat(value)) {
+            return parseNginxDateGmtFormat(value);
+        } else if (isApp(value)) {
             return parseApp(value);
         }
         // others
         return parseTimestamp(value);
     }
 
-    boolean isApacheHttpd(final String value) {
+    boolean isReceivedTimeFormat(final String value) {
         return value.contains("t=");
     }
 
-    ProxyHttpHeader parseApacheHttpd(final String value) {
+    ProxyHttpHeader parseReceivedTimeFormat(final String value) {
         final ProxyHttpHeader header = new ProxyHttpHeader();
         final String[] tokens = value.split(" ");
         for (String token : tokens) {
@@ -71,34 +73,21 @@ public class ProxyHttpHeaderParser {
             }
 
             if (s.startsWith("t=")) {
-                try {
-                    // convert to milliseconds from microseconds.
-                    final int length = s.length() - 3;
-                    if (length > 2) {
-                        final long receivedTimeMillis = Long.parseLong(s.substring(2, length));
-                        if (receivedTimeMillis > 0) {
-                            header.setReceivedTimeMillis(receivedTimeMillis);
-                            header.setValid(true);
-                            continue;
-                        }
-                    }
-                } catch (NumberFormatException ignored) {
+                final long receivedTimeMillis = toReceivedTimeMillis(s.substring(2));
+                if (receivedTimeMillis > 0) {
+                    header.setReceivedTimeMillis(receivedTimeMillis);
+                    header.setValid(true);
+                    continue;
                 }
                 header.setValid(false);
-                header.setCause("invalid received time " + s);
+                header.setCause("invalid received time");
                 return header;
             } else if (s.startsWith("D=")) {
-                try {
-                    final long durationTimeMicroseconds = Long.parseLong(s.substring(2));
-                    if (durationTimeMicroseconds > 0) {
-                        header.setDurationTimeMicroseconds((int) durationTimeMicroseconds);
-                        continue;
-                    }
-                } catch (NumberFormatException ignored) {
+                final long durationTimeMicroseconds = toDurationTimeMicros(s.substring(2));
+                if (durationTimeMicroseconds > 0) {
+                    header.setDurationTimeMicroseconds((int) durationTimeMicroseconds);
+                    continue;
                 }
-                header.setValid(false);
-                header.setCause("invalid duration time " + s);
-                return header;
             } else if (s.startsWith("i=")) {
                 try {
                     final int idlePercent = Integer.parseInt(s.substring(2));
@@ -108,9 +97,6 @@ public class ProxyHttpHeaderParser {
                     }
                 } catch (NumberFormatException ignored) {
                 }
-                header.setValid(false);
-                header.setCause("invalid idle percent " + s);
-                return header;
             } else if (s.startsWith("b=")) {
                 try {
                     int busyPercent = Integer.parseInt(s.substring(2));
@@ -120,19 +106,91 @@ public class ProxyHttpHeaderParser {
                     }
                 } catch (NumberFormatException ignored) {
                 }
-                header.setValid(false);
-                header.setCause("invalid busy percent " + s);
-                return header;
             }
         }
+
         return header;
     }
 
-    boolean isNginx(final String value) {
+    // for apache httpd & nginx
+    long toReceivedTimeMillis(final String value) {
+        if (value == null) {
+            return 0;
+        }
+
+        final int length = value.length();
+        final int millisPosition = value.lastIndexOf('.');
+        if (millisPosition != -1) {
+            // e.g. 1504230492.763
+            if ((length - millisPosition) != 4) {
+                // invalid format.
+                return 0;
+            }
+            try {
+                return Long.parseLong(value.substring(0, millisPosition) + value.substring(millisPosition + 1));
+            } catch (NumberFormatException ignored) {
+            }
+        } else {
+            // convert to milliseconds from microseconds.
+            if (length > 3) {
+                try {
+                    return Long.parseLong(value.substring(0, length - 3));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return 0;
+    }
+
+    long toDurationTimeMicros(final String value) {
+        if (value == null) {
+            return 0;
+        }
+
+        final int length = value.length();
+        final int millisPosition = value.lastIndexOf('.');
+        if (millisPosition != -1) {
+            // e.g. 0.000
+            if ((length - millisPosition) != 4) {
+                // invalid format.
+                return 0;
+            }
+            try {
+                // to microseconds
+                return Long.parseLong(value.substring(0, millisPosition) + value.substring(millisPosition + 1)) * 1000;
+            } catch (NumberFormatException ignored) {
+            }
+        } else {
+            try {
+                return Long.parseLong(value);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return 0;
+    }
+
+    boolean isNginxMsecFormat(final String value) {
+        return value.indexOf('.') != -1;
+    }
+
+    ProxyHttpHeader parseNginxMsecFormat(final String value) {
+        final ProxyHttpHeader header = new ProxyHttpHeader();
+        final long timestamp = toReceivedTimeMillis(value);
+        if (timestamp > 0) {
+            header.setReceivedTimeMillis(timestamp);
+            header.setValid(true);
+            return header;
+        }
+        header.setValid(false);
+        header.setCause("invalid received time");
+        return header;
+    }
+
+    boolean isNginxDateGmtFormat(final String value) {
         return value.contains(", ");
     }
 
-    ProxyHttpHeader parseNginx(final String value) {
+    ProxyHttpHeader parseNginxDateGmtFormat(final String value) {
         final ProxyHttpHeader header = new ProxyHttpHeader();
         try {
             final DateFormat dateFormat = CACHE.get();
@@ -159,7 +217,6 @@ public class ProxyHttpHeaderParser {
 
             if (s.startsWith("ts=")) {
                 try {
-                    // convert to milliseconds from microseconds.
                     final long receivedTimeMillis = Long.parseLong(s.substring(3));
                     if (receivedTimeMillis > 0) {
                         header.setReceivedTimeMillis(receivedTimeMillis);
@@ -169,7 +226,7 @@ public class ProxyHttpHeaderParser {
                 } catch (NumberFormatException ignored) {
                 }
                 header.setValid(false);
-                header.setCause("invalid received time " + s);
+                header.setCause("invalid received time");
                 return header;
             } else if (s.startsWith("app=")) {
                 final String appName = s.substring(4);
@@ -183,7 +240,7 @@ public class ProxyHttpHeaderParser {
         final ProxyHttpHeader header = new ProxyHttpHeader();
         try {
             final long timestamp = Long.parseLong(value);
-            if(timestamp > 0) {
+            if (timestamp > 0) {
                 header.setReceivedTimeMillis(timestamp);
                 header.setValid(true);
                 return header;
