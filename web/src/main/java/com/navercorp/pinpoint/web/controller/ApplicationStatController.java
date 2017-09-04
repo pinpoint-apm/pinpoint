@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.web.service.ApplicationCpuLoadService;
 import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationMemoryService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationTransactionService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -81,6 +82,15 @@ public class ApplicationStatController {
         @Autowired
         public ApplicationTransactionController(ApplicationTransactionService applicationTransactionService) {
             super(applicationTransactionService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getApplicationStat/activeTrace/chart")
+    public static class ApplicationActiveTraceController extends ApplicationStatController {
+        @Autowired
+        public ApplicationActiveTraceController(ApplicationActiveTraceService applicationActiveTraceService) {
+            super(applicationActiveTraceService);
         }
     }
 }

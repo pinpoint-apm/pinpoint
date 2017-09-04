@@ -15,15 +15,15 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
-import com.navercorp.pinpoint.web.dao.ApplicationTransactionDao;
+import com.navercorp.pinpoint.web.dao.ApplicationActiveTraceDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinTransactionSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinActiveTraceSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
+import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -35,33 +35,33 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Repository
-public class HbaseApplicationTransactionDao implements ApplicationTransactionDao {
+public class HbaseApplicationActiveTraceDao implements ApplicationActiveTraceDao {
 
     @Autowired
-    private TransactionDecoder transactionDecoder;
+    private ActiveTraceDecoder activeTraceDecoder;
 
     @Autowired
-    private JoinTransactionSampler transactionSampler;
+    private JoinActiveTraceSampler activeTraceSampler;
 
     @Autowired
     private HbaseApplicationStatDaoOperations operations;
 
     @Override
-    public List<AggreJoinTransactionBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
+    public List<AggreJoinActiveTraceBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
         Range range = new Range(scanFrom, scanTo);
-        ApplicationStatMapper mapper = operations.createRowMapper(transactionDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, transactionSampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_TRANSACTION_COUNT, resultExtractor, applicationId, range);
+        ApplicationStatMapper mapper = operations.createRowMapper(activeTraceDecoder, range);
+        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, activeTraceSampler);
+        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_ACTIVE_TRACE_COUNT, resultExtractor, applicationId, range);
         return cast(aggregationStatDataList);
     }
 
-    private List<AggreJoinTransactionBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinTransactionBo> aggreJoinTransactionBoList = new ArrayList<>(aggregationStatDataList.size());
+    private List<AggreJoinActiveTraceBo> cast(List<AggregationStatData> aggregationStatDataList) {
+        List<AggreJoinActiveTraceBo> aggreJoinTransactionBoList = new ArrayList<>(aggregationStatDataList.size());
 
         for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinTransactionBoList.add((AggreJoinTransactionBo) aggregationStatData);
+            aggreJoinTransactionBoList.add((AggreJoinActiveTraceBo) aggregationStatData);
         }
 
         return aggreJoinTransactionBoList;

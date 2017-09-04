@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 /**
  * @author minwoo.jung
  */
-public class AggreJoinTransactionBo extends JoinTransactionBo implements AggregationStatData{
+public class AggreJoinTransactionBo extends JoinTransactionBo implements AggregationStatData {
 
     public AggreJoinTransactionBo() {
     }

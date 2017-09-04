@@ -41,13 +41,15 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private static CpuLoadDao cpuLoadDao;
     private static MemoryDao memoryDao;
     private static TransactionDao transactionDao;
+    private static ActiveTraceDao activeTraceDao;
 
     private TableName APPLICATION_STAT_AGGRE;
 
-    public StatisticsDao(CpuLoadDao cpuLoadDao, MemoryDao memoryDao, TransactionDao transactionDao) {
+    public StatisticsDao(CpuLoadDao cpuLoadDao, MemoryDao memoryDao, TransactionDao transactionDao, ActiveTraceDao activeTraceDao) {
         this.cpuLoadDao = cpuLoadDao;
         this.memoryDao = memoryDao;
         this.transactionDao = transactionDao;
+        this.activeTraceDao = activeTraceDao;
     }
 
     @Override
@@ -76,12 +78,14 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         List<JoinStatBo> joinCpuLoadBoList = castJoinStatBoList(joinApplicationStatBo.getJoinCpuLoadBoList());
         List<JoinStatBo> joinMemoryBoList = castJoinStatBoList(joinApplicationStatBo.getJoinMemoryBoList());
         List<JoinStatBo> joinTransactionBoList = castJoinStatBoList(joinApplicationStatBo.getJoinTransactionBoList());
+        List<JoinStatBo> joinActiveTraceBoList = castJoinStatBoList(joinApplicationStatBo.getJoinActiveTraceBoList());
         if (joinApplicationStatBo.getStatType() == StatType.APP_STST_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
         } else {
             cpuLoadDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinCpuLoadBoList, StatType.APP_CPU_LOAD);
             memoryDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinMemoryBoList, StatType.APP_MEMORY_USED);
             transactionDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinTransactionBoList, StatType.APP_TRANSACTION_COUNT);
+            activeTraceDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinActiveTraceBoList, StatType.APP_ACTIVE_TRACE_COUNT);
         }
     }
 

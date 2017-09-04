@@ -50,9 +50,9 @@ public class TransactionDao {
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinTransactionBoList, StatType statType) {
         logger.info("[insert] " + new Date(timestamp) + " : ("+ joinTransactionBoList + " )");
-        List<Put> cpuLoadPuts = applicationStatHbaseOperationFactory.createPuts(id, joinTransactionBoList, statType, transactionSerializer);
-        if (!cpuLoadPuts.isEmpty()) {
-            List<Put> rejectedPuts = hbaseTemplate2.asyncPut(APPLICATION_STAT_AGGRE, cpuLoadPuts);
+        List<Put> transactionPuts = applicationStatHbaseOperationFactory.createPuts(id, joinTransactionBoList, statType, transactionSerializer);
+        if (!transactionPuts.isEmpty()) {
+            List<Put> rejectedPuts = hbaseTemplate2.asyncPut(APPLICATION_STAT_AGGRE, transactionPuts);
             if (CollectionUtils.isNotEmpty(rejectedPuts)) {
                 hbaseTemplate2.put(APPLICATION_STAT_AGGRE, rejectedPuts);
             }

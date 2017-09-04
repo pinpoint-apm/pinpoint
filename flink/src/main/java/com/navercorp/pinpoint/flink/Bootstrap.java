@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.flink.receiver.TCPReceiver;
 import com.navercorp.pinpoint.flink.receiver.TcpDispatchHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.thrift.TBase;
@@ -82,7 +83,9 @@ public class Bootstrap {
 
     public StreamExecutionEnvironment createStreamExecutionEnvironment() {
         if (flinkConfiguration.isLocalforFlinkStreamExecutionEnvironment()) {
-            return StreamExecutionEnvironment.createLocalEnvironment();
+            LocalStreamEnvironment localEnvironment = StreamExecutionEnvironment.createLocalEnvironment();
+            localEnvironment.setParallelism(1);
+            return localEnvironment;
         } else {
             return StreamExecutionEnvironment.getExecutionEnvironment();
         }
