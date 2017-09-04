@@ -192,18 +192,27 @@ public class AnnotationRecordFormatter {
             if (seconds > 0) {
                 buffer.append(seconds).append("s ");
             }
-            buffer.append(toMillis(millis)).append('.');
-            buffer.append(micros).append("ms");
+            buffer.append(toMillis(millis));
+            if(micros > 0) {
+                buffer.append('.').append(micros);
+            }
+            buffer.append("ms");
         } else if (millis > SECOND) {
             final long seconds = toSecond(millis);
             if (seconds > 0) {
                 buffer.append(seconds).append("s ");
             }
-            buffer.append(toMillis(millis)).append('.');
-            buffer.append(micros).append("ms");
+            buffer.append(toMillis(millis));
+            if(micros > 0) {
+                buffer.append('.').append(micros);
+            }
+            buffer.append("ms");
         } else {
-            buffer.append(toMillis(millis)).append('.');
-            buffer.append(micros).append("ms");
+            buffer.append(toMillis(millis));
+            if (micros > 0) {
+                buffer.append('.').append(micros);
+            }
+            buffer.append("ms");
         }
         return buffer.toString();
     }
