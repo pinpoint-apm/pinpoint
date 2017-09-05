@@ -35,6 +35,7 @@
 						TooltipService.init( "statJVMCpu" );
 						TooltipService.init( "statSystemCpu" );
 						TooltipService.init( "statTPS" );
+						TooltipService.init( "statActiveThread" );
 					}
 					function loadStatChart(from, to) {
 						var oParam = {
@@ -88,6 +89,18 @@
 										isAvailable: false,
 										maximum: false
 									}, "Transactions(count)", ["Avg", "Max", "Min"], chartData.charts["TRANSACTION_COUNT"]), "100%", "270px");
+								} else {
+									console.log("error");
+								}
+							});
+							AgentAjaxService.getStatActiveThread( oParam, function(chartData) {
+								if ( angular.isUndefined(chartData.exception) ) {
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.active-thread", makeChartData({
+										id: "activeThread",
+										title: "Active Thread",
+										isAvailable: false,
+										maximum: false
+									}, "Active Thread", ["Avg", "Max", "Min"], chartData.charts["ACTIVE_TRACE_COUNT"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}

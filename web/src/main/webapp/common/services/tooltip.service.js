@@ -96,6 +96,10 @@
 		"statTPS": {
 			"position": "top",
 			"trigger": "click"
+		},
+		"statActiveThread": {
+			"position": "top",
+			"trigger": "click"
 		}
 	});
 
@@ -160,6 +164,8 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.statSystemCpu); };
 				case "statTPS":
 					return function() { return helpContentTemplate(helpContentService.inspector.statTPS); };
+				case "statActiveThread":
+					return function() { return ''; };//helpContentTemplate(helpContentService.inspector.statActiveThread); };
 
 			}
 		}
