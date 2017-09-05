@@ -7,6 +7,6 @@
     </div>
     <div class="main-spy">
         <agent-info-directive ng-show="showStatistic === false || selectedAgent"></agent-info-directive>
-		<application-statistic-directive ng-show="showStatistic && (selectedAgent == false)"></application-statistic-directive>
+		<application-statistic-directive ng-if="showStatistic" ng-show="selectedAgent == false"></application-statistic-directive>
     </div>
 </div>
