@@ -769,6 +769,24 @@
 						desc: "Agent들의 트랜잭션 수 중 가장 작은 값"
 					}]
 				}]
+			},
+			statActiveThread: {
+				mainStyle: "",
+				title: "Active Thread",
+				desc: "사용자의 request를 처리하는 active thread 수",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들의 active thread 수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들의 active thread 수의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들의 active thread 수 중 가장 작은 값"
+					}]
+				}]
 			}
 		},
 		callTree: {

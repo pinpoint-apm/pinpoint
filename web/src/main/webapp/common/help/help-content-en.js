@@ -749,6 +749,24 @@
 						desc: "Lowest TPS of the agents"
 					}]
 				}]
+			},
+			statActiveThread: {
+				mainStyle: "",
+				title: "Active Thread",
+				desc: "Number of active threads serving user requests",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Highest active thread count of the agents serving user requests"
+					},{
+						name: "AVG",
+						desc: "Average active thread count of the agents serving user requests"
+					},{
+						name: "MIN",
+						desc: "Lowest active thread count of the agents serving user requests"
+					}]
+				}]
 			}
 		},
 		callTree: {
