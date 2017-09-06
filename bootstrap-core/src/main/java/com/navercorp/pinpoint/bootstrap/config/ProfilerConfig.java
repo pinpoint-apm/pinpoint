@@ -133,8 +133,6 @@ public interface ProfilerConfig {
 
     boolean isProxyHttpHeaderEnable();
 
-    boolean isProxyHttpHeaderHidden();
-
     String readString(String propertyName, String defaultValue);
 
     int readInt(String propertyName, int defaultValue);

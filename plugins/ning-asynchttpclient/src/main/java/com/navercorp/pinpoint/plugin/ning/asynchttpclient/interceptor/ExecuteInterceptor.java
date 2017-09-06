@@ -96,7 +96,7 @@ public class ExecuteInterceptor implements AroundInterceptor {
             }
             if (httpRequest != null) {
                 final HttpHeaders httpRequestHeaders = httpRequest.getHeaders();
-                httpRequestHeaders.add(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+                httpRequestHeaders.set(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
             }
             return;
         }
@@ -109,15 +109,15 @@ public class ExecuteInterceptor implements AroundInterceptor {
 
         if (httpRequest != null) {
             final HttpHeaders httpRequestHeaders = httpRequest.getHeaders();
-            httpRequestHeaders.add(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            httpRequestHeaders.add(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            httpRequestHeaders.add(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            httpRequestHeaders.add(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            httpRequestHeaders.add(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            httpRequestHeaders.add(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            httpRequestHeaders.set(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            httpRequestHeaders.set(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+            httpRequestHeaders.set(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+            httpRequestHeaders.set(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            httpRequestHeaders.set(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            httpRequestHeaders.set(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
             final String hostString = EndPointUtils.getEndPoint(httpRequest.getUrl(), null);
             if (hostString != null) {
-                httpRequestHeaders.add(Header.HTTP_HOST.toString(), hostString);
+                httpRequestHeaders.set(Header.HTTP_HOST.toString(), hostString);
             }
         }
     }

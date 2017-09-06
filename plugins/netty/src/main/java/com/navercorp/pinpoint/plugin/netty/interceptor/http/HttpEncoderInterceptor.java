@@ -153,7 +153,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
     private void addHeaderIfNotExist(HttpHeaders headers, String key, Object value) {
         if (!headers.contains(key)) {
-            headers.add(key, value);
+            headers.set(key, value);
         }
     }
 
