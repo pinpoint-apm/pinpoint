@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 /**
  * @author Jongho Moon
  * @author jaehong.kim
- *
  */
 public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -80,7 +79,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         boolean isTomcatApplication = conditionProvider.checkMainClass(config.getTomcatBootstrapMains());
         boolean isSpringBootApplication = conditionProvider.checkMainClass(config.getSpringBootBootstrapMains());
         return isTomcatApplication || isSpringBootApplication;
-}
+    }
 
     private void addTransformers(TomcatConfig config) {
         if (config.isTomcatHidePinpointHeader()) {

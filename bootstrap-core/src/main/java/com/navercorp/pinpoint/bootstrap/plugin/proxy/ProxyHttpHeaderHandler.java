@@ -22,6 +22,4 @@ package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 public interface ProxyHttpHeaderHandler {
 
     String read(String name);
-
-    void remove(String name);
 }

@@ -42,7 +42,6 @@ public class ProxyHttpHeaderRecorderTest {
         ProfilerConfig config = mock(ProfilerConfig.class);
         when(config.getProxyHttpHeaderNames()).thenReturn(list);
         when(config.isProxyHttpHeaderEnable()).thenReturn(true);
-        when(config.isProxyHttpHeaderHidden()).thenReturn(true);
 
         TraceContext traceContext = mock(TraceContext.class);
         when(traceContext.getProfilerConfig()).thenReturn(config);
@@ -57,20 +56,11 @@ public class ProxyHttpHeaderRecorderTest {
             public String read(String name) {
                 return name;
             }
-
-            @Override
-            public void remove(String name) {
-            }
         });
 
         recorder.record(spanRecorder, new ProxyHttpHeaderHandler() {
             @Override
             public String read(String name) {
-                throw new NullPointerException();
-            }
-
-            @Override
-            public void remove(String name) {
                 throw new NullPointerException();
             }
         });

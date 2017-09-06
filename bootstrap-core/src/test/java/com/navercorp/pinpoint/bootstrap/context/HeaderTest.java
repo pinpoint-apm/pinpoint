@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.tomcat;
+package com.navercorp.pinpoint.bootstrap.context;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.common.util.DelegateEnumeration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,34 +25,23 @@ import org.slf4j.LoggerFactory;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import static org.junit.Assert.*;
-
 /**
  * @author jaehong.kim
  */
-public class TomcatHttpHeaderHolderTest {
+public class HeaderTest {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void isHeaderKey() throws Exception {
-        Assert.assertTrue(TomcatHttpHeaderHolder.hasHeader(Header.HTTP_FLAGS.toString()));
-
-        Assert.assertFalse(TomcatHttpHeaderHolder.hasHeader("Not_Exist"));
-
-        Assert.assertFalse(TomcatHttpHeaderHolder.hasHeader(null));
+    public void testToString() throws Exception {
+        logger.debug("{}", Header.HTTP_FLAGS);
     }
 
-
     @Test
-    public void getHeaders() {
-        Enumeration enumeration = TomcatHttpHeaderHolder.getHeaders(Header.HTTP_FLAGS.toString());
-
-        Assert.assertFalse(enumeration.hasMoreElements());
-        Assert.assertNull(enumeration.nextElement());
-
-        Enumeration needNull = TomcatHttpHeaderHolder.getHeaders("test");
-        Assert.assertNull(needNull);
-
+    public void isHeaderKey() throws Exception {
+        Assert.assertTrue(Header.startWithPinpointHeader(Header.HTTP_FLAGS.toString()));
+        Assert.assertFalse(Header.startWithPinpointHeader("Not_Exist"));
+        Assert.assertFalse(Header.startWithPinpointHeader(null));
     }
 
     @Test
@@ -63,14 +52,21 @@ public class TomcatHttpHeaderHolderTest {
         hashtable.put("c", "cc");
         Enumeration<String> elements = hashtable.elements();
 
-        Enumeration enumeration = TomcatHttpHeaderHolder.filteredHeaderNames(elements);
+        Enumeration enumeration = new DelegateEnumeration(elements, Header.FILTER);
         int count = 0;
-        while(enumeration.hasMoreElements()) {
+        while (enumeration.hasMoreElements()) {
             count++;
-            Assert.assertFalse(TomcatHttpHeaderHolder.hasHeader((String) enumeration.nextElement()));
+            Assert.assertFalse(Header.startWithPinpointHeader((String) enumeration.nextElement()));
         }
         Assert.assertEquals(count, 2);
+    }
 
+    @Test
+    public void startWithPinpointHeader() throws Exception {
+        Assert.assertTrue(Header.startWithPinpointHeader("Pinpoint-Unknown"));
+        Assert.assertTrue(Header.startWithPinpointHeader("pinpoint-unknown"));
+        Assert.assertFalse(Header.startWithPinpointHeader("unknown-pinpoint"));
+        Assert.assertFalse(Header.startWithPinpointHeader("unknown"));
     }
 
 }

@@ -97,7 +97,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             }
             if (httpRequest != null) {
                 final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
-                httpRequestHeaders.add(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+                putHeader(httpRequestHeaders, Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
             }
             return;
         }

@@ -408,11 +408,6 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             public String read(String name) {
                 return request.getHeader(name);
             }
-
-            @Override
-            public void remove(String name) {
-                // TODO
-            }
         });
     }
 

@@ -36,7 +36,6 @@ public class ProxyHttpHeaderRecorder {
     private final TraceContext traceContext;
     private final boolean enable;
     private final List<String> httpHeaderNames;
-    private final boolean httpHeaderHidden;
 
     public ProxyHttpHeaderRecorder(final TraceContext traceContext) {
         Assert.requireNonNull(traceContext, "traceContext must not be null");
@@ -44,7 +43,6 @@ public class ProxyHttpHeaderRecorder {
         final ProfilerConfig config = traceContext.getProfilerConfig();
         this.enable = config.isProxyHttpHeaderEnable();
         this.httpHeaderNames = config.getProxyHttpHeaderNames();
-        this.httpHeaderHidden = config.isProxyHttpHeaderHidden();
     }
 
     public void record(final SpanRecorder recorder, final ProxyHttpHeaderHandler handler) {
@@ -64,13 +62,6 @@ public class ProxyHttpHeaderRecorder {
                 final String value = handler.read(name);
                 if (value == null || value.isEmpty()) {
                     continue;
-                }
-
-                if (this.httpHeaderHidden) {
-                    handler.remove(name);
-                    if (isDebug) {
-                        logger.debug("Remove proxy http header. name={}, value={}", name, value);
-                    }
                 }
 
                 final ProxyHttpHeader header = this.parser.parse(value);

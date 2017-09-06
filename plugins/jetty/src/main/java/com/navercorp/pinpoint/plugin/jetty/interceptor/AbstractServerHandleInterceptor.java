@@ -247,11 +247,6 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             public String read(String name) {
                 return request.getHeader(name);
             }
-
-            @Override
-            public void remove(String name) {
-                // TODO
-            }
         });
     }
 
