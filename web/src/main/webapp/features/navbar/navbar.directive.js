@@ -31,7 +31,9 @@
 	                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
 	                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
 	                    resetTimeLeft, getMilliSecondByReadablePeriod, movePeriod, selectPeriod,
-						toggleCalendarPopup, getPeriodForCalendar;
+						toggleCalendarPopup;
+	                var guideDateMax = helpContentService.navbar.searchPeriod.guideDateMax.replace(/\{\{day\}\}/, PreferenceService.getMaxPeriod() );
+	                var guideDateOrder = helpContentService.navbar.searchPeriod.guideDateOrder;
 	
 	                var applicationResource;
 
@@ -47,12 +49,10 @@
 	                scope.bidirectional = prevBidirectional = PreferenceService.getBidirectionalByApp( scope.application );
 					scope.wasOnly = prevWasOnly = PreferenceService.getWasOnlyByApp( scope.application );
 	                scope.rangeList = PreferenceService.getDepthList();
-	                scope.applications = [
-	                    {
+	                scope.applications = [{
 	                        text: 'Select an application.',
 	                        value: ''
-	                    }
-	                ];
+					}];
 	                element.bind('selectstart', function (e) {
 	                    return false;
 	                });
@@ -91,12 +91,10 @@
 	                    $application = element.find('.application');
 						$application.select2();
 
-	                    scope.applications = [
-	                        {
-	                            text: 'Loading...',
-	                            value: ''
-	                        }
-	                    ];
+	                    scope.applications = [{
+							text: 'Loading...',
+							value: ''
+						}];
 	                    scope.application = oNavbarVoService.getApplication() || "";
 						// if ( scope.application !== "" ) {
 							scope.callee = prevCallee = PreferenceService.getCalleeByApp( scope.application );
@@ -130,10 +128,6 @@
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
 
 						$("#ui-datepicker-div").remove();
-						//if ( bInitCalendar === false ) {
-						//	initializeDateTimePicker();
-						//	bInitCalendar = true;
-						//}
 	                };
 	
 	                /**
@@ -141,69 +135,20 @@
 	                 */
 	                initializeDateTimePicker = function () {
 						$fromToCalendarPopup = $("#ui-datepicker-div");
-						$fromToCalendarPopup.find(".guide").html(helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, PreferenceService.getMaxPeriod() ) );
+						resetGuideMessage();
 						$fromToCalendarPopup.find("button.ui-datepicker-close").on("click", function() {
-							$fromToCalendarPopup.hide();
+							if ( validateCalendar() ) {
+								$fromToCalendarPopup.hide();
+								resetGuideMessage();
+							}
 						});
 
-						$fromPicker = element.find('#from-picker');
-	                    $fromPicker.datetimepicker({
-							altField: "#from-picker-alt",
-							altFieldTimeOnly: false,
-	                        dateFormat: "yy-mm-dd",
-	                        timeFormat: "HH:mm z",
-	                        controlType: "select",
-							showButtonPanel: false,
-							timezone: moment().utcOffset(),
-							showTimezone: false,
-	                        onSelect: function () {
-	                        	var momentFrom = moment(getDate($fromPicker));
-	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(PreferenceService.getMaxPeriod(), "days") ) || momentFrom.isAfter(momentTo) ) {
-									var aPeriodTime = getPeriodForCalendar();
-	                        		setDateTime($toPicker, momentFrom.add( aPeriodTime[0], aPeriodTime[1] ).format());
-	                        	}
-	                        },
-	                        onClose: function (currentTime, oTime) {
-	                            if ($toPicker.val() !== '') {
-	                                if ($fromPicker.datetimepicker('getDate') > $toPicker.datetimepicker('getDate')) {
-	                                    $toPicker.datetimepicker('setDate', $fromPicker.datetimepicker('getDate'));
-	                                }
-	                            } else {
-	                                $toPicker.val(currentTime);
-	                            }
-	                        }
-	                    });
+						$fromPicker = element.find( "#from-picker" );
+	                    $fromPicker.datetimepicker( getDatePickerOption( "#from-picker-alt" ) );
 	                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() || moment().subtract(5, "minute").valueOf());
 	
-	                    $toPicker = element.find('#to-picker');
-	                    $toPicker.datetimepicker({
-							altField: "#to-picker-alt",
-							altFieldTimeOnly: false,
-	                        dateFormat: "yy-mm-dd",
-	                        timeFormat: "HH:mm z",
-	                        controlType: "select",
-							showButtonPanel: false,
-							timezone: moment().utcOffset(),
-							showTimezone: false,
-	                        onSelect: function () {
-	                        	var momentFrom = moment(getDate($fromPicker));
-	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(PreferenceService.getMaxPeriod(), "days")) || momentFrom.isAfter(momentTo) ) {
-									var aPeriodTime = getPeriodForCalendar();
-	                        		setDateTime($fromPicker, momentTo.subtract(aPeriodTime[0], aPeriodTime[1]).format());
-	                        	}
-	                        },
-	                        onClose: function (currentTime, oTime) {
-	                            if ($fromPicker.val() !== '') {
-	                                if ($fromPicker.datetimepicker('getDate') > $toPicker.datetimepicker('getDate')) {
-	                                    $fromPicker.datetimepicker('setDate', $toPicker.datetimepicker('getDate'));
-	                                }
-	                            } else {
-	                                $fromPicker.val(currentTime);
-	                            }
-	                        }
-	                    });
+	                    $toPicker = element.find( "#to-picker");
+	                    $toPicker.datetimepicker( getDatePickerOption( "#to-picker-alt" ) );
 	                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
 
 						$("#from-picker-alt").on("click", function() {
@@ -219,14 +164,46 @@
 							}
 						});
 	                };
-					getPeriodForCalendar = function() {
+	                function getDatePickerOption( altId ) {
+						return {
+							altField: altId,
+							altFieldTimeOnly: false,
+							dateFormat: "yy-mm-dd",
+							timeFormat: "HH:mm z",
+							controlType: "select",
+							showButtonPanel: false,
+							timezone: moment().utcOffset(),
+							showTimezone: false,
+							onSelect: function () {},
+							onClose: function (currentTime, oTime) {}
+						};
+					}
+					function getPeriodForCalendar(selectedPeriod) {
 						var a = [];
-						var s = scope.periodCalendar.substring( scope.periodCalendar.length - 1 );
-						a[0] = parseInt( scope.periodCalendar );
+						var s = selectedPeriod.substr(-1);
+						a[0] = parseInt( selectedPeriod );
 						a[1] = s == "d" ? "days" : s == "h" ? "hours" : "minutes";
 						return a;
-					};
-
+					}
+					function resetGuideMessage() {
+						setGuideMessage(guideDateMax, false);
+					}
+					function setGuideMessage(msg, warning) {
+						$fromToCalendarPopup.find(".guide").html(msg).css("color", warning === true ? "red" : "");
+					}
+					function validateCalendar() {
+						var momentFrom = moment(getDate($fromPicker));
+						var momentTo = moment(getDate($toPicker));
+						if ( momentTo.isAfter( moment(getDate($fromPicker)).add(PreferenceService.getMaxPeriod(), "days") ) ) {
+							setGuideMessage(guideDateMax, true);
+							return false;
+						}
+						if ( momentFrom.isAfter(momentTo) ) {
+							setGuideMessage(guideDateOrder, true);
+							return false;
+						}
+						return true;
+					}
 					toggleCalendarPopup = function() {
 						if ( $fromToCalendarPopup.is(":visible") ) {
 							$fromToCalendarPopup.hide();
@@ -235,7 +212,7 @@
 							$fromToCalendarPopup.show();
 						}
 					};
-	
+
 	                getDate = function ($picker) {
 	                    return $picker.datetimepicker('getDate');
 	                };
@@ -543,7 +520,11 @@
 	                 * search
 	                 */
 	                scope.search = function () {
-	                    broadcast();
+						if ( validateCalendar() ) {
+							broadcast();
+						} else {
+							$fromToCalendarPopup.show();
+						}
 	                };
 	
 	                /**
@@ -622,7 +603,9 @@
 	                    scope.timeLeft = scope.timeCountDown;
 	                };
 					scope.setPeriodForCalendar = function(period) {
-						scope.periodCalendar = period;
+						var momentTo = moment(getDate($toPicker));
+						var aPeriodTime = getPeriodForCalendar(period);
+						setDateTime($fromPicker, momentTo.subtract(aPeriodTime[0], aPeriodTime[1]).format());
 					};
 	
 	                /**

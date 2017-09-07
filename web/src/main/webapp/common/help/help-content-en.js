@@ -66,7 +66,8 @@
 		},	
 		navbar : {
 			searchPeriod : {
-				guide: "Search duration may not be greater than {{day}} days."
+				guideDateMax: "Search duration may not be greater than {{day}} days.",
+				guideDateOrder: "Date or time set incorrectly"
 			},
 			applicationSelector: {
 				mainStyle: "",
