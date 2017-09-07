@@ -66,7 +66,8 @@
 		},
 		navbar : {
 			searchPeriod : {
-				guide: "한번에 검색 할 수 있는 최대 기간은 {{day}}일 입니다."
+				guideDateMax: "한번에 검색 할 수 있는 최대 기간은 {{day}}일 입니다.",
+				guideDateOrder: "날짜 및 시간을 잘못 설정 하였습니다."
 			},
 			applicationSelector: {
 				mainStyle: "",
