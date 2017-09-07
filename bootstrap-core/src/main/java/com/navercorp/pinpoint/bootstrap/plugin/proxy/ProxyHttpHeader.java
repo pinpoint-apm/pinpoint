@@ -24,10 +24,13 @@ import com.navercorp.pinpoint.common.util.StringUtils;
  * @author jaehong.kim
  */
 public class ProxyHttpHeader {
+    public static final int TYPE_APP = 1;
+    public static final int TYPE_NGINX = 2;
+    public static final int TYPE_APACHE = 3;
+
     private static final int APP_MAX_LENGTH = 32;
 
-    // cache id of proxy HTTP header name.
-    private int name;
+    private final int type;
     // received time of request.
     private long receivedTimeMillis;
 
@@ -41,12 +44,12 @@ public class ProxyHttpHeader {
     private boolean valid = false;
     private String cause = "required value not set";
 
-    public int getName() {
-        return name;
+    public ProxyHttpHeader(int type) {
+        this.type = type;
     }
 
-    public void setName(int name) {
-        this.name = name;
+    public int getType() {
+        return type;
     }
 
     public long getReceivedTimeMillis() {
@@ -120,15 +123,15 @@ public class ProxyHttpHeader {
 
     public Object getAnnotationValue() {
         if (app == null) {
-            return new LongIntIntByteByteStringValue(receivedTimeMillis, name, durationTimeMicroseconds, idlePercent, busyPercent, null);
+            return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, null);
         }
-        return new LongIntIntByteByteStringValue(receivedTimeMillis, name, durationTimeMicroseconds, idlePercent, busyPercent, StringUtils.abbreviate(app, APP_MAX_LENGTH));
+        return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, StringUtils.abbreviate(app, APP_MAX_LENGTH));
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ProxyHttpHeader{");
-        sb.append("name=").append(name);
+        sb.append("type=").append(type);
         sb.append(", receivedTimeMillis=").append(receivedTimeMillis);
         sb.append(", durationTimeMicroseconds=").append(durationTimeMicroseconds);
         sb.append(", idlePercent=").append(idlePercent);

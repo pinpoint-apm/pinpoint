@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
-
-import java.util.List;
 
 /**
  * @author jaehong.kim
@@ -33,16 +29,10 @@ public class ProxyHttpHeaderRecorder {
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
     private final ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
-    private final TraceContext traceContext;
     private final boolean enable;
-    private final List<String> httpHeaderNames;
 
-    public ProxyHttpHeaderRecorder(final TraceContext traceContext) {
-        Assert.requireNonNull(traceContext, "traceContext must not be null");
-        this.traceContext = traceContext;
-        final ProfilerConfig config = traceContext.getProfilerConfig();
-        this.enable = config.isProxyHttpHeaderEnable();
-        this.httpHeaderNames = config.getProxyHttpHeaderNames();
+    public ProxyHttpHeaderRecorder(final boolean enable) {
+        this.enable = enable;
     }
 
     public void record(final SpanRecorder recorder, final ProxyHttpHeaderHandler handler) {
@@ -58,30 +48,33 @@ public class ProxyHttpHeaderRecorder {
         }
 
         try {
-            for (String name : this.httpHeaderNames) {
-                final String value = handler.read(name);
-                if (value == null || value.isEmpty()) {
-                    continue;
-                }
-
-                final ProxyHttpHeader header = this.parser.parse(value);
-                if (header.isValid()) {
-                    final int cacheId = this.traceContext.cacheString(name);
-                    header.setName(cacheId);
-                    recorder.recordAttribute(header.getAnnotationKey(), header.getAnnotationValue());
-                    if (isDebug) {
-                        logger.debug("Record proxy http header. name={}, value={}", name, value);
-                    }
-                } else {
-                    if (isInfo) {
-                        logger.info("Failed to parse proxy http header. name={}. value={}, cause={}", name, value, header.getCause());
-                    }
-                }
-            }
+            parseAndRecord(recorder, handler, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
+            parseAndRecord(recorder, handler, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
+            parseAndRecord(recorder, handler, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
         } catch (Exception e) {
             // for handler operations.
             if (isInfo) {
                 logger.info("Failed to record proxy http header. cause={}", e.getMessage());
+            }
+        }
+    }
+
+
+    private void parseAndRecord(final SpanRecorder recorder, final ProxyHttpHeaderHandler handler, final String name, final int type) {
+        final String value = handler.read(name);
+        if (value == null || value.isEmpty()) {
+            return;
+        }
+
+        final ProxyHttpHeader header = this.parser.parse(type, value);
+        if (header.isValid()) {
+            recorder.recordAttribute(header.getAnnotationKey(), header.getAnnotationValue());
+            if (isDebug) {
+                logger.debug("Record proxy http header. name={}, value={}", name, value);
+            }
+        } else {
+            if (isInfo) {
+                logger.info("Failed to parse proxy http header. name={}. value={}, cause={}", name, value, header.getCause());
             }
         }
     }

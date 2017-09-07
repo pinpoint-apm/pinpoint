@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.vo.callstacks;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
@@ -25,7 +24,6 @@ import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,8 +34,10 @@ public class AnnotationRecordFormatter {
     private static final long HOUR = TimeUnit.HOURS.toMillis(1);
     private static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
     private static final long SECOND = TimeUnit.SECONDS.toMillis(1);
-    private static final String PROXY_TITLE_PREFIX = "PROXY(";
-    private static final String PROXY_TITLE_SUFFIX = ")";
+    private static final String PROXY_APP = "PROXY(APP)";
+    private static final String PROXY_NGINX = "PROXY(NGINX)";
+    private static final String PROXY_APACHE = "PROXY(APACHE)";
+    private static final String PROXY_UNKNOWN = "PROXY(UNKNOWN)";
 
     private final StringMetaDataDao stringMetaDataDao;
 
@@ -48,15 +48,19 @@ public class AnnotationRecordFormatter {
     public String formatTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, SpanAlign align) {
         if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
             if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
-                return PROXY_TITLE_PREFIX + PROXY_TITLE_SUFFIX;
+                return PROXY_UNKNOWN;
             }
 
             final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
-            final List<StringMetaDataBo> list = this.stringMetaDataDao.getStringMetaData(align.getAgentId(), align.getAgentStartTime(), value.getIntValue1());
-            if (list.size() == 0) {
-                return PROXY_TITLE_PREFIX + "STRING-META-DATA-NOT-FOUND" + PROXY_TITLE_SUFFIX;
+            if (value.getIntValue1() == 1) {
+                return PROXY_APP;
+            } else if (value.getIntValue1() == 2) {
+                return PROXY_NGINX;
+            } else if (value.getIntValue1() == 3) {
+                return PROXY_APACHE;
+            } else {
+                return PROXY_UNKNOWN;
             }
-            return PROXY_TITLE_PREFIX + list.get(0).getStringValue() + PROXY_TITLE_SUFFIX;
         }
         return annotationKey.getName();
     }
@@ -193,7 +197,7 @@ public class AnnotationRecordFormatter {
                 buffer.append(seconds).append("s ");
             }
             buffer.append(toMillis(millis));
-            if(micros > 0) {
+            if (micros > 0) {
                 buffer.append('.').append(micros);
             }
             buffer.append("ms");
@@ -203,7 +207,7 @@ public class AnnotationRecordFormatter {
                 buffer.append(seconds).append("s ");
             }
             buffer.append(toMillis(millis));
-            if(micros > 0) {
+            if (micros > 0) {
                 buffer.append('.').append(micros);
             }
             buffer.append("ms");

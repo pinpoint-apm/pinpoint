@@ -129,8 +129,6 @@ public interface ProfilerConfig {
 
     InstrumentMatcherCacheConfig getInstrumentMatcherCacheConfig();
 
-    List<String> getProxyHttpHeaderNames();
-
     boolean isProxyHttpHeaderEnable();
 
     String readString(String propertyName, String defaultValue);

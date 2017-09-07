@@ -27,12 +27,11 @@ public class ProxyHttpHeaderTest {
 
     @Test
     public void operations() throws Exception {
-        ProxyHttpHeader header = new ProxyHttpHeader();
+        ProxyHttpHeader header = new ProxyHttpHeader(ProxyHttpHeader.TYPE_APACHE);
 
         assertFalse(header.isValid());
 
         final long currentTimeMillis = System.currentTimeMillis();
-        header.setName(1);
         header.setApp("testapp");
         header.setBusyPercent((byte) 99);
         header.setIdlePercent((byte) 1);
@@ -40,7 +39,7 @@ public class ProxyHttpHeaderTest {
         header.setReceivedTimeMillis(currentTimeMillis);
         header.setValid(true);
 
-        assertEquals(1, header.getName());
+        assertEquals(ProxyHttpHeader.TYPE_APACHE, header.getType());
         assertEquals("testapp", header.getApp());
         assertEquals(99, header.getBusyPercent());
         assertEquals(1, header.getIdlePercent());

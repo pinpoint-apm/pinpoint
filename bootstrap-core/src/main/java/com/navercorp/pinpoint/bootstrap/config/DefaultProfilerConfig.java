@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
@@ -168,7 +167,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean supportLambdaExpressions = true;
 
     private boolean proxyHttpHeaderEnable = true;
-    private List<String> proxyHttpHeaderNames = Collections.emptyList();
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -453,11 +451,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public List<String> getProxyHttpHeaderNames() {
-        return proxyHttpHeaderNames;
-    }
-
-    @Override
     public boolean isProxyHttpHeaderEnable() {
         return proxyHttpHeaderEnable;
     }
@@ -567,15 +560,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // proxy http header names
         this.proxyHttpHeaderEnable = readBoolean("profiler.proxy.http.header.enable", true);
-
-        this.proxyHttpHeaderNames = new ArrayList<String>();
-        for (String name : readList("profiler.proxy.http.header.names")) {
-            if (Header.startWithPinpointHeader(name)) {
-                this.proxyHttpHeaderNames.add(name);
-            } else {
-                logger.info("Reject proxy http header name(Must be " + Header.FILTER_PATTERN_PREFIX + " prefix started)" + name);
-            }
-        }
 
         logger.info("configuration loaded successfully.");
     }
@@ -745,7 +729,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
-        sb.append(", proxyHttpHeaderNames=").append(proxyHttpHeaderNames);
         sb.append('}');
         return sb.toString();
     }
