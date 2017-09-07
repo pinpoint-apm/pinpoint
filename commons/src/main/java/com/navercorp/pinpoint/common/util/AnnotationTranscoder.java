@@ -265,7 +265,7 @@ public class AnnotationTranscoder {
         final Buffer buffer = new FixedBuffer(data);
         final byte bitField = buffer.readByte();
         final long longValue = buffer.readVLong();
-        final int intValue1 = buffer.readSVInt();
+        final int intValue1 = buffer.readVInt();
 
         int intValue2 = -1;
         if (BitFieldUtils.testBit(bitField, 0)) {
@@ -300,7 +300,7 @@ public class AnnotationTranscoder {
         final Buffer buffer = new AutomaticBuffer(bufferSize);
         buffer.putByte(bitField);
         buffer.putVLong(value.getLongValue());
-        buffer.putSVInt(value.getIntValue1());
+        buffer.putVInt(value.getIntValue1());
         if (value.isSetIntValue2()) {
             buffer.putVInt(value.getIntValue2());
         }

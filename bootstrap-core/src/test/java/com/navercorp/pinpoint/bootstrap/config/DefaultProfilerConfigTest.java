@@ -110,16 +110,6 @@ public class DefaultProfilerConfigTest {
     }
 
     @Test
-    public void proxyHttpHeaders() throws IOException {
-        Properties properties = new Properties();
-        properties.setProperty("profiler.proxy.http.header.names", "PINPOINT-PROXY, PINPOINT-PROXY1");
-
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
-        System.out.println(profilerConfig.getProxyHttpHeaderNames());
-        Assert.assertThat(profilerConfig.getProxyHttpHeaderNames(), CoreMatchers.hasItems("PINPOINT-PROXY", "PINPOINT-PROXY1"));
-    }
-
-    @Test
     public void readList() throws IOException {
         Properties properties = new Properties();
         properties.setProperty("profiler.test.list1", "foo,bar");

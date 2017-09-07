@@ -75,7 +75,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         }
         this.isTraceRequestParam = config.isTraceRequestParam();
         this.excludeProfileMethodFilter = config.getExcludeProfileMethodFilter();
-        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext);
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
         this.httpHeaderFilter = new VertxHttpHeaderFilter(config.isHidePinpointHeader());
 
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
