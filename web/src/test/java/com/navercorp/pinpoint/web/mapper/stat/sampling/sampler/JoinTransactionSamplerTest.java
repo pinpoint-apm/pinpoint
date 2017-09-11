@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import org.junit.Test;
@@ -36,7 +35,7 @@ public class JoinTransactionSamplerTest {
         long currentTime = 1487149800000L;
         JoinTransactionSampler joinTransactionSampler = new JoinTransactionSampler();
         List<JoinTransactionBo> joinTransactionBoList = createJoinTransactionBoList(currentTime);
-        AggreJoinTransactionBo aggreJoinTransactionBo = joinTransactionSampler.sampleDataPoints(1, currentTime, joinTransactionBoList, JoinTransactionBo.EMPTY_TRANSACTION_BO);
+        AggreJoinTransactionBo aggreJoinTransactionBo = joinTransactionSampler.sampleDataPoints(1, currentTime, joinTransactionBoList, JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO);
 
         assertEquals(aggreJoinTransactionBo.getId(), "test_app");
         assertEquals(aggreJoinTransactionBo.getCollectInterval(),5000);

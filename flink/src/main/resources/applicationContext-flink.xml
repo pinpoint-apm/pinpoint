@@ -72,6 +72,10 @@
     <bean id="joinActiveTraceCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceCodec"/>
     <bean id="activeTraceEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceEncoder"/>
     <bean id="activeTraceSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ActiveTraceSerializer"/>
+    <bean id="joinResponseTimeCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeCodec"/>
+    <bean id="responseTimeEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeEncoder"/>
+    <bean id="responseTimeSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ResponseTimeSerializer"/>
+
 
 
     <bean id="statisticsDao" class="com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao">
@@ -79,6 +83,7 @@
         <constructor-arg index="1" ref="memoryDao"/>
         <constructor-arg index="2" ref="transactionDao"/>
         <constructor-arg index="3" ref="activeTraceDao"/>
+        <constructor-arg index="4" ref="responseTimeDao"/>
     </bean>
 
     <bean id="cpuLoadDao" class="com.navercorp.pinpoint.flink.dao.hbase.CpuLoadDao">
@@ -103,6 +108,12 @@
         <constructor-arg index="0" ref="hbaseTemplate"/>
         <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="2" ref="activeTraceSerializer"/>
+    </bean>
+
+    <bean id="responseTimeDao" class="com.navercorp.pinpoint.flink.dao.hbase.ResponseTimeDao">
+        <constructor-arg index="0" ref="hbaseTemplate"/>
+        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
+        <constructor-arg index="2" ref="responseTimeSerializer"/>
     </bean>
 
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">

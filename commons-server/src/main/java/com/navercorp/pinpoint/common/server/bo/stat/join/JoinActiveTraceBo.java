@@ -22,7 +22,8 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class JoinActiveTraceBo implements JoinStatBo {
-    public static final JoinActiveTraceBo EMPTY_ACTIVE_TRACE_BO = new JoinActiveTraceBo();
+
+    public static final JoinActiveTraceBo EMPTY_JOIN_ACTIVE_TRACE_BO = new JoinActiveTraceBo();
     public static final int UNCOLLECTED_VALUE = -1;
     private static final int DEFAULT_HISTOGRAM_SCHEMA_TYPE = -1;
     private static final short DEFAULT_VERSION = -1;
@@ -130,7 +131,7 @@ public class JoinActiveTraceBo implements JoinStatBo {
         final int boCount = joinActiveTraceBoList.size();
 
         if (boCount == 0) {
-            return JoinActiveTraceBo.EMPTY_ACTIVE_TRACE_BO;
+            return JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO;
         }
 
         final JoinActiveTraceBo initJoinActiveTraceBo = joinActiveTraceBoList.get(0);

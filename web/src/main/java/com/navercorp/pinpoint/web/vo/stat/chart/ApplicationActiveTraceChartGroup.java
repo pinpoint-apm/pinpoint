@@ -40,7 +40,7 @@ public class ApplicationActiveTraceChartGroup implements ApplicationStatChartGro
         activeTraceChartMap = new HashMap<>();
         List<Point> activeTraceList = new ArrayList<>(AggreJoinActiveTraceBoList.size());
 
-        for(AggreJoinActiveTraceBo aggreJoinActiveTraceBo : AggreJoinActiveTraceBoList) {
+        for (AggreJoinActiveTraceBo aggreJoinActiveTraceBo : AggreJoinActiveTraceBoList) {
             activeTraceList.add(new ActiveTracePoint(aggreJoinActiveTraceBo.getTimestamp(), aggreJoinActiveTraceBo.getMinTotalCount(), aggreJoinActiveTraceBo.getMinTotalCountAgentId(), aggreJoinActiveTraceBo.getMaxTotalCount(), aggreJoinActiveTraceBo.getMaxTotalCountAgentId(), aggreJoinActiveTraceBo.getTotalCount()));
         }
 
@@ -49,6 +49,6 @@ public class ApplicationActiveTraceChartGroup implements ApplicationStatChartGro
 
     @Override
     public Map<ChartType, Chart> getCharts() {
-        return this.activeTraceChartMap;
+        return activeTraceChartMap;
     }
 }

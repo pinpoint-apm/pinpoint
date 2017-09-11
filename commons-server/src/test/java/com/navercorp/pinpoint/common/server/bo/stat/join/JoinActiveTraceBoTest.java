@@ -58,6 +58,6 @@ public class JoinActiveTraceBoTest {
     public void joinActiveTraceBo2Test() {
         List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<JoinActiveTraceBo>();
         JoinActiveTraceBo joinActiveTraceBo = JoinActiveTraceBo.joinActiveTraceBoList(joinActiveTraceBoList, 1496988667231L);
-        assertEquals(joinActiveTraceBo, JoinActiveTraceBo.EMPTY_ACTIVE_TRACE_BO);
+        assertEquals(joinActiveTraceBo, JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO);
     }
 }

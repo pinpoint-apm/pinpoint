@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.web.service.ApplicationCpuLoadService;
 import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationMemoryService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationResponseTimeService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationTransactionService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
@@ -91,6 +92,15 @@ public class ApplicationStatController {
         @Autowired
         public ApplicationActiveTraceController(ApplicationActiveTraceService applicationActiveTraceService) {
             super(applicationActiveTraceService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getApplicationStat/responseTime/chart")
+    public static class ApplicationResponseTimeController extends ApplicationStatController {
+        @Autowired
+        public ApplicationResponseTimeController(ApplicationResponseTimeService applicationResponseTimeService) {
+            super(applicationResponseTimeService);
         }
     }
 }

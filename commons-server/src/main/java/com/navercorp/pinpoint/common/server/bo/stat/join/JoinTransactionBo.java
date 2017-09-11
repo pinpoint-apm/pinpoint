@@ -21,7 +21,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class JoinTransactionBo implements JoinStatBo {
-    public static final JoinTransactionBo EMPTY_TRANSACTION_BO = new JoinTransactionBo();
+    public static final JoinTransactionBo EMPTY_JOIN_TRANSACTION_BO = new JoinTransactionBo();
     public static final long UNCOLLECTED_VALUE = -1;
 
     private String id = UNKNOWN_ID;
@@ -117,7 +117,7 @@ public class JoinTransactionBo implements JoinStatBo {
         final int boCount = joinTransactionBoList.size();
 
         if (boCount == 0) {
-            return JoinTransactionBo.EMPTY_TRANSACTION_BO;
+            return JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO;
         }
 
         final JoinTransactionBo initJoinTransactionBo = joinTransactionBoList.get(0);

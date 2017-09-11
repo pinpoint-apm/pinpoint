@@ -55,7 +55,6 @@ struct TFJvmGc {
     6: i64          jvmGcOldCount
     7: i64          jvmGcOldTime
     8: optional TFJvmGcDetailed    jvmGcDetailed
-
 }
 
 struct TFJvmGcDetailed {
@@ -91,6 +90,10 @@ struct TFActiveTrace {
 	1: optional TFActiveTraceHistogram   histogram
 }
 
+struct TFResponseTime {
+    1: optional i64         avg = 0
+}
+
 struct TFAgentStat {
     1: optional string      agentId
     2: optional i64         startTimestamp
@@ -101,6 +104,7 @@ struct TFAgentStat {
     30: optional TFTransaction   transaction
     40: optional TFActiveTrace   activeTrace
     50: optional TFDataSourceList dataSourceList
+    60: optional TFResponseTime responseTime
     200: optional string    metadata
 }
 
