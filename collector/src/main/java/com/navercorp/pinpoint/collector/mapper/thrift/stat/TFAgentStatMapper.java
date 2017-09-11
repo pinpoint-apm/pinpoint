@@ -29,6 +29,7 @@ public class TFAgentStatMapper {
     private static final TFJvmGcMapper tFJvmGcMapper = new TFJvmGcMapper();
     private static final TFTransactionMapper tFTransactionMapper = new TFTransactionMapper();
     private static final TFActiveTraceMapper tFActiveTraceMapper = new TFActiveTraceMapper();
+    private static final TFResponseTimeMapper tFResponseTimeMapper = new TFResponseTimeMapper();
 
     public List<TFAgentStat> map(AgentStatBo agentStatBo) {
         final TreeMap<Long, TFAgentStat> tFAgentStatMap = new TreeMap<>();
@@ -39,7 +40,20 @@ public class TFAgentStatMapper {
         insertTFJvmGc(tFAgentStatMap, agentStatBo.getJvmGcBos(), agentId, startTimestamp);
         insertTFTransaction(tFAgentStatMap, agentStatBo.getTransactionBos(), agentId, startTimestamp);
         insertTFActiveTrace(tFAgentStatMap, agentStatBo.getActiveTraceBos(), agentId, startTimestamp);
+        insertTFResponseTime(tFAgentStatMap, agentStatBo.getResponseTimeBos(), agentId, startTimestamp);
         return new ArrayList<>(tFAgentStatMap.values());
+    }
+
+    private void insertTFResponseTime(TreeMap<Long, TFAgentStat> tFAgentStatMap, List<ResponseTimeBo> responseTimeBoList, String agentId, long startTimestamp) {
+        if (responseTimeBoList == null) {
+            return;
+        }
+
+        for (ResponseTimeBo responseTimeBo : responseTimeBoList) {
+            TFAgentStat tFAgentStat = getOrCreateTFAgentStat(tFAgentStatMap, responseTimeBo.getTimestamp(), agentId, startTimestamp);
+            tFAgentStat.setResponseTime(tFResponseTimeMapper.map(responseTimeBo));
+        }
+
     }
 
     private void insertTFActiveTrace(TreeMap<Long, TFAgentStat> tFAgentStatMap, List<ActiveTraceBo> activeTraceBoList, String agentId, long startTimestamp) {

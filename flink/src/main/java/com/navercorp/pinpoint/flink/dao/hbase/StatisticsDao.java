@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.flink.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.flink.api.common.io.OutputFormat;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
@@ -42,14 +43,16 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private static MemoryDao memoryDao;
     private static TransactionDao transactionDao;
     private static ActiveTraceDao activeTraceDao;
+    private static ResponseTimeDao responseTimeDao;
 
     private TableName APPLICATION_STAT_AGGRE;
 
-    public StatisticsDao(CpuLoadDao cpuLoadDao, MemoryDao memoryDao, TransactionDao transactionDao, ActiveTraceDao activeTraceDao) {
+    public StatisticsDao(CpuLoadDao cpuLoadDao, MemoryDao memoryDao, TransactionDao transactionDao, ActiveTraceDao activeTraceDao, ResponseTimeDao responseTimeDao) {
         this.cpuLoadDao = cpuLoadDao;
         this.memoryDao = memoryDao;
         this.transactionDao = transactionDao;
         this.activeTraceDao = activeTraceDao;
+        this.responseTimeDao = responseTimeDao;
     }
 
     @Override
@@ -79,6 +82,8 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         List<JoinStatBo> joinMemoryBoList = castJoinStatBoList(joinApplicationStatBo.getJoinMemoryBoList());
         List<JoinStatBo> joinTransactionBoList = castJoinStatBoList(joinApplicationStatBo.getJoinTransactionBoList());
         List<JoinStatBo> joinActiveTraceBoList = castJoinStatBoList(joinApplicationStatBo.getJoinActiveTraceBoList());
+        List<JoinStatBo> joinResponseTimeBoList = castJoinStatBoList(joinApplicationStatBo.getJoinResponseTimeBoList());
+
         if (joinApplicationStatBo.getStatType() == StatType.APP_STST_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
         } else {
@@ -86,6 +91,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
             memoryDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinMemoryBoList, StatType.APP_MEMORY_USED);
             transactionDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinTransactionBoList, StatType.APP_TRANSACTION_COUNT);
             activeTraceDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinActiveTraceBoList, StatType.APP_ACTIVE_TRACE_COUNT);
+            responseTimeDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinResponseTimeBoList, StatType.APP_RESPONSE_TIME);
         }
     }
 

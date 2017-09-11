@@ -710,6 +710,161 @@ public class JoinApplicationStatBoTest {
     }
 
     @Test
+    public void joinApplicationStatBoByTimeSlice9Test() {
+        final long currentTime = 1487149800000L; // 18:10:00 15 2 2017
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+        joinApplicationStatBoList.add(createJoinApplicationStatBo5("id1", currentTime, 10));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo5("id2", currentTime + 1000, -40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo5("id3", currentTime + 2000, -30));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo5("id4", currentTime + 3000, 40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo5("id5", currentTime + 4000, -50));
+        JoinApplicationStatBo resultJoinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        List<JoinResponseTimeBo> joinResponseTimeBoList = resultJoinApplicationStatBo.getJoinResponseTimeBoList();
+        Collections.sort(joinResponseTimeBoList, new ComparatorImpl5());
+
+        assertJoinResponseTimeBoList(joinResponseTimeBoList);
+    }
+
+    @Test
+    public void joinApplicationStatBoByTimeSlice10Test() {
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+
+        List<JoinResponseTimeBo> joinResponseTimeBoList1 = new ArrayList<JoinResponseTimeBo>();
+        JoinResponseTimeBo joinResponseTimeBo1_1 = new JoinResponseTimeBo("agent1", 1498462545000L, 100, 60, "agent1", 200, "agent1");
+        JoinResponseTimeBo joinResponseTimeBo1_2 = new JoinResponseTimeBo("agent1", 1498462550000L, 100, 60, "agent1", 200, "agent1");
+        JoinResponseTimeBo joinResponseTimeBo1_3 = new JoinResponseTimeBo("agent1", 1498462555000L, 100, 60, "agent1", 200, "agent1");
+        joinResponseTimeBoList1.add(joinResponseTimeBo1_1);
+        joinResponseTimeBoList1.add(joinResponseTimeBo1_2);
+        joinResponseTimeBoList1.add(joinResponseTimeBo1_3);
+        JoinApplicationStatBo joinApplicationStatBo1 = new JoinApplicationStatBo();
+        joinApplicationStatBo1.setId("test_app");
+        joinApplicationStatBo1.setJoinResponseTimeBoList(joinResponseTimeBoList1);
+        joinApplicationStatBo1.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo1);
+
+        List<JoinResponseTimeBo> joinResponseTimeBoList2 = new ArrayList<JoinResponseTimeBo>();
+        JoinResponseTimeBo joinResponseTimeBo2_1 = new JoinResponseTimeBo("agent1", 1498462545000L, 50, 20, "agent1", 230, "agent1");
+        JoinResponseTimeBo joinResponseTimeBo2_2 = new JoinResponseTimeBo("agent2", 1498462550000L, 200, 60, "agent2", 400, "agent2");
+        JoinResponseTimeBo joinResponseTimeBo2_3 = new JoinResponseTimeBo("agent3", 1498462555000L, 500, 10, "agent3", 100, "agent3");
+        JoinResponseTimeBo joinResponseTimeBo2_4 = new JoinResponseTimeBo("agent3", 1498462560000L, 400, 60, "agent3", 500, "agent3");
+        joinResponseTimeBoList2.add(joinResponseTimeBo2_1);
+        joinResponseTimeBoList2.add(joinResponseTimeBo2_2);
+        joinResponseTimeBoList2.add(joinResponseTimeBo2_3);
+        joinResponseTimeBoList2.add(joinResponseTimeBo2_4);
+        JoinApplicationStatBo joinApplicationStatBo2 = new JoinApplicationStatBo();
+        joinApplicationStatBo2.setId("test_app");
+        joinApplicationStatBo2.setJoinResponseTimeBoList(joinResponseTimeBoList2);
+        joinApplicationStatBo2.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo2);
+
+        List<JoinResponseTimeBo> joinResponseTimeBoList3 = new ArrayList<JoinResponseTimeBo>();
+        JoinResponseTimeBo joinResponseTimeBo3_1 = new JoinResponseTimeBo("agent1", 1498462545000L, 150, 20, "agent1", 230, "agent1");
+        JoinResponseTimeBo joinResponseTimeBo3_2 = new JoinResponseTimeBo("agent2", 1498462550000L, 300, 10, "agent2", 400, "agent2");
+        JoinResponseTimeBo joinResponseTimeBo3_3 = new JoinResponseTimeBo("agent3", 1498462565000L, 30, 5, "agent3", 100, "agent3");
+        joinResponseTimeBoList3.add(joinResponseTimeBo3_1);
+        joinResponseTimeBoList3.add(joinResponseTimeBo3_2);
+        joinResponseTimeBoList3.add(joinResponseTimeBo3_3);
+        JoinApplicationStatBo joinApplicationStatBo3 = new JoinApplicationStatBo();
+        joinApplicationStatBo3.setId("test_app");
+        joinApplicationStatBo3.setJoinResponseTimeBoList(joinResponseTimeBoList3);
+        joinApplicationStatBo3.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo3);
+
+        JoinApplicationStatBo joinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        assertEquals(joinApplicationStatBo.getId(), "test_app");
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1498462545000L);
+        List<JoinResponseTimeBo> joinResponseTimeBoList = joinApplicationStatBo.getJoinResponseTimeBoList();
+        Collections.sort(joinResponseTimeBoList, new ComparatorImpl5());
+        assertEquals(joinResponseTimeBoList.size(), 5);
+        assertEquals(joinResponseTimeBoList.get(0).getAvg(), 100);
+        assertEquals(joinResponseTimeBoList.get(1).getAvg(), 200);
+        assertEquals(joinResponseTimeBoList.get(2).getAvg(), 300);
+        assertEquals(joinResponseTimeBoList.get(3).getAvg(), 400);
+        assertEquals(joinResponseTimeBoList.get(4).getAvg(), 30);
+    }
+
+    private void assertJoinResponseTimeBoList(List<JoinResponseTimeBo> joinResponseTimeBoList) {
+        assertEquals(joinResponseTimeBoList.size(), 5);
+
+        JoinResponseTimeBo joinResponseTimeBo1 = joinResponseTimeBoList.get(0);
+        assertEquals(joinResponseTimeBo1.getId(), "id1");
+        assertEquals(joinResponseTimeBo1.getTimestamp(), 1487149800000L);
+        assertEquals(joinResponseTimeBo1.getAvg(), 286);
+        assertEquals(joinResponseTimeBo1.getMinAvg(), 150);
+        assertEquals(joinResponseTimeBo1.getMinAvgAgentId(), "id5_1");
+        assertEquals(joinResponseTimeBo1.getMaxAvg(), 6040);
+        assertEquals(joinResponseTimeBo1.getMaxAvgAgentId(), "id4_2");
+
+        JoinResponseTimeBo joinResponseTimeBo2 = joinResponseTimeBoList.get(1);
+        assertEquals(joinResponseTimeBo2.getId(), "id1");
+        assertEquals(joinResponseTimeBo2.getTimestamp(), 1487149805000L);
+        assertEquals(joinResponseTimeBo2.getAvg(), 186);
+        assertEquals(joinResponseTimeBo2.getMinAvg(), 0);
+        assertEquals(joinResponseTimeBo2.getMinAvgAgentId(), "id5_1");
+        assertEquals(joinResponseTimeBo2.getMaxAvg(), 7040);
+        assertEquals(joinResponseTimeBo2.getMaxAvgAgentId(), "id4_2");
+
+        JoinResponseTimeBo joinResponseTimeBo3 = joinResponseTimeBoList.get(2);
+        assertEquals(joinResponseTimeBo3.getId(), "id1");
+        assertEquals(joinResponseTimeBo3.getTimestamp(), 1487149810000L);
+        assertEquals(joinResponseTimeBo3.getAvg(), 386);
+        assertEquals(joinResponseTimeBo3.getMinAvg(), 250);
+        assertEquals(joinResponseTimeBo3.getMinAvgAgentId(), "id5_1");
+        assertEquals(joinResponseTimeBo3.getMaxAvg(), 8040);
+        assertEquals(joinResponseTimeBo3.getMaxAvgAgentId(), "id4_2");
+
+        JoinResponseTimeBo joinResponseTimeBo4 = joinResponseTimeBoList.get(3);
+        assertEquals(joinResponseTimeBo4.getId(), "id1");
+        assertEquals(joinResponseTimeBo4.getTimestamp(), 1487149815000L);
+        assertEquals(joinResponseTimeBo4.getAvg(), 486);
+        assertEquals(joinResponseTimeBo4.getMinAvg(), 350);
+        assertEquals(joinResponseTimeBo4.getMinAvgAgentId(), "id5_1");
+        assertEquals(joinResponseTimeBo4.getMaxAvg(), 2040);
+        assertEquals(joinResponseTimeBo4.getMaxAvgAgentId(), "id4_2");
+
+        JoinResponseTimeBo joinResponseTimeBo5 = joinResponseTimeBoList.get(4);
+        assertEquals(joinResponseTimeBo5.getId(), "id1");
+        assertEquals(joinResponseTimeBo5.getTimestamp(), 1487149820000L);
+        assertEquals(joinResponseTimeBo5.getAvg(), 86);
+        assertEquals(joinResponseTimeBo5.getMinAvg(), 50);
+        assertEquals(joinResponseTimeBo5.getMinAvgAgentId(), "id5_1");
+        assertEquals(joinResponseTimeBo5.getMaxAvg(), 9040);
+        assertEquals(joinResponseTimeBo5.getMaxAvgAgentId(), "id4_2");
+    }
+
+    private class ComparatorImpl5 implements Comparator<JoinResponseTimeBo> {
+        @Override
+        public int compare(JoinResponseTimeBo bo1, JoinResponseTimeBo bo2) {
+            return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
+        }
+    }
+
+    private JoinApplicationStatBo createJoinApplicationStatBo5(final String id, final long timestamp, final int plus) {
+        final JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
+        joinApplicationStatBo.setId(id);
+        joinApplicationStatBo.setJoinResponseTimeBoList(createJoinResponseTimeList(id, timestamp, plus));
+        joinApplicationStatBo.setTimestamp(timestamp);
+        joinApplicationStatBo.setStatType(StatType.APP_STST);
+        return joinApplicationStatBo;
+    }
+
+    private List<JoinResponseTimeBo> createJoinResponseTimeList(String id, long currentTime, int plus) {
+        final List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<JoinResponseTimeBo>();
+        JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo(id, currentTime, 300+ plus, 200 + plus, id + "_1", 6000 + plus, id + "_2");
+        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo(id, currentTime + 5000, 200 + plus, 50 + plus, id + "_1", 7000 + plus, id + "_2");
+        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo(id, currentTime + 10000, 400 + plus, 300 + plus, id + "_1", 8000 + plus, id + "_2");
+        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo(id, currentTime + 15000, 500 + plus, 400 + plus, id + "_1", 2000 + plus, id + "_2");
+        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo(id, currentTime + 20000, 100 + plus, 100 + plus, id + "_1", 9000 + plus, id + "_2");
+        joinResponseTimeBoList.add(joinResponseTimeBo1);
+        joinResponseTimeBoList.add(joinResponseTimeBo2);
+        joinResponseTimeBoList.add(joinResponseTimeBo3);
+        joinResponseTimeBoList.add(joinResponseTimeBo4);
+        joinResponseTimeBoList.add(joinResponseTimeBo5);
+
+        return joinResponseTimeBoList;
+    }
+
+    @Test
     public void createJoinApplicationStatBoTest() {
         JoinAgentStatBo joinAgentStatBo = new JoinAgentStatBo();
         joinAgentStatBo.setTimestamp(1498462565000L);
@@ -766,6 +921,19 @@ public class JoinApplicationStatBoTest {
         JoinActiveTraceBoList.add(joinActiveTraceBo5);
         joinAgentStatBo.setJoinActiveTraceBoList(JoinActiveTraceBoList);
 
+        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<JoinResponseTimeBo>();
+        JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo("agent1", 1498462565000L, 3000, 2, "app_1_1", 6000, "app_1_2");
+        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo("agent1", 1498462570000L, 4000, 200, "app_2_1", 9000, "app_2_2");
+        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo("agent1", 1498462575000L, 2000, 20, "app_3_1", 7000, "app_3_2");
+        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo("agent1", 1498462580000L, 5000, 20, "app_4_1", 8000, "app_4_2");
+        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo("agent1", 1498462585000L, 1000, 10, "app_5_1", 6600, "app_5_2");
+        joinResponseTimeBoList.add(joinResponseTimeBo1);
+        joinResponseTimeBoList.add(joinResponseTimeBo2);
+        joinResponseTimeBoList.add(joinResponseTimeBo3);
+        joinResponseTimeBoList.add(joinResponseTimeBo4);
+        joinResponseTimeBoList.add(joinResponseTimeBo5);
+        joinAgentStatBo.setJoinResponseTimeBoList(joinResponseTimeBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
         assertEquals(joinApplicationStatBoList.size(), 1);
         JoinApplicationStatBo joinApplicationStatBo = joinApplicationStatBoList.get(0);
@@ -774,6 +942,7 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 5);
         assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 5);
         assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 5);
+        assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 5);
     }
 
     @Test
@@ -833,6 +1002,19 @@ public class JoinApplicationStatBoTest {
         JoinActiveTraceBoList.add(joinActiveTraceBo5);
         joinAgentStatBo.setJoinActiveTraceBoList(JoinActiveTraceBoList);
 
+        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<JoinResponseTimeBo>();
+        JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo("agent1", 1498462545000L, 3000, 2, "app_1_1", 6000, "app_1_2");
+        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo("agent1", 1498462550000L, 4000, 200, "app_2_1", 9000, "app_2_2");
+        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo("agent1", 1498462555000L, 2000, 20, "app_3_1", 7000, "app_3_2");
+        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo("agent1", 1498462560000L, 5000, 20, "app_4_1", 8000, "app_4_2");
+        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo("agent1", 1498462565000L, 1000, 10, "app_5_1", 6600, "app_5_2");
+        joinResponseTimeBoList.add(joinResponseTimeBo1);
+        joinResponseTimeBoList.add(joinResponseTimeBo2);
+        joinResponseTimeBoList.add(joinResponseTimeBo3);
+        joinResponseTimeBoList.add(joinResponseTimeBo4);
+        joinResponseTimeBoList.add(joinResponseTimeBo5);
+        joinAgentStatBo.setJoinResponseTimeBoList(joinResponseTimeBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
         assertEquals(joinApplicationStatBoList.size(), 2);
         for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
@@ -842,11 +1024,13 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462500000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 3);
+                assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 3);
             } else {
                 fail();
             }
@@ -910,6 +1094,19 @@ public class JoinApplicationStatBoTest {
         JoinActiveTraceBoList.add(joinActiveTraceBo5);
         joinAgentStatBo.setJoinActiveTraceBoList(JoinActiveTraceBoList);
 
+        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<JoinResponseTimeBo>();
+        JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo("agent1", 1498462545000L, 3000, 2, "app_1_1", 6000, "app_1_2");
+        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo("agent1", 1498462550000L, 4000, 200, "app_2_1", 9000, "app_2_2");
+        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo("agent1", 1498462555000L, 2000, 20, "app_3_1", 7000, "app_3_2");
+        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo("agent1", 1498462560000L, 5000, 20, "app_4_1", 8000, "app_4_2");
+        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo("agent1", 1498462565000L, 1000, 10, "app_5_1", 6600, "app_5_2");
+        joinResponseTimeBoList.add(joinResponseTimeBo1);
+        joinResponseTimeBoList.add(joinResponseTimeBo2);
+        joinResponseTimeBoList.add(joinResponseTimeBo3);
+        joinResponseTimeBoList.add(joinResponseTimeBo4);
+        joinResponseTimeBoList.add(joinResponseTimeBo5);
+        joinAgentStatBo.setJoinResponseTimeBoList(joinResponseTimeBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 10000);
         assertEquals(joinApplicationStatBoList.size(), 3);
         for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
@@ -919,16 +1116,19 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462540000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 1);
+                assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 1);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462550000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinTransactionBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
             } else {
                 fail();
             }

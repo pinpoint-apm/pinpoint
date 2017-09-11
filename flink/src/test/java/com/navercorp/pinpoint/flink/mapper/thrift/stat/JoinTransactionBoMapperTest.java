@@ -68,6 +68,6 @@ public class JoinTransactionBoMapperTest {
         final JoinTransactionBoMapper joinTransactionBoMapper = new JoinTransactionBoMapper();
         final JoinTransactionBo joinTransactionBo = joinTransactionBoMapper.map(tFAgentStat);
 
-        assertEquals(joinTransactionBo, JoinTransactionBo.EMPTY_TRANSACTION_BO);
+        assertEquals(joinTransactionBo, JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO);
     }
 }

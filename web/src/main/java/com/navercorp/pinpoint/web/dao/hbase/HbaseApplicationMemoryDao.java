@@ -59,12 +59,12 @@ public class HbaseApplicationMemoryDao implements ApplicationMemoryDao {
     }
 
     private List<AggreJoinMemoryBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinMemoryBo> aggreJoinCpuLoadBoList = new ArrayList<>(aggregationStatDataList.size());
+        List<AggreJoinMemoryBo> aggreJoinMemoryBoList = new ArrayList<>(aggregationStatDataList.size());
 
         for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinCpuLoadBoList.add((AggreJoinMemoryBo) aggregationStatData);
+            aggreJoinMemoryBoList.add((AggreJoinMemoryBo) aggregationStatData);
         }
 
-        return aggreJoinCpuLoadBoList;
+        return aggreJoinMemoryBoList;
     }
 }

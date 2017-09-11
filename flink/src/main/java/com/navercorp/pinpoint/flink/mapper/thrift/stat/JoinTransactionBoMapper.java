@@ -28,7 +28,7 @@ public class JoinTransactionBoMapper implements ThriftBoMapper<JoinTransactionBo
     @Override
     public JoinTransactionBo map(TFAgentStat tFAgentStat) {
         if (!tFAgentStat.isSetTransaction()) {
-            return JoinTransactionBo.EMPTY_TRANSACTION_BO;
+            return JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO;
         }
 
         TFTransaction tFtransaction = tFAgentStat.getTransaction();

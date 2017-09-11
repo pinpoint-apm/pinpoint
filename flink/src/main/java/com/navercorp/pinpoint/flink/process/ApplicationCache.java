@@ -33,7 +33,7 @@ import org.springframework.cache.annotation.Cacheable;
 public class ApplicationCache {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final static String SPEL_KEY = "#application.getAgentId() + '.' + #application.getAgentStartTime()";
-    public final static String NOT_FOOUND_APP_ID = "notFoundId";
+    public final static String NOT_FOUND_APP_ID = "notFoundId";
     private final static AgentInfoMapper agentInfoMapper = new AgentInfoMapper();
 
     private static HbaseTemplate2 hbaseTemplate2;
@@ -56,7 +56,7 @@ public class ApplicationCache {
         } catch (Exception e) {
             logger.error("can't found application id({})", agentId, e);
         }
-        String applicationId = NOT_FOOUND_APP_ID;
+        String applicationId = NOT_FOUND_APP_ID;
 
         if (agentInfo != null) {
             applicationId = agentInfo.getApplicationName();

@@ -35,7 +35,7 @@ public class JoinActiveTraceSamplerTest {
         long currentTime = 1487149800000L;
         JoinActiveTraceSampler sampler = new JoinActiveTraceSampler();
         List<JoinActiveTraceBo> joinActiveTraceBoList = createJoinActiveTraceBoList(currentTime);
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo = sampler.sampleDataPoints(1, currentTime, joinActiveTraceBoList, JoinActiveTraceBo.EMPTY_ACTIVE_TRACE_BO);
+        AggreJoinActiveTraceBo aggreJoinActiveTraceBo = sampler.sampleDataPoints(1, currentTime, joinActiveTraceBoList, JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO);
 
         assertEquals(aggreJoinActiveTraceBo.getId(), "test_app");
         assertEquals(aggreJoinActiveTraceBo.getHistogramSchemaType(), 1);

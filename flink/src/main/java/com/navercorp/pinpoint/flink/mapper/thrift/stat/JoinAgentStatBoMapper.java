@@ -34,6 +34,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
     private static JoinMemoryBoMapper joinMemoryBoMapper = new JoinMemoryBoMapper();
     private static JoinTransactionBoMapper joinTransactionBoMapper = new JoinTransactionBoMapper();
     private static JoinActiveTraceBoMapper joinActiveTraceBoMapper = new JoinActiveTraceBoMapper();
+    private static JoinResponseTimeBoMapper joinResponseTimeBoMapper = new JoinResponseTimeBoMapper();
 
     @Override
     public JoinAgentStatBo map(TFAgentStatBatch tFAgentStatBatch) {
@@ -51,27 +52,41 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
         List<JoinMemoryBo> joinMemoryBoList = new ArrayList<>(agentStatSize);
         List<JoinTransactionBo> joinTransactionBoList = new ArrayList<>(agentStatSize);
         List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<>(agentStatSize);
+        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>(agentStatSize);
+
         for (TFAgentStat tFAgentStat : tFAgentStatBatch.getAgentStats()) {
             createAndAddJoinCpuLoadBo(tFAgentStat, joinCpuLoadBoList);
             createAndAddJoinMemoryBo(tFAgentStat, joinMemoryBoList);
             createAndAddJoinTransactionBo(tFAgentStat, joinTransactionBoList);
             createAndAddJoinActiveTraceBo(tFAgentStat, joinActiveTraceBoList);
+            createAndAddJoinResponseTimeBo(tFAgentStat, joinResponseTimeBoList);
         }
 
         joinAgentStatBo.setJoinCpuLoadBoList(joinCpuLoadBoList);
         joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
         joinAgentStatBo.setJoinTransactionBoList(joinTransactionBoList);
         joinAgentStatBo.setJoinActiveTraceBoList(joinActiveTraceBoList);
+        joinAgentStatBo.setJoinResponseTimeBoList(joinResponseTimeBoList);
         joinAgentStatBo.setId(tFAgentStatBatch.getAgentId());
         joinAgentStatBo.setAgentStartTimestamp(tFAgentStatBatch.getStartTimestamp());
         joinAgentStatBo.setTimestamp(getTimeStamp(joinAgentStatBo));
         return joinAgentStatBo;
     }
 
+    private void createAndAddJoinResponseTimeBo(TFAgentStat tFAgentStat, List<JoinResponseTimeBo> joinResponseTimeBoList) {
+        JoinResponseTimeBo joinResponseTimeBo = joinResponseTimeBoMapper.map(tFAgentStat);
+
+        if (joinResponseTimeBo == joinResponseTimeBo.EMPTY_JOIN_RESPONSE_TIME_BO) {
+            return;
+        }
+
+        joinResponseTimeBoList.add(joinResponseTimeBo);
+    }
+
     private void createAndAddJoinActiveTraceBo(TFAgentStat tFAgentStat, List<JoinActiveTraceBo> joinActiveTraceBoList) {
         JoinActiveTraceBo joinActiveTraceBo = joinActiveTraceBoMapper.map(tFAgentStat);
 
-        if (joinActiveTraceBo == joinActiveTraceBo.EMPTY_ACTIVE_TRACE_BO) {
+        if (joinActiveTraceBo == joinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO) {
             return;
         }
 
@@ -81,7 +96,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
     private void createAndAddJoinTransactionBo(TFAgentStat tFAgentStat, List<JoinTransactionBo> joinTransactionBoList) {
         JoinTransactionBo joinTransactionBo = joinTransactionBoMapper.map(tFAgentStat);
 
-        if (joinTransactionBo == JoinTransactionBo.EMPTY_TRANSACTION_BO) {
+        if (joinTransactionBo == JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO) {
             return;
         }
 
@@ -111,6 +126,12 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
 
         if (joinActiveTraceBoList.size() != 0) {
             return joinActiveTraceBoList.get(0).getTimestamp();
+        }
+
+        List<JoinResponseTimeBo> joinResponseTimeBoList = joinAgentStatBo.getJoinResponseTimeBoList();
+
+        if (joinResponseTimeBoList.size() != 0) {
+            return joinResponseTimeBoList.get(0).getTimestamp();
         }
 
         return Long.MIN_VALUE;

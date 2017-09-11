@@ -296,4 +296,59 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinActiveTraceBo2.getMinTotalCountAgentId(), agentId);
     }
 
+    @Test
+    public void map5Test() {
+        final String agentId = "testAgent";
+        final JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274138454L);
+        tFAgentStatBatch.setAgentId(agentId);
+
+        final TFResponseTime tFResponseTime = new TFResponseTime();
+        tFResponseTime.setAvg(100);
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(agentId);
+        tFAgentStat.setTimestamp(1491274148454L);
+        tFAgentStat.setResponseTime(tFResponseTime);
+
+        final TFResponseTime tFResponseTime2 = new TFResponseTime();
+        tFResponseTime2.setAvg(120);
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(agentId);
+        tFAgentStat2.setTimestamp(1491275148454L);
+        tFAgentStat2.setResponseTime(tFResponseTime2);
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
+        assertEquals(joinAgentStatBo.getId(), agentId);
+        assertEquals(joinAgentStatBo.getAgentStartTimestamp(), 1491274138454L);
+        assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
+
+        List<JoinResponseTimeBo> joinResponseTimeBoList = joinAgentStatBo.getJoinResponseTimeBoList();
+        assertEquals(joinResponseTimeBoList.size(), 2);
+
+        JoinResponseTimeBo joinResponseTimeBo = joinResponseTimeBoList.get(0);
+        assertEquals(joinResponseTimeBo.getId(), agentId);
+        assertEquals(joinResponseTimeBo.getTimestamp(), 1491274148454L);
+        assertEquals(joinResponseTimeBo.getAvg(), 100);
+        assertEquals(joinResponseTimeBo.getMinAvg(), 100);
+        assertEquals(joinResponseTimeBo.getMinAvgAgentId(), agentId);
+        assertEquals(joinResponseTimeBo.getMaxAvg(), 100);
+        assertEquals(joinResponseTimeBo.getMaxAvgAgentId(), agentId);
+
+        JoinResponseTimeBo joinResponseTimeBo2 = joinResponseTimeBoList.get(1);
+        assertEquals(joinResponseTimeBo2.getId(), agentId);
+        assertEquals(joinResponseTimeBo2.getTimestamp(), 1491275148454L);
+        assertEquals(joinResponseTimeBo2.getAvg(), 120);
+        assertEquals(joinResponseTimeBo2.getMinAvg(), 120);
+        assertEquals(joinResponseTimeBo2.getMinAvgAgentId(), agentId);
+        assertEquals(joinResponseTimeBo2.getMaxAvg(), 120);
+        assertEquals(joinResponseTimeBo2.getMaxAvgAgentId(), agentId);
+    }
+
 }

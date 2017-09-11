@@ -22,16 +22,12 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 
-import org.apache.flink.util.CollectionUtil;
 import org.apache.flink.util.Collector;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author minwoo.jung
@@ -68,7 +64,7 @@ public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, Jo
             final ApplicationCache.ApplicationKey applicationKey = new ApplicationCache.ApplicationKey(joinAgentStatBo.getId(), joinAgentStatBo.getAgentStartTimestamp());
             final String applicationId = applicationCache.findApplicationId(applicationKey);
 
-            if (applicationId.equals(ApplicationCache.NOT_FOOUND_APP_ID)) {
+            if (applicationId.equals(ApplicationCache.NOT_FOUND_APP_ID)) {
                 logger.warn("can't found application id");
                 return;
             }

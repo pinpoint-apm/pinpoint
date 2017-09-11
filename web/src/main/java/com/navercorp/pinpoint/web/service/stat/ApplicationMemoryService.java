@@ -43,7 +43,7 @@ public class ApplicationMemoryService implements ApplicationStatChartService {
         if (timeWindow == null) {
             throw new NullPointerException("timeWindow must not be null");
         }
-        List<AggreJoinMemoryBo> aggreJoinCpuLoadBoList = this.applicationMemoryDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationMemoryChartGroup(timeWindow, aggreJoinCpuLoadBoList);
+        List<AggreJoinMemoryBo> aggreJoinMemoryBoList = this.applicationMemoryDao.getApplicationStatList(applicationId, timeWindow);
+        return new ApplicationMemoryChartGroup(timeWindow, aggreJoinMemoryBoList);
     }
 }

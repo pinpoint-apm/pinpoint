@@ -57,6 +57,6 @@ public class JoinTransactionBoTest {
     public void joinTransactionBoLIst2Test() {
         List<JoinTransactionBo> joinTransactionBoList = new ArrayList<JoinTransactionBo>();
         JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoLIst(joinTransactionBoList, 1496988667231L);
-        assertEquals(joinTransactionBo, JoinTransactionBo.EMPTY_TRANSACTION_BO);
+        assertEquals(joinTransactionBo, JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO);
     }
 }

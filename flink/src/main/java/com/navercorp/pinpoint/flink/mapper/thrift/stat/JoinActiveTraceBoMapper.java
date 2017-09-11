@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
-import sun.nio.cs.HistoricallyNamedCharset;
 
 import java.util.List;
 
@@ -31,14 +30,14 @@ public class JoinActiveTraceBoMapper {
 
     public JoinActiveTraceBo map(TFAgentStat tFAgentStat) {
         if (!tFAgentStat.isSetActiveTrace()) {
-            return JoinActiveTraceBo.EMPTY_ACTIVE_TRACE_BO;
+            return JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO;
         }
 
         final TFActiveTrace tFactiveTrace = tFAgentStat.getActiveTrace();
         final String agentId = tFAgentStat.getAgentId();
 
         if (tFactiveTrace.isSetHistogram() == false) {
-            return JoinActiveTraceBo.EMPTY_ACTIVE_TRACE_BO;
+            return JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO;
         }
 
         final TFActiveTraceHistogram histogram = tFactiveTrace.getHistogram();

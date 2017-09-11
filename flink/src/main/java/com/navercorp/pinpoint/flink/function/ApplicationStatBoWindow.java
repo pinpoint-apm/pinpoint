@@ -64,6 +64,7 @@ public class ApplicationStatBoWindow implements WindowFunction<Tuple3<String, Jo
 
     private JoinApplicationStatBo join(Iterable<Tuple3<String, JoinStatBo, Long>> values) {
         List<JoinApplicationStatBo> joinApplicaitonStatBoList = new ArrayList<JoinApplicationStatBo>();
+
         for (Tuple3<String, JoinStatBo, Long> value : values) {
             joinApplicaitonStatBoList.add((JoinApplicationStatBo) value.f1);
         }

@@ -78,7 +78,7 @@ public class JoinActiveTraceBoMapperTest {
         final JoinActiveTraceBoMapper joinActiveTraceBoMapper = new JoinActiveTraceBoMapper();
         final JoinActiveTraceBo joinActiveTraceBo = joinActiveTraceBoMapper.map(tFAgentStat);
 
-        assertEquals(joinActiveTraceBo, JoinActiveTraceBo.EMPTY_ACTIVE_TRACE_BO);
+        assertEquals(joinActiveTraceBo, JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO);
     }
 
 }
