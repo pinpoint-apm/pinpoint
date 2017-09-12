@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.active;
-
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-
-import java.util.List;
+package com.navercorp.pinpoint.profiler.receiver.service;
 
 /**
- * @author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public interface ActiveTraceRepository {
+public class StartTimeComparator {
 
-    ActiveTraceHistogram getActiveTraceHistogram(long timeStamp);
+    static final int CHANGE_TO_NEW_ELEMENT = 1;
+    static final int KEEP_OLD_ELEMENT = -1;
 
-    List<ActiveTraceSnapshot> snapshot();
-
-    List<Long> getThreadIdList();
-
-    ActiveTraceHandle register(TraceRoot traceRoot);
-
-    ActiveTraceHandle register(long localTransactionId, long startTime, long threadId);
-
+    public static int compare(long before, long after) {
+        final long diff = before - after;
+        if (diff <= 0) {
+            // Do not change it for the same value for performance.
+            return KEEP_OLD_ELEMENT;
+        }
+        return CHANGE_TO_NEW_ELEMENT;
+    }
 }

@@ -58,7 +58,7 @@ public class ActiveThreadDumpUtils {
             return false;
         }
 
-        final ThreadInfo thread = ThreadMXBeanUtils.findThread(threadId);
+        final ThreadInfo thread = ThreadMXBeanUtils.getThreadInfo(threadId);
         if (filterThreadName(threadNameList, thread.getThreadName())) {
             return true;
         }
@@ -84,7 +84,7 @@ public class ActiveThreadDumpUtils {
         return ACTIVE_TRACE_INFO_COMPARATOR;
     }
 
-    private static class ActiveTraceInfoComparator implements  Comparator<ActiveTraceSnapshot> {
+    private static class ActiveTraceInfoComparator implements Comparator<ActiveTraceSnapshot> {
 
         private static final int CHANGE_TO_NEW_ELEMENT = 1;
         private static final int KEEP_OLD_ELEMENT = -1;

@@ -80,7 +80,7 @@ public class DeadlockMonitorTask implements Runnable {
             deadlockOutput.append("================================================================").append(LINE_SEPARATOR);
 
             for (long deadlockedThreadId : deadlockedThreadIds) {
-                ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(deadlockedThreadId);
+                ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(deadlockedThreadId);
                 deadlockOutput.append(createThreadDump(threadInfo));
             }
             deadlockOutput.append("================================================================").append(LINE_SEPARATOR);

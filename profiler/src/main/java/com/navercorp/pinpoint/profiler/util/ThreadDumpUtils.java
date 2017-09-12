@@ -36,7 +36,9 @@ public class ThreadDumpUtils {
 
 
     public static TThreadDump createTThreadDump(Thread thread) {
-        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(thread);
+        Assert.requireNonNull(thread, "thread must not be null");
+
+        ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(thread.getId());
         if (threadInfo == null) {
             return null;
         }
@@ -45,7 +47,9 @@ public class ThreadDumpUtils {
     }
 
     public static TThreadDump createTThreadDump(Thread thread, int stackTraceMaxDepth) {
-        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(thread, stackTraceMaxDepth);
+        Assert.requireNonNull(thread, "thread must not be null");
+
+        ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(thread.getId(), stackTraceMaxDepth);
         if (threadInfo == null) {
             return null;
         }
@@ -65,7 +69,7 @@ public class ThreadDumpUtils {
     }
 
     public static TThreadDump createTThreadDump(long threadId) {
-        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(threadId);
+        ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(threadId);
         if (threadInfo == null) {
             return null;
         }
@@ -74,7 +78,7 @@ public class ThreadDumpUtils {
     }
 
     public static TThreadDump createTThreadDump(long threadId, int stackTraceMaxDepth) {
-        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(threadId, stackTraceMaxDepth);
+        ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(threadId, stackTraceMaxDepth);
         if (threadInfo == null) {
             return null;
         }

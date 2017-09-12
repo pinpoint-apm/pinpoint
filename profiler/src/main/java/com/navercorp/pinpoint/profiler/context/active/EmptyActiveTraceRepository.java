@@ -43,7 +43,12 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
     }
 
     @Override
-    public List<ActiveTraceSnapshot> collect() {
+    public List<Long> getThreadIdList() {
+        return null;
+    }
+
+    @Override
+    public List<ActiveTraceSnapshot> snapshot() {
         return Collections.emptyList();
     }
 
