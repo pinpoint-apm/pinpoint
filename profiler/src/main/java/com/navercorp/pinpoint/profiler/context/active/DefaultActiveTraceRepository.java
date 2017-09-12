@@ -122,12 +122,13 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
 
     // @ThreadSafe
     @Override
-    public List<ActiveTraceSnapshot> collect() {
+    public List<ActiveTraceSnapshot> snapshot() {
         if (this.activeTraceInfoMap.isEmpty()) {
             return Collections.emptyList();
         }
         final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
         final List<ActiveTraceSnapshot> collectData = new ArrayList<ActiveTraceSnapshot>(activeTraceCollection.size());
+
         for (ActiveTrace trace : activeTraceCollection) {
             final long startTime = trace.getStartTime();
             // not started
@@ -136,6 +137,31 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
             }
             final ActiveTraceSnapshot snapshot = trace.snapshot();
             collectData.add(snapshot);
+        }
+        if (isDebug) {
+            logger.debug("activeTraceSnapshot size:{}", collectData.size());
+        }
+        return collectData;
+    }
+
+
+    // @ThreadSafe
+    @Override
+    public List<Long> getThreadIdList() {
+        if (this.activeTraceInfoMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
+        final List<Long> collectData = new ArrayList<Long>(activeTraceCollection.size());
+
+        for (ActiveTrace trace : activeTraceCollection) {
+            final long startTime = trace.getStartTime();
+            // not started
+            if (!isStarted(startTime)) {
+                continue;
+            }
+            final ActiveTraceSnapshot snapshot = trace.snapshot();
+            collectData.add(snapshot.getThreadId());
         }
         if (isDebug) {
             logger.debug("activeTraceSnapshot size:{}", collectData.size());

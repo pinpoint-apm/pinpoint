@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.active;
-
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-
-import java.util.List;
+package com.navercorp.pinpoint.profiler.receiver.service;
 
 /**
- * @author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public interface ActiveTraceRepository {
-
-    ActiveTraceHistogram getActiveTraceHistogram(long timeStamp);
-
-    List<ActiveTraceSnapshot> snapshot();
-
-    List<Long> getThreadIdList();
-
-    ActiveTraceHandle register(TraceRoot traceRoot);
-
-    ActiveTraceHandle register(long localTransactionId, long startTime, long threadId);
-
+public enum StackTrace {
+    DUMP, SKIP
 }

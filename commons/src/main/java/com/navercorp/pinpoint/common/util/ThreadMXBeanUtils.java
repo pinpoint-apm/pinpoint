@@ -72,19 +72,53 @@ public final class ThreadMXBeanUtils {
 //        }
     }
 
+    /**
+     * @deprecated Since 1.7.0. Use {@link #getThreadInfo(long)}
+     */
+    @Deprecated
     public static ThreadInfo findThread(Thread thread) {
-        return findThread(thread.getId());
+        Assert.requireNonNull(thread, "thread must not be null");
+        return getThreadInfo(thread.getId());
     }
 
+    /**
+     * @deprecated Since 1.7.0. Use {@link #getThreadInfo(long, int)}
+     */
+    @Deprecated
     public static ThreadInfo findThread(Thread thread, int stackTraceMaxDepth) {
-        return findThread(thread.getId(), stackTraceMaxDepth);
+        Assert.requireNonNull(thread, "thread must not be null");
+        return getThreadInfo(thread.getId(), stackTraceMaxDepth);
     }
 
+    /**
+     * @deprecated Since 1.7.0. Use {@link #getThreadInfo(long)}
+     */
+    @Deprecated
     public static ThreadInfo findThread(long id) {
-        return findThread(id, DEFAULT_STACK_TRACE_MAX_DEPTH);
+        return getThreadInfo(id, DEFAULT_STACK_TRACE_MAX_DEPTH);
     }
 
+    public static ThreadInfo getThreadInfo(long id) {
+        return getThreadInfo(id, DEFAULT_STACK_TRACE_MAX_DEPTH);
+    }
+
+    /**
+     * @deprecated Since 1.7.0. Use {@link #getThreadInfo(long, int)}
+     */
+    @Deprecated
     public static ThreadInfo findThread(long id, int stackTraceMaxDepth) {
+        return getThreadInfo(id, stackTraceMaxDepth);
+    }
+
+    public static ThreadInfo getThreadInfo(long id, int stackTraceMaxDepth) {
+        if (stackTraceMaxDepth <= 0) {
+            return THREAD_MX_BEAN.getThreadInfo(id);
+        } else {
+            return THREAD_MX_BEAN.getThreadInfo(id, stackTraceMaxDepth);
+        }
+    }
+
+    public static ThreadInfo[] findThread(long[] id, int stackTraceMaxDepth) {
         if (stackTraceMaxDepth <= 0) {
             return THREAD_MX_BEAN.getThreadInfo(id);
         } else {

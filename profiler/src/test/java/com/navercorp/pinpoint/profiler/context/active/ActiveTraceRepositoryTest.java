@@ -88,7 +88,7 @@ public class ActiveTraceRepositoryTest {
         // When
         ListenableFuture<List<TraceThreadTuple>> futures = executeTransactions(awaitLatch, executeLatch, newTransactionCount, expectedSampledContinuationCount, expectedUnsampledContinuationCount);
         executeLatch.await();
-        List<ActiveTraceSnapshot> activeTraceInfos = this.activeTraceRepository.collect();
+        List<ActiveTraceSnapshot> activeTraceInfos = this.activeTraceRepository.snapshot();
         awaitLatch.countDown();
         List<TraceThreadTuple> executedTraces = futures.get();
         Map<Long, TraceThreadTuple> executedTraceMap = new HashMap<Long, TraceThreadTuple>(executedTraces.size());
