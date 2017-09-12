@@ -47,6 +47,7 @@ public class ProxyHttpHeaderParserTest {
         assertEquals(12345, tvalue.getIntValue2());
         assertEquals(99, tvalue.getByteValue1());
         assertEquals(1, tvalue.getByteValue2());
+        System.out.println("");
     }
 
     @Test
@@ -104,7 +105,7 @@ public class ProxyHttpHeaderParserTest {
     @Test
     public void parseNginx() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
-        String value = "1504248328.423 0.123";
+        String value = "t=1504248328.423 D=0.123";
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_NGINX, value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(1504248328423L, proxyHttpHeader.getReceivedTimeMillis());
@@ -122,7 +123,7 @@ public class ProxyHttpHeaderParserTest {
     @Test
     public void parseNginxMsec() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
-        String value = "1504248328.423";
+        String value = "t=1504248328.423";
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_NGINX, value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(1504248328423L, proxyHttpHeader.getReceivedTimeMillis());
@@ -141,7 +142,7 @@ public class ProxyHttpHeaderParserTest {
     public void parseApp() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
         final long currentTimeMillis = System.currentTimeMillis();
-        String value = String.valueOf(currentTimeMillis);
+        String value = "t=" + currentTimeMillis;
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_APP, value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
@@ -160,7 +161,7 @@ public class ProxyHttpHeaderParserTest {
     public void parseTimestampInvalidValue() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
         final long currentTimeMillis = System.currentTimeMillis();
-        String value = String.valueOf(Long.MAX_VALUE) + String.valueOf(Long.MAX_VALUE);
+        String value = "t=" + String.valueOf(Long.MAX_VALUE) + String.valueOf(Long.MAX_VALUE);
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_APP, value);
         assertFalse(proxyHttpHeader.isValid());
     }
@@ -168,59 +169,66 @@ public class ProxyHttpHeaderParserTest {
     @Test
     public void parseUnknown() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
-        String value = "x=" + System.currentTimeMillis() + "999";
-        ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_APP, value);
-        assertFalse(proxyHttpHeader.isValid());
-        assertEquals(0, proxyHttpHeader.getReceivedTimeMillis());
-        assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
-        assertEquals(-1, proxyHttpHeader.getIdlePercent());
-        assertEquals(-1, proxyHttpHeader.getBusyPercent());
-        assertEquals(AnnotationKey.PROXY_HTTP_HEADER, proxyHttpHeader.getAnnotationKey());
-        LongIntIntByteByteStringValue tvalue = (LongIntIntByteByteStringValue) proxyHttpHeader.getAnnotationValue();
-        assertEquals(0, tvalue.getLongValue());
-        assertEquals(-1, tvalue.getIntValue2());
-        assertEquals(-1, tvalue.getByteValue1());
-        assertEquals(-1, tvalue.getByteValue2());
+        // missing t=
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APP, "x=99999").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APP, "D=0.00").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APP, "i=100").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APP, "b=100").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APP, "app=foo-bar").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APACHE, "D=100 i=1 b=99").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_NGINX, "D=0.00").isValid());
+
+        // invalid t=
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APP, "t=A10101010").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APP, "t=0").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APACHE, "t=0").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APACHE, "t=10").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_APACHE, "t=100").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_NGINX, "t=0").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_NGINX, "t=10").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_NGINX, "t=10.0").isValid());
+        assertFalse(parser.parse(ProxyHttpHeader.TYPE_NGINX, "t=10.00").isValid());
     }
 
     @Test
     public void toReceivedTimeMillis() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
-        assertEquals(1504230492763L, ProxyHttpHeaderParser.NginxUnit.toReceivedTimeMillis("1504230492.763"));
-        assertEquals(1504244246860L, ProxyHttpHeaderParser.ApacheUnit.toReceivedTimeMillis("1504244246860824"));
-        assertEquals(1504230492763L, ProxyHttpHeaderParser.AppUnit.toReceivedTimeMillis("1504230492763"));
+
+        assertEquals(1504230492763L, parser.getNginxUnit().toReceivedTimeMillis("1504230492.763"));
+        assertEquals(1504244246860L, parser.getApacheUnit().toReceivedTimeMillis("1504244246860824"));
+        assertEquals(1504230492763L, parser.getAppUnit().toReceivedTimeMillis("1504230492763"));
 
         // invalid
-        assertEquals(0L, ProxyHttpHeaderParser.NginxUnit.toReceivedTimeMillis("1504230492.76"));
-        assertEquals(0L, ProxyHttpHeaderParser.NginxUnit.toReceivedTimeMillis("1504230492.7"));
-        assertEquals(0L, ProxyHttpHeaderParser.NginxUnit.toReceivedTimeMillis("1504230492."));
+        assertEquals(0L, parser.getNginxUnit().toReceivedTimeMillis("1504230492.76"));
+        assertEquals(0L, parser.getNginxUnit().toReceivedTimeMillis("1504230492.7"));
+        assertEquals(0L, parser.getNginxUnit().toReceivedTimeMillis("1504230492."));
 
-        assertEquals(0L, ProxyHttpHeaderParser.ApacheUnit.toReceivedTimeMillis("150"));
-        assertEquals(0L, ProxyHttpHeaderParser.ApacheUnit.toReceivedTimeMillis("15"));
-        assertEquals(0L, ProxyHttpHeaderParser.ApacheUnit.toReceivedTimeMillis("1"));
-        assertEquals(0L, ProxyHttpHeaderParser.ApacheUnit.toReceivedTimeMillis(""));
-        assertEquals(0L, ProxyHttpHeaderParser.ApacheUnit.toReceivedTimeMillis(null));
+        assertEquals(0L, parser.getApacheUnit().toReceivedTimeMillis("150"));
+        assertEquals(0L, parser.getApacheUnit().toReceivedTimeMillis("15"));
+        assertEquals(0L, parser.getApacheUnit().toReceivedTimeMillis("1"));
+        assertEquals(0L, parser.getApacheUnit().toReceivedTimeMillis(""));
+        assertEquals(0L, parser.getApacheUnit().toReceivedTimeMillis(null));
 
-        assertEquals(0L, ProxyHttpHeaderParser.AppUnit.toReceivedTimeMillis("A"));
-        assertEquals(0L, ProxyHttpHeaderParser.AppUnit.toReceivedTimeMillis("150B"));
+        assertEquals(0L, parser.getAppUnit().toReceivedTimeMillis("A"));
+        assertEquals(0L, parser.getAppUnit().toReceivedTimeMillis("150B"));
     }
 
     @Test
     public void toDurationTimeMicros() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
-        assertEquals(1001000L, ProxyHttpHeaderParser.NginxUnit.toDurationTimeMicros("1.001"));
-        assertEquals(1000L, ProxyHttpHeaderParser.NginxUnit.toDurationTimeMicros("0.001"));
-        assertEquals(123L, ProxyHttpHeaderParser.ApacheUnit.toDurationTimeMicros("123"));
+        assertEquals(1001000, parser.getNginxUnit().toDurationTimeMicros("1.001"));
+        assertEquals(1000, parser.getNginxUnit().toDurationTimeMicros("0.001"));
+        assertEquals(123, parser.getApacheUnit().toDurationTimeMicros("123"));
 
         // invalid
-        assertEquals(0L, ProxyHttpHeaderParser.NginxUnit.toDurationTimeMicros("1.01"));
-        assertEquals(0L, ProxyHttpHeaderParser.NginxUnit.toDurationTimeMicros("1.1"));
-        assertEquals(0L, ProxyHttpHeaderParser.NginxUnit.toDurationTimeMicros("1."));
-        assertEquals(0L, ProxyHttpHeaderParser.NginxUnit.toDurationTimeMicros(".0"));
-        assertEquals(0L, ProxyHttpHeaderParser.NginxUnit.toDurationTimeMicros(".01"));
+        assertEquals(0, parser.getNginxUnit().toDurationTimeMicros("1.01"));
+        assertEquals(0, parser.getNginxUnit().toDurationTimeMicros("1.1"));
+        assertEquals(0, parser.getNginxUnit().toDurationTimeMicros("1."));
+        assertEquals(0, parser.getNginxUnit().toDurationTimeMicros(".0"));
+        assertEquals(0, parser.getNginxUnit().toDurationTimeMicros(".01"));
 
-        assertEquals(0L, ProxyHttpHeaderParser.ApacheUnit.toDurationTimeMicros("a"));
-        assertEquals(0L, ProxyHttpHeaderParser.ApacheUnit.toDurationTimeMicros(""));
-        assertEquals(0L, ProxyHttpHeaderParser.ApacheUnit.toDurationTimeMicros(null));
+        assertEquals(0, parser.getApacheUnit().toDurationTimeMicros("a"));
+        assertEquals(0, parser.getApacheUnit().toDurationTimeMicros(""));
+        assertEquals(0, parser.getApacheUnit().toDurationTimeMicros(null));
     }
 }

@@ -18,12 +18,14 @@ package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.util.List;
-
 /**
  * @author jaehong.kim
  */
 public class ProxyHttpHeaderParser {
+    private final ProxyTimeUnit nginxUnit = new NginxTimeUnit();
+    private final ProxyTimeUnit apacheUnit = new ApacheTimeUnit();
+    private final ProxyTimeUnit appUnit = new AppTimeUnit();
+
     public ProxyHttpHeader parse(final int type, final String value) {
         final ProxyHttpHeader header = new ProxyHttpHeader(type);
         if (value == null) {
@@ -33,11 +35,11 @@ public class ProxyHttpHeaderParser {
         }
 
         if (type == ProxyHttpHeader.TYPE_APP) {
-            parseAppFormat(header, value);
+            parseFormat(header, value, appUnit);
         } else if (type == ProxyHttpHeader.TYPE_NGINX) {
-            parseNginxFormat(header, value);
+            parseFormat(header, value, nginxUnit);
         } else if (type == ProxyHttpHeader.TYPE_APACHE) {
-            parseApacheHttpdFormat(header, value);
+            parseFormat(header, value, apacheUnit);
         } else {
             header.setValid(false);
             header.setCause("unknown type");
@@ -46,27 +48,24 @@ public class ProxyHttpHeaderParser {
         return header;
     }
 
-    void parseApacheHttpdFormat(final ProxyHttpHeader header, final String value) {
+    void parseFormat(final ProxyHttpHeader header, final String value, final ProxyTimeUnit proxyTimeUnit) {
         for (String token : StringUtils.tokenizeToStringList(value, " ")) {
             if (token.startsWith("t=")) {
                 // convert to milliseconds from microseconds.
-                final int length = token.length() - 3;
-                if (length > 2) {
-                    final long receivedTimeMillis = ApacheUnit.toReceivedTimeMillis(token.substring(2));
-                    if (receivedTimeMillis > 0) {
-                        header.setReceivedTimeMillis(receivedTimeMillis);
-                        header.setValid(true);
-                        continue;
-                    }
+                final long receivedTimeMillis = proxyTimeUnit.toReceivedTimeMillis(token.substring(2));
+                if (receivedTimeMillis > 0) {
+                    header.setReceivedTimeMillis(receivedTimeMillis);
+                    header.setValid(true);
+                } else {
+                    // stop.
+                    header.setValid(false);
+                    header.setCause("invalid received time");
+                    return;
                 }
-                header.setValid(false);
-                header.setCause("invalid received time");
-                return;
             } else if (token.startsWith("D=")) {
-                final long durationTimeMicroseconds = ApacheUnit.toDurationTimeMicros(token.substring(2));
+                final long durationTimeMicroseconds = proxyTimeUnit.toDurationTimeMicros(token.substring(2));
                 if (durationTimeMicroseconds > 0) {
                     header.setDurationTimeMicroseconds((int) durationTimeMicroseconds);
-                    continue;
                 }
             } else if (token.startsWith("i=")) {
                 try {
@@ -86,54 +85,43 @@ public class ProxyHttpHeaderParser {
                     }
                 } catch (NumberFormatException ignored) {
                 }
+            } else if (token.startsWith("app=")) {
+                final String app = token.substring(4).trim();
+                if (!app.isEmpty()) {
+                    header.setApp(app);
+                }
             }
         }
     }
 
-    void parseNginxFormat(final ProxyHttpHeader header, final String value) {
-        final List<String> tokens = StringUtils.tokenizeToStringList(value, " ");
-        if (tokens.size() >= 1) {
-            // first token is receivedTimeMillis.
-            final long receivedTimeMillis = NginxUnit.toReceivedTimeMillis(tokens.get(0));
-            if (receivedTimeMillis > 0) {
-                header.setReceivedTimeMillis(receivedTimeMillis);
-                header.setValid(true);
-            } else {
-                header.setValid(false);
-                header.setCause("invalid received time");
-                return;
-            }
-        }
-
-        if (tokens.size() >= 2) {
-            final long durationTimeMicroseconds = NginxUnit.toDurationTimeMicros(tokens.get(1));
-            if (durationTimeMicroseconds > 0) {
-                header.setDurationTimeMicroseconds((int) durationTimeMicroseconds);
-            }
-        }
+    // for testcase.
+    ProxyTimeUnit getNginxUnit() {
+        return nginxUnit;
     }
 
-    void parseAppFormat(final ProxyHttpHeader header, final String value) {
-        final List<String> tokens = StringUtils.tokenizeToStringList(value, " ");
-        if (tokens.size() >= 1) {
-            final long receivedTimeMillis = AppUnit.toReceivedTimeMillis(tokens.get(0));
-            if (receivedTimeMillis > 0) {
-                header.setReceivedTimeMillis(receivedTimeMillis);
-                header.setValid(true);
-            } else {
-                header.setValid(false);
-                header.setCause("invalid received time");
-                return;
-            }
-        }
-
-        if (tokens.size() >= 2) {
-            header.setApp(tokens.get(1));
-        }
+    // for testcase.
+    ProxyTimeUnit getApacheUnit() {
+        return apacheUnit;
     }
 
-    static class NginxUnit {
-        static long toReceivedTimeMillis(final String value) {
+    // for testcase.
+    ProxyTimeUnit getAppUnit() {
+        return appUnit;
+    }
+
+    interface ProxyTimeUnit {
+        long toReceivedTimeMillis(final String value);
+
+        int toDurationTimeMicros(final String value);
+    }
+
+    private class NginxTimeUnit implements ProxyTimeUnit {
+
+        public NginxTimeUnit() {
+        }
+
+        @Override
+        public long toReceivedTimeMillis(final String value) {
             if (value == null) {
                 return 0;
             }
@@ -154,7 +142,8 @@ public class ProxyHttpHeaderParser {
             return 0;
         }
 
-        static long toDurationTimeMicros(final String value) {
+        @Override
+        public int toDurationTimeMicros(final String value) {
             if (value == null) {
                 return 0;
             }
@@ -169,7 +158,7 @@ public class ProxyHttpHeaderParser {
                 }
                 try {
                     // to microseconds
-                    return Long.parseLong(value.substring(0, millisPosition) + value.substring(millisPosition + 1)) * 1000;
+                    return Integer.parseInt(value.substring(0, millisPosition) + value.substring(millisPosition + 1)) * 1000;
                 } catch (NumberFormatException ignored) {
                 }
             }
@@ -177,8 +166,9 @@ public class ProxyHttpHeaderParser {
         }
     }
 
-    static class ApacheUnit {
-        static long toReceivedTimeMillis(final String value) {
+    private class ApacheTimeUnit implements ProxyTimeUnit {
+        @Override
+        public long toReceivedTimeMillis(final String value) {
             if (value == null) {
                 return 0;
             }
@@ -194,21 +184,23 @@ public class ProxyHttpHeaderParser {
             return 0;
         }
 
-        static long toDurationTimeMicros(final String value) {
+        @Override
+        public int toDurationTimeMicros(final String value) {
             if (value == null) {
                 return 0;
             }
 
             try {
-                return Long.parseLong(value);
+                return Integer.parseInt(value);
             } catch (NumberFormatException ignored) {
             }
             return 0;
         }
     }
 
-    static class AppUnit {
-        static long toReceivedTimeMillis(final String value) {
+    private class AppTimeUnit implements ProxyTimeUnit {
+        @Override
+        public long toReceivedTimeMillis(final String value) {
             if (value == null) {
                 return 0;
             }
@@ -218,6 +210,11 @@ public class ProxyHttpHeaderParser {
                 return Long.parseLong(value);
             } catch (NumberFormatException ignored) {
             }
+            return 0;
+        }
+
+        @Override
+        public int toDurationTimeMicros(String value) {
             return 0;
         }
     }
