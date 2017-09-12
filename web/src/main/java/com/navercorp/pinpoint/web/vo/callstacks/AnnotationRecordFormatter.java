@@ -164,7 +164,7 @@ public class AnnotationRecordFormatter {
             buffer.append(toMillis(absoluteDifference)).append("ms");
         }
 
-        if (difference > 0) {
+        if (difference >= 0) {
             buffer.append(" ago");
         } else {
             buffer.append(" from now");
