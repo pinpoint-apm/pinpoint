@@ -246,11 +246,28 @@ public class JoinMemoryBo implements JoinStatBo {
         if (nonHeapUsed != that.nonHeapUsed) return false;
         if (minNonHeapUsed != that.minNonHeapUsed) return false;
         if (maxNonHeapUsed != that.maxNonHeapUsed) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (minHeapAgentId != null ? !minHeapAgentId.equals(that.minHeapAgentId) : that.minHeapAgentId != null) return false;
-        if (maxHeapAgentId != null ? !maxHeapAgentId.equals(that.maxHeapAgentId) : that.maxHeapAgentId != null) return false;
-        if (minNonHeapAgentId != null ? !minNonHeapAgentId.equals(that.minNonHeapAgentId) : that.minNonHeapAgentId != null) return false;
-        return maxNonHeapAgentId != null ? maxNonHeapAgentId.equals(that.maxNonHeapAgentId) : that.maxNonHeapAgentId == null;
+        if (!id.equals(that.id)) return false;
+        if (!minHeapAgentId.equals(that.minHeapAgentId)) return false;
+        if (!maxHeapAgentId.equals(that.maxHeapAgentId)) return false;
+        if (!minNonHeapAgentId.equals(that.minNonHeapAgentId)) return false;
+        return maxNonHeapAgentId.equals(that.maxNonHeapAgentId);
 
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (int) (heapUsed ^ (heapUsed >>> 32));
+        result = 31 * result + (int) (minHeapUsed ^ (minHeapUsed >>> 32));
+        result = 31 * result + (int) (maxHeapUsed ^ (maxHeapUsed >>> 32));
+        result = 31 * result + minHeapAgentId.hashCode();
+        result = 31 * result + maxHeapAgentId.hashCode();
+        result = 31 * result + (int) (nonHeapUsed ^ (nonHeapUsed >>> 32));
+        result = 31 * result + (int) (minNonHeapUsed ^ (minNonHeapUsed >>> 32));
+        result = 31 * result + (int) (maxNonHeapUsed ^ (maxNonHeapUsed >>> 32));
+        result = 31 * result + minNonHeapAgentId.hashCode();
+        result = 31 * result + maxNonHeapAgentId.hashCode();
+        return result;
     }
 }
