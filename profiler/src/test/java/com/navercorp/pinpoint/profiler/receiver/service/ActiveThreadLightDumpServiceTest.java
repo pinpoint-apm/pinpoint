@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
@@ -25,6 +26,7 @@ import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapsh
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -58,6 +60,11 @@ public class ActiveThreadLightDumpServiceTest {
 
     private final WaitingJobListFactory waitingJobListFactory = new WaitingJobListFactory();
 
+
+    @After
+    public void tearDown() throws Exception {
+        waitingJobListFactory.close();
+    }
 
     @Test
     public void basicFunctionTest1() throws Exception {
@@ -219,10 +226,10 @@ public class ActiveThreadLightDumpServiceTest {
         if (limit > 0) {
             request.setLimit(limit);
         }
-        if (threadNameList != null) {
+        if (CollectionUtils.hasLength(threadNameList)) {
             request.setThreadNameList(threadNameList);
         }
-        if (localTraceIdList != null) {
+        if (CollectionUtils.hasLength(localTraceIdList)) {
             request.setLocalTraceIdList(localTraceIdList);
         }
         return request;

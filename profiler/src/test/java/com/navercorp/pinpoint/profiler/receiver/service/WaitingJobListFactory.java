@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,7 @@ import java.util.List;
  */
 class WaitingJobListFactory {
 
-    private List<WaitingJob> waitingJobList = new ArrayList<WaitingJob>();
+    private final List<WaitingJob> waitingJobList = new ArrayList<WaitingJob>();
 
 
     public List<WaitingJob> createList(int size, long timeout) {

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapsh
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,6 +55,10 @@ public class ActiveThreadDumpServiceTest {
 
     private final WaitingJobListFactory waitingJobListFactory = new WaitingJobListFactory();
 
+    @After
+    public void tearDown() throws Exception {
+        waitingJobListFactory.close();
+    }
 
     @Test
     public void basicFunctionTest1() throws Exception {
@@ -199,7 +204,7 @@ public class ActiveThreadDumpServiceTest {
     }
 
     private <E> List<E> shuffle(List<E> list) {
-        ArrayList<E> copied = new ArrayList<E>(list);
+        List<E> copied = new ArrayList<E>(list);
         Collections.shuffle(copied, ThreadLocalRandom.current());
         return copied;
     }
@@ -213,14 +218,7 @@ public class ActiveThreadDumpServiceTest {
         return new ActiveThreadDumpService(activeThreadDump);
     }
 
-    @Test
-    public void testGetLimit() {
-        final int maxThreadDumpLimit = ThreadDumpRequest.MAX_THREAD_DUMP_LIMIT;
-        Assert.assertEquals(ThreadDumpRequest.getLimit(-1), maxThreadDumpLimit);
-        Assert.assertEquals(ThreadDumpRequest.getLimit(0), maxThreadDumpLimit);
-        Assert.assertEquals(ThreadDumpRequest.getLimit(1000), 1000);
-        Assert.assertEquals(ThreadDumpRequest.getLimit(maxThreadDumpLimit +  100), maxThreadDumpLimit);
-    }
+
 
     private TCmdActiveThreadDump createRequest(int limit, List<String> threadNameList, List<Long> localTraceIdList) {
         TCmdActiveThreadDump request = new TCmdActiveThreadDump();

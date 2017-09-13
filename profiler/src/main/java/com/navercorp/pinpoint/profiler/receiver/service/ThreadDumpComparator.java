@@ -22,13 +22,11 @@ import java.util.Comparator;
  * @author Woonduk Kang(emeroad)
  */
 public class ThreadDumpComparator implements Comparator<ThreadDump> {
-    private static final int CHANGE_TO_NEW_ELEMENT = 1;
-    private static final int KEEP_OLD_ELEMENT = -1;
 
     @Override
     public int compare(ThreadDump oldElement, ThreadDump newElement) {
-        long oldStartTime = oldElement.getActiveTraceSnapshot().getStartTime();
-        long newStartTime = newElement.getActiveTraceSnapshot().getStartTime();
+        final long oldStartTime = oldElement.getActiveTraceSnapshot().getStartTime();
+        final long newStartTime = newElement.getActiveTraceSnapshot().getStartTime();
         return StartTimeComparator.compare(oldStartTime, newStartTime);
     }
 
