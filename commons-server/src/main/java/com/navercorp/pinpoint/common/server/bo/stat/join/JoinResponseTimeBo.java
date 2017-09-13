@@ -146,22 +146,6 @@ public class JoinResponseTimeBo implements JoinStatBo {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        JoinResponseTimeBo that = (JoinResponseTimeBo) o;
-
-        if (timestamp != that.timestamp) return false;
-        if (avg != that.avg) return false;
-        if (maxAvg != that.maxAvg) return false;
-        if (minAvg != that.minAvg) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (maxAvgAgentId != null ? !maxAvgAgentId.equals(that.maxAvgAgentId) : that.maxAvgAgentId != null) return false;
-        return minAvgAgentId != null ? minAvgAgentId.equals(that.minAvgAgentId) : that.minAvgAgentId == null;
-    }
-
-    @Override
     public String toString() {
         return "JoinResponseTimeBo{" +
             "id='" + id + '\'' +
@@ -172,5 +156,34 @@ public class JoinResponseTimeBo implements JoinStatBo {
             ", minAvgAgentId='" + minAvgAgentId + '\'' +
             ", minAvg=" + minAvg +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JoinResponseTimeBo that = (JoinResponseTimeBo) o;
+
+        if (timestamp != that.timestamp) return false;
+        if (avg != that.avg) return false;
+        if (maxAvg != that.maxAvg) return false;
+        if (minAvg != that.minAvg) return false;
+        if (!id.equals(that.id)) return false;
+        if (!maxAvgAgentId.equals(that.maxAvgAgentId)) return false;
+        return minAvgAgentId.equals(that.minAvgAgentId);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (int) (avg ^ (avg >>> 32));
+        result = 31 * result + maxAvgAgentId.hashCode();
+        result = 31 * result + (int) (maxAvg ^ (maxAvg >>> 32));
+        result = 31 * result + minAvgAgentId.hashCode();
+        result = 31 * result + (int) (minAvg ^ (minAvg >>> 32));
+        return result;
     }
 }

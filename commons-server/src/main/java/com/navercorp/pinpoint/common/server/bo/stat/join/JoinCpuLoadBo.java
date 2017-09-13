@@ -240,17 +240,43 @@ public class JoinCpuLoadBo implements JoinStatBo {
 
         JoinCpuLoadBo that = (JoinCpuLoadBo) o;
 
+        if (timestamp != that.timestamp) return false;
         if (Double.compare(that.jvmCpuLoad, jvmCpuLoad) != 0) return false;
         if (Double.compare(that.maxJvmCpuLoad, maxJvmCpuLoad) != 0) return false;
         if (Double.compare(that.minJvmCpuLoad, minJvmCpuLoad) != 0) return false;
         if (Double.compare(that.systemCpuLoad, systemCpuLoad) != 0) return false;
         if (Double.compare(that.maxSystemCpuLoad, maxSystemCpuLoad) != 0) return false;
         if (Double.compare(that.minSystemCpuLoad, minSystemCpuLoad) != 0) return false;
-        if (timestamp != that.timestamp) return false;
         if (!id.equals(that.id)) return false;
         if (!maxJvmCpuAgentId.equals(that.maxJvmCpuAgentId)) return false;
         if (!minJvmCpuAgentId.equals(that.minJvmCpuAgentId)) return false;
         if (!maxSysCpuAgentId.equals(that.maxSysCpuAgentId)) return false;
         return minSysCpuAgentId.equals(that.minSysCpuAgentId);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = id.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        temp = Double.doubleToLongBits(jvmCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + maxJvmCpuAgentId.hashCode();
+        temp = Double.doubleToLongBits(maxJvmCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + minJvmCpuAgentId.hashCode();
+        temp = Double.doubleToLongBits(minJvmCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(systemCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + maxSysCpuAgentId.hashCode();
+        temp = Double.doubleToLongBits(maxSystemCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + minSysCpuAgentId.hashCode();
+        temp = Double.doubleToLongBits(minSystemCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

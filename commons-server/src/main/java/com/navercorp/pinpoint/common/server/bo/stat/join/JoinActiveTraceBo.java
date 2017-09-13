@@ -196,8 +196,23 @@ public class JoinActiveTraceBo implements JoinStatBo {
         if (totalCount != that.totalCount) return false;
         if (maxTotalCount != that.maxTotalCount) return false;
         if (minTotalCount != that.minTotalCount) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (maxTotalCountAgentId != null ? !maxTotalCountAgentId.equals(that.maxTotalCountAgentId) : that.maxTotalCountAgentId != null) return false;
-        return minTotalCountAgentId != null ? minTotalCountAgentId.equals(that.minTotalCountAgentId) : that.minTotalCountAgentId == null;
+        if (!id.equals(that.id)) return false;
+        if (!maxTotalCountAgentId.equals(that.maxTotalCountAgentId)) return false;
+        return minTotalCountAgentId.equals(that.minTotalCountAgentId);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + histogramSchemaType;
+        result = 31 * result + (int) version;
+        result = 31 * result + totalCount;
+        result = 31 * result + maxTotalCountAgentId.hashCode();
+        result = 31 * result + maxTotalCount;
+        result = 31 * result + minTotalCountAgentId.hashCode();
+        result = 31 * result + minTotalCount;
+        return result;
     }
 }
