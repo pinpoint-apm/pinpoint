@@ -36,6 +36,7 @@
 						TooltipService.init( "statSystemCpu" );
 						TooltipService.init( "statTPS" );
 						TooltipService.init( "statActiveThread" );
+						TooltipService.init( "statResponseTime" );
 					}
 					function loadStatChart(from, to) {
 						var oParam = {
@@ -101,6 +102,18 @@
 										isAvailable: false,
 										maximum: false
 									}, "Active Thread", ["Avg", "Max", "Min"], chartData.charts["ACTIVE_TRACE_COUNT"]), "100%", "270px");
+								} else {
+									console.log("error");
+								}
+							});
+							AgentAjaxService.getStatResponseTime( oParam, function(chartData) {
+								if ( angular.isUndefined(chartData.exception) ) {
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.response-time", makeChartData({
+										id: "responseTime",
+										title: "Response Time",
+										isAvailable: false,
+										maximum: false
+									}, "Active Thread", ["Avg", "Max", "Min"], chartData.charts["RESPONSE_TIME"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}

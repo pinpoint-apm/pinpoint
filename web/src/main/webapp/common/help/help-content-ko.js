@@ -788,6 +788,24 @@
 						desc: "Agent들의 active thread 수 중 가장 작은 값"
 					}]
 				}]
+			},
+			statResponseTime: {
+				mainStyle: "",
+				title: "Response Time",
+				desc: "Agent들의 평균 Response Time(단위: millisecond)",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "agent들의 평균 Response Time 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "agent들의 평균 Response Time의 평균값"
+					},{
+						name: "MIN",
+						desc: "agent들의 평균 Response Time 중 가장 작은 값"
+					}]
+				}]
 			}
 		},
 		callTree: {
