@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -88,7 +89,7 @@ public class ExcludePathFilter implements Filter<String> {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ExcludePathFilter{");
-        sb.append("excludePathMatchers=").append(excludePathMatchers);
+        sb.append("excludePathMatchers=").append(Arrays.toString(excludePathMatchers));
         sb.append('}');
         return sb.toString();
     }

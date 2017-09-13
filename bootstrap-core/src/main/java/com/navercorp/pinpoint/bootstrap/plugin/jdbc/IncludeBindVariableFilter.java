@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
  * @author emeroad
  */
 public class IncludeBindVariableFilter implements BindVariableFilter {
-    private String[] includes;
+    private final String[] includes;
 
     public IncludeBindVariableFilter(String[] includes) {
         if (includes == null) {
@@ -37,7 +37,7 @@ public class IncludeBindVariableFilter implements BindVariableFilter {
             throw new NullPointerException("method must not be null");
         }
         for (String include: includes) {
-            if(method.getName().equals(include)) {
+            if (method.getName().equals(include)) {
                 return true;
             }
         }
