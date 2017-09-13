@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
-import com.navercorp.pinpoint.profiler.util.ActiveThreadDumpUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -55,7 +54,7 @@ public class LimitedListTest {
 
         logger.debug("startTime:{}", startTime);
         final List<ThreadDump> testData = newTestData(id, startTime, threadId, maxSize * 2);
-        final long lastTime = getListObject(testData).getActiveTraceSnapshot().getStartTime();
+        final long lastTime = getLastObject(testData).getActiveTraceSnapshot().getStartTime();
 
         logger.debug("addAll ");
         limitedList.addAll(testData);
@@ -71,7 +70,7 @@ public class LimitedListTest {
             logger.debug("poll:{}", activeTraceSnapshot );
         }
 
-        ThreadDump last = getListObject(sortedList);
+        ThreadDump last = getLastObject(sortedList);
         logger.debug("last pool:{}", last);
         logger.debug("poll.startTime:{}", last.getActiveTraceSnapshot().getStartTime());
         logger.debug("startTime:{}", lastTime);
@@ -79,12 +78,12 @@ public class LimitedListTest {
 
     }
 
-    private <T> T getListObject(List<T> testData) {
-        int lastIndex = getListIndex(testData);
+    private <T> T getLastObject(List<T> testData) {
+        int lastIndex = getLastIndex(testData);
         return testData.get(lastIndex);
     }
 
-    private <T> int getListIndex(List<T> testData) {
+    private <T> int getLastIndex(List<T> testData) {
         return testData.size() -1;
     }
 

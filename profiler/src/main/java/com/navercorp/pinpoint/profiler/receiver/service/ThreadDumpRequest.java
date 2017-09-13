@@ -50,10 +50,10 @@ public class ThreadDumpRequest {
 
         final int limit = getLimit(request.getLimit());
 
-        final List<Long> localTraceIdList = request.getLocalTraceIdList();
+        final List<Long> localTransactionIdList = request.getLocalTraceIdList();
         final List<String> threadNameList = request.getThreadNameList();
 
-        return new ThreadDumpRequest(StackTrace.DUMP, limit, localTraceIdList, threadNameList);
+        return new ThreadDumpRequest(StackTrace.DUMP, limit, localTransactionIdList, threadNameList);
     }
 
     public static ThreadDumpRequest create(TCmdActiveThreadLightDump request) {
@@ -61,17 +61,17 @@ public class ThreadDumpRequest {
 
         int limit = getLimit(request.getLimit());
 
-        final List<Long> localTraceIdList = request.getLocalTraceIdList();
+        final List<Long> localTransactionIdList = request.getLocalTraceIdList();
         final List<String> threadNameList = request.getThreadNameList();
 
-        return new ThreadDumpRequest(StackTrace.SKIP, limit, localTraceIdList, threadNameList);
+        return new ThreadDumpRequest(StackTrace.SKIP, limit, localTransactionIdList, threadNameList);
     }
 
-    ThreadDumpRequest(StackTrace stackTrace, int limit, List<Long> localTraceIdList, List<String> threadNameList) {
+    ThreadDumpRequest(StackTrace stackTrace, int limit, List<Long> localTransactionIdList, List<String> threadNameList) {
         this.stackTrace = Assert.requireNonNull(stackTrace, "stackTrace must not be null");
         this.limit = limit;
 
-        this.localTransactionIdSet = newHashSet(localTraceIdList);
+        this.localTransactionIdSet = newHashSet(localTransactionIdList);
         this.localTransactionIdFilter = CollectionUtils.hasLength(localTransactionIdSet);
 
         this.threadNameSet = newHashSet(threadNameList);
