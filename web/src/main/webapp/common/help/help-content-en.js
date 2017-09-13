@@ -756,7 +756,7 @@
 				title: "Active Thread",
 				desc: "Number of active threads serving user requests",
 				category: [{
-					title: "[범례]",
+					title: "[Legend]",
 					items: [{
 						name: "MAX",
 						desc: "Highest active thread count of the agents serving user requests"
@@ -766,6 +766,24 @@
 					},{
 						name: "MIN",
 						desc: "Lowest active thread count of the agents serving user requests"
+					}]
+				}]
+			},
+			statResponseTime: {
+				mainStyle: "",
+				title: "Response Time",
+				desc: "Average response times served by the agents",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Highest average response time of requests served by an agent"
+					},{
+						name: "AVG",
+						desc: "Average response time of requests served by all agents"
+					},{
+						name: "MIN",
+						desc: "Lowest average response time of requests served by an agent"
 					}]
 				}]
 			}

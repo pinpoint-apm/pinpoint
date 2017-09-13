@@ -23,7 +23,8 @@
 		"statMemory"		: "getApplicationStat/memory/chart.pinpoint",
 		"statCpuLoad"		: "getApplicationStat/cpuLoad/chart.pinpoint",
 		"statTPS"			: "getApplicationStat/transaction/chart.pinpoint",
-		"statActiveThread"	: "getApplicationStat/activeTrace/chart.pinpoint"
+		"statActiveThread"	: "getApplicationStat/activeTrace/chart.pinpoint",
+		"statResponseTime"  : "getApplicationStat/responseTime/chart.pinpoint"
 	});
 
 	pinpointApp.service('AgentAjaxService', [ 'AgentAjaxServiceConfig', '$http', function ($config, $http) {
@@ -73,6 +74,9 @@
 		};
 		this.getStatActiveThread = function( data, callback ) {
 			retrieve($config.statActiveThread, data, callback);
+		};
+		this.getStatResponseTime = function( data, callback ) {
+			retrieve($config.statResponseTime, data, callback);
 		};
 
 		function retrieve(url, data, callback) {
