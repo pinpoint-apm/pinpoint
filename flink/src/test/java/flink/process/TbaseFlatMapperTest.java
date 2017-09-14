@@ -20,19 +20,18 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.process.ApplicationCache;
 import com.navercorp.pinpoint.flink.process.TbaseFlatMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.*;
-import javafx.scene.chart.PieChart;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.fusesource.jansi.AnsiConsole;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 /**
  * @author minwoo.jung
@@ -43,8 +42,11 @@ public class TbaseFlatMapperTest {
     
     @Test
     public void flatMapTest() throws Exception {
-        TbaseFlatMapper mapper = new TbaseFlatMapper();
-        mapper.setApplicationCache(new MockApplicationCache());
+
+        ApplicationCache applicationCache = newMockApplicationCache();
+        TbaseFlatMapper mapper = new TbaseFlatMapper(applicationCache);
+
+
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
         ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
@@ -69,6 +71,13 @@ public class TbaseFlatMapperTest {
         assertEquals(joinApplicationStatBo.getTimestamp(), 1491274140000L);
         assertEquals(joinApplicationStatBo.getStatType(), StatType.APP_STST);
         assertJoinCpuLoadBo(joinApplicationStatBo.getJoinCpuLoadBoList());
+    }
+
+    private ApplicationCache newMockApplicationCache() {
+        ApplicationCache applicationCache = mock(ApplicationCache.class);
+        when(applicationCache.findApplicationId(any(ApplicationCache.ApplicationKey.class)))
+                .thenReturn(APPLICATION_ID);
+        return applicationCache;
     }
 
     private void assertJoinCpuLoadBo(List<JoinCpuLoadBo> joincpulaodBoList) {
@@ -124,17 +133,13 @@ public class TbaseFlatMapperTest {
         return tFAgentStatBatch;
     }
 
-    public class MockApplicationCache extends ApplicationCache {
-        @Override
-        public String findApplicationId(ApplicationKey application) {
-            return APPLICATION_ID;
-        }
-    }
+
 
     @Test
     public void flatMap2Test() throws Exception {
-        TbaseFlatMapper mapper = new TbaseFlatMapper();
-        mapper.setApplicationCache(new MockApplicationCache());
+        ApplicationCache applicationCache = newMockApplicationCache();
+        TbaseFlatMapper mapper = new TbaseFlatMapper(applicationCache);
+
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch2();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
         ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
@@ -210,8 +215,9 @@ public class TbaseFlatMapperTest {
 
     @Test
     public void flatMap3Test() throws Exception {
-        TbaseFlatMapper mapper = new TbaseFlatMapper();
-        mapper.setApplicationCache(new MockApplicationCache());
+        ApplicationCache applicationCache = newMockApplicationCache();
+        TbaseFlatMapper mapper = new TbaseFlatMapper(applicationCache);
+
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch3();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
         ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);

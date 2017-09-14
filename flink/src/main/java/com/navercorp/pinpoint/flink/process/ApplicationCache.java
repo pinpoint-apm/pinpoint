@@ -27,19 +27,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 
+import java.util.Objects;
+
 /**
  * @author minwoo.jung
  */
 public class ApplicationCache {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final static String SPEL_KEY = "#application.getAgentId() + '.' + #application.getAgentStartTime()";
-    public final static String NOT_FOUND_APP_ID = "notFoundId";
-    private final static AgentInfoMapper agentInfoMapper = new AgentInfoMapper();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static HbaseTemplate2 hbaseTemplate2;
+    private static final String SPEL_KEY = "#application.getAgentId() + '.' + #application.getAgentStartTime()";
+    public static final String NOT_FOUND_APP_ID = "notFoundId";
 
-    public void setHbaseTemplate2(HbaseTemplate2 hbaseTemplate2) {
-        ApplicationCache.hbaseTemplate2 = hbaseTemplate2;
+    private final transient AgentInfoMapper agentInfoMapper = new AgentInfoMapper();
+
+    private final transient HbaseTemplate2 hbaseTemplate2;
+
+
+    public ApplicationCache(HbaseTemplate2 hbaseTemplate2) {
+        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate must not be null");
     }
 
     @Cacheable(value="applicationId", key=SPEL_KEY)
@@ -56,33 +61,33 @@ public class ApplicationCache {
         } catch (Exception e) {
             logger.error("can't found application id({})", agentId, e);
         }
-        String applicationId = NOT_FOUND_APP_ID;
 
-        if (agentInfo != null) {
-            applicationId = agentInfo.getApplicationName();
-        } else {
+        return getApplicationId(agentInfo, agentId);
+    }
+
+    private String getApplicationId(AgentInfo agentInfo, String agentId) {
+        if (agentInfo == null) {
             logger.warn("can't found application id : {}", agentId);
+            return NOT_FOUND_APP_ID;
         }
-
-        return applicationId;
+        return agentInfo.getApplicationName();
     }
 
     public static class ApplicationKey {
-        public String getAgentId() {
-            return agentId;
-        }
-
-        private String agentId;
-
-        public long getAgentStartTime() {
-            return agentStartTime;
-        }
-
-        private long agentStartTime;
+        private final String agentId;
+        private final long agentStartTime;
 
         public ApplicationKey(String agentId, long agentStartTime) {
             this.agentId = agentId;
             this.agentStartTime = agentStartTime;
+        }
+
+        public String getAgentId() {
+            return agentId;
+        }
+
+        public long getAgentStartTime() {
+            return agentStartTime;
         }
 
         @Override

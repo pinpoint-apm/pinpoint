@@ -33,7 +33,8 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class ApplicationStatBoWindow implements WindowFunction<Tuple3<String, JoinStatBo, Long>, Tuple3<String, JoinStatBo, Long>, Tuple, TimeWindow> {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     public static final int WINDOW_SIZE = 10000;
     public static final int ALLOWED_LATENESS = 45000;
 
@@ -43,13 +44,21 @@ public class ApplicationStatBoWindow implements WindowFunction<Tuple3<String, Jo
             JoinApplicationStatBo joinApplicationStatBo = join(values);
             long delayTime = new Date().getTime() - joinApplicationStatBo.getTimestamp();
             if (delayTime > 35000) {
-                logger.info("[join][delay3]" + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+                if (logger.isInfoEnabled()) {
+                    logger.info("[join][delay3] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
+                }
             } else if (delayTime > 25000) {
-                logger.info("[join][delay2]" + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+                if (logger.isInfoEnabled()) {
+                    logger.info("[join][delay2] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
+                }
             } else if (delayTime > 15000) {
-                logger.info("[join][delay1]" + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+                if (logger.isInfoEnabled()) {
+                    logger.info("[join][delay1] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
+                }
             } else {
-                logger.info("[join][non] " + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+                if (logger.isInfoEnabled()) {
+                    logger.info("[join][non] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
+                }
             }
 
             if (joinApplicationStatBo == JoinApplicationStatBo.EMPTY_JOIN_APPLICATION_STAT_BO) {

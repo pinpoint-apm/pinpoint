@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.flink.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TransactionSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
@@ -30,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -37,19 +37,22 @@ import java.util.List;
 public class TransactionDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static HbaseTemplate2 hbaseTemplate2 = null;
-    private static ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory = null;
-    private static TransactionSerializer transactionSerializer = null;
-    private static TableName APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
+    private static final TableName APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
+
+    private final HbaseTemplate2 hbaseTemplate2;
+    private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
+    private final TransactionSerializer transactionSerializer;
 
     public TransactionDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, TransactionSerializer transactionSerializer) {
-        this.hbaseTemplate2 = hbaseTemplate2;
-        this.applicationStatHbaseOperationFactory = applicationStatHbaseOperationFactory;
-        this.transactionSerializer = transactionSerializer;
+        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2 must not be null");
+        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory must not be null");
+        this.transactionSerializer = Objects.requireNonNull(transactionSerializer, "transactionSerializer must not be null");
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinTransactionBoList, StatType statType) {
-        logger.info("[insert] " + new Date(timestamp) + " : ("+ joinTransactionBoList + " )");
+        if (logger.isInfoEnabled()) {
+            logger.info("[insert] {} : ({})", new Date(timestamp), joinTransactionBoList);
+        }
         List<Put> transactionPuts = applicationStatHbaseOperationFactory.createPuts(id, joinTransactionBoList, statType, transactionSerializer);
         if (!transactionPuts.isEmpty()) {
             List<Put> rejectedPuts = hbaseTemplate2.asyncPut(APPLICATION_STAT_AGGRE, transactionPuts);

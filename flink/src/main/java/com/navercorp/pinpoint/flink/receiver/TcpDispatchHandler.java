@@ -22,13 +22,14 @@ import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 public class TcpDispatchHandler extends AbstractDispatchHandler {
 
-    private  AgentStatHandler agentStatHandler;
+    private AgentStatHandler agentStatHandler;
 
     @Override
     protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
@@ -42,7 +43,7 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     }
 
     public void setAgentStatHandler(AgentStatHandler agentStatHandler) {
-        this.agentStatHandler = agentStatHandler;
+        this.agentStatHandler = Objects.requireNonNull(agentStatHandler, "agentStatHandler must not be null");
     }
 
 }

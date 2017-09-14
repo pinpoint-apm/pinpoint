@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,6 +58,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
     private Timer timer;
 
     public FlinkServerRegister(FlinkConfiguration flinkConfiguration) {
+        Objects.requireNonNull(flinkConfiguration, "flinkConfiguration must not be null");
         this.clusterEnable = flinkConfiguration.isFlinkClusterEnable();
         this.connectAddress = flinkConfiguration.getFlinkClusterZookeeperAddress();
         this.sessionTimeout = flinkConfiguration.getFlinkClusterSessionTimeout();

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.flink.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ResponseTimeSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
@@ -30,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -37,19 +37,21 @@ import java.util.List;
 public class ResponseTimeDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static HbaseTemplate2 hbaseTemplate2 = null;
-    private static ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory = null;
-    private static ResponseTimeSerializer responseTimeSerializer = null;
-    private static TableName APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
+    private final HbaseTemplate2 hbaseTemplate2;
+    private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
+    private final ResponseTimeSerializer responseTimeSerializer;
+    private final TableName APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
 
     public ResponseTimeDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, ResponseTimeSerializer responseTimeSerializer) {
-        this.hbaseTemplate2 = hbaseTemplate2;
-        this.applicationStatHbaseOperationFactory = applicationStatHbaseOperationFactory;
-        this.responseTimeSerializer = responseTimeSerializer;
+        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2 must not be null");
+        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory must not be null");
+        this.responseTimeSerializer = Objects.requireNonNull(responseTimeSerializer, "responseTimeSerializer must not be null");
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinResponseTimeBoList, StatType statType) {
-        logger.info("[insert] " + new Date(timestamp) + " : ("+ joinResponseTimeBoList + " )");
+        if (logger.isInfoEnabled()) {
+            logger.info("[insert] {} : ({})", new Date(timestamp), joinResponseTimeBoList);
+        }
         List<Put> responseTimePuts = applicationStatHbaseOperationFactory.createPuts(id, joinResponseTimeBoList, statType, responseTimeSerializer);
         if (!responseTimePuts.isEmpty()) {
             List<Put> rejectedPuts = hbaseTemplate2.asyncPut(APPLICATION_STAT_AGGRE, responseTimePuts);

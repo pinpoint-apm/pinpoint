@@ -28,19 +28,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, JoinStatBo, Long>> {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
-    private static ApplicationCache applicationCache;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final transient JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+    private final transient ApplicationCache applicationCache;
 
-    public void setApplicationCache(ApplicationCache applicationCache) {
-        TbaseFlatMapper.applicationCache = applicationCache;
+    public TbaseFlatMapper(ApplicationCache applicationCache) {
+        this.applicationCache = Objects.requireNonNull(applicationCache, "applicationCache must not be null");
     }
+
 
     @Override
     public void flatMap(TBase tBase, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
