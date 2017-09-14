@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.thrift.TBase;
 
+import java.util.Objects;
+
 /**
  * @author minwoo.jung
  */
@@ -28,7 +30,7 @@ public class AgentStatHandler implements SimpleHandler {
     private final SourceContext sourceContext;
 
     public AgentStatHandler(SourceContext sourceContext) {
-        this.sourceContext = sourceContext;
+        this.sourceContext = Objects.requireNonNull(sourceContext, "sourceContext must not be null");
     }
 
     @Override

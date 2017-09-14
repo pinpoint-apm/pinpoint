@@ -18,19 +18,18 @@ package com.navercorp.pinpoint.flink.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -38,19 +37,21 @@ import java.util.List;
 public class MemoryDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static HbaseTemplate2 hbaseTemplate2 = null;
-    private static ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory = null;
-    private static MemorySerializer memorySerializer = null;
-    private static TableName APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
+    private final HbaseTemplate2 hbaseTemplate2;
+    private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
+    private final MemorySerializer memorySerializer;
+    private final TableName APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
 
     public MemoryDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, MemorySerializer memorySerializer) {
-        this.hbaseTemplate2 = hbaseTemplate2;
-        this.applicationStatHbaseOperationFactory = applicationStatHbaseOperationFactory;
-        this.memorySerializer = memorySerializer;
+        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2 must not be null");
+        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory must not be null");
+        this.memorySerializer = Objects.requireNonNull(memorySerializer, "memorySerializer must not be null");
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinMemoryBoList, StatType statType) {
-        logger.info("[insert] " + new Date(timestamp) + " : ("+ joinMemoryBoList + " )");
+        if (logger.isInfoEnabled()) {
+            logger.info("[insert] {} : ({})", new Date(timestamp), joinMemoryBoList);
+        }
         List<Put> memoryPuts = applicationStatHbaseOperationFactory.createPuts(id, joinMemoryBoList, statType, memorySerializer);
         if (!memoryPuts.isEmpty()) {
             List<Put> rejectedPuts = hbaseTemplate2.asyncPut(APPLICATION_STAT_AGGRE, memoryPuts);

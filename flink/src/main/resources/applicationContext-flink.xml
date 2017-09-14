@@ -43,11 +43,11 @@
     </bean>
 
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TbaseFlatMapper">
-        <property name="applicationCache" ref="applicationCache"/>
+        <constructor-arg ref="applicationCache"/>
     </bean>
 
     <bean id="applicationCache" class="com.navercorp.pinpoint.flink.process.ApplicationCache">
-        <property name="hbaseTemplate2" ref="hbaseTemplate"/>
+        <constructor-arg ref="hbaseTemplate"/>
     </bean>
 
 

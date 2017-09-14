@@ -30,11 +30,11 @@ import java.util.List;
  */
 public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TFAgentStatBatch> {
 
-    private static JoinCpuLoadBoMapper joinCpuLoadBoMapper = new JoinCpuLoadBoMapper();
-    private static JoinMemoryBoMapper joinMemoryBoMapper = new JoinMemoryBoMapper();
-    private static JoinTransactionBoMapper joinTransactionBoMapper = new JoinTransactionBoMapper();
-    private static JoinActiveTraceBoMapper joinActiveTraceBoMapper = new JoinActiveTraceBoMapper();
-    private static JoinResponseTimeBoMapper joinResponseTimeBoMapper = new JoinResponseTimeBoMapper();
+    private final JoinCpuLoadBoMapper joinCpuLoadBoMapper = new JoinCpuLoadBoMapper();
+    private final JoinMemoryBoMapper joinMemoryBoMapper = new JoinMemoryBoMapper();
+    private final JoinTransactionBoMapper joinTransactionBoMapper = new JoinTransactionBoMapper();
+    private final JoinActiveTraceBoMapper joinActiveTraceBoMapper = new JoinActiveTraceBoMapper();
+    private final JoinResponseTimeBoMapper joinResponseTimeBoMapper = new JoinResponseTimeBoMapper();
 
     @Override
     public JoinAgentStatBo map(TFAgentStatBatch tFAgentStatBatch) {
