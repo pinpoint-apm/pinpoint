@@ -115,7 +115,7 @@ public class ProxyHttpHeaderParser {
         int toDurationTimeMicros(final String value);
     }
 
-    private class NginxTimeUnit implements ProxyTimeUnit {
+    private static class NginxTimeUnit implements ProxyTimeUnit {
 
         public NginxTimeUnit() {
         }
@@ -166,7 +166,7 @@ public class ProxyHttpHeaderParser {
         }
     }
 
-    private class ApacheTimeUnit implements ProxyTimeUnit {
+    private static class ApacheTimeUnit implements ProxyTimeUnit {
         @Override
         public long toReceivedTimeMillis(final String value) {
             if (value == null) {
@@ -198,7 +198,7 @@ public class ProxyHttpHeaderParser {
         }
     }
 
-    private class AppTimeUnit implements ProxyTimeUnit {
+    private static class AppTimeUnit implements ProxyTimeUnit {
         @Override
         public long toReceivedTimeMillis(final String value) {
             if (value == null) {

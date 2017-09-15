@@ -200,10 +200,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         final StringBuilder params = new StringBuilder(64);
         try {
             Map<String, String> query_pairs = splitQuery(queryString);
-
-            Iterator<String> attrs = query_pairs.keySet().iterator();
-
-            while (attrs.hasNext()) {
+            for (Map.Entry<String, String> entry : query_pairs.entrySet()) {
                 if (params.length() != 0) {
                     params.append('&');
                 }
@@ -213,10 +210,10 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                     params.append("...");
                     return params.toString();
                 }
-                String key = attrs.next();
+                String key = entry.getKey();
                 params.append(StringUtils.abbreviate(key, eachLimit));
                 params.append('=');
-                String value = query_pairs.get(key);
+                String value = entry.getValue();
                 if (value != null) {
                     params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
                 }
