@@ -397,7 +397,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         }
     }
 
-    private class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+    private static class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
         public static final String X_FORWARDED_FOR = "x-forwarded-for";
         @SuppressWarnings("unused")
@@ -469,7 +469,6 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
             Map<String, Object> cookies = ReadCookieMap(request);
             recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, cookies);
         }
-        return;
     }
 
     public Map<String, Object> ReadCookieMap(HttpServletRequest request) {

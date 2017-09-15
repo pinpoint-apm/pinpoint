@@ -135,7 +135,7 @@ public class ContextImplExecuteBlockingInterceptor implements AroundInterceptor 
         }
     }
 
-    private class AsyncContextAccessorHandlers {
+    private static class AsyncContextAccessorHandlers {
         private AsyncContextAccessor blockingCodeHandler;
         private AsyncContextAccessor resultHandler;
     }
