@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.strategy.impl;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.StringTypedBufferHandler;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class StringRepeatCountEncodingStrategy implements EncodingStrategy<Strin
         String previousValue = null;
         int count = 0;
         for (String value : values) {
-            if (!value.equals(previousValue)) {
+            if (!StringUtils.equals(value, previousValue)) {
                 if (previousValue != null) {
                     buffer.putVInt(count);
                     this.bufferHandler.put(buffer, previousValue);
