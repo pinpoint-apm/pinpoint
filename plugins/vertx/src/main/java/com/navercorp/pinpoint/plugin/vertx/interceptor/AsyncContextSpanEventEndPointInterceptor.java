@@ -99,7 +99,7 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
             logger.debug("Asynchronous invocation. asyncContext={}", asyncContext);
         }
 
-        final Trace trace = asyncContext.continueAsyncTraceObject();
+        final Trace trace = asyncContext.currentAsyncTraceObject();
         if (trace == null) {
             return;
         }
