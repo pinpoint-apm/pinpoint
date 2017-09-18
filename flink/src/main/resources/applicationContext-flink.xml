@@ -42,9 +42,7 @@
         <constructor-arg ref="deprecatedConfig"/>
     </bean>
 
-    <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TbaseFlatMapper">
-        <constructor-arg ref="applicationCache"/>
-    </bean>
+    <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TbaseFlatMapper"/>
 
     <bean id="applicationCache" class="com.navercorp.pinpoint.flink.process.ApplicationCache">
         <constructor-arg ref="hbaseTemplate"/>
@@ -77,14 +75,9 @@
     <bean id="responseTimeSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ResponseTimeSerializer"/>
 
 
+    <bean id="joinAgentStatBoMapper" class="com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper"/>
 
-    <bean id="statisticsDao" class="com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao">
-        <constructor-arg index="0" ref="cpuLoadDao"/>
-        <constructor-arg index="1" ref="memoryDao"/>
-        <constructor-arg index="2" ref="transactionDao"/>
-        <constructor-arg index="3" ref="activeTraceDao"/>
-        <constructor-arg index="4" ref="responseTimeDao"/>
-    </bean>
+    <bean id="statisticsDao" class="com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao"/>
 
     <bean id="cpuLoadDao" class="com.navercorp.pinpoint.flink.dao.hbase.CpuLoadDao">
         <constructor-arg index="0" ref="hbaseTemplate"/>

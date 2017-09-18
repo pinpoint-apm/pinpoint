@@ -20,7 +20,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHb
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
-import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
+import com.navercorp.pinpoint.flink.dao.hbase.*;
+import com.navercorp.pinpoint.flink.process.ApplicationCache;
 import com.navercorp.pinpoint.flink.process.TbaseFlatMapper;
 import com.navercorp.pinpoint.flink.receiver.AgentStatHandler;
 import com.navercorp.pinpoint.flink.receiver.TCPReceiver;
@@ -49,6 +50,12 @@ public class Bootstrap {
     private final FlinkConfiguration flinkConfiguration;
     private final TcpDispatchHandler tcpDispatchHandler;
     private final TcpSourceFunction tcpSourceFunction;
+    private final ApplicationCache applicationCache;
+    private final CpuLoadDao cpuLoadDao;
+    private final MemoryDao memoryDao;
+    private final TransactionDao transactionDao;
+    private final ActiveTraceDao activeTraceDao;
+    private final ResponseTimeDao responseTimeDao;
 
     private Bootstrap() {
         String[] SPRING_CONFIG_XML = new String[]{"applicationContext-flink.xml", "applicationContext-cache.xml"};
@@ -59,6 +66,12 @@ public class Bootstrap {
         tcpDispatchHandler = applicationContext.getBean("tcpDispatchHandler", TcpDispatchHandler.class);
         tcpSourceFunction = applicationContext.getBean("tcpSourceFunction", TcpSourceFunction.class);
         statisticsDao = applicationContext.getBean("statisticsDao", StatisticsDao.class);
+        applicationCache = applicationContext.getBean("applicationCache", ApplicationCache.class);
+        cpuLoadDao = applicationContext.getBean("cpuLoadDao", CpuLoadDao.class);
+        memoryDao = applicationContext.getBean("memoryDao", MemoryDao.class);
+        transactionDao = applicationContext.getBean("transactionDao", TransactionDao.class);
+        activeTraceDao = applicationContext.getBean("activeTraceDao", ActiveTraceDao.class);
+        responseTimeDao = applicationContext.getBean("responseTimeDao", ResponseTimeDao.class);
 
     }
 
@@ -74,8 +87,32 @@ public class Bootstrap {
         return statisticsDao;
     }
 
+    public CpuLoadDao getCpuLoadDao() {
+        return cpuLoadDao;
+    }
+
+    public MemoryDao getMemoryDao() {
+        return memoryDao;
+    }
+
+    public TransactionDao getTransactionDao() {
+        return transactionDao;
+    }
+
+    public ActiveTraceDao getActiveTraceDao() {
+        return activeTraceDao;
+    }
+
+    public ResponseTimeDao getResponseTimeDao() {
+        return responseTimeDao;
+    }
+
     public TbaseFlatMapper getTbaseFlatMapper() {
         return tbaseFlatMapper;
+    }
+
+    public ApplicationCache getApplicationCache() {
+        return applicationCache;
     }
 
     public FlinkConfiguration getFlinkConfiguration() {

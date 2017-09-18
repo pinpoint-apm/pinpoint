@@ -16,12 +16,15 @@
 package com.navercorp.pinpoint.flink.process;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
+import com.navercorp.pinpoint.flink.Bootstrap;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -33,21 +36,31 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, JoinStatBo, Long>> {
+public class TbaseFlatMapper extends RichFlatMapFunction<TBase, Tuple3<String, JoinStatBo, Long>> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final transient JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
-    private final transient ApplicationCache applicationCache;
+    private transient JoinAgentStatBoMapper joinAgentStatBoMapper;
+    private transient ApplicationCache applicationCache;
 
-    public TbaseFlatMapper(ApplicationCache applicationCache) {
-        this.applicationCache = Objects.requireNonNull(applicationCache, "applicationCache must not be null");
+    public TbaseFlatMapper() {
     }
 
+    public TbaseFlatMapper(JoinAgentStatBoMapper joinAgentStatBoMapper, ApplicationCache applicationCache) {
+        this.joinAgentStatBoMapper = joinAgentStatBoMapper;
+        this.applicationCache = applicationCache;
+    }
+
+    public void open(Configuration parameters) throws Exception {
+        this.joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+        applicationCache = Bootstrap.getInstance().getApplicationCache();
+    }
 
     @Override
     public void flatMap(TBase tBase, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
         if (tBase instanceof TFAgentStatBatch) {
-            logger.info("raw data : {}", tBase);
+            if (logger.isInfoEnabled()) {
+                logger.info("raw data : {}", tBase);
+            }
             final TFAgentStatBatch tFAgentStatBatch = (TFAgentStatBatch) tBase;
             final JoinAgentStatBo joinAgentStatBo;
             try {

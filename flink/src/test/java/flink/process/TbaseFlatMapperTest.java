@@ -17,6 +17,7 @@
 package flink.process;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
+import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.flink.process.ApplicationCache;
 import com.navercorp.pinpoint.flink.process.TbaseFlatMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.*;
@@ -44,7 +45,7 @@ public class TbaseFlatMapperTest {
     public void flatMapTest() throws Exception {
 
         ApplicationCache applicationCache = newMockApplicationCache();
-        TbaseFlatMapper mapper = new TbaseFlatMapper(applicationCache);
+        TbaseFlatMapper mapper = new TbaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
 
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch();
@@ -138,7 +139,7 @@ public class TbaseFlatMapperTest {
     @Test
     public void flatMap2Test() throws Exception {
         ApplicationCache applicationCache = newMockApplicationCache();
-        TbaseFlatMapper mapper = new TbaseFlatMapper(applicationCache);
+        TbaseFlatMapper mapper = new TbaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch2();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
@@ -216,7 +217,7 @@ public class TbaseFlatMapperTest {
     @Test
     public void flatMap3Test() throws Exception {
         ApplicationCache applicationCache = newMockApplicationCache();
-        TbaseFlatMapper mapper = new TbaseFlatMapper(applicationCache);
+        TbaseFlatMapper mapper = new TbaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch3();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
