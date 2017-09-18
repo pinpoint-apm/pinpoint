@@ -7,12 +7,11 @@
 	 * @name FilteredMapCtrl
 	 * @class
 	 */
-	pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVoService', 'NavbarVoService', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement', 'AnalyticsService',
-	    function (cfg, $scope, $routeParams, $timeout, TimeSliderVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService) {
+	pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVoService', 'NavbarVoService', '$window', 'filteredMapUtilService', '$rootElement', 'AnalyticsService',
+	    function (cfg, $scope, $routeParams, $timeout, TimeSliderVoService, NavbarVoService, $window, filteredMapUtilService, $rootElement, analyticsService) {
 			analyticsService.send(analyticsService.CONST.FILTEREDMAP_PAGE);
 	        // define private variables
 	        var oNavbarVoService, oTimeSliderVoService, bNodeSelected, reloadOnlyForNode, reloadOnlyForLink, bLoadingPause = false, bIngRequest = true, bDoneRequest = false;
-
 	        // initialize scope variables
 	        $scope.hasScatter = false;
 	        $window.htoScatter = {};
@@ -149,25 +148,15 @@
 
 	        $scope.$on('serverMapDirective.nodeClicked', function (event, query, node, data) {
 	            bNodeSelected = true;
-	            var oSidebarTitleVoService = new SidebarTitleVoService();
-	            oSidebarTitleVoService.setImageType(node.serviceType);
-
 				$scope.hasScatter = false;
-				if (node.unknownNodeGroup) {
-					oSidebarTitleVoService.setTitle( node.serviceType );
-				} else {
-					if (node.isWas === true) {
-						$scope.hasScatter = true;
-						$scope.$broadcast('scatterDirective.showByNode.forFilteredMap', node);
-					}
-					oSidebarTitleVoService.setTitle(node.applicationName);
+				if (node.isWas === true) {
+					$scope.hasScatter = true;
+					$scope.$broadcast('scatterDirective.showByNode.forFilteredMap', node);
 				}
-
 	            $scope.hasFilter = false;
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, node, oNavbarVoService);
-				$scope.$broadcast('groupedApplicationListDirective.initialize', node, data, oNavbarVoService);
-	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', node, data, oNavbarVoService, reloadOnlyForNode);
-	            $scope.$broadcast('linkInfoDetailsDirective.hide', query, node, data, oNavbarVoService);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', node, oNavbarVoService);
+				$scope.$broadcast('groupedApplicationListDirective.initialize', node, oNavbarVoService);
+	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', node, oNavbarVoService);
 	            reloadOnlyForNode = false;
 
 				checkNextLoading();
@@ -175,18 +164,6 @@
 	
 	        $scope.$on('serverMapDirective.linkClicked', function (event, query, link, data) {
 	            bNodeSelected = false;
-	            var oSidebarTitleVoService = new SidebarTitleVoService();
-	            if (link.unknownLinkGroup) {
-	                oSidebarTitleVoService
-	                    .setImageType(link.sourceInfo.serviceType)
-	                    .setTitle(link.toNode.serviceType.replace("_", " ") + ' from ' + link.sourceInfo.applicationName);
-	            } else {
-	                oSidebarTitleVoService
-	                    .setImageType(link.sourceInfo.serviceType)
-	                    .setTitle(link.sourceInfo.applicationName)
-	                    .setImageType2(link.targetInfo.serviceType)
-	                    .setTitle2(link.targetInfo.applicationName);
-	            }
 	            $scope.hasScatter = false;
 	            var foundFilter = filteredMapUtilService.findFilterInNavbarVo(
 	                link.sourceInfo.applicationName,
@@ -201,10 +178,9 @@
 	            } else {
 	                $scope.hasFilter = false;
 	            }
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, link);
-				$scope.$broadcast('groupedApplicationListDirective.initialize', link, data, oNavbarVoService);
-	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
-	            $scope.$broadcast('linkInfoDetailsDirective.initialize', link, data, oNavbarVoService);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', link);
+				$scope.$broadcast('groupedApplicationListDirective.initialize', link, oNavbarVoService);
+	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', link, oNavbarVoService);
 	            reloadOnlyForLink = false;
 	        });
 	
@@ -224,27 +200,6 @@
 	            openFilteredMapWithFilterVo(oServerMapFilterVoService, filterTargetRpcList);
 	        });
 	
-	        $scope.$on('linkInfoDetail.showDetailInformationClicked', function (event, query, link) {
-	            $scope.hasScatter = false;
-	            var oSidebarTitleVoService = new SidebarTitleVoService();
-	            oSidebarTitleVoService
-	                .setImageType(link.sourceInfo.serviceType)
-	                .setTitle(link.sourceInfo.applicationName)
-	                .setImageType2(link.targetInfo.serviceType)
-	                .setTitle2(link.targetInfo.applicationName);
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService);
-	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
-	        });
-	
-	        $scope.$on('nodeInfoDetail.showDetailInformationClicked', function (event, query, node) {
-	            $scope.hasScatter = false;
-	            var oSidebarTitleVoService = new SidebarTitleVoService();
-	            oSidebarTitleVoService
-	                .setImageType(node.serviceType)
-	                .setTitle(node.applicationName);
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService, node);
-	            $scope.$broadcast('linkInfoDetailsDirective.hide');
-	        });
 	    }
 	]);
 })();

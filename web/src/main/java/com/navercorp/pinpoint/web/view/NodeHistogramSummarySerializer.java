@@ -37,6 +37,7 @@ public class NodeHistogramSummarySerializer extends JsonSerializer<NodeHistogram
     @Override
     public void serialize(NodeHistogramSummary nodeHistogramSummary, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
+        jgen.writeNumberField("currentServerTime", new ServerTime().getCurrentServerTime());
 
         ServerInstanceList serverInstanceList = nodeHistogramSummary.getServerInstanceList();
         jgen.writeObjectField("serverList", serverInstanceList);
