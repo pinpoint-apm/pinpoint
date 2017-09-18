@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.commons.dbcp2.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.DataSourceMonitorAccessor;
@@ -28,23 +26,20 @@ import com.navercorp.pinpoint.plugin.commons.dbcp2.Dbcp2DataSourceMonitor;
  */
 public class DataSourceCloseInterceptor implements AroundInterceptor {
 
-    private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
-    private final MethodDescriptor methodDescriptor;
 
-    public DataSourceCloseInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
+    public DataSourceCloseInterceptor(DataSourceMonitorRegistry dataSourceMonitorRegistry) {
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
-        this.methodDescriptor = methodDescriptor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        if ((target instanceof DataSourceMonitorAccessor)) {
-            Dbcp2DataSourceMonitor dataSourceMonitor = ((DataSourceMonitorAccessor) target)._$PINPOINT$_getDataSourceMonitor();
+        if (target instanceof DataSourceMonitorAccessor) {
+            final DataSourceMonitorAccessor dataSourceMonitorAccessor = (DataSourceMonitorAccessor) target;
 
+            final Dbcp2DataSourceMonitor dataSourceMonitor = dataSourceMonitorAccessor._$PINPOINT$_getDataSourceMonitor();
             if (dataSourceMonitor != null) {
-                ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(null);
+                dataSourceMonitorAccessor._$PINPOINT$_setDataSourceMonitor(null);
                 dataSourceMonitor.close();
                 dataSourceMonitorRegistry.unregister(dataSourceMonitor);
             }
