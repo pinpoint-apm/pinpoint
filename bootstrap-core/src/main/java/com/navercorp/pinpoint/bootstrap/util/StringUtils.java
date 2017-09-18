@@ -23,14 +23,35 @@ import java.util.List;
  * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils}
  */
 @Deprecated
-public final class StringUtils extends com.navercorp.pinpoint.common.util.StringUtils {
+public final class StringUtils {
+
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#defaultString(String, String)}
+     */
+    public static String defaultString(final String str, final String defaultStr) {
+        return com.navercorp.pinpoint.common.util.StringUtils.defaultString(str, defaultStr);
+    }
+
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#isEmpty(String)}
+     */
+    public static boolean isEmpty(String string) {
+        return com.navercorp.pinpoint.common.util.StringUtils.isEmpty(string);
+    }
+
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#toString(Object)}
+     */
+    public static String toString(final Object object) {
+        return com.navercorp.pinpoint.common.util.StringUtils.toString(object);
+    }
 
     /**
      * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#tokenizeToStringList(String, String)}
      */
     @Deprecated
     public static List<String> splitAndTrim(final String value, final String separator) {
-        return tokenizeToStringList(value, separator);
+        return com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(value, separator);
     }
 
     /**
@@ -38,7 +59,7 @@ public final class StringUtils extends com.navercorp.pinpoint.common.util.String
      */
     @Deprecated
     public static String drop(final String str) {
-        return abbreviate(str);
+        return com.navercorp.pinpoint.common.util.StringUtils.abbreviate(str);
     }
 
     /**
@@ -46,7 +67,7 @@ public final class StringUtils extends com.navercorp.pinpoint.common.util.String
      */
     @Deprecated
     public static String drop(final String str, final int maxWidth) {
-        return abbreviate(str, maxWidth);
+        return com.navercorp.pinpoint.common.util.StringUtils.abbreviate(str, maxWidth);
     }
 
 
@@ -55,7 +76,7 @@ public final class StringUtils extends com.navercorp.pinpoint.common.util.String
      */
     @Deprecated
     public static void appendDrop(final StringBuilder builder, final String str, final int maxWidth) {
-        appendAbbreviate(builder, str, maxWidth);
+        com.navercorp.pinpoint.common.util.StringUtils.appendAbbreviate(builder, str, maxWidth);
     }
 
 }
