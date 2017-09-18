@@ -152,6 +152,7 @@ module.exports = function( grunt, options ) {
 				'/common/services/location.service.js',
 				'/common/services/server-map-dao.service.js',
 				'/common/services/agent-dao.service.js',
+				'/common/services/agent-histogram-dao.service.js',
 				'/common/services/filtered-map-util.service.js',
 				'/common/services/filter.config.js',
 				'/common/services/server-map-filter-vo.service.js',
