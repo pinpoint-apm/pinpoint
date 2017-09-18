@@ -38,7 +38,7 @@
 					}
 
 					function identifyTarget(target) {
-						scope.isGroup = ( target["unknownNodeGroup"] || target["unknownLinkGroup"] );
+						scope.isGroup = ( target["unknownNodeGroup"] || target["unknownLinkGroup"] ) ? true : false;
 						scope.isWas = angular.isUndefined( target["isWas"] ) ? false : target["isWas"];
 						if ( target["from"] && target["to"] ) {
 							scope.isNode = false;
@@ -120,14 +120,8 @@
 							if ( UrlVoService.isRealtime() && scope.isWas === false ) {
 								startInnerRealTimeTrigger(0);
 							} else {
-								// if (scope.isNode) {
-								// 	renderResponseSummary("forMain", target["histogram"], "100%", "150px");
-								// 	renderLoad("forMain", target["timeSeriesHistogram"], "100%", "220px", true);
-								// } else {
-									renderResponseSummary("forMain", target["histogram"], "100%", "150px");
-									renderLoad("forMain", target["timeSeriesHistogram"], "100%", "220px", true);
-								// }
-
+								renderResponseSummary(scope.namespace, target["histogram"], "100%", "150px");
+								renderLoad(scope.namespace, target["timeSeriesHistogram"], "100%", "220px", true);
 							}
 							scope.showNodeInfoDetails = true;
 						}
@@ -152,15 +146,12 @@
 									responseSummaryData = histogramData["agentHistogram"][agentName];
 									loadData = histogramData["agentTimeSeriesHistogram"][agentName];
 								}
-								renderResponseSummary("forMain", responseSummaryData, "100%", "150px");
-								renderLoad("forMain", loadData, "100%", "220px", true);
+								renderResponseSummary(scope.namespace, responseSummaryData, "100%", "150px");
+								renderLoad(scope.namespace, loadData, "100%", "220px", true);
 							});
 						}
 					});
 					scope.$on("nodeInfoDetailsDirective.loadRealTimeChartData", function (event, applicationName, agentName, from, to ) {
-						// if ( lastApplicationName !== applicationName ) {
-						// 	return;
-						// }
 						releaseTimeout();
 						loadRealTimeAgentHistogram(agentName, from, to, function() {});
 					});
