@@ -32,6 +32,8 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.resin.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.resin.HttpServletRequestGetter;
@@ -466,16 +468,16 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
     private void recordCookie(HttpServletRequest request, Trace trace) {
         if (cookieSampler.isSampling()) {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            Map<String, Object> cookies = ReadCookieMap(request);
+            Map<String, Object> cookies = readCookieMap(request);
             recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, cookies);
         }
     }
 
-    public Map<String, Object> ReadCookieMap(HttpServletRequest request) {
+    public Map<String, Object> readCookieMap(HttpServletRequest request) {
         Map<String, Object> params = new HashMap<String, Object>();
         try {
             Cookie[] cookies = request.getCookies();
-            if (null != cookies && cookies.length > 0) {
+            if (ArrayUtils.hasLength(cookies)) {
                 for (Cookie cookie : cookies) {
                     params.put(cookie.getName(), cookie.getValue());
                 }
