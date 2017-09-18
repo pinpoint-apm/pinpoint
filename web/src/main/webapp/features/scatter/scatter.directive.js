@@ -146,7 +146,7 @@
 								}, function( oChartXRange, nextFrom, nextTo ) {
 									// oNavbarVoService.setQueryEndDateTime( nextFrom );
 									UrlVoService.setQueryEndDateTime( nextFrom );
-									$rootScope.$broadcast( "responseTimeSummaryChartDirective.loadRealtime", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
+									$rootScope.$broadcast( "nodeInfoDetailsDirective.loadRealTimeChartData", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
 								}));
 							} else {
 								oScatterChart.addBubbleAndMoveAndDraw( oScatterChart.createDataBlock( scatterData ) );
@@ -158,7 +158,7 @@
 
 						return oScatterChart;
 					}
-					function showScatter (application, w, h) {
+					function showScatter(application, w, h) {
 						element.children().hide();
 						pauseScatterAll();
 						if ( angular.isDefined(htScatterSet[application]) ) {
@@ -217,7 +217,7 @@
 					}
 					function getAgentList( scatterData ) {
 						var oDupCheck = {};
-						var aAgentList = [], server;
+						var aAgentList = [];
 						if ( typeof scatterData !== "undefined" ) {
 							$.each( scatterData.scatter.metadata, function( key, oInfo ) {
 								if ( typeof oDupCheck[ oInfo[0] ] === "undefined" ) {
@@ -227,24 +227,10 @@
 							});
 							return aAgentList;
 						}
-						if ( htLastNode.agentList ) {
-							return htLastNode.agentList;
+						if ( htLastNode && htLastNode.agentIds ) {
+							return htLastNode.agentIds;
 						}
-
-						if ( htLastNode.serverList ) {
-							for ( server in htLastNode.serverList ) {
-								var oInstanceList = htLastNode.serverList[server].instanceList;
-								for (var agentName in oInstanceList) {
-									aAgentList.push(oInstanceList[agentName].name);
-								}
-							}
-						}
-						return aAgentList;
 					}
-					// function isRealtime() {
-					// 	return oNavbarVoService.getPeriodType() === "realtime";
-					// }
-
 					scope.$on("scatterDirective.initialize." + scope.namespace, function (event, navbarVoService) {
 						// oNavbarVoService = navbarVoService;
 						initScatterHash();
@@ -284,7 +270,12 @@
 						});
 					});
 					scope.$on("changedCurrentAgent." + scope.namespace, function( event, selectedAgentName ) {
-						htScatterSet[htLastNode.key].scatter.selectAgent( selectedAgentName );
+						if ( htLastNode && htLastNode.key ) {
+							htScatterSet[htLastNode.key].scatter.selectAgent(selectedAgentName);
+						}
+					});
+					scope.$on("scatterDirective.stopRequest." + scope.namespace, function( event ) {
+						pauseScatterAll();
 					});
 				}
 			};

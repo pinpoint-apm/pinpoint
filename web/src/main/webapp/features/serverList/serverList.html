@@ -3,7 +3,7 @@
 		<div class="server-list-wrapper">
 			<div class="server-list-header">Server List</div>
 			<form>
-				<ul class="server-collection _node" ng-show="bIsNode" ng-repeat="(key, server) in serverList | orderBy:'key'">
+				<ul class="server-collection _node" ng-repeat="(key, server) in serverList | orderBy:'key'">
 					<li>
 						<div>
 							<span class="glyphicon glyphicon-home"></span> <span class="server-name">{{server.name.split(':')[0]}}</span>
@@ -12,24 +12,10 @@
 							<li ng-repeat="instance in server.instanceList | orderBy:'instance.name'">
 								<label>
 									<input type="radio" name="selectedServer" value="{{instance.name}}" name="selectedServer" ng-click="selectServer(instance.name)" ng-checked="$parent.$first && $first">
-									<span class="glyphicon glyphicon-hdd" style="color:{{hasError(node.agentHistogram[instance.name])}}"></span>
+									<span class="glyphicon glyphicon-hdd" style="color:{{hasError(instance.name)}}"></span>
 									<span>{{instance.name}}</span>
 								</label>
 								<a style="float:right" ng-click="openInspector($event, instance.name)">Inspector</a>
-							</li>
-						</ul>
-					</li>
-				</ul>
-				<ul class="server-collection _link" ng-hide="bIsNode" >
-					<li>
-						<ul>
-							<li ng-repeat="(name, histogram) in linkList | orderBy:'name'">
-								<label>
-									<input type="radio" name="selectedServer" value="{{name}}" ng-click="selectServer(name)" ng-checked="$first">
-									<span class="glyphicon glyphicon-hdd" style="color:{{hasError(histogram)}}"></span>
-									<span>{{name}}</span>
-								</label>
-								<a style="float:right" ng-click="openInspector($event, name)">Inspector</a>
 							</li>
 						</ul>
 					</li>

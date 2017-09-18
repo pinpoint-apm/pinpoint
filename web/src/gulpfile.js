@@ -43,7 +43,6 @@ gulp.task('pinpoint-css', function() {
 		'inspector.css',
 		'navbar.css',
 		'nodeInfoDetails.css',
-		'linkInfoDetails.css',
 		'transactionTable.css',
 		'callStacks.css',
 		'timeSlider.css',
@@ -256,7 +255,6 @@ gulp.task('pinpoint-component-js', function() {
 gulp.task('pinpoint-js', function() {
 	var aSrc = concatPath([
 		'common/filters/icon-url.filter.js',
-		'common/filters/application-name-to-class-name.filter.js',
 		'common/services/time-slider-vo.service.js',
 		'common/services/alerts.service.js',
 		'common/services/progress-bar.service.js',
@@ -265,7 +263,6 @@ gulp.task('pinpoint-js', function() {
 		'common/services/location.service.js',
 		'common/services/server-map-dao.service.js',
 		'common/services/agent-dao.service.js',
-		'common/services/sidebar-title-vo.service.js',
 		'common/services/filtered-map-util.service.js',
 		'common/services/filter.config.js',
 		'common/services/server-map-filter-vo.service.js',
@@ -291,7 +288,6 @@ gulp.task('pinpoint-js', function() {
 		'features/realtimeChart/realtime-chart.directive.js',
 		'features/scatter/scatter.directive.js',
 		'features/nodeInfoDetails/node-info-details.directive.js',
-		'features/linkInfoDetails/link-info-details.directive.js',
 		//'features/serverList/server-list.directive.js',
 		'features/agentList/agent-list.directive.js',
 		'features/agentInfo/agent-info.directive.js',

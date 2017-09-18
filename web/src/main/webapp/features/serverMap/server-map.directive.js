@@ -34,8 +34,8 @@
 		}
 	});
 	
-	pinpointApp.directive("serverMapDirective", [ "serverMapDirectiveConfig", "$rootScope", "SystemConfigurationService", "ServerMapDaoService", "AlertsService", "ProgressBarService", "SidebarTitleVoService", "$filter", "ServerMapFilterVoService", "filteredMapUtilService", "$base64", "ServerMapHintVoService", "$timeout", "$location", "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "TooltipService",
-	    function (cfg, $rootScope, SystemConfigService, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService, AnalyticsService, TooltipService) {
+	pinpointApp.directive("serverMapDirective", [ "serverMapDirectiveConfig", "$rootScope", "SystemConfigurationService", "ServerMapDaoService", "AlertsService", "ProgressBarService", "$filter", "ServerMapFilterVoService", "filteredMapUtilService", "$base64", "ServerMapHintVoService", "$timeout", "$location", "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "TooltipService",
+	    function (cfg, $rootScope, SystemConfigService, ServerMapDaoService, AlertsService, ProgressBarService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService, AnalyticsService, TooltipService) {
 	        return {
 				replace: true,
 	            restrict: "EA",
@@ -292,9 +292,6 @@
 	                        htLastNode = node;
 	                        if ( typeof retry === "undefined" ) {
 								scope.$emit("serverMapDirective.nodeClicked", htLastQuery, node, htLastMergedMapData, searchQuery);
-								if (scope.oNavbarVoService && scope.oNavbarVoService.isRealtime()) {
-									$rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, node.serviceType, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange());
-								}
 							}
 	                        reset();
 	                    };
@@ -443,15 +440,6 @@
 	                }
 	                function openFilterWizard() {
 	                    reset();
-	                    var oSidebarTitleVoService = new SidebarTitleVoService();
-
-	                    // if (htLastLink.fromNode.serviceType === "USER") {
-	                    //     oSidebarTitleVoService.setImageType("USER").setTitle("USER");
-	                    // } else {
-	                        oSidebarTitleVoService.setImageType(htLastLink.fromNode.serviceType).setTitle(htLastLink.fromNode.applicationName);
-	                    // }
-	                    oSidebarTitleVoService.setImageType2(htLastLink.toNode.serviceType).setTitle2(htLastLink.toNode.applicationName);
-
 						scope.fromAgent = htLastLink.fromAgent || [];
 	                    scope.toAgent = htLastLink.toAgent || [];
 	                    scope.sourceInfo = htLastLink.sourceInfo;
@@ -459,7 +447,7 @@
 	                    scope.fromApplicationName = htLastLink.fromNode.applicationName;
 	                    scope.toApplicationName = htLastLink.toNode.applicationName;
 
-	                    scope.$broadcast('sidebarTitleDirective.initialize.forServerMap', oSidebarTitleVoService, htLastLink);
+	                    scope.$broadcast('sidebarTitleDirective.initialize.forServerMap', htLastLink);
 
 	                    $("#filterWizard").modal('show');
 	                    if (!bIsFilterWizardLoaded) {

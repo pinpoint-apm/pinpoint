@@ -1,13 +1,13 @@
-<div class="nodeInfoDetails" ng-init="nodeIcon='USER'" ng-show="showNodeInfoDetails">
+<div class="nodeInfoDetails" ng-show="showNodeInfoDetails">
     <div class="known-node" ng-hide="isNotAuthorized()">
-        <div class="response-summary" ng-show="showNodeResponseSummary">
+        <div class="response-summary">
             <h5><span class="glyphicon glyphicon-question-sign responseSummaryChartTooltip" style="cursor:pointer;float:right;"></span> Response Summary</h5>
-            <response-time-summary-chart-directive namespace="forNode"></response-time-summary-chart-directive>
+            <response-time-summary-chart-directive namespace="forMain"></response-time-summary-chart-directive>
         </div>
 
-        <div class="load" ng-show="showNodeLoad">
+        <div class="load">
             <h5><span class="glyphicon glyphicon-question-sign loadChartTooltip" style="cursor:pointer;float:right;"></span> Load</h5>
-            <load-chart-directive namespace="forNode"></load-chart-directive>
+            <load-chart-directive namespace="forMain"></load-chart-directive>
         </div>
     </div>
 	<div ng-show="isNotAuthorized()">
