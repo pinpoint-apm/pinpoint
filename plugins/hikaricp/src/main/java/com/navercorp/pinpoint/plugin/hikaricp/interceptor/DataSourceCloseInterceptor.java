@@ -34,10 +34,12 @@ public class DataSourceCloseInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        if ((target instanceof DataSourceMonitorAccessor)) {
-            HikariCpDataSourceMonitor dataSourceMonitor = ((DataSourceMonitorAccessor) target)._$PINPOINT$_getDataSourceMonitor();
+        if (target instanceof DataSourceMonitorAccessor) {
+            final DataSourceMonitorAccessor dataSourceMonitorAccessor = (DataSourceMonitorAccessor) target;
+
+            final HikariCpDataSourceMonitor dataSourceMonitor = dataSourceMonitorAccessor._$PINPOINT$_getDataSourceMonitor();
             if (dataSourceMonitor != null) {
-                ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(null);
+                dataSourceMonitorAccessor._$PINPOINT$_setDataSourceMonitor(null);
                 dataSourceMonitor.close();
                 dataSourceMonitorRegistry.unregister(dataSourceMonitor);
             }
