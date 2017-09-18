@@ -15,8 +15,10 @@
  */
 package com.navercorp.pinpoint.flink.dao.hbase;
 
+import com.navercorp.pinpoint.bootstrap.BootStrapException;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
+import com.navercorp.pinpoint.flink.Bootstrap;
 import org.apache.flink.api.common.io.OutputFormat;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
@@ -37,28 +39,26 @@ import java.util.Objects;
 public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Long>> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final byte[] STAT_METADATA_CF = Bytes.toBytes("S");
-
     private static final long serialVersionUID = 1L;
-    private final transient CpuLoadDao cpuLoadDao;
-    private final transient MemoryDao memoryDao;
-    private final transient TransactionDao transactionDao;
-    private final transient ActiveTraceDao activeTraceDao;
-    private final transient ResponseTimeDao responseTimeDao;
+    private transient TableName APPLICATION_STAT_AGGRE;
+    private transient CpuLoadDao cpuLoadDao;
+    private transient MemoryDao memoryDao;
+    private transient TransactionDao transactionDao;
+    private transient ActiveTraceDao activeTraceDao;
+    private transient ResponseTimeDao responseTimeDao;
 
-    private TableName APPLICATION_STAT_AGGRE;
-
-    public StatisticsDao(CpuLoadDao cpuLoadDao, MemoryDao memoryDao, TransactionDao transactionDao, ActiveTraceDao activeTraceDao, ResponseTimeDao responseTimeDao) {
-        this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao must not be null");
-        this.memoryDao = Objects.requireNonNull(memoryDao, "memoryDao must not be null");
-        this.transactionDao = Objects.requireNonNull(transactionDao, "transactionDao must not be null");
-        this.activeTraceDao = Objects.requireNonNull(activeTraceDao, "activeTraceDao must not be null");
-        this.responseTimeDao = Objects.requireNonNull(responseTimeDao, "responseTimeDao must not be null");
+    public StatisticsDao() {
     }
 
     @Override
     public void configure(Configuration parameters) {
         this.APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
+        Bootstrap bootstrap = Bootstrap.getInstance();
+        cpuLoadDao = bootstrap.getCpuLoadDao();
+        memoryDao = bootstrap.getMemoryDao();
+        transactionDao = bootstrap.getTransactionDao();
+        activeTraceDao = bootstrap.getActiveTraceDao();
+        responseTimeDao = bootstrap.getResponseTimeDao();
     }
 
     @Override
