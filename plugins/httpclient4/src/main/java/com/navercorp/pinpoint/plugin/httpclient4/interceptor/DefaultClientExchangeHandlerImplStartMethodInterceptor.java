@@ -78,8 +78,6 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     protected final DumpType entityDumpType;
     protected SimpleSampler entitySampler;
 
-    protected boolean statusCode;
-
     public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
