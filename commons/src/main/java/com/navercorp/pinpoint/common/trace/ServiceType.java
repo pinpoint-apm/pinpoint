@@ -106,6 +106,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6050</td><td>DBCP</td></tr>
  * <tr><td>6052</td><td>DBCP2</td></tr>
  * <tr><td>6060</td><td>HIKARICP</td></tr>
+ * <tr><td>6500</td><td>RXJAVA</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
  * </table>
  *

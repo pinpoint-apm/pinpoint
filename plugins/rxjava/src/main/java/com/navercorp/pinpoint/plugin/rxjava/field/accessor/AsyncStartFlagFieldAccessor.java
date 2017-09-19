@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.hystrix.field;
-
-import com.netflix.hystrix.HystrixCommand;
+package com.navercorp.pinpoint.plugin.rxjava.field.accessor;
 
 /**
  * @author HyunGil Jeong
  */
-public interface EnclosingInstanceFieldGetter {
-    HystrixCommand<?> _$PINPOINT$_getEnclosingInstance();
+public interface AsyncStartFlagFieldAccessor {
+
+    void _$PINPOINT$_setAsyncStartFlag(boolean trace);
+    boolean _$PINPOINT$_getAsyncStartFlag();
 }
