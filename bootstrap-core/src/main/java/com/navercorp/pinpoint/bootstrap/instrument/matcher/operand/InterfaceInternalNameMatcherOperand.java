@@ -44,10 +44,10 @@ public class InterfaceInternalNameMatcherOperand extends AbstractMatcherOperand 
     }
 
     public boolean match(final String interfaceInternalName) {
-        if (interfaceInternalName != null) {
-            return this.interfaceInternalName.equals(interfaceInternalName);
+        if (interfaceInternalName == null) {
+            return false;
         }
-        return false;
+        return this.interfaceInternalName.equals(interfaceInternalName);
     }
 
     public boolean isJavaPackage() {

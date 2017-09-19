@@ -37,10 +37,10 @@ public class PackageInternalNameMatcherOperand extends AbstractMatcherOperand {
     }
 
     public boolean match(final String packageInternalName) {
-        if (packageInternalName != null) {
-            return packageInternalName.startsWith(this.packageInternalName);
+        if (packageInternalName == null) {
+            return false;
         }
-        return false;
+        return packageInternalName.startsWith(this.packageInternalName);
     }
 
     @Override

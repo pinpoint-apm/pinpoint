@@ -29,8 +29,7 @@ public class NotMatcherOperator extends AbstractMatcherOperand implements Matche
     private final MatcherOperand rightOperand;
 
     public NotMatcherOperator(final MatcherOperand rightOperand) {
-        Assert.requireNonNull(rightOperand, "rightOperand must not be null");
-        this.rightOperand = rightOperand;
+        this.rightOperand = Assert.requireNonNull(rightOperand, "rightOperand must not be null");
     }
 
     @Override

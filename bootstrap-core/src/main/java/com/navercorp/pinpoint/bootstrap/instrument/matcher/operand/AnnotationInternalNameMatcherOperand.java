@@ -42,10 +42,10 @@ public class AnnotationInternalNameMatcherOperand extends AbstractMatcherOperand
     }
 
     public boolean match(final String annotationInternalName) {
-        if (annotationInternalName != null) {
-            return this.annotationInternalName.equals(annotationInternalName);
+        if (annotationInternalName == null) {
+            return false;
         }
-        return false;
+        return this.annotationInternalName.equals(annotationInternalName);
     }
 
     @Override
