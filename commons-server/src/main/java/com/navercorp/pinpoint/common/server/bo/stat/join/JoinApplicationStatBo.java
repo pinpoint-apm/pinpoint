@@ -22,20 +22,15 @@ import java.util.*;
  */
 public class JoinApplicationStatBo implements JoinStatBo {
     public static final JoinApplicationStatBo EMPTY_JOIN_APPLICATION_STAT_BO = new JoinApplicationStatBo();
-    private static final List<JoinCpuLoadBo>  EMPTY_JOIN_CPU_LOAD_BO_LIST = new ArrayList<JoinCpuLoadBo>(0);
-    private static final List<JoinMemoryBo> EMPTY_JOIN_MEMORY_BO_LIST = new ArrayList<JoinMemoryBo>();
-    private static final List<JoinTransactionBo> EMPTY_JOIN_TRANSACTION_BO_LIST = new ArrayList<JoinTransactionBo>();
-    private static final List<JoinActiveTraceBo> EMPTY_JOIN_ACTIVE_TRACE_BO_LIST = new ArrayList<JoinActiveTraceBo>();
-    private static final List<JoinResponseTimeBo> EMPTY_JOIN_RESPONSE_TIME_BO_LIST = new ArrayList<JoinResponseTimeBo>();
 
     private static final long SHIFT_RANGE = 1000 * 5;
 
     private String applicationId = UNKNOWN_ID;
-    private List<JoinCpuLoadBo> joinCpuLoadBoList = EMPTY_JOIN_CPU_LOAD_BO_LIST;
-    private List<JoinMemoryBo> joinMemoryBoList = EMPTY_JOIN_MEMORY_BO_LIST;
-    private List<JoinTransactionBo> joinTransactionBoList = EMPTY_JOIN_TRANSACTION_BO_LIST;
-    private List<JoinActiveTraceBo> joinActiveTraceBoList = EMPTY_JOIN_ACTIVE_TRACE_BO_LIST;
-    private List<JoinResponseTimeBo> joinResponseTimeBoList = EMPTY_JOIN_RESPONSE_TIME_BO_LIST;
+    private List<JoinCpuLoadBo> joinCpuLoadBoList = Collections.emptyList();
+    private List<JoinMemoryBo> joinMemoryBoList = Collections.emptyList();
+    private List<JoinTransactionBo> joinTransactionBoList = Collections.emptyList();
+    private List<JoinActiveTraceBo> joinActiveTraceBoList = Collections.emptyList();
+    private List<JoinResponseTimeBo> joinResponseTimeBoList = Collections.emptyList();
 
     private long timestamp = Long.MIN_VALUE;
     private StatType statType = StatType.APP_STST;
