@@ -54,6 +54,7 @@
         <module>vertx</module>
         <module>resin</module>
         <module>jsp</module>
+        <module>rxjava</module>
     </modules>
 
     <dependencies>
@@ -265,6 +266,16 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jsp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-rxjava-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-hystrix-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
