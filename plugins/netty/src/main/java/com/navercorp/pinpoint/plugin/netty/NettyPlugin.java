@@ -46,12 +46,10 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private TransformTemplate transformTemplate;
 
-    private NettyConfig config;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         NettyConfig config = new NettyConfig(context.getConfig());
-        this.config = config;
         if (!config.isPluginEnable()) {
             logger.info("Disable netty option. 'profiler.netty=false'");
             return;
