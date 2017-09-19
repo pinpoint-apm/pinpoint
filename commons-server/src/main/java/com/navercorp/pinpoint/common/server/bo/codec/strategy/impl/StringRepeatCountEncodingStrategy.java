@@ -44,23 +44,23 @@ public class StringRepeatCountEncodingStrategy implements EncodingStrategy<Strin
 
     @Override
     public void encodeValues(Buffer buffer, List<String> values) {
-        String previousValue = null;
+        StringReference previousValueReference = null;
         int count = 0;
         for (String value : values) {
-            if (!StringUtils.equals(value, previousValue)) {
-                if (previousValue != null) {
+            if (previousValueReference == null || !StringUtils.equals(value, previousValueReference.get())) {
+                if (previousValueReference != null) {
                     buffer.putVInt(count);
-                    this.bufferHandler.put(buffer, previousValue);
+                    this.bufferHandler.put(buffer, previousValueReference.get());
                 }
-                previousValue = value;
+                previousValueReference = new StringReference(value);
                 count = 1;
             } else {
                 count++;
             }
         }
-        if (count > 0) {
+        if (count > 0 && previousValueReference != null) {
             buffer.putVInt(count);
-            this.bufferHandler.put(buffer, previousValue);
+            this.bufferHandler.put(buffer, previousValueReference.get());
         }
     }
 
@@ -77,6 +77,20 @@ public class StringRepeatCountEncodingStrategy implements EncodingStrategy<Strin
             }
         }
         return values;
+    }
+
+    private static class StringReference {
+
+        private final String value;
+
+        public StringReference(String value) {
+            this.value = value;
+        }
+
+        public String get() {
+            return value;
+        }
+
     }
 
 }
