@@ -82,13 +82,10 @@ public class DefaultDetailedMemoryMetric implements DetailedMemoryMetric {
             return UNCOLLECTED_USAGE;
         }
         long max = memoryUsage.getMax() == -1 ? memoryUsage.getCommitted() : memoryUsage.getMax();
-        if (max == -1) {
+        if (max == -1 || max == 0) {
             return UNCOLLECTED_USAGE;
         }
-        if (Double.isNaN(max) || Double.isInfinite(max) || max == 0) {
-            return UNCOLLECTED_USAGE;
-        }
-        return memoryUsage.getUsed() / max;
+        return memoryUsage.getUsed() / (double) max;
     }
 
     private interface MemoryPoolMXBeanWrapper {

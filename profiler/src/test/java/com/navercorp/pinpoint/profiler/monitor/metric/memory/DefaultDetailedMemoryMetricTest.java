@@ -20,6 +20,12 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedMemor
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * @author HyunGil Jeong
  */
@@ -59,5 +65,65 @@ public class DefaultDetailedMemoryMetricTest {
         Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getCodeCacheUsage());
         Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getPermGenUsage());
         Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getMetaspaceUsage());
+    }
+
+    @Test
+    public void testNullMemoryUsage() {
+        // Given
+        MemoryPoolMXBean mockMXBean = mock(MemoryPoolMXBean.class);
+        MemoryUsage nullMemoryUsage = null;
+        when(mockMXBean.getUsage()).thenReturn(nullMemoryUsage);
+        DetailedMemoryMetric detailedMemoryMetric = new DefaultDetailedMemoryMetric(MemoryPoolType.CMS, mockMXBean, mockMXBean, mockMXBean, mockMXBean, mockMXBean, mockMXBean);
+        // When
+        DetailedMemoryMetricSnapshot snapshot = detailedMemoryMetric.getSnapshot();
+        // Then
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getNewGenUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getOldGenUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getSurvivorSpaceUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getCodeCacheUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getPermGenUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getMetaspaceUsage());
+    }
+
+    @Test
+    public void testUnknownMax() {
+        // Given
+        MemoryPoolMXBean mockMXBean = mock(MemoryPoolMXBean.class);
+        MemoryUsage mockUsage = mock(MemoryUsage.class);
+        when(mockMXBean.getUsage()).thenReturn(mockUsage);
+        when(mockUsage.getMax()).thenReturn(-1L);
+        DetailedMemoryMetric detailedMemoryMetric = new DefaultDetailedMemoryMetric(MemoryPoolType.CMS, mockMXBean, mockMXBean, mockMXBean, mockMXBean, mockMXBean, mockMXBean);
+        // When
+        DetailedMemoryMetricSnapshot snapshot = detailedMemoryMetric.getSnapshot();
+        // Then
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getNewGenUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getOldGenUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getSurvivorSpaceUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getCodeCacheUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getPermGenUsage());
+        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getMetaspaceUsage());
+    }
+
+    @Test
+    public void testValidMax() {
+        // Given
+        long givenUsed = 50L;
+        long givenMax = 100L;
+        double expectedUsage = givenUsed / (double) givenMax;
+        MemoryPoolMXBean mockMXBean = mock(MemoryPoolMXBean.class);
+        MemoryUsage mockUsage = mock(MemoryUsage.class);
+        when(mockMXBean.getUsage()).thenReturn(mockUsage);
+        when(mockUsage.getUsed()).thenReturn(50L);
+        when(mockUsage.getMax()).thenReturn(100L);
+        DetailedMemoryMetric detailedMemoryMetric = new DefaultDetailedMemoryMetric(MemoryPoolType.CMS, mockMXBean, mockMXBean, mockMXBean, mockMXBean, mockMXBean, mockMXBean);
+        // When
+        DetailedMemoryMetricSnapshot snapshot = detailedMemoryMetric.getSnapshot();
+        // Then
+        Assert.assertEquals(expectedUsage, snapshot.getNewGenUsage(), 0.01);
+        Assert.assertEquals(expectedUsage, snapshot.getOldGenUsage(), 0.01);
+        Assert.assertEquals(expectedUsage, snapshot.getSurvivorSpaceUsage(), 0.01);
+        Assert.assertEquals(expectedUsage, snapshot.getCodeCacheUsage(), 0.01);
+        Assert.assertEquals(expectedUsage, snapshot.getPermGenUsage(), 0.01);
+        Assert.assertEquals(expectedUsage, snapshot.getMetaspaceUsage(), 0.01);
     }
 }
