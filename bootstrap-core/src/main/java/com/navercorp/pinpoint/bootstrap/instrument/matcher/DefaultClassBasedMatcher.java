@@ -33,15 +33,18 @@ public class DefaultClassBasedMatcher implements ClassBasedMatcher {
     }
 
     DefaultClassBasedMatcher(final String baseClassName, final MatcherOperand additional) {
-        Assert.requireNonNull(baseClassName, "baseClassName must not be null");
-        this.baseClassName = baseClassName;
+        this.baseClassName = Assert.requireNonNull(baseClassName, "baseClassName must not be null");
 
+        this.matcherOperand = getMatcherOperand(baseClassName, additional);
+    }
+
+    private MatcherOperand getMatcherOperand(String baseClassName, MatcherOperand additional) {
         MatcherOperand operand = new ClassInternalNameMatcherOperand(baseClassName);
         if (additional != null) {
             // class AND additional
             operand = operand.and(additional);
         }
-        this.matcherOperand = operand;
+        return operand;
     }
 
     @Override
