@@ -224,16 +224,6 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         return pinpointClient;
     }
 
-    public PinpointClient reconnect(String host, int port) throws PinpointSocketException {
-        SocketAddress address = new InetSocketAddress(host, port);
-        ChannelFuture connectFuture = bootstrap.connect(address);
-        PinpointClientHandler pinpointClientHandler = getSocketHandler(connectFuture, address);
-
-        PinpointClient pinpointClient = new DefaultPinpointClient(pinpointClientHandler);
-        traceSocket(pinpointClient);
-        return pinpointClient;
-    }
-
     /*
         trace mechanism is needed in case of calling close without closing socket
         it is okay to make that later because this is a exceptional case.

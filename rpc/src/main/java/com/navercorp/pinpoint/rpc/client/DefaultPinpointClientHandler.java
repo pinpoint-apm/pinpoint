@@ -148,7 +148,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        Channel channel = ctx.getChannel();
+        Channel channel = e.getChannel();
         if ((null == channel) || (this.channel != channel)) {
             throw new IllegalArgumentException("Invalid channel variable. this.channel:" + this.channel + ", channel:" + channel + ".");
         }
