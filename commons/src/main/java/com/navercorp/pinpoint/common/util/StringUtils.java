@@ -22,14 +22,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class StringUtils {
+public final class StringUtils {
 
     private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 64;
 
     private static final String NULL_STRING = "null";
 
-    public StringUtils() {
-        throw new AssertionError();
+    private StringUtils() {
     }
 
     public static String defaultString(final String str, final String defaultStr) {
