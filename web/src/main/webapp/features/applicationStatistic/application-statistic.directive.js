@@ -113,7 +113,7 @@
 										title: "Response Time",
 										isAvailable: false,
 										maximum: false
-									}, "Active Thread", ["Avg", "Max", "Min"], chartData.charts["RESPONSE_TIME"]), "100%", "270px");
+									}, "Response Time", ["Avg", "Max", "Min"], chartData.charts["RESPONSE_TIME"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
