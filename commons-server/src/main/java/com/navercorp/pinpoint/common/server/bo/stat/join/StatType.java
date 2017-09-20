@@ -29,6 +29,7 @@ public enum StatType {
     APP_TRANSACTION_COUNT(4, "Application Transaction Count"),
     APP_ACTIVE_TRACE_COUNT(5, "Application Active trace Count"),
     APP_RESPONSE_TIME(6, "Application Response Time"),
+    APP_DATA_SOURCE(7, "Application data Source"),
 
     APP_STST_AGGRE(51, "Application stst aggregation"),
     APP_CPU_LOAD_AGGRE(52, "Application Cpu Usage aggregation"),
@@ -36,13 +37,15 @@ public enum StatType {
     APP_TRANSACTION_COUNT_AGGRE(54, "Application Transaction count aggregation"),
     APP_ACTIVE_TRACE_COUNT_AGGRE(55, "Application Active trace count aggregation"),
     APP_RESPONSE_TIME_AGGRE(56, "Application Response Time aggregation"),
+    APP_DATA_SOURCE_AGGRE(57, "Application Data Source aggregation"),
 
     AGENT_STST_AGGRE(101, "Agent stst aggregation"),
     AGENT_CPU_LOAD_AGGRE(102, "Agent Cpu Usage aggregation"),
     AGENT_MEMORY_USED_AGGRE(103, "Agent Memory Usage aggregation"),
     AGENT_TRANSACTION_COUNT_AGGRE(104, "Agent Transaction count aggregation"),
     AGENT_ACTIVE_TRACE_COUNT_AGGRE(105, "Agent Active trace count aggregation"),
-    AGENT_RESPONSE_TIME_AGGRE(106, "Agent response time aggregation");
+    AGENT_RESPONSE_TIME_AGGRE(106, "Agent response time aggregation"),
+    AGENT_DATA_SOURCE_AGGRE(107, "Agent data source aggregation");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 

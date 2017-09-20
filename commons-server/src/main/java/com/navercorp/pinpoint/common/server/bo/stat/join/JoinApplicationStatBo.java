@@ -31,6 +31,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
     private List<JoinTransactionBo> joinTransactionBoList = Collections.emptyList();
     private List<JoinActiveTraceBo> joinActiveTraceBoList = Collections.emptyList();
     private List<JoinResponseTimeBo> joinResponseTimeBoList = Collections.emptyList();
+    private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
 
     private long timestamp = Long.MIN_VALUE;
     private StatType statType = StatType.APP_STST;
@@ -47,6 +48,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         newJoinApplicationStatBo.setJoinTransactionBoList(joinTransactionBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setJoinActiveTraceBoList(joinActiveTraceBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setJoinResponseTimeBoList(joinResponseTimeBoByTimeSlice(joinApplicationStatBoList));
+        newJoinApplicationStatBo.setJoinDataSourceListBoList(JoinDataSourceListBoBytTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setTimestamp(extractMinTimestamp(newJoinApplicationStatBo));
         return newJoinApplicationStatBo;
     }
@@ -84,6 +86,12 @@ public class JoinApplicationStatBo implements JoinStatBo {
             }
         }
 
+        for (JoinDataSourceListBo joinDataSourceListBo : joinApplicationStatBo.getJoinDataSourceListBoList()) {
+            if (joinDataSourceListBo.getTimestamp() < minTimestamp) {
+                minTimestamp = joinDataSourceListBo.getTimestamp();
+            }
+        }
+
         return minTimestamp;
     }
 
@@ -113,6 +121,34 @@ public class JoinApplicationStatBo implements JoinStatBo {
         }
 
         return newJoinResponseTimeBoList;
+    }
+
+    private static List<JoinDataSourceListBo> JoinDataSourceListBoBytTimeSlice(List<JoinApplicationStatBo> joinApplicationStatBoList) {
+        Map<Long, List<JoinDataSourceListBo>> joinDataSourceListBoMap = new HashMap<Long, List<JoinDataSourceListBo>>();
+
+        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
+            for (JoinDataSourceListBo joinDataSourceListBo : joinApplicationStatBo.getJoinDataSourceListBoList()) {
+                long shiftTimestamp = shiftTimestamp(joinDataSourceListBo.getTimestamp());
+                List<JoinDataSourceListBo> joinDataSourceListBoList = joinDataSourceListBoMap.get(shiftTimestamp);
+
+                if (joinDataSourceListBoList == null) {
+                    joinDataSourceListBoList = new ArrayList<JoinDataSourceListBo>();
+                    joinDataSourceListBoMap.put(shiftTimestamp, joinDataSourceListBoList);
+                }
+
+                joinDataSourceListBoList.add(joinDataSourceListBo);
+            }
+        }
+
+        List<JoinDataSourceListBo> newJoinDataSourceListBoList = new ArrayList<JoinDataSourceListBo>();
+
+        for (Map.Entry<Long, List<JoinDataSourceListBo>> entry : joinDataSourceListBoMap.entrySet()) {
+            List<JoinDataSourceListBo> joinDataSourceListBoList = entry.getValue();
+            JoinDataSourceListBo joinDataSourceListBo = JoinDataSourceListBo.joinDataSourceListBoList(joinDataSourceListBoList, entry.getKey());
+            newJoinDataSourceListBoList.add(joinDataSourceListBo);
+        }
+
+        return newJoinDataSourceListBoList;
     }
 
     private static List<JoinActiveTraceBo> joinActiveTraceBoByTimeSlice(List<JoinApplicationStatBo> joinApplicationStatBoList) {
@@ -320,6 +356,14 @@ public class JoinApplicationStatBo implements JoinStatBo {
         this.joinResponseTimeBoList = joinResponseTimeBoList;
     }
 
+    public void setJoinDataSourceListBoList(List<JoinDataSourceListBo> joinDataSourceListBoList) {
+        this.joinDataSourceListBoList = joinDataSourceListBoList;
+    }
+
+    public List<JoinDataSourceListBo> getJoinDataSourceListBoList() {
+        return joinDataSourceListBoList;
+    }
+
     public static List<JoinApplicationStatBo> createJoinApplicationStatBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime) {
         List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
         List<JoinAgentStatBo> joinAgentStatBoList = splitJoinAgentStatBo(applicationId, joinAgentStatBo, rangeTime);
@@ -333,6 +377,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             joinApplicationStatBo.setJoinTransactionBoList(sliceJoinAgentStatBo.getJoinTransactionBoList());
             joinApplicationStatBo.setJoinActiveTraceBoList(sliceJoinAgentStatBo.getJoinActiveTraceBoList());
             joinApplicationStatBo.setJoinResponseTimeBoList(sliceJoinAgentStatBo.getJoinResponseTimeBoList());
+            joinApplicationStatBo.setJoinDataSourceListBoList(sliceJoinAgentStatBo.getJoinDataSourceListBoList());
             joinApplicationStatBoList.add(joinApplicationStatBo);
         }
 
@@ -346,7 +391,31 @@ public class JoinApplicationStatBo implements JoinStatBo {
         sliceJoinTransactionBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         sliceJoinActiveTraceBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         sliceJoinResponseTimeBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
+        sliceJoinDataSourceListBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         return new ArrayList<JoinAgentStatBo>(joinAgentStatBoMap.values());
+    }
+
+    private static void sliceJoinDataSourceListBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime, Map<Long, JoinAgentStatBo> joinAgentStatBoMap) {
+        Map<Long, List<JoinDataSourceListBo>> joinDataSourceListBoMap = new HashMap<Long, List<JoinDataSourceListBo>>();
+
+        for (JoinDataSourceListBo joinDataSourceListBo : joinAgentStatBo.getJoinDataSourceListBoList()) {
+            long timestamp = joinDataSourceListBo.getTimestamp();
+            long time = timestamp - (timestamp % rangeTime);
+
+            List<JoinDataSourceListBo> joinDataSourceListBoList = joinDataSourceListBoMap.get(time);
+
+            if (joinDataSourceListBoList == null) {
+                joinDataSourceListBoList = new ArrayList<JoinDataSourceListBo>();
+                joinDataSourceListBoMap.put(time, joinDataSourceListBoList);
+            }
+
+            joinDataSourceListBoList.add(joinDataSourceListBo);
+        }
+        for (Map.Entry<Long, List<JoinDataSourceListBo>> entry : joinDataSourceListBoMap.entrySet()) {
+            long time = entry.getKey();
+            JoinAgentStatBo sliceJoinAgentStatBo = getORCreateJoinAgentStatBo(applicationId, joinAgentStatBoMap, time);
+            sliceJoinAgentStatBo.setJoinDataSourceListBoList(entry.getValue());
+        }
     }
 
     private static void sliceJoinResponseTimeBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime, Map<Long, JoinAgentStatBo> joinAgentStatBoMap) {
@@ -475,13 +544,14 @@ public class JoinApplicationStatBo implements JoinStatBo {
     @Override
     public String toString() {
         return "JoinApplicationStatBo{" +
-            "applicationId='" + applicationId + '\'' +
+            ", timestamp=" + new Date(timestamp) +
+            ", applicationId='" + applicationId + '\'' +
             ", joinCpuLoadBoList=" + joinCpuLoadBoList +
             ", joinMemoryBoList=" + joinMemoryBoList +
             ", joinTransactionBoList=" + joinTransactionBoList +
             ", joinActiveTraceBoList=" + joinActiveTraceBoList +
             ", joinResponseTimeBoList=" + joinResponseTimeBoList +
-            ", timestamp=" + timestamp +
+            ", joinDataSourceListBoList=" + joinDataSourceListBoList +
             ", statType=" + statType +
             '}';
     }

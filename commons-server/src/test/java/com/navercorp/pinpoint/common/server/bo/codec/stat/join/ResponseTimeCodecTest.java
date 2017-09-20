@@ -67,10 +67,10 @@ public class ResponseTimeCodecTest {
         final String id = "test_app";
         List<JoinStatBo> joinResponseTimeBoList = new ArrayList<JoinStatBo>();
         JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo(id, currentTime, 3000, 2, "app_1_1", 6000, "app_1_2");
-        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo(id, currentTime, 4000, 200, "app_2_1", 9000, "app_2_2");
-        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo(id, currentTime, 2000, 20, "app_3_1", 7000, "app_3_2");
-        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo(id, currentTime, 5000, 20, "app_4_1", 8000, "app_4_2");
-        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo(id, currentTime, 1000, 10, "app_5_1", 6600, "app_5_2");
+        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo(id, currentTime + 5000, 4000, 200, "app_2_1", 9000, "app_2_2");
+        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo(id, currentTime + 10000, 2000, 20, "app_3_1", 7000, "app_3_2");
+        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo(id, currentTime + 15000, 5000, 20, "app_4_1", 8000, "app_4_2");
+        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo(id, currentTime + 20000, 1000, 10, "app_5_1", 6600, "app_5_2");
         joinResponseTimeBoList.add(joinResponseTimeBo1);
         joinResponseTimeBoList.add(joinResponseTimeBo2);
         joinResponseTimeBoList.add(joinResponseTimeBo3);

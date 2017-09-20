@@ -73,6 +73,9 @@
     <bean id="joinResponseTimeCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeCodec"/>
     <bean id="responseTimeEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeEncoder"/>
     <bean id="responseTimeSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ResponseTimeSerializer"/>
+    <bean id="joinDataSourceCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceCodec"/>
+    <bean id="dataSourceEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceEncoder"/>
+    <bean id="dataSourceSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DataSourceSerializer"/>
 
 
     <bean id="joinAgentStatBoMapper" class="com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper"/>
@@ -107,6 +110,12 @@
         <constructor-arg index="0" ref="hbaseTemplate"/>
         <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="2" ref="responseTimeSerializer"/>
+    </bean>
+
+    <bean id="dataSourceDao" class="com.navercorp.pinpoint.flink.dao.hbase.DataSourceDao">
+        <constructor-arg index="0" ref="hbaseTemplate"/>
+        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
+        <constructor-arg index="2" ref="dataSourceSerializer"/>
     </bean>
 
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">

@@ -53,6 +53,7 @@ public class Bootstrap {
     private final TransactionDao transactionDao;
     private final ActiveTraceDao activeTraceDao;
     private final ResponseTimeDao responseTimeDao;
+    private final DataSourceDao dataSourceDao;
 
     private Bootstrap() {
         String[] SPRING_CONFIG_XML = new String[]{"applicationContext-flink.xml", "applicationContext-cache.xml"};
@@ -62,14 +63,14 @@ public class Bootstrap {
         flinkConfiguration = applicationContext.getBean("flinkConfiguration", FlinkConfiguration.class);
         tcpDispatchHandler = applicationContext.getBean("tcpDispatchHandler", TcpDispatchHandler.class);
         tcpSourceFunction = applicationContext.getBean("tcpSourceFunction", TcpSourceFunction.class);
-        statisticsDao = applicationContext.getBean("statisticsDao", StatisticsDao.class);
         applicationCache = applicationContext.getBean("applicationCache", ApplicationCache.class);
+        statisticsDao = applicationContext.getBean("statisticsDao", StatisticsDao.class);
         cpuLoadDao = applicationContext.getBean("cpuLoadDao", CpuLoadDao.class);
         memoryDao = applicationContext.getBean("memoryDao", MemoryDao.class);
         transactionDao = applicationContext.getBean("transactionDao", TransactionDao.class);
         activeTraceDao = applicationContext.getBean("activeTraceDao", ActiveTraceDao.class);
         responseTimeDao = applicationContext.getBean("responseTimeDao", ResponseTimeDao.class);
-
+        dataSourceDao = applicationContext.getBean("dataSourceDao", DataSourceDao.class);
     }
 
     public static Bootstrap getInstance() {
@@ -102,6 +103,10 @@ public class Bootstrap {
 
     public ResponseTimeDao getResponseTimeDao() {
         return responseTimeDao;
+    }
+
+    public DataSourceDao getDataSourceDao() {
+        return dataSourceDao;
     }
 
     public TbaseFlatMapper getTbaseFlatMapper() {

@@ -16,13 +16,17 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeCodec;
+import com.navercorp.pinpoint.common.server.bo.stat.*;
+import com.navercorp.pinpoint.common.trace.SlotType;
+import com.navercorp.pinpoint.thrift.dto.flink.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -96,8 +100,300 @@ public class TFAgentStatMapperTest {
         cpuLoadBo2.setSystemCpuLoad(6);
         cpuLoadBoList.add(cpuLoadBo2);
 
-
         return cpuLoadBoList;
     }
+
+    @Test
+    public void map2Test() throws Exception {
+        final AgentStatBo agentStatBo = new AgentStatBo();
+        agentStatBo.setStartTimestamp(startTimestamp);
+        agentStatBo.setAgentId(TEST_AGENT);
+        agentStatBo.setDataSourceListBos(createDataSourceListBoList());;
+
+        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        assertEquals(2, tFAgentStatList.size());
+
+        TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
+        assertEquals(tFAgentStat1.getAgentId(), TEST_AGENT);
+        assertEquals(tFAgentStat1.getStartTimestamp(), startTimestamp);
+        assertEquals(tFAgentStat1.getTimestamp(), collectTime1st);
+        assertEquals(tFAgentStat1.isSetDataSourceList(), true);
+        List<TFDataSource> dataSourceList1 = tFAgentStat1.getDataSourceList().getDataSourceList();
+        assertEquals(dataSourceList1.size(), 2);
+        TFDataSource tfDataSource1_1 = dataSourceList1.get(0);
+        TFDataSource tfDataSource1_2 = dataSourceList1.get(1);
+        assertEquals(tfDataSource1_1.getId(), 1);
+        assertEquals(tfDataSource1_1.getUrl(), "jdbc:mysql");
+        assertEquals(tfDataSource1_1.getServiceTypeCode(), 1000);
+        assertEquals(tfDataSource1_1.getActiveConnectionSize(), 15);
+        assertEquals(tfDataSource1_1.getMaxConnectionSize(), 30);
+        assertEquals(tfDataSource1_1.getDatabaseName(), "pinpoint1");
+        assertEquals(tfDataSource1_2.getId(), 2);
+        assertEquals(tfDataSource1_2.getUrl(), "jdbc:mssql");
+        assertEquals(tfDataSource1_2.getServiceTypeCode(), 2000);
+        assertEquals(tfDataSource1_2.getActiveConnectionSize(), 25);
+        assertEquals(tfDataSource1_2.getMaxConnectionSize(), 40);
+        assertEquals(tfDataSource1_2.getDatabaseName(), "pinpoint2");
+
+
+        TFAgentStat tFAgentStat2 = tFAgentStatList.get(1);
+        assertEquals(tFAgentStat2.getAgentId(), TEST_AGENT);
+        assertEquals(tFAgentStat2.getStartTimestamp(), startTimestamp);
+        assertEquals(tFAgentStat2.getTimestamp(), collectTime2nd);
+        assertEquals(tFAgentStat2.isSetDataSourceList(), true);
+        List<TFDataSource> dataSourceList2 = tFAgentStat2.getDataSourceList().getDataSourceList();
+        assertEquals(dataSourceList2.size(), 2);
+        TFDataSource tfDataSource2_1 = dataSourceList2.get(0);
+        TFDataSource tfDataSource2_2 = dataSourceList2.get(1);
+        assertEquals(tfDataSource2_1.getId(), 1);
+        assertEquals(tfDataSource2_1.getUrl(), "jdbc:mysql");
+        assertEquals(tfDataSource2_1.getServiceTypeCode(), 1000);
+        assertEquals(tfDataSource2_1.getActiveConnectionSize(), 16);
+        assertEquals(tfDataSource2_1.getMaxConnectionSize(), 31);
+        assertEquals(tfDataSource2_1.getDatabaseName(), "pinpoint1");
+        assertEquals(tfDataSource2_2.getId(), 2);
+        assertEquals(tfDataSource2_2.getUrl(), "jdbc:mssql");
+        assertEquals(tfDataSource2_2.getServiceTypeCode(), 2000);
+        assertEquals(tfDataSource2_2.getActiveConnectionSize(), 26);
+        assertEquals(tfDataSource2_2.getMaxConnectionSize(), 41);
+        assertEquals(tfDataSource2_2.getDatabaseName(), "pinpoint2");
+    }
+
+    private List<DataSourceListBo> createDataSourceListBoList() {
+        List<DataSourceListBo> dataSourceListBoList = new ArrayList<>();
+
+        DataSourceListBo dataSourceListBo1 = new DataSourceListBo();
+        dataSourceListBo1.setAgentId("test_agent1");
+        dataSourceListBo1.setStartTimestamp(startTimestamp);
+        dataSourceListBo1.setTimestamp(collectTime1st);
+
+        DataSourceBo dataSourceBo1_1 = new DataSourceBo();
+        dataSourceBo1_1.setAgentId("test_agent1");
+        dataSourceBo1_1.setTimestamp(collectTime1st);
+        dataSourceBo1_1.setServiceTypeCode((short) 1000);
+        dataSourceBo1_1.setJdbcUrl("jdbc:mysql");
+        dataSourceBo1_1.setActiveConnectionSize(15);
+        dataSourceBo1_1.setMaxConnectionSize(30);
+        dataSourceBo1_1.setId(1);
+        dataSourceBo1_1.setDatabaseName("pinpoint1");
+        DataSourceBo dataSourceBo1_2 = new DataSourceBo();
+        dataSourceBo1_2.setAgentId("test_agent1");
+        dataSourceBo1_2.setTimestamp(collectTime1st);
+        dataSourceBo1_2.setAgentId("test_agent1");
+        dataSourceBo1_2.setServiceTypeCode((short) 2000);
+        dataSourceBo1_2.setJdbcUrl("jdbc:mssql");
+        dataSourceBo1_2.setActiveConnectionSize(25);
+        dataSourceBo1_2.setMaxConnectionSize(40);
+        dataSourceBo1_2.setId(2);
+        dataSourceBo1_2.setDatabaseName("pinpoint2");
+        dataSourceListBo1.add(dataSourceBo1_1);
+        dataSourceListBo1.add(dataSourceBo1_2);
+
+        DataSourceListBo dataSourceListBo2 = new DataSourceListBo();
+        dataSourceListBo2.setAgentId("test_agent1");
+        dataSourceListBo2.setStartTimestamp(startTimestamp);
+        dataSourceListBo2.setTimestamp(collectTime2nd);
+
+        DataSourceBo dataSourceBo2_1 = new DataSourceBo();
+        dataSourceBo2_1.setAgentId("test_agent1");
+        dataSourceBo2_1.setTimestamp(collectTime2nd);
+        dataSourceBo2_1.setServiceTypeCode((short) 1000);
+        dataSourceBo2_1.setJdbcUrl("jdbc:mysql");
+        dataSourceBo2_1.setActiveConnectionSize(16);
+        dataSourceBo2_1.setMaxConnectionSize(31);
+        dataSourceBo2_1.setId(1);
+        dataSourceBo2_1.setDatabaseName("pinpoint1");
+        DataSourceBo dataSourceBo2_2 = new DataSourceBo();
+        dataSourceBo2_2.setAgentId("test_agent1");
+        dataSourceBo2_2.setTimestamp(collectTime2nd);
+        dataSourceBo2_2.setAgentId("test_agent1");
+        dataSourceBo2_2.setServiceTypeCode((short) 2000);
+        dataSourceBo2_2.setJdbcUrl("jdbc:mssql");
+        dataSourceBo2_2.setActiveConnectionSize(26);
+        dataSourceBo2_2.setMaxConnectionSize(41);
+        dataSourceBo2_2.setId(2);
+        dataSourceBo2_2.setDatabaseName("pinpoint2");
+        dataSourceListBo2.add(dataSourceBo2_1);
+        dataSourceListBo2.add(dataSourceBo2_2);
+
+        dataSourceListBoList.add(dataSourceListBo1);
+        dataSourceListBoList.add(dataSourceListBo2);
+
+        return dataSourceListBoList;
+    }
+
+    @Test
+    public void map3Test() throws Exception {
+        final AgentStatBo agentStatBo = new AgentStatBo();
+        agentStatBo.setStartTimestamp(startTimestamp);
+        agentStatBo.setAgentId(TEST_AGENT);
+        agentStatBo.setJvmGcBos(createJvmGcBoList());
+
+        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        assertEquals(2, tFAgentStatList.size());
+
+        TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
+        assertEquals(tFAgentStat1.getAgentId(), TEST_AGENT);
+        assertEquals(tFAgentStat1.getStartTimestamp(), startTimestamp);
+        assertEquals(tFAgentStat1.getTimestamp(), collectTime1st);
+        TFJvmGc tFJvmGc1 = tFAgentStat1.getGc();
+        assertEquals(tFJvmGc1.getJvmMemoryHeapUsed(), 3000);
+        assertEquals(tFJvmGc1.getJvmMemoryNonHeapUsed(), 300);
+
+        TFAgentStat tFAgentStat2 = tFAgentStatList.get(1);
+        assertEquals(tFAgentStat2.getAgentId(), TEST_AGENT);
+        assertEquals(tFAgentStat2.getStartTimestamp(), startTimestamp);
+        assertEquals(tFAgentStat2.getTimestamp(), collectTime2nd);
+        TFJvmGc tFJvmGc2 = tFAgentStat2.getGc();
+        assertEquals(tFJvmGc2.getJvmMemoryHeapUsed(), 3100);
+        assertEquals(tFJvmGc2.getJvmMemoryNonHeapUsed(), 310);
+    }
+
+    private List<JvmGcBo> createJvmGcBoList() {
+        List<JvmGcBo> jvmGcBoList = new ArrayList<>();
+
+        JvmGcBo jvmGcBo1 = new JvmGcBo();
+        jvmGcBo1.setAgentId("test_agent1");
+        jvmGcBo1.setStartTimestamp(startTimestamp);
+        jvmGcBo1.setTimestamp(collectTime1st);
+        jvmGcBo1.setGcType(JvmGcType.G1);
+        jvmGcBo1.setHeapUsed(3000);
+        jvmGcBo1.setHeapMax(5000);
+        jvmGcBo1.setNonHeapUsed(300);
+        jvmGcBo1.setNonHeapMax(500);
+        jvmGcBo1.setGcOldCount(5);
+        jvmGcBo1.setGcOldTime(10);
+        jvmGcBoList.add(jvmGcBo1);
+
+        JvmGcBo jvmGcBo2 = new JvmGcBo();
+        jvmGcBo2.setAgentId("test_agent1");
+        jvmGcBo2.setStartTimestamp(startTimestamp);
+        jvmGcBo2.setTimestamp(collectTime2nd);
+        jvmGcBo2.setGcType(JvmGcType.G1);
+        jvmGcBo2.setHeapUsed(3100);
+        jvmGcBo2.setHeapMax(5100);
+        jvmGcBo2.setNonHeapUsed(310);
+        jvmGcBo2.setNonHeapMax(510);
+        jvmGcBo2.setGcOldCount(15);
+        jvmGcBo2.setGcOldTime(20);
+        jvmGcBoList.add(jvmGcBo2);
+
+        return jvmGcBoList;
+    }
+
+    @Test
+    public void map4Test() {
+        final AgentStatBo agentStatBo = new AgentStatBo();
+        agentStatBo.setStartTimestamp(startTimestamp);
+        agentStatBo.setAgentId(TEST_AGENT);
+        agentStatBo.setActiveTraceBos(createActiveTraceBoList());
+
+        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        assertEquals(2, tFAgentStatList.size());
+
+        TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
+        assertEquals(tFAgentStat1.getAgentId(), TEST_AGENT);
+        assertEquals(tFAgentStat1.getStartTimestamp(), startTimestamp);
+        assertEquals(tFAgentStat1.getTimestamp(), collectTime1st);
+        TFActiveTrace activeTrace1 = tFAgentStat1.getActiveTrace();
+        TFActiveTraceHistogram histogram1 = activeTrace1.getHistogram();
+        List<Integer> activeTraceCount1 = histogram1.getActiveTraceCount();
+        assertEquals((int)activeTraceCount1.get(0), 30);
+        assertEquals((int)activeTraceCount1.get(1), 40);
+        assertEquals((int)activeTraceCount1.get(2), 10);
+        assertEquals((int)activeTraceCount1.get(3), 50);
+
+        TFAgentStat tFAgentStat2 = tFAgentStatList.get(1);
+        assertEquals(tFAgentStat2.getAgentId(), TEST_AGENT);
+        assertEquals(tFAgentStat2.getStartTimestamp(), startTimestamp);
+        assertEquals(tFAgentStat2.getTimestamp(), collectTime2nd);
+        TFActiveTrace activeTrace2 = tFAgentStat2.getActiveTrace();
+        TFActiveTraceHistogram histogram2 = activeTrace2.getHistogram();
+        List<Integer> activeTraceCount2 = histogram2.getActiveTraceCount();
+        assertEquals((int)activeTraceCount2.get(0), 31);
+        assertEquals((int)activeTraceCount2.get(1), 41);
+        assertEquals((int)activeTraceCount2.get(2), 11);
+        assertEquals((int)activeTraceCount2.get(3), 51);
+    }
+
+    private List<ActiveTraceBo> createActiveTraceBoList() {
+        List<ActiveTraceBo> activeTraceBoList = new ArrayList<>();
+
+        ActiveTraceBo activeTraceBo1 = new ActiveTraceBo();
+        activeTraceBo1.setAgentId("test_agent1");
+        activeTraceBo1.setStartTimestamp(startTimestamp);
+        activeTraceBo1.setTimestamp(collectTime1st);
+        activeTraceBo1.setVersion((short) 1);
+        activeTraceBo1.setHistogramSchemaType(2);
+        Map<SlotType, Integer> activeTraceCountMap1 = new HashMap<>();
+        activeTraceCountMap1.put(SlotType.FAST, 30);
+        activeTraceCountMap1.put(SlotType.NORMAL, 40);
+        activeTraceCountMap1.put(SlotType.SLOW, 10);
+        activeTraceCountMap1.put(SlotType.VERY_SLOW, 50);
+        activeTraceBo1.setActiveTraceCounts(activeTraceCountMap1);
+        activeTraceBoList.add(activeTraceBo1);
+
+        ActiveTraceBo activeTraceBo2 = new ActiveTraceBo();
+        activeTraceBo2.setAgentId("test_agent1");
+        activeTraceBo2.setStartTimestamp(startTimestamp);
+        activeTraceBo2.setTimestamp(collectTime2nd);
+        activeTraceBo2.setVersion((short) 1);
+        activeTraceBo2.setHistogramSchemaType(2);
+        Map<SlotType, Integer> activeTraceCountMap2 = new HashMap<>();
+        activeTraceCountMap2.put(SlotType.FAST, 31);
+        activeTraceCountMap2.put(SlotType.NORMAL, 41);
+        activeTraceCountMap2.put(SlotType.SLOW, 11);
+        activeTraceCountMap2.put(SlotType.VERY_SLOW, 51);
+        activeTraceBo2.setActiveTraceCounts(activeTraceCountMap2);
+        activeTraceBoList.add(activeTraceBo2);
+
+        return activeTraceBoList;
+    }
+
+    @Test
+    public void map5Test() {
+        final AgentStatBo agentStatBo = new AgentStatBo();
+        agentStatBo.setStartTimestamp(startTimestamp);
+        agentStatBo.setAgentId(TEST_AGENT);
+        agentStatBo.setResponseTimeBos(createResponseTimeBoList());
+
+        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        assertEquals(2, tFAgentStatList.size());
+
+        TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
+        assertEquals(tFAgentStat1.getAgentId(), TEST_AGENT);
+        assertEquals(tFAgentStat1.getStartTimestamp(), startTimestamp);
+        assertEquals(tFAgentStat1.getTimestamp(), collectTime1st);
+        TFResponseTime responseTime1 = tFAgentStat1.getResponseTime();
+        assertEquals(responseTime1.getAvg(), 1000);
+
+        TFAgentStat tFAgentStat2 = tFAgentStatList.get(1);
+        assertEquals(tFAgentStat2.getAgentId(), TEST_AGENT);
+        assertEquals(tFAgentStat2.getStartTimestamp(), startTimestamp);
+        assertEquals(tFAgentStat2.getTimestamp(), collectTime2nd);
+        TFResponseTime responseTime2 = tFAgentStat2.getResponseTime();
+        assertEquals(responseTime2.getAvg(), 2000);
+    }
+
+    private List<ResponseTimeBo> createResponseTimeBoList() {
+        List<ResponseTimeBo> responseTimeBoList = new ArrayList<>();
+
+        ResponseTimeBo responseTimeBo1 = new ResponseTimeBo();
+        responseTimeBo1.setAvg(1000);
+        responseTimeBo1.setStartTimestamp(startTimestamp);
+        responseTimeBo1.setAgentId(TEST_AGENT);
+        responseTimeBo1.setTimestamp(collectTime1st);
+        responseTimeBoList.add(responseTimeBo1);
+
+        ResponseTimeBo responseTimeBo2 = new ResponseTimeBo();
+        responseTimeBo2.setAvg(2000);
+        responseTimeBo2.setStartTimestamp(startTimestamp);
+        responseTimeBo2.setAgentId(TEST_AGENT);
+        responseTimeBo2.setTimestamp(collectTime2nd);
+        responseTimeBoList.add(responseTimeBo2);
+
+        return responseTimeBoList;
+    }
+
 
 }

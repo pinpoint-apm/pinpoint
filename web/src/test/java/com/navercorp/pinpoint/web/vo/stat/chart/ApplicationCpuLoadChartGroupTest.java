@@ -72,6 +72,7 @@ public class ApplicationCpuLoadChartGroupTest {
     }
 
     private void testSysCpuLoad(CpuLoadPoint cpuLoadPoint, AggreJoinCpuLoadBo aggreJoinCpuLoadBo) {
+        assertEquals(cpuLoadPoint.getxVal(), aggreJoinCpuLoadBo.getTimestamp());
         assertEquals(cpuLoadPoint.getyValForAvg(), aggreJoinCpuLoadBo.getSystemCpuLoad(), 0);
         assertEquals(cpuLoadPoint.getyValForMin(), aggreJoinCpuLoadBo.getMinSystemCpuLoad(), 0);
         assertEquals(cpuLoadPoint.getyValForMax(), aggreJoinCpuLoadBo.getMaxSystemCpuLoad(), 0);

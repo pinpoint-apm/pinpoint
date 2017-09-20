@@ -122,7 +122,7 @@ public class ActiveTraceCodec implements ApplicationStatCodec {
         AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
         EncodingStrategy<Short> versionEncodingStrategy = UnsignedShortEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<Integer> schemaTypeEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Integer> totalCountsEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Integer> totalCountEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<Integer> minTotalCountEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<String> minTotalCountAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<Integer> maxTotalCountEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
@@ -130,7 +130,7 @@ public class ActiveTraceCodec implements ApplicationStatCodec {
 
         List<Short> versionList = this.codec.decodeValues(valueBuffer, versionEncodingStrategy, numValues);
         List<Integer> schemaTypeList = this.codec.decodeValues(valueBuffer, schemaTypeEncodingStrategy, numValues);
-        List<Integer> totalCountList = this.codec.decodeValues(valueBuffer, totalCountsEncodingStrategy, numValues);
+        List<Integer> totalCountList = this.codec.decodeValues(valueBuffer, totalCountEncodingStrategy, numValues);
         List<Integer> minTotalCountList = this.codec.decodeValues(valueBuffer, minTotalCountEncodingStrategy, numValues);
         List<String> minTotalCountAgentIdList = this.codec.decodeValues(valueBuffer, minTotalCountAgentIdEncodingStrategy, numValues);
         List<Integer> maxTotalCountList = this.codec.decodeValues(valueBuffer, maxTotalCountEncodingStrategy, numValues);

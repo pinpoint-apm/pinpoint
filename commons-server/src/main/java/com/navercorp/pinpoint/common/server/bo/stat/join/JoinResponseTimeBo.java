@@ -123,7 +123,7 @@ public class JoinResponseTimeBo implements JoinStatBo {
         for (JoinResponseTimeBo joinResponseTimeBo : joinResponseTimeBoList) {
             sumAvg += joinResponseTimeBo.getAvg();
 
-            if(joinResponseTimeBo.getMaxAvg() > maxAvg) {
+            if (joinResponseTimeBo.getMaxAvg() > maxAvg) {
                 maxAvg = joinResponseTimeBo.getMaxAvg();
                 maxAvgAgentId = joinResponseTimeBo.getMaxAvgAgentId();
             }
