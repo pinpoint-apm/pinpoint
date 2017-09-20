@@ -43,6 +43,8 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private transient TransactionDao transactionDao;
     private transient ActiveTraceDao activeTraceDao;
     private transient ResponseTimeDao responseTimeDao;
+    private transient DataSourceDao dataSourceDao;
+
 
     public StatisticsDao() {
     }
@@ -56,6 +58,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         transactionDao = bootstrap.getTransactionDao();
         activeTraceDao = bootstrap.getActiveTraceDao();
         responseTimeDao = bootstrap.getResponseTimeDao();
+        dataSourceDao = bootstrap.getDataSourceDao();
     }
 
     @Override
@@ -66,7 +69,10 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     public void writeRecord(Tuple3<String, JoinStatBo, Long> statData) throws IOException {
         JoinStatBo joinStatBo = (JoinStatBo)statData.f1;
         if (joinStatBo instanceof JoinAgentStatBo) {
-            logger.info("JoinAgentStatBo insert data : {}", joinStatBo);
+            if (logger.isInfoEnabled()) {
+                logger.info("JoinAgentStatBo insert data : {}", joinStatBo);
+            }
+
             insertJoinAgentStatBo((JoinAgentStatBo)joinStatBo);
         } else if (joinStatBo instanceof JoinApplicationStatBo) {
 //            logger.info("JoinApplicationStatBo insert data : " + joinStatBo);
@@ -81,6 +87,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         List<JoinStatBo> joinTransactionBoList = castJoinStatBoList(joinApplicationStatBo.getJoinTransactionBoList());
         List<JoinStatBo> joinActiveTraceBoList = castJoinStatBoList(joinApplicationStatBo.getJoinActiveTraceBoList());
         List<JoinStatBo> joinResponseTimeBoList = castJoinStatBoList(joinApplicationStatBo.getJoinResponseTimeBoList());
+        List<JoinStatBo> joinDataSourceBoList = castJoinStatBoList(joinApplicationStatBo.getJoinDataSourceListBoList());
 
         if (joinApplicationStatBo.getStatType() == StatType.APP_STST_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
@@ -92,6 +99,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
             transactionDao.insert(id, timestamp, joinTransactionBoList, StatType.APP_TRANSACTION_COUNT);
             activeTraceDao.insert(id, timestamp, joinActiveTraceBoList, StatType.APP_ACTIVE_TRACE_COUNT);
             responseTimeDao.insert(id, timestamp, joinResponseTimeBoList, StatType.APP_RESPONSE_TIME);
+            dataSourceDao.insert(id, timestamp, joinDataSourceBoList, StatType.APP_DATA_SOURCE);
         }
     }
 

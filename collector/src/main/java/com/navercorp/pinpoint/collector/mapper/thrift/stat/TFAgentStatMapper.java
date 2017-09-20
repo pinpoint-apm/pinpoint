@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.*;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
+import com.navercorp.pinpoint.thrift.dto.flink.TFDataSourceList;
+import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 
 import java.util.*;
 
@@ -29,6 +31,7 @@ public class TFAgentStatMapper {
     private static final TFTransactionMapper tFTransactionMapper = new TFTransactionMapper();
     private static final TFActiveTraceMapper tFActiveTraceMapper = new TFActiveTraceMapper();
     private static final TFResponseTimeMapper tFResponseTimeMapper = new TFResponseTimeMapper();
+    private static final TFDataSourceListBoMapper tFDataSourceListBoMapper = new TFDataSourceListBoMapper();
 
     public List<TFAgentStat> map(AgentStatBo agentStatBo) {
         final TreeMap<Long, TFAgentStat> tFAgentStatMap = new TreeMap<>();
@@ -40,7 +43,19 @@ public class TFAgentStatMapper {
         insertTFTransaction(tFAgentStatMap, agentStatBo.getTransactionBos(), agentId, startTimestamp);
         insertTFActiveTrace(tFAgentStatMap, agentStatBo.getActiveTraceBos(), agentId, startTimestamp);
         insertTFResponseTime(tFAgentStatMap, agentStatBo.getResponseTimeBos(), agentId, startTimestamp);
+        insertTFDataSourceList(tFAgentStatMap, agentStatBo.getDataSourceListBos(), agentId, startTimestamp);
         return new ArrayList<>(tFAgentStatMap.values());
+    }
+
+    private void insertTFDataSourceList(TreeMap<Long, TFAgentStat> tFAgentStatMap, List<DataSourceListBo> dataSourceListBoList, String agentId, long startTimestamp) {
+        if (dataSourceListBoList == null) {
+            return;
+        }
+
+        for (DataSourceListBo dataSourceListBo : dataSourceListBoList) {
+            TFAgentStat tFAgentStat = getOrCreateTFAgentStat(tFAgentStatMap, dataSourceListBo.getTimestamp(), agentId, startTimestamp);
+            tFAgentStat.setDataSourceList(tFDataSourceListBoMapper.map(dataSourceListBo));
+        }
     }
 
     private void insertTFResponseTime(TreeMap<Long, TFAgentStat> tFAgentStatMap, List<ResponseTimeBo> responseTimeBoList, String agentId, long startTimestamp) {
@@ -52,7 +67,6 @@ public class TFAgentStatMapper {
             TFAgentStat tFAgentStat = getOrCreateTFAgentStat(tFAgentStatMap, responseTimeBo.getTimestamp(), agentId, startTimestamp);
             tFAgentStat.setResponseTime(tFResponseTimeMapper.map(responseTimeBo));
         }
-
     }
 
     private void insertTFActiveTrace(TreeMap<Long, TFAgentStat> tFAgentStatMap, List<ActiveTraceBo> activeTraceBoList, String agentId, long startTimestamp) {

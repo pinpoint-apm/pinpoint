@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class ApplicationCpuLoadChartGroup implements ApplicationStatChartGroup {
 
-    private static final UncollectedCpuLoadPointCreater UNCOLLECTED_CPULOADPOINT = new UncollectedCpuLoadPointCreater();
+    private static final UncollectedCpuLoadPointCreater UNCOLLECTED_CPULOAD_POINT = new UncollectedCpuLoadPointCreater();
 
     private final Map<ChartType, Chart> cpuLoadChartMap;
 
@@ -49,8 +49,8 @@ public class ApplicationCpuLoadChartGroup implements ApplicationStatChartGroup {
             systemCpuLoadList.add(new CpuLoadPoint(aggreJoinCpuLoadBo.getTimestamp(), aggreJoinCpuLoadBo.getMinSystemCpuLoad(), aggreJoinCpuLoadBo.getMinSysCpuAgentId(), aggreJoinCpuLoadBo.getMaxSystemCpuLoad(), aggreJoinCpuLoadBo.getMaxSysCpuAgentId(), aggreJoinCpuLoadBo.getSystemCpuLoad()));
         }
 
-        cpuLoadChartMap.put(CpuLoadChartType.CPU_LOAD_JVM, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_CPULOADPOINT).build(jvmCpuLoadList));
-        cpuLoadChartMap.put(CpuLoadChartType.CPU_LOAD_SYSTEM, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_CPULOADPOINT).build(systemCpuLoadList));
+        cpuLoadChartMap.put(CpuLoadChartType.CPU_LOAD_JVM, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_CPULOAD_POINT).build(jvmCpuLoadList));
+        cpuLoadChartMap.put(CpuLoadChartType.CPU_LOAD_SYSTEM, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_CPULOAD_POINT).build(systemCpuLoadList));
     }
 
     @Override

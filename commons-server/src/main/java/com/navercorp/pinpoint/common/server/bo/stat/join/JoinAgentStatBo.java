@@ -34,6 +34,7 @@ public class JoinAgentStatBo implements JoinStatBo {
     private List<JoinTransactionBo> joinTransactionBoList = Collections.emptyList();
     private List<JoinActiveTraceBo> joinActiveTraceBoList = Collections.emptyList();
     private List<JoinResponseTimeBo> joinResponseTimeBoList = Collections.emptyList();
+    private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
 
     public List<JoinResponseTimeBo> getJoinResponseTimeBoList() {
         return joinResponseTimeBoList;
@@ -49,6 +50,10 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public void setJoinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList) {
         this.joinCpuLoadBoList = joinCpuLoadBoList;
+    }
+
+    public void setJoinDataSourceListBoList(List<JoinDataSourceListBo> joinDataSourceListBoList) {
+        this.joinDataSourceListBoList = joinDataSourceListBoList;
     }
 
     public String getId() {
@@ -120,5 +125,9 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public List<JoinActiveTraceBo> getJoinActiveTraceBoList() {
         return joinActiveTraceBoList;
+    }
+
+    public List<JoinDataSourceListBo> getJoinDataSourceListBoList() {
+        return joinDataSourceListBoList;
     }
 }

@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class ApplicationMemoryChartGroup implements ApplicationStatChartGroup {
 
-    public static final UncollectedMemoryPointCreater UNCOLLECTED_MEMORYPOINT = new UncollectedMemoryPointCreater();
+    public static final UncollectedMemoryPointCreater UNCOLLECTED_MEMORY_POINT = new UncollectedMemoryPointCreater();
     private final Map<ChartType, Chart> memoryChartMap;
 
     public enum MemoryChartType implements ChartType {
@@ -47,8 +47,8 @@ public class ApplicationMemoryChartGroup implements ApplicationStatChartGroup {
             nonHeapList.add(new MemoryPoint(aggreJoinMemoryBo.getTimestamp(), aggreJoinMemoryBo.getMinNonHeapUsed(), aggreJoinMemoryBo.getMinNonHeapAgentId(), aggreJoinMemoryBo.getMaxNonHeapUsed(), aggreJoinMemoryBo.getMaxNonHeapAgentId(), aggreJoinMemoryBo.getNonHeapUsed()));
         }
 
-        memoryChartMap.put(MemoryChartType.MEMORY_HEAP, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_MEMORYPOINT).build(heapList));
-        memoryChartMap.put(MemoryChartType.MEMORY_NON_HEAP, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_MEMORYPOINT).build(nonHeapList));
+        memoryChartMap.put(MemoryChartType.MEMORY_HEAP, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_MEMORY_POINT).build(heapList));
+        memoryChartMap.put(MemoryChartType.MEMORY_NON_HEAP, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_MEMORY_POINT).build(nonHeapList));
     }
 
     @Override

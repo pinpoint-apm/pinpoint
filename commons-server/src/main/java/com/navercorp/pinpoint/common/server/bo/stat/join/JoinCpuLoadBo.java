@@ -66,20 +66,20 @@ public class JoinCpuLoadBo implements JoinStatBo {
         }
 
         JoinCpuLoadBo newJoinCpuLoadBo = new JoinCpuLoadBo();
-        JoinCpuLoadBo initCpuLoadBo = joinCpuLoadBoList.get(0);
-        newJoinCpuLoadBo.setId(initCpuLoadBo.getId());
+        JoinCpuLoadBo initJoinCpuLoadBo = joinCpuLoadBoList.get(0);
+        newJoinCpuLoadBo.setId(initJoinCpuLoadBo.getId());
         newJoinCpuLoadBo.setTimestamp(timestamp);
 
         double sumJvmCpuLoad = 0D;
-        String maxJvmCpuAgentId = initCpuLoadBo.getMaxJvmCpuAgentId();
-        double maxJvmCpuLoad = initCpuLoadBo.getMaxJvmCpuLoad();
-        String minJvmCpuAgentId = initCpuLoadBo.getMinJvmCpuAgentId();
-        double minJvmCpuLoad = initCpuLoadBo.getMinJvmCpuLoad();
+        String maxJvmCpuAgentId = initJoinCpuLoadBo.getMaxJvmCpuAgentId();
+        double maxJvmCpuLoad = initJoinCpuLoadBo.getMaxJvmCpuLoad();
+        String minJvmCpuAgentId = initJoinCpuLoadBo.getMinJvmCpuAgentId();
+        double minJvmCpuLoad = initJoinCpuLoadBo.getMinJvmCpuLoad();
         double sumSystemCpuLoad = 0D;
-        String maxSysCpuAgentId = initCpuLoadBo.getMaxSysCpuAgentId();
-        double maxSystemCpuLoad = initCpuLoadBo.getMaxSystemCpuLoad();
-        String minSysCpuAgentId = initCpuLoadBo.getMinSysCpuAgentId();
-        double minSystemCpuLoad = initCpuLoadBo.getMinSystemCpuLoad();
+        String maxSysCpuAgentId = initJoinCpuLoadBo.getMaxSysCpuAgentId();
+        double maxSystemCpuLoad = initJoinCpuLoadBo.getMaxSystemCpuLoad();
+        String minSysCpuAgentId = initJoinCpuLoadBo.getMinSysCpuAgentId();
+        double minSystemCpuLoad = initJoinCpuLoadBo.getMinSystemCpuLoad();
 
         for (JoinCpuLoadBo joinCpuLoadBo : joinCpuLoadBoList) {
             sumJvmCpuLoad += joinCpuLoadBo.getJvmCpuLoad();

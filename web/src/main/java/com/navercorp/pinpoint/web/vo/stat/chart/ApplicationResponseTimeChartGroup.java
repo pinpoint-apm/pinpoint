@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class ApplicationResponseTimeChartGroup implements ApplicationStatChartGroup {
 
-    public static final UncollectedResponseTimePointCreater UNCOLLECTED_RESPONSETIMEPOINT = new UncollectedResponseTimePointCreater();
+    public static final UncollectedResponseTimePointCreater UNCOLLECTED_RESPONSETIME_POINT = new UncollectedResponseTimePointCreater();
 
     private final Map<ChartType, Chart> responseTimeChartMap;
 
@@ -45,7 +45,7 @@ public class ApplicationResponseTimeChartGroup implements ApplicationStatChartGr
             responseTimeList.add(new ResponseTimePoint(aggreJoinResponseTimeBo.getTimestamp(), aggreJoinResponseTimeBo.getMinAvg(), aggreJoinResponseTimeBo.getMinAvgAgentId(), aggreJoinResponseTimeBo.getMaxAvg(), aggreJoinResponseTimeBo.getMaxAvgAgentId(), aggreJoinResponseTimeBo.getAvg()));
         }
 
-        responseTimeChartMap.put(ResponseTimeChartType.RESPONSE_TIME, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_RESPONSETIMEPOINT).build(responseTimeList));
+        responseTimeChartMap.put(ResponseTimeChartType.RESPONSE_TIME, new TimeSeriesChartBuilder(timeWindow, UNCOLLECTED_RESPONSETIME_POINT).build(responseTimeList));
     }
 
     @Override
