@@ -17,19 +17,18 @@
 package com.navercorp.pinpoint.rpc.client;
 
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.Map;
-
-import org.jboss.netty.channel.ChannelFuture;
-
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import org.jboss.netty.channel.ChannelFuture;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -62,8 +61,6 @@ public interface PinpointClientFactory {
     PinpointClient connect(String host, int port) throws PinpointSocketException;
 
     PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException;
-
-    PinpointClient reconnect(String host, int port) throws PinpointSocketException;
 
 
     PinpointClient scheduledConnect(String host, int port);
