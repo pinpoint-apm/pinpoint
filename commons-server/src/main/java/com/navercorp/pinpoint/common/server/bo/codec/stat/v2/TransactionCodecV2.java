@@ -75,7 +75,7 @@ public class TransactionCodecV2 extends AbstractAgentStatCodecV2<TransactionBo> 
         }
 
         @Override
-        public void encode(AgentStatDataPointCodec codec, Buffer valueBuffer) {
+        public void encode(Buffer valueBuffer) {
             StrategyAnalyzer<Long> collectIntervalStrategyAnalyzer = collectIntervalAnalyzerBuilder.build();
             StrategyAnalyzer<Long> sampledNewCountStrategyAnalyzer = sampledNewCountAnalyzerBuilder.build();
             StrategyAnalyzer<Long> sampledContinuationCountStrategyAnalyzer = sampledContinuationCountAnalyzerBuilder.build();

@@ -40,7 +40,8 @@ public interface AgentStatCodec<T extends AgentStatDataPoint> {
 
         void addValue(T agentStatDataPoint);
 
-        void encode(AgentStatDataPointCodec codec, Buffer valueBuffer);
+        void encode(Buffer valueBuffer);
+
     }
 
     interface CodecDecoder<T extends AgentStatDataPoint> {

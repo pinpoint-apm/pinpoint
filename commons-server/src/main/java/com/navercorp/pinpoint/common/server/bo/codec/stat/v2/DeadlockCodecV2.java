@@ -67,7 +67,7 @@ public class DeadlockCodecV2 extends AbstractAgentStatCodecV2<DeadlockBo> {
         }
 
         @Override
-        public void encode(AgentStatDataPointCodec codec, Buffer valueBuffer) {
+        public void encode(Buffer valueBuffer) {
             StrategyAnalyzer<Integer> deadlockedThreadIdAnalyzer = deadlockedThreadCountAnalyzerBuilder.build();
 
             // encode header

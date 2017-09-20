@@ -70,7 +70,7 @@ public class CpuLoadCodecV2 extends AbstractAgentStatCodecV2<CpuLoadBo> {
         }
 
         @Override
-        public void encode(AgentStatDataPointCodec codec, Buffer valueBuffer) {
+        public void encode(Buffer valueBuffer) {
             StrategyAnalyzer<Long> jvmCpuLoadStrategyAnalyzer = jvmCpuLoadAnalyzerBuilder.build();
             StrategyAnalyzer<Long> systemCpuLoadStrategyAnalyzer = systemCpuLoadAnalyzerBuilder.build();
 

@@ -67,7 +67,7 @@ public class ResponseTimeCodecV2 extends AbstractAgentStatCodecV2<ResponseTimeBo
         }
 
         @Override
-        public void encode(AgentStatDataPointCodec codec, Buffer valueBuffer) {
+        public void encode(Buffer valueBuffer) {
             StrategyAnalyzer<Long> avgStrategyAnalyzer = avgAnalyzerBuilder.build();
 
             // encode header
