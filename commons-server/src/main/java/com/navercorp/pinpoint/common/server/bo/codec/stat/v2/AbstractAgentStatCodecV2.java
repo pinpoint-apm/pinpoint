@@ -69,7 +69,7 @@ public abstract class AbstractAgentStatCodecV2<T extends AgentStatDataPoint> imp
 
         this.codec.encodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, startTimestamps);
         this.codec.encodeTimestamps(valueBuffer, timestamps);
-        encoder.encode(codec, valueBuffer);
+        encoder.encode(valueBuffer);
     }
 
     @Override

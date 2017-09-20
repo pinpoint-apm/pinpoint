@@ -82,7 +82,7 @@ public class JvmGcDetailedCodecV2 extends AbstractAgentStatCodecV2<JvmGcDetailed
         }
 
         @Override
-        public void encode(AgentStatDataPointCodec codec, Buffer valueBuffer) {
+        public void encode(Buffer valueBuffer) {
             StrategyAnalyzer<Long> gcNewCountStrategyAnalyzer = gcNewCountAnalyzerBuilder.build();
             StrategyAnalyzer<Long> gcNewTimeStrategyAnalyzer = gcNewTimeAnalyzerBuilder.build();
             StrategyAnalyzer<Long> codeCacheUsedStrategyAnalyzer = codeCacheUsedStrategyAnalyzerBuilder.build();

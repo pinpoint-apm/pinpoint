@@ -83,7 +83,7 @@ public class ActiveTraceCodecV2 extends AbstractAgentStatCodecV2<ActiveTraceBo> 
         }
 
         @Override
-        public void encode(AgentStatDataPointCodec codec, Buffer valueBuffer) {
+        public void encode(Buffer valueBuffer) {
             StrategyAnalyzer<Short> versionStrategyAnalyzer = versionAnalyzerBuilder.build();
             StrategyAnalyzer<Integer> schemaTypeStrategyAnalyzer = schemaTypeAnalyzerBuilder.build();
             StrategyAnalyzer<Integer> fastTraceCountsStrategyAnalyzer = fastTraceCountsAnalyzerBuilder.build();
