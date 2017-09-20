@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.tools.network;
 
+import com.navercorp.pinpoint.tools.utils.IOUtils;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -30,9 +32,7 @@ public class UDPChecker extends AbstractNetworkChecker {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
+            IOUtils.closeQuietly(socket);
         }
         return false;
     }
@@ -50,9 +50,7 @@ public class UDPChecker extends AbstractNetworkChecker {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
+            IOUtils.closeQuietly(socket);
         }
         return false;
     }
@@ -65,10 +63,19 @@ public class UDPChecker extends AbstractNetworkChecker {
     }
 
     private DatagramSocket createSocket(InetSocketAddress socketAddress) throws IOException {
-        DatagramSocket socket = new DatagramSocket();
-        socket.connect(socketAddress);
+        final DatagramSocket socket = new DatagramSocket();
 
-        socket.setSoTimeout(3000);
+        boolean success = false;
+        try {
+            socket.setSoTimeout(3000);
+            socket.connect(socketAddress);
+            success = true;
+        } finally {
+            if (!success) {
+                IOUtils.closeQuietly(socket);
+            }
+        }
+
         return socket;
     }
 
@@ -83,7 +90,11 @@ public class UDPChecker extends AbstractNetworkChecker {
         DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
         socket.receive(datagramPacket);
 
-        return buf;
+        int length = datagramPacket.getLength();
+        if (length == 0) {
+            return IOUtils.EMPTY_BYTES;
+        }
+        return Arrays.copyOf(buf, length);
     }
 
 }
