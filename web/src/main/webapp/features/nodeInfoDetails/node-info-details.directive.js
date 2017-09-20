@@ -14,6 +14,8 @@
 					scope.isWas = false;
 					scope.isGroup = false;
 					scope.isAuthorized = true;
+					var currentAgentName = PreferenceService.getAgentAllStr();
+					var oChartYMax = {};
 					var bRequesting = false;
 					var nextFrom = -1;
 					var nextTo = -1;
@@ -24,17 +26,17 @@
                     var agentHistogramData = null;
                     var oNavBarVoService = null;
 
-                    function renderResponseSummary(namespace, histogram, w, h) {
-                        scope.$broadcast("responseTimeSummaryChartDirective.initAndRenderWithData." + namespace, histogram, w, h, false, true);
+                    function renderResponseSummary(namespace, histogram, yMax, w, h) {
+                        scope.$broadcast("responseTimeSummaryChartDirective.initAndRenderWithData." + namespace, histogram, yMax, w, h, false, true);
                     }
-					function renderLoad(namespace, timeSeriesHistogram, w, h, useChartCursor) {
-                        scope.$broadcast("loadChartDirective.initAndRenderWithData." + namespace, timeSeriesHistogram, w, h, useChartCursor);
+					function renderLoad(namespace, timeSeriesHistogram, yMax, w, h, useChartCursor) {
+                        scope.$broadcast("loadChartDirective.initAndRenderWithData." + namespace, timeSeriesHistogram, yMax, w, h, useChartCursor);
 					}
-					function updateResponseSummary(namespace, histogram) {
-						scope.$broadcast( "responseTimeSummaryChartDirective.updateData." + namespace, histogram );
+					function updateResponseSummary(namespace, histogram, yMax) {
+						scope.$broadcast( "responseTimeSummaryChartDirective.updateData." + namespace, histogram, yMax );
 					}
-					function updateLoad(namespace, timeSeriesHistogram) {
-						scope.$broadcast("loadChartDirective.updateData." + namespace, timeSeriesHistogram);
+					function updateLoad(namespace, timeSeriesHistogram, yMax) {
+						scope.$broadcast("loadChartDirective.updateData." + namespace, timeSeriesHistogram, yMax);
 					}
 
 					function identifyTarget(target) {
@@ -78,8 +80,8 @@
 									responseSummaryData = histogramData["agentHistogram"][agentName];
 									loadData = histogramData["agentTimeSeriesHistogram"][agentName];
 								}
-								updateResponseSummary("forMain", responseSummaryData);
-								updateLoad("forMain", loadData);
+								updateResponseSummary(scope.namespace, responseSummaryData, oChartYMax["responseSummaryChart"]);
+								updateLoad(scope.namespace, loadData, oChartYMax["loadChart"]);
 								setNextFromTo( histogramData["currentServerTime"] );
 								bRequesting = false;
 								callback(Date.now() - reqTime);
@@ -120,8 +122,8 @@
 							if ( UrlVoService.isRealtime() && scope.isWas === false ) {
 								startInnerRealTimeTrigger(0);
 							} else {
-								renderResponseSummary(scope.namespace, target["histogram"], "100%", "150px");
-								renderLoad(scope.namespace, target["timeSeriesHistogram"], "100%", "220px", true);
+								renderResponseSummary(scope.namespace, target["histogram"], null, "100%", "150px");
+								renderLoad(scope.namespace, target["timeSeriesHistogram"], null, "100%", "220px", true);
 							}
 							scope.showNodeInfoDetails = true;
 						}
@@ -134,7 +136,8 @@
                     scope.$on("nodeInfoDetailsDirective.hide", function () {
                     	scope.showNodeInfoDetails = false;
                     });
-                    scope.$on("changedCurrentAgent." + scope.namespace, function(event, agentName) {
+                    scope.$on("changedCurrentAgent." + scope.namespace, function(event, agentName, chartYMax) {
+						currentAgentName = agentName;
 						if ( oNavBarVoService.isRealtime() === false ) {
 							loadAgentHistogram(function (histogramData) {
 								var responseSummaryData = null;
@@ -146,14 +149,24 @@
 									responseSummaryData = histogramData["agentHistogram"][agentName];
 									loadData = histogramData["agentTimeSeriesHistogram"][agentName];
 								}
-								renderResponseSummary(scope.namespace, responseSummaryData, "100%", "150px");
-								renderLoad(scope.namespace, loadData, "100%", "220px", true);
+								renderResponseSummary(scope.namespace, responseSummaryData, chartYMax["responseSummaryChart"], "100%", "150px");
+								renderLoad(scope.namespace, loadData, chartYMax["loadChart"], "100%", "220px", true);
 							});
 						}
 					});
 					scope.$on("nodeInfoDetailsDirective.loadRealTimeChartData", function (event, applicationName, agentName, from, to ) {
 						releaseTimeout();
 						loadRealTimeAgentHistogram(agentName, from, to, function() {});
+					});
+					scope.$on("loadChartDirective.saveMax." + scope.namespace, function (event, max ) {
+						if ( currentAgentName === PreferenceService.getAgentAllStr() ) {
+							oChartYMax["loadChart"] = max;
+						}
+					});
+					scope.$on("responseTimeSummaryChartDirective.saveMax." + scope.namespace, function (event, max ) {
+						if ( currentAgentName === PreferenceService.getAgentAllStr() ) {
+							oChartYMax["responseSummaryChart"] = max;
+						}
 					});
 
 					scope.$on("responseTimeSummaryChartDirective.itemClicked." + scope.namespace, function (event, data) {
