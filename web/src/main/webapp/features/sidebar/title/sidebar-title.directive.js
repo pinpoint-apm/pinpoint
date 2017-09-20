@@ -20,6 +20,7 @@
 					var htLastTarget = null;
 					var oNavbarVoService = null;
 					var agentHistogramData = null;
+					var oChartYMax = {};
 					scope.agentList = [];
 					scope.hasServerList = false;
 					scope.serverCount = 0;
@@ -121,12 +122,12 @@
 					}
 					scope.changeAgent = function() {
 						AnalyticsService.send( AnalyticsService.CONST.INSPECTOR, AnalyticsService.CONST.CLK_CHANGE_AGENT_MAIN );
-						$rootScope.$broadcast("changedCurrentAgent." + scope.namespace, scope.currentAgent);
+						$rootScope.$broadcast("changedCurrentAgent." + scope.namespace, scope.currentAgent, oChartYMax);
 					};
 					scope.showServerList = function() {
 						AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_SHOW_SERVER_LIST);
 						loadAgentHistogram(function( histogramData ) {
-							$rootScope.$broadcast("serverListDirective.show", scope.isNode, htLastTarget, histogramData, oNavbarVoService);
+							$rootScope.$broadcast("serverListDirective.show", scope.isNode, htLastTarget, histogramData, oChartYMax, oNavbarVoService);
 						});
 					};
 	                scope.$on("sidebarTitleDirective.initialize." + scope.namespace, function (event, target, navbarVoService) {
@@ -136,7 +137,18 @@
 	                scope.$on("sidebarTitleDirective.empty." + scope.namespace, function (event) {
 	                    empty();
 	                });
-	            }
+					scope.$on("loadChartDirective.saveMax." + scope.namespace, function (event, max ) {
+						if ( scope.currentAgent === PreferenceService.getAgentAllStr() ) {
+							oChartYMax["loadChart"] = max;
+						}
+					});
+					scope.$on("responseTimeSummaryChartDirective.saveMax." + scope.namespace, function (event, max ) {
+						if ( scope.currentAgent === PreferenceService.getAgentAllStr() ) {
+							oChartYMax["responseSummaryChart"] = max;
+						}
+					});
+
+				}
 	        };
 	    }]
 	);

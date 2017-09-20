@@ -2,7 +2,7 @@
 	'use strict';
 	pinpointApp.constant("loadChartDirectiveConfig", {});
 
-	pinpointApp.directive("loadChartDirective", ["loadChartDirectiveConfig", "$timeout", "AnalyticsService", "PreferenceService", "CommonUtilService", function (cfg, $timeout, AnalyticsService, PreferenceService, CommonUtilService ) {
+	pinpointApp.directive("loadChartDirective", ["loadChartDirectiveConfig", "$rootScope", "$timeout", "AnalyticsService", "PreferenceService", "CommonUtilService", function (cfg, $rootScope, $timeout, AnalyticsService, PreferenceService, CommonUtilService ) {
 		var responseTypeColor = PreferenceService.getResponseTypeColor();
         return {
 			template: "<div style='text-align:center;user-select:none;'></div>",
@@ -25,7 +25,7 @@
 					element.css('width', w || '100%');
 					element.css('height', h || '220px');
                 }
-                function renderChart(data, useChartCursor) {
+                function renderChart(data, yMax, useChartCursor) {
                 	element.empty().append("<canvas>");
 					oChart = new Chart(element.find("canvas"), {
 						type: "bar",
@@ -79,19 +79,25 @@
 										zeroLineColor: "rgba(0, 0, 0, 1)",
 										zeroLineWidth: 0.5
 									},
-									ticks: {
-										beginAtZero: true,
-										maxTicksLimit: 5,
-										callback: function(label) {
-											if ( label >= 1000 ) {
-												return "   " + label/1000 + 'k';
-											} else {
-												if ( label % 1 === 0 ) {
-													return getPreSpace(""+label) + label;
+									ticks: (function() {
+										var ticks = {
+											beginAtZero: true,
+											maxTicksLimit: 5,
+											callback: function (label) {
+												if (label >= 1000) {
+													return "   " + label / 1000 + 'k';
+												} else {
+													if (label % 1 === 0) {
+														return getPreSpace("" + label) + label;
+													}
 												}
 											}
+										};
+										if ( yMax ) {
+											ticks.max = yMax;
 										}
-									},
+										return ticks;
+									})(),
 									stacked: true
 								}],
 								xAxes: [{
@@ -120,6 +126,9 @@
 							}
 						}
 					});
+					$timeout(function() {
+						$rootScope.$broadcast("loadChartDirective.saveMax." + scope.namespace, oChart.scales['y-axis-0'].end );
+					});
 				}
 				function getPreSpace( str ) {
                 	var space = "       "; //7 is max space
@@ -137,16 +146,19 @@
 						element.find("h4").show();
 					}
 				}
-				function updateChart(data) {
+				function updateChart(data, yMax) {
 					if ( angular.isUndefined( oChart ) ) {
 						if ( data.length !== 0 ) {
-							renderChart(data, true);
+							renderChart(data, yMax, true);
 						}
 					} else {
 						if ( data.length === 0 ) {
 							renderEmptyChart();
 						} else {
 							element.find("h4").hide().end().find("canvas").show();
+							if ( yMax ) {
+								oChart.config.options.scales.yAxes[0].ticks.max = yMax;
+							}
 							oChart.data.labels = data.labels;
 							oChart.data.datasets[0].data = data.keyValues[0].values;
 							oChart.data.datasets[1].data = data.keyValues[1].values;
@@ -187,19 +199,19 @@
 					return bHasData ? newData : [];
 				}
 
-                scope.$on("loadChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h, useChartCursor) {
+                scope.$on("loadChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, yMax, w, h, useChartCursor) {
                     setIdAutomatically();
                     setWidthHeight(w, h);
                     var parsedData = parseTimeSeriesHistogram(data);
                     if ( parsedData.length === 0 ) {
 						renderEmptyChart();
                     } else {
-                    	renderChart( parsedData, useChartCursor );
+                    	renderChart( parsedData, yMax, useChartCursor );
                     }
                 });
 
-                scope.$on("loadChartDirective.updateData." + scope.namespace, function (event, data) {
-					updateChart(parseTimeSeriesHistogram(data));
+                scope.$on("loadChartDirective.updateData." + scope.namespace, function (event, data, yMax) {
+					updateChart(parseTimeSeriesHistogram(data), yMax);
                 });
             }
         };

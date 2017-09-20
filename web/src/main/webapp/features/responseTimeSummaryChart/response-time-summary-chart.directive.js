@@ -2,8 +2,8 @@
 	"use strict";
 	pinpointApp.constant("responseTimeSummaryChartDirectiveConfig", {});
 	
-	pinpointApp.directive("responseTimeSummaryChartDirective", ["responseTimeSummaryChartDirectiveConfig", "$timeout", "AnalyticsService", "PreferenceService", "CommonUtilService",
-        function (cfg, $timeout, AnalyticsService, PreferenceService, CommonUtilService ) {
+	pinpointApp.directive("responseTimeSummaryChartDirective", ["responseTimeSummaryChartDirectiveConfig", "$rootScope", "$timeout", "AnalyticsService", "PreferenceService", "CommonUtilService",
+        function (cfg, $rootScope, $timeout, AnalyticsService, PreferenceService, CommonUtilService ) {
 			var responseTypeColor = PreferenceService.getResponseTypeColor();
 			var chartBackgroundAlpha = [ "0.2", "0.3", "0.4", "0.6", "0.6" ];
 			var chartBackgroundColor = responseTypeColor.map(function(color, index){
@@ -30,7 +30,7 @@
                         element.css("width", w || "100%");
                         element.css("height", h || "150px");
                     }
-                 function renderChart(data, useFilterTransaction, useChartCursor) {
+                    function renderChart(data, yMax, useFilterTransaction, useChartCursor) {
                     	element.empty().append("<canvas>");
 						oChart = new Chart(element.find("canvas"), {
 							type: "bar",
@@ -83,17 +83,23 @@
 											zeroLineColor: "rgba(0, 0, 0, 1)",
 											zeroLineWidth: 0.5
 										},
-										ticks: {
-											beginAtZero:true,
-											maxTicksLimit: 3,
-											callback: function(label) {
-												if ( label >= 1000 ) {
-													return "    " + label/1000 + 'k';
-												} else {
-													return "    " + label;
+										ticks: (function() {
+											var ticks = {
+												beginAtZero:true,
+												maxTicksLimit: 3,
+												callback: function(label) {
+													if ( label >= 1000 ) {
+														return "    " + label/1000 + 'k';
+													} else {
+														return "    " + label;
+													}
 												}
+											};
+											if ( yMax ) {
+												ticks.max = yMax;
 											}
-										}
+											return ticks;
+										})(),
 									}],
 									xAxes: [{
 										gridLines: {
@@ -127,6 +133,9 @@
 								}
 							}
 						});
+						$timeout(function() {
+							$rootScope.$broadcast("responseTimeSummaryChartDirective.saveMax." + scope.namespace, oChart.scales['y-axis-0'].end );
+						});
 					}
 
                     function clickGraphItemListener(event) {
@@ -136,7 +145,10 @@
                 	    oChart.dataProvider = data;
 						oChart.validateData();
                     }
-                    function updateChart(data) {
+                    function updateChart(data, yMax) {
+						if ( yMax ) {
+							oChart.config.options.scales.yAxes[0].ticks.max = yMax;
+						}
                     	oChart.data.labels = data.keys;
 						oChart.data.datasets[0].data = data.values;
 						oChart.update();
@@ -159,14 +171,14 @@
 						return oRet;
 					}
 
-                    scope.$on("responseTimeSummaryChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h, useFilterTransaction, useChartCursor) {
+                    scope.$on("responseTimeSummaryChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, yMax, w, h, useFilterTransaction, useChartCursor) {
                         setIdAutomatically();
                         setWidthHeight(w, h);
-						renderChart( parseHistogram(data), useFilterTransaction, useChartCursor );
+						renderChart( parseHistogram(data), yMax, useFilterTransaction, useChartCursor );
                     });
 
-                    scope.$on("responseTimeSummaryChartDirective.updateData." + scope.namespace, function (event, data) {
-						updateChart( parseHistogram(data) );
+                    scope.$on("responseTimeSummaryChartDirective.updateData." + scope.namespace, function (event, data, yMax) {
+						updateChart( parseHistogram(data), yMax );
                     });
 
                 }
