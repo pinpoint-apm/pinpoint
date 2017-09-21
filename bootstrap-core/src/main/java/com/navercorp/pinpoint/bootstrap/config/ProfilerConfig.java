@@ -131,6 +131,8 @@ public interface ProfilerConfig {
 
     boolean isProxyHttpHeaderEnable();
 
+    List<String> getHttpStatusCodeErrors();
+
     String readString(String propertyName, String defaultValue);
 
     int readInt(String propertyName, int defaultValue);

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -135,6 +136,9 @@ public class Span extends TSpan implements FrameAttachment {
         final Shared shared = traceRoot.getShared();
         final int errorCode = shared.getErrorCode();
         this.setErrCode(errorCode);
+        if (shared.getStatusCode() != 0) {
+            this.addAnnotation(new Annotation(AnnotationKey.HTTP_STATUS_CODE.getCode(), shared.getStatusCode()));
+        }
 
         final byte loggingInfo = shared.getLoggingInfo();
         this.setLoggingTransactionInfo(loggingInfo);

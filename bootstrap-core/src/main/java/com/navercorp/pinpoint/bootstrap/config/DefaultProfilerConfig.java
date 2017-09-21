@@ -168,6 +168,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean proxyHttpHeaderEnable = true;
 
+    private List<String> httpStatusCodeErrors = Collections.emptyList();
+
     public DefaultProfilerConfig() {
         this.properties = new Properties();
     }
@@ -455,6 +457,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return proxyHttpHeaderEnable;
     }
 
+    @Override
+    public List<String> getHttpStatusCodeErrors() {
+        return httpStatusCodeErrors;
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
@@ -560,6 +567,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // proxy http header names
         this.proxyHttpHeaderEnable = readBoolean("profiler.proxy.http.header.enable", true);
+
+        this.httpStatusCodeErrors = readList("profiler.http.status.code.errors");
 
         logger.info("configuration loaded successfully.");
     }
@@ -669,7 +678,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return result;
     }
 
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultProfilerConfig{");
@@ -729,6 +737,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
+        sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
         sb.append('}');
         return sb.toString();
     }

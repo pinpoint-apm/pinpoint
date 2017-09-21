@@ -45,7 +45,6 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         this.traceRoot = traceRoot;
     }
 
-
     public TraceRoot getTraceRoot() {
         return traceRoot;
     }
@@ -54,21 +53,13 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         this.addToAnnotations(annotation);
     }
 
-    public void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
-        setExceptionInfo(exceptionClassId, exceptionMessage);
-        if (markError) {
-            traceRoot.getShared().maskErrorCode(1);
-        }
-    }
-
-    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+    public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
         if (StringUtils.hasLength(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);
         }
         super.setExceptionInfo(exceptionInfo);
     }
-
 
     public void markStartTime() {
         this.startTime = System.currentTimeMillis();
@@ -80,7 +71,6 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
 
     public void markAfterTime() {
         this.afterTime = System.currentTimeMillis();
-
     }
 
     public long getAfterTime() {

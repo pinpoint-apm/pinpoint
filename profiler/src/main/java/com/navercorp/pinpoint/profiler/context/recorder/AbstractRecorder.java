@@ -24,15 +24,13 @@ import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public abstract class AbstractRecorder {
 
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
-    
+
     public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
         if (stringMetaDataService == null) {
             throw new NullPointerException("stringMetaDataService must not be null");
@@ -43,7 +41,11 @@ public abstract class AbstractRecorder {
         this.stringMetaDataService = stringMetaDataService;
         this.sqlMetaDataService = sqlMetaDataService;
     }
-    
+
+    public void recordError() {
+        maskErrorCode(1);
+    }
+
     public void recordException(Throwable throwable) {
         recordException(true, throwable);
     }
@@ -55,11 +57,16 @@ public abstract class AbstractRecorder {
         final String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
         final int exceptionId = stringMetaDataService.cacheString(throwable.getClass().getName());
-        setExceptionInfo(markError, exceptionId, drop);
+        setExceptionInfo(exceptionId, drop);
+        if (markError) {
+            recordError();
+        }
     }
 
-    abstract void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage);
-    
+    abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
+
+    abstract void maskErrorCode(final int errorCode);
+
     public void recordApi(MethodDescriptor methodDescriptor) {
         if (methodDescriptor == null) {
             return;
@@ -70,7 +77,7 @@ public abstract class AbstractRecorder {
             setApiId0(methodDescriptor.getApiId());
         }
     }
-    
+
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
         recordApi(methodDescriptor);
         recordArgs(args);
@@ -122,10 +129,10 @@ public abstract class AbstractRecorder {
             for (int i = 0; i < max; i++) {
                 recordAttribute(AnnotationKeyUtils.getArgs(i), args[i]);
             }
-         // TODO How to handle if args length is greater than MAX_ARGS_SIZE?                                                                  
+            // TODO How to handle if args length is greater than MAX_ARGS_SIZE?
         }
     }
-    
+
     public void recordAttribute(AnnotationKey key, String value) {
         addAnnotation(new Annotation(key.getCode(), value));
     }

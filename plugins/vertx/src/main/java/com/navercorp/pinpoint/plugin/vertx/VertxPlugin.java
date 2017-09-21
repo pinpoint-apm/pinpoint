@@ -215,6 +215,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 target.addField(AsyncContextAccessor.class.getName());
+                target.addGetter("com.navercorp.pinpoint.plugin.vertx.ResponseGetter", "response");
 
                 final InstrumentMethod endMethod = target.getDeclaredMethod("end");
                 if (endMethod != null) {
