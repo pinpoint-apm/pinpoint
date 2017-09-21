@@ -24,12 +24,12 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -176,8 +176,8 @@ public class CollectorConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(properties);
-        readPropertyValues(this.properties);
+        final Properties properties = Objects.requireNonNull(this.properties, "properties must not be null");
+        readPropertyValues(properties);
     }
 
     protected  void readPropertyValues(Properties properties) {

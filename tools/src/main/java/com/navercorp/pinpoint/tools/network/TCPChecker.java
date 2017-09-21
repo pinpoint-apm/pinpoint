@@ -57,10 +57,10 @@ public class TCPChecker extends AbstractNetworkChecker {
     }
 
     private Socket createSocket(InetSocketAddress socketAddress) throws IOException {
-        final Socket socket = new Socket();
-
+        Socket socket = null;
         boolean success = false;
         try {
+            socket = new Socket();
             socket.setSoTimeout(3000);
             socket.connect(socketAddress);
             success = true;

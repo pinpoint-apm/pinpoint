@@ -40,11 +40,14 @@ public class DefaultMultiClassBasedMatcher implements MultiClassBasedMatcher {
         }
         this.baseClassNames = baseClassNames;
 
-        this.matcherOperand = getMatcherOperand(additional);
+        this.matcherOperand = getMatcherOperand(baseClassNames, additional);
     }
 
-    private MatcherOperand getMatcherOperand(MatcherOperand additional) {
-        MatcherOperand operand = joinOr();
+    private MatcherOperand getMatcherOperand(List<String> baseClassNames, MatcherOperand additional) {
+        MatcherOperand operand = joinOr(baseClassNames);
+        if (operand == null) {
+            throw new IllegalStateException("operand is null");
+        }
         if (additional == null) {
             return operand;
         }
@@ -53,9 +56,9 @@ public class DefaultMultiClassBasedMatcher implements MultiClassBasedMatcher {
         return operand;
     }
 
-    private MatcherOperand joinOr() {
+    private MatcherOperand joinOr(List<String> baseClassNames) {
         MatcherOperand operand = null;
-        for (String baseClassName : this.baseClassNames) {
+        for (String baseClassName : baseClassNames) {
             if (operand == null) {
                 operand = new ClassInternalNameMatcherOperand(baseClassName);
             } else {

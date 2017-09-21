@@ -44,6 +44,9 @@ public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher
 
         final List<String> buildBasePackageName = buildBasePackageNameList(basePackageNames);
         final MatcherOperand operand = joinOr(buildBasePackageName);
+        if (operand == null) {
+            throw new IllegalStateException("operand is null");
+        }
         this.matcherOperand = addOr(operand, additional);
 
         this.basePackageNames = Collections.unmodifiableList(buildBasePackageName);
@@ -60,7 +63,7 @@ public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher
 
     private MatcherOperand joinOr(List<String> basePackageNames) {
         if (basePackageNames.isEmpty()) {
-            throw new IllegalArgumentException("basePackageNames must not be empty " + basePackageNames);
+            throw new IllegalArgumentException("basePackageNames must not be empty ");
         }
 
         MatcherOperand operandGroup = null;
