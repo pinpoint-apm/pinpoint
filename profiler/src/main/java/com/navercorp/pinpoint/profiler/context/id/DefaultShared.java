@@ -43,6 +43,7 @@ public class DefaultShared implements Shared {
 
     private volatile long threadId;
 
+    private volatile int statusCode;
 
     @Override
     public void maskErrorCode(int errorCode) {
@@ -70,7 +71,6 @@ public class DefaultShared implements Shared {
     @Override
     public byte getLoggingInfo() {
         return loggingInfo;
-
     }
 
     @Override
@@ -111,5 +111,15 @@ public class DefaultShared implements Shared {
     @Override
     public long getThreadId() {
         return threadId;
+    }
+
+    @Override
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    @Override
+    public int getStatusCode() {
+        return this.statusCode;
     }
 }

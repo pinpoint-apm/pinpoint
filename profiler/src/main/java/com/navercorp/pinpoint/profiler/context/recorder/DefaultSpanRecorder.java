@@ -58,12 +58,14 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
 
     @Override
-    void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
+    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         span.setExceptionInfo(exceptionClassId, exceptionMessage);
-        if (markError) {
-            final TraceRoot traceRoot = span.getTraceRoot();
-            traceRoot.getShared().maskErrorCode(1);
-        }
+    }
+
+    @Override
+    void maskErrorCode(final int errorCode) {
+        final TraceRoot traceRoot = span.getTraceRoot();
+        traceRoot.getShared().maskErrorCode(errorCode);
     }
 
     @Override
@@ -164,5 +166,10 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public Object detachFrameObject() {
         return span.detachFrameObject();
+    }
+
+    @Override
+    public void recordStatusCode(int statusCode) {
+        span.getTraceRoot().getShared().setStatusCode(statusCode);
     }
 }
