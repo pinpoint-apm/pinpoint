@@ -37,9 +37,6 @@ public class ConfigProperties {
     @Value("#{pinpointWebProps['config.show.activeThreadDump'] ?: false}")
     private boolean showActiveThreadDump;
 
-    @Value("#{pinpointWebProps['config.show.inspector.dataSource'] ?: false}")
-    private boolean showInspectorDataSource;
-
     @Value("#{pinpointWebProps['config.enable.activeThreadDump'] ?: false}")
     private boolean enableActiveThreadDump;
 
@@ -78,10 +75,6 @@ public class ConfigProperties {
         return showActiveThreadDump;
     }
 
-    public boolean isShowInspectorDataSource() {
-        return showInspectorDataSource;
-    }
-
     public boolean isEnableActiveThreadDump() {
         return enableActiveThreadDump;
     }
@@ -109,7 +102,6 @@ public class ConfigProperties {
         sb.append(", editUserInfo=").append(editUserInfo);
         sb.append(", showActiveThread=").append(showActiveThread);
         sb.append(", showActiveThreadDump=").append(showActiveThreadDump);
-        sb.append(", showInspectorDataSource=").append(showInspectorDataSource);
         sb.append(", enableActiveThreadDump=").append(enableActiveThreadDump);
         sb.append(", enableServerMapRealTime=").append(enableServerMapRealTime);
         sb.append(", openSource=").append(openSource);
