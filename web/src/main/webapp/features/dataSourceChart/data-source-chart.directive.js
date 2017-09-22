@@ -56,8 +56,10 @@
 							],
 							"graphs": [],
 							"chartCursor": {
-								"cursorColor": "#C10000",
 								"oneBalloonOnly": true,
+								"categoryBalloonAlpha": 0.7,
+								"fullWidth": true,
+								"cursorAlpha": 0.1,
 								"listeners": [{
 									"event": "changed",
 									"method": function(event) {
