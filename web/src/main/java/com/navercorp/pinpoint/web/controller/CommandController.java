@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -36,11 +37,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/command")
 public class CommandController {
+
+    private static final int CODE_SUCCESS = 0;
+    private static final int CODE_FAIL = -1;
 
     // FIX ME: created for a simple ping/pong test for now
     // need a formal set of APIs and proper code
@@ -58,12 +62,13 @@ public class CommandController {
     private AgentService agentService;
 
     @RequestMapping(value = "/echo", method = RequestMethod.GET)
-    public ModelAndView echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
-                             @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
+    @ResponseBody
+    public CodeResult echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
+                           @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
         if (agentInfo == null) {
-            return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
+            return new CodeResult(CODE_FAIL, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
         TCommandEcho echo = new TCommandEcho();
@@ -74,35 +79,20 @@ public class CommandController {
             if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result == null) {
-                    return createResponse(false, "result null.");
+                    return new CodeResult(CODE_FAIL, "result null.");
                 } else if (result instanceof TCommandEcho) {
-                    return createResponse(true, ((TCommandEcho) result).getMessage());
+                    return new CodeResult(CODE_SUCCESS, ((TCommandEcho) result).getMessage());
                 } else if (result instanceof TResult) {
-                    return createResponse(false, ((TResult) result).getMessage());
+                    return new CodeResult(CODE_FAIL, ((TResult) result).getMessage());
                 } else {
-                    return createResponse(false, result.toString());
+                    return new CodeResult(CODE_FAIL, result.toString());
                 }
             } else {
-                return createResponse(false, "unknown");
+                return new CodeResult(CODE_FAIL, "unknown");
             }
         } catch (TException e) {
-            return createResponse(false, e.getMessage());
+            return new CodeResult(CODE_FAIL, e.getMessage());
         }
-    }
-
-    private ModelAndView createResponse(boolean success, Object message) {
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("jsonView");
-
-        if (success) {
-            mv.addObject("code", 0);
-        } else {
-            mv.addObject("code", -1);
-        }
-
-        mv.addObject("message", message);
-
-        return mv;
     }
 
 }

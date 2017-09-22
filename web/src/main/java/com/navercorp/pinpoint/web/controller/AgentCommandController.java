@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,6 +52,9 @@ import java.util.Map;
 @RequestMapping("/agent")
 public class AgentCommandController {
 
+    private static final int CODE_SUCCESS = 0;
+    private static final int CODE_FAIL = -1;
+
     @Autowired
     private AgentService agentService;
 
@@ -58,18 +62,19 @@ public class AgentCommandController {
     private ConfigProperties webProperties;
 
     @RequestMapping(value = "/activeThreadDump", method = RequestMethod.GET)
-    public ModelAndView getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
-                                            @RequestParam(value = "agentId") String agentId,
-                                            @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
-                                            @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                            @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+    @ResponseBody
+    public CodeResult getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
+                                          @RequestParam(value = "agentId") String agentId,
+                                          @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
+                                          @RequestParam(value = "threadName", required = false) String[] threadNameList,
+                                          @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
         if (!webProperties.isEnableActiveThreadDump()) {
-            return createResponse(false, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+            return new CodeResult(CODE_FAIL, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
-            return createResponse(false, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+            return new CodeResult(CODE_FAIL, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadDump threadDump = new TCmdActiveThreadDump();
@@ -96,12 +101,12 @@ public class AgentCommandController {
                     AgentActiveThreadDumpList activeThreadDumpList = factory.create1(activeThreadDumps);
 
                     Map<String, Object> responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
-                    return createResponse(true, responseData);
+                    return new CodeResult(CODE_SUCCESS, responseData);
                 }
             }
             return handleFailedResponse(pinpointRouteResponse);
         } catch (TException e) {
-            return createResponse(false, e.getMessage());
+            return new CodeResult(CODE_FAIL, e.getMessage());
         }
     }
 
@@ -129,18 +134,19 @@ public class AgentCommandController {
     }
 
     @RequestMapping(value = "/activeThreadLightDump", method = RequestMethod.GET)
-    public ModelAndView getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
+    @ResponseBody
+    public CodeResult getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
                                                  @RequestParam(value = "agentId") String agentId,
                                                  @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                                  @RequestParam(value = "threadName", required = false) String[] threadNameList,
                                                  @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
         if (!webProperties.isEnableActiveThreadDump()) {
-            return createResponse(false, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+            return new CodeResult(CODE_FAIL, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
-            return createResponse(false, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+            return new CodeResult(CODE_FAIL, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadLightDump threadDump = new TCmdActiveThreadLightDump();
@@ -166,46 +172,31 @@ public class AgentCommandController {
                     AgentActiveThreadDumpList activeThreadDumpList = factory.create2(activeThreadDumps);
 
                     Map<String, Object> responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
-                    return createResponse(true, responseData);
+                    return new CodeResult(CODE_SUCCESS, responseData);
                 }
             }
             return handleFailedResponse(pinpointRouteResponse);
         } catch (TException e) {
-            return createResponse(false, e.getMessage());
+            return new CodeResult(CODE_FAIL, e.getMessage());
         }
     }
 
-    private ModelAndView handleFailedResponse(PinpointRouteResponse response) {
+    private CodeResult handleFailedResponse(PinpointRouteResponse response) {
         if (response == null) {
-            return createResponse(false, "response is null");
+            return new CodeResult(CODE_FAIL, "response is null");
         }
 
         TRouteResult routeResult = response.getRouteResult();
         if (routeResult != TRouteResult.OK) {
-            return createResponse(false, routeResult.name());
+            return new CodeResult(CODE_FAIL, routeResult.name());
         } else {
             TBase tBase = response.getResponse();
             if (tBase instanceof TResult) {
-                return createResponse(false, ((TResult) tBase).getMessage());
+                return new CodeResult(CODE_FAIL, ((TResult) tBase).getMessage());
             } else {
-                return createResponse(false, "unknown");
+                return new CodeResult(CODE_FAIL, "unknown");
             }
         }
-    }
-
-    private ModelAndView createResponse(boolean success, Object message) {
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("jsonView");
-
-        if (success) {
-            mv.addObject("code", 0);
-        } else {
-            mv.addObject("code", -1);
-        }
-
-        mv.addObject("message", message);
-
-        return mv;
     }
 
 }
