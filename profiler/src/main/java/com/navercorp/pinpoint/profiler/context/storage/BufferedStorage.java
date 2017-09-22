@@ -107,9 +107,7 @@ public class BufferedStorage implements Storage {
     @Override
     public void store(Span span) {
         final List<SpanEvent> storage = clearBuffer();
-        if (CollectionUtils.hasLength(storage)) {
-            span = spanPostProcessor.postProcess(span, storage);
-        }
+        span = spanPostProcessor.postProcess(span, storage);
         dataSender.send(span);
 
         if (isDebug) {
