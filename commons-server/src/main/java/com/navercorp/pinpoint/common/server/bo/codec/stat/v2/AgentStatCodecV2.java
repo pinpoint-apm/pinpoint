@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,15 +34,15 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public abstract class AbstractAgentStatCodecV1<T extends AgentStatDataPoint> implements AgentStatCodec<T> {
+public class AgentStatCodecV2<T extends AgentStatDataPoint> implements AgentStatCodec<T> {
 
-    private static final byte VERSION = 1;
+    private static final byte VERSION = 2;
 
-    protected final AgentStatDataPointCodec codec;
+    private final CodecFactory<T> codecFactory;
 
-    @Autowired
-    public AbstractAgentStatCodecV1(AgentStatDataPointCodec codec) {
-        this.codec = Assert.requireNonNull(codec, "agentStatDataPointCodec must not be null");
+    public AgentStatCodecV2(final CodecFactory<T> codecFactory) {
+        Assert.notNull(codecFactory, "codecFactory must not be null");
+        this.codecFactory = codecFactory;
     }
 
     @Override
@@ -56,15 +57,19 @@ public abstract class AbstractAgentStatCodecV1<T extends AgentStatDataPoint> imp
         final int numValues = statDataPointList.size();
         valueBuffer.putVInt(numValues);
 
+        List<Long> startTimestamps = new ArrayList<Long>(numValues);
         List<Long> timestamps = new ArrayList<Long>(numValues);
 
-        CodecEncoder encoder = createCodecEncoder();
+        CodecEncoder<T> encoder = codecFactory.createCodecEncoder();
         for (T statDataPoint : statDataPointList) {
+            startTimestamps.add(statDataPoint.getStartTimestamp());
             timestamps.add(statDataPoint.getTimestamp());
             encoder.addValue(statDataPoint);
         }
 
-        this.codec.encodeTimestamps(valueBuffer, timestamps);
+        final AgentStatDataPointCodec codec = codecFactory.getCodec();
+        codec.encodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, startTimestamps);
+        codec.encodeTimestamps(valueBuffer, timestamps);
         encoder.encode(valueBuffer);
     }
 
@@ -76,9 +81,11 @@ public abstract class AbstractAgentStatCodecV1<T extends AgentStatDataPoint> imp
         final long initialTimestamp = baseTimestamp + timestampDelta;
 
         int numValues = valueBuffer.readVInt();
-        List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
+        final AgentStatDataPointCodec codec = codecFactory.getCodec();
+        List<Long> startTimestamps = codec.decodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, numValues);
+        List<Long> timestamps = codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
-        CodecDecoder<T> codecDecoder = createCodecDecoder();
+        CodecDecoder<T> codecDecoder = codecFactory.createCodecDecoder();
 
         // decode headers
         final byte[] header = valueBuffer.readPrefixedBytes();
@@ -87,9 +94,10 @@ public abstract class AbstractAgentStatCodecV1<T extends AgentStatDataPoint> imp
         codecDecoder.decode(valueBuffer, headerDecoder, numValues);
 
         List<T> result = new ArrayList<T>(numValues);
-        for (int i = 0; i < numValues; ++i) {
+        for (int i = 0; i < numValues; i++) {
             T newObject = codecDecoder.getValue(i);
             newObject.setAgentId(agentId);
+            newObject.setStartTimestamp(startTimestamps.get(i));
             newObject.setTimestamp(timestamps.get(i));
             result.add(newObject);
         }
@@ -97,8 +105,5 @@ public abstract class AbstractAgentStatCodecV1<T extends AgentStatDataPoint> imp
         return result;
     }
 
-    protected abstract CodecEncoder createCodecEncoder();
-
-    protected abstract CodecDecoder createCodecDecoder();
 
 }

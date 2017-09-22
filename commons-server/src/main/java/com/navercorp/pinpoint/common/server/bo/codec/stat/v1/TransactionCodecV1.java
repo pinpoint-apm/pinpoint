@@ -17,30 +17,49 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
+
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.TransactionCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
  * @author HyunGil Jeong
  */
 @Component("transactionCodecV1")
-public class TransactionCodecV1 extends AbstractAgentStatCodecV1<TransactionBo> {
+public class TransactionCodecV1 extends AgentStatCodecV1<TransactionBo> {
 
     @Autowired
     public TransactionCodecV1(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new TransactionCodecFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new TransactionCodecV2.TransactionCodecEncoder(codec);
-    }
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new TransactionCodecV2.TransactionCodecDecoder(codec);
+    private static class TransactionCodecFactory implements CodecFactory<TransactionBo> {
+
+        private final AgentStatDataPointCodec codec;
+
+        private TransactionCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<TransactionBo> createCodecEncoder() {
+            return new TransactionCodecV2.TransactionCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<TransactionBo> createCodecDecoder() {
+            return new TransactionCodecV2.TransactionCodecDecoder(codec);
+        }
     }
 
 }

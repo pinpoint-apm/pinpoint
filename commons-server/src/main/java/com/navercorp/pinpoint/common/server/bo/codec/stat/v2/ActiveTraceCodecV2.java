@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.common.trace.SlotType;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,21 +42,37 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 @Component("activeTraceCodecV2")
-public class ActiveTraceCodecV2 extends AbstractAgentStatCodecV2<ActiveTraceBo> {
+public class ActiveTraceCodecV2 extends AgentStatCodecV2<ActiveTraceBo> {
 
     @Autowired
     public ActiveTraceCodecV2(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new ActiveTraceCodecFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new ActiveTraceCodecEncoder(codec);
-    }
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new ActiveTraceCodecDecoder(codec);
+    private static class ActiveTraceCodecFactory implements CodecFactory<ActiveTraceBo> {
+
+        private final AgentStatDataPointCodec codec;
+
+        private ActiveTraceCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<ActiveTraceBo> createCodecEncoder() {
+            return new ActiveTraceCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<ActiveTraceBo> createCodecDecoder() {
+            return new ActiveTraceCodecDecoder(codec);
+        }
     }
 
     public static class ActiveTraceCodecEncoder implements AgentStatCodec.CodecEncoder<ActiveTraceBo> {
@@ -68,6 +86,7 @@ public class ActiveTraceCodecV2 extends AbstractAgentStatCodecV2<ActiveTraceBo> 
         private final UnsignedIntegerEncodingStrategy.Analyzer.Builder verySlowTraceCountsAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
 
         public ActiveTraceCodecEncoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 
@@ -123,6 +142,7 @@ public class ActiveTraceCodecV2 extends AbstractAgentStatCodecV2<ActiveTraceBo> 
         private List<Integer> verySlowTraceCounts;
 
         public ActiveTraceCodecDecoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 

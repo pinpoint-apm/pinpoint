@@ -17,30 +17,48 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.CpuLoadCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
  * @author HyunGil Jeong
  */
 @Component("cpuLoadCodecV1")
-public class CpuLoadCodecV1 extends AbstractAgentStatCodecV1<CpuLoadBo> {
+public class CpuLoadCodecV1 extends AgentStatCodecV1<CpuLoadBo> {
 
     @Autowired
     public CpuLoadCodecV1(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new CpuLoadCodecFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new CpuLoadCodecV2.CpuLoadCodecEncoder(codec);
-    }
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new CpuLoadCodecV2.CpuLoadCodecDecoder(codec);
+    private static class CpuLoadCodecFactory implements CodecFactory<CpuLoadBo> {
+
+        private final AgentStatDataPointCodec codec;
+
+        private CpuLoadCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<CpuLoadBo> createCodecEncoder() {
+            return new CpuLoadCodecV2.CpuLoadCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<CpuLoadBo> createCodecDecoder() {
+            return new CpuLoadCodecV2.CpuLoadCodecDecoder(codec);
+        }
     }
 
 }

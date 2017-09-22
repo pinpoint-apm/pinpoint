@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -35,21 +37,37 @@ import java.util.List;
  * @author Taejin Koo
  */
 @Component("deadlockCodecV2")
-public class DeadlockCodecV2 extends AbstractAgentStatCodecV2<DeadlockBo> {
+public class DeadlockCodecV2 extends AgentStatCodecV2<DeadlockBo> {
 
     @Autowired
     public DeadlockCodecV2(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new DeadlockCodecFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new DeadlockCodecEncoder(codec);
-    }
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new DeadlockCodecDecoder(codec);
+    private static class DeadlockCodecFactory implements CodecFactory<DeadlockBo> {
+
+        private final AgentStatDataPointCodec codec;
+
+        private DeadlockCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<DeadlockBo> createCodecEncoder() {
+            return new DeadlockCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<DeadlockBo> createCodecDecoder() {
+            return new DeadlockCodecDecoder(codec);
+        }
     }
 
     private static class DeadlockCodecEncoder implements AgentStatCodec.CodecEncoder<DeadlockBo> {
@@ -57,7 +75,8 @@ public class DeadlockCodecV2 extends AbstractAgentStatCodecV2<DeadlockBo> {
         private final AgentStatDataPointCodec codec;
         private final UnsignedIntegerEncodingStrategy.Analyzer.Builder deadlockedThreadCountAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
 
-        public DeadlockCodecEncoder(AgentStatDataPointCodec codec) {
+        private DeadlockCodecEncoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 
@@ -90,6 +109,7 @@ public class DeadlockCodecV2 extends AbstractAgentStatCodecV2<DeadlockBo> {
         private List<Integer> deadlockedThreadCountList;
 
         public DeadlockCodecDecoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 

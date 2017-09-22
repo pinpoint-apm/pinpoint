@@ -17,30 +17,47 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.ActiveTraceCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
  * @author HyunGil Jeong
  */
 @Component("activeTraceCodecV1")
-public class ActiveTraceCodecV1 extends AbstractAgentStatCodecV1<ActiveTraceBo> {
+public class ActiveTraceCodecV1 extends AgentStatCodecV1<ActiveTraceBo> {
 
     @Autowired
     public ActiveTraceCodecV1(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new ActiveTraceCodecFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new ActiveTraceCodecV2.ActiveTraceCodecEncoder(codec);
-    }
+    private static class ActiveTraceCodecFactory implements CodecFactory<ActiveTraceBo> {
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new ActiveTraceCodecV2.ActiveTraceCodecDecoder(codec);
+        private final AgentStatDataPointCodec codec;
+
+        private ActiveTraceCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<ActiveTraceBo> createCodecEncoder() {
+            return new ActiveTraceCodecV2.ActiveTraceCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<ActiveTraceBo> createCodecDecoder() {
+            return new ActiveTraceCodecV2.ActiveTraceCodecDecoder(codec);
+        }
     }
 
 }
