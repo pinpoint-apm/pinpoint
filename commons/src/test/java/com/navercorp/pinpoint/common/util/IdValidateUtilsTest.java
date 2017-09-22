@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.util;
+package com.navercorp.pinpoint.common.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 
 public class IdValidateUtilsTest  {
 
