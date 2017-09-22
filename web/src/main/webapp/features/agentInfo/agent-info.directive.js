@@ -17,7 +17,6 @@
 					scope.showDetail = false;
 					scope.selectTime = -1;
 					scope.selectedDSIndex = 0;
-					scope.enableDataSourceChart = SystemConfigService.get("showInspectorDataSource") === true;
 					var timeSlider = null, bInitTooltip = false;
 					var oAlertService = new AlertsService();
 					var oProgressBarService = new ProgressBarService();
