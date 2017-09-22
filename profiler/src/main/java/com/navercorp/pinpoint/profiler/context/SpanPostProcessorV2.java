@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressorV2;
 
@@ -33,16 +34,13 @@ public class SpanPostProcessorV2 implements SpanPostProcessor {
 
     @Override
     public Span postProcess(Span span, List<SpanEvent> spanEventList) {
-
         span.setVersion(V2.getVersion());
         span.finish();
-
-        long spanStartTime = span.getStartTime();
-
-        spanEventCompressor.compress(spanEventList, spanStartTime);
-
-        span.setSpanEventList((List)spanEventList);
-
+        if (CollectionUtils.hasLength(spanEventList)) {
+            long spanStartTime = span.getStartTime();
+            spanEventCompressor.compress(spanEventList, spanStartTime);
+            span.setSpanEventList((List) spanEventList);
+        }
         return span;
     }
 }
