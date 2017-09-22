@@ -48,7 +48,7 @@ public class HandshakeTest {
 
     private static int bindPort;
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(10, 500);
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(50, 3000);
 
 
     @BeforeClass
