@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -36,21 +38,37 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component("jvmGcDetailedCodecV2")
-public class JvmGcDetailedCodecV2 extends AbstractAgentStatCodecV2<JvmGcDetailedBo> {
+public class JvmGcDetailedCodecV2 extends AgentStatCodecV2<JvmGcDetailedBo> {
 
     @Autowired
     public JvmGcDetailedCodecV2(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new DeadlockCodecFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new JvmGcDetailedCodecEncoder(codec);
-    }
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new JvmGcDetailedCodecDecoder(codec);
+    private static class DeadlockCodecFactory implements CodecFactory<JvmGcDetailedBo> {
+
+        private final AgentStatDataPointCodec codec;
+
+        private DeadlockCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<JvmGcDetailedBo> createCodecEncoder() {
+            return new JvmGcDetailedCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<JvmGcDetailedBo> createCodecDecoder() {
+            return new JvmGcDetailedCodecDecoder(codec);
+        }
     }
 
     public static class JvmGcDetailedCodecEncoder implements AgentStatCodec.CodecEncoder<JvmGcDetailedBo> {
@@ -66,6 +84,7 @@ public class JvmGcDetailedCodecV2 extends AbstractAgentStatCodecV2<JvmGcDetailed
         private final UnsignedLongEncodingStrategy.Analyzer.Builder metaspaceUsedStrategyAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
 
         public JvmGcDetailedCodecEncoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 
@@ -129,6 +148,7 @@ public class JvmGcDetailedCodecV2 extends AbstractAgentStatCodecV2<JvmGcDetailed
         private List<Long> metaspaceUseds;
 
         public JvmGcDetailedCodecDecoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 

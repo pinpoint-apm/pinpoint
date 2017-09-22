@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -35,21 +37,36 @@ import java.util.List;
  * @author Taejin Koo
  */
 @Component("responseTimeCodecV2")
-public class ResponseTimeCodecV2 extends AbstractAgentStatCodecV2<ResponseTimeBo> {
+public class ResponseTimeCodecV2 extends AgentStatCodecV2<ResponseTimeBo> {
 
     @Autowired
     public ResponseTimeCodecV2(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new ResponseTimeFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new ResponseTimeCodecEncoder(codec);
-    }
+    private static class ResponseTimeFactory implements CodecFactory<ResponseTimeBo> {
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new ResponseTimeCodecDecoder(codec);
+        private final AgentStatDataPointCodec codec;
+
+        private ResponseTimeFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<ResponseTimeBo> createCodecEncoder() {
+            return new ResponseTimeCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<ResponseTimeBo> createCodecDecoder() {
+            return new ResponseTimeCodecDecoder(codec);
+        }
     }
 
     private static class ResponseTimeCodecEncoder implements AgentStatCodec.CodecEncoder<ResponseTimeBo> {
@@ -58,6 +75,7 @@ public class ResponseTimeCodecV2 extends AbstractAgentStatCodecV2<ResponseTimeBo
         private final UnsignedLongEncodingStrategy.Analyzer.Builder avgAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
 
         public ResponseTimeCodecEncoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 
@@ -88,6 +106,7 @@ public class ResponseTimeCodecV2 extends AbstractAgentStatCodecV2<ResponseTimeBo
         private List<Long> avgs;
 
         public ResponseTimeCodecDecoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 

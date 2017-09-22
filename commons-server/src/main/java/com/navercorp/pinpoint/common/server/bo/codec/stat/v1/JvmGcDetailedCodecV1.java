@@ -17,30 +17,48 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.JvmGcDetailedCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
  * @author HyunGil Jeong
  */
 @Component("jvmGcDetailedCodecV1")
-public class JvmGcDetailedCodecV1 extends AbstractAgentStatCodecV1<JvmGcDetailedBo> {
+public class JvmGcDetailedCodecV1 extends AgentStatCodecV1<JvmGcDetailedBo> {
 
     @Autowired
     public JvmGcDetailedCodecV1(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new JvmGcDetailedCodecFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new JvmGcDetailedCodecV2.JvmGcDetailedCodecEncoder(codec);
-    }
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new JvmGcDetailedCodecV2.JvmGcDetailedCodecDecoder(codec);
+    private static class JvmGcDetailedCodecFactory implements CodecFactory<JvmGcDetailedBo> {
+
+        private final AgentStatDataPointCodec codec;
+
+        private JvmGcDetailedCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<JvmGcDetailedBo> createCodecEncoder() {
+            return new JvmGcDetailedCodecV2.JvmGcDetailedCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<JvmGcDetailedBo> createCodecDecoder() {
+            return new JvmGcDetailedCodecV2.JvmGcDetailedCodecDecoder(codec);
+        }
     }
 
 }

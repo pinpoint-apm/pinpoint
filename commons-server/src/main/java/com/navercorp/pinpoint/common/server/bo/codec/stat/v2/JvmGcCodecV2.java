@@ -102,7 +102,7 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
         decoder.decode(valueBuffer, headerDecoder, numValues);
 
         List<JvmGcBo> jvmGcBos = new ArrayList<JvmGcBo>(numValues);
-        for (int i = 0; i < numValues; ++i) {
+        for (int i = 0; i < numValues; i++) {
             JvmGcBo jvmGcBo = decoder.getValue(i);
             jvmGcBo.setAgentId(agentId);
             jvmGcBo.setStartTimestamp(startTimestamps.get(i));
@@ -177,6 +177,7 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
         private List<Long> gcOldTimes;
 
         public JvmGcCodecDecoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 

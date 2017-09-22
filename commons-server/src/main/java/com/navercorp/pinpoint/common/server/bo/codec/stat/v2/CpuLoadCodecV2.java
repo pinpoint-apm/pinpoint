@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -36,21 +38,37 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component("cpuLoadCodecV2")
-public class CpuLoadCodecV2 extends AbstractAgentStatCodecV2<CpuLoadBo> {
+public class CpuLoadCodecV2 extends AgentStatCodecV2<CpuLoadBo> {
 
     @Autowired
     public CpuLoadCodecV2(AgentStatDataPointCodec codec) {
-        super(codec);
+        super(new CpuLoadCodecFactory(codec));
     }
 
-    @Override
-    protected CodecEncoder createCodecEncoder() {
-        return new CpuLoadCodecEncoder(codec);
-    }
 
-    @Override
-    protected CodecDecoder createCodecDecoder() {
-        return new CpuLoadCodecDecoder(codec);
+    private static class CpuLoadCodecFactory implements CodecFactory<CpuLoadBo> {
+
+        private final AgentStatDataPointCodec codec;
+
+        private CpuLoadCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
+        }
+
+        @Override
+        public CodecEncoder<CpuLoadBo> createCodecEncoder() {
+            return new CpuLoadCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<CpuLoadBo> createCodecDecoder() {
+            return new CpuLoadCodecDecoder(codec);
+        }
     }
 
     public static class CpuLoadCodecEncoder implements AgentStatCodec.CodecEncoder<CpuLoadBo> {
@@ -60,6 +78,7 @@ public class CpuLoadCodecV2 extends AbstractAgentStatCodecV2<CpuLoadBo> {
         private final UnsignedLongEncodingStrategy.Analyzer.Builder systemCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
 
         public CpuLoadCodecEncoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 
@@ -95,6 +114,7 @@ public class CpuLoadCodecV2 extends AbstractAgentStatCodecV2<CpuLoadBo> {
         private List<Long> systemCpuLoads;
 
         public CpuLoadCodecDecoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
 
