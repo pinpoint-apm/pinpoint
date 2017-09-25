@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
@@ -45,9 +45,7 @@ public class CollectorClusterConnectionRepository {
     }
 
     public List<SocketAddress> getAddressList() {
-        // fix jdk 8 KeySetView compatibility
-        Set<SocketAddress> socketAddresses = clusterConnectionRepository.keySet();
-        return new ArrayList<>(socketAddresses);
+       return clusterConnectionRepository.keySet().stream().collect(Collectors.toList());
     }
 
     public List<PinpointSocket> getClusterSocketList() {
