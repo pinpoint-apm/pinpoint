@@ -279,4 +279,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         return new InspectorTimeline(agentStatusTimeline, agentEventTimeline);
     }
+
+    @Override
+    public boolean isExistAgentId(String agentId) {
+        AgentInfo agentInfo = getAgentInfo(agentId, System.currentTimeMillis());
+        return agentInfo != null;
+    }
+
 }
