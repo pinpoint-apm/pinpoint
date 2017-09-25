@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,40 +25,22 @@ import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 /**
  * @author HyunGil Jeong
  */
-public abstract class HystrixCommandGetFallbackOrThrowExceptionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class HystrixCommandInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    public HystrixCommandGetFallbackOrThrowExceptionInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public HystrixCommandInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
     }
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        // do nothing
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
+        recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COMMAND_ANNOTATION_KEY, target.getClass().getSimpleName());
         recorder.recordException(throwable);
-        Attributes attributes = getAttributes(args);
-        Object message = attributes.getMessage();
-        if (message == null) {
-            message = attributes.getFailureType();
-        }
-        if (message != null) {
-            recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_FALLBACK_CAUSE_ANNOTATION_KEY, message.toString());
-        }
-        Object exception = attributes.getException();
-        if (exception != null) {
-            recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_FALLBACK_EXCEPTION_ANNOTATION_KEY, exception.toString());
-        }
     }
-
-    protected interface Attributes {
-        Object getFailureType();
-        Object getMessage();
-        Object getException();
-    }
-
-    protected abstract Attributes getAttributes(Object[] args);
 }

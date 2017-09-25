@@ -1,12 +1,11 @@
 package com.navercorp.pinpoint.plugin.hystrix.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
-import com.navercorp.pinpoint.plugin.hystrix.field.EnclosingInstanceFieldGetter;
+import com.navercorp.pinpoint.plugin.hystrix.field.EnclosingInstanceAccessor;
 
 /**
  * for hystrix-core above 1.4
@@ -14,14 +13,14 @@ import com.navercorp.pinpoint.plugin.hystrix.field.EnclosingInstanceFieldGetter;
  * Created by jack on 4/21/16.
  */
 
-public abstract class HystrixObservableCallInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public abstract class HystrixObservableCallInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     protected HystrixObservableCallInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] arqgs) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
@@ -32,21 +31,16 @@ public abstract class HystrixObservableCallInterceptor extends AsyncContextSpanE
         recorder.recordException(throwable);
     }
 
-    @Override
-    protected AsyncContext getAsyncContext(Object target) {
-        return super.getAsyncContext(getEnclosingInstance(target));
-    }
-
     protected abstract String getExecutionType();
 
     protected Object getEnclosingInstance(Object target) {
-        if (!(target instanceof EnclosingInstanceFieldGetter)) {
+        if (!(target instanceof EnclosingInstanceAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", EnclosingInstanceFieldGetter.class.getName());
+                logger.debug("Invalid target object. Need field accessor({}).", EnclosingInstanceAccessor.class.getName());
             }
             return null;
         } else {
-            return ((EnclosingInstanceFieldGetter) target)._$PINPOINT$_getEnclosingInstance();
+            return ((EnclosingInstanceAccessor) target)._$PINPOINT$_getEnclosingInstance();
         }
     }
 }
