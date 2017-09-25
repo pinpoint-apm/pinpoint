@@ -131,7 +131,7 @@ public class TransactionCodec implements ApplicationStatCodec {
         List<String> maxTotalCountAgentIdList = this.codec.decodeValues(valueBuffer, maxTotalCountAgentIdEncodingStrategy, numValues);
 
         List<JoinStatBo> joinTransactionBoList = new ArrayList<JoinStatBo>();
-        for (int i = 0 ; i < numValues ; ++i) {
+        for (int i = 0 ; i < numValues ; i++) {
             JoinTransactionBo joinTransactionBo = new JoinTransactionBo();
             joinTransactionBo.setId(id);
             joinTransactionBo.setTimestamp(timestampList.get(i));

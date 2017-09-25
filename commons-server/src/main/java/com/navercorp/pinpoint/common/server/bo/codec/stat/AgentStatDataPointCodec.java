@@ -33,7 +33,7 @@ public class AgentStatDataPointCodec {
         long prevTimestamp = timestamps.get(0);
         long prevDelta = 0;
         // skip first timestamp as this value is encoded as the qualifier and delta is meaningless
-        for (int i = 1; i < timestamps.size(); ++i) {
+        for (int i = 1; i < timestamps.size(); i++) {
             long timestamp = timestamps.get(i);
             long timestampDelta = timestamp - prevTimestamp;
             buffer.putVLong(timestampDelta - prevDelta);
@@ -48,7 +48,7 @@ public class AgentStatDataPointCodec {
         long prevTimestamp = initialTimestamp;
         long prevDelta = 0;
         // loop through numValues - 1 as the first timestamp is gotten from the qualifier
-        for (int i = 0; i < numValues - 1; ++i) {
+        for (int i = 0; i < numValues - 1; i++) {
             long timestampDelta = prevDelta + buffer.readVLong();
             long timestamp = prevTimestamp + timestampDelta;
             timestamps.add(timestamp);

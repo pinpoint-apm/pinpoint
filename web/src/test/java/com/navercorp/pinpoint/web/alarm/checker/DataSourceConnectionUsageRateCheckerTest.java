@@ -152,7 +152,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         List<Long> values = new ArrayList<Long>(numValues);
         long value = RandomUtils.nextLong(minValue, maxValue);
         values.add(value);
-        for (int i = 0; i < numValues - 1; ++i) {
+        for (int i = 0; i < numValues - 1; i++) {
             long increment = RandomUtils.nextLong(minIncrement, maxIncrement);
             value = value + increment;
             values.add(value);

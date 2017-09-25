@@ -137,7 +137,7 @@ public class ActiveTraceCodec implements ApplicationStatCodec {
         List<String> maxTotalCountAgentIdList = this.codec.decodeValues(valueBuffer, maxTotalCountAgentIdEncodingStrategy, numValues);
 
         List<JoinStatBo> joinActiveTraceBoList = new ArrayList<JoinStatBo>();
-        for (int i = 0 ; i < numValues ; ++i) {
+        for (int i = 0 ; i < numValues ; i++) {
             JoinActiveTraceBo joinActiveTraceBo = new JoinActiveTraceBo();
             joinActiveTraceBo.setId(id);
             joinActiveTraceBo.setVersion(versionList.get(i));

@@ -68,7 +68,7 @@ public class DefaultServerMetaDataRegistryServiceTest {
         final ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(VM_ARGS);
         serverMetaDataRegistryService.setServerName(SERVER_INFO);
         // When
-        for (int i = 0; i < THREAD_COUNT; ++i) {
+        for (int i = 0; i < THREAD_COUNT; i++) {
             final int port = i;
             final String protocol = protocolPrefix + i;
             executorService.submit(new Runnable() {
@@ -116,7 +116,7 @@ public class DefaultServerMetaDataRegistryServiceTest {
         final ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(VM_ARGS);
         serverMetaDataRegistryService.setServerName(SERVER_INFO);
         // When
-        for (int i = 0; i < THREAD_COUNT; ++i) {
+        for (int i = 0; i < THREAD_COUNT; i++) {
             final List<String> serviceLibs = new ArrayList<String>();
             executorService.submit(new Runnable() {
                 @Override

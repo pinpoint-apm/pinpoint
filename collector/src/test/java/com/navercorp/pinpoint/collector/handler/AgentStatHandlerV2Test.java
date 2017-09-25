@@ -201,7 +201,7 @@ public class AgentStatHandlerV2Test {
         agentStatBatch.setAgentId(agentId);
         agentStatBatch.setStartTimestamp(startTimestamp);
         final List<TAgentStat> agentStats = new ArrayList<>(numBatches);
-        for (int i = 0; i < numBatches; ++i) {
+        for (int i = 0; i < numBatches; i++) {
             agentStats.add(createAgentStat(agentId, startTimestamp));
         }
         agentStatBatch.setAgentStats(agentStats);

@@ -169,7 +169,7 @@ public interface TestAgentStatDataPointFactory<T extends Number> {
         public List<T> createConstantValues(T minValue, T maxValue, int numValues) {
             T value = this.createValue(minValue, maxValue);
             List<T> values = new ArrayList<T>(numValues);
-            for (int i = 0; i < numValues; ++i) {
+            for (int i = 0; i < numValues; i++) {
                 values.add(value);
             }
             return values;
@@ -184,7 +184,7 @@ public interface TestAgentStatDataPointFactory<T extends Number> {
         @Override
         public List<T> createRandomValues(T minValue, T maxValue, int numValues) {
             List<T> values = new ArrayList<T>(numValues);
-            for (int i = 0; i < numValues; ++i) {
+            for (int i = 0; i < numValues; i++) {
                 T value = this.createValue(minValue, maxValue);
                 values.add(value);
             }
@@ -202,7 +202,7 @@ public interface TestAgentStatDataPointFactory<T extends Number> {
             List<T> values = new ArrayList<T>(numValues);
             T value = this.createValue(minValue, maxValue);
             values.add(value);
-            for (int i = 0; i < numValues - 1; ++i) {
+            for (int i = 0; i < numValues - 1; i++) {
                 T increment = this.createValue(minIncrement, maxIncrement);
                 value = add(value, increment);
                 values.add(value);
@@ -221,7 +221,7 @@ public interface TestAgentStatDataPointFactory<T extends Number> {
             List<T> values = new ArrayList<T>(numValues);
             T value = this.createValue(minValue, maxValue);
             values.add(value);
-            for (int i = 0; i < numValues - 1; ++i) {
+            for (int i = 0; i < numValues - 1; i++) {
                 T decrement = this.createValue(minDecrement, maxDecrement);
                 value = diff(value, decrement);
                 values.add(value);
@@ -241,7 +241,7 @@ public interface TestAgentStatDataPointFactory<T extends Number> {
             T value = this.createValue(minValue, maxValue);
             values.add(value);
             boolean sign = RANDOM.nextBoolean();
-            for (int i = 0; i < numValues - 1; ++i) {
+            for (int i = 0; i < numValues - 1; i++) {
                 T fluctuation = this.createValue(minFluctuation, maxFluctuation);
                 // randomly add or substract fluctuation
                 if (sign) {

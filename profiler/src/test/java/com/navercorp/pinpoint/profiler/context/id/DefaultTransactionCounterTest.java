@@ -18,9 +18,6 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import static org.junit.Assert.*;
 
-import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
-import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -127,7 +124,7 @@ public class DefaultTransactionCounterTest {
         // Given
         final long expectedTransactionCount = 99L;
         // When
-        for (int i = 0; i < expectedTransactionCount; ++i) {
+        for (int i = 0; i < expectedTransactionCount; i++) {
             this.idGenerator.nextTransactionId();
         }
         final long actualCount = this.transactionCounter.getSampledNewCount();
@@ -140,7 +137,7 @@ public class DefaultTransactionCounterTest {
         // Given
         final long expectedTransactionCount = 99L;
         // When
-        for (int i = 0; i < expectedTransactionCount; ++i) {
+        for (int i = 0; i < expectedTransactionCount; i++) {
             this.idGenerator.nextContinuedTransactionId();
         }
         final long actualCount = this.transactionCounter.getSampledContinuationCount();
@@ -153,7 +150,7 @@ public class DefaultTransactionCounterTest {
         // Given
         final long expectedTransactionCount = 99L;
         // When
-        for (int i = 0; i < expectedTransactionCount; ++i) {
+        for (int i = 0; i < expectedTransactionCount; i++) {
             this.idGenerator.nextDisabledId();
         }
         final long actualCount = this.transactionCounter.getUnSampledNewCount();
@@ -166,7 +163,7 @@ public class DefaultTransactionCounterTest {
         // Given
         final long expectedTransactionCount = 99L;
         // When
-        for (int i = 0; i < expectedTransactionCount; ++i) {
+        for (int i = 0; i < expectedTransactionCount; i++) {
             this.idGenerator.nextContinuedDisabledId();
         }
         final long actualCount = this.transactionCounter.getUnSampledContinuationCount();
@@ -183,16 +180,16 @@ public class DefaultTransactionCounterTest {
         final long expectedUnsampledContinuationCount = 9L;
         final long expectedTotalCount = expectedSampledNewCount + expectedSampledContinuationCount + expectedUnsampledNewCount + expectedUnsampledContinuationCount;
         // When
-        for (int i = 0; i < expectedSampledNewCount; ++i) {
+        for (int i = 0; i < expectedSampledNewCount; i++) {
             this.idGenerator.nextTransactionId();
         }
-        for (int i = 0; i < expectedSampledContinuationCount; ++i) {
+        for (int i = 0; i < expectedSampledContinuationCount; i++) {
             this.idGenerator.nextContinuedTransactionId();
         }
-        for (int i = 0; i < expectedUnsampledNewCount; ++i) {
+        for (int i = 0; i < expectedUnsampledNewCount; i++) {
             this.idGenerator.nextDisabledId();
         }
-        for (int i = 0; i < expectedUnsampledContinuationCount; ++i) {
+        for (int i = 0; i < expectedUnsampledContinuationCount; i++) {
             this.idGenerator.nextContinuedDisabledId();
         }
         final long actualSampledNewCount = this.transactionCounter.getSampledNewCount();

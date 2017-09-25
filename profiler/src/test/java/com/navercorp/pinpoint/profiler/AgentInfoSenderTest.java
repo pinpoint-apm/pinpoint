@@ -271,7 +271,7 @@ public class AgentInfoSenderTest {
             waitExpectedRequestCount(requestCount, 1);
             serverAcceptor.close();
             // reconnect
-            for (int i = 0; i < expectedReconnectCount; ++i) {
+            for (int i = 0; i < expectedReconnectCount; i++) {
                 PinpointServerAcceptor reconnectServerAcceptor = createServerAcceptor(serverListener);
                 // wait for agent to reconnect
                 reconnectEventBarrier.await();
@@ -346,7 +346,7 @@ public class AgentInfoSenderTest {
 
         // When
         try {
-            for (int i = 0; i < expectedRequestCount; ++i) {
+            for (int i = 0; i < expectedRequestCount; i++) {
                 serverMetaDataRegistryService.notifyListeners();
             }
 
@@ -389,7 +389,7 @@ public class AgentInfoSenderTest {
         });
 
         // When
-        for (int i = 0; i < threadCount; ++i) {
+        for (int i = 0; i < threadCount; i++) {
             final String serviceName = "/name" + i;
             executorService.submit(new Runnable() {
                 @Override

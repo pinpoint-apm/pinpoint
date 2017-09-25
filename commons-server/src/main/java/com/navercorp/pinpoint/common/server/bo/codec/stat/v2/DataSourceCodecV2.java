@@ -183,7 +183,7 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
         List<Integer> maxConnectionSizes = this.codec.decodeValues(valueBuffer, maxConnectionSizeStrategy, numValues);
 
         DataSourceListBo dataSourceListBo = new DataSourceListBo();
-        for (int i = 0; i < numValues; ++i) {
+        for (int i = 0; i < numValues; i++) {
             if (i == 0) {
                 dataSourceListBo.setAgentId(agentId);
                 dataSourceListBo.setTimestamp(timestamps.get(i));

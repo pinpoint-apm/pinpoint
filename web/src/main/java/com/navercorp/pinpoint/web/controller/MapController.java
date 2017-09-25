@@ -298,12 +298,12 @@ public class MapController {
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
         List<Application> fromApplications = new ArrayList<>(fromApplicationNames.size());
-        for (int i = 0; i < fromApplicationNames.size(); ++i) {
+        for (int i = 0; i < fromApplicationNames.size(); i++) {
             Application fromApplication = applicationFactory.createApplication(fromApplicationNames.get(i), fromServiceTypeCodes.get(i));
             fromApplications.add(fromApplication);
         }
         List<Application> toApplications = new ArrayList<>(toApplicationNames.size());
-        for (int i = 0; i < toApplicationNames.size(); ++i) {
+        for (int i = 0; i < toApplicationNames.size(); i++) {
             Application toApplication = applicationFactory.createApplication(toApplicationNames.get(i), toServiceTypeCodes.get(i));
             toApplications.add(toApplication);
         }

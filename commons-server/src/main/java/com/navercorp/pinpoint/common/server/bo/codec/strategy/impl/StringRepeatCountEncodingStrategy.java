@@ -71,7 +71,7 @@ public class StringRepeatCountEncodingStrategy implements EncodingStrategy<Strin
         while (totalCount < numValues) {
             int count = buffer.readVInt();
             String value = this.bufferHandler.read(buffer);
-            for (int i = 0; i < count; ++i) {
+            for (int i = 0; i < count; i++) {
                 values.add(value);
                 totalCount++;
             }

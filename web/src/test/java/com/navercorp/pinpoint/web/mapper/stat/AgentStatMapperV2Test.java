@@ -88,7 +88,7 @@ public class AgentStatMapperV2Test {
         List<Put> puts = new ArrayList<>();
         long initialTimestamp = System.currentTimeMillis();
         int numBatch = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
-        for (int i = 0; i < numBatch; ++i) {
+        for (int i = 0; i < numBatch; i++) {
             int batchSize = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
             List<TestAgentStat> agentStatBatch = createAgentStats(initialTimestamp, COLLECT_INVERVAL, batchSize);
             givenAgentStats.addAll(agentStatBatch);
@@ -113,7 +113,7 @@ public class AgentStatMapperV2Test {
 
     private List<TestAgentStat> createAgentStats(long initialTimestamp, long interval, int batchSize) {
         List<TestAgentStat> agentStats = new ArrayList<>(batchSize);
-        for (int i = 0; i < batchSize; ++i) {
+        for (int i = 0; i < batchSize; i++) {
             long timestamp = initialTimestamp + (interval * i);
             TestAgentStat agentStat = new TestAgentStat();
             agentStat.setAgentId(AGENT_ID);
@@ -144,7 +144,7 @@ public class AgentStatMapperV2Test {
         public List<TestAgentStat> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
             int size = valueBuffer.readInt();
             List<TestAgentStat> agentStats = new ArrayList<>(size);
-            for (int i = 0; i < size; ++i) {
+            for (int i = 0; i < size; i++) {
                 TestAgentStat agentStat = new TestAgentStat();
                 agentStat.setAgentId(decodingContext.getAgentId());
                 agentStat.setTimestamp(valueBuffer.readLong());
