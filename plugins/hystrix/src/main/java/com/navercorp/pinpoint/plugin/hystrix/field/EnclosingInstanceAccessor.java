@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.hystrix;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+package com.navercorp.pinpoint.plugin.hystrix.field;
 
 /**
  * @author HyunGil Jeong
  */
-public class HystrixPluginConfig {
-
-    private final boolean traceHystrix;
-
-    public HystrixPluginConfig(ProfilerConfig src) {
-        this.traceHystrix = src.readBoolean("profiler.hystrix", false);
-    }
-
-    public boolean isTraceHystrix() {
-        return traceHystrix;
-    }
+public interface EnclosingInstanceAccessor {
+    void _$PINPOINT$_setEnclosingInstance(Object enclosingInstance);
+    Object _$PINPOINT$_getEnclosingInstance();
 }

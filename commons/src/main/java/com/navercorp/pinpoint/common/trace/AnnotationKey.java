@@ -81,6 +81,14 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>82</td><td>thrift.result</td></tr>
  * <tr><td>90</td><td>dubbo.args</td></tr>
  * <tr><td>91</td><td>dubbo.result</td></tr>
+ * <tr><td>110</td><td></td>hystrix.command</tr>
+ * <tr><td>111</td><td></td>hystrix.command.execution</tr>
+ * <tr><td>112</td><td></td>hystrix.command.fallback.cause</tr>
+ * <tr><td>113</td><td></td>hystrix.command.exception</tr>
+ * <tr><td>115</td><td></td>hystrix.command.key</tr>
+ * <tr><td>116</td><td></td>hystrix.command.group.key</tr>
+ * <tr><td>117</td><td></td>hystrix.thread.pool.key</tr>
+ * <tr><td>118</td><td></td>hystrix.collapser.key</tr>
  * <tr><td>120</td><td>netty.address</td></tr>
  * <tr><td>200</td><td>cxf.operation</td></tr>
  * <tr><td>201</td><td>cxf.args</td></tr>
