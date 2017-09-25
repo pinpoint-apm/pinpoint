@@ -25,6 +25,7 @@ public class ExpectedTrace {
     private final String serviceType;
     private final Member method;
     private final String methodSignature;
+    private final Exception exception;
     private final String rpc;
     private final String endPoint;
     private final String remoteAddr;
@@ -32,11 +33,12 @@ public class ExpectedTrace {
     private final ExpectedAnnotation[] annotations;
     private final ExpectedTrace[] asyncTraces;
     
-    public ExpectedTrace(TraceType type, String serviceType, Member method, String methodSignature, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation[] annotations, ExpectedTrace[] asyncTraces) {
+    public ExpectedTrace(TraceType type, String serviceType, Member method, String methodSignature, Exception exception, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation[] annotations, ExpectedTrace[] asyncTraces) {
         this.type = type;
         this.serviceType = serviceType;
         this.method = method;
         this.methodSignature = methodSignature;
+        this.exception = exception;
         this.rpc = rpc;
         this.endPoint = endPoint;
         this.remoteAddr = remoteAddr;
@@ -59,6 +61,10 @@ public class ExpectedTrace {
 
     public String getMethodSignature() {
         return methodSignature;
+    }
+
+    public Exception getException() {
+        return exception;
     }
 
     public String getRpc() {
