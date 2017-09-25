@@ -126,7 +126,7 @@ public abstract class LinkSelectorTestBase {
         int numTargets = RANDOM.nextInt(100);
         int callCount_A_APP = 4;
         LinkDataMap linkDataMap = new LinkDataMap();
-        for (int i = 0; i < numTargets; ++i) {
+        for (int i = 0; i < numTargets; i++) {
             String targetAppName = "TARGET_" + (i + 1);
             String targetAppAgentId = "target" + (i + 1);
             Application targetApp = new Application(targetAppName, ServiceType.TEST_STAND_ALONE);

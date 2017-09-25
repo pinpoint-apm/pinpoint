@@ -101,19 +101,19 @@ public class DefaultTraceContextTest {
         @SuppressWarnings("unused")
         final long expectedSampledNewCount = newTransactionCount / samplingRate + (newTransactionCount % samplingRate > 0 ? 1 : 0);
         final long expectedUnsampledNewCount = newTransactionCount - expectedSampledNewCount;
-        for (int i = 0; i < newTransactionCount; ++i) {
+        for (int i = 0; i < newTransactionCount; i++) {
             traceContext.newTraceObject();
             traceContext.removeTraceObject();
         }
         
         final long expectedSampledContinuationCount = 5L;
-        for (int i = 0; i < expectedSampledContinuationCount; ++i) {
+        for (int i = 0; i < expectedSampledContinuationCount; i++) {
             traceContext.continueTraceObject(new DefaultTraceId("agentId", 0L, i));
             traceContext.removeTraceObject();
         }
         
         final long expectedUnsampledContinuationCount = 10L;
-        for (int i = 0; i < expectedUnsampledContinuationCount; ++i) {
+        for (int i = 0; i < expectedUnsampledContinuationCount; i++) {
             traceContext.disableSampling();
             traceContext.removeTraceObject();
         }

@@ -81,7 +81,7 @@ public class UnsignedLongEncodingStrategyTest extends EncodingStrategyTestBase<L
     }
 
     private void testValues(long minValue, long maxValue) {
-        for (int i = 0; i < NUM_TEST_RUNS; ++i) {
+        for (int i = 0; i < NUM_TEST_RUNS; i++) {
             List<Long> constantValues = TestAgentStatDataPointFactory.LONG.createConstantValues(minValue, maxValue);
             testFor(constantValues);
             List<Long> randomValues = TestAgentStatDataPointFactory.LONG.createRandomValues(minValue, maxValue);

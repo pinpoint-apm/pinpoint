@@ -170,7 +170,7 @@ public class MemoryCodec implements ApplicationStatCodec {
         List<String> maxNonHeapAGentidList = this.codec.decodeValues(valueBuffer, maxNonHeapAgentIdEncodingStrategy, numValues);
 
         List<JoinStatBo> joinCpuLoadBoList = new ArrayList<JoinStatBo>(numValues);
-        for (int i = 0; i < numValues; ++i) {
+        for (int i = 0; i < numValues; i++) {
             JoinMemoryBo joinMemoryBo = new JoinMemoryBo();
             joinMemoryBo.setId(id);
             joinMemoryBo.setTimestamp(timestamps.get(i));

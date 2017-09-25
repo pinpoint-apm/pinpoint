@@ -58,7 +58,7 @@ public class BitCountingHeaderEncoder implements AgentStatHeaderEncoder {
         // strictly follows JDK 7's BitSet.toByteArray()
         int len = (headerBitSet.length() + (NUM_BITS_PER_BYTE - 1)) / NUM_BITS_PER_BYTE;
         byte[] header = new byte[len];
-        for (int i = 0; i < len * NUM_BITS_PER_BYTE; ++i) {
+        for (int i = 0; i < len * NUM_BITS_PER_BYTE; i++) {
             int index = i / NUM_BITS_PER_BYTE;
             int bitMask = (headerBitSet.get(i) ? 1 : 0) << (i % NUM_BITS_PER_BYTE);
             header[index] |= bitMask;

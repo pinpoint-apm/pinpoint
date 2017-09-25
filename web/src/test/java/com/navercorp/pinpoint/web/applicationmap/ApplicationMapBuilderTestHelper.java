@@ -79,7 +79,7 @@ public class ApplicationMapBuilderTestHelper {
             throw new IllegalArgumentException("callerDepth must be greater than 0");
         }
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-        for (int i = 0; i < calleeDepth - 1; ++i) {
+        for (int i = 0; i < calleeDepth - 1; i++) {
             LinkData targetLinkData = createTargetLinkData(i);
             linkDataDuplexMap.addTargetLinkData(targetLinkData);
         }
@@ -87,7 +87,7 @@ public class ApplicationMapBuilderTestHelper {
 
         linkDataDuplexMap.addSourceLinkData(createTerminalSourceLinkData(0));
 
-        for (int i = 0; i < callerDepth - 1; ++i) {
+        for (int i = 0; i < callerDepth - 1; i++) {
             LinkData sourceLinkData = createSourceLinkData(i);
             linkDataDuplexMap.addSourceLinkData(sourceLinkData);
         }

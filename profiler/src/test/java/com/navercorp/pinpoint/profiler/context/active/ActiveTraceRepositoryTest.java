@@ -115,13 +115,13 @@ public class ActiveTraceRepositoryTest {
         final int totalTransactionCount = newTransactionCount + sampledContinuationCount + unsampledContinuationCount;
         final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(totalTransactionCount));
         final List<ListenableFuture<TraceThreadTuple>> futures = new ArrayList<ListenableFuture<TraceThreadTuple>>();
-        for (int i = 0; i < newTransactionCount; ++i) {
+        for (int i = 0; i < newTransactionCount; i++) {
             futures.add(executeNewTrace(executor, awaitLatch, executeLatch));
         }
-        for (int i = 0; i < sampledContinuationCount; ++i) {
+        for (int i = 0; i < sampledContinuationCount; i++) {
             futures.add(executeSampledContinuedTrace(executor, awaitLatch, executeLatch, i));
         }
-        for (int i = 0; i < unsampledContinuationCount; ++i) {
+        for (int i = 0; i < unsampledContinuationCount; i++) {
             futures.add(executeUnsampledContinuedTrace(executor, awaitLatch, executeLatch));
         }
         return Futures.allAsList(futures);

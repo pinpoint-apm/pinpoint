@@ -103,7 +103,7 @@ public abstract class DownSamplerTestBase<T extends Number & Comparable<? super 
 
     private List<T> createSamples(int sampleCount) {
         List<T> samples = new ArrayList<>(sampleCount);
-        for (int i = 0; i < sampleCount; ++i) {
+        for (int i = 0; i < sampleCount; i++) {
             samples.add(createSample());
         }
         return samples;

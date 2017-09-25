@@ -74,7 +74,7 @@ public class UnsignedIntegerEncodingStrategyTest extends EncodingStrategyTestBas
     }
 
     private void testValues(int minValue, int maxValue) {
-        for (int i = 0; i < NUM_TEST_RUNS; ++i) {
+        for (int i = 0; i < NUM_TEST_RUNS; i++) {
             List<Integer> constantValues = TestAgentStatDataPointFactory.INTEGER.createConstantValues(minValue, maxValue);
             testFor(constantValues);
             List<Integer> randomValues = TestAgentStatDataPointFactory.INTEGER.createRandomValues(minValue, maxValue);

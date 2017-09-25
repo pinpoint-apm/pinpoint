@@ -70,7 +70,7 @@ public class AgentStatEncoderTest {
 
     private List<TestAgentStat> createTestAgentStats(long initialTimestamp, int numStats) {
         List<TestAgentStat> agentStats = new ArrayList<TestAgentStat>(numStats);
-        for (int i = 0; i < numStats; ++i) {
+        for (int i = 0; i < numStats; i++) {
             long timestamp = initialTimestamp + (COLLECT_INTERVAL * i);
             TestAgentStat agentStat = new TestAgentStat();
             agentStat.setAgentId(AGENT_ID);
@@ -113,7 +113,7 @@ public class AgentStatEncoderTest {
         public List<TestAgentStat> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
             int size = valueBuffer.readInt();
             List<TestAgentStat> agentStats = new ArrayList<TestAgentStat>(size);
-            for (int i = 0; i < size; ++i) {
+            for (int i = 0; i < size; i++) {
                 TestAgentStat agentStat = new TestAgentStat();
                 agentStat.setAgentId(decodingContext.getAgentId());
                 agentStat.setStartTimestamp(valueBuffer.readLong());

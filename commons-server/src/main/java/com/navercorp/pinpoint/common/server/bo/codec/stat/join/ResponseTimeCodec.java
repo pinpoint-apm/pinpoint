@@ -129,7 +129,7 @@ public class ResponseTimeCodec implements ApplicationStatCodec {
         List<String> maxAvgAgentIdList = this.codec.decodeValues(valueBuffer, maxAvgAgentIdEncodingStrategy, numValues);
 
         List<JoinStatBo> joinResponseTimeBoList = new ArrayList<JoinStatBo>();
-        for (int i = 0 ; i < numValues ; ++i) {
+        for (int i = 0 ; i < numValues ; i++) {
             JoinResponseTimeBo joinResponseTimeBo = new JoinResponseTimeBo();
             joinResponseTimeBo.setId(id);
             joinResponseTimeBo.setTimestamp(timestampList.get(i));

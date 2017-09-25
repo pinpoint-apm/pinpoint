@@ -132,7 +132,7 @@ public class DefaultTransactionMetricTest {
         final long expectedNumberOfTransactionsPerCollection = 100L;
         initTransactionMetric();
         // When
-        for (int i = 0; i < testCnt; ++i) {
+        for (int i = 0; i < testCnt; i++) {
             this.transactionCounter.addSampledNewCount(expectedNumberOfTransactionsPerCollection);
             this.transactionCounter.addSampledContinuationCount(expectedNumberOfTransactionsPerCollection);
             this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactionsPerCollection);
