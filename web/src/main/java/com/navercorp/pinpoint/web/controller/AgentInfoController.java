@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
@@ -176,6 +177,17 @@ public class AgentInfoController {
         }
 
         return new CodeResult(CODE_SUCCESS, "OK");
+    }
+
+    @RequestMapping(value = "/getAgentDownloadUrl")
+    @ResponseBody
+    public CodeResult getAgentDownloadUrl() {
+        AgentDownloadInfo latestStableAgentDownloadInfo = agentInfoService.getLatestStableAgentDownloadInfo();
+        if (latestStableAgentDownloadInfo != null) {
+            return new CodeResult(0, latestStableAgentDownloadInfo.getDownloadUrl());
+        }
+
+        return new CodeResult(-1, "can't find suitable download url");
     }
 
 }

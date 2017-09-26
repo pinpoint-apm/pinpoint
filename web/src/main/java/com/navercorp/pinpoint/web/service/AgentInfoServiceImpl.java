@@ -18,12 +18,16 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.google.common.collect.Ordering;
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
+import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
+import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
@@ -48,6 +52,7 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +82,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Autowired
     private AgentLifeCycleDao agentLifeCycleDao;
+
+    @Autowired
+    private AgentDownloadInfoDao agentDownloadInfoDao;
 
     @Override
     public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key) {
@@ -284,6 +292,48 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     public boolean isExistAgentId(String agentId) {
         AgentInfo agentInfo = getAgentInfo(agentId, System.currentTimeMillis());
         return agentInfo != null;
+    }
+
+    private volatile AgentDownloadInfo cachedAgentDownloadInfo;
+
+    @Override
+    public AgentDownloadInfo getLatestStableAgentDownloadInfo() {
+        if (cachedAgentDownloadInfo != null) {
+            return cachedAgentDownloadInfo;
+        }
+
+        List<AgentDownloadInfo> downloadInfoList = agentDownloadInfoDao.getDownloadInfoList();
+        if (CollectionUtils.isEmpty(downloadInfoList)) {
+            return null;
+        }
+
+        Collections.sort(downloadInfoList, new Comparator<AgentDownloadInfo>() {
+            @Override
+            public int compare(AgentDownloadInfo o1, AgentDownloadInfo o2) {
+                return o2.getVersion().compareTo(o1.getVersion());
+            }
+        });
+
+        // 1st. find same
+        for (AgentDownloadInfo downloadInfo : downloadInfoList) {
+            if (Version.VERSION.equals(downloadInfo.getVersion())) {
+                cachedAgentDownloadInfo = downloadInfo;
+                return downloadInfo;
+            }
+        }
+
+        // 2nd. find lower
+        for (AgentDownloadInfo downloadInfo : downloadInfoList) {
+            if (Version.VERSION.compareTo(downloadInfo.getVersion()) > 0) {
+                cachedAgentDownloadInfo = downloadInfo;
+                return downloadInfo;
+            }
+        }
+
+        // 3rd find greater
+        AgentDownloadInfo downloadInfo = ListUtils.getLast(downloadInfoList);
+        cachedAgentDownloadInfo = downloadInfo;
+        return downloadInfo;
     }
 
 }
