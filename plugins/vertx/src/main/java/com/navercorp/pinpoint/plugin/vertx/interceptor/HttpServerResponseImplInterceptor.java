@@ -47,8 +47,14 @@ public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndP
         if (target instanceof ResponseGetter) {
             final HttpResponse response = ((ResponseGetter) target)._$PINPOINT$_getResponse();
             // TODO more simple.
-            final SpanRecorder spanRecorder = getAsyncContext(target).currentAsyncTraceObject().getSpanRecorder();
-            this.httpStatusCodeRecorder.record(spanRecorder, response.status().code());
+            final AsyncContext asyncContext = getAsyncContext(target);
+            if (asyncContext != null) {
+                final Trace trace = asyncContext.currentAsyncTraceObject();
+                if (trace != null) {
+                    final SpanRecorder spanRecorder = trace.getSpanRecorder();
+                    this.httpStatusCodeRecorder.record(spanRecorder, response.status().code());
+                }
+            }
         }
     }
 }
