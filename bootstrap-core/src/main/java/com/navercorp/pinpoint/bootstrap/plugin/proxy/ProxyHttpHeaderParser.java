@@ -130,7 +130,7 @@ public class ProxyHttpHeaderParser {
             // e.g. 1504230492.763
             final int millisPosition = value.lastIndexOf('.');
             if (millisPosition != -1) {
-                if ((length - millisPosition) != 4) {
+                if (length - millisPosition != 4) {
                     // invalid format.
                     return 0;
                 }
@@ -152,7 +152,7 @@ public class ProxyHttpHeaderParser {
             final int millisPosition = value.lastIndexOf('.');
             if (millisPosition != -1) {
                 // e.g. 0.000
-                if ((length - millisPosition) != 4) {
+                if (length - millisPosition != 4) {
                     // invalid format.
                     return 0;
                 }
