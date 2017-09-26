@@ -74,5 +74,7 @@
         <property name="transactionManager" ref="transactionManager"/>
     </bean>
 
+    <bean id="agentDownloadInfoDao" class="com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao">
+    </bean>
 
 </beans>
