@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -633,18 +633,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public List<String> readList(String propertyName) {
         String value = properties.getProperty(propertyName);
-        if (value == null) {
+        if (StringUtils.isEmpty(value)) {
             return Collections.emptyList();
         }
-        String[] orders = value.trim().split(",");
-        final List<String> list = new ArrayList<String>(orders.length);
-        for (String order : orders) {
-            final String trimmed = order.trim();
-            if (!trimmed.isEmpty()) {
-                list.add(trimmed);
-            }
-        }
-        return list;
+        return StringUtils.tokenizeToStringList(value, ",");
     }
 
     @Override

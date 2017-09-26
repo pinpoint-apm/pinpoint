@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.plugin.cxf;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -46,13 +47,17 @@ public class CxfPluginConfig {
         if (StringUtils.isEmpty(value)) {
             return null;
         }
-        String[] split = value.split(",");
-        String[] array = new String[split.length];
-        for (int i = 0; i < split.length; i++) {
-            array[i] = split[i].trim();
-        }
-        return array;
+        List<String> tokenList = StringUtils.tokenizeToStringList(value, ",");
+        return toStringArray(tokenList);
     }
+
+    private String[] toStringArray(List<String> list) {
+		if (list == null) {
+			return null;
+		}
+
+		return list.toArray(new String[list.size()]);
+	}
 
     @Override
     public String toString() {
