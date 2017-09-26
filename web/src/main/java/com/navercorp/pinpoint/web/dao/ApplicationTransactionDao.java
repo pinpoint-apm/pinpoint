@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.web.dao;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 
 import java.util.List;

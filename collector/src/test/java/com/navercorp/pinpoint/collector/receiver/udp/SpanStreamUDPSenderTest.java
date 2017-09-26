@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.profiler.sender.SpanStreamUdpSender;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.thrift.TBase;
 import org.junit.AfterClass;
 import org.junit.Assert;

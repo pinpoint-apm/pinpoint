@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.trace.SlotType;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 

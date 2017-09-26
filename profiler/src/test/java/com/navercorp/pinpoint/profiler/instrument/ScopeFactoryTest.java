@@ -22,16 +22,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.profiler.interceptor.scope.DefaultInterceptorScope;
-import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  * @author Woonduk Kang(emeroad)

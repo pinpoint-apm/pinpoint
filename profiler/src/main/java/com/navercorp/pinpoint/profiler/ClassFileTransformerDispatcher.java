@@ -1,8 +1,5 @@
 package com.navercorp.pinpoint.profiler;
 
-import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
-import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
-
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;

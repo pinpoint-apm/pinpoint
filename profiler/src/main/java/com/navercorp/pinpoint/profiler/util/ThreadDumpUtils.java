@@ -26,8 +26,6 @@ import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
 
 /**
  * @author Taejin Koo

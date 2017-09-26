@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.web.vo.stat.chart;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 
 /**

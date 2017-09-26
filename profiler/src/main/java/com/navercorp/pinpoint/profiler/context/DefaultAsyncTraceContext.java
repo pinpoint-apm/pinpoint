@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;

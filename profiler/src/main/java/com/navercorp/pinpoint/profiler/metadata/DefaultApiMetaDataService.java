@@ -33,7 +33,7 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
     private final long agentStartTime;
     private final EnhancedDataSender enhancedDataSender;
 
-    public DefaultApiMetaDataService(@AgentId String agentId, @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
+    public DefaultApiMetaDataService(String agentId, long agentStartTime, EnhancedDataSender enhancedDataSender) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.util;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 
 import java.util.Arrays;
 

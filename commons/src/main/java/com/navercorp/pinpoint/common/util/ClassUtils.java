@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 /**
  * @author hyungil.jeong
  */

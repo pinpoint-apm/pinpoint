@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
