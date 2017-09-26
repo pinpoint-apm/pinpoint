@@ -16,14 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
-import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
-
-import java.util.concurrent.TimeUnit;
-
 /**
  * @author jaehong.kim
  */

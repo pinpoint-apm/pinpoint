@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Test;
 
 import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.lang.annotation.Target;
 
 import static org.junit.Assert.*;
 

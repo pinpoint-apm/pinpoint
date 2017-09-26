@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.config;
 
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +28,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Taejin Koo

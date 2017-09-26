@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

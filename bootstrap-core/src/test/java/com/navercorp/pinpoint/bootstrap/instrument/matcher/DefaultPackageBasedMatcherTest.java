@@ -15,16 +15,11 @@
  */
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.AnnotationInternalNameMatcherOperand;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOperator;
 import org.junit.Test;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 

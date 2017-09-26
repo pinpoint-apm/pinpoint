@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.httpclient3.CommandContextFormatter;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;

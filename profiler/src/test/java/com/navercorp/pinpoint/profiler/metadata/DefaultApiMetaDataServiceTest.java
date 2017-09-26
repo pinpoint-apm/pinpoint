@@ -23,7 +23,6 @@ import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**

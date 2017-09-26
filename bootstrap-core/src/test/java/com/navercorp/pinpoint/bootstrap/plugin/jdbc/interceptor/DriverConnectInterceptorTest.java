@@ -28,7 +28,6 @@ import java.sql.Driver;
 import java.sql.SQLException;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**

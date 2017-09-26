@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.vo.callstacks;
 
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * each stack

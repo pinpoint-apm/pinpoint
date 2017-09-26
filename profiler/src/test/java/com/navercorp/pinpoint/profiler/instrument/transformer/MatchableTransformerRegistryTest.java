@@ -22,7 +22,6 @@ import org.junit.Test;
 import java.lang.instrument.ClassFileTransformer;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.*;
 
 /**
  * @author jaehong.kim

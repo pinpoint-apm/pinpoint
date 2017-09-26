@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jsp.JspConstants;
 
-import java.util.regex.Pattern;
-
 /**
  * @author jaehong.kim
  */

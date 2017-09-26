@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.Provider;
-import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;

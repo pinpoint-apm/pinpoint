@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.plugin.websphere.interceptor;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

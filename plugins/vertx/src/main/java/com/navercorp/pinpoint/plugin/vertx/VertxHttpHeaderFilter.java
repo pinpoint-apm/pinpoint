@@ -19,9 +19,6 @@ package com.navercorp.pinpoint.plugin.vertx;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import io.vertx.core.http.impl.HttpServerRequestImpl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * @author jaehong.kim
  */

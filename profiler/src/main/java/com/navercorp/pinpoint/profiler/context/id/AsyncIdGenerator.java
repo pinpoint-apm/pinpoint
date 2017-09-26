@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

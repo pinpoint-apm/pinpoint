@@ -15,12 +15,9 @@
  */
 package com.navercorp.pinpoint.web.batch.flink;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.web.alarm.AlarmMessageSender;
 import com.navercorp.pinpoint.web.alarm.EmptyMessageSender;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.mapred.RunningJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
@@ -31,11 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.print.attribute.standard.JobName;
-import java.io.IOException;
 import java.util.*;
 
 /**

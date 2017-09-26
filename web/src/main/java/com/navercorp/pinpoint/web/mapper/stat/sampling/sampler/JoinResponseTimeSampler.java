@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

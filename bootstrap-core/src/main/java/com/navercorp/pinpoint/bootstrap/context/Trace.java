@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.context;
 
 
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author emeroad

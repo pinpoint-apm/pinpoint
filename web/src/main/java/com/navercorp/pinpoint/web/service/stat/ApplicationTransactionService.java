@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.web.dao.ApplicationMemoryDao;
 import com.navercorp.pinpoint.web.dao.ApplicationTransactionDao;
 import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.util.TimeWindow;

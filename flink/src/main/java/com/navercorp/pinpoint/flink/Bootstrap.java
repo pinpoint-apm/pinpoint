@@ -15,9 +15,6 @@
  */
 package com.navercorp.pinpoint.flink;
 
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
 import com.navercorp.pinpoint.flink.dao.hbase.*;
