@@ -19,9 +19,10 @@ package com.navercorp.pinpoint.bootstrap.plugin.http;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,36 +39,49 @@ public class HttpStatusCodeRecorder {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final List<StatusCode> errors = new ArrayList<StatusCode>();
+    private final StatusCode[] errors;
 
     public HttpStatusCodeRecorder(final List<String> errorCodes) {
-        if (errorCodes == null || errorCodes.isEmpty()) {
-            return;
-        }
-
-        for (String errorCode : errorCodes) {
-            if (errorCode.equalsIgnoreCase("5xx")) {
-                errors.add(new ServerError());
-            } else if (errorCode.equalsIgnoreCase("4xx")) {
-                errors.add(new ClientError());
-            } else if (errorCode.equalsIgnoreCase("3xx")) {
-                errors.add(new Redirection());
-            } else if (errorCode.equalsIgnoreCase("2xx")) {
-                errors.add(new Success());
-            } else if (errorCode.equalsIgnoreCase("1xx")) {
-                errors.add(new Informational());
-            } else {
-                try {
-                    final int statusCode = Integer.parseInt(errorCode);
-                    errors.add(new DefaultStatusCode(statusCode));
-                } catch (NumberFormatException ignored) {
-                }
-            }
-        }
+        this.errors = newErrorCode(errorCodes);
 
         if (isDebug) {
             logger.debug("Initialized HTTP status code of errors={}", this.errors);
         }
+    }
+
+    private StatusCode[] newErrorCode(List<String> errorCodes) {
+        if (CollectionUtils.isEmpty(errorCodes)) {
+            return new StatusCode[0];
+        }
+
+        List<StatusCode> statusCodeList = new ArrayList<StatusCode>();
+        for (String errorCode : errorCodes) {
+            if (errorCode.equalsIgnoreCase("5xx")) {
+                statusCodeList.add(new ServerError());
+            } else if (errorCode.equalsIgnoreCase("4xx")) {
+                statusCodeList.add(new ClientError());
+            } else if (errorCode.equalsIgnoreCase("3xx")) {
+                statusCodeList.add(new Redirection());
+            } else if (errorCode.equalsIgnoreCase("2xx")) {
+                statusCodeList.add(new Success());
+            } else if (errorCode.equalsIgnoreCase("1xx")) {
+                statusCodeList.add(new Informational());
+            } else {
+                try {
+                    final int statusCode = Integer.parseInt(errorCode);
+                    statusCodeList.add(new DefaultStatusCode(statusCode));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return toArray(statusCodeList);
+    }
+
+    private <T> StatusCode[] toArray(List<StatusCode> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return new StatusCode[0];
+        }
+        return list.toArray(new StatusCode[list.size()]);
     }
 
     public void record(final SpanRecorder spanRecorder, final int statusCode) {
@@ -190,7 +204,7 @@ public class HttpStatusCodeRecorder {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("HttpStatusCodeRecorder{");
-        sb.append("errors=").append(errors);
+        sb.append("errors=").append(Arrays.toString(errors));
         sb.append('}');
         return sb.toString();
     }
