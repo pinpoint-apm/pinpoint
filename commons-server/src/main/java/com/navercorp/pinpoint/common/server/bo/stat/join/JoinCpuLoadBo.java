@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import java.net.ProtocolException;
 import java.util.Date;
 import java.util.List;
 

@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 
