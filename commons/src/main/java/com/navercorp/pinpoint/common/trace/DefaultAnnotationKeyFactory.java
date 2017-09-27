@@ -22,6 +22,11 @@ package com.navercorp.pinpoint.common.trace;
  */
 public class DefaultAnnotationKeyFactory extends AnnotationKeyFactory {
 
+    static final AnnotationKeyFactory INSTANCE = new DefaultAnnotationKeyFactory();
+
+    private DefaultAnnotationKeyFactory() {
+    }
+
     public AnnotationKey createAnnotationKey(int code, String name, AnnotationKeyProperty... properties) {
         return new DefaultAnnotationKey(code, name, properties);
     }
