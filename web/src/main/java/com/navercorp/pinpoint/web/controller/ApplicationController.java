@@ -52,9 +52,9 @@ public class ApplicationController {
         return agentInfoService.getApplicationAgentHostList(offset, limit);
     }
 
-    @RequestMapping(value = "/isExistApplicationName")
+    @RequestMapping(value = "/isAvailableApplicationName")
     @ResponseBody
-    public CodeResult isExistApplicationName(@RequestParam("applicationName") String applicationName) {
+    public CodeResult isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
         if (!IdValidateUtils.checkLength(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
             return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
         }
