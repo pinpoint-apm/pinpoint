@@ -162,9 +162,9 @@ public class AgentInfoController {
         return agentInfoService.getAgentStatusTimeline(agentId, range, excludeEventTypeCodes);
     }
 
-    @RequestMapping(value = "/isExistAgentId")
+    @RequestMapping(value = "/isAvailableAgentId")
     @ResponseBody
-    public CodeResult isExistApplicationName(@RequestParam("agentId") String agentId) {
+    public CodeResult isAvailableAgentId(@RequestParam("agentId") String agentId) {
         if (!IdValidateUtils.checkLength(agentId, PinpointConstants.AGENT_NAME_MAX_LEN)) {
             return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
         }
@@ -174,7 +174,7 @@ public class AgentInfoController {
         }
 
         if (agentInfoService.isExistAgentId(agentId)) {
-            return new CodeResult(CODE_FAIL, "already exist applicationName");
+            return new CodeResult(CODE_FAIL, "already exist agentId");
         }
 
         return new CodeResult(CODE_SUCCESS, "OK");
