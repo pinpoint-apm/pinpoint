@@ -35,120 +35,142 @@ import java.net.SocketException;
  */
 public class UdpDataSender extends AbstractDataSender implements DataSender {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected final boolean isDebug = logger.isDebugEnabled();
 
-    public static final int SOCKET_TIMEOUT = 1000 * 5;
-    public static final int SEND_BUFFER_SIZE = 1024 * 64 * 16;
-    public static final int UDP_MAX_PACKET_LENGTH = 65507;
+	public static final int SOCKET_TIMEOUT = 1000 * 5;
+	public static final int SEND_BUFFER_SIZE = 1024 * 64 * 16;
+	public static final int UDP_MAX_PACKET_LENGTH = 65507;
+	private static final long RECONNECT_TIME_OUT = 30000;
 
-    // Caution. not thread safe
-    protected final DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
+	// Caution. not thread safe
+	protected final DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
-    protected final DatagramSocket udpSocket;
+	protected DatagramSocket udpSocket;
 
-    // Caution. not thread safe
-    private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, UDP_MAX_PACKET_LENGTH, false).createSerializer();
+	protected String host;
+	protected int port;
+	protected String threadName;
+	protected int queueSize;
+	protected long socketCreateTime;
+	protected InetSocketAddress inetSocketAddress = null;
 
-    private final AsyncQueueingExecutor<Object> executor;
+	// Caution. not thread safe
+	private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, UDP_MAX_PACKET_LENGTH,
+			false).createSerializer();
 
-    public UdpDataSender(String host, int port, String threadName, int queueSize) {
-        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
-    }
+	private AsyncQueueingExecutor<Object> executor;
 
-    public UdpDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
-        if (host == null ) {
-            throw new NullPointerException("host must not be null");
-        }
-        if (threadName == null) {
-            throw new NullPointerException("threadName must not be null");
-        }
-        if (queueSize <= 0) {
-            throw new IllegalArgumentException("queueSize");
-        }
-        if (timeout <= 0) {
-            throw new IllegalArgumentException("timeout");
-        }
-        if (sendBufferSize <= 0) {
-            throw new IllegalArgumentException("sendBufferSize");
-        }
+	public UdpDataSender(String host, int port, String threadName, int queueSize) {
+		this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
+	}
 
-        // TODO If fail to create socket, stop agent start
-        logger.info("UdpDataSender initialized. host={}, port={}", host, port);
-        this.udpSocket = createSocket(host, port, timeout, sendBufferSize);
+	public UdpDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
+		if (host == null) {
+			throw new NullPointerException("host must not be null");
+		}
+		if (threadName == null) {
+			throw new NullPointerException("threadName must not be null");
+		}
+		if (queueSize <= 0) {
+			throw new IllegalArgumentException("queueSize");
+		}
+		if (timeout <= 0) {
+			throw new IllegalArgumentException("timeout");
+		}
+		if (sendBufferSize <= 0) {
+			throw new IllegalArgumentException("sendBufferSize");
+		}
+		this.host = host;
+		this.port = port;
+		this.threadName = threadName;
+		this.queueSize = queueSize;
+		// TODO If fail to create socket, stop agent start
+		logger.info("UdpDataSender initialized. host={}, port={}", host, port);
+		this.udpSocket = createSocket(host, port, timeout, sendBufferSize);
 
-        this.executor = createAsyncQueueingExecutor(queueSize, threadName);
-    }
+		this.executor = createAsyncQueueingExecutor(queueSize, threadName);
+	}
 
-    @Override
-    public boolean send(TBase<?, ?> data) {
-        return executor.execute(data);
-    }
+	@Override
+	public boolean send(TBase<?, ?> data) {
+		return executor.execute(data);
+	}
 
-    @Override
-    public void stop() {
-        executor.stop();
-    }
+	@Override
+	public void stop() {
+		executor.stop();
+	}
 
-    private DatagramSocket createSocket(String host, int port, int timeout, int sendBufferSize) {
-        try {
-            final DatagramSocket datagramSocket = new DatagramSocket();
+	private DatagramSocket createSocket(String host, int port, int timeout, int sendBufferSize) {
+		try {
+			final DatagramSocket datagramSocket = new DatagramSocket();
 
-            datagramSocket.setSoTimeout(timeout);
-            datagramSocket.setSendBufferSize(sendBufferSize);
-            if (logger.isInfoEnabled()) {
-                final int checkSendBufferSize = datagramSocket.getSendBufferSize();
-                if (sendBufferSize != checkSendBufferSize) {
-                    logger.info("DatagramSocket.setSendBufferSize() error. {}!={}", sendBufferSize, checkSendBufferSize);
-                }
-            }
+			datagramSocket.setSoTimeout(timeout);
+			datagramSocket.setSendBufferSize(sendBufferSize);
+			if (logger.isInfoEnabled()) {
+				final int checkSendBufferSize = datagramSocket.getSendBufferSize();
+				if (sendBufferSize != checkSendBufferSize) {
+					logger.info("DatagramSocket.setSendBufferSize() error. {}!={}", sendBufferSize,
+							checkSendBufferSize);
+				}
+			}
 
-            final InetSocketAddress serverAddress = new InetSocketAddress(host, port);
-            datagramSocket.connect(serverAddress);
-            return datagramSocket;
-        } catch (SocketException e) {
-            throw new IllegalStateException("DatagramSocket create fail. Cause" + e.getMessage(), e);
-        }
-    }
+			this.socketCreateTime = System.currentTimeMillis();
+			inetSocketAddress = new InetSocketAddress(host, port);
 
-    protected void sendPacket(Object message) {
-        if (message instanceof TBase) {
-            final TBase dto = (TBase) message;
-            // do not copy bytes because it's single threaded
-            final byte[] internalBufferData = serialize(this.serializer, dto);
-            if (internalBufferData == null) {
-                logger.warn("interBufferData is null");
-                return;
-            }
+			datagramSocket.connect(inetSocketAddress);
+			return datagramSocket;
+		} catch (SocketException e) {
+			throw new IllegalStateException("DatagramSocket create fail. Cause" + e.getMessage(), e);
+		}
+	}
 
-            final int internalBufferSize = this.serializer.getInterBufferSize();
-            if (isLimit(internalBufferSize)) {
-                // When packet size is greater than UDP packet size limit, it's better to discard packet than let the socket API fails.
-                logger.warn("discard packet. Caused:too large message. size:{}, {}", internalBufferSize, dto);
-                return;
-            }
-            // it's safe to reuse because it's single threaded
-            reusePacket.setData(internalBufferData, 0, internalBufferSize);
+	protected void sendPacket(Object message) {
+		if (message instanceof TBase) {
+			final TBase dto = (TBase) message;
+			// do not copy bytes because it's single threaded
+			final byte[] internalBufferData = serialize(this.serializer, dto);
+			if (internalBufferData == null) {
+				logger.warn("interBufferData is null");
+				return;
+			}
 
-            try {
-                udpSocket.send(reusePacket);
-                if (isDebug) {
-                    logger.debug("Data sent. size:{}, {}", internalBufferSize, dto);
-                }
-            } catch (IOException e) {
-                logger.info("packet send error. size:{}, {}", internalBufferSize, dto, e);
-            }
-        } else {
-            logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
-            return;
-        }
-    }
+			final int internalBufferSize = this.serializer.getInterBufferSize();
+			if (isLimit(internalBufferSize)) {
+				// When packet size is greater than UDP packet size limit, it's
+				// better to discard packet than let the socket API fails.
+				logger.warn("discard packet. Caused:too large message. size:{}, {}", internalBufferSize, dto);
+				return;
+			}
+			// it's safe to reuse because it's single threaded
+			reusePacket.setData(internalBufferData, 0, internalBufferSize);
+			if (System.currentTimeMillis() - socketCreateTime >= RECONNECT_TIME_OUT) {
+				logger.debug("Re-creating UdpDataSender socket. host={}, port={}", host, port);
+				this.udpSocket = createSocket(host, port, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
+			}
+			try {
+				reusePacket.setSocketAddress(inetSocketAddress);
+				reusePacket.setAddress(inetSocketAddress.getAddress());
+				reusePacket.setPort(inetSocketAddress.getPort());
+				udpSocket.send(reusePacket);
+				if (isDebug) {
+					logger.debug("Data sent. size:{}, {}", internalBufferSize, dto);
+				}
+			} catch (IOException e) {
+				logger.info("packet send error. size:{}, {}", internalBufferSize, dto, e);
+			}
+		} else {
+			logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
+			return;
+		}
+	}
 
-    // for test
-    protected boolean isLimit(int interBufferSize) {
-        if (interBufferSize > UDP_MAX_PACKET_LENGTH) {
-            return true;
-        }
-        return false;
-    }
+	// for test
+	protected boolean isLimit(int interBufferSize) {
+		if (interBufferSize > UDP_MAX_PACKET_LENGTH) {
+			return true;
+		}
+		return false;
+	}
 }
