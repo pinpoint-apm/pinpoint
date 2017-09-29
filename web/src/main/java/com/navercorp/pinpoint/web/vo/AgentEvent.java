@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import java.util.Comparator;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.web.view.AgentEventSerializer;
+
+import java.util.Comparator;
 
 /**
  * @author HyunGil Jeong
  */
-@JsonInclude(Include.NON_NULL)
+@JsonSerialize(using = AgentEventSerializer.class)
 public class AgentEvent {
 
     public static final Comparator<AgentEvent> EVENT_TIMESTAMP_ASC_COMPARATOR = new Comparator<AgentEvent>() {
@@ -52,25 +51,18 @@ public class AgentEvent {
         }
     };
 
-    @JsonProperty
     private final String agentId;
 
-    @JsonProperty
     private final long eventTimestamp;
 
-    @JsonProperty
     private final int eventTypeCode;
 
-    @JsonProperty
     private final String eventTypeDesc;
 
-    @JsonProperty
     private final boolean hasEventMessage;
 
-    @JsonProperty
     private final long startTimestamp;
 
-    @JsonProperty
     private Object eventMessage;
 
     public AgentEvent(AgentEventBo agentEventBo) {

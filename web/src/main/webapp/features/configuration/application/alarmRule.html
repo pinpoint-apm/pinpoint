@@ -15,7 +15,7 @@
 						<th class="col-md-2"></th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody ng-click="onCaptureUpdateClick($event)">
 					<tr class="_edit1 hide-me" style="background-color:#F3FBFF">
 						<td class="col-md-4">
 							<select class="form-control" name="rule" style="width:95%;height:26px;padding:2px;">
@@ -42,12 +42,12 @@
 						</td>
 						<td class="col-md-2">
 							<div class="_edit" style="line-height:20px;">
-								<span class="glyphicon glyphicon-ok edit-confirm" aria-hidden="true" ng-click="onApplyUpdateAlarm()"></span>
-								<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onCancelUpdateAlarm()"></span>
+								<span class="glyphicon glyphicon-ok update-confirm edit-confirm" aria-hidden="true"></span>
+								<span class="glyphicon glyphicon-remove update-cancel remove" aria-hidden="true"></span>
 							</div>
 							<div class="_add hide-me" style="line-height:20px;">
-								<span class="glyphicon glyphicon-ok edit-confirm" aria-hidden="true" ng-click="onApplyAddAlarm()"></span>
-								<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onCancelAddAlarm()"></span>
+								<span class="glyphicon glyphicon-ok add-confirm edit-confirm" aria-hidden="true"></span>
+								<span class="glyphicon glyphicon-remove add-cancel remove" aria-hidden="true"></span>
 							</div>
 						</td>
 					</tr>

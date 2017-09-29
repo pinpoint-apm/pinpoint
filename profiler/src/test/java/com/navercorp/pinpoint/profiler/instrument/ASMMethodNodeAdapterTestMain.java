@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -33,6 +35,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import static org.mockito.Mockito.mock;
 
 public class ASMMethodNodeAdapterTestMain {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
@@ -94,7 +98,9 @@ public class ASMMethodNodeAdapterTestMain {
                 if (!name.startsWith("java") && !name.startsWith("sun") && super.findLoadedClass(name) == null) {
                     try {
                         ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(name));
-                        ASMClass asmClass = new ASMClass(null, interceptorRegistryBinder, null, classNode);
+                        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+                        ApiMetaDataService apiMetaDataService = mock(ApiMetaDataService.class);
+                        ASMClass asmClass = new ASMClass(objectBinderFactory, null, interceptorRegistryBinder, apiMetaDataService, null, classNode);
                         if (asmClass.isInterceptable()) {
                             for (InstrumentMethod method : asmClass.getDeclaredMethods()) {
                                 try {

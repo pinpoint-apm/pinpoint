@@ -8,7 +8,7 @@
 	 * @class
 	 */
 	pinpointApp.constant('TransactionDetailConfig', {
-	    applicationUrl: '/transactionInfo.pinpoint',
+	    applicationUrl: 'transactionInfo.pinpoint',
 		CALL_STACK: "#CallStacks",
 		SERVER_MAP: "#ServerMap",
 		TIMELINE: "#Timeline"
@@ -136,8 +136,10 @@
 	         * open transaction view
 	         * @param transaction
 	         */
-	        $scope.openTransactionView = function () {
-	            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $routeParams.spanId);
+	        $scope.openTransactionView = function ($event) {
+	        	$event.preventDefault();
+	        	console.log('#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $routeParams.spanId);
+	            $window.open('#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $routeParams.spanId);
 	        };
 	        $scope.$on("transactionDetail.selectDistributedCallFlowRow", function( event, rowId ) {
 				analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_DISTRIBUTED_CALL_FLOW);

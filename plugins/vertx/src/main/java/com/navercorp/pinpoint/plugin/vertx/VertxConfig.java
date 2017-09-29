@@ -28,7 +28,7 @@ public class VertxConfig {
     private final boolean enableHttpServer;
     private final boolean enableHttpClient;
     private final List<String> bootstrapMains;
-    private final List<String> handlerClassNames;
+    private final List<String> handlerBasePackageNames;
 
     public VertxConfig(ProfilerConfig config) {
         if (config == null) {
@@ -36,11 +36,11 @@ public class VertxConfig {
         }
 
         // plugin
-        this.enable = config.readBoolean("profiler.vertx.enable", true);
+        this.enable = config.readBoolean("profiler.vertx.enable", false);
         this.enableHttpServer = config.readBoolean("profiler.vertx.http.server.enable", true);
         this.enableHttpClient = config.readBoolean("profiler.vertx.http.client.enable", true);
         this.bootstrapMains = config.readList("profiler.vertx.bootstrap.main");
-        this.handlerClassNames = config.readList("profiler.vertx.handlers");
+        this.handlerBasePackageNames = config.readList("profiler.vertx.handler.base-packages");
     }
 
     public boolean isEnable() {
@@ -59,7 +59,7 @@ public class VertxConfig {
         return bootstrapMains;
     }
 
-    public List<String> getHandlerClassNames() {
-        return handlerClassNames;
+    public List<String> getHandlerBasePackageNames() {
+        return handlerBasePackageNames;
     }
 }

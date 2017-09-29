@@ -29,7 +29,7 @@ public final class CommandHeaderTBaseDeserializerFactory implements Deserializer
     private final DeserializerFactory<HeaderTBaseDeserializer> factory;
 
     public CommandHeaderTBaseDeserializerFactory() {
-        TBaseLocator commandTbaseLocator = commandTbaseLocator = new TCommandRegistry(Arrays.asList(TCommandType.values()));
+        TBaseLocator commandTbaseLocator = new TCommandRegistry(Arrays.asList(TCommandType.values()));
 
         TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
         HeaderTBaseDeserializerFactory deserializerFactory = new HeaderTBaseDeserializerFactory(protocolFactory, commandTbaseLocator);

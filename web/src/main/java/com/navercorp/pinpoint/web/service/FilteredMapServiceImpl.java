@@ -26,8 +26,18 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramBuilderNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -86,6 +96,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     
     @Autowired(required=false)
     private ServerMapDataFilter serverMapDataFilter;
+
+    @Autowired
+    private ApplicationMapBuilderFactory applicationMapBuilderFactory;
 
     private static final Object V = new Object();
 
@@ -196,7 +209,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     @Override
-    public ApplicationMap selectApplicationMap(TransactionId transactionId) {
+    public ApplicationMap selectApplicationMap(TransactionId transactionId, int version) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
@@ -204,14 +217,14 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         transactionIdList.add(transactionId);
         // FIXME from,to -1
         Range range = new Range(-1, -1);
-        return selectApplicationMap(transactionIdList, range, range, Filter.NONE);
+        return selectApplicationMap(transactionIdList, range, range, Filter.NONE, version);
     }
 
     /**
      * filtered application map
      */
     @Override
-    public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, Filter filter) {
+    public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, Filter filter, int version) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -225,7 +238,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
 
         DotExtractor dotExtractor = createDotExtractor(scanRange, filterList);
-        ApplicationMap map = createMap(originalRange, scanRange, filterList);
+        ApplicationMap map = createMap(originalRange, scanRange, filterList, version);
 
         ApplicationMapWithScatterScanResult applicationMapWithScatterScanResult = new ApplicationMapWithScatterScanResult(map, dotExtractor.getApplicationScatterScanResult());
 
@@ -236,7 +249,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     @Override
-    public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter filter) {
+    public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter filter, int version) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -250,7 +263,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
 
         DotExtractor dotExtractor = createDotExtractor(scanRange, filterList);
-        ApplicationMap map = createMap(originalRange, scanRange, filterList);
+        ApplicationMap map = createMap(originalRange, scanRange, filterList, version);
 
         ApplicationMapWithScatterData applicationMapWithScatterData = new ApplicationMapWithScatterData(map, dotExtractor.getApplicationScatterData(originalRange.getFrom(), originalRange.getTo(), xGroupUnit, yGroupUnit));
 
@@ -288,9 +301,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return dotExtractor;
     }
 
-    private ApplicationMap createMap(Range range, Range scanRange, List<List<SpanBo>> filterList) {
-
-        // TODO inject TimeWindow from elsewhere 
+    private ApplicationMap createMap(Range range, Range scanRange, List<List<SpanBo>> filterList, int version) {
+        // TODO inject TimeWindow from elsewhere
         final TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
 
 
@@ -304,7 +316,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             final Map<Long, SpanBo> transactionSpanMap = checkDuplicatedSpanId(transaction);
 
             for (SpanBo span : transaction) {
-                final Application parentApplication = createParentApplication(span, transactionSpanMap);
+                final Application parentApplication = createParentApplication(span, transactionSpanMap, version);
                 final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
 
                 // records the Span's response time statistics
@@ -351,10 +363,20 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 addNodeFromSpanEvent(span, window, linkDataDuplexMap, transactionSpanMap);
             }
         }
-        
-        ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
+
         mapHistogramSummary.build();
-        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
+
+        WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramBuilderNodeHistogramDataSource(mapHistogramSummary);
+        NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
+
+        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
+        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
+
+        ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(range);
+        applicationMapBuilder.linkType(LinkType.DETAILED);
+        applicationMapBuilder.includeNodeHistogram(nodeHistogramFactory);
+        applicationMapBuilder.includeServerInfo(serverInstanceListFactory);
+        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap);
 
         if(serverMapDataFilter != null) {
             map = serverMapDataFilter.dataFiltering(map);
@@ -377,7 +399,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private void recordSpanResponseTime(Application application, SpanBo span, ResponseHistogramBuilder responseHistogramBuilder, long timeStamp) {
         responseHistogramBuilder.addHistogram(application, span, timeStamp);
     }
-
 
     private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataDuplexMap linkDataDuplexMap, Map<Long, SpanBo> transactionSpanMap) {
         /*
@@ -426,7 +447,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         }
     }
 
-    private Application createParentApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
+    private Application createParentApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap, int version) {
         final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
         if (span.isRoot() || parentSpan == null) {
             ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
@@ -435,7 +456,14 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 ServiceType serviceType = spanServiceType;
                 return this.applicationFactory.createApplication(applicationName, serviceType);
             } else {
-                String applicationName = span.getApplicationId();
+                String applicationName;
+                // FIXME magic number, remove after front end UI changes and simply use the newer one
+                if (version >= 4) {
+                    ServiceType applicationServiceType = this.registry.findServiceType(span.getApplicationServiceType());
+                    applicationName = span.getApplicationId() + "_" + applicationServiceType;
+                } else {
+                    applicationName = span.getApplicationId();
+                }
                 ServiceType serviceType = ServiceType.USER;
                 return this.applicationFactory.createApplication(applicationName, serviceType);
             }
@@ -497,6 +525,4 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         }
         return transactionIdList;
     }
-
-
 }

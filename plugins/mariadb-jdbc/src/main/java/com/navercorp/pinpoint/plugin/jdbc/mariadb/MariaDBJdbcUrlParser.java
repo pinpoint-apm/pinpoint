@@ -16,35 +16,71 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.mariadb;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
-
 /**
  * @author dawidmalina
  */
-public class MariaDBJdbcUrlParser extends JdbcUrlParser {
+public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
 
-    // jdbc:mariadb:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MariaDB?characterEncoding=UTF-8
-    private static final String JDBC_MARIADB_LOADBALANCE = "jdbc:mariadb:loadbalance:";
+//    jdbc:(mysql|mariadb):[replication:|failover|loadbalance:|aurora:]//<hostDescription>[,<hostDescription>]/[database>]
+//    jdbc:mariadb:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MariaDB?characterEncoding=UTF-8
+    private static final String URL_PREFIX = "jdbc:mariadb:";
+
+    private static final String MYSQL_URL_PREFIX = "jdbc:mysql:";
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
-    public DatabaseInfo doParse(String url) {
-        if (isLoadbalanceUrl(url)) {
-            return parseLoadbalancedUrl(url);
+    public DatabaseInfo parse(String jdbcUrl) {
+        if (jdbcUrl == null) {
+            logger.info("jdbcUrl must not be null");
+            return UnKnownDatabaseInfo.INSTANCE;
         }
-        return parseNormal(url);
+
+        Type type = Type.findType(jdbcUrl);
+        if (type == null) {
+            logger.info("jdbcUrl has invalid prefix.(url:{}, prefix:{}, {})", jdbcUrl, URL_PREFIX, MYSQL_URL_PREFIX);
+            return UnKnownDatabaseInfo.INSTANCE;
+        }
+
+        DatabaseInfo result = null;
+        try {
+            result = parse0(jdbcUrl, type);
+        } catch (Exception e) {
+            logger.info("MaridDBJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
+            result = UnKnownDatabaseInfo.createUnknownDataBase(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, jdbcUrl);
+        }
+        return result;
     }
 
-    private DatabaseInfo parseLoadbalancedUrl(String url) {
+    private DatabaseInfo parse0(String url, Type type) {
+        if (isLoadbalanceUrl(url, type)) {
+            return parseLoadbalancedUrl(url, type);
+        }
+        return parseNormal(url, type);
+    }
+
+    private boolean isLoadbalanceUrl(String url, Type type) {
+        String loadbalanceUrlPrefix = type.getLoadbalanceUrlPrefix();
+        return url.regionMatches(true, 0, loadbalanceUrlPrefix, 0, loadbalanceUrlPrefix.length());
+    }
+
+    private DatabaseInfo parseLoadbalancedUrl(String url, Type type) {
         // jdbc:mariadb://1.2.3.4:5678/test_db
         StringMaker maker = new StringMaker(url);
-        maker.after("jdbc:mariadb:");
+        maker.after(type.getUrlPrefix());
         // 1.2.3.4:5678 In case of replication driver could have multiple values
         // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
@@ -61,14 +97,10 @@ public class MariaDBJdbcUrlParser extends JdbcUrlParser {
                 normalizedUrl, hostList, databaseId);
     }
 
-    private boolean isLoadbalanceUrl(String url) {
-        return url.regionMatches(true, 0, JDBC_MARIADB_LOADBALANCE, 0, JDBC_MARIADB_LOADBALANCE.length());
-    }
-
-    private DatabaseInfo parseNormal(String url) {
+    private DatabaseInfo parseNormal(String url, Type type) {
         // jdbc:mariadb://1.2.3.4:5678/test_db
         StringMaker maker = new StringMaker(url);
-        maker.after("jdbc:mariadb:");
+        maker.after(type.getUrlPrefix());
         // 1.2.3.4:5678 In case of replication driver could have multiple values
         // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
@@ -81,4 +113,42 @@ public class MariaDBJdbcUrlParser extends JdbcUrlParser {
         return new DefaultDatabaseInfo(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, url,
                 normalizedUrl, hostList, databaseId);
     }
+
+    @Override
+    public ServiceType getServiceType() {
+        return MariaDBConstants.MARIADB;
+    }
+
+    private static enum Type {
+        MARIA(URL_PREFIX),
+        MYSQL(MYSQL_URL_PREFIX);
+
+        private final String urlPrefix;
+        private final String loadbalanceUrlPrefix;
+
+        Type(String urlPrefix) {
+            this.urlPrefix = urlPrefix;
+            this.loadbalanceUrlPrefix = urlPrefix + "loadbalance:";
+        }
+
+        private String getUrlPrefix() {
+            return urlPrefix;
+        }
+
+        private String getLoadbalanceUrlPrefix() {
+            return urlPrefix + "loadbalance:";
+        }
+
+        private static Type findType(String jdbcUrl) {
+            for (Type type : Type.values()) {
+                if (jdbcUrl.startsWith(type.urlPrefix)) {
+                    return type;
+                }
+            }
+
+            return null;
+        }
+
+    }
+
 }

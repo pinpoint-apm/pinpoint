@@ -25,7 +25,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class OrderedWebSocketFlushRunnable implements Runnable, SimpleOrderedThreadPool.HashSelector {
 

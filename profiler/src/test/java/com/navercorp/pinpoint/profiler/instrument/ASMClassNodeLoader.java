@@ -15,8 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -35,7 +34,6 @@ import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 /**
@@ -43,12 +41,11 @@ import static org.mockito.Mockito.when;
  */
 public class ASMClassNodeLoader {
 
-    private final static DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
-    private final static TraceContext traceContext = mock(TraceContext.class);
+    private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
+
 
     static {
-        reset(traceContext);
-        when(pluginContext.getTraceContext()).thenReturn(traceContext);
+
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override
@@ -134,7 +131,7 @@ public class ASMClassNodeLoader {
 
                     if (this.trace) {
                         logger.debug("## original #############################################################");
-                        ASMClassWriter cw = new ASMClassWriter(pluginContext, classNode.name, classNode.superName, 0, null);
+                        ASMClassWriter cw = new ASMClassWriter(pluginContext, 0, null);
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
                         classNode.accept(tcv);
                     }
@@ -143,7 +140,7 @@ public class ASMClassNodeLoader {
                         callbackHandler.handle(classNode);
                     }
 
-                     ASMClassWriter cw = new ASMClassWriter(pluginContext, classNode.name, classNode.superName, ClassWriter.COMPUTE_FRAMES, null);
+                     ASMClassWriter cw = new ASMClassWriter(pluginContext, ClassWriter.COMPUTE_FRAMES, null);
                     if (this.trace) {
                         logger.debug("## modified #############################################################");
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));

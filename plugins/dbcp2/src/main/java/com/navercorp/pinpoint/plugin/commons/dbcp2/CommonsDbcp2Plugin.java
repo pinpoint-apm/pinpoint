@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.commons.dbcp2;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -26,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 
@@ -57,7 +59,11 @@ public class CommonsDbcp2Plugin implements ProfilerPlugin, TransformTemplateAwar
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CLOSE_CONNECTION);
+
+                // closeMethod
+                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                closeMethod.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CLOSE_CONNECTION, CommonsDbcp2Constants.SCOPE);
+
                 return target.toBytecode();
             }
         });
@@ -72,11 +78,22 @@ public class CommonsDbcp2Plugin implements ProfilerPlugin, TransformTemplateAwar
 
                 if (isAvailableDataSourceMonitor(target)) {
                     target.addField(CommonsDbcp2Constants.ACCESSOR_DATASOURCE_MONITOR);
-                    target.addInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CONSTRUCTOR);
-                    target.addInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CLOSE);
+
+                    // closeMethod
+                    InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                    closeMethod.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CLOSE, CommonsDbcp2Constants.SCOPE);
+
+                    // constructor
+                    InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target);
+                    defaultConstructor.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CONSTRUCTOR, CommonsDbcp2Constants.SCOPE);
                 }
 
-                target.addInterceptor(CommonsDbcp2Constants.INTERCEPTOR_GET_CONNECTION);
+                // getConnectionMethod
+                InstrumentMethod getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection");
+                getConnectionMethod.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_GET_CONNECTION, CommonsDbcp2Constants.SCOPE);
+                getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection", new String[]{"java.lang.String", "java.lang.String"});
+                getConnectionMethod.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_GET_CONNECTION, CommonsDbcp2Constants.SCOPE);
+
                 return target.toBytecode();
             }
         });

@@ -56,7 +56,7 @@ public class DefaultApiDescription implements ApiDescription {
     }
 
     public String concateLine(String[] stringList, String separator) {
-        if (stringList == null || stringList.length == 0) {
+        if (ArrayUtils.isEmpty(stringList)) {
             return "()";
         }
 

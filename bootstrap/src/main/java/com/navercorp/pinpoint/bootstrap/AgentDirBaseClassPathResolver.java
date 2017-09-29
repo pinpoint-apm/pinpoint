@@ -225,8 +225,8 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private String findFromBootDir(final String name, final Pattern pattern) {
         String bootDirPath = agentDirPath + File.separator + "boot";
-        File[] files = listFiles(name, pattern, bootDirPath);
-        if (files== null || files.length == 0) {
+        final File[] files = listFiles(name, pattern, bootDirPath);
+        if (isEmpty(files)) {
             logger.info(name + " not found.");
             return null;
         } else if (files.length == 1) {
@@ -236,6 +236,10 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             logger.info("too many " + name + " found. " + Arrays.toString(files));
             return null;
         }
+    }
+
+    private boolean isEmpty(File[] files) {
+        return files == null || files.length == 0;
     }
 
     private File[] listFiles(final String name, final Pattern pattern, String bootDirPath) {
@@ -379,7 +383,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             }
         });
 
-        if (jars == null || jars.length == 0) {
+        if (isEmpty(jars)) {
             return new URL[0];
         }
         

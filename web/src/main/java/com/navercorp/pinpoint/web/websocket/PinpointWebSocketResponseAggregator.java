@@ -23,7 +23,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.concurrent.Executor;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface PinpointWebSocketResponseAggregator {
 

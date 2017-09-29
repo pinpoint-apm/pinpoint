@@ -28,30 +28,33 @@
 					 <span class="input-group-btn">
 						 <button class="btn btn-default btn-success"><span class="current-point"></span></button>
 					 </span>
-					 <input id="target-picker" type="text" class="form-control">
+					 <input type="text" class="form-control" value="{{targetPicker}}">
 				</div>
 			</div>
 			<span>Timeline</span>
-			<svg id="timeSlider" class="timeSlider" width="100%" height="90px" style="margin-top:6px"></svg>
+			<svg id="timeSlider-for-agent-info" class="timeSlider" width="100%" height="90px" style="margin-top:6px"></svg>
 		</div>
 		<div class="panel panel-info" ng-show="showEventInfo">
 			<div class="panel-heading">
-				<h3 class="panel-title">{{eventInfo.eventTypeDesc}} - Event <span class="glyphicon glyphicon-remove" style="float:right;cursor:pointer" aria-hidden="true" ng-click="hideEventInfo()"></span></h3>
+				<h3 class="panel-title">Event - {{eventInfo.length}}<span class="glyphicon glyphicon-remove" style="float:right;cursor:pointer" aria-hidden="true" ng-click="hideEventInfo()"></span></h3>
 			</div>
 			<div class="panel-body">
-				<table class="table table-condensed" style="font-size:12px;">
+				<table class="table table-condensed" style="font-size:12px;margin-bottom:0px;">
+					<colgroup>
+						<col class="col-md-3">
+						<col class="col-md-3">
+						<col class="col-md-6">
+					</colgroup>
+					<thead>
+						<th>Time</th>
+						<th>Description</th>
+						<th>Message</th>
+					</thead>
 					<tbody>
-						<tr>
-							<td class="col-md-2 text-left"><strong>Event Time</strong></td>
-							<td class="col-md-10 text-left">{{formatDate(eventInfo.eventTimestamp)}}</td>
-						</tr>
-						<tr>
-							<td class="text-left"><strong>Description</strong></td>
-							<td class="text-left">{{eventInfo.eventTypeDesc}}</td>
-						</tr>
-						<tr ng-show="eventInfo.hasEventMessage">
-							<td class="text-left"><strong>Message</strong></td>
-							<td class="text-left">{{eventInfo.eventMessage}}</td>
+						<tr ng-repeat="event in eventInfo">
+							<td>{{formatDate(event.eventTimestamp)}}</td>
+							<td>{{event.eventTypeDesc}}</td>
+							<td ng-bind-html="replaceNewLineToBR(event.eventMessage)"></td>
 						</tr>
 					</tbody>
 				</table>
@@ -198,7 +201,69 @@
 					<active-trace-chart-directive namespace="forActiveTrace"></active-trace-chart-directive>
 				</div>
 				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign responseTimeTooltip" style="cursor:pointer;float:right;"></span> {{responseTimeChart.title}}</h4>
+					<response-time-chart-directive namespace="forResponseTime"></response-time-chart-directive>
 				</div>
+			</div>
+			<hr>
+			<div class="row">
+				<div class="col-md-6" id="data-source-chart">
+					<h4>
+						<span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChartDescription.title}}
+						<span class="label label-info not-found" ng-show="emptyDataSource()">NOT FOUND</span>
+						<span class="type-selector" ng-show="hasDataSource()" ng-click="toggleSourceSelectLayer()">Select Source <span class="glyphicon glyphicon-chevron-down"></span></span>
+						<div class="type-select-layer" ng-click="changeDataSource($event)">
+							<div>
+								<button class="btn btn-default btn-xs" ng-click="selectAllDataSource()">ALL</button>
+							</div>
+							<div class="wrapper">
+								<ul>
+									<li ng-repeat="key in dataSourceChartKeys">
+										<input type="checkbox" id="checkbox_{{key.value}}" value="{{key.value}}" ng-checked="checkChecked(key.value)"><label for="checkbox_{{key.value}}">{{key.display}}</label>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</h4>
+					<ds-chart-directive namespace="forDataSource"></ds-chart-directive>
+					<br/>
+					<div class="panel panel-success" ng-show="hasDataSource()">
+						<div class="panel-heading">Data Source Info</div>
+						<div class="panel-body">
+							<table class="table table-bordered">
+								<tbody>
+								<tr>
+									<td>Active Avg</td>
+									<td>Active Max</td>
+									<td>Total Max</td>
+								</tr>
+								<tr>
+									<td class="ds-active-avg">-</td>
+									<td class="ds-active-max">-</td>
+									<td class="ds-total-max">-</td>
+								</tr>
+								<tr>
+									<td>ID</td>
+									<td>Type</td>
+									<td>Database Name</td>
+								</tr>
+								<tr>
+									<td class="ds-id">-</td>
+									<td class="ds-type">-</td>
+									<td class="ds-database-name">-</td>
+								</tr>
+								<tr>
+									<td colspan="3">Jdbc URL</td>
+								</tr>
+								<tr>
+									<td colspan="3" class="ds-jdbc-url">-</td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6"></div>
 			</div>
 		</div>
 	</div>

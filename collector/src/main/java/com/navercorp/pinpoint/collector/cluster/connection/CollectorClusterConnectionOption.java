@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface CollectorClusterConnectionOption {
 

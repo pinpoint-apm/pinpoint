@@ -20,7 +20,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class WebUtils {
 

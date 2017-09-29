@@ -16,34 +16,39 @@
 
 package com.navercorp.pinpoint.plugin.hikaricp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.plugin.hikaricp.HikariCpPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.plugin.hikaricp.DataSourceMonitorAccessor;
+import com.navercorp.pinpoint.plugin.hikaricp.HikariCpDataSourceMonitor;
 
 /**
  * @author Taejin Koo
  */
-@Scope(HikariCpPlugin.HIKARICP_SCOPE)
-@TargetMethod(name="close")
-public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class DataSourceCloseInterceptor implements AroundInterceptor {
 
-    public DataSourceCloseInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+
+    public DataSourceCloseInterceptor(DataSourceMonitorRegistry dataSourceMonitorRegistry) {
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
+    public void before(Object target, Object[] args) {
+        if (target instanceof DataSourceMonitorAccessor) {
+            final DataSourceMonitorAccessor dataSourceMonitorAccessor = (DataSourceMonitorAccessor) target;
+
+            final HikariCpDataSourceMonitor dataSourceMonitor = dataSourceMonitorAccessor._$PINPOINT$_getDataSourceMonitor();
+            if (dataSourceMonitor != null) {
+                dataSourceMonitorAccessor._$PINPOINT$_setDataSourceMonitor(null);
+                dataSourceMonitor.close();
+                dataSourceMonitorRegistry.unregister(dataSourceMonitor);
+            }
+        }
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordServiceType(HikariCpPlugin.HIKARICP_SERVICE_TYPE);
-        trace.recordApi(getMethodDescriptor());
-        trace.recordException(throwable);
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+
     }
 
 }

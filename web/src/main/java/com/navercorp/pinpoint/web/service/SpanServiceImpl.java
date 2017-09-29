@@ -355,7 +355,7 @@ public class SpanServiceImpl implements SpanService {
 
     private StringMetaDataBo selectStringMetaData(String agentId, int cacheId, long agentStartTime) {
         final List<StringMetaDataBo> metaDataList = stringMetaDataDao.getStringMetaData(agentId, agentStartTime, cacheId);
-        if (metaDataList == null || metaDataList.isEmpty()) {
+        if (CollectionUtils.isEmpty(metaDataList)) {
             logger.warn("StringMetaData not Found agent:{}, cacheId{}, agentStartTime:{}", agentId, cacheId, agentStartTime);
             StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime, cacheId);
             stringMetaDataBo.setStringValue("STRING-META-DATA-NOT-FOUND");

@@ -26,7 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class PinpointRouteResponseTest {
 
@@ -72,7 +72,7 @@ public class PinpointRouteResponseTest {
         DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(responsePayload);
         response.parse(deserializerFactory);
 
-        Assert.assertEquals(TRouteResult.NOT_SUPPORTED_RESPONSE, response.getRouteResult());
+        Assert.assertEquals(TRouteResult.OK, response.getRouteResult());
         Assert.assertNull(response.getResponse());
     }
 

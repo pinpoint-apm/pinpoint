@@ -22,20 +22,24 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
-import com.navercorp.pinpoint.profiler.instrument.ASMClassPool;
-import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
+import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerGuardDelegate;
+import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
+import com.navercorp.pinpoint.test.MockApplicationContext;
 import javassist.ClassPool;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.common.util.Asserts;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.common.util.Assert;
+
 
 /**
  * @author emeroad
@@ -45,16 +49,23 @@ public class TestClassLoader extends TransformClassLoader {
 
     private final Logger logger = Logger.getLogger(TestClassLoader.class.getName());
 
-    private final DefaultAgent agent;
+    private final MockApplicationContext applicationContext;
     private Translator instrumentTranslator;
-    private final DefaultProfilerPluginContext context;
     private final List<String> delegateClass;
+    private final ClassFileTransformerLoader classFileTransformerLoader;
+    private final InstrumentContext instrumentContext;
 
-    public TestClassLoader(DefaultAgent agent) {
-        Asserts.notNull(agent, "agent");
+    public TestClassLoader(MockApplicationContext applicationContext) {
+        Assert.requireNonNull(applicationContext, "applicationContext must not be null");
 
-        this.agent = agent;
-        this.context = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
+        this.applicationContext = applicationContext;
+
+        this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
+
+//        ClassInjector classInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
+        ClassInjector classInjector = new DebugTransformerClassInjector();
+        this.instrumentContext = new PluginInstrumentContext(applicationContext.getProfilerConfig(), applicationContext.getInstrumentEngine(),
+                applicationContext.getDynamicTransformTrigger(), classInjector, classFileTransformerLoader);
 
         this.delegateClass = new ArrayList<String>();
     }
@@ -89,7 +100,7 @@ public class TestClassLoader extends TransformClassLoader {
     }
 
     public ProfilerConfig getProfilerConfig() {
-        return agent.getProfilerConfig();
+        return applicationContext.getProfilerConfig();
     }
 
     public void addTransformer(final String targetClassName, final TransformCallback transformer) {
@@ -97,7 +108,7 @@ public class TestClassLoader extends TransformClassLoader {
             logger.fine("addTransformer targetClassName:{}" + targetClassName + " callback:{}" + transformer);
         }
         final Matcher matcher = Matchers.newClassNameMatcher(targetClassName);
-        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(context, matcher, transformer);
+        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(applicationContext.getProfilerConfig(), instrumentContext, matcher, transformer);
 
         this.instrumentTranslator.addTransformer(guard);
     }
@@ -118,25 +129,25 @@ public class TestClassLoader extends TransformClassLoader {
     }
 
     public void addTranslator() {
-        final InstrumentClassPool pool = agent.getClassPool();
-        if (pool instanceof JavassistClassPool) {
+        final InstrumentEngine instrumentEngine = applicationContext.getInstrumentEngine();
+        if (instrumentEngine instanceof JavassistEngine) {
 
             logger.info("JAVASSIST BCI engine");
-            ClassPool classPool = ((JavassistClassPool) pool).getClassPool(this);
-            this.instrumentTranslator = new JavassistTranslator(this, classPool, agent.getClassFileTransformerDispatcher());
+            ClassPool classPool = ((JavassistEngine) instrumentEngine).getClassPool(this);
+            this.instrumentTranslator = new JavassistTranslator(this, classPool, applicationContext.getClassFileTransformerDispatcher());
             this.addTranslator(instrumentTranslator);
 
-        } else if (pool instanceof ASMClassPool) {
+        } else if (instrumentEngine instanceof ASMEngine) {
 
             logger.info("ASM BCI engine");
-            this.instrumentTranslator = new DefaultTranslator(this, agent.getClassFileTransformerDispatcher());
+            this.instrumentTranslator = new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
             this.addTranslator(instrumentTranslator);
 
         } else {
 
             logger.info("Unknown BCI engine");
 
-            this.instrumentTranslator = new DefaultTranslator(this, agent.getClassFileTransformerDispatcher());
+            this.instrumentTranslator = new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
             this.addTranslator(instrumentTranslator);
         }
     }

@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
@@ -43,25 +42,26 @@ import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author HyunGil Jeong
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @Service
 public class AgentServiceImpl implements AgentService {
 
     private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private long timeDiffMs;
 
@@ -75,7 +75,8 @@ public class AgentServiceImpl implements AgentService {
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     @Autowired
-    private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
+    @Qualifier("commandHeaderTBaseDeserializerFactory")
+    private DeserializerFactory commandDeserializerFactory;
 
     @Value("#{pinpointWebProps['web.activethread.activeAgent.duration.days'] ?: 7}")
     private void setTimeDiffMs(int durationDays) {
@@ -323,7 +324,7 @@ public class AgentServiceImpl implements AgentService {
             return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
         }
 
-        boolean completed = future.await(DEFAULT_FUTURE_TIMEOUT);
+        boolean completed = future.await(timeout);
         if (completed) {
             DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(future.getResult().getMessage());
             response.parse(commandDeserializerFactory);

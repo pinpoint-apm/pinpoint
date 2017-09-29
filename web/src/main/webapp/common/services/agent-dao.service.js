@@ -2,32 +2,12 @@
 	'use strict';
 
 	pinpointApp.constant( "agentDaoServiceConfig", {
-		agentStatUrl: "/getAgentStat.pinpoint",
 		dateFormat: "YYYY-MM-DD HH:mm:ss"
 	});
 
 	pinpointApp.service( "AgentDaoService", [ "agentDaoServiceConfig",
 		function AgentDaoService( cfg ) {
 
-			this.getAgentStat = function (query, cb) {
-				jQuery.ajax({
-					type: 'GET',
-					url: cfg.agentStatUrl,
-					cache: false,
-					dataType: 'json',
-					data: query,
-					success: function (result) {
-						if (angular.isFunction(cb)) {
-							cb(null, result);
-						}
-					},
-					error: function (xhr, status, error) {
-						if (angular.isFunction(cb)) {
-							cb(error, {});
-						}
-					}
-				});
-			};
 			/**
 			 * calculate a sampling rate based on the given period
 			 * @param period in minutes
@@ -227,6 +207,56 @@
 				}
 				return newData;
 			};
+			this.parseResponseTimeChartDataForAmcharts = function(responseTime, aChartData) {
+				var aAVG = aChartData.charts[ "AVG" ].points;
+				var newData = [];
+				if ( aAVG ) {
+					responseTime.isAvailable = true;
+				} else {
+					return newData;
+				}
+
+				for ( var i = 0 ; i < aAVG.length ; i++ ) {
+					newData.push({
+						"avg" : getFloatValue( aAVG[i].avgYVal ),
+						"time": moment(aAVG[i].xVal).format(cfg.dateFormat),
+						"title": "AVG"
+					});
+				}
+				return newData;
+			};
+			this.parseDataSourceChartDataForAmcharts = function (oInfo, aChartData, prefix) {
+				var returnData = [];
+				if ( aChartData.length === 0 ) {
+					return returnData;
+				}
+				var maxAvg = 0;
+				for( var groupIndex = 0 ; groupIndex < aChartData.length ; groupIndex++ ) {
+					var oGroupData = aChartData[groupIndex];
+					var targetId = oGroupData.id;
+					var aAvgData = oGroupData.charts["ACTIVE_CONNECTION_SIZE"].points;
+
+					if ( aAvgData.length === 0 ) {
+						return returnData;
+					}
+					for( var fieldIndex = 0 ; fieldIndex < aAvgData.length ; fieldIndex++ ) {
+						var oData = aAvgData[fieldIndex];
+						if ( groupIndex === 0 ) {
+							returnData[fieldIndex] = {
+								"time": moment(oData.xVal).format(cfg.dateFormat)
+							};
+						}
+						maxAvg = Math.max( maxAvg, oData["avgYVal"] );
+						returnData[fieldIndex][prefix+targetId]  = oData["avgYVal"].toFixed(1);
+					}
+				}
+				oInfo.isAvailable = true;
+				return {
+					max: parseInt( maxAvg ) + 1,
+					data: returnData
+				};
+			};
+
 			function getFloatValue( val ) {
 				return angular.isNumber( val ) ? val.toFixed(2) : 0.00;
 			}

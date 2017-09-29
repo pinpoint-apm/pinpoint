@@ -45,7 +45,7 @@ public class DispatchHandlerWrapper implements DispatchHandler {
 
     @Override
     public void dispatchSendMessage(TBase<?, ?> tBase) {
-        if (checkAvaiable()) {
+        if (checkAvailable()) {
             this.delegate.dispatchSendMessage(tBase);
             return;
         }
@@ -56,7 +56,7 @@ public class DispatchHandlerWrapper implements DispatchHandler {
 
     @Override
     public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
-        if (checkAvaiable()) {
+        if (checkAvailable()) {
             return this.delegate.dispatchRequestMessage(tBase);
         }
 
@@ -67,7 +67,7 @@ public class DispatchHandlerWrapper implements DispatchHandler {
         return result;
     }
     
-    private boolean checkAvaiable() {
+    private boolean checkAvailable() {
         if (handlerManager == null) {
             return true;
         }

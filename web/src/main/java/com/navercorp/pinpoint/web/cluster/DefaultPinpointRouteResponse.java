@@ -21,10 +21,11 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.thrift.TBase;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
 
@@ -41,7 +42,7 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
 
     public void parse(DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory) {
         if (!isParsed) {
-            if (payload == null || payload.length == 0) {
+            if (ArrayUtils.isEmpty(payload)) {
                 routeResult = TRouteResult.EMPTY_RESPONSE;
                 return;
             }
@@ -52,13 +53,14 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
                 routeResult = TRouteResult.NOT_SUPPORTED_RESPONSE;
             } else if (object instanceof  TCommandTransferResponse) {
                 TCommandTransferResponse commandResponse = (TCommandTransferResponse) object;
-                response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), null);
-                if (response == null) {
-                    routeResult = TRouteResult.NOT_SUPPORTED_RESPONSE;
+                TRouteResult routeResult = commandResponse.getRouteResult();
+                if (routeResult == null) {
+                    this.routeResult = TRouteResult.UNKNOWN;
                 } else {
-                    routeResult = commandResponse.getRouteResult();
+                    this.routeResult = routeResult;
                 }
 
+                response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), null);
             } else {
                 routeResult = TRouteResult.UNKNOWN;
                 response = object;

@@ -21,12 +21,13 @@ import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -35,8 +36,6 @@ import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +83,7 @@ public final class PinpointRPCTestUtils {
     }
     
     public static PinpointClientFactory createClientFactory(Map<String, Object> param, MessageListener messageListener) {
-        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setProperties(param);
         clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
 
@@ -121,21 +120,6 @@ public final class PinpointRPCTestUtils {
         }
     }
     
-    public static void close(Socket socket, Socket... sockets) throws IOException {
-        if (socket != null) {
-            socket.close();
-        }
-        
-        if (sockets != null) {
-            for (Socket eachSocket : sockets) {
-                if (eachSocket != null) {
-                    eachSocket.close();
-                }
-            }
-        }
-    }
-
-    
     public static EchoServerListener createEchoServerListener() {
         return new EchoServerListener();
     }
@@ -164,13 +148,13 @@ public final class PinpointRPCTestUtils {
 
         @Override
         public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
             sendPacketRepository.add(sendPacket);
         }
 
         @Override
         public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
             requestPacketRepository.add(requestPacket);
             pinpointSocket.response(requestPacket, requestPacket.getPayload());
@@ -178,14 +162,14 @@ public final class PinpointRPCTestUtils {
 
         @Override
         public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.info("handle Handshake {}", properties);
+            logger.debug("handle Handshake {}", properties);
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
         }
 
         @Override
-        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-            
+        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
         }
+
     }
     
     public static class EchoClientListener implements MessageListener {

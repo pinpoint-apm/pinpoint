@@ -41,9 +41,9 @@ public final class OkHttpConstants {
     public static final String FIELD_CONNECTION = "connection";
     public static final String FIELD_HTTP_URL = "url";
 
-    public static final String CONNECTION_GETTER = "com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter";
-    public static final String HTTP_URL_GETTER = "com.navercorp.pinpoint.plugin.okhttp.HttpUrlGetter";
-    public static final String URL_GETTER = "com.navercorp.pinpoint.plugin.okhttp.UrlGetter";
-    public static final String USER_REQUEST_GETTER = "com.navercorp.pinpoint.plugin.okhttp.UserRequestGetter";
-    public static final String USER_RESPONSE_GETTER = "com.navercorp.pinpoint.plugin.okhttp.UserResponseGetter";
+    public static final String CONNECTION_GETTER = "com.navercorp.pinpoint.plugin.okhttp.v2.ConnectionGetter";
+    public static final String HTTP_URL_GETTER = "com.navercorp.pinpoint.plugin.okhttp.v2.HttpUrlGetter";
+    public static final String URL_GETTER = "com.navercorp.pinpoint.plugin.okhttp.v2.UrlGetter";
+    public static final String USER_REQUEST_GETTER = "com.navercorp.pinpoint.plugin.okhttp.v2.UserRequestGetter";
+    public static final String USER_RESPONSE_GETTER = "com.navercorp.pinpoint.plugin.okhttp.v2.UserResponseGetter";
 }

@@ -15,12 +15,14 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import io.vertx.core.http.HttpClientRequest;
 
@@ -87,13 +89,20 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             recorder.recordException(throwable);
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
 
+            final String hostAndPort = toHostAndPort(args);
+            if(hostAndPort != null) {
+                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
+                if (isDebug) {
+                    logger.debug("Set hostAndPort {}", hostAndPort);
+                }
+            }
+
             if (request != null) {
                 // make asynchronous trace-id
-                final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-                ((AsyncTraceIdAccessor) request)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+                ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                    logger.debug("Set asyncContext {}", asyncContext);
                 }
             }
         } finally {
@@ -109,13 +118,28 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(result instanceof AsyncTraceIdAccessor)) {
+        if (!(result instanceof AsyncContextAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid result object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
+                logger.debug("Invalid result object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             }
             return false;
         }
 
         return true;
+    }
+
+    private String toHostAndPort(final Object[] args) {
+        if (args != null && (args.length == 5 || args.length == 6)) {
+            if (args[1] instanceof String && args[2] instanceof Integer) {
+                final String host = (String) args[1];
+                final int port = (Integer) args[2];
+                return HostAndPort.toHostAndPortString(host, port);
+            }
+        }
+
+        if (isDebug) {
+            logger.debug("Invalid args[]. args={}.", args);
+        }
+        return null;
     }
 }

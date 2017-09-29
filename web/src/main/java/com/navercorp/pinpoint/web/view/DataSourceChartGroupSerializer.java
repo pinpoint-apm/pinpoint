@@ -35,7 +35,7 @@ public class DataSourceChartGroupSerializer extends JsonSerializer<DataSourceCha
 
         jgen.writeNumberField("id", dataSourceChartGroup.getId());
         jgen.writeStringField("jdbcUrl", dataSourceChartGroup.getJdbcUrl());
-        jgen.writeStringField("poolName", dataSourceChartGroup.getPoolName());
+        jgen.writeStringField("databaseName", dataSourceChartGroup.getDatabaseName());
         jgen.writeStringField("serviceType", dataSourceChartGroup.getServiceTypeName());
         jgen.writeObjectField("charts", dataSourceChartGroup.getCharts());
 

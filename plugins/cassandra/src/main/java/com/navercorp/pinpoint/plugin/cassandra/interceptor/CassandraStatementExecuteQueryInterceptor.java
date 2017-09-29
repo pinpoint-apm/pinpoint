@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.plugin.cassandra.interceptor;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.RegularStatement;
+import com.datastax.driver.core.StatementWrapper;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
@@ -28,8 +30,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
@@ -41,11 +41,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 /**
  * @author dawidmalina
  */
-@TargetMethods({
-    @TargetMethod(name = "execute", paramTypes = { "java.lang.String" }),
-    @TargetMethod(name = "execute", paramTypes = { "java.lang.String", "java.lang.Object[]" }),
-    @TargetMethod(name = "execute", paramTypes = { "com.datastax.driver.core.Statement" })
-})
 public class CassandraStatementExecuteQueryInterceptor implements AroundInterceptor {
 
     private static final int DEFAULT_BIND_VALUE_LENGTH = 1024;
@@ -92,33 +87,27 @@ public class CassandraStatementExecuteQueryInterceptor implements AroundIntercep
             recorder.recordEndPoint(databaseInfo.getMultipleHost());
             recorder.recordDestinationId(databaseInfo.getDatabaseId());
 
-            String sql;
-            if (args[0] instanceof BoundStatement) {
-                sql = ((BoundStatement) args[0]).preparedStatement().getQueryString();
-            } else if (args[0] instanceof RegularStatement) {
-                sql = ((RegularStatement) args[0]).getQueryString();
-            } else {
-                // we have string
-                sql = (String) args[0];
-            }
+            String sql = retrieveSql(args[0]);
 
-            ParsingResult parsingResult = traceContext.parseSql(sql);
-            if (parsingResult != null) {
-                ((ParsingResultAccessor) target)._$PINPOINT$_setParsingResult(parsingResult);
-            } else {
-                if (logger.isErrorEnabled()) {
-                    logger.error("sqlParsing fail. parsingResult is null sql:{}", sql);
+            if (sql != null) {
+                ParsingResult parsingResult = traceContext.parseSql(sql);
+                if (parsingResult != null) {
+                    ((ParsingResultAccessor) target)._$PINPOINT$_setParsingResult(parsingResult);
+                } else {
+                    if (logger.isErrorEnabled()) {
+                        logger.error("sqlParsing fail. parsingResult is null sql:{}", sql);
+                    }
                 }
-            }
 
-            Map<Integer, String> bindValue = ((BindValueAccessor) target)._$PINPOINT$_getBindValue();
-            // TODO Add bind variable interceptors to BoundStatement's setter methods and bind method and pass it down
-            // Extracting bind variables from already-serialized is too risky
-            if (bindValue != null && !bindValue.isEmpty()) {
-                String bindString = toBindVariable(bindValue);
-                recorder.recordSqlParsingResult(parsingResult, bindString);
-            } else {
-                recorder.recordSqlParsingResult(parsingResult);
+                Map<Integer, String> bindValue = ((BindValueAccessor) target)._$PINPOINT$_getBindValue();
+                // TODO Add bind variable interceptors to BoundStatement's setter methods and bind method and pass it down
+                // Extracting bind variables from already-serialized is too risky
+                if (bindValue != null && !bindValue.isEmpty()) {
+                    String bindString = toBindVariable(bindValue);
+                    recorder.recordSqlParsingResult(parsingResult, bindString);
+                } else {
+                    recorder.recordSqlParsingResult(parsingResult);
+                }
             }
 
             recorder.recordApi(descriptor);
@@ -129,6 +118,26 @@ public class CassandraStatementExecuteQueryInterceptor implements AroundIntercep
                 logger.warn(e.getMessage(), e);
             }
         }
+    }
+
+    private String retrieveSql(Object args0) {
+        String sql;
+        if (args0 instanceof BoundStatement) {
+            sql = ((BoundStatement) args0).preparedStatement().getQueryString();
+        } else if (args0 instanceof RegularStatement) {
+            sql = ((RegularStatement) args0).getQueryString();
+        } else if (args0 instanceof StatementWrapper) {
+            // method to get wrapped statement is package-private, skip.
+            sql = null;
+        } else if (args0 instanceof BatchStatement) {
+            // we could unroll all the batched statements and append ; between them if need be but it could be too long.
+            sql = null;
+        } else if (args0 instanceof String) {
+            sql = (String) args0;
+        } else {
+            sql = null;
+        }
+        return sql;
     }
 
     private void clean(Object target) {

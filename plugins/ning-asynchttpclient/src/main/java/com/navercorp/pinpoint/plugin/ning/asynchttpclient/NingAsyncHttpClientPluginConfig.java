@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  *
  */
 public class NingAsyncHttpClientPluginConfig {
+    private final boolean enable;
     private final boolean profileCookie;
     private final DumpType cookieDumpType;
     private final int cookieDumpSize;
@@ -38,6 +39,8 @@ public class NingAsyncHttpClientPluginConfig {
     private final int paramSamplingRate;
 
     public NingAsyncHttpClientPluginConfig(ProfilerConfig src) {
+        this.enable = src.readBoolean("profiler.ning.asynchttpclient", true);
+
         this.profileCookie = src.readBoolean("profiler.ning.asynchttpclient.cookie", false);
         this.cookieDumpType = src.readDumpType("profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
         this.cookieDumpSize = src.readInt("profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
@@ -46,13 +49,16 @@ public class NingAsyncHttpClientPluginConfig {
         this.profileEntity = src.readBoolean("profiler.ning.asynchttpclient.entity", false);
         this.entityDumpType = src.readDumpType("profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
         this.entityDumpSize = src.readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
-        this.entitySamplingRate = src.readInt("profiler.asynchttpclient.entity.sampling.rate", 1);
+        this.entitySamplingRate = src.readInt("profiler.ning.asynchttpclient.entity.sampling.rate", 1);
 
         this.profileParam = src.readBoolean("profiler.ning.asynchttpclient.param", false);
         this.paramDumpType = src.readDumpType("profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
         this.paramDumpSize = src.readInt("profiler.ning.asynchttpclient.param.dumpsize", 1024);
-        this.paramSamplingRate = src.readInt("profiler.asynchttpclient.param.sampling.rate", 1);
+        this.paramSamplingRate = src.readInt("profiler.ning.asynchttpclient.param.sampling.rate", 1);
+    }
 
+    public boolean isEnable() {
+        return enable;
     }
 
     public boolean isProfileCookie() {

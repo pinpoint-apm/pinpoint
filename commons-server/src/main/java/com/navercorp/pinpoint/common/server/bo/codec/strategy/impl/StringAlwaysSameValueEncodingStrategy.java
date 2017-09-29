@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.StringTypedBufferHandler;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,20 +51,12 @@ public class StringAlwaysSameValueEncodingStrategy implements EncodingStrategy<S
 
         String initialValue = values.get(0);
         for (String value : values) {
-            if (!isEquals(initialValue, value)) {
+            if (!StringUtils.equals(value, initialValue)) {
                 throw new IllegalArgumentException("values must be all same value");
             }
         }
 
         bufferHandler.put(buffer, initialValue);
-    }
-
-    public boolean isEquals(String string1, String string2) {
-        if (string1 == null) {
-            return string2 == null;
-        }
-
-        return string1.equals(string2);
     }
 
     @Override

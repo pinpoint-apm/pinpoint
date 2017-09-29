@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledJvmGcDetailedDaoV1")
 public class HbaseSampledJvmGcDetailedDao implements SampledJvmGcDetailedDao {
 

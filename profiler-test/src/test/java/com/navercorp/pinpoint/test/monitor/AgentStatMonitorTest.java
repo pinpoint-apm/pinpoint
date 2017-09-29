@@ -17,31 +17,27 @@
 
 package com.navercorp.pinpoint.test.monitor;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
-import com.navercorp.pinpoint.profiler.context.IdGenerator;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
+import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.TBaseRecorder;
 import com.navercorp.pinpoint.test.TBaseRecorderAdaptor;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 public class AgentStatMonitorTest {
 
@@ -50,14 +46,18 @@ public class AgentStatMonitorTest {
     private TBaseRecorder<TAgentStatBatch> tBaseRecorder;
     private DataSender dataSender;
 
+    @Mock
+    private AgentStatMetricCollector<TAgentStat> agentStatCollector;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        when(agentStatCollector.collect()).thenReturn(new TAgentStat());
 
         this.tBaseRecorder = new TBaseRecorder<TAgentStatBatch>();
         TBaseRecorderAdaptor recorderAdaptor = new TBaseRecorderAdaptor(tBaseRecorder);
 
-        ListenableDataSender listenableDataSender = new ListenableDataSender();
+        ListenableDataSender listenableDataSender = new ListenableDataSender("testDataSender");
         listenableDataSender.setListener(recorderAdaptor);
         this.dataSender = listenableDataSender;
     }
@@ -70,10 +70,8 @@ public class AgentStatMonitorTest {
         final int minNumBatchToTest = 2;
         final long totalTestDurationMs = collectionIntervalMs + collectionIntervalMs * numCollectionsPerBatch * minNumBatchToTest;
         // When
-        AgentStatCollectorFactory agentStatCollectorFactory = newAgentStatCollectorFactory();
-
-        AgentStatMonitor monitor = new AgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
-                agentStatCollectorFactory, collectionIntervalMs, numCollectionsPerBatch);
+        AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
+                agentStatCollector, collectionIntervalMs, numCollectionsPerBatch);
         monitor.start();
         Thread.sleep(totalTestDurationMs);
         monitor.stop();
@@ -84,14 +82,4 @@ public class AgentStatMonitorTest {
             assertTrue(agentStatBatch.getAgentStats().size() <= numCollectionsPerBatch);
         }
     }
-
-    private AgentStatCollectorFactory newAgentStatCollectorFactory() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
-        IdGenerator idGenerator = new IdGenerator();
-        TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
-        PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
-        return new AgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
-    }
-
 }

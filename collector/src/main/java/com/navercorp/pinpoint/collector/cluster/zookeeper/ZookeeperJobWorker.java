@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,33 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
+import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ZookeeperJobWorker implements Runnable {
-
-    private static final Charset charset = Charset.forName("UTF-8");
 
     private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
     private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
@@ -50,13 +52,15 @@ public class ZookeeperJobWorker implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static final byte[] EMPTY_DATA_BYTES = BytesUtils.toBytes("");
+
     private final Object lock = new Object();
 
     private final CommonStateContext workerState;
     private final String collectorUniqPath;
     private final ZookeeperClient zookeeperClient;
     private final PinpointServerRepository pinpointServerRepository = new PinpointServerRepository();
-    private final BlockingQueue<ZookeeperJob> jobQueue = new LinkedBlockingQueue<>();
+    private final ConcurrentLinkedDeque<ZookeeperJob> zookeeperJobDeque = new ConcurrentLinkedDeque<>();
     private Thread workerThread;
 
     public ZookeeperJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
@@ -131,6 +135,10 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     public void addPinpointServer(PinpointServer pinpointServer) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("addPinpointServer server:{}, properties:{}", pinpointServer, pinpointServer.getChannelProperties());
+        }
+
         String key = getKey(pinpointServer);
         synchronized (lock) {
             boolean keyCreated = pinpointServerRepository.addAndIsKeyCreated(key, pinpointServer);
@@ -140,17 +148,33 @@ public class ZookeeperJobWorker implements Runnable {
         }
     }
 
-    public byte[] getClusterData() {
+    public List<String> getClusterList() {
         try {
-            return zookeeperClient.getData(collectorUniqPath);
+            final String clusterData = getClusterData();
+            return tokenize(clusterData);
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
+    private String getClusterData() throws PinpointZookeeperException, InterruptedException {
+        final byte[] clusterBytes = zookeeperClient.getData(collectorUniqPath);
+        return BytesUtils.toString(clusterBytes);
+    }
+
+    private void setClusterData(String clusterString) throws PinpointZookeeperException, InterruptedException {
+        final byte[] clusterBytes = BytesUtils.toBytes(clusterString);
+        zookeeperClient.setData(collectorUniqPath, clusterBytes);
+    }
+
+
     public void removePinpointServer(PinpointServer pinpointServer) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("removePinpointServer server:{}, properties:{}", pinpointServer, pinpointServer.getChannelProperties());
+        }
+
         String key = getKey(pinpointServer);
         synchronized (lock) {
             boolean keyRemoved = pinpointServerRepository.removeAndGetIsKeyRemoved(key, pinpointServer);
@@ -163,21 +187,17 @@ public class ZookeeperJobWorker implements Runnable {
     public void clear() {
         synchronized (lock) {
             pinpointServerRepository.clear();
-            jobQueue.clear();
+            zookeeperJobDeque.clear();
             putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.CLEAR));
         }
     }
 
     private boolean putZookeeperJob(ZookeeperJob zookeeperJob) {
         synchronized (lock) {
-            try {
-                jobQueue.put(zookeeperJob);
-                lock.notifyAll();
-                return true;
-            } catch (InterruptedException ignore) {
-            }
+            boolean added = zookeeperJobDeque.add(zookeeperJob);
+            lock.notifyAll();
+            return added;
         }
-        return false;
     }
 
     @Override
@@ -192,24 +212,54 @@ public class ZookeeperJobWorker implements Runnable {
         while (workerState.isStarted()) {
             boolean eventExists = awaitJob(60000, 200);
             if (eventExists) {
-                ZookeeperJob headJob = jobQueue.peek();
-
-                if (latestHeadJob != null && latestHeadJob == headJob) {
-                    // for defence spinLock.
-                    await(1000);
+                List<ZookeeperJob> zookeeperJobList = getLatestZookeeperJobList();
+                if (CollectionUtils.isEmpty(zookeeperJobList)) {
+                    continue;
                 }
 
-                if (headJob != null) {
-                    latestHeadJob = headJob;
-                    boolean completed = handle(headJob);
-                    if (completed) {
-                        jobQueue.remove(headJob);
+
+                ZookeeperJob headJob = ListUtils.getFirst(zookeeperJobList);
+                if (latestHeadJob != null && latestHeadJob == headJob) {
+                    // for defence spinLock (zookeeper problem, etc..)
+                    await(500);
+                }
+
+                latestHeadJob = headJob;
+                boolean completed = handle(zookeeperJobList);
+                if (!completed) {
+                    // rollback
+                    for (int i = zookeeperJobList.size() - 1; i >= 0; i--) {
+                        zookeeperJobDeque.addFirst(zookeeperJobList.get(i));
                     }
                 }
             }
         }
 
         logger.info("run() completed.");
+    }
+
+    private List<ZookeeperJob> getLatestZookeeperJobList() {
+        ZookeeperJob defaultJob = zookeeperJobDeque.poll();
+        if (defaultJob == null) {
+            return Collections.emptyList();
+        }
+
+        List<ZookeeperJob> result = new ArrayList<>();
+        result.add(defaultJob);
+
+        while (true) {
+            ZookeeperJob zookeeperJob = zookeeperJobDeque.poll();
+            if (zookeeperJob == null) {
+                break;
+            }
+            if (zookeeperJob.getType() != defaultJob.getType()) {
+                zookeeperJobDeque.addFirst(zookeeperJob);
+                break;
+            }
+            result.add(zookeeperJob);
+        }
+
+        return result;
     }
 
     /**
@@ -232,7 +282,7 @@ public class ZookeeperJobWorker implements Runnable {
 
             long startTimeMillis = System.currentTimeMillis();
 
-            while (jobQueue.isEmpty() && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
+            while (zookeeperJobDeque.isEmpty() && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
                 try {
                     lock.wait(waitUnitTime);
                 } catch (InterruptedException ignore) {
@@ -260,113 +310,162 @@ public class ZookeeperJobWorker implements Runnable {
         return waitTimeMillis < (System.currentTimeMillis() - startTimeMillis);
     }
 
-    private boolean handle(ZookeeperJob job) {
-        ZookeeperJob.Type type = job.getType();
+    private boolean handle(List<ZookeeperJob> zookeeperJobList) {
+        if (CollectionUtils.isEmpty(zookeeperJobList)) {
+            logger.warn("zookeeperJobList may not be empty");
+            return false;
+        }
 
+        ZookeeperJob defaultJob = ListUtils.getFirst(zookeeperJobList);
+        ZookeeperJob.Type type = defaultJob.getType();
         switch (type) {
             case ADD:
-                return handleUpdate(job);
+                return handleUpdate(zookeeperJobList);
             case REMOVE:
-                return handleDelete(job);
+                return handleDelete(zookeeperJobList);
             case CLEAR:
-                return handleClear(job);
+                return handleClear(zookeeperJobList);
         }
 
         return false;
     }
 
-    private boolean handleUpdate(ZookeeperJob job) {
-        String addContents = job.getKey();
+    private boolean handleUpdate(List<ZookeeperJob> zookeeperJobList) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handleUpdate zookeeperJobList:{}", zookeeperJobList);
+        }
+
+        final List<String> addContentCandidateList = getZookeeperKeyList(zookeeperJobList);
+
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                byte[] contents = zookeeperClient.getData(collectorUniqPath);
+                final String currentClusterData = getClusterData();
 
-                String data = addIfAbsentContents(new String(contents, charset), addContents);
-                zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
+                final String updateCluster = addIfAbsentContents(currentClusterData, addContentCandidateList);
+                setClusterData(updateCluster);
             } else {
                 zookeeperClient.createPath(collectorUniqPath);
 
                 // should return error even if NODE exists if the data is important
-                zookeeperClient.createNode(collectorUniqPath, addContents.getBytes(charset));
+                final String newClusterData = addIfAbsentContents("", addContentCandidateList);
+                final byte[] newClusterDataBytes = BytesUtils.toBytes(newClusterData);
+                zookeeperClient.createNode(collectorUniqPath, newClusterDataBytes);
             }
             return true;
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("handleUpdate failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
         }
         return false;
     }
 
-    private boolean handleDelete(ZookeeperJob job) {
-        String removeContents = job.getKey();
+    private boolean handleDelete(List<ZookeeperJob> zookeeperJobList) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handleDelete zookeeperJobList:{}", zookeeperJobList);
+        }
+
+        final List<String> removeContentCandidateList = getZookeeperKeyList(zookeeperJobList);
+
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                byte[] contents = zookeeperClient.getData(collectorUniqPath);
+                final String currentClusterData = getClusterData();
 
-                String data = removeIfExistContents(new String(contents, charset), removeContents);
-
-                zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
+                final String remainCluster = removeIfExistContents(currentClusterData, removeContentCandidateList);
+                setClusterData(remainCluster);
             }
             return true;
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("handleDelete failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
         }
         return false;
     }
 
-    private boolean handleClear(ZookeeperJob job) {
-        String initContents = job.getKey();
+    private List<String> getZookeeperKeyList(List<ZookeeperJob> zookeeperJobList) {
+        if (zookeeperJobList == null) {
+            return Collections.emptyList();
+        }
+
+        final List<String> keyList = new ArrayList<>(zookeeperJobList.size());
+        for (ZookeeperJob zookeeperJob : zookeeperJobList) {
+            keyList.add(zookeeperJob.getKey());
+        }
+        return keyList;
+    }
+
+    private boolean handleClear(List<ZookeeperJob> zookeeperJobList) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handleClear zookeeperJobList:{}", zookeeperJobList);
+        }
+
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                zookeeperClient.setData(collectorUniqPath, initContents.getBytes(charset));
+                zookeeperClient.setData(collectorUniqPath, EMPTY_DATA_BYTES);
             } else {
                 zookeeperClient.createPath(collectorUniqPath);
 
                 // should return error even if NODE exists if the data is important
-                zookeeperClient.createNode(collectorUniqPath, initContents.getBytes(charset));
+                zookeeperClient.createNode(collectorUniqPath, EMPTY_DATA_BYTES);
             }
             return true;
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("handleClear failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
         }
         return false;
     }
 
-    private String addIfAbsentContents(String contents, String addContents) {
-        String[] allContents = contents.split(PROFILER_SEPARATOR);
+    private String addIfAbsentContents(String clusterDataString, List<String> addContentCandidateList) {
+        final List<String> clusterDataList = tokenize(clusterDataString);
 
-        for (String eachContent : allContents) {
-            if (StringUtils.equals(eachContent.trim(), addContents.trim())) {
-                return contents;
-            }
+        final List<String> addContentList = getChangeList(clusterDataList, addContentCandidateList);
+
+        if (addContentList.isEmpty()) {
+            return clusterDataString;
         }
 
-        return contents + PROFILER_SEPARATOR + addContents;
+        return join(clusterDataString, addContentList);
     }
 
-    private String removeIfExistContents(String contents, String removeContents) {
-        StringBuilder newContents = new StringBuilder(contents.length());
+    private String join(String originalContent, List<String> addContentList) {
+        final StringBuilder newContent = new StringBuilder(originalContent);
+        for (String addContent : addContentList) {
+            newContent.append(PROFILER_SEPARATOR);
+            newContent.append(addContent);
+        }
+        return newContent.toString();
+    }
 
-        String[] allContents = contents.split(PROFILER_SEPARATOR);
-
-        Iterator<String> stringIterator = Arrays.asList(allContents).iterator();
-
-        while (stringIterator.hasNext()) {
-            String eachContent = stringIterator.next();
-
-            if (StringUtils.isBlank(eachContent)) {
-                continue;
-            }
-
-            if (!StringUtils.equals(eachContent.trim(), removeContents.trim())) {
-                newContents.append(eachContent);
-
-                if (stringIterator.hasNext()) {
-                    newContents.append(PROFILER_SEPARATOR);
-                }
+    private boolean isExist(List<String> contentList, String value) {
+        for (String eachContent : contentList) {
+            if (StringUtils.equals(eachContent.trim(), value.trim())) {
+                return true;
             }
         }
 
-        return newContents.toString();
+        return false;
+    }
+
+    private String removeIfExistContents(String clusterDataString, List<String> removeClusterDataList) {
+
+        final List<String> clusterDataList = tokenize(clusterDataString);
+
+        final List<String> remainCluster = getChangeList(removeClusterDataList, clusterDataList);
+
+        return StringUtils.join(remainCluster, PROFILER_SEPARATOR);
+    }
+
+    private List<String> getChangeList(List<String> originalList, List<String> changeList) {
+        final List<String> result = new ArrayList<>(changeList.size());
+        for (String eachContent : changeList) {
+            final boolean exist = isExist(originalList, eachContent);
+            if (!exist) {
+                result.add(eachContent);
+            }
+        }
+        return result;
+    }
+
+    private List<String> tokenize(String str) {
+        final String[] tokenArray = org.springframework.util.StringUtils.tokenizeToStringArray(str, PROFILER_SEPARATOR);
+        return Arrays.asList(tokenArray);
     }
 
     private String getKey(PinpointServer pinpointServer) {

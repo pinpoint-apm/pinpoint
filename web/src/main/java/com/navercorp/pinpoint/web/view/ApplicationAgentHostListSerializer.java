@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ApplicationAgentHostListSerializer extends JsonSerializer<ApplicationAgentHostList> {
 

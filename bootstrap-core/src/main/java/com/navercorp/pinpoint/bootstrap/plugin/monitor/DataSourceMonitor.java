@@ -25,8 +25,6 @@ public interface DataSourceMonitor {
 
     ServiceType getServiceType();
 
-    String getName();
-
     String getUrl();
 
     int getActiveConnectionSize();

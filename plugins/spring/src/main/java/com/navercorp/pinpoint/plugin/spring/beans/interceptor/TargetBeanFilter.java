@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTarget;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTargetScope;
@@ -72,7 +73,8 @@ public class TargetBeanFilter {
 
             boolean condition = false;
             // check base packages.
-            if (target.getBasePackages() != null && !target.getBasePackages().isEmpty()) {
+            final List<String> basePackages = target.getBasePackages();
+            if (CollectionUtils.hasLength(basePackages)) {
                 if (!isBasePackage(target, className)) {
                     continue;
                 }
@@ -80,7 +82,8 @@ public class TargetBeanFilter {
             }
 
             // check bean name pattern.
-            if (target.getNamePatterns() != null && !target.getNamePatterns().isEmpty()) {
+            final List<PathMatcher> namePatterns = target.getNamePatterns();
+            if (CollectionUtils.hasLength(namePatterns)) {
                 if (!isBeanNameTarget(target, beanName)) {
                     continue;
                 }
@@ -88,7 +91,8 @@ public class TargetBeanFilter {
             }
 
             // check class name pattern.
-            if (target.getClassPatterns() != null && !target.getClassPatterns().isEmpty()) {
+            final List<PathMatcher> classPatterns = target.getClassPatterns();
+            if (CollectionUtils.hasLength(classPatterns)) {
                 if (!isClassNameTarget(target, className)) {
                     continue;
                 }
@@ -96,7 +100,8 @@ public class TargetBeanFilter {
             }
 
             // check class annotation.
-            if (target.getAnnotations() != null && !target.getAnnotations().isEmpty()) {
+            final List<String> annotations = target.getAnnotations();
+            if (CollectionUtils.hasLength(annotations)) {
                 if (!(beanDefinition instanceof AnnotatedBeanDefinition) || !isAnnotationTarget(target, (AnnotatedBeanDefinition) beanDefinition)) {
                     continue;
                 }
@@ -134,7 +139,8 @@ public class TargetBeanFilter {
 
             boolean condition = false;
             // check base packages.
-            if (target.getBasePackages() != null && !target.getBasePackages().isEmpty()) {
+            final List<String> basePackages = target.getBasePackages();
+            if (CollectionUtils.hasLength(basePackages)) {
                 if (!isBasePackage(target, className)) {
                     continue;
                 }
@@ -142,7 +148,8 @@ public class TargetBeanFilter {
             }
 
             // check bean name pattern.
-            if (target.getNamePatterns() != null && !target.getNamePatterns().isEmpty()) {
+            final List<PathMatcher> namePatterns = target.getNamePatterns();
+            if (CollectionUtils.hasLength(namePatterns)) {
                 if (!isBeanNameTarget(target, beanName)) {
                     continue;
                 }
@@ -150,7 +157,8 @@ public class TargetBeanFilter {
             }
 
             // check class name pattern.
-            if (target.getClassPatterns() != null && !target.getClassPatterns().isEmpty()) {
+            final List<PathMatcher> classPatterns = target.getClassPatterns();
+            if (CollectionUtils.hasLength(classPatterns)) {
                 if (!isClassNameTarget(target, className)) {
                     continue;
                 }
@@ -158,7 +166,8 @@ public class TargetBeanFilter {
             }
 
             // check class annotation.
-            if (target.getAnnotations() != null && !target.getAnnotations().isEmpty()) {
+            final List<String> annotations = target.getAnnotations();
+            if (CollectionUtils.hasLength(annotations)) {
                 if (!isAnnotationTarget(target, clazz)) {
                     continue;
                 }

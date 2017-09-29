@@ -27,12 +27,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
 import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
@@ -48,13 +56,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
@@ -68,10 +71,13 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
  */
 public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier {
 
-    private TestableServerMetaDataListener serverMetaDataListener;
+
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
     private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
+
+    private PluginApplicationContextModule pluginApplicationContextModule;
+
 
     public PluginTestAgent(AgentOption agentOption) {
         super(agentOption, new DefaultInterceptorRegistryBinder());
@@ -80,40 +86,31 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     @Override
-    protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new ListenableDataSender<TBase<?, ?>>();
-    }
+    protected ApplicationContext newApplicationContext(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
 
-    @Override
-    protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        ListenableDataSender<TBase<?, ?>> sender = new ListenableDataSender<TBase<?, ?>>();
-        sender.setListener(new OrderedSpanRecorder());
-        return sender;
-    }
+        this.pluginApplicationContextModule = new PluginApplicationContextModule();
 
-    @Override
-    protected StorageFactory createStorageFactory() {
-        return new SimpleSpanStorageFactory(super.getSpanDataSender());
-    }
+        ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, interceptorRegistryBinder) {
 
-    @Override
-    protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
-        return new TestTcpDataSender();
-    }
+            @Override
+            protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+                Module applicationContextModule = super.newApplicationContextModule(agentOption, interceptorRegistryBinder);
 
-    @Override
-    protected ServerMetaDataHolder createServerMetaDataHolder() {
-        List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        ServerMetaDataHolder serverMetaDataHolder = new ResettableServerMetaDataHolder(vmArgs);
-        this.serverMetaDataListener = new TestableServerMetaDataListener();
-        serverMetaDataHolder.addListener(this.serverMetaDataListener);
-        return serverMetaDataHolder;
+                return Modules.override(applicationContextModule).with(pluginApplicationContextModule);
+            }
+        };
+
+
+        return applicationContext;
+
     }
 
     @Override
     public void verifyServerType(String serviceTypeName) {
+        final ApplicationContext applicationContext = getApplicationContext();
+
         ServiceType expectedType = findServiceType(serviceTypeName);
-        ServiceType actualType = getAgentInformation().getServerType();
+        ServiceType actualType = applicationContext.getAgentInformation().getServerType();
 
         if (!expectedType.equals(actualType)) {
             throw new AssertionError("ResolvedExpectedTrace server type: " + expectedType.getName() + "[" + expectedType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
@@ -122,7 +119,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyServerInfo(String expected) {
-        String actualName = this.serverMetaDataListener.getServerMetaData().getServerInfo();
+        String actualName = getServerMetaData().getServerInfo();
 
         if (!actualName.equals(expected)) {
             throw new AssertionError("ResolvedExpectedTrace server name [" + expected + "] but was [" + actualName + "]");
@@ -131,7 +128,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyConnector(String protocol, int port) {
-        Map<Integer, String> connectorMap = this.serverMetaDataListener.getServerMetaData().getConnectors();
+        Map<Integer, String> connectorMap = getServerMetaData().getConnectors();
         String actualProtocol = connectorMap.get(port);
 
         if (actualProtocol == null || !actualProtocol.equals(protocol)) {
@@ -141,7 +138,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyService(String name, List<String> libs) {
-        List<ServiceInfo> serviceInfos = this.serverMetaDataListener.getServerMetaData().getServiceInfos();
+        List<ServiceInfo> serviceInfos = getServerMetaData().getServiceInfos();
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             if (serviceInfo.getServiceName().equals(name)) {
@@ -219,7 +216,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     public void verifyDiscreteTraceBlock(ExpectedTrace[] expectations, Integer asyncId) {
-        if (expectations == null || expectations.length == 0) {
+        if (ArrayUtils.isEmpty(expectations)) {
             throw new IllegalArgumentException("No expectations");
         }
 
@@ -254,17 +251,16 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyTrace(ExpectedTrace... expectations) {
-        if (expectations == null || expectations.length == 0) {
+        if (ArrayUtils.isEmpty(expectations)) {
             throw new IllegalArgumentException("No expectations");
         }
 
         for (ExpectedTrace expected : expectations) {
             ResolvedExpectedTrace resolved = resolveExpectedTrace(expected, null);
 
-            Object actual = popSpan();
-
+            final Object actual = popSpan();
             if (actual == null) {
-                throw new AssertionError("Expected a " + resolved.type.getSimpleName() + " but there is no trace");
+                throw new AssertionError("Expected a " + resolved.toString() + " but there is no trace");
             }
 
             ActualTrace wrapped = wrap(actual);
@@ -718,17 +714,21 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private TestTcpDataSender getTestTcpDataSender() {
-        return (TestTcpDataSender) getTcpDataSender();
+        return this.pluginApplicationContextModule.getTcpDataSender();
     }
 
     private OrderedSpanRecorder getRecorder() {
-        return (OrderedSpanRecorder) ((ListenableDataSender<?>) getSpanDataSender()).getListener();
+        return this.pluginApplicationContextModule.getOrderedSpanRecorder();
+    }
+
+    private ServerMetaData getServerMetaData() {
+        return this.pluginApplicationContextModule.getServerMetaData();
     }
 
     private Object popSpan() {
         while (true) {
-            Object obj = getRecorder().pop();
-
+            OrderedSpanRecorder recorder = getRecorder();
+            Object obj = recorder.pop();
             if (obj == null) {
                 return null;
             }
@@ -753,7 +753,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void initialize(boolean createTraceObject) {
         if (createTraceObject) {
-            getTraceContext().newTraceObject();
+            final TraceContext traceContext = getTraceContext();
+            traceContext.newTraceObject();
         }
 
         getRecorder().clear();
@@ -764,7 +765,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void cleanUp(boolean detachTraceObject) {
         if (detachTraceObject) {
-            getTraceContext().removeTraceObject();
+            final TraceContext traceContext = getTraceContext();
+            traceContext.removeTraceObject();
         }
 
         getRecorder().clear();
@@ -772,22 +774,20 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         ignoredServiceTypes.clear();
     }
 
+    private TraceContext getTraceContext() {
+        ApplicationContext applicationContext = getApplicationContext();
+        return applicationContext.getTraceContext();
+    }
+
     @Override
     public void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo) {
-        Object actual = popSpan();
-        Span span = null;
+        final Object actual = popSpan();
 
-        if (actual instanceof Span) {
-            span = (Span) actual;
-        } else if (actual instanceof SpanEvent) {
-            span = ((SpanEvent) actual).getSpan();
-        } else {
-            throw new IllegalArgumentException("Unexpected type: " + getActual(actual));
-        }
+        final TraceRoot traceRoot = getTraceRoot(actual);
+        final Shared shared = traceRoot.getShared();
 
-        if (span.getLoggingTransactionInfo() != loggingInfo.getCode()) {
-
-            LoggingInfo loggingTransactionInfo = LoggingInfo.searchByCode(span.getLoggingTransactionInfo());
+        if (shared.getLoggingInfo() != loggingInfo.getCode()) {
+            LoggingInfo loggingTransactionInfo = LoggingInfo.searchByCode(shared.getLoggingInfo());
 
             if (loggingTransactionInfo != null) {
                 throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "] but was [" + loggingTransactionInfo.getName() + "]. expected: " + loggingInfo.getName() + ", was: " + loggingTransactionInfo.getName());
@@ -797,7 +797,16 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
         }
 
+    }
 
+    private TraceRoot getTraceRoot(Object actual) {
+        if (actual instanceof Span) {
+            return ((Span) actual).getTraceRoot();
+        } else if (actual instanceof SpanEvent) {
+            return ((SpanEvent) actual).getTraceRoot();
+        } else {
+            throw new IllegalArgumentException("Unexpected type: " + getActual(actual));
+        }
     }
 
     private String getActual(Object actual) {

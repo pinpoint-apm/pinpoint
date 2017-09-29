@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.collector.cluster.connection.*;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
@@ -63,7 +63,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
     private ZookeeperClient client;
 
     // WebClusterManager checks Zookeeper for the Web data, and manages collector -> web connections.
-    private ZookeeperWebClusterManager webClusterManager;
+    private ZookeeperClusterManager webClusterManager;
 
     // ProfilerClusterManager detects/manages profiler -> collector connections, and saves their information in Zookeeper.
     private ZookeeperProfilerClusterManager profilerClusterManager;
@@ -78,7 +78,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
             CollectorClusterConnector clusterConnector = clusterConnectionFactory.createConnector();
 
             CollectorClusterAcceptor clusterAcceptor = null;
-            if (!StringUtils.isEmpty(config.getClusterListenIp()) && config.getClusterListenPort() > 0) {
+            if (StringUtils.isNotEmpty(config.getClusterListenIp()) && config.getClusterListenPort() > 0) {
                 InetSocketAddress bindAddress = new InetSocketAddress(config.getClusterListenIp(), config.getClusterListenPort());
                 clusterAcceptor = clusterConnectionFactory.createAcceptor(bindAddress, clusterRepository);
             }
@@ -108,7 +108,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
                     this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getTargetClusterPointRepository());
                     this.profilerClusterManager.start();
 
-                    this.webClusterManager = new ZookeeperWebClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, serverIdentifier, clusterConnectionManager);
+                    this.webClusterManager = new ZookeeperClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, clusterConnectionManager);
                     this.webClusterManager.start();
 
                     this.serviceState.changeStateStarted();
@@ -187,7 +187,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
         return profilerClusterManager;
     }
 
-    public ZookeeperWebClusterManager getWebClusterManager() {
+    public ZookeeperClusterManager getWebClusterManager() {
         return webClusterManager;
     }
 

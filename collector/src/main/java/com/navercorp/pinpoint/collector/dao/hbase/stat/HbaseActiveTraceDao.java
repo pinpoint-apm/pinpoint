@@ -50,7 +50,7 @@ public class HbaseActiveTraceDao implements AgentStatDaoV2<ActiveTraceBo> {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        if (agentStatDataPoints == null || agentStatDataPoints.isEmpty()) {
+        if (CollectionUtils.isEmpty(agentStatDataPoints)) {
             return;
         }
         List<Put> activeTracePuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.ACTIVE_TRACE, agentStatDataPoints, this.activeTraceSerializer);

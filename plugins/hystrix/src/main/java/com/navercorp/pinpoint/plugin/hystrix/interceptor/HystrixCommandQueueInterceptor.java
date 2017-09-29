@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.plugin.hystrix.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -39,13 +39,10 @@ public class HystrixCommandQueueInterceptor implements AroundInterceptor {
         recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COMMAND_ANNOTATION_KEY, target.getClass().getSimpleName());
 
         // To trace async invocations, you have to get async trace id like below.
-        AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
+        AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
-        // Then record the AsyncTraceId as next async id.
-        recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-
-        // Finally, you have to pass the AsyncTraceId to the thread which handles the async task.
-        ((AsyncTraceIdAccessor)target)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+        // Finally, you have to pass the AsyncContext to the thread which handles the async task.
+        ((AsyncContextAccessor)target)._$PINPOINT$_setAsyncContext(asyncContext);
     }
 
     @Override

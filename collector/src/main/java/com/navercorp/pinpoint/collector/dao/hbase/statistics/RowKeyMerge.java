@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
-
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
@@ -39,7 +37,7 @@ public class RowKeyMerge {
         this.family = Arrays.copyOf(family, family.length);
     }
 
-    public  List<Increment> createBulkIncrement(Map<RowInfo, ConcurrentCounterMap.LongAdder> data, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    public  List<Increment> createBulkIncrement(Map<RowInfo, Long> data, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         if (data.isEmpty()) {
             return Collections.emptyList();
         }
@@ -70,13 +68,13 @@ public class RowKeyMerge {
         return increment;
     }
 
-    private Map<RowKey, List<ColumnName>> rowKeyBaseMerge(Map<RowInfo, ConcurrentCounterMap.LongAdder> data) {
+    private Map<RowKey, List<ColumnName>> rowKeyBaseMerge(Map<RowInfo, Long> data) {
         final Map<RowKey, List<ColumnName>> merge = new HashMap<>();
 
-        for (Map.Entry<RowInfo, ConcurrentCounterMap.LongAdder> entry : data.entrySet()) {
+        for (Map.Entry<RowInfo, Long> entry : data.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
             // write callCount to columnName and throw away
-            long callCount = entry.getValue().get();
+            long callCount = entry.getValue();
             rowInfo.getColumnName().setCallCount(callCount);
 
             RowKey rowKey = rowInfo.getRowKey();

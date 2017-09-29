@@ -49,6 +49,7 @@ import org.springframework.stereotype.Component;
  * @author emeroad
  * @author hyungil.jeong
  */
+@Deprecated
 @Component
 public class HbaseAgentStatDaoOperations {
     private static final long USE_AGGREGATED_THRESHOLD = TimeUnit.HOURS.toMillis(24);

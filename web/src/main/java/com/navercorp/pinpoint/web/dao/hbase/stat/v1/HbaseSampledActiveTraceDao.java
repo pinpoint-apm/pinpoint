@@ -32,6 +32,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledActiveTraceDaoV1")
 public class HbaseSampledActiveTraceDao implements SampledActiveTraceDao {
 

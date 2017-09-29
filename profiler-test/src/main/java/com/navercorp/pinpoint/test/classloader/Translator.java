@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.test.classloader;
 
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 
 /**
  * @author Woonduk Kang(emeroad)

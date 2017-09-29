@@ -92,6 +92,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <h3>Library (5000 ~ 7499)</h3>
  * <table>
  * <tr><td>5000</td><td>INTERNAL_METHOD</td></tr>
+ * <tr><td>5005</td><td>JSP</td></tr>
  * <tr><td>5010</td><td>GSON</td></tr>
  * <tr><td>5011</td><td>JACKSON</td></tr>
  * <tr><td>5012</td><td>JSON-LIB</td></tr>
@@ -121,6 +122,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8200</td><td>REDIS</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>8310</td><td><i>ACTIVEMQ_CLIENT</i></td></tr>
+ * <tr><td>8311</td><td><i>ACTIVEMQ_CLIENT_INTERNAL</i></td></tr>
  * </table>
  * <h3>Cache Library Sandbox (8900 ~ 8999) Histogram type: Fast </h3>
  * 
@@ -146,6 +149,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9120</td><td>HYSTRIX_COMMAND</td></tr>
  * <tr><td>9130</td><td>VERTX_HTTP_CLIENT</td></tr>
  * <tr><td>9131</td><td>VERTX_HTTP_CLIENT_INTERNAL</td></tr>
+ * <tr><td>9140</td><td>REST_TEMPLATE</td></tr>
+ * <tr><td>9150</td><td>NETTY</td></tr>
+ * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
+ * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>

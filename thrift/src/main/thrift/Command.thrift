@@ -21,8 +21,8 @@ enum TThreadState {
 }
 
 struct TMonitorInfo {
-	1: i32 		stackDepth
-	2: string 	stackFrame
+    1: i32 		stackDepth
+    2: string 	stackFrame
 }
 
 struct TThreadDump {
@@ -109,38 +109,39 @@ struct TCmdActiveThreadLightDumpRes {
 }
 
 struct TCommandEcho {
-	1: string	message
+    1: string	message
 }
 
 enum TRouteResult {
-	OK = 0,
+    OK = 0,
 
-	BAD_REQUEST = 200,
-	EMPTY_REQUEST = 201,
-	NOT_SUPPORTED_REQUEST = 202,
+    BAD_REQUEST = 200,
+    EMPTY_REQUEST = 201,
+    NOT_SUPPORTED_REQUEST = 202,
 
-	BAD_RESPONSE = 210,
-	EMPTY_RESPONSE = 211,
-	NOT_SUPPORTED_RESPONSE = 212,
+    BAD_RESPONSE = 210,
+    EMPTY_RESPONSE = 211,
+    NOT_SUPPORTED_RESPONSE = 212,
 
-	TIMEOUT = 220,
+    TIMEOUT = 220,
 
-	NOT_FOUND = 230,
+    NOT_FOUND = 230,
 
-	NOT_ACCEPTABLE = 240,
-	NOT_SUPPORTED_SERVICE = 241,
+    NOT_ACCEPTABLE = 240,
+    NOT_SUPPORTED_SERVICE = 241,
 
-	UNKNOWN = -1
+    UNKNOWN = -1
 }
 
 struct TCommandTransfer {
-    1: string	applicationName
-    2: string 	agentId
-    3: optional i64		startTime
-    4: binary 	payload
+    1: string applicationName
+    2: string agentId
+    3: optional i64 startTime
+    4: binary payload
 }
+
 struct TCommandTransferResponse {
-	1: TRouteResult routeResult
-	2: binary payload
-	3: optional string message
+    1: TRouteResult routeResult
+    2: binary payload
+    3: optional string message
 }

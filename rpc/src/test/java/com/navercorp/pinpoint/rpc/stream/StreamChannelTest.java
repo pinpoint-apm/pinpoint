@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class StreamChannelTest {
 

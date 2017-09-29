@@ -30,6 +30,8 @@ import java.util.List;
 @JsonSerialize(using = AgentActiveThreadDumpListSerializer.class)
 public class AgentActiveThreadDumpList {
 
+    public static final AgentActiveThreadDumpList EMPTY_INSTANCE = new AgentActiveThreadDumpList(0);
+
     private final List<AgentActiveThreadDump> agentActiveThreadDumpRepository;
 
     public AgentActiveThreadDumpList() {

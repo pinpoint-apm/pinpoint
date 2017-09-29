@@ -18,6 +18,9 @@
                 <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
                 <prop key="hbase.zookeeper.property.clientPort">${hbase.client.port}</prop>
 
+                <!--Root ZNode for HBase in ZooKeeper.-->
+                <prop key="zookeeper.znode.parent">${hbase.zookeeper.znode.parent:/hbase}</prop>
+
                 <!-- hbase default:true -->
                 <prop key="hbase.ipc.client.tcpnodelay">${hbase.ipc.client.tcpnodelay}</prop>
                 <!-- hbase default:60000 -->
@@ -95,7 +98,15 @@
         <constructor-arg type="int" value="256"/>
     </bean>
 
+    <bean id="applicationStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg ref="applicationStatRangeHasher"/>
+    </bean>
 
+    <bean id="applicationStatRangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+        <constructor-arg type="int" value="0"/>
+        <constructor-arg type="int" value="33"/>
+        <constructor-arg type="int" value="64"/>
+    </bean>
 
     <bean id="agentStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg ref="agentStatRangeHasher"/>

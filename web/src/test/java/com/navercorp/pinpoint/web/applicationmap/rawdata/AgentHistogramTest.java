@@ -87,11 +87,11 @@ public class AgentHistogramTest {
     public String originalJson(AgentHistogram agentHistogram) throws IOException {
         //old implementation
         StringBuilder sb = new StringBuilder();
-        sb.append("{");
+        sb.append('{');
         sb.append("\"name\":\"").append(agentHistogram.getId()).append("\",");
         String histogram = mapper.writeValueAsString(agentHistogram.getHistogram());
         sb.append("\"histogram\":").append(histogram);
-        sb.append("}");
+        sb.append('}');
         return sb.toString();
     }
 }

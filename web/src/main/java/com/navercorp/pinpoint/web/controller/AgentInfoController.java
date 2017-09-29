@@ -16,13 +16,19 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentInstallationInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import com.navercorp.pinpoint.web.vo.CodeResult;
 import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -38,6 +44,9 @@ import java.util.List;
  */
 @Controller
 public class AgentInfoController {
+
+    private static final int CODE_SUCCESS = 0;
+    private static final int CODE_FAIL = -1;
 
     @Autowired
     private AgentInfoService agentInfoService;
@@ -129,4 +138,57 @@ public class AgentInfoController {
         Range range = new Range(from, to);
         return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypeCodes);
     }
+
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(value = "/getAgentStatusTimeline", method = RequestMethod.GET)
+    @ResponseBody
+    public InspectorTimeline getAgentStatusTimeline(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        Range range = new Range(from, to);
+        return agentInfoService.getAgentStatusTimeline(agentId, range, null);
+    }
+
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(value = "/getAgentStatusTimeline", method = RequestMethod.GET, params = {"exclude"})
+    @ResponseBody
+    public InspectorTimeline getAgentStatusTimeline(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
+        Range range = new Range(from, to);
+        return agentInfoService.getAgentStatusTimeline(agentId, range, excludeEventTypeCodes);
+    }
+
+    @RequestMapping(value = "/isAvailableAgentId")
+    @ResponseBody
+    public CodeResult isAvailableAgentId(@RequestParam("agentId") String agentId) {
+        if (!IdValidateUtils.checkLength(agentId, PinpointConstants.AGENT_NAME_MAX_LEN)) {
+            return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
+        }
+
+        if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_NAME_MAX_LEN)) {
+            return new CodeResult(CODE_FAIL, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+        }
+
+        if (agentInfoService.isExistAgentId(agentId)) {
+            return new CodeResult(CODE_FAIL, "already exist agentId");
+        }
+
+        return new CodeResult(CODE_SUCCESS, "OK");
+    }
+
+    @RequestMapping(value = "/getAgentInstallationInfo")
+    @ResponseBody
+    public CodeResult getAgentDownloadUrl() {
+        AgentDownloadInfo latestStableAgentDownloadInfo = agentInfoService.getLatestStableAgentDownloadInfo();
+        if (latestStableAgentDownloadInfo != null) {
+            return new CodeResult(0, new AgentInstallationInfo(latestStableAgentDownloadInfo));
+        }
+
+        return new CodeResult(-1, "can't find suitable download url");
+    }
+
 }

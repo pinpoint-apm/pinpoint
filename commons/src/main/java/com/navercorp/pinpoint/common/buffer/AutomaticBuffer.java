@@ -142,11 +142,6 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putByte(v);
     }
 
-    @Deprecated
-    @Override
-    public void put(final byte v){
-        putByte(v);
-    }
 
     @Override
     public void putBoolean(final boolean v) {
@@ -154,22 +149,12 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putBoolean(v);
     }
 
-    @Deprecated
-    @Override
-    public void put(final boolean v) {
-        putBoolean(v);
-    }
+
 
     @Override
     public void putShort(final short v) {
         checkExpand(2);
         super.putShort(v);
-    }
-
-    @Deprecated
-    @Override
-    public void put(final short v) {
-        putShort(v);
     }
 
     @Override
@@ -178,11 +163,6 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putInt(v);
     }
 
-    @Deprecated
-    @Override
-    public void put(final int v) {
-        putInt(v);
-    }
 
     @Override
     public void putVInt(final int v) {
@@ -190,11 +170,6 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putVInt(v);
     }
 
-    @Deprecated
-    @Override
-    public void putVar(final int v) {
-        putVInt(v);
-    }
 
     @Override
     public void putSVInt(final int v) {
@@ -202,11 +177,6 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putSVInt(v);
     }
 
-    @Deprecated
-    @Override
-    public void putSVar(final int v) {
-        putSVInt(v);
-    }
 
 
     @Override
@@ -215,11 +185,6 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putVLong(v);
     }
 
-    @Deprecated
-    @Override
-    public void putVar(final long v) {
-        putVLong(v);
-    }
 
     @Override
     public void putSVLong(final long v) {
@@ -227,11 +192,6 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putSVLong(v);
     }
 
-    @Deprecated
-    @Override
-    public void putSVar(final long v) {
-        putSVLong(v);
-    }
 
     @Override
     public void putLong(final long v) {
@@ -239,11 +199,7 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putLong(v);
     }
 
-    @Deprecated
-    @Override
-    public void put(final long v) {
-        putLong(v);
-    }
+
 
 
     @Override
@@ -255,8 +211,4 @@ public class AutomaticBuffer extends FixedBuffer {
         super.putBytes(v);
     }
 
-    @Override
-    public void put(final byte[] v) {
-        putBytes(v);
-    }
 }

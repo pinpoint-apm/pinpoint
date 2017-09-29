@@ -17,37 +17,29 @@
 
 package com.navercorp.pinpoint.test.javasssit;
 
+import com.google.inject.Provider;
+import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
+import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
+import com.navercorp.pinpoint.test.MockApplicationContext;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
-import com.navercorp.pinpoint.test.javasssit.accessor.BindValueTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.DatabaseInfoTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntArrayGetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntArraySetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntArrayTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntGetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntSetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntegerArrayGetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntegerArraySetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntegerArrayTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.ObjectTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.StringGetter;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import javassist.bytecode.Descriptor;
 import org.junit.Assert;
@@ -57,12 +49,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author emeroad
@@ -83,12 +77,13 @@ public class JavassistClassTest {
 
     @Test
     public void testClassHierarchy() throws InstrumentException {
-        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
+        InstrumentEngine engine = newJavassistEngine();
 
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(instrumentContext, null, testObjectName, testObjectByteCode);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
 
@@ -100,7 +95,7 @@ public class JavassistClassTest {
 
         final String classHierarchyTestMockName = "com.navercorp.pinpoint.test.javasssit.mock.ClassHierarchyTestMock";
         byte[] classHierarchyTestMockByteCode = readByteCode(classHierarchyTestMockName);
-        InstrumentClass classHierarchyObject = pool.getClass(null, null, classHierarchyTestMockName, classHierarchyTestMockByteCode);
+        InstrumentClass classHierarchyObject = engine.getClass(instrumentContext, null, classHierarchyTestMockName, classHierarchyTestMockByteCode);
         String hierarchySuperClass = classHierarchyObject.getSuperClass();
         Assert.assertEquals("java.util.HashMap", hierarchySuperClass);
 
@@ -110,14 +105,23 @@ public class JavassistClassTest {
         Assert.assertEquals(hierarchyInterfaces[1], "java.lang.Comparable");
     }
 
+    private InstrumentEngine newJavassistEngine() {
+        Instrumentation instrumentation = mock(Instrumentation.class);
+        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
+
+        return new JavassistEngine(instrumentation, objectBinderFactory, new GlobalInterceptorRegistryBinder(), apiMetaDataService, null);
+    }
+
     @Test
     public void testDeclaredMethod() throws InstrumentException {
 
-        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
+        InstrumentEngine engine = newJavassistEngine();
 
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(instrumentContext, null, testObjectName, testObjectByteCode);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
 
@@ -128,12 +132,12 @@ public class JavassistClassTest {
 
     @Test
     public void testDeclaredMethods() throws InstrumentException {
+        InstrumentEngine engine = newJavassistEngine();
 
-        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
-
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(instrumentContext, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         int findMethodCount = 0;
@@ -142,7 +146,7 @@ public class JavassistClassTest {
                 continue;
             }
             String[] parameterTypes = methodInfo.getParameterTypes();
-            if (parameterTypes == null || parameterTypes.length == 0) {
+            if (ArrayUtils.isEmpty(parameterTypes)) {
                 findMethodCount++;
             }
         }
@@ -164,10 +168,12 @@ public class JavassistClassTest {
                     InstrumentClass aClass = instrumentor.getInstrumentClass(classLoader, javassistClassName, classfileBuffer);
 
                     String methodName = "callA";
-                    aClass.getDeclaredMethod(methodName).addInterceptor("com.navercorp.pinpoint.test.javasssit.TestBeforeInterceptor");
+                    InstrumentMethod callaMethod = aClass.getDeclaredMethod(methodName);
+                    callaMethod.addInterceptor("com.navercorp.pinpoint.test.javasssit.TestBeforeInterceptor");
 
-                    return aClass.toBytecode();
-                } catch (InstrumentException e) {
+                    byte[] bytes = aClass.toBytecode();
+                    return bytes;
+                } catch (Throwable e) {
                     e.printStackTrace();
                     throw new RuntimeException(e.getMessage(), e);
                 }
@@ -177,6 +183,8 @@ public class JavassistClassTest {
         Class<?> testObjectClazz = loader.loadClass(javassistClassName);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
+        logger.info("class cl:{}", testObjectClazz.getClassLoader());
+
         final Object testObject = testObjectClazz.newInstance();
         Method callA = testObjectClazz.getMethod(methodName);
         callA.invoke(testObject);
@@ -190,7 +198,9 @@ public class JavassistClassTest {
     }
 
     private Interceptor getInterceptor(final TestClassLoader loader, int index) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
-        Interceptor interceptor = (Interceptor) loader.loadClass("com.navercorp.pinpoint.test.javasssit.TestInterceptors").getMethod("get", int.class).invoke(null, index);
+        Class<?> interceptorClazz = loader.loadClass("com.navercorp.pinpoint.test.javasssit.TestInterceptors");
+        Method getMethod = interceptorClazz.getMethod("get", int.class);
+        Interceptor interceptor = (Interceptor) getMethod.invoke(null, index);
         return interceptor;
     }
 
@@ -199,9 +209,9 @@ public class JavassistClassTest {
 
         DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
-        DefaultAgent agent = MockAgent.of(profilerConfig);
+        MockApplicationContext applicationContext = MockApplicationContext.of(profilerConfig);
 
-        TestClassLoader testClassLoader = new TestClassLoader(agent);
+        TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         testClassLoader.initialize();
         return testClassLoader;
     }
@@ -281,18 +291,21 @@ public class JavassistClassTest {
     @Test
     public void nullDescriptor() {
         String nullDescriptor = Descriptor.ofParameters(null);
-        logger.info("Descript null:{}", nullDescriptor);
+        logger.debug("Descriptor null:{}", nullDescriptor);
     }
 
 
 
     @Test
     public void getNestedClasses() throws Exception {
-        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
+
+        InstrumentEngine engine = newJavassistEngine();
+
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObjectNestedClass";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(instrumentContext, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         // find class name condition.
@@ -313,11 +326,14 @@ public class JavassistClassTest {
 
     @Test
     public void hasEnclodingMethod() throws Exception {
-        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
+
+        InstrumentEngine engine = newJavassistEngine();
+
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObjectNestedClass";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(instrumentContext, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         assertEquals(1, testObject.getNestedClasses(ClassFilters.enclosingMethod("enclosingMethod", "java.lang.String", "int")).size());

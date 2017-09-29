@@ -9,11 +9,11 @@
 	 * @class
 	 */	
 	pinpointApp.constant('AlarmAjaxServiceConfig', {
-		group: "/userGroup.pinpoint", //POST, GET, PUT, DELETE
-		groupMember: "/userGroup/member.pinpoint",
-		pinpointUser: "/user.pinpoint",
-		alarmRule: "/application/alarmRule.pinpoint",
-		alarmRuleSet: "/application/alarmRule/checker.pinpoint"
+		group: "userGroup.pinpoint", //POST, GET, PUT, DELETE
+		groupMember: "userGroup/member.pinpoint",
+		pinpointUser: "user.pinpoint",
+		alarmRule: "application/alarmRule.pinpoint",
+		alarmRuleSet: "application/alarmRule/checker.pinpoint"
 	});
 	
 	pinpointApp.service('AlarmAjaxService', [ 'AlarmAjaxServiceConfig', '$http', function ($config, $http) {

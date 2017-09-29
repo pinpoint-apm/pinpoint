@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -28,7 +30,7 @@ public class ListenableAsyncStateTest {
     public void close() throws Exception {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
-        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock);
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);
         listenableAsyncState.setup();
         listenableAsyncState.await();
         listenableAsyncState.finish();
@@ -41,11 +43,11 @@ public class ListenableAsyncStateTest {
     public void close_setup() throws Exception {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
-        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock);
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);
         listenableAsyncState.setup();
         listenableAsyncState.finish();
 
-        verify(mock, times(0)).finish();
+        verify(mock, never()).finish();
     }
 
 
@@ -53,11 +55,11 @@ public class ListenableAsyncStateTest {
     public void close_await() throws Exception {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
-        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock);
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);
         listenableAsyncState.await();
         listenableAsyncState.finish();
 
-        verify(mock, times(0)).finish();
+        verify(mock, never()).finish();
     }
 
 }

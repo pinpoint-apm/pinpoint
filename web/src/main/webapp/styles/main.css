@@ -204,6 +204,7 @@ canvas {outline:none}
 .pinpoint-tooltip dt { 
 	color: yellow;
 	font-size: 16px;
+    margin: 12px 0px 2px 0px
 }
 .pinpoint-tooltip hr {
 	margin-top:10px;
@@ -212,10 +213,10 @@ canvas {outline:none}
 .pinpoint-tooltip table {
 	width:100%;
 	padding-bottom: 6px;
-	line-height:20px;
+	line-height:16px;
 }
 .pinpoint-tooltip tr {
-	padding-bottom: 6px;
+	padding-bottom: 2px;
 }
 .pinpoint-tooltip tr td {
 	padding-top: 2px;
@@ -230,7 +231,8 @@ canvas {outline:none}
 	font-weight:bold;
 }
 .pinpoint-tooltip p {
-	padding-bottom:4px;
+    padding-top: 10px;
+	padding-bottom:0px;
 }
 .pinpoint-tooltip ul {
 	padding-left: 4px;
@@ -239,7 +241,7 @@ canvas {outline:none}
 	list-style: none;
 	padding-top: 2px;
 	padding-bottom: 2px;
-	background: url("/images/circle.png") no-repeat left center;
+	background: url("../images/circle.png") no-repeat left center;
 	padding-left: 20px;
 }
 
@@ -396,4 +398,104 @@ canvas {outline:none}
 }
 #threadDump .thread-list tr td:nth-child(10) {
     width: 3%;
+}
+
+.grouped-application-list {
+    margin-top: 6px;
+    margin-bottom: 10px;
+    border-radius: 0px;
+}
+.grouped-application-list .input-group {
+    margin: 10px 0px 0px 0px;
+}
+.grouped-application-list .input-group input {
+    border-radius: 0px;
+}
+.grouped-application-list .input-group span {
+    border-radius: 0px;
+}
+.grouped-application-list div.panel-heading {
+    padding: 10px 6px;
+}
+.grouped-application-list div.panel-body {
+    height: 280px;
+    padding: 6px;
+    overflow-y: auto;
+}
+.grouped-application-list span.count {
+    float: right;
+    width: 100px;
+    overflow: hidden;
+    text-align: right;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.grouped-application-list ul.outer {
+    padding-left: 0px;
+}
+.grouped-application-list ul.outer > li {
+    cursor: pointer;
+    padding: 1px 2px;
+    list-style: none;
+}
+.grouped-application-list ul.inner {
+    padding-left: 14px;
+}
+.grouped-application-list ul.inner > li {
+    height: 20px;
+    font-size: 11px;
+    list-style: none;
+}
+.grouped-application-list ul.outer > li > p.name {
+    width: 244px;
+    margin: 0px 0px -4px 0px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.grouped-application-list ul.with-icon > li > p.name {
+    width: 220px;
+    margin: 0px 0px -4px 0px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.grouped-application-list ul.inner > li > p.name {
+    width: 250px;
+    margin: 0px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.grouped-application-list ul.outer > li > img {
+    margin-top: -12x;
+    margin-right: 6px;
+}
+.grouped-application-list ul.outer > li > button {
+    padding: 1px 3px;
+    font-size: 10px;
+    margin-top: -2px;
+}
+.grouped-application-list ul.outer > li > button:nth-child(1) {
+    color: #3C763D;
+}
+.grouped-application-list ul.outer > li > button:nth-child(2) {
+    color: #A94442;
+    margin-right: 2px;
+}
+.grouped-application-list ul.outer > li p.selected {
+    color: #1babf4;
+}
+.grouped-application-list ul.outer > li {
+    border-bottom: 1px solid #F3F3F3;
+}
+.grouped-application-list ul.outer > li:hover {
+    background-color: #c1ecff;
+}
+.grouped-application-list .count {
+    float: right;
 }

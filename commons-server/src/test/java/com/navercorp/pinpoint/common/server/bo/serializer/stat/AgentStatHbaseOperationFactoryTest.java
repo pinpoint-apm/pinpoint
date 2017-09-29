@@ -141,7 +141,7 @@ public class AgentStatHbaseOperationFactoryTest {
         List<Put> puts = this.agentStatHbaseOperationFactory.createPuts(TEST_AGENT_ID, TEST_AGENT_STAT_TYPE, testDataPoints, this.mockSerializer);
         // Then
         assertEquals(numDataPoints, puts.size());
-        for (int i = 0; i < puts.size(); ++i) {
+        for (int i = 0; i < puts.size(); i++) {
             Put put = puts.get(i);
             assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(put.getRow()));
             assertEquals(TEST_AGENT_STAT_TYPE, this.agentStatHbaseOperationFactory.getAgentStatType(put.getRow()));
@@ -177,7 +177,7 @@ public class AgentStatHbaseOperationFactoryTest {
     private List<AgentStatDataPoint> createTestDataPoints(long initialTimestamp, long interval, int count) {
         List<AgentStatDataPoint> dataPoints = new ArrayList<AgentStatDataPoint>(count);
         long timestamp = initialTimestamp;
-        for (int i = 0; i < count; ++i) {
+        for (int i = 0; i < count; i++) {
             AgentStatDataPoint dataPoint = createTestDataPoint(timestamp);
             dataPoints.add(dataPoint);
             timestamp += interval;

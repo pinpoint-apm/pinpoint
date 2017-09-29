@@ -75,7 +75,10 @@ public class PinpointPluginTestStatement extends Statement {
 
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-    
+                if(line.endsWith("\\r")) {
+                    line = line.substring(0, line.length() - 2);
+                }
+
                 if (line.startsWith(JUNIT_OUTPUT_DELIMITER)) {
                     System.out.println(line);
                     String[] tokens = line.split(JUNIT_OUTPUT_DELIMITER_REGEXP);

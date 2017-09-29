@@ -14,40 +14,9 @@
  * limitations under the License.
  */
 
-/*
- * Copyright 2015 NAVER Corp.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.navercorp.pinpoint.common.server.util;
 
-import static org.junit.Assert.*;
-
-import java.io.UnsupportedEncodingException;
-import java.lang.management.LockInfo;
-import java.lang.management.MonitorInfo;
-import java.lang.management.ThreadInfo;
-
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
@@ -55,28 +24,36 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandRegistry;
-import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
+import com.navercorp.pinpoint.thrift.io.TCommandType;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.lang.management.LockInfo;
+import java.lang.management.MonitorInfo;
+import java.lang.management.ThreadInfo;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentEventMessageSerDesTest {
 
-    private static final String TEST_PINPOINT_VERSION = Version.VERSION;
-
     private final TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-    private final TCommandRegistry commandTbaseRegistry = new TCommandRegistry(TCommandTypeVersion.getVersion(TEST_PINPOINT_VERSION));
+    private final TCommandRegistry commandTbaseRegistry = new TCommandRegistry(Arrays.asList(TCommandType.THREAD_DUMP_RESPONSE));
 
-    private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true,
+    private final SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true,
             HeaderTBaseSerializerFactory.DEFAULT_STREAM_SIZE, true, this.protocolFactory, this.commandTbaseRegistry);
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(this.protocolFactory,
             this.commandTbaseRegistry);
 
-    private final AgentEventMessageSerializer serializer = new AgentEventMessageSerializer(serializerFactory);
+    private final AgentEventMessageSerializer serializer = new AgentEventMessageSerializer(Arrays.asList(serializerFactory));
     private final AgentEventMessageDeserializer deserializer = new AgentEventMessageDeserializer(deserializerFactory);
 
     @Test

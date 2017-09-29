@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.*;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     }
 
                     List<TBase<?, ?>> tbaseList = deserializer.deserializeList(componentData);
-                    if (tbaseList == null || tbaseList.isEmpty()) {
+                    if (CollectionUtils.isEmpty(tbaseList)) {
                         continue;
                     }
                     
@@ -146,7 +147,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
     }
 
     private List<TSpanEvent> getSpanEventList(List<TBase<?, ?>> tbaseList) {
-        if (tbaseList == null || tbaseList.isEmpty()) {
+        if (CollectionUtils.isEmpty(tbaseList)) {
             return new ArrayList<>(0);
         }
 

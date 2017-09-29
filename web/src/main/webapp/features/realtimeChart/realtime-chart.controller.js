@@ -29,7 +29,7 @@
 			ACTIVE_THREAD_COUNT: "activeThreadCount"
 		},
 		template: {
-			agentChart: '<div class="agent-chart"><div></div></div>',
+			agentChart: '<div class="agent-chart"><div></div><span class="glyphicon glyphicon-new-window"></span></div>',
 			chartDirective: Handlebars.compile( '<realtime-chart-directive timeout-max-count="{{timeoutMaxCount}}" chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
 		},
 		css : {
@@ -51,8 +51,8 @@
 		}
 	});
 	
-	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$location", "$rootScope", "$compile", "$timeout", "$window", "$http",  "SystemConfigurationService", "LocalStorageManagerService", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
-	    function (cfg, $scope, $element, $location, $rootScope, $compile, $timeout, $window, $http, SystemConfigService, LocalStorageManagerService, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
+	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$location", "$rootScope", "$compile", "$timeout", "$window", "SystemConfigurationService", "LocalStorageManagerService", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
+	    function (cfg, $scope, $element, $location, $rootScope, $compile, $timeout, $window, SystemConfigService, LocalStorageManagerService, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 	    	var TIMEOUT_MAX_COUNT = 10;
@@ -62,6 +62,7 @@
 			var $elSumChartWrapper, $elTitle, $elSumChartCount, $elAgentChartListWrapper, $elWarningMessage, $elPin;
 	    	var preUrlParam = "";
 			var currentApplicationName = "";
+			var currentServiceType = "";
 	    	var aAgentChartElementList = [];
 			var aChildScopeList = [];
 	    	var oNamespaceToIndexMap = {};
@@ -85,9 +86,13 @@
 			var timeoutResult = null;
 			tooltipService.init( "realtime" );
 
+			$scope.maxPageSize = webSocketService.getPagingSize();
+			$scope.pagingValue = [];
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
 	    	$scope.agentChartColor 	= ["rgba(44, 160, 44, .8)", "rgba(60, 129, 250, .8)", 	"rgba(248, 199, 49, .8)", 	"rgba(246, 145, 36, .8)"];
 	    	$scope.requestLabelNames= [ "1s", "3s", "5s", "Slow"];
+	    	$scope.serverTotalCount = 0;
+			$scope.showServerPaging = false;
 	    	$scope.bInitialized = false;
 
 			$(document).on("visibilitychange", function() {
@@ -204,6 +209,7 @@
 			        	
 			        	var applicationData = responseData[cfg.keys.ACTIVE_THREAD_COUNTS];
 			        	var aRequestSum = getSumOfRequestType( applicationData );
+						setServerTotalCount( Object.keys(applicationData).length );
 			        	addSumYValue( aRequestSum );
 			        	
 			        	broadcastData( applicationData, aRequestSum, responseData[cfg.keys.TIME_STAMP] );
@@ -228,6 +234,9 @@
 	        		
 	        		showAgentChart( agentIndexAndCount );
 	        		agentIndexAndCount++;
+	        		if ( agentIndexAndCount >= $scope.maxPageSize ) {
+	        			break;
+					}
 	        	}
 	        	checkNotUseAgentChart( agentIndexAndCount );
         		$scope.$broadcast('realtimeChartDirective.onData.sum', aRequestSum, timeStamp, maxY, bAllError );
@@ -262,7 +271,7 @@
 				}
 			}
 	        function setAgentName( index, name ) {
-	        	aAgentChartElementList[index].find("div").html(name);
+	        	aAgentChartElementList[index].find("div").attr("data-name", name).html(name);
 	        }
 	        function getSumOfRequestType( datum ) {
 	        	var aRequestSum = [0, 0, 0, 0];
@@ -341,13 +350,16 @@
 	        		bottom: -parseInt(LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height)
 	        	}, 500, function() {
 	        	});
+	        	setServerTotalCount(0);
 	        }
 	        function showPopup() {
-				$element.css("height", LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height);
+				var savedHeight = LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height;
+				$element.css("height", savedHeight);
 	        	$element.animate({
 	        		bottom: 0,
 	        		left: 0
 	        	}, 500, function() {
+					$elAgentChartListWrapper.css("height", savedHeight - cfg.css.titleHeight );
 	        	});
 	        }
 	        function adjustWidth() {
@@ -356,6 +368,32 @@
 	        function setPinColor() {
 	        	$elPin.css("color", bIsPinned ? "red": "");
 	        }
+	        function arrayIndexFill( length ) {
+				var arr = [];
+				for( var i = 2 ; i <= length ; i++ ) {
+					arr.push(i);
+				}
+				return arr;
+			}
+	        function setServerTotalCount(count) {
+				$scope.serverTotalCount = count;
+				if ( count <= $scope.maxPageSize  ) {
+					$scope.showServerPaging = false;
+					$scope.pagingValue = [];
+				} else {
+					$scope.showServerPaging = true;
+					var pageSize = count / $scope.maxPageSize  + ( count % $scope.maxPageSize  > 0 ? 1 : 0 );
+					$scope.pagingValue = arrayIndexFill(pageSize);
+				}
+			}
+			$scope.openRATChart = function( page ) {
+				$window.open(
+					getOpenUrl() +
+					"/realtime/" + currentApplicationName + "@" + currentServiceType + "/" + page,
+					"RealTime Active Thread Chart Paging View [" + page + "]",
+					"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
+				);
+			};
 	        $scope.$on( "realtimeChartController.close", function () {
 	        	hidePopup();
 	        	var prevShowRealtimeChart = bShowRealtimeChart;
@@ -363,12 +401,14 @@
 	        	bShowRealtimeChart = prevShowRealtimeChart;
 	        	setPinColor();
 	        });
-	        $scope.$on( "realtimeChartController.initialize", function (event, was, applicationName, urlParam ) {
+	        $scope.$on( "realtimeChartController.initialize", function (event, was, applicationName, serviceType, urlParam ) {
 	        	hideSub();
 	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
 	        	if ( UrlVoService.isRealtime() === false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
+	        	serviceType = angular.isUndefined( serviceType ) ? "" : serviceType;
+
 	        	preUrlParam = urlParam;
 
 				if ( bIsFirstInit === true ) {
@@ -387,7 +427,9 @@
 	        	$scope.bInitialized = true;
 
 				// resetStatus();
-				$elTitle.html( currentApplicationName = applicationName );
+				currentApplicationName = applicationName;
+				currentServiceType = serviceType;
+				$elTitle.html( currentApplicationName );
 	        	showPopup();
         		showWaitingConnectionPopup();
         		
@@ -404,23 +446,28 @@
 	        	setPinColor();
 	        };
 	        $scope.showAgentInfo = function( $event ) {
-				var $target = $( $event.target );
-				if ( $target.hasClass("agent-chart-list") ) {
-					return;
+	        	if ( $( $event.target ).hasClass("paging") || $( $event.target ).parent().hasClass("paging") ) {
+	        		return;
 				}
-				var agentId = $target.hasClass("agent-chart" ) ? $target.find( "> div" ).html() : $target.parent(".agent-chart").find("> div").html();
-				var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
-				if ( openType === null || openType === "window" ) {
-					$window.open(
-						getOpenUrl() +
-						"/threadDump/" + currentApplicationName + "/" + agentId,
-						"Thread Dump Info",
-						"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
-					);
-				} else {
-					$rootScope.$broadcast( "thread-dump-info-layer.open", currentApplicationName, agentId );
+				if ( SystemConfigService.get("showActiveThreadDump") === true ) {
+					var $target = $( $event.target );
+					if ($target.hasClass("agent-chart-list")) {
+						return;
+					}
+					var agentId = $target.parents(".agent-chart").find("div").attr("data-name");
+					var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
+					if (openType === null || openType === "window") {
+						$window.open(
+							getOpenUrl() +
+							"/threadDump/" + currentApplicationName + "@" + currentServiceType + "/" + agentId + "?" + Date.now().valueOf() ,
+							"Thread Dump Info",
+							"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
+						);
+					} else {
+						$rootScope.$broadcast("thread-dump-info-layer.open", currentApplicationName, agentId);
+					}
+					AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER);
 				}
-				AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER );
 			};
 	        function getOpenUrl() {
 	        	var url = $location.absUrl();
@@ -434,7 +481,9 @@
 	        	stopReceive();
 	        	stopChart();
 				$elWarningMessage.hide();
-				$elTitle.html( currentApplicationName = "" );
+				currentApplicationName = "";
+				currentServiceType = "";
+				$elTitle.html( currentApplicationName );
 				$elSumChartCount.html("0");
 	        }
 	        $($window).on("resize", function() {
@@ -443,6 +492,7 @@
 				$element.resizable("option", "maxHeight", newHeight);
 				if ( parseInt($element.css("height")) > newHeight && newHeight > cfg.css.height ) {
 					$element.css("height", newHeight);
+					$elAgentChartListWrapper.css("height", newHeight - cfg.css.titleHeight );
 					LocalStorageManagerService.setRealtimeLayerHeight( newHeight );
 				}
 	        });
@@ -451,6 +501,7 @@
 				maxHeight: $window.innerHeight - cfg.css.navBarHeight,
 				handles: "n",
 				resize: function( event, ui ) {
+					$elAgentChartListWrapper.css("height", ui.size.height - cfg.css.titleHeight );
 					LocalStorageManagerService.setRealtimeLayerHeight( ui.size.height );
 				}
 			});

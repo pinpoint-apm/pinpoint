@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 @Repository("dataSourceDaoV1")
 public class HbaseDataSourceDao implements DataSourceDao {
 

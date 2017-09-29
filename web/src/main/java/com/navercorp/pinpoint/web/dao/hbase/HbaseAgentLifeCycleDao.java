@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
+import org.springframework.util.Assert;
 
 /**
  * @author HyunGil Jeong
@@ -58,19 +59,12 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (timestamp < 0) {
-            throw new IllegalArgumentException("timestamp must not be less than 0");
-        }
+        Assert.notNull(agentId, "agentId must not be null");
+        Assert.isTrue(timestamp >= 0, "timestamp must not be less than 0");
 
-        long startRowTimestamp = TimeUtils.reverseTimeMillis(timestamp);
-        long endRowTimestamp = Long.MAX_VALUE;
+        Scan scan = createScan(agentId, 0, timestamp);
 
-        Scan scan = createScan(agentId, startRowTimestamp, endRowTimestamp);
-
-        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new AgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
+        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
         return createAgentStatus(agentId, agentLifeCycleBo);
     }
 
@@ -79,15 +73,14 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         if (agentInfo == null) {
             return;
         }
-        if (timestamp < 0) {
-            throw new IllegalArgumentException("timestamp must not be less than 0");
-        }
-
+        Assert.isTrue(timestamp >= 0, "timestamp must not be less than 0");
         final String agentId = agentInfo.getAgentId();
-        final long startTimestamp = TimeUtils.reverseTimeMillis(agentInfo.getStartTimestamp());
-        Scan scan = createScan(agentId, startTimestamp, startTimestamp + 1);
+        // startTimestamp is stored in reverse order
+        final long toTimestamp = agentInfo.getStartTimestamp();
+        final long fromTimestamp = toTimestamp - 1;
+        Scan scan = createScan(agentId, fromTimestamp, toTimestamp);
 
-        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new AgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
+        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
         AgentStatus agentStatus = createAgentStatus(agentId, agentLifeCycleBo);
         agentInfo.setStatus(agentStatus);
     }
@@ -97,19 +90,17 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         if (CollectionUtils.isEmpty(agentInfos)) {
             return;
         }
-        if (timestamp < 0) {
-            throw new IllegalArgumentException("timestamp must not be less than 0");
-        }
-
         List<Scan> scans = new ArrayList<>(agentInfos.size());
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo != null) {
                 final String agentId = agentInfo.getAgentId();
-                final long startTimestamp = TimeUtils.reverseTimeMillis(agentInfo.getStartTimestamp());
-                scans.add(createScan(agentId, startTimestamp, startTimestamp + 1));
+                // startTimestamp is stored in reverse order
+                final long toTimestamp = agentInfo.getStartTimestamp();
+                final long fromTimestamp = toTimestamp - 1;
+                scans.add(createScan(agentId, fromTimestamp, toTimestamp));
             }
         }
-        List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations2.findParallel(HBaseTables.AGENT_LIFECYCLE, scans, new AgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
+        List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations2.findParallel(HBaseTables.AGENT_LIFECYCLE, scans, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
         int idx = 0;
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo != null) {
@@ -119,10 +110,12 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         }
     }
 
-    private Scan createScan(String agentId, long startTimestamp, long endTimestamp) {
+    private Scan createScan(String agentId, long fromTimestamp, long toTimestamp) {
         byte[] agentIdBytes = Bytes.toBytes(agentId);
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, startTimestamp);
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, endTimestamp);
+        long reverseFromTimestamp = TimeUtils.reverseTimeMillis(fromTimestamp);
+        long reverseToTimestamp = TimeUtils.reverseTimeMillis(toTimestamp);
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, reverseToTimestamp);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, reverseFromTimestamp);
 
         Scan scan = new Scan(startKeyBytes, endKeyBytes);
         scan.addColumn(HBaseTables.AGENT_LIFECYCLE_CF_STATUS, HBaseTables.AGENT_LIFECYCLE_CF_STATUS_QUALI_STATES);
@@ -142,12 +135,12 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         }
     }
 
-    static class AgentLifeCycleResultsExtractor implements ResultsExtractor<AgentLifeCycleBo> {
+    private static class MostRecentAgentLifeCycleResultsExtractor implements ResultsExtractor<AgentLifeCycleBo> {
 
         private final RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
         private final long queryTimestamp;
 
-        AgentLifeCycleResultsExtractor(RowMapper<AgentLifeCycleBo> agentLifeCycleMapper, long queryTimestamp) {
+        private MostRecentAgentLifeCycleResultsExtractor(RowMapper<AgentLifeCycleBo> agentLifeCycleMapper, long queryTimestamp) {
             this.agentLifeCycleMapper = agentLifeCycleMapper;
             this.queryTimestamp = queryTimestamp;
         }

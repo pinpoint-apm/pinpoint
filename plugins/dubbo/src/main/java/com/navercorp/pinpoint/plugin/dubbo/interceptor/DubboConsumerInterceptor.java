@@ -22,7 +22,12 @@ public class DubboConsumerInterceptor implements AroundInterceptor1 {
 
     @Override
     public void before(Object target, Object arg0) {
-        Trace trace = this.getTrace(target);
+        // Ignore monitor service
+        if (isMonitorService(target)) {
+            return;
+        }
+
+        Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
@@ -58,7 +63,12 @@ public class DubboConsumerInterceptor implements AroundInterceptor1 {
 
     @Override
     public void after(Object target, Object arg0, Object result, Throwable throwable) {
-        Trace trace = this.getTrace(target);
+        // Ignore monitor service
+        if (isMonitorService(target)) {
+            return;
+        }
+
+        Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -87,14 +97,11 @@ public class DubboConsumerInterceptor implements AroundInterceptor1 {
         }
     }
 
-    private Trace getTrace(Object target) {
-        Invoker invoker = (Invoker) target;
-        // Ignore monitor service.
-        if (DubboConstants.MONITOR_SERVICE_FQCN.equals(invoker.getInterface().getName())) {
-            return null;
+    private boolean isMonitorService(Object target) {
+        if (target instanceof Invoker) {
+            Invoker invoker = (Invoker) target;
+            return DubboConstants.MONITOR_SERVICE_FQCN.equals(invoker.getInterface().getName());
         }
-
-        return traceContext.currentTraceObject();
+        return false;
     }
-
 }

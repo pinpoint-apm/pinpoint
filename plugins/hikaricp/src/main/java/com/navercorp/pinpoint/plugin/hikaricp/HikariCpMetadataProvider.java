@@ -26,7 +26,7 @@ public class HikariCpMetadataProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(HikariCpPlugin.HIKARICP_SERVICE_TYPE);
+        context.addServiceType(HikariCpConstants.SERVICE_TYPE);
     }
 
 }

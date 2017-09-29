@@ -14,12 +14,6 @@
  */
 package com.navercorp.pinpoint.bootstrap;
 
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -35,6 +29,12 @@ import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
+
+import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jongho Moon
@@ -173,7 +173,7 @@ class PinpointStarter {
                 pinpointAgent.stop();
             }
         };
-        PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook");
+        PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook", false);
         Thread thread = pinpointThreadFactory.newThread(stop);
         Runtime.getRuntime().addShutdownHook(thread);
     }

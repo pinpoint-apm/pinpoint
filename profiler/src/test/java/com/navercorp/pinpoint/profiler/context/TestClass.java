@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import org.junit.Test;
 
 /**
  * @author Woonduk Kang(emeroad)

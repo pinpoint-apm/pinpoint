@@ -104,6 +104,9 @@
         this._selectTime = time;
         this._selectPosition = this.getPositionFromTime( time );
     };
+    ts.PositionManager.prototype.getSelectTime = function() {
+    	return this._selectTime;
+	};
 	ts.PositionManager.prototype.getPrevTime = function() {
 		var gap = this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0];
 		return this._aSelectionTimeSeries[0] - parseInt( gap / 2 ) - 1;

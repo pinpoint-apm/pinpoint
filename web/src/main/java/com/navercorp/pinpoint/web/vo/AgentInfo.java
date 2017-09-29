@@ -216,7 +216,6 @@ public class AgentInfo {
         sb.append(", pid=").append(pid);
         sb.append(", vmVersion='").append(vmVersion).append('\'');
         sb.append(", agentVersion='").append(agentVersion).append('\'');
-        sb.append(", serverMetaData=").append(serverMetaData);
         sb.append(", jvmInfo=").append(jvmInfo);
         sb.append(", initialStartTimestamp=").append(initialStartTimestamp);
         sb.append(", status=").append(status);

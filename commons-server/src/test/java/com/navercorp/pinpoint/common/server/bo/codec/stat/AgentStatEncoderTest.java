@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecoding
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,7 +51,7 @@ public class AgentStatEncoderTest {
     @Test
     public void stats_should_be_encoded_and_decoded_into_same_value() {
         long initialTimestamp = System.currentTimeMillis();
-        int numStats = RANDOM.nextInt(20) + 1;
+        int numStats = RandomUtils.nextInt(1, 21);
         List<TestAgentStat> expectedAgentStats = this.createTestAgentStats(initialTimestamp, numStats);
         long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
         long timestampDelta = initialTimestamp - baseTimestamp;
@@ -69,7 +70,7 @@ public class AgentStatEncoderTest {
 
     private List<TestAgentStat> createTestAgentStats(long initialTimestamp, int numStats) {
         List<TestAgentStat> agentStats = new ArrayList<TestAgentStat>(numStats);
-        for (int i = 0; i < numStats; ++i) {
+        for (int i = 0; i < numStats; i++) {
             long timestamp = initialTimestamp + (COLLECT_INTERVAL * i);
             TestAgentStat agentStat = new TestAgentStat();
             agentStat.setAgentId(AGENT_ID);
@@ -112,7 +113,7 @@ public class AgentStatEncoderTest {
         public List<TestAgentStat> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
             int size = valueBuffer.readInt();
             List<TestAgentStat> agentStats = new ArrayList<TestAgentStat>(size);
-            for (int i = 0; i < size; ++i) {
+            for (int i = 0; i < size; i++) {
                 TestAgentStat agentStat = new TestAgentStat();
                 agentStat.setAgentId(decodingContext.getAgentId());
                 agentStat.setStartTimestamp(valueBuffer.readLong());

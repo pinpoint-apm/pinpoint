@@ -19,12 +19,17 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.handler.AgentInfoHandler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.thrift.dto.*;
-
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
+import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -56,7 +61,7 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
 
 
     @Override
-    RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
+    protected RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
         if (tBase instanceof TSqlMetaData) {
             return sqlMetaDataHandler;
         }
@@ -73,12 +78,13 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     }
 
     @Override
-    SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
-
+    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+        List<SimpleHandler> simpleHandlerList = new ArrayList<>();
         if (tBase instanceof TAgentInfo) {
-            return agentInfoHandler;
+            simpleHandlerList.add(agentInfoHandler);
         }
 
-        return null;
+        return simpleHandlerList;
     }
+
 }

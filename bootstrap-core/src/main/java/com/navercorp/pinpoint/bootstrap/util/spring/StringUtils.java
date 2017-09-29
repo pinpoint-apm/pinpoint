@@ -44,7 +44,7 @@ import java.util.StringTokenizer;
  * @author Sam Brannen
  * @since 16 April 2001
  */
-public class StringUtils {
+class StringUtils {
 
     /**
      * Check whether the given {@code CharSequence} contains actual <em>text</em>.

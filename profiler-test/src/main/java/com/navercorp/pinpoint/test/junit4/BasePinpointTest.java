@@ -20,17 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.SpanFactory;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
-import com.navercorp.pinpoint.test.MockAgent;
-import com.navercorp.pinpoint.test.ResettableServerMetaDataHolder;
-import com.navercorp.pinpoint.test.TestableServerMetaDataListener;
+import com.navercorp.pinpoint.test.MockApplicationContext;
 
 import org.apache.thrift.TBase;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -44,8 +42,7 @@ import com.navercorp.pinpoint.test.TBaseRecorder;
 public abstract class BasePinpointTest {
 
     private volatile TBaseRecorder<? extends TBase<?, ?>> tBaseRecorder;
-    private volatile ServerMetaDataHolder serverMetaDataHolder;
-    private final TestableServerMetaDataListener listener = new TestableServerMetaDataListener();
+    private volatile ServerMetaDataRegistryService serverMetaDataRegistryService;
     private final SpanFactory spanFactory = new SpanFactory();
 
     protected List<SpanEventBo> getCurrentSpanEvents() {
@@ -72,21 +69,21 @@ public abstract class BasePinpointTest {
     }
     
     protected ServerMetaData getServerMetaData() {
-        return this.listener.getServerMetaData();
+        return this.serverMetaDataRegistryService.getServerMetaData();
     }
 
     private void setTBaseRecorder(TBaseRecorder tBaseRecorder) {
         this.tBaseRecorder = tBaseRecorder;
     }
     
-    private void setServerMetaDataHolder(ServerMetaDataHolder serverMetaDataHolder) {
-        this.serverMetaDataHolder = serverMetaDataHolder;
+    private void setServerMetaDataRegistryService(ServerMetaDataRegistryService serverMetaDataRegistryService) {
+        this.serverMetaDataRegistryService = serverMetaDataRegistryService;
     }
 
     public void setup(TestContext testContext) {
-        MockAgent mockAgent = testContext.getMockAgent();
+        MockApplicationContext mockApplicationContext = testContext.getMockApplicationContext();
 
-        DataSender spanDataSender = mockAgent.getSpanDataSender();
+        DataSender spanDataSender = mockApplicationContext.getSpanDataSender();
         if (spanDataSender instanceof ListenableDataSender) {
             ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
 
@@ -101,11 +98,7 @@ public abstract class BasePinpointTest {
             setTBaseRecorder(tBaseRecord);
         }
 
-        ServerMetaDataHolder serverMetaDataHolder = mockAgent.getTraceContext().getServerMetaDataHolder();
-        if (serverMetaDataHolder instanceof ResettableServerMetaDataHolder) {
-            ResettableServerMetaDataHolder resettableServerMetaDataHolder = (ResettableServerMetaDataHolder) serverMetaDataHolder;
-            this.setServerMetaDataHolder(resettableServerMetaDataHolder);
-        }
-        this.serverMetaDataHolder.addListener(this.listener);
+        ServerMetaDataRegistryService serverMetaDataRegistryService = mockApplicationContext.getServerMetaDataRegistryService();
+        this.setServerMetaDataRegistryService(serverMetaDataRegistryService);
     }
 }

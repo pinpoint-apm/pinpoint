@@ -8,17 +8,12 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2016/12/08)
-We're happy to announce the release of Pinpoint v1.6.0.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.6.0)
-We're now focusing on developing v1.6.1.
+## Latest Release (2017/06/02)
+We're happy to announce the release of Pinpoint v1.6.2.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.6.2)
+We're now focusing on developing v1.7.0.
 
-Special shout out to dawidmalina, jiaqifeng, suraj-raturi, barneykim, fanyeren, abhijith0505, guindous, 999fg, mvlbarcelos and many others for your contribution and feedback.
-Without your help, we would not have been able to reach our current level of product maturity. We are extremely grateful for all your help and will continue to try our very best to provide you with the best possible experience using Pinpoint.
-We look forward to working with you as we enter the next chapter in development.
-Thank you.
-
-The current stable version is [**v1.6.0**](https://github.com/naver/pinpoint/releases/tag/1.6.0).
+The current stable version is [**v1.6.2**](https://github.com/naver/pinpoint/releases/tag/1.6.2).
 
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
@@ -46,7 +41,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, Jetty 8/9, JBoss EAP 6
+* Tomcat 6/7/8, [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 3/4](https://github.com/naver/pinpoint/tree/master/plugins/resin)
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
@@ -72,7 +67,6 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 * JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
 * JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
 * JDK 8 installed
-* Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8 home directory.
@@ -83,28 +77,31 @@ Java version required to run Pinpoint:
 
 Pinpoint Version | Agent | Collector | Web
 ---------------- | ----- | --------- | ---
-1.0.x | 6+ | 6+ | 6+
-1.1.x | 6+ | 7+ | 7+
-1.5.x | 6+ | 7+ | 7+
-1.6.x | 6+ | 7+ | 7+
+1.0.x | 6-8 | 6+ | 6+
+1.1.x | 6-8 | 7+ | 7+
+1.5.x | 6-8 | 7+ | 7+
+1.6.x | 6-8 | 7+ | 7+
+1.7.x | 6-8 | 8+ | 8+
 
 HBase compatibility table:
 
 Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBase 1.2.x
 ---------------- | ------------ | ------------ | ----------- | ----------- | -----------
-1.0.x | yes | no | no | no | no |
+1.0.x | yes | no | no | no | no
 1.1.x | no | not tested | yes | not tested | not tested
 1.5.x | no | not tested | yes | not tested | not tested
 1.6.x | no | not tested | not tested | not tested | yes
+1.7.x | no | not tested | not tested | not tested | yes
 
 Agent compatibility table:
 
-Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 1.6.x
-------------- | --------------- | --------------- | --------------- | --------------- 
-1.0.x | yes | yes | yes | yes
-1.1.x | not tested | yes | yes | yes
-1.5.x | no | no | yes | yes
-1.6.x | no | no | not tested | yes
+Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 1.6.x | Collector 1.7.x
+------------- | --------------- | --------------- | --------------- | --------------- | ---------------
+1.0.x | yes | yes | yes | yes | yes
+1.1.x | not tested | yes | yes | yes | yes
+1.5.x | no | no | yes | yes | yes
+1.6.x | no | no | not tested | yes | yes
+1.7.x | no | no | no | no | yes
 
 Pinpoint Web Supported Browsers:
 

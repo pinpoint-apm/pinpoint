@@ -60,7 +60,7 @@ public abstract class DeltaEncodingStrategy<T extends Number> implements Encodin
             this.bufferHandler.putV(buffer, initialValue);
             T previousValue = initialValue;
             // skip first value as this value is stored without compression
-            for (int i = 1; i < values.size(); ++i) {
+            for (int i = 1; i < values.size(); i++) {
                 T value = values.get(i);
                 this.bufferHandler.putV(buffer, this.operation.xor(value, previousValue));
                 previousValue = value;
@@ -77,7 +77,7 @@ public abstract class DeltaEncodingStrategy<T extends Number> implements Encodin
             values.add(initialValue);
             T previousValue = initialValue;
             // loop through numValues - 1 as the first value is simply read from buffer
-            for (int i = 0; i < numValues - 1; ++i) {
+            for (int i = 0; i < numValues - 1; i++) {
                 T value = this.operation.xor(previousValue, this.bufferHandler.readV(buffer));
                 values.add(value);
                 previousValue = value;

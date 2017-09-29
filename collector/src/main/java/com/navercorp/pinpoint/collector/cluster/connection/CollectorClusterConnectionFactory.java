@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import java.net.InetSocketAddress;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CollectorClusterConnectionFactory implements CollectorClusterConnectionOption {
 

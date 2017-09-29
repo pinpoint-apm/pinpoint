@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
  *
  */
 public class PluginTestVerifierHolder {
-    private static PluginTestVerifier instance;
+    private static volatile PluginTestVerifier instance;
     
     public static PluginTestVerifier getInstance() {
         return instance;

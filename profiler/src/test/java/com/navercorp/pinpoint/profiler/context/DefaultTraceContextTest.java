@@ -23,7 +23,9 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -99,29 +101,29 @@ public class DefaultTraceContextTest {
         @SuppressWarnings("unused")
         final long expectedSampledNewCount = newTransactionCount / samplingRate + (newTransactionCount % samplingRate > 0 ? 1 : 0);
         final long expectedUnsampledNewCount = newTransactionCount - expectedSampledNewCount;
-        for (int i = 0; i < newTransactionCount; ++i) {
+        for (int i = 0; i < newTransactionCount; i++) {
             traceContext.newTraceObject();
             traceContext.removeTraceObject();
         }
         
         final long expectedSampledContinuationCount = 5L;
-        for (int i = 0; i < expectedSampledContinuationCount; ++i) {
+        for (int i = 0; i < expectedSampledContinuationCount; i++) {
             traceContext.continueTraceObject(new DefaultTraceId("agentId", 0L, i));
             traceContext.removeTraceObject();
         }
         
         final long expectedUnsampledContinuationCount = 10L;
-        for (int i = 0; i < expectedUnsampledContinuationCount; ++i) {
+        for (int i = 0; i < expectedUnsampledContinuationCount; i++) {
             traceContext.disableSampling();
             traceContext.removeTraceObject();
         }
         
         final long expectedTotalTransactionCount = expectedSampledNewCount + expectedUnsampledNewCount + expectedSampledContinuationCount + expectedUnsampledContinuationCount;
 
-        Assert.assertEquals(expectedSampledNewCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW));
-        Assert.assertEquals(expectedUnsampledNewCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW));
-        Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION));
-        Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION));
+        Assert.assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
+        Assert.assertEquals(expectedUnsampledNewCount, transactionCounter.getUnSampledNewCount());
+        Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
+        Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         Assert.assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
     }
 }

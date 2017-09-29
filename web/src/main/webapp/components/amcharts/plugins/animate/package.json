@@ -1,0 +1,10 @@
+{
+  "name": "amcharts3-animate",
+  "version": "1.1.2",
+  "license": "SEE LICENSE IN LICENSE",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amcharts/animate.git"
+  }
+}

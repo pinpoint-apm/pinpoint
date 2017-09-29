@@ -29,7 +29,9 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -41,6 +43,7 @@ public enum UnsignedIntegerEncodingStrategy implements EncodingStrategy<Integer>
     DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS)), ;
 
     private final EncodingStrategy<Integer> delegate;
+    private static final Set<UnsignedIntegerEncodingStrategy> UNSIGNED_INTEGER_ENCODING_STRATEGY = EnumSet.allOf(UnsignedIntegerEncodingStrategy.class);
 
     UnsignedIntegerEncodingStrategy(EncodingStrategy<Integer> delegate) {
         this.delegate = delegate;
@@ -62,7 +65,8 @@ public enum UnsignedIntegerEncodingStrategy implements EncodingStrategy<Integer>
     }
 
     public static UnsignedIntegerEncodingStrategy getFromCode(int code) {
-        for (UnsignedIntegerEncodingStrategy encodingStrategy : UnsignedIntegerEncodingStrategy.values()) {
+
+        for (UnsignedIntegerEncodingStrategy encodingStrategy : UNSIGNED_INTEGER_ENCODING_STRATEGY) {
             if (encodingStrategy.getCode() == (code & 0xFF)) {
                 return encodingStrategy;
             }

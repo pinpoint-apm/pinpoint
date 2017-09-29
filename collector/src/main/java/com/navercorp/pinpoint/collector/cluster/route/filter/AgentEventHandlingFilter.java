@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.collector.cluster.route.filter;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.navercorp.pinpoint.collector.cluster.route.ResponseEvent;
-import com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler;
+import com.navercorp.pinpoint.collector.service.AgentEventService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author HyunGil Jeong
@@ -27,7 +26,7 @@ import com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler;
 public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
 
     @Autowired
-    private AgentEventHandler agentEventHandler;
+    private AgentEventService agentEventService;
 
     @Override
     public void doEvent(ResponseEvent event) {
@@ -35,7 +34,7 @@ public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
             return;
         }
         final long eventTimestamp = System.currentTimeMillis();
-        this.agentEventHandler.handleResponseEvent(event, eventTimestamp);
+        this.agentEventService.handleResponseEvent(event, eventTimestamp);
     }
 
 }

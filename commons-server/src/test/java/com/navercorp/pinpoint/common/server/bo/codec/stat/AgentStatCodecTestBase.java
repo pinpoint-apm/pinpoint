@@ -44,7 +44,7 @@ public abstract class AgentStatCodecTestBase<T extends AgentStatDataPoint> {
 
     @Test
     public void should_be_encoded_and_decoded_to_same_value() {
-        for (int i = 0; i < NUM_TEST_RUNS; ++i) {
+        for (int i = 0; i < NUM_TEST_RUNS; i++) {
             runTest();
         }
     }
@@ -67,7 +67,7 @@ public abstract class AgentStatCodecTestBase<T extends AgentStatDataPoint> {
         Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         List<T> actualAgentStats = getCodec().decodeValues(valueBuffer, decodingContext);
         Assert.assertEquals(expectedAgentStats.size(), actualAgentStats.size());
-        for (int i = 0; i < expectedAgentStats.size(); ++i) {
+        for (int i = 0; i < expectedAgentStats.size(); i++) {
             T expectedAgentStat = expectedAgentStats.get(i);
             T actualAgentStat = actualAgentStats.get(i);
             verify(expectedAgentStat, actualAgentStat);

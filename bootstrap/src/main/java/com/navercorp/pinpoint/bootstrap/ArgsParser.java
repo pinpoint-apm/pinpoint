@@ -28,7 +28,7 @@ import java.util.Scanner;
 public class ArgsParser {
 
     public Map<String, String> parse(String args) {
-        if (args == null || args.isEmpty()) {
+        if (isEmpty(args)) {
             return Collections.emptyMap();
         }
 
@@ -51,6 +51,10 @@ public class ArgsParser {
         }
         scanner.close();
         return Collections.unmodifiableMap(map);
+    }
+
+    private boolean isEmpty(String args) {
+        return args == null || args.isEmpty();
     }
 
 }

@@ -21,6 +21,9 @@ import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.thrift.dto.TResult;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * @author koo.taejin
  */
@@ -106,6 +109,8 @@ public enum TCommandType {
     private final Class<? extends TBase> clazz;
     private final Header header;
 
+    private static final Set<TCommandType> TCOMMAND_TYPES = EnumSet.allOf(TCommandType.class);
+
     private TCommandType(short code, Class<? extends TBase> clazz) {
         this.code = code;
         this.clazz = clazz;
@@ -137,8 +142,7 @@ public enum TCommandType {
     }
 
     public static TCommandType getType(Class<? extends TBase> clazz) {
-        TCommandType[] commandTypes = values();
-        for (TCommandType commandType : commandTypes) {
+        for (TCommandType commandType : TCOMMAND_TYPES) {
             if (commandType.getClazz() == clazz) {
                 return commandType;
             }
@@ -148,8 +152,7 @@ public enum TCommandType {
     }
 
     public static TCommandType getType(short code) {
-        TCommandType[] commandTypes = values();
-        for (TCommandType commandType : commandTypes) {
+        for (TCommandType commandType : TCOMMAND_TYPES) {
             if (commandType.getCode() == code) {
                 return commandType;
             }

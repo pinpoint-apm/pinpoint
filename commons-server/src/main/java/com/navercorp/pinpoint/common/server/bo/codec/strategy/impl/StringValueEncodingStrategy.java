@@ -51,7 +51,7 @@ public class StringValueEncodingStrategy implements EncodingStrategy<String> {
     @Override
     public List<String> decodeValues(Buffer buffer, int numValues) {
         List<String> values = new ArrayList<String>(numValues);
-        for (int i = 0; i < numValues; ++i) {
+        for (int i = 0; i < numValues; i++) {
             values.add(this.bufferHandler.read(buffer));
         }
         return values;

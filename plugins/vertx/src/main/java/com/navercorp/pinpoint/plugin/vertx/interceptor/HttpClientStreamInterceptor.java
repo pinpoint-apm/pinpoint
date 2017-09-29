@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -93,15 +93,15 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
 
-            headers.add(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            headers.add(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            headers.add(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            headers.add(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            headers.add(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            headers.add(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            headers.set(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            headers.set(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+            headers.set(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+            headers.set(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            headers.set(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            headers.set(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
 
             if (host != null) {
-                headers.add(Header.HTTP_HOST.toString(), host);
+                headers.set(Header.HTTP_HOST.toString(), host);
                 recorder.recordDestinationId(host);
             } else {
                 recorder.recordDestinationId("unknown");

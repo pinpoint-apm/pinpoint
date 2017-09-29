@@ -21,14 +21,15 @@ import org.apache.hadoop.hbase.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
  * @author emeroad
  */
 public class AcceptUrlFilterTest {
-    private static final String UTF8 = "UTF8";
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
 
     @Test
     public void acceptTest_1() {
@@ -51,11 +52,7 @@ public class AcceptUrlFilterTest {
     }
 
     private String encode(String value) {
-        try {
-            return Base64.encodeBytes(value.getBytes(UTF8));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return Base64.encodeBytes(value.getBytes(UTF8));
     }
 
 }

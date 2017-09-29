@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.plugin.resin;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * 
@@ -28,7 +29,7 @@ public class ResinDetector implements ApplicationTypeDetector {
 
     @Override
     public boolean detect(ConditionProvider provider) {
-        if (bootstrapMains != null && !bootstrapMains.isEmpty()) {
+        if (StringUtils.hasLength(bootstrapMains)) {
             return provider.checkMainClass(bootstrapMains) && provider.checkForClass(REQUIRED_CLASS);
         }
         return provider.checkForClass(REQUIRED_CLASS);

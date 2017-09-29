@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.view.DataSourceChartGroupSerializer;
@@ -49,7 +50,7 @@ public class DataSourceChartGroup implements AgentStatChartGroup {
 
     private final int id;
     private final String serviceTypeName;
-    private final String poolName;
+    private final String databaseName;
     private final String jdbcUrl;
 
     public DataSourceChartGroup(TimeWindow timeWindow, List<SampledDataSource> sampledDataSourceList, ServiceTypeRegistryService serviceTypeRegistryService) {
@@ -65,17 +66,18 @@ public class DataSourceChartGroup implements AgentStatChartGroup {
         this.dataSourceCharts.put(DataSourceChartType.ACTIVE_CONNECTION_SIZE, new TimeSeriesChartBuilder<>(timeWindow, UNCOLLECTED_VALUE).build(activeConnectionSizes));
         this.dataSourceCharts.put(DataSourceChartType.MAX_CONNECTION_SIZE, new TimeSeriesChartBuilder<>(timeWindow, UNCOLLECTED_VALUE).build(maxConnectionSizes));
 
-        SampledDataSource defaultDataSource = ListUtils.getFirst(sampledDataSourceList);
-        if (defaultDataSource != null) {
-            this.id = defaultDataSource.getId();
-            this.serviceTypeName = serviceTypeRegistryService.findServiceType(defaultDataSource.getServiceTypeCode()).getName();
-            this.poolName = defaultDataSource.getName();
-            this.jdbcUrl = defaultDataSource.getJdbcUrl();
-        } else {
+        if (CollectionUtils.nullSafeSize(sampledDataSourceList) == 0) {
             this.id = UNCOLLECTED_VALUE;
             this.serviceTypeName = UNCOLLECTED_STRING_VALUE;
-            this.poolName = UNCOLLECTED_STRING_VALUE;
+            this.databaseName = UNCOLLECTED_STRING_VALUE;
             this.jdbcUrl = UNCOLLECTED_STRING_VALUE;
+        } else {
+            SampledDataSource latestSampledDataSource = ListUtils.getLast(sampledDataSourceList);
+
+            this.id = latestSampledDataSource.getId();
+            this.serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
+            this.databaseName = latestSampledDataSource.getDatabaseName();
+            this.jdbcUrl = latestSampledDataSource.getJdbcUrl();
         }
     }
 
@@ -92,8 +94,8 @@ public class DataSourceChartGroup implements AgentStatChartGroup {
         return serviceTypeName;
     }
 
-    public String getPoolName() {
-        return poolName;
+    public String getDatabaseName() {
+        return databaseName;
     }
 
     public String getJdbcUrl() {

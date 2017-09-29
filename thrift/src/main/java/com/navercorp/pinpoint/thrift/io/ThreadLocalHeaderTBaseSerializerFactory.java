@@ -43,4 +43,10 @@ public class ThreadLocalHeaderTBaseSerializerFactory<E> implements SerializerFac
     public E createSerializer() {
         return cache.get();
     }
+
+    @Override
+    public boolean isSupport(Object target) {
+        return factory.isSupport(target);
+    }
+
 }

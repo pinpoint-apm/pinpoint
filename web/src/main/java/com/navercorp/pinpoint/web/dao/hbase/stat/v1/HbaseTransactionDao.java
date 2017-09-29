@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("transactionDaoV1")
 public class HbaseTransactionDao implements TransactionDao {
 

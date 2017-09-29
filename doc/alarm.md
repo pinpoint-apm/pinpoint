@@ -59,6 +59,9 @@ HEAP USAGE RATE
 
 JVM CPU USAGE RATE
    Triggered when the application's CPU usage(%) exceeds the configured threshold.
+
+DATASOURCE CONNECTION USAGE RATE
+   Triggered when the application's DataSource connection usage(%) exceeds the configured threshold.
 ```
 
 
@@ -130,7 +133,7 @@ jdbc.url=jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8
 jdbc.username=admin
 jdbc.password=admin
 ```
-Create tables by running *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, and *[SpringBatchJobReositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobReositorySchema-mysql.sql)*.
+Create tables by running *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, and *[SpringBatchJobRepositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*.
 
 ### 4) Others
 **1) You may start the alarm batch in a separate process** - Simply start the spring batch job using the *[applicationContext-alarmJob.xml](../web/src/main/resources/batch/applicationContext-alarmJob.xml)* file inside the Pinpoint-web module.
@@ -172,7 +175,7 @@ Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web'
 
 pinpoint-web 서버에서 application 상태를 주기적으로 체크하여 application 상태의 수치가 임계치를 초과할 경우 사용자에게 알람을 전송하는 기능을 제공한다. 
 
-applicaiton 상태 값이 사용자가 설정한 임계치를 초과하는 지 판단하는 batch는 pinpoint-web 서버내에서 background로 동작 된다.
+application 상태 값이 사용자가 설정한 임계치를 초과하는 지 판단하는 batch는 pinpoint-web 서버내에서 background로 동작 된다.
 alarm batch는 기본적으로 3분에 한번씩 동작이 된다. 최근 5분동안의 데이터를 수집해서 alarm 조건을 만족하면 user group에 속한 user 들에게 sms /email을 전송한다.
 
 ## 1. Alarm 기능 사용 방법
@@ -226,6 +229,9 @@ HEAP USAGE RATE
 
 JVM CPU USAGE RATE
    applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
+
+DATASOURCE CONNECTION USAGE RATE
+   applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
 ```
 
 
@@ -306,7 +312,7 @@ jdbc.url=jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8
 jdbc.username=admin
 jdbc.password=admin
 ```
-필요한 table 생성 - *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, *[SpringBatchJobReositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobReositorySchema-mysql.sql)*
+필요한 table 생성 - *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, *[SpringBatchJobReositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*
 
     
 ## 3. 기타
@@ -314,7 +320,7 @@ jdbc.password=admin
 pinpoint-web 프로젝트의 *[applicationContext-alarmJob.xml](../web/src/main/resources/batch/applicationContext-alarmJob.xml)* 파일을 이용해서 spring batch job을 실행하면 된다.
 실행 방법은 대한 구체적인 방법은 spirng batch 메뉴얼을 참고하자.
 
-**2) batch의 동작 주기를 조정하고 싶다면 *[applicationContext-batch-schedule.xml](../web/src/main/resources/batch/applicationContext-batch-schedule.xml)* 파일의 cron excpression을 수정하면 된다.**
+**2) batch의 동작 주기를 조정하고 싶다면 *[applicationContext-batch-schedule.xml](../web/src/main/resources/batch/applicationContext-batch-schedule.xml)* 파일의 cron expression을 수정하면 된다.**
 ```
 <task:scheduled-tasks scheduler="scheduler">
     <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *" />

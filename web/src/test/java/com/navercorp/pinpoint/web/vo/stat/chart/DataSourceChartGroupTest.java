@@ -20,21 +20,23 @@ import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
+import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -44,7 +46,6 @@ import static org.mockito.Mockito.when;
  */
 public class DataSourceChartGroupTest {
 
-    private static final Random RANDOM = new Random(System.currentTimeMillis());
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
     private static final int CREATE_TEST_OBJECT_MAX_SIZE = 10;
 
@@ -60,7 +61,7 @@ public class DataSourceChartGroupTest {
     }
 
     @Test
-    public void basicFunctionTest() throws Exception {
+    public void basicFunctionTest1() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
 
@@ -70,10 +71,24 @@ public class DataSourceChartGroupTest {
         assertEquals(sampledDataSourceList, dataSourceChartGroup);
     }
 
+    @Test
+    public void basicFunctionTest2() throws Exception {
+        long currentTimeMillis = System.currentTimeMillis();
+        TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
+
+        List<SampledDataSource> sampledDataSourceList = Collections.emptyList();
+        DataSourceChartGroup dataSourceChartGroup = new DataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
+
+        Assert.assertEquals(-1, dataSourceChartGroup.getId());
+        Assert.assertEquals(null, dataSourceChartGroup.getJdbcUrl());
+        Assert.assertEquals(null, dataSourceChartGroup.getDatabaseName());
+        Assert.assertEquals(null, dataSourceChartGroup.getServiceTypeName());
+    }
+
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {
         List<SampledDataSource> sampledDataSourceList = new ArrayList<>();
 
-        int maxConnectionSize = RANDOM.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE) + MIN_VALUE_OF_MAX_CONNECTION_SIZE;
+        int maxConnectionSize = ThreadLocalRandom.current().nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE) + MIN_VALUE_OF_MAX_CONNECTION_SIZE;
 
         long from = timeWindow.getWindowRange().getFrom();
         long to = timeWindow.getWindowRange().getTo();
@@ -86,28 +101,9 @@ public class DataSourceChartGroupTest {
     }
 
     private SampledDataSource createSampledDataSource(long timestamp, int maxConnectionSize) {
-        int testObjectSize = RANDOM.nextInt(CREATE_TEST_OBJECT_MAX_SIZE) + 1;
-        List<DataSourceBo> dataSourceBoList = createDataSourceBoList(testObjectSize, maxConnectionSize);
+        int testObjectSize = ThreadLocalRandom.current().nextInt(CREATE_TEST_OBJECT_MAX_SIZE) + 1;
+        List<DataSourceBo> dataSourceBoList = DataSourceTestUtils.createDataSourceBoList(1, testObjectSize, maxConnectionSize);
         return sampler.sampleDataPoints(0, timestamp, dataSourceBoList, null);
-    }
-
-    private List<DataSourceBo> createDataSourceBoList(int dataSourceSize, int maxConnectionSize) {
-        List<DataSourceBo> result = new ArrayList<>(dataSourceSize);
-
-        for (int i = 0; i < dataSourceSize; i++) {
-            DataSourceBo dataSourceBo = createDataSourceBo(maxConnectionSize);
-            result.add(dataSourceBo);
-        }
-
-        return result;
-    }
-
-    private DataSourceBo createDataSourceBo(int maxConnectionSize) {
-        DataSourceBo dataSourceBo = new DataSourceBo();
-        dataSourceBo.setId(1);
-        dataSourceBo.setActiveConnectionSize(RANDOM.nextInt(maxConnectionSize));
-        dataSourceBo.setMaxConnectionSize(maxConnectionSize);
-        return dataSourceBo;
     }
 
     private void assertEquals(List<SampledDataSource> sampledDataSourceList, DataSourceChartGroup dataSourceChartGroup) {

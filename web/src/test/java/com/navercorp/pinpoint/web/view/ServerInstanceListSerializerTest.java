@@ -33,8 +33,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 
@@ -95,7 +95,7 @@ public class ServerInstanceListSerializerTest {
         }
 
         public JsonSerializer<?> serializerInstance(SerializationConfig config, Annotated annotated, Class<?> keyDeserClass) {
-            if (annotated.getName().equals("com.navercorp.pinpoint.web.applicationmap.ServerInstance")) {
+            if (annotated.getName().equals("com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance")) {
                 final ServiceTypeRegistryService serviceTypeRegistryService = mockServiceTypeRegistryService();
 
                 final ServerInstanceSerializer serverInstanceSerializer = new ServerInstanceSerializer();

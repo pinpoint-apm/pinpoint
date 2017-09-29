@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.websocket;
 import org.springframework.web.socket.WebSocketHandler;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface PinpointWebSocketHandler extends WebSocketHandler {
 

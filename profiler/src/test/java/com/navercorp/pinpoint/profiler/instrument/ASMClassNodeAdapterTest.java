@@ -15,9 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,18 +36,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 public class ASMClassNodeAdapterTest {
 
-    private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
-    private final TraceContext traceContext = mock(TraceContext.class);
+    private final InstrumentContext pluginContext = mock(InstrumentContext.class);
+
 
     @Before
     public void setUp() {
-        reset(traceContext);
-        when(pluginContext.getTraceContext()).thenReturn(traceContext);
+
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override
@@ -219,7 +216,7 @@ public class ASMClassNodeAdapterTest {
 
     @Test
     public void hasAnnotation() throws Exception {
-        ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(pluginContext, null, "com/navercorp/pinpoint/profiler/instrument/mock/AnnotationClass");
+        ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(pluginContext, ASMClassNodeLoader.getClassLoader(), "com/navercorp/pinpoint/profiler/instrument/mock/AnnotationClass");
         Assert.assertTrue(classNodeAdapter.hasAnnotation(Aspect.class));
         Assert.assertFalse(classNodeAdapter.hasAnnotation(Override.class));
     }
@@ -246,7 +243,7 @@ public class ASMClassNodeAdapterTest {
 
     @Test
     public void subclassOf() {
-        ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginContext, null, "com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass");
+        ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginContext, ASMClassNodeLoader.getClassLoader(), "com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass");
         // self
         assertEquals(true, adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass"));
 

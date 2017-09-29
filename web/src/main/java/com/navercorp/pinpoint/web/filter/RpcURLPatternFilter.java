@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.filter;
 
+import com.google.common.collect.ImmutableSet;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -27,7 +28,11 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.AntPathMatcher;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * @author emeroad
@@ -35,19 +40,24 @@ import java.util.List;
 // TODO development class
 public class RpcURLPatternFilter implements URLPatternFilter {
 
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
     private final String urlPattern;
     private final AntPathMatcher matcher = new AntPathMatcher();
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    // TODO remove. hard coded annotation for compatibility
-    @Deprecated
-    private final AnnotationKey npcUrl;
+    // TODO remove. hard coded annotation for compatibility, need a better to group rpc url annotations
+    private final Set<Integer> rpcEndpointAnnotationCodes;
 
     public RpcURLPatternFilter(String urlPattern, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
         if (urlPattern == null) {
             throw new NullPointerException("urlPattern must not be null");
+        }
+        if (serviceTypeRegistryService == null) {
+            throw new NullPointerException("serviceTypeRegistryService must not be null");
+        }
+        if (annotationKeyRegistryService == null) {
+            throw new NullPointerException("annotationKeyRegistryService must not be null");
         }
         // TODO remove decode
         this.urlPattern = new String(Base64.decodeBase64(urlPattern), UTF8);
@@ -55,7 +65,27 @@ public class RpcURLPatternFilter implements URLPatternFilter {
 
         this.serviceTypeRegistryService = serviceTypeRegistryService;
         this.annotationKeyRegistryService = annotationKeyRegistryService;
-        this.npcUrl = this.annotationKeyRegistryService.findAnnotationKeyByName("npc.url");
+        // TODO remove. hard coded annotation for compatibility, need a better to group rpc url annotations
+        this.rpcEndpointAnnotationCodes = initRpcEndpointAnnotations(
+                AnnotationKey.HTTP_URL.getName(), AnnotationKey.MESSAGE_QUEUE_URI.getName(),
+                "thrift.url", "npc.url", "nimm.url"
+        );
+    }
+
+    private Set<Integer> initRpcEndpointAnnotations(String... annotationKeyNames) {
+        Set<Integer> rpcEndPointAnnotationCodes = new HashSet<>();
+        for (String annotationKeyName : annotationKeyNames) {
+            AnnotationKey pluginRpcEndpointAnnotationKey = null;
+            try {
+                pluginRpcEndpointAnnotationKey = annotationKeyRegistryService.findAnnotationKeyByName(annotationKeyName);
+            } catch (NoSuchElementException e) {
+                // ignore
+            }
+            if (pluginRpcEndpointAnnotationKey != null) {
+                rpcEndPointAnnotationCodes.add(pluginRpcEndpointAnnotationKey.getCode());
+            }
+        }
+        return ImmutableSet.copyOf(rpcEndPointAnnotationCodes);
     }
 
     @Override
@@ -100,7 +130,7 @@ public class RpcURLPatternFilter implements URLPatternFilter {
     }
 
     private boolean isURL(int key) {
-        return key == AnnotationKey.HTTP_URL.getCode() || key == npcUrl.getCode();
+        return rpcEndpointAnnotationCodes.contains(key);
     }
 
     private String getPath(String endPoint) {
@@ -108,15 +138,16 @@ public class RpcURLPatternFilter implements URLPatternFilter {
             return  null;
         }
         // is URI format
-        final int authorityIndex = endPoint.indexOf("://");
+        final String authoritySeparator = "://";
+        final int authorityIndex = endPoint.indexOf(authoritySeparator);
         if (authorityIndex == -1) {
             return endPoint;
         }
-        final int pathIndex = endPoint.indexOf('/', authorityIndex + 1);
+        final int pathIndex = endPoint.indexOf('/', authorityIndex + authoritySeparator.length());
         if (pathIndex == -1) {
 //            ???
             return endPoint;
         }
-        return endPoint.substring(pathIndex+1);
+        return endPoint.substring(pathIndex);
     }
 }

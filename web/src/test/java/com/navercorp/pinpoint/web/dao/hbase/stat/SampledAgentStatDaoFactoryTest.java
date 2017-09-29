@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.mockito.Mockito.when;
@@ -64,31 +64,6 @@ public class SampledAgentStatDaoFactoryTest {
                 SampledAgentStatDao<SampledAgentStatDataPoint> v2) {
             return compatibilityDao;
         }
-    }
-
-    @Test
-    public void v1Mode_v1TableExists() throws Exception {
-        // Given
-        final SampledAgentStatDao<SampledAgentStatDataPoint> expectedDao = v1;
-        final String mode = "v1";
-        ReflectionTestUtils.setField(sampledAgentStatDaoFactory, "mode", mode);
-        when(adminTemplate.tableExists(HBaseTables.AGENT_STAT)).thenReturn(true);
-        // When
-        SampledAgentStatDao<SampledAgentStatDataPoint> actualDao = sampledAgentStatDaoFactory.getDao();
-        // Then
-        Assert.assertEquals(expectedDao, actualDao);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void v1Mode_v1TableDoesNotExist() throws Exception {
-        // Given
-        final String mode = "v1";
-        ReflectionTestUtils.setField(sampledAgentStatDaoFactory, "mode", mode);
-        when(adminTemplate.tableExists(HBaseTables.AGENT_STAT)).thenReturn(false);
-        // When
-        sampledAgentStatDaoFactory.getDao();
-        // Then
-        Assert.fail("Should have thrown IllegalStateException.");
     }
 
     @Test

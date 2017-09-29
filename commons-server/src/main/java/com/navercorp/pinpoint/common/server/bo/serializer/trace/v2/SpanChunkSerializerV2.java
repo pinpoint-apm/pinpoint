@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 import org.apache.hadoop.hbase.client.Put;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
@@ -16,7 +17,8 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.TRACE_V2_CF_SPAN;
 @Component
 public class SpanChunkSerializerV2 implements HbaseSerializer<SpanChunkBo, Put> {
 
-    private final SpanEncoder spanEncoder = new SpanEncoderV0();
+    @Autowired
+    private SpanEncoder spanEncoder;
 
     @Override
     public void serialize(SpanChunkBo spanChunkBo, Put put, SerializationContext context) {

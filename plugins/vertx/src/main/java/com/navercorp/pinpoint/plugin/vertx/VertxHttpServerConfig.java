@@ -15,9 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.config.*;
-
-import java.util.List;
+import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
+import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
+import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 
 /**
  * @author jaehong.kim
@@ -29,6 +31,7 @@ public class VertxHttpServerConfig {
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
+    private final boolean hidePinpointHeader;
 
     public VertxHttpServerConfig(ProfilerConfig config) {
         if (config == null) {
@@ -52,6 +55,7 @@ public class VertxHttpServerConfig {
         } else {
             this.excludeProfileMethodFilter = new SkipFilter<String>();
         }
+        this.hidePinpointHeader = config.readBoolean("profiler.vertx.http.server.hidepinpointheader", true);
     }
 
     public boolean isTraceRequestParam() {
@@ -72,5 +76,9 @@ public class VertxHttpServerConfig {
 
     public Filter<String> getExcludeProfileMethodFilter() {
         return excludeProfileMethodFilter;
+    }
+
+    public boolean isHidePinpointHeader() {
+        return hidePinpointHeader;
     }
 }

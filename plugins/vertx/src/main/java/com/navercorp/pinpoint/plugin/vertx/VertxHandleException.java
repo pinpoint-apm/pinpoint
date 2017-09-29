@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.vertx;
 /**
  * @author jaehong.kim
  */
-public class VertxHandleException extends Throwable {
+public class VertxHandleException extends Exception {
 
     public VertxHandleException(String message) {
         super(message);

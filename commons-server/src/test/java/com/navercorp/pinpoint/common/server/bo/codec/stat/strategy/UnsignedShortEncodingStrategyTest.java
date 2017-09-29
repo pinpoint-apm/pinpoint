@@ -71,7 +71,7 @@ public class UnsignedShortEncodingStrategyTest extends EncodingStrategyTestBase<
     }
 
     private void testValues(short minValue, short maxValue) {
-        for (int i = 0; i < NUM_TEST_RUNS; ++i) {
+        for (int i = 0; i < NUM_TEST_RUNS; i++) {
             List<Short> constantValues = TestAgentStatDataPointFactory.SHORT.createConstantValues(minValue, maxValue);
             testFor(constantValues);
             List<Short> randomValues = TestAgentStatDataPointFactory.SHORT.createRandomValues(minValue, maxValue);

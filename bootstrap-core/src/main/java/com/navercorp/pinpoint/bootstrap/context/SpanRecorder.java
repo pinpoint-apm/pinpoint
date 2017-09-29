@@ -14,6 +14,8 @@ public interface SpanRecorder extends FrameAttachment {
 
     void recordTime(boolean time);
 
+    void recordError();
+
     void recordException(Throwable throwable);
 
     void recordException(boolean markError, Throwable throwable);
@@ -49,4 +51,6 @@ public interface SpanRecorder extends FrameAttachment {
     void recordAcceptorHost(String host);
     
     void recordLogging(LoggingInfo loggingInfo);
+
+    void recordStatusCode(int statusCode);
 }

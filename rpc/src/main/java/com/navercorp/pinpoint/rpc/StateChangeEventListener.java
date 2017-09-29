@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.rpc;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface StateChangeEventListener<S extends PinpointSocket> {
 

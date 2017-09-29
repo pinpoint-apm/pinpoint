@@ -23,8 +23,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
@@ -60,6 +62,12 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
     @Autowired
     private DataSourceBoMapper dataSourceBoMapper;
 
+    @Autowired
+    private ResponseTimeBoMapper responseTimeBoMapper;
+
+    @Autowired
+    private DeadlockBoMapper deadlockBoMapper;
+
     @Override
     public AgentStatBo map(TAgentStatBatch tAgentStatBatch) {
         if (!tAgentStatBatch.isSetAgentStats()) {
@@ -69,12 +77,20 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         final String agentId = tAgentStatBatch.getAgentId();
         final long startTimestamp = tAgentStatBatch.getStartTimestamp();
         agentStatBo.setAgentId(agentId);
-        List<JvmGcBo> jvmGcBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<CpuLoadBo> cpuLoadBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<TransactionBo> transactionBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<ActiveTraceBo> activeTraceBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(tAgentStatBatch.getAgentStatsSize());
+        agentStatBo.setStartTimestamp(startTimestamp);
+
+
+        int agentStatsSize = tAgentStatBatch.getAgentStatsSize();
+
+        List<JvmGcBo> jvmGcBos = new ArrayList<>(agentStatsSize);
+        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(agentStatsSize);
+        List<CpuLoadBo> cpuLoadBos = new ArrayList<>(agentStatsSize);
+        List<TransactionBo> transactionBos = new ArrayList<>(agentStatsSize);
+        List<ActiveTraceBo> activeTraceBos = new ArrayList<>(agentStatsSize);
+        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(agentStatsSize);
+        List<ResponseTimeBo> responseTimeBos = new ArrayList<>(agentStatsSize);
+        List<DeadlockBo> deadlockBos = new ArrayList<>(agentStatsSize);
+
         for (TAgentStat tAgentStat : tAgentStatBatch.getAgentStats()) {
             final long timestamp = tAgentStat.getTimestamp();
             // jvmGc
@@ -117,21 +133,39 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
                 setBaseData(dataSourceListBo, agentId, startTimestamp, timestamp);
 
                 TDataSourceList dataSourceList = tAgentStat.getDataSourceList();
-                for (TDataSource dataSource : dataSourceList.getDataSourceList()) {
-                    DataSourceBo dataSourceBo = dataSourceBoMapper.map(dataSource);
-                    setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
-                    dataSourceListBo.add(dataSourceBo);
+                if (dataSourceList.getDataSourceListSize() > 0) {
+                    for (TDataSource dataSource : dataSourceList.getDataSourceList()) {
+                        DataSourceBo dataSourceBo = dataSourceBoMapper.map(dataSource);
+                        setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
+                        dataSourceListBo.add(dataSourceBo);
+                    }
                 }
-
                 dataSourceListBos.add(dataSourceListBo);
             }
+
+            // response time
+            if (tAgentStat.isSetResponseTime()) {
+                ResponseTimeBo responseTimeBo = this.responseTimeBoMapper.map(tAgentStat.getResponseTime());
+                setBaseData(responseTimeBo, agentId, startTimestamp, timestamp);
+                responseTimeBos.add(responseTimeBo);
+            }
+
+            // deadlock
+            if (tAgentStat.isSetDeadlock()) {
+                DeadlockBo deadlockBo = this.deadlockBoMapper.map(tAgentStat.getDeadlock());
+                setBaseData(deadlockBo, agentId, startTimestamp, timestamp);
+                deadlockBos.add(deadlockBo);
+            }
         }
+
         agentStatBo.setJvmGcBos(jvmGcBos);
         agentStatBo.setJvmGcDetailedBos(jvmGcDetailedBos);
         agentStatBo.setCpuLoadBos(cpuLoadBos);
         agentStatBo.setTransactionBos(transactionBos);
         agentStatBo.setActiveTraceBos(activeTraceBos);
         agentStatBo.setDataSourceListBos(dataSourceListBos);
+        agentStatBo.setResponseTimeBos(responseTimeBos);
+        agentStatBo.setDeadlockBos(deadlockBos);
         return agentStatBo;
     }
 

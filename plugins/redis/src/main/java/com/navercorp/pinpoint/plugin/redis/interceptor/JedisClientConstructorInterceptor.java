@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
+import com.navercorp.pinpoint.plugin.redis.EndPointUtils;
 
 /**
  * Jedis client(redis client) constructor interceptor - trace endPoint
@@ -48,18 +49,8 @@ public class JedisClientConstructorInterceptor implements AroundInterceptor {
                 return;
             }
 
-            final StringBuilder endPoint = new StringBuilder();
-            // first argument is host
-            endPoint.append(args[0]);
-
-            // second argument is port
-            if (args.length >= 2 && args[1] != null && args[1] instanceof Integer) {
-                endPoint.append(":").append(args[1]);
-            } else {
-                // set default port
-                endPoint.append(":").append(6379);
-            }
-            ((EndPointAccessor)target)._$PINPOINT$_setEndPoint(endPoint.toString());
+            final String endPoint = EndPointUtils.getEndPoint(args);
+            ((EndPointAccessor)target)._$PINPOINT$_setEndPoint(endPoint);
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }

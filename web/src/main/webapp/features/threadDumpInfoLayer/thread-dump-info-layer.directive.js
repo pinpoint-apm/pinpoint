@@ -6,8 +6,8 @@
 		PADDING_WIDTH: 5, 	// %
 		PADDING_HEIGHT: 15  	// %
 	});
-	pinpointApp.directive( "threadDumpInfoLayerDirective", [ "ThreadDumpInfoLayerDirectiveConfig", "$rootScope", "$timeout", "$http", "$window", "CommonUtilService",
-		function ( cfg, $rootScope, $timeout, $http, $window, CommonUtilService ) {
+	pinpointApp.directive( "threadDumpInfoLayerDirective", [ "ThreadDumpInfoLayerDirectiveConfig", "$routeParams", "$timeout", "$http", "$window", "CommonUtilService", "CommonAjaxService",
+		function ( cfg, $routeParams, $timeout, $http, $window, CommonUtilService, CommonAjaxService ) {
 			return {
 				restrict: "EA",
 				replace: true,
@@ -33,9 +33,9 @@
 					var currentAgentId = "";
 					var currentApplicationName = "";
 
-					$el.draggable({
-						handle: ".panel-heading"
-					});
+					// $el.draggable({
+					// 	handle: ".panel-heading"
+					// });
 					scope.threadList = [];
 					scope.sortType = "-execTime";
 
@@ -83,34 +83,40 @@
 					scope.loadDetailMessage = function( $event ) {
 						var $elThread = $($( $event.target ).parents("tr")[0]);
 						$elThread.parent().find(".selected").removeClass("selected").end().end().addClass("selected");
-						if ( $elThread.attr("data-detail-message") ) {
-							$elTextarea.val($elThread.attr("data-detail-message"));
-						} else {
-							$elSpin.show();
-							initAjax( oRefDetailAjax, true );
-							oRefDetailAjax.obj = $http( {
-								"url": cfg.ACTIVE_THREAD_DUMP_URL +
-									"?applicationName=" + currentApplicationName +
-									"&agentId=" + currentAgentId +
-									"&threadName=" + $elThread.find("td:nth-child(3)").html() +
-									"&localTraceId=" + $elThread.attr("data-traceId"),
-								"method": "GET"
-							}).then(function ( oResult ) {
-								var msg = "";
-								if ( oResult.data.message.threadDumpData.length > 0 ) {
-									msg = oResult.data.message.threadDumpData[0].detailMessage;
-								} else {
-									msg = "There is no message";
-								}
-								$elThread.attr("data-detail-message", msg );
-								$elTextarea.val( msg );
-								initAjax( oRefDetailAjax );
-								$elSpin.hide();
-							}, function () {
-								$elSpin.hide();
-							});
-							oRefDetailAjax.ing = true;
-						}
+						$elSpin.show();
+						initAjax( oRefDetailAjax, true );
+						oRefDetailAjax.obj = $http( {
+							"url": cfg.ACTIVE_THREAD_DUMP_URL +
+								"?applicationName=" + currentApplicationName +
+								"&agentId=" + currentAgentId +
+								"&threadName=" + $elThread.find("td:nth-child(3)").html() +
+								"&localTraceId=" + $elThread.attr("data-traceId"),
+							"method": "GET"
+						}).then(function ( oResult ) {
+							var msg = "";
+							if ( oResult.data.message.threadDumpData.length > 0 ) {
+								msg = oResult.data.message.threadDumpData[0].detailMessage;
+							} else {
+								msg = "There is no message( may be completed )";
+								// CommonAjaxService.getServerTime( function( serverTime ) {
+								// 	var aUrlParam = [
+								// 		"transactionList",
+								// 		$routeParams.application,
+								// 		"5m",
+								// 		CommonUtilService.formatDate( serverTime ),
+								// 		$elThread.attr("data-transactionId") + "-0-0"
+								// 	];
+								//
+								// 	$window.parent.open( "#/" + aUrlParam.join("/") );
+								// });
+							}
+							$elTextarea.val( msg );
+							initAjax( oRefDetailAjax );
+							$elSpin.hide();
+						}, function () {
+							$elSpin.hide();
+						});
+						oRefDetailAjax.ing = true;
 					};
 					scope.formatDate = function( startTime ) {
 						return CommonUtilService.formatDate(startTime, "MM/DD HH:mm:ss SSS");
@@ -122,14 +128,20 @@
 							"&agentId=" + currentAgentId,
 							"method": "GET"
 						}).then(function ( oResult ) {
-							scope.threadList = oResult.data.message.threadDumpData;
+							if( oResult.data.code && oResult.data.code === -1 ) {
+								$elEmpty.find("> span").hide().end().find(".when-has-message").show().find("span").html( oResult.data.message );
+							} else {
+								scope.threadList = oResult.data.message.threadDumpData;
+								if ( scope.threadList.length === 0 ) {
+									$elEmpty.find(".when-has-message").hide().end().find("> span").show();
+								}
+							}
 							$elTextarea.val("");
 							$elSpin.hide();
 							$el.show();
-							initAjax( oRefListAjax );
+							initAjax(oRefListAjax);
 						}, function () {
 							$elSpin.hide();
-							console.log( arguments );
 						});
 						oRefListAjax.ing = true;
 					}
@@ -159,7 +171,7 @@
 						});
 					}
 					function setForWindow() {
-						$el.draggable("destroy");
+						// $el.draggable("destroy");
 						$el.find(".panel-heading").css("cursor", "default").find("button").hide();
 						resetSize();
 					}
@@ -184,9 +196,16 @@
 						});
 						$(window).on("resize", function() {
 							var oNewBase = getBaseSizeInfo();
-							$elListWrapper.css({
-								"height": oNewBase.docHeight - oNewBase.titleHeight - oNewBase.navHeight - layerHeightHalf - oNewBase.tableHeadHeight - oNewBase.margin
-							});
+							var height = oNewBase.docHeight - oNewBase.titleHeight - oNewBase.navHeight - layerHeightHalf - oNewBase.tableHeadHeight - oNewBase.margin;
+							if ( scope.threadList.length === 0 ) {
+								$elEmpty.css({
+									"height": height + 96
+								});
+							} else {
+								$elListWrapper.css({
+									"height": height
+								});
+							}
 						});
 					}
 					function getBaseSizeInfo() {

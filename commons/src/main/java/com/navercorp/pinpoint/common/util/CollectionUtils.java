@@ -27,22 +27,31 @@ public final class CollectionUtils {
     private CollectionUtils() {
     }
 
-    public static <T> int nullSafeSize(Collection<T> collection) {
+    public static <T> int nullSafeSize(final Collection<T> collection) {
         return nullSafeSize(collection, 0);
     }
 
-    public static <T> int nullSafeSize(Collection<T> collection, int nullValue) {
+    public static <T> int nullSafeSize(final Collection<T> collection, final int nullValue) {
         if (collection == null) {
             return nullValue;
         }
         return collection.size();
     }
 
-    public static <T> boolean isEmpty(Collection<T> collection) {
+    public static <T> boolean isEmpty(final Collection<T> collection) {
         return collection == null || collection.isEmpty();
     }
 
-    public static <T> boolean isNotEmpty(Collection<T> collection) {
-        return !isEmpty(collection);
+    /**
+     * @deprecated Since 1.7.0. Use {@link CollectionUtils#hasLength(Collection)}
+     */
+    public static <T> boolean isNotEmpty(final Collection<T> collection) {
+        return hasLength(collection);
     }
+
+    public static <T> boolean hasLength(final Collection<T> collection) {
+        return collection != null && !collection.isEmpty();
+    }
+
+
 }

@@ -24,9 +24,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
-import com.navercorp.pinpoint.rpc.util.*;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -66,9 +70,9 @@ public class PinpointClientHandshaker {
     private String simpleName;
     
     public PinpointClientHandshaker(Timer handshakerTimer, int retryInterval, int maxHandshakeCount) {
-        AssertUtils.assertNotNull(handshakerTimer, "handshakerTimer may not be null.");
-        AssertUtils.assertTrue(retryInterval > 0, "retryInterval must greater than zero.");
-        AssertUtils.assertTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
+        Assert.requireNonNull(handshakerTimer, "handshakerTimer must not be null.");
+        Assert.isTrue(retryInterval > 0, "retryInterval must greater than zero.");
+        Assert.isTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
         
         this.state = new AtomicInteger(STATE_INIT);
         this.handshakerTimer = handshakerTimer;
@@ -82,7 +86,7 @@ public class PinpointClientHandshaker {
         logger.info("{} handshakeStart() started. channel:{}", simpleClassNameAndHashCodeString(), channel);
         
         if (channel == null) {
-            logger.warn("{} handshakeStart() failed. caused:channel may not be null.", simpleClassNameAndHashCodeString());
+            logger.warn("{} handshakeStart() failed. caused:channel must not be null.", simpleClassNameAndHashCodeString());
             return;
         }
         
@@ -104,7 +108,7 @@ public class PinpointClientHandshaker {
         }
 
         if (handshakeJob == null) {
-            logger.warn("{} handshakeStart() failed. caused:handshakeJob may not be null.", simpleClassNameAndHashCodeString());
+            logger.warn("{} handshakeStart() failed. caused:handshakeJob must not be null.", simpleClassNameAndHashCodeString());
             handshakeAbort();
             return;
         }
@@ -219,7 +223,7 @@ public class PinpointClientHandshaker {
     private List<Role> getRoles(List roleNames) {
         List<Role> roles = new ArrayList<Role>();
         for (Object roleName : roleNames) {
-            if (roleName instanceof String && !StringUtils.isEmpty((String) roleName)) {
+            if (roleName instanceof String && StringUtils.hasLength((String) roleName)) {
                 roles.add(Role.getValue((String) roleName));
             }
         }

@@ -21,8 +21,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.service.stat.ActiveTraceChartService;
 import com.navercorp.pinpoint.web.service.stat.ActiveTraceService;
@@ -32,10 +34,14 @@ import com.navercorp.pinpoint.web.service.stat.CpuLoadChartService;
 import com.navercorp.pinpoint.web.service.stat.CpuLoadService;
 import com.navercorp.pinpoint.web.service.stat.DataSourceChartService;
 import com.navercorp.pinpoint.web.service.stat.DataSourceService;
+import com.navercorp.pinpoint.web.service.stat.DeadlockChartService;
+import com.navercorp.pinpoint.web.service.stat.DeadlockService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcChartService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedChartService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcService;
+import com.navercorp.pinpoint.web.service.stat.ResponseTimeChartService;
+import com.navercorp.pinpoint.web.service.stat.ResponseTimeService;
 import com.navercorp.pinpoint.web.service.stat.TransactionChartService;
 import com.navercorp.pinpoint.web.service.stat.TransactionService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -195,6 +201,24 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
         @Autowired
         public DataSourceController(DataSourceService dataSourceService, DataSourceChartService dataSourceChartService) {
             super(dataSourceService, dataSourceChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/responseTime")
+    public static class ResponseTimeController extends AgentStatController<ResponseTimeBo> {
+        @Autowired
+        public ResponseTimeController(ResponseTimeService responseTimeService, ResponseTimeChartService responseTimeChartService) {
+            super(responseTimeService, responseTimeChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/deadlock")
+    public static class DeadlockController extends AgentStatController<DeadlockBo> {
+        @Autowired
+        public DeadlockController(DeadlockService deadlockService, DeadlockChartService deadlockChartService) {
+            super(deadlockService, deadlockChartService);
         }
     }
 

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 
 
@@ -32,13 +34,15 @@ public class DisableTrace implements Trace {
 
     private final long id;
     private final long startTime;
-    private final Thread bindThread;
+    private final long threadId;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
-    
-    public DisableTrace(long id) {
+    private final ActiveTraceHandle handle;
+
+    public DisableTrace(long id, long startTime, long threadId, ActiveTraceHandle handle) {
         this.id = id;
-        this.startTime = System.currentTimeMillis();
-        this.bindThread = Thread.currentThread();
+        this.startTime = startTime;
+        this.threadId = threadId;
+        this.handle = Assert.requireNonNull(handle, "handle must not be null");
     }
 
     @Override
@@ -53,7 +57,12 @@ public class DisableTrace implements Trace {
 
     @Override
     public Thread getBindThread() {
-        return bindThread;
+        return null;
+    }
+
+    @Override
+    public long getThreadId() {
+        return threadId;
     }
 
     @Override
@@ -104,21 +113,15 @@ public class DisableTrace implements Trace {
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
-        return getAsyncTraceId(false);
-    }
-
-    @Override
-    public AsyncTraceId getAsyncTraceId(boolean closeable) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public void close() {
+        final long purgeTime = System.currentTimeMillis();
+        handle.purge(purgeTime);
     }
 
-    @Override
-    public void flush() {
-    }
 
     @Override
     public int getCallStackFrameId() {

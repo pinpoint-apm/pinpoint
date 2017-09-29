@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
+import com.google.common.util.concurrent.AtomicLongMap;
 import com.navercorp.pinpoint.collector.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.*;
+import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
@@ -69,7 +70,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private final boolean useBulk;
 
-    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<>();
+    private final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
 
     public HbaseMapStatisticsCallerDao() {
         this(true);
@@ -105,7 +106,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
         if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(callerRowKey, calleeColumnName);
-            this.counter.increment(rowInfo, 1L);
+            this.counter.incrementAndGet(rowInfo);
         } else {
             final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
             // column name is the name of caller app.
@@ -130,14 +131,17 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             throw new IllegalStateException();
         }
         // update statistics by rowkey and column for now. need to update it by rowkey later.
-        Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
-        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
-        if (!merge.isEmpty()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
-            }
-            hbaseTemplate.increment(MAP_STATISTICS_CALLEE_VER2, merge);
+        final Map<RowInfo, Long> remove = AtomicLongMapUtils.remove(this.counter);
+
+        final List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
+        if (merge.isEmpty()) {
+            return;
         }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+        }
+        hbaseTemplate.increment(MAP_STATISTICS_CALLEE_VER2, merge);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {

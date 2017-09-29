@@ -20,18 +20,14 @@ package com.navercorp.pinpoint.collector.manage;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterManager extends AbstractCollectorManager implements ClusterManagerMBean {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final boolean enableCluster;
     private final ClusterPointLocator clusterPointLocator;

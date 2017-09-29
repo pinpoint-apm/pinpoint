@@ -48,6 +48,7 @@ public final class ActiveMQClientConstants {
     private static final String INTERCEPTOR_BASE = PLUGIN_BASE + ".interceptor";
 
     public static final String ACTIVEMQ_TCP_TRANSPORT_FQCN = "org.apache.activemq.transport.tcp.TcpTransport";
+    public static final String ACTIVEMQ_FAILOVER_TRANSPORT_FQCN = "org.apache.activemq.transport.failover.FailoverTransport";
 
     public static final String ACTIVEMQ_CONNECTION_FQCN = "org.apache.activemq.ActiveMQConnection";
 
@@ -68,6 +69,7 @@ public final class ActiveMQClientConstants {
 
     // field names
     public static final String FIELD_TCP_TRANSPORT_SOCKET = "socket";
+    public static final String FIELD_URI_TRANSPORT_SOCKET = "connectedTransportURI";
     public static final String FIELD_ACTIVEMQ_CONNECTION_TRANSPORT = "transport";
     public static final String FIELD_ACTIVEMQ_MESSAGE_PRODUCER_SESSION = "session";
     public static final String FIELD_ACTIVEMQ_MESSAGE_CONSUMER_SESSION = "session";
@@ -77,6 +79,7 @@ public final class ActiveMQClientConstants {
 
     // field getter FQCN
     public static final String FIELD_GETTER_SOCKET = FIELD_GETTER_BASE + ".SocketGetter";
+    public static final String FIELD_GETTER_URI = FIELD_GETTER_BASE + ".URIGetter";
     public static final String FIELD_GETTER_TRANSPORT = FIELD_GETTER_BASE + ".TransportGetter";
     public static final String FIELD_GETTER_ACTIVEMQ_SESSION = FIELD_GETTER_BASE + ".ActiveMQSessionGetter";
 }

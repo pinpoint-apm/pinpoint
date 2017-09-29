@@ -43,7 +43,7 @@ public class AgentActiveThreadCountFactory {
 
     public AgentActiveThreadCount create(TBase<?, ?> value) {
         if (agentId == null) {
-            throw new NullPointerException("agentId may not be null");
+            throw new NullPointerException("agentId must not be null");
         }
 
         if (value instanceof TCmdActiveThreadCountRes) {
@@ -70,7 +70,7 @@ public class AgentActiveThreadCountFactory {
 
     public AgentActiveThreadCount createFail(short code, String message) {
         if (agentId == null) {
-            throw new NullPointerException("agentId may not be null");
+            throw new NullPointerException("agentId must not be null");
         }
 
         return createFail0(code, message);

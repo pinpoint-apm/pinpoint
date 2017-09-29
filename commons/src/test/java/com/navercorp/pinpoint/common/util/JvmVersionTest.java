@@ -65,19 +65,19 @@ public class JvmVersionTest {
     @Test
     public void testGetFromDoubleVersion() {
         // JDK 5
-        final JvmVersion java_5 = JvmVersion.getFromVersion(1.5);
+        final JvmVersion java_5 = JvmVersion.getFromVersion(1.5f);
         assertSame(java_5, JAVA_5);
         // JDK 6
-        final JvmVersion java_6 = JvmVersion.getFromVersion(1.6);
+        final JvmVersion java_6 = JvmVersion.getFromVersion(1.6f);
         assertSame(java_6, JAVA_6);
         // JDK 7
-        final JvmVersion java_7 = JvmVersion.getFromVersion(1.7);
+        final JvmVersion java_7 = JvmVersion.getFromVersion(1.7f);
         assertSame(java_7, JAVA_7);
         // JDK 8
-        final JvmVersion java_8 = JvmVersion.getFromVersion(1.8);
+        final JvmVersion java_8 = JvmVersion.getFromVersion(1.8f);
         assertSame(java_8, JAVA_8);
         // Unsupported
-        final JvmVersion java_unsupported = JvmVersion.getFromVersion(0.9);
+        final JvmVersion java_unsupported = JvmVersion.getFromVersion(0.9f);
         assertSame(java_unsupported, UNSUPPORTED);
     }
 

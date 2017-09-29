@@ -50,7 +50,7 @@ public class HbaseTransactionDao implements AgentStatDaoV2<TransactionBo> {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        if (transactionBos == null || transactionBos.isEmpty()) {
+        if (CollectionUtils.isEmpty(transactionBos)) {
             return;
         }
         List<Put> transactionPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.TRANSACTION, transactionBos, this.transactionSerializer);

@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 
 /**
  * @author Jiaqi Feng
@@ -33,7 +35,7 @@ public class HystrixCommandTransformer implements TransformCallback {
 
         InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-        target.addField("com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor");
+        target.addField("com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor");
 
         InstrumentMethod queue = target.getDeclaredMethod("queue");
         if (queue != null) {
@@ -43,7 +45,7 @@ public class HystrixCommandTransformer implements TransformCallback {
         // pre 1.4.0 - R executeCommand()
         InstrumentMethod executeCommand = target.getDeclaredMethod("executeCommand");
         if (executeCommand != null) {
-            executeCommand.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandExecuteCommandInterceptor");
+            executeCommand.addScopedInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandExecuteCommandInterceptor", HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_SCOPE);
         }
         // pre 1.4.0 - R getFallbackOrThrowException(HystrixEventType, FailureType, String, Exception)
         InstrumentMethod getFallbackOrThrowException = target.getDeclaredMethod(
@@ -53,7 +55,10 @@ public class HystrixCommandTransformer implements TransformCallback {
                 "java.lang.String",
                 "java.lang.Exception");
         if (getFallbackOrThrowException != null) {
-            getFallbackOrThrowException.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandGetFallbackOrThrowExceptionInterceptor");
+            getFallbackOrThrowException.addScopedInterceptor(
+                    "com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandGetFallbackOrThrowExceptionInterceptor",
+                    HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_SCOPE,
+                    ExecutionPolicy.INTERNAL);
         }
 
         return target.toBytecode();

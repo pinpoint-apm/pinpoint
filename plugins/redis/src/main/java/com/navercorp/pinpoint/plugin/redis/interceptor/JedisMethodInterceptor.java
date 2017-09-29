@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.redis.CommandContext;
 import com.navercorp.pinpoint.plugin.redis.CommandContextFactory;
+import com.navercorp.pinpoint.plugin.redis.CommandContextFormatter;
 import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
 import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  * @author jaehong.kim
  *
  */
-@Scope(value = RedisConstants.REDIS_SCOPE)
 public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private InterceptorScope interceptorScope;
@@ -65,20 +64,15 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
         }
         
         final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof  CommandContext) {
-            final CommandContext commandContext = (CommandContext) invocation.getAttachment();
-            logger.debug("Check command context {}", commandContext);
+        final Object attachment = getAttachment(invocation);
+        if (attachment instanceof CommandContext) {
+            final CommandContext commandContext = (CommandContext) attachment;
+            if (logger.isDebugEnabled()) {
+                logger.debug("Check command context {}", commandContext);
+            }
             if (io) {
-                final StringBuilder sb = new StringBuilder();
-                sb.append("write=").append(commandContext.getWriteElapsedTime());
-                if (commandContext.isWriteFail()) {
-                    sb.append("(fail)");
-                }
-                sb.append(", read=").append(commandContext.getReadElapsedTime());
-                if (commandContext.isReadFail()) {
-                    sb.append("(fail)");
-                }
-                recorder.recordAttribute(AnnotationKey.ARGS0, sb.toString());
+                String commandContextString = format(commandContext);
+                recorder.recordAttribute(AnnotationKey.ARGS0, commandContextString);
             }
             // clear
             invocation.removeAttachment();
@@ -89,5 +83,16 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
         recorder.recordDestinationId(RedisConstants.REDIS.getName());
         recorder.recordServiceType(RedisConstants.REDIS);
         recorder.recordException(throwable);
+    }
+
+    private String format(CommandContext commandContext) {
+        return CommandContextFormatter.format(commandContext);
+    }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
     }
 }
