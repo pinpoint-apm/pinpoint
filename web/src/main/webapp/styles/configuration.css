@@ -522,11 +522,24 @@
     animation-iteration-count: 2;
     */
 }
-/*
-@keyframes back-blink {
-    0% {background-color: rgba( 255, 0, 0, 0.2 )}
-    50% {background-color: rgba( 255, 0, 0, 0.5 ) }
-    100% {background-color: rgba( 255, 0, 0, 0.2 ) }
+#config-installation .description {
+    color: #C2C2C2;
+    margin-bottom: 20px;
 }
-*/
-
+#config-installation .title {
+    font-size: 14px;
+    font-weight: bold;
+}
+#config-installation .installation-guide {
+    padding: 16px;
+    margin: 16px 0px;
+    border: 1px solid #EEE;
+    border-left-width: 5px;
+    border-left-color:#1B809E;
+}
+#config-installation textarea {
+    width: 100%;
+    height: 80px;
+    border: 0px solid black;
+    overflow: hidden;
+}
