@@ -62,6 +62,10 @@
 						desc: "Sends an alarm when deadlock condition is detected in application."
 					}]
 				}]
+			},
+			installation: {
+				desc: "* You can check whether the Application Name and Agent Id are duplicated.",
+				lengthGuide: "You can enter up to {{MAX_CHAR}} characters."
 			}
 		},	
 		navbar : {
