@@ -38,8 +38,8 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  *
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"org.springframework:spring-webmvc:[3.0.7.RELEASE],[3.1.4.RELEASE],[3.2.14.RELEASE],[4.0.9.RELEASE],[4.1.7.RELEASE],[4.2.0.RELEASE,)", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:3.0.1"})
-public class SpringWebMvcIT {
+@Dependency({"org.springframework:spring-webmvc:[3.0.7.RELEASE],[3.1.4.RELEASE],[3.2.14.RELEASE],[4.0.9.RELEASE],[4.1.7.RELEASE],[4.2.0.RELEASE,4.max]", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:3.0.1"})
+public class SpringWebMvc_3_x_to_4_x_IT {
     private static final String SPRING_MVC = "SPRING_MVC";
 
     @Test
