@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface InternalAsyncContext extends AsyncContext {
+public interface AsyncId {
+
     int getAsyncId();
+
+    short nextAsyncSequence();
 }

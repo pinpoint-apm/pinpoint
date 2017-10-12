@@ -16,10 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
+import com.navercorp.pinpoint.profiler.context.AsyncId;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface AsyncIdGenerator {
 
     int nextAsyncId();
+
+    AsyncId newAsyncId();
 }

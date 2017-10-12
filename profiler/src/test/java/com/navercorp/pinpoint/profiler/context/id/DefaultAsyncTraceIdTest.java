@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.AsyncId;
+import com.navercorp.pinpoint.profiler.context.DefaultAsyncId;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -39,8 +39,8 @@ public class DefaultAsyncTraceIdTest {
         String testAgentId = "testAgentId";
         TraceId traceId = new DefaultTraceId(testAgentId, agentStartTime, 0);
         TraceRoot traceRoot = new DefaultTraceRoot(traceId, testAgentId, agentStartTime + 10, 2);
-
-        AsyncTraceId asyncTraceId = new DefaultAsyncTraceId(traceRoot, 0);
+        AsyncId asyncId = new DefaultAsyncId(0);
+        AsyncTraceId asyncTraceId = new DefaultAsyncTraceId(traceRoot, asyncId);
 
         Assert.assertEquals(asyncTraceId.nextAsyncSequence(), 1);
         Assert.assertEquals(asyncTraceId.nextAsyncSequence(), 2);

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -50,19 +51,24 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     }
 
     @Override
-    public InternalAsyncContext newAsyncContext(TraceRoot traceRoot) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+    public AsyncId newAsyncId() {
+        return asyncIdGenerator.newAsyncId();
+    }
 
-        final int asyncId = asyncIdGenerator.nextAsyncId();
+    @Override
+    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId) {
+        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        Assert.requireNonNull(asyncId, "asyncId must not be null");
+
         return new DefaultAsyncContext(asyncTraceContext, traceRoot, asyncId, this.asyncMethodApiId);
     }
 
     @Override
-    public InternalAsyncContext newAsyncContext(TraceRoot traceRoot, AsyncState asyncState) {
+    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, AsyncState asyncState) {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        Assert.requireNonNull(asyncId, "asyncId must not be null");
         Assert.requireNonNull(asyncState, "asyncState must not be null");
 
-        final int asyncId = asyncIdGenerator.nextAsyncId();
         return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, asyncState);
     }
 
@@ -72,7 +78,7 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     public AsyncTraceId newAsyncTraceId(TraceRoot traceRoot) {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");
 
-        final int asyncId = asyncIdGenerator.nextAsyncId();
+        final AsyncId asyncId = asyncIdGenerator.newAsyncId();
         return new DefaultAsyncTraceId(traceRoot, asyncId);
     }
 
