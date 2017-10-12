@@ -38,6 +38,8 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
     private long startTime;
     private long afterTime;
 
+    private AsyncId asyncIdObject;
+
     public SpanEvent(TraceRoot traceRoot) {
         if (traceRoot == null) {
             throw new NullPointerException("traceRoot must not be null");
@@ -110,5 +112,13 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         final Object delete = this.frameObject;
         this.frameObject = null;
         return delete;
+    }
+
+    public void setAsyncIdObject(AsyncId asyncIdObject) {
+        this.asyncIdObject = asyncIdObject;
+    }
+
+    public AsyncId getAsyncIdObject() {
+        return asyncIdObject;
     }
 }
