@@ -66,7 +66,7 @@
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
                                     "position": "left",
-                                    "title": "TPS",
+                                    "title": "Transaction(count)",
                                     "minimum" : 0
                                 }
                             ],

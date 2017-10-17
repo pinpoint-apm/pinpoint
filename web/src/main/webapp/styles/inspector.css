@@ -45,6 +45,18 @@
 .statistic hr {
     border-top: 1px solid #FFF;
 }
+.inspector-container .chart-collection .no-data {
+    top: 50%;
+    width: 100%;
+    position: absolute;
+    text-align: center;
+}
+.inspector-container .chart-collection .no-data > span {
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #DDD;
+}
 
 .main-spy {
     margin-left: 238px;
@@ -380,4 +392,53 @@
 }
 #data-source-chart tr:nth-child(2n) td {
     background-color: #FFF;
+}
+.data-source-detail {
+    border: 1px solid #ECECEC;
+    height: 270px;
+    overflow: auto;
+    font-size: 13px;
+    margin-top: 14px;
+}
+.data-source-detail table {
+    width: 100%;
+    border: none;
+}
+.data-source-detail td {
+    cursor: pointer;
+    padding: 4px 2px;
+    border-bottom: 1px solid #c9ecfd;
+}
+.data-source-detail td > span {
+    color: #DDD;
+}
+.data-source-detail tr td:first-child {
+    padding: 4px 10px;
+    vertical-align: middle;
+}
+.data-source-detail tr td:last-child {
+    padding-left: 6px;
+    border-left: 1px solid #c9ecfd;
+}
+.data-source-detail tr.selected td:first-child {
+    background-color: #55B951;
+}
+.data-source-detail tr.selected td:first-child > span {
+    color: #FFF;
+}
+.data-source-detail tr.selected td:last-child > div:first-child {
+    text-decoration: underline;
+}
+.data-source-detail > table > tbody > tr:nth-child(odd) {
+    background-color: #f7fcff;
+}
+.data-source-detail > table > tbody > tr:nth-child(even) {
+    background-color: #FFF;
+}
+.data-source-detail > table > tbody > tr:hover {
+    color: #FFF !important;
+    background-color: #0088CC !important;
+}
+.data-source-detail > table > tbody > tr:last-child td {
+    border-bottom: none;
 }

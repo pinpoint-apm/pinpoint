@@ -493,6 +493,7 @@
 			}
 		},
 		inspector: {
+			noDataCollected: "No data collected",
 			list: {
 				mainStyle: "",
 				title: "Agent list",
@@ -788,6 +789,24 @@
 					},{
 						name: "MIN",
 						desc: "Lowest average response time of requests served by an agent"
+					}]
+				}]
+			},
+			statDataSource: {
+				mainStyle: "",
+				title: "Data Source",
+				desc: "Agent들의 DataSource 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "agent들의 DataSource connection 개수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "agent들의 DataSource connection 개수의 평균값"
+					},{
+						name: "MIN",
+						desc: "agent들의 DataSource connection 개수 중 가장 작은 값"
 					}]
 				}]
 			}

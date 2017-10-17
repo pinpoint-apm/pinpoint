@@ -104,8 +104,11 @@
 		"statResponseTime": {
 			"position": "top",
 			"trigger": "click"
+		},
+		"statDataSource": {
+			"position": "top",
+			"trigger": "click"
 		}
-
 	});
 
 	pinpointApp.service('TooltipService', [ 'TooltipServiceConfig', 'helpContentTemplate', 'helpContentService', function ( $config, helpContentTemplate, helpContentService ) {
@@ -173,6 +176,8 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.statActiveThread); };
 				case "statResponseTime":
 					return function() { return helpContentTemplate(helpContentService.inspector.statResponseTime); };
+				case "statDataSource":
+					return function() { return helpContentTemplate(helpContentService.inspector.statDataSource); };
 			}
 		}
 	}]);

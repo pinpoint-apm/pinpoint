@@ -61,7 +61,32 @@
 					<h4><span class="glyphicon glyphicon-question-sign statResponseTimeTooltip" style="cursor:pointer;float:right;"></span> Response Time</h4>
 					<statistic-chart-directive namespace="response-time"></statistic-chart-directive>
 				</div>
+				<div class="col-md-6"></div>
+			</div>
+			<hr/>
+			<div class="row">
 				<div class="col-md-6">
+					<h4>Data Source <span class="label label-info not-found" ng-show="emptyDataSource()">NOT FOUND</span></h4>
+					<statistic-chart-directive namespace="data-source"></statistic-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4>+ Data Source List <span class="glyphicon glyphicon-question-sign statDataSourceTooltip" style="cursor:pointer;float:right;"></span></h4>
+					<div class="data-source-detail">
+						<table>
+							<tbody ng-click="selectDataSource($event)">
+								<tr ng-repeat="source in dataSourceData" data-source="{{$index}}" class="{{$index == dataSourceSelectedIndex ? 'selected': ''}}">
+									<td><span class="glyphicon glyphicon-chevron-left"></span></td>
+									<td>
+										<div>{{source.jdbcUrl}}</div>
+										<div><span class="label label-info">{{source.serviceType}}</span></div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="no-data" ng-if="dataSourceData.length === 0">
+						<span ng-if="dataSourceData && dataSourceData.length === 0">{{noDataCollected}}</span>
+					</div>
 				</div>
 			</div>
 		</div>

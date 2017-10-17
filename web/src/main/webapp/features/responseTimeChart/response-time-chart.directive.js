@@ -32,6 +32,16 @@
 						oChart.dataProvider = data;
 						oChart.validateData();
 					}
+					function convertWithUnits(value) {
+						var units = ["ms", "sec", "min"];
+						var result = value;
+						var index = 0;
+						while ( result > 1000 ) {
+							index++;
+							result /= 1000;
+						}
+						return result + units[index] + " ";
+					}
 
 					function render(chartData) {
 						var options = {
@@ -59,8 +69,11 @@
 									"gridAlpha": 0,
 									"axisAlpha": 1,
 									"position": "left",
-									"title": "Response Time",
-									"minimum" : 0
+									"title": "Response Time(ms)",
+									"minimum" : 0,
+									"labelFunction": function(value) {
+										return convertWithUnits(value);
+									}
 								}
 							],
 							"graphs": [
@@ -128,6 +141,7 @@
 						}
 					}
 					scope.$on( "responseTimeChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h) {
+						console.log( data );
 						if ( hasId() ) {
 							renderUpdate( data );
 						} else {
