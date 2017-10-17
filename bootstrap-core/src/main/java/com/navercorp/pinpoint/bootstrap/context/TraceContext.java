@@ -58,6 +58,13 @@ public interface TraceContext {
 
     Trace removeTraceObject();
 
+    /**
+     *
+     * @param closeDisableTrace true
+     * @return
+     */
+    Trace removeTraceObject(boolean closeDisableTrace);
+
     // ActiveThreadCounter getActiveThreadCounter();
 
     String getAgentId();

@@ -93,7 +93,10 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
     @Override
     public SpanEventRecorder traceBlockBegin(final int stackId) {
-        if (isClosed()) {
+        if (closed) {
+            if (isWarn) {
+                stackDump("already closed trace");
+            }
             final SpanEvent dummy = newSpanEvent(stackId);
             return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, dummy);
         }
@@ -110,19 +113,10 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
         return spanEvent;
     }
 
-    private boolean isClosed() {
-        if (this.closed) {
-            if (isWarn) {
-                stackDump("already closed trace.");
-            }
-            return true;
-        }
-        return false;
-    }
 
     private void stackDump(String caused) {
         PinpointException exception = new PinpointException(caused);
-        logger.warn("[DefaultTrace] Corrupted call stack found. TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
+        logger.warn("[DefaultTrace] Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
     }
 
     @Override
@@ -132,7 +126,10 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
     @Override
     public void traceBlockEnd(int stackId) {
-        if (isClosed()) {
+        if (closed) {
+            if (isWarn) {
+                stackDump("already closed trace");
+            }
             return;
         }
 
@@ -157,10 +154,16 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
         logSpan(spanEvent);
     }
 
+
+    @Override
+    public boolean isClosed() {
+        return closed;
+    }
+
     @Override
     public void close() {
         if (closed) {
-            logger.warn("Already closed trace.");
+            logger.warn("Already closed trace");
             return;
         }
         closed = true;
@@ -168,7 +171,7 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
         final long afterTime = System.currentTimeMillis();
         if (!callStack.empty()) {
             if (isWarn) {
-                stackDump("not empty call stack.");
+                stackDump("not empty call stack");
             }
             // skip
         } else {
@@ -192,6 +195,7 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
     void flush() {
         this.storage.flush();
+        this.closed = true;
     }
 
     /**

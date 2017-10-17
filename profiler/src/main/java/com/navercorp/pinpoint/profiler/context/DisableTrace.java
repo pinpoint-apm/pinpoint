@@ -37,6 +37,7 @@ public class DisableTrace implements Trace {
     private final long threadId;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
     private final ActiveTraceHandle handle;
+    private boolean closed = false;
 
     public DisableTrace(long id, long startTime, long threadId, ActiveTraceHandle handle) {
         this.id = id;
@@ -117,7 +118,16 @@ public class DisableTrace implements Trace {
     }
 
     @Override
+    public boolean isClosed() {
+        return closed;
+    }
+
+    @Override
     public void close() {
+        if (closed) {
+            return;
+        }
+        closed = true;
         final long purgeTime = System.currentTimeMillis();
         handle.purge(purgeTime);
     }

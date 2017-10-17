@@ -42,10 +42,19 @@ public class DefaultReference<V> implements Reference<V> {
 
 
 
-    private static final Reference<Object> EMPTY = new DefaultReference<Object>() {
+    private static final Reference<Object> EMPTY = new Reference<Object>() {
+        @Override
+        public Object get() {
+            return null;
+        }
+
         @Override
         public void set(Object value) {
-            throw new IllegalStateException("unsupported set:" + value);
+        }
+
+        @Override
+        public Object clear() {
+            return null;
         }
     };
 

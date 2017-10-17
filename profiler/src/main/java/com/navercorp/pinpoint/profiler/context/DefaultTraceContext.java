@@ -157,9 +157,28 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public Trace removeTraceObject() {
+        return removeTraceObject(true);
+    }
+
+    @Override
+    public Trace removeTraceObject(boolean closeUnsampledTrace) {
         final Trace trace = traceFactory.removeTraceObject();
+        if (closeUnsampledTrace) {
+            return closeUnsampledTrace(trace);
+        } else {
+            return trace;
+        }
+    }
+
+    private Trace closeUnsampledTrace(Trace trace) {
+        if (trace == null) {
+            return null;
+        }
+        // work around : unsampled trace must be closed.
         if (!trace.canSampled()) {
-            trace.close();
+            if (!trace.isClosed()) {
+                trace.close();
+            }
         }
         return trace;
     }
