@@ -67,7 +67,10 @@
                                     "position": "left",
                                     "title": "Cpu Usage (%)",
                                     "maximum" : 100,
-                                    "minimum" : 0
+                                    "minimum" : 0,
+									"labelFunction": function(value) {
+										return value + "%";
+									}
                                 },
                             ],
                             "graphs": [

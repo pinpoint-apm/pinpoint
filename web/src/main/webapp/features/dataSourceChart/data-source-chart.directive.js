@@ -49,7 +49,7 @@
 									"gridAlpha": 0,
 									"axisAlpha": 1,
 									"position": "left",
-									"title": "Connection",
+									"title": "Connection(count)",
 									"maximum" : Math.max( maxValue, 10 ),
 									"minimum" : 0
 								}

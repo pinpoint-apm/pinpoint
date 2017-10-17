@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
-	angular.module("pinpointApp").directive("statisticChartDirective", [
-		function () {
+	angular.module("pinpointApp").directive("statisticChartDirective", [ "helpContentService",
+		function (helpContentService) {
 			return {
 				template: '<div></div>',
 				replace: true,
@@ -11,6 +11,8 @@
 				},
 				link: function postLink(scope, element, attrs) {
 					var sId = "", oChart;
+					var elNoData;
+					var noDataCollected = helpContentService.inspector.noDataCollected;
 
 					function setIdAutomatically() {
 						sId = 'multipleValueAxesId-' + scope.namespace;
@@ -20,22 +22,18 @@
 					function hasId() {
 						return sId === "" ? false : true;
 					}
-					function getUnit(val) {
-						return val ? "%" : "";
-					}
-
 					function setWidthHeight(w, h) {
 						if (w) element.css('width', w);
 						if (h) element.css('height', h);
 					}
 
-					function renderUpdate(data) {
-						oChart.dataProvider = data.data;
+					function renderUpdate(chartData) {
+						oChart.dataProvider = chartData.data;
 						oChart.validateData();
+						elNoData[chartData["empty"] ? "show" : "hide"]();
 					}
 
 					function render(chartData) {
-						var unit = getUnit(chartData.maximum);
 						var options = {
 							"type": "serial",
 							"theme": "light",
@@ -61,19 +59,20 @@
 									"gridAlpha": 0,
 									"axisAlpha": 1,
 									"position": "left",
-									"title": chartData.chartTitle,
-									"minimum" : 0
+									"title": chartData.yAxisTitle,
+									"minimum" : 0,
+									"labelFunction": chartData.labelFunc
 								}
 							],
 							"graphs": [
 								{
 									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]" + unit + "<br><strong>[[description]]</strong>",
-									"legendValueText": "[[value]]" + unit,
+									"balloonText": "[[title]] : [[value]]" + chartData.appendUnit + "<br><strong>[[description]]</strong>",
+									"legendValueText": "[[value]]" + chartData.appendUnit,
 									"lineColor": "#66B2FF",
 									"fillColor": "#66B2FF",
 									"lineThickness": 1.5,
-									"title": chartData.title[2],
+									"title": chartData.category[2],
 									"valueField": chartData.field[2], // min
 									"descriptionField": chartData.field[4],
 									"fillAlphas": 0,
@@ -82,24 +81,24 @@
 								},
 								{
 									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]" + unit,
-									"legendValueText": "[[value]]" + unit,
+									"balloonText": "[[title]] : [[value]]" + chartData.appendUnit,
+									"legendValueText": "[[value]]" + chartData.appendUnit,
 									"lineColor": "#4C0099",
 									"fillColor": "#4C0099",
 									"lineThickness": 1.5,
-									"title": chartData.title[0],
+									"title": chartData.category[0],
 									"valueField": chartData.field[0], // avg
 									"fillAlphas": 0,
 									"connect": false
 								},
 								{
 									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]" + unit + "<br><strong>[[description]]</strong>",
-									"legendValueText": "[[value]]" + unit,
+									"balloonText": "[[title]] : [[value]]" + chartData.appendUnit + "<br><strong>[[description]]</strong>",
+									"legendValueText": "[[value]]" + chartData.appendUnit,
 									"lineColor": "#0000CC",
 									"fillColor": "#0000CC",
 									"lineThickness": 1.5,
-									"title": chartData.title[1],
+									"title": chartData.category[1],
 									"valueField": chartData.field[1], // max
 									"descriptionField": chartData.field[3],
 									"fillAlphas": 0,
@@ -128,12 +127,17 @@
 								}]
 							}
 						};
-						if ( chartData.maximum ) {
-							options["valueAxes"][0].maximum = 100;
+						if ( chartData.empty || chartData.fixMax ) {
+							options["valueAxes"][0].maximum = chartData["defaultMax"];
 						}
 						oChart = AmCharts.makeChart(sId, options);
-					}
 
+						addNoDataElement();
+						elNoData[chartData["empty"] ? "show" : "hide"]();
+					}
+					function addNoDataElement() {
+						elNoData = element.append('<div class="no-data"><span>' + noDataCollected + '</span></div>').find(".no-data").hide();
+					}
 					function showCursorAt(category) {
 						if (category) {
 							if (angular.isNumber(category)) {
@@ -164,6 +168,9 @@
 						if ( scope.namespace !== namespace ) {
 							showCursorAt(category);
 						}
+					});
+					scope.$on('statisticChartDirective.hide', function () {
+						console.log( "hide statistic chart" );
 					});
 					scope.$on('statisticChartDirective.resize.' + scope.namespace, function (event) {
 						resize();
