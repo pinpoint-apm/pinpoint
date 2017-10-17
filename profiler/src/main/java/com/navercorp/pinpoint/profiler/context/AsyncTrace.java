@@ -158,9 +158,19 @@ public class AsyncTrace implements Trace {
         return trace.getCallStackFrameId() == BEGIN_STACKID;
     }
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link SpanEventRecorder#recordNextAsyncContext()}
+     * This API will be removed in 1.8.0
+     */
+    @Deprecated
     @Override
     public AsyncTraceId getAsyncTraceId() {
         return asyncContextFactory.newAsyncTraceId(traceRoot);
+    }
+
+    @Override
+    public boolean isClosed() {
+        return this.trace.isClosed();
     }
 
     @Override

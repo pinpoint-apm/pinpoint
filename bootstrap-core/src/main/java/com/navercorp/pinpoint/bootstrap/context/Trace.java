@@ -31,6 +31,10 @@ public interface Trace extends StackOperation {
 
     long getStartTime();
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link #getThreadId()}
+     * This API will be removed in 1.8.0
+     */
     @Deprecated
     Thread getBindThread();
 
@@ -56,7 +60,9 @@ public interface Trace extends StackOperation {
     SpanRecorder getSpanRecorder();
     
     SpanEventRecorder currentSpanEventRecorder();
-    
+
+    boolean isClosed();
+
     void close();
 
     TraceScope getScope(String name);
