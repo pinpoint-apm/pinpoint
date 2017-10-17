@@ -22,9 +22,12 @@ import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
+import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
+import com.navercorp.pinpoint.web.service.DefaultAnnotationKeyMatcherService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,15 +41,15 @@ import java.util.concurrent.TimeUnit;
 public class RecordFactoryTest {
 
     private RecordFactory newRecordFactory() {
-        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
-        StringMetaDataDao stringMetaDataDao = new StringMetaDataDao() {
+        AnnotationKeyMatcherService annotationKeyMatcherService = new AnnotationKeyMatcherService() {
             @Override
-            public List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
-                return Collections.EMPTY_LIST;
+            public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
+                return null;
             }
         };
-        return new RecordFactory(serviceTypeRegistryService, annotationKeyRegistryService, stringMetaDataDao);
+        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
+        return new RecordFactory(annotationKeyMatcherService, serviceTypeRegistryService, annotationKeyRegistryService);
     }
 
     public void get() {

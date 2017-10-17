@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.redis.interceptor;
 
-import redis.clients.jedis.Client;
+import java.net.URI;
+
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.plugin.redis.EndPointUtils;
+import redis.clients.jedis.JedisShardInfo;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -25,15 +30,17 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
 
 /**
- * 
- * @author jaehong.kim
+ * Jedis (redis client) constructor interceptor
+ * - trace endPoint
  *
+ * @author jaehong.kim
  */
-public abstract class JedisClientMetadataAttchInterceptor implements AroundInterceptor {
+public class SetEndPointInterceptor implements AroundInterceptor {
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public JedisClientMetadataAttchInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public SetEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
     }
 
     @Override
@@ -47,36 +54,44 @@ public abstract class JedisClientMetadataAttchInterceptor implements AroundInter
                 return;
             }
 
-            final String endPoint = ((EndPointAccessor) args[0])._$PINPOINT$_getEndPoint();
-            if (endPoint != null) {
-                ((EndPointAccessor) target)._$PINPOINT$_setEndPoint(endPoint);
-            }
+            final String endPoint = getEndPoint(args);
+            ((EndPointAccessor) target)._$PINPOINT$_setEndPoint(endPoint);
         } catch (Throwable t) {
-            logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
+            }
         }
+    }
+
+    private String getEndPoint(Object[] args) {
+        // first arg is host
+        final Object argZero = args[0];
+        if (argZero instanceof String) {
+            return EndPointUtils.getEndPoint(args);
+        } else if (argZero instanceof URI) {
+            final URI uri = (URI) argZero;
+            return HostAndPort.toHostAndPortString(uri.getHost(), uri.getPort());
+        } else if (argZero instanceof JedisShardInfo) {
+            final JedisShardInfo info = (JedisShardInfo) argZero;
+            return HostAndPort.toHostAndPortString(info.getHost(), info.getPort());
+        }
+        return "Unknown";
     }
 
     private boolean validate(final Object target, final Object[] args) {
         if (args == null || args.length == 0 || args[0] == null) {
-            logger.debug("Invalid arguments. Null or not found args({}).", args);
-            return false;
-        }
-
-        if (!(args[0] instanceof Client)) {
-            logger.debug("Invalid arguments. Expect Client but args[0]({}).", args[0]);
-            return false;
-        }
-
-        if (!(args[0] instanceof EndPointAccessor)) {
-            logger.debug("Invalid args[0] object. Need field accessor({}).", EndPointAccessor.class.getName());
+            if (isDebug) {
+                logger.debug("Invalid arguments. Null or not found args({}).", args);
+            }
             return false;
         }
 
         if (!(target instanceof EndPointAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", EndPointAccessor.class.getName());
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", EndPointAccessor.class.getName());
+            }
             return false;
         }
-
         return true;
     }
 

@@ -18,21 +18,28 @@ package com.navercorp.pinpoint.plugin.redis;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class RedisPluginConfig {
-    private boolean pipelineEnabled = true;
+    private boolean enable = true;
+    private boolean pipeline = true;
     private boolean io = true;
 
     public RedisPluginConfig(ProfilerConfig src) {
-        pipelineEnabled = src.readBoolean("profiler.redis.pipeline", true);
+        this.enable = src.readBoolean("profiler.redis", true);
+        if (this.enable) {
+            this.enable = src.readBoolean("profiler.redis.enable", true);
+        }
+        pipeline = src.readBoolean("profiler.redis.pipeline", true);
         io = src.readBoolean("profiler.redis.io", true);
     }
 
-    public boolean isPipelineEnabled() {
-        return pipelineEnabled;
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public boolean isPipeline() {
+        return pipeline;
     }
 
     public boolean isIo() {
@@ -41,12 +48,11 @@ public class RedisPluginConfig {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("RedisPluginConfig{pipelineEnabled=");
-        builder.append(pipelineEnabled);
-        builder.append(", io=");
-        builder.append(io);
-        builder.append("}");
-        return builder.toString();
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("enable=").append(enable);
+        sb.append(", pipeline=").append(pipeline);
+        sb.append(", io=").append(io);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -23,17 +23,16 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.redis.CommandContext;
 import com.navercorp.pinpoint.plugin.redis.CommandContextFactory;
-import com.navercorp.pinpoint.plugin.redis.CommandContextFormatter;
 import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
 import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
 /**
  * Jedis (redis client) method interceptor
- * 
- * @author jaehong.kim
  *
+ * @author jaehong.kim
  */
 public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
@@ -62,7 +61,7 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
         if (target instanceof EndPointAccessor) {
             endPoint = ((EndPointAccessor) target)._$PINPOINT$_getEndPoint();
         }
-        
+
         final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         final Object attachment = getAttachment(invocation);
         if (attachment instanceof CommandContext) {
@@ -70,10 +69,7 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
             if (logger.isDebugEnabled()) {
                 logger.debug("Check command context {}", commandContext);
             }
-            if (io) {
-                String commandContextString = format(commandContext);
-                recorder.recordAttribute(AnnotationKey.ARGS0, commandContextString);
-            }
+            recordIo(recorder, commandContext);
             // clear
             invocation.removeAttachment();
         }
@@ -85,8 +81,11 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
         recorder.recordException(throwable);
     }
 
-    private String format(CommandContext commandContext) {
-        return CommandContextFormatter.format(commandContext);
+    private void recordIo(SpanEventRecorder recorder, CommandContext callContext) {
+        if (io) {
+            IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) callContext.getWriteElapsedTime(), callContext.isWriteFail(), (int) callContext.getReadElapsedTime(), callContext.isReadFail());
+            recorder.recordAttribute(AnnotationKey.REDIS_IO, value);
+        }
     }
 
     private Object getAttachment(InterceptorScopeInvocation invocation) {
