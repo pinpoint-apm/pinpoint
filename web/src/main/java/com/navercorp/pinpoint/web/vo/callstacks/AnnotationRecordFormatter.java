@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,10 +40,7 @@ public class AnnotationRecordFormatter {
     private static final String PROXY_APACHE = "PROXY(APACHE)";
     private static final String PROXY_UNKNOWN = "PROXY(UNKNOWN)";
 
-    private final StringMetaDataDao stringMetaDataDao;
-
-    public AnnotationRecordFormatter(final StringMetaDataDao stringMetaDataDao) {
-        this.stringMetaDataDao = stringMetaDataDao;
+    public AnnotationRecordFormatter() {
     }
 
     public String formatTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, SpanAlign align) {
@@ -73,13 +71,13 @@ public class AnnotationRecordFormatter {
             } else {
                 return "Unsupported type(collector server needs to be upgraded)";
             }
-        } else if (annotationKey.getCode() == AnnotationKey.HTTP_IO.getCode()) {
+        } else if (annotationKey.getCode() == AnnotationKey.HTTP_IO.getCode() || annotationKey.getCode() == AnnotationKey.REDIS_IO.getCode()) {
             if (annotationBo.getValue() instanceof IntBooleanIntBooleanValue) {
                 final IntBooleanIntBooleanValue value = (IntBooleanIntBooleanValue) annotationBo.getValue();
                 return buildHttpIoArguments(value);
             }
         }
-        return annotationBo.getValue().toString();
+        return Objects.toString(annotationBo.getValue(), "");
     }
 
     String buildProxyHttpHeaderAnnotationArguments(final LongIntIntByteByteStringValue value, final long startTimeMillis) {
