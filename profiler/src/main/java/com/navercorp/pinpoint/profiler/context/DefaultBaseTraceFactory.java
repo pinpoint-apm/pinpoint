@@ -155,7 +155,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         // TODO AtomicIdGenerator.UNTRACKED_ID
         final DefaultTrace trace = new DefaultTrace(span, callStack, asyncStorage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
 
-        final Trace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, asyncId, asyncSequence);
+        final Trace asyncTrace = new AsyncChildTrace(asyncContextFactory, traceRoot, trace, asyncId, asyncSequence);
 
         return asyncTrace;
     }
