@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
-import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 
@@ -140,24 +139,26 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     @Override
     public Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
 
-        final Span span = spanFactory.newSpan(traceRoot);
-
         final Storage storage = storageFactory.createStorage(traceRoot);
 
-        final Storage asyncStorage = new AsyncStorage(storage);
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
         final boolean samplingEnable = true;
-        final TraceId traceId = traceRoot.getTraceId();
-        final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), samplingEnable);
+        final SpanRecorder spanRecorder = newAsyncChildSpanRecorder(traceRoot, samplingEnable);
+
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder();
 
-        // TODO AtomicIdGenerator.UNTRACKED_ID
-        final DefaultTrace trace = new DefaultTrace(span, callStack, asyncStorage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
-
-        final Trace asyncTrace = new AsyncChildTrace(asyncContextFactory, traceRoot, trace, asyncId, asyncSequence);
+        final Trace asyncTrace = new AsyncChildTrace(traceRoot, callStack, storage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder, asyncId, asyncSequence);
 
         return asyncTrace;
+    }
+
+    private SpanRecorder newAsyncChildSpanRecorder(TraceRoot traceRoot, boolean samplingEnable) {
+        // TODO implement SpanRecorder based on TraceRoot
+        // remove span allocation
+        final Span span = spanFactory.newSpan(traceRoot);
+        final TraceId traceId = traceRoot.getTraceId();
+        return recorderFactory.newSpanRecorder(span, traceId.isRoot(), samplingEnable);
     }
 
     // entry point async trace.
