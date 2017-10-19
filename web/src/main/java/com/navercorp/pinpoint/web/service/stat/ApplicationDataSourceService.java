@@ -50,9 +50,15 @@ public class ApplicationDataSourceService {
             throw new NullPointerException("timeWindow must not be null");
         }
 
-        List<AggreJoinDataSourceListBo> aggreJoinDataSourceListBoList = this.applicationDataSourceDao.getApplicationStatList(applicationId, timeWindow);
-        Map<DataSourceKey, List<AggreJoinDataSourceBo>> aggreJoinDataSourceBoMap = classifyByDataSourceUrl(aggreJoinDataSourceListBoList);
         List<ApplicationStatChartGroup> result = new ArrayList<ApplicationStatChartGroup>();
+        List<AggreJoinDataSourceListBo> aggreJoinDataSourceListBoList = this.applicationDataSourceDao.getApplicationStatList(applicationId, timeWindow);
+
+        if (aggreJoinDataSourceListBoList.size() == 0) {
+            result.add(new ApplicationDataSourceChartGroup(timeWindow, "", "", Collections.EMPTY_LIST));
+            return result;
+        }
+
+        Map<DataSourceKey, List<AggreJoinDataSourceBo>> aggreJoinDataSourceBoMap = classifyByDataSourceUrl(aggreJoinDataSourceListBoList);
 
         for (Map.Entry<DataSourceKey, List<AggreJoinDataSourceBo>> entry: aggreJoinDataSourceBoMap.entrySet()) {
             DataSourceKey dataSourceKey = entry.getKey();
