@@ -126,11 +126,6 @@ public class AsyncTrace implements Trace {
 
     @Override
     public void close() {
-        final AsyncState asyncState = this.asyncState;
-        if (asyncState == null) {
-            return;
-        }
-
         if (asyncState.await()) {
             // flush.
             this.trace.flush();
