@@ -16,7 +16,7 @@ profiler.proxy.http.header.enable=true
 
 Add HTTP header.
 ~~~
-Pinpoint-ProxyApache: t=991424704447256 D=3775428 i=51 b=49 app=foo-bar
+Pinpoint-ProxyApache: t=991424704447256 D=3775428 i=51 b=49
 ~~~
 
 e.g.
@@ -37,7 +37,7 @@ RequestHeader set Pinpoint-ProxyApache "%t %D %i %b app=foo-bar"
 
 Add HTTP header.
 ~~~
-Pinpoint-ProxyNginx: t=1504248328.423 D=0.123 app=foo-bar
+Pinpoint-ProxyNginx: t=1504248328.423 D=0.123
 ~~~
 
 e.g.
