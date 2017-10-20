@@ -40,13 +40,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ActiveThreadCountResponseAggregator implements PinpointWebSocketResponseAggregator {
 
     private static final String APPLICATION_NAME = "applicationName";
     private static final String ACTIVE_THREAD_COUNTS = "activeThreadCounts";
     private static final String TIME_STAMP = "timeStamp";
+
+    private final static int LOG_RECORD_RATE = 60;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -62,7 +64,6 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     private final PinpointWebSocketMessageConverter messageConverter;
 
     private final AtomicInteger flushCount = new AtomicInteger(0);
-    private final int flushLogRecordRate = 60;
 
     private volatile boolean isStopped = false;
     private WorkerActiveManager workerActiveManager;
@@ -211,7 +212,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     @Override
     public void flush(Executor executor) throws Exception {
-        if ((flushCount.getAndIncrement() % flushLogRecordRate) == 0) {
+        if ((flushCount.getAndIncrement() % LOG_RECORD_RATE) == 0) {
             logger.info("flush started. applicationName:{}", applicationName);
         }
 
@@ -228,7 +229,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 if (agentActiveThreadCount != null) {
                     response.add(agentActiveThreadCount);
                 } else {
-                    response.add(activeThreadCountWorker.getDefaultFailedResponse());
+                    response.add(activeThreadCountWorker.getDefaultFailResponse());
                 }
             }
             activeThreadCountMap = new HashMap<>(activeThreadCountWorkerRepository.size());
@@ -289,17 +290,6 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
         response.put(TIME_STAMP, timeStamp);
 
         return response;
-    }
-
-    private String createEmptyResponseMessage(String applicationName, long timeStamp) {
-        StringBuilder emptyJsonMessage = new StringBuilder(32);
-        emptyJsonMessage.append("{");
-        emptyJsonMessage.append("\"").append(APPLICATION_NAME).append("\"").append(":").append("\"").append(applicationName).append("\"").append(",");
-        emptyJsonMessage.append("\"").append(ACTIVE_THREAD_COUNTS).append("\"").append(":").append("{}").append(",");
-        emptyJsonMessage.append("\"").append(TIME_STAMP).append("\"").append(":").append(timeStamp);
-        emptyJsonMessage.append("}");
-
-        return emptyJsonMessage.toString();
     }
 
 }

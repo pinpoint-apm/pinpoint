@@ -72,7 +72,7 @@ public class RandomTSpan {
 
     public List<TAnnotation> randomTAnnotationList() {
         int annotationSize = RandomUtils.nextInt(0, 3);
-        List<TAnnotation> result = new ArrayList<>();
+        List<TAnnotation> result = new ArrayList<TAnnotation>();
         for (int i = 0; i < annotationSize; i++) {
             result.add(randomTAnnotation(i));
         }
@@ -141,7 +141,6 @@ public class RandomTSpan {
         tSpanChunk.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
         tSpanChunk.setSpanId(random.nextLong());
 
-        tSpanChunk.setServiceType(randomServerServiceType());
         tSpanChunk.setEndPoint(RandomStringUtils.random(20));
 
 //        tSpanChunk.setSpanEventList()

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -74,13 +74,13 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
                 ((AsyncAccessor)target)._$PINPOINT$_setAsync(Boolean.TRUE);
 
                 // make asynchronous trace-id
-                final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+
                 // result is BasicFuture
                 // type check validate()
-                ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                ((AsyncContextAccessor)result)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                    logger.debug("Set AsyncContext {}", asyncContext);
                 }
             }
 
@@ -104,8 +104,8 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(result instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
+        if (!(result instanceof AsyncContextAccessor)) {
+            logger.debug("Invalid target object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             return false;
         }
 

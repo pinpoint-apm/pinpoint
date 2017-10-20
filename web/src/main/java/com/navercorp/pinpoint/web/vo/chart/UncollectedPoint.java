@@ -27,6 +27,9 @@ public class UncollectedPoint<X extends Number, Y extends Number> extends Point<
 
     @Override
     public String toString() {
-        return "UncollectedPoint{" + super.toString() + "}";
+        final StringBuilder sb = new StringBuilder("UncollectedPoint{");
+        sb.append(super.toString());
+        sb.append('}');
+        return sb.toString();
     }
 }

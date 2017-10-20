@@ -197,7 +197,7 @@ Pinpoint Web only adds link buttons - you should implement the logic to retrieve
 If you want to expose your agent’s log messages, please follow the steps below.
 
 **step 1**
-You should implement a controller that receives transactionId, spanId, transanction_start_time as parameters and retrieve the logs yourself. 
+You should implement a controller that receives transactionId, spanId, transaction_start_time as parameters and retrieve the logs yourself. 
 We do not yet provide a way to retrieve the logs.
 
 example)
@@ -221,6 +221,40 @@ The value set in `log.button.name` will show up as the button text in the Web UI
 log.enable= true
 log.page.url=XXXX.pinpoint
 log.button.name= log
+```
+
+**step 3**
+Pinpoint 1.5.0 or later, we improve button to decided enable/disable depending on whether or not being logged.
+You should implement interceptor for using logging appender to add logic whether or not being logged. you also should create plugin for logging appender internally.
+Please refer to Pinpoint Profiler Plugin Sample([Link](https://github.com/naver/pinpoint-plugin-sample)).
+Location added logic of interceptor is method to log for data of LoggingEvent in appender class. you should review your appender class and find method.
+This is interceptor example.
+
+```
+public class AppenderInterceptor implements AroundInterceptor0 {
+
+    private final TraceContext traceContext;
+
+    public AppenderInterceptor(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
+
+    @Override
+    public void before(Object target) {
+        Trace trace = traceContext.currentTraceObject();
+
+        if (trace != null) {
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordLogging(LoggingInfo.LOGGED);
+        }
+    }
+
+    @IgnoreMethod
+    @Override
+    public void after(Object target, Object result, Throwable throwable) {
+
+    }
+}
 ```
 
 If those are correctly configured, the buttons are added in the transaction list view.
@@ -418,7 +452,7 @@ ex) logback - logback.xml
 
 **2-3 로그 출력 확인**
 
-Pinpoint agent가 적용된 서비스를 동작하여 log message에 아래와 같이 tansactionId, spanId 정보가 출력되는것을 확인하면 된다.
+Pinpoint agent가 적용된 서비스를 동작하여 log message에 아래와 같이 transactionId, spanId 정보가 출력되는것을 확인하면 된다.
 
 ```
 2015-04-04 14:35:20 [INFO](ContentInfoCollector:76 ) [txId : agent^14252^17 spanId : 1224] get content name : TECH
@@ -460,6 +494,40 @@ log.enable=true
 log.page.url=XXXX.Pinpoint
 log.button.name=log
 ```
+
+
+**step 3**
+pinpoint 1.5 이후 버전부터 log 기록 여부에 따라 log 버튼의 활성화가 결정되도록 개선 됐기 때문에
+당신이 사용하는 logging appender의 로깅 메소드에 logging 여부를 저장하는 interceptor를 추가하는 플러그인을 개발해야 한다.
+플러그인 개발 방법은 다음 링크를 참고하면 된다([Link](https://github.com/naver/pinpoint-plugin-sample)). interceptor 로직이 추가되야 하는 위치는 appender class 내에 LoggingEvent 객체의 데이터를 이용하여 로깅을 하는 메소드다.
+아래는 interceptor 예제이다.
+```
+public class AppenderInterceptor implements AroundInterceptor0 {
+
+    private final TraceContext traceContext;
+
+    public AppenderInterceptor(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
+
+    @Override
+    public void before(Object target) {
+        Trace trace = traceContext.currentTraceObject();
+
+        if (trace != null) {
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordLogging(LoggingInfo.LOGGED);
+        }
+    }
+
+    @IgnoreMethod
+    @Override
+    public void after(Object target, Object result, Throwable throwable) {
+
+    }
+}
+```
+
 
 위와 같이 설정 및 구현을 추가하고 pinpoint web을 동작시키면 아래와 같이 버튼이 추가 된다.
 ![per-request_feature_2.jpg](img/per-request_feature_2.jpg)

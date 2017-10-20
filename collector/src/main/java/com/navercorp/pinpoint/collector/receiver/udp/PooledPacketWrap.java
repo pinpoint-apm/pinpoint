@@ -19,21 +19,27 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 import com.navercorp.pinpoint.collector.util.PooledObject;
 
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 
 /**
  * @author emeroad
  */
 public class PooledPacketWrap implements Runnable {
+    private final DatagramSocket localSocket;
     private final PacketHandler<DatagramPacket> packetHandler;
     private final PooledObject<DatagramPacket> pooledObject;
 
-    public PooledPacketWrap(PacketHandler<DatagramPacket> packetHandler, PooledObject<DatagramPacket> pooledObject) {
+    public PooledPacketWrap(DatagramSocket localSocket, PacketHandler<DatagramPacket> packetHandler, PooledObject<DatagramPacket> pooledObject) {
+        if (localSocket == null) {
+            throw new NullPointerException("localSocket must not be null");
+        }
         if (packetHandler == null) {
             throw new NullPointerException("packetReceiveHandler must not be null");
         }
         if (pooledObject == null) {
             throw new NullPointerException("pooledObject must not be null");
         }
+        this.localSocket = localSocket;
         this.packetHandler = packetHandler;
         this.pooledObject = pooledObject;
     }
@@ -42,7 +48,7 @@ public class PooledPacketWrap implements Runnable {
     public void run() {
         final DatagramPacket packet = pooledObject.getObject();
         try {
-            packetHandler.receive(packet);
+            packetHandler.receive(localSocket, packet);
         } finally {
             pooledObject.returnObject();
         }

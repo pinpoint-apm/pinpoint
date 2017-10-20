@@ -21,6 +21,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.TServiceClient;
@@ -77,7 +78,7 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
                 sendBase, // Method
                 null, // rpc
                 null, // endPoint
-                actualServerAddress.getHostName() + ":" + actualServerAddress.getPort(), // destinationId
+                HostAndPort.toHostAndPortString(actualServerAddress.getHostName(), actualServerAddress.getPort()), // destinationId
                 thriftUrl, // Annotation("thrift.url")
                 thriftArgs), // Annotation("thrift.args")
                 event("THRIFT_CLIENT_INTERNAL", // ServiceType

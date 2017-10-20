@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.profiler.instrument.classreading;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
+import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -42,19 +42,24 @@ public class SimpleClassMetadataReaderTest {
         byte[] classFile = BytecodeUtils.getClassFile(ClassLoaderUtils.getDefaultClassLoader(), clazz.getName());
 
         SimpleClassMetadata simpleClassMetadata = SimpleClassMetadataReader.readSimpleClassMetadata(classFile);
-
+        // name.
         Assert.assertEquals(simpleClassMetadata.getClassName(), clazz.getName());
 
-
+        // interfaces
         List<String> interfaceList = getInterfaceList(clazz.getInterfaces());
         List<String> interfaceNames = simpleClassMetadata.getInterfaceNames();
         Assert.assertThat(interfaceNames, containsInAnyOrder(interfaceList.toArray()));
 
+        // super
         Assert.assertEquals(simpleClassMetadata.getSuperClassName(), "java.lang.Object");
+
+        // access
+        simpleClassMetadata.getAccessFlag();
+        // version
+        simpleClassMetadata.getVersion();
     }
 
     private List<String> getInterfaceList(Class<?>[] interfaces) {
-
         List<Class<?>> collection = Lists.newArrayList(interfaces);
         return Lists.transform(collection, new Function<Class<?>, String>() {
             @Override
@@ -63,5 +68,4 @@ public class SimpleClassMetadataReaderTest {
             }
         });
     }
-
 }

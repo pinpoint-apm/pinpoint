@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledActiveTraceDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV1;
-import com.navercorp.pinpoint.web.mapper.stat.SampledActiveTraceResultExtractor;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ActiveTraceSampler;
+import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
@@ -30,6 +32,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledActiveTraceDaoV1")
 public class HbaseSampledActiveTraceDao implements SampledActiveTraceDao {
 
@@ -37,7 +40,7 @@ public class HbaseSampledActiveTraceDao implements SampledActiveTraceDao {
     private AgentStatMapperV1.ActiveTraceMapper mapper;
 
     @Autowired
-    private Aggregator.ActiveTraceAggregator aggregator;
+    private ActiveTraceSampler activeTraceSampler;
 
     @Autowired
     private HbaseAgentStatDaoOperations operations;
@@ -47,7 +50,7 @@ public class HbaseSampledActiveTraceDao implements SampledActiveTraceDao {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
         Range range = new Range(scanFrom, scanTo);
-        SampledActiveTraceResultExtractor resultExtractor = new SampledActiveTraceResultExtractor(timeWindow, mapper);
+        SampledAgentStatResultExtractor<ActiveTraceBo, SampledActiveTrace> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, activeTraceSampler);
         return operations.getSampledAgentStatList(resultExtractor, agentId, range);
     }
 }

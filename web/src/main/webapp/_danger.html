@@ -62,7 +62,7 @@
 <body>
 <div class="navbar main-navbar bs-docs-nav">
 	<div class="nav-container">
-		<a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
+		<a href="/" class="navbar-brand"><img class="brand" src="images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
 	</div>
 </div>
 
@@ -97,7 +97,7 @@
 <script>
 	var GROUP_COUNT = 20;
 	var oRef = {
-		REQ_URL: "/applications.pinpoint",
+		REQ_URL: "applications.pinpoint",
 		fnTableTemplate : Handlebars.compile([
 			'<tr id="{{{appNameID}}}">',
 				'{{#if visible}}<td rowspan="{{rowSpan}}">{{{groupNumber}}}</td>{{/if}}',
@@ -169,7 +169,7 @@
 	}
 	function requestInactiveAgent( appName, callback ) {
 		$.ajax({
-			url: "/admin/getInactiveAgents.pinpoint?password=admin&applicationName=" + appName,
+			url: "admin/getInactiveAgents.pinpoint?password=admin&applicationName=" + appName,
 			method: "GET",
 			dataType: "json"
 		}).done(function ( agentHash ) { //, textStatue, jqXHR) {
@@ -200,7 +200,7 @@
 		var agentID = $elButton.attr("data-agent-id");
 
 		$.ajax({
-			url: "/admin/removeAgentId.pinpoint",
+			url: "admin/removeAgentId.pinpoint",
 			method: "post",
 			data: {
 				"agentId": agentID,

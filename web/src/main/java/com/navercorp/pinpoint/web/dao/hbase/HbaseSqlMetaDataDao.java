@@ -48,15 +48,15 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
-    public List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int hashCode) {
+    public List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int sqlId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
 
-        SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, time, hashCode);
-        byte[] sqlId = getDistributedKey(sqlMetaData.toRowKey());
+        SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, time, sqlId);
+        byte[] rowKey = getDistributedKey(sqlMetaData.toRowKey());
 
-        Get get = new Get(sqlId);
+        Get get = new Get(rowKey);
         get.addFamily(HBaseTables.SQL_METADATA_VER2_CF_SQL);
 
         return hbaseOperations2.get(HBaseTables.SQL_METADATA_VER2, get, sqlMetaDataMapper);

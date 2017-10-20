@@ -2,8 +2,4 @@
     <Match>
         <Package name="~com\.navercorp\.pinpoint\.thrift\.dto.*" />
     </Match>
-    <Match>
-        <!-- google guava -->
-        <Package name="~com\.google.*" />
-    </Match>
 </FindBugsFilter>

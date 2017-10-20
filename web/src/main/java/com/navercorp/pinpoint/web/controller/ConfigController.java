@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.service.UserService;
+import com.navercorp.pinpoint.web.vo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -27,9 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.navercorp.pinpoint.web.config.ConfigProperties;
-import com.navercorp.pinpoint.web.service.UserService;
-import com.navercorp.pinpoint.web.vo.User;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author HyunGil Jeong
@@ -49,12 +49,16 @@ public class ConfigController {
     @ResponseBody
     public Map<String, Object> getProperties(@RequestHeader(value=SSO_USER, required=false) String userId) {
         Map<String, Object> result = new HashMap<>();
-        
+
         result.put("sendUsage", webProperties.getSendUsage());
         result.put("editUserInfo", webProperties.getEditUserInfo());
         result.put("showActiveThread", webProperties.isShowActiveThread());
+        result.put("showActiveThreadDump", webProperties.isShowActiveThreadDump());
+        result.put("enableServerMapRealTime", webProperties.isEnableServerMapRealTime());
+        result.put("showApplicationStat", webProperties.isShowApplicationStat());
         result.put("openSource", webProperties.isOpenSource());
-        
+        result.put("version", Version.VERSION);
+
         if (!StringUtils.isEmpty(userId)) {
             User user = userService.selectUserByUserId(userId);
             result.put("userId", user.getUserId());

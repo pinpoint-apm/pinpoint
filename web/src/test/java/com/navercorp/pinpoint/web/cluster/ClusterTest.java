@@ -17,14 +17,15 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
+import com.navercorp.pinpoint.web.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.web.TestAwaitUtils;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
-import com.navercorp.pinpoint.web.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.web.TestAwaitUtils;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.KeeperException;
@@ -34,15 +35,17 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
@@ -51,7 +54,7 @@ public class ClusterTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterTest.class);
 
-    private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
+    private static final Charset UTF_8_CHARSET = StandardCharsets.UTF_8;
 
     // some tests may fail when executed in local environment
     // when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
@@ -79,7 +82,7 @@ public class ClusterTest {
         ts = createZookeeperServer(zookeeperPort);
 
         CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + acceptorAddress;
-        LOGGER.info("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
+        LOGGER.debug("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
 
         WebConfig config = mock(WebConfig.class);
 
@@ -199,7 +202,7 @@ public class ClusterTest {
 
             Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
 
-            clientFactory = new PinpointClientFactory();
+            clientFactory = new DefaultPinpointClientFactory();
             clientFactory.setMessageListener(SimpleMessageListener.INSTANCE);
 
             client = clientFactory.connect(DEFAULT_IP, acceptorPort);
@@ -247,24 +250,24 @@ public class ClusterTest {
     }
 
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
-        LOGGER.info("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
+        LOGGER.debug("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
 
         byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
-        String[] registeredIplist = new String(contents).split("\r\n");
+        String[] registeredIpList = new String(contents).split("\r\n");
 
         List<String> ipList = NetUtils.getLocalV4IpList();
 
-        Assert.assertEquals(registeredIplist.length, ipList.size());
+        Assert.assertEquals(registeredIpList.length, ipList.size());
 
-        for (String ip : registeredIplist) {
+        for (String ip : registeredIpList) {
             Assert.assertTrue(ipList.contains(ip));
         }
     }
 
     private boolean getNodeAndCompareContents0(ZooKeeper zookeeper) {
         try {
-            LOGGER.info("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
+            LOGGER.debug("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
 
             byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
             if (contents == null) {

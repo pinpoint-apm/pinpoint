@@ -26,9 +26,12 @@ import java.util.Map;
  */
 public interface PinpointServer extends PinpointSocket {
 
+    long getStartTimestamp();
+
     void messageReceived(Object message);
 
     SocketStateCode getCurrentStateCode();
+    HealthCheckState getHealthCheckState();
 
     Map<Object, Object> getChannelProperties();
     

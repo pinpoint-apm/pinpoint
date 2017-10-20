@@ -28,13 +28,16 @@ public interface ServerMetaDataHolder {
     void addConnector(String protocol, int port);
     
     void addServiceInfo(String serviceName, List<String> serviceLibs);
-    
+
+    @Deprecated
     void addListener(ServerMetaDataListener listener);
-    
+
+    @Deprecated
     void removeListener(ServerMetaDataListener listener);
     
     void notifyListeners();
-    
+
+    @Deprecated
     interface ServerMetaDataListener {
         
         void publishServerMetaData(ServerMetaData serverMetaData);

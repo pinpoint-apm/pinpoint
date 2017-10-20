@@ -20,14 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 
 /**
  * @author HyunGil Jeong
  */
-@Scope(value = HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class HystrixCommandGetFallbackOrThrowExceptionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public HystrixCommandGetFallbackOrThrowExceptionInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {

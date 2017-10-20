@@ -56,7 +56,7 @@ public class AgentClassLoaderTest {
         CodeSource codeSource = protectionDomain.getCodeSource();
         URL location = codeSource.getLocation();
 
-        logger.info("lib location:" + location);
+        logger.debug("lib location:{}", location);
         String path = location.getPath();
         // file:/D:/nhn_source/pinpoint_project/pinpoint-tomcat-profiler/target/classes/
         int dirPath = path.lastIndexOf("target/classes/");

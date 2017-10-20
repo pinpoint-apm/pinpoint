@@ -16,15 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -37,47 +34,25 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class JvmGcDetailedCodecV1Test {
+public class JvmGcDetailedCodecV1Test extends AgentStatCodecTestBase<JvmGcDetailedBo> {
 
-    private static final String AGENT_ID = "testAgentId";
-    private static final int NUM_TEST_RUNS = 20;
     private static final double DOUBLE_COMPARISON_DELTA = (double) 1 / AgentStatUtils.CONVERT_VALUE;
 
     @Autowired
-    private JvmGcDetailedCodecV1 jvmGcDetailedCodec;
+    private JvmGcDetailedCodecV1 jvmGcDetailedCodecV1;
 
-    @Test
-    public void should_be_encoded_and_decoded_to_same_value() {
-        for (int i = 0; i < NUM_TEST_RUNS; ++i) {
-            runTest();
-        }
+    @Override
+    protected List<JvmGcDetailedBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
+        return TestAgentStatFactory.createJvmGcDetailedBos(agentId, startTimestamp, initialTimestamp);
     }
 
-    private void runTest() {
-        // Given
-        final long initialTimestamp = System.currentTimeMillis();
-        final long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
-        final long timestampDelta = initialTimestamp - baseTimestamp;
-        final List<JvmGcDetailedBo> expectedJvmGcDetailedBos = TestAgentStatFactory.createJvmGcDetailedBos(AGENT_ID, initialTimestamp);
-        // When
-        Buffer encodedValueBuffer = new AutomaticBuffer();
-        this.jvmGcDetailedCodec.encodeValues(encodedValueBuffer, expectedJvmGcDetailedBos);
-        // Then
-        AgentStatDecodingContext decodingContext = new AgentStatDecodingContext();
-        decodingContext.setAgentId(AGENT_ID);
-        decodingContext.setBaseTimestamp(baseTimestamp);
-        decodingContext.setTimestampDelta(timestampDelta);
-        Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
-        List<JvmGcDetailedBo> actualJvmGcDetailedBos = this.jvmGcDetailedCodec.decodeValues(valueBuffer, decodingContext);
-        Assert.assertEquals(expectedJvmGcDetailedBos.size(), actualJvmGcDetailedBos.size());
-        for (int i = 0; i < expectedJvmGcDetailedBos.size(); ++i) {
-            JvmGcDetailedBo expectedJvmGcDetailedBo = expectedJvmGcDetailedBos.get(i);
-            JvmGcDetailedBo actualJvmGcDetailedBo = actualJvmGcDetailedBos.get(i);
-            verify(expectedJvmGcDetailedBo, actualJvmGcDetailedBo);
-        }
+    @Override
+    protected AgentStatCodec<JvmGcDetailedBo> getCodec() {
+        return jvmGcDetailedCodecV1;
     }
 
-    private void verify(JvmGcDetailedBo expectedJvmGcDetailedBo, JvmGcDetailedBo actualJvmGcDetailedBo) {
+    @Override
+    protected void verify(JvmGcDetailedBo expectedJvmGcDetailedBo, JvmGcDetailedBo actualJvmGcDetailedBo) {
         Assert.assertEquals("agentId", expectedJvmGcDetailedBo.getAgentId(), actualJvmGcDetailedBo.getAgentId());
         Assert.assertEquals("timestamp", expectedJvmGcDetailedBo.getTimestamp(), actualJvmGcDetailedBo.getTimestamp());
         Assert.assertEquals("agentStatType", expectedJvmGcDetailedBo.getAgentStatType(), actualJvmGcDetailedBo.getAgentStatType());

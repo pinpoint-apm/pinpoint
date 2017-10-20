@@ -30,7 +30,6 @@ public abstract class AspectInterceptorNoExtendClass {
 
     @PointCut
     public void testVoid() {
-        System.out.println("Aspect testVoid()");
         __testVoid();
     }
 
@@ -39,7 +38,6 @@ public abstract class AspectInterceptorNoExtendClass {
 
     @PointCut
     public int testInt() {
-        System.out.println("Aspect testInt()");
         final int result = __testInt();
         return result;
     }
@@ -50,7 +48,6 @@ public abstract class AspectInterceptorNoExtendClass {
 
     @PointCut
     public String testString() {
-        System.out.println("Aspect testString()");
         String s = __testString();
         return s;
     }
@@ -60,32 +57,27 @@ public abstract class AspectInterceptorNoExtendClass {
 
     @PointCut
     public int testUtilMethod() {
-        System.out.println("Aspect testUtilMethod()");
         int result = __testInt();
         utilMethod();
         return result;
     }
 
     private String utilMethod() {
-        System.out.println("Aspect utilMethod()");
         return "Util";
     }
 
     @PointCut
     public void testNoTouch() {
-        System.out.println("Aspect testNoTouch()");
         __testVoid();
     }
 
     @PointCut
     public void testInternalMethod() {
-        System.out.println("Aspect testInternalMethod()");
         __testVoid();
     }
 
     @PointCut
     public void testMethodCall() {
-        System.out.println("Aspect testMethodCall()");
         BytesUtils.toBytes("test");
         __testMethodCall();
     }
@@ -95,7 +87,6 @@ public abstract class AspectInterceptorNoExtendClass {
 
     @PointCut
     public Map<String, String> testGeneric() {
-        System.out.println("Aspect testGeneric()");
         return null;
     }
 }

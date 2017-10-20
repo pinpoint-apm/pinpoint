@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 /**
  * @author Jongho Moon
  * @author jaehong.kim
- *
  */
 public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -80,7 +79,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         boolean isTomcatApplication = conditionProvider.checkMainClass(config.getTomcatBootstrapMains());
         boolean isSpringBootApplication = conditionProvider.checkMainClass(config.getSpringBootBootstrapMains());
         return isTomcatApplication || isSpringBootApplication;
-}
+    }
 
     private void addTransformers(TomcatConfig config) {
         if (config.isTomcatHidePinpointHeader()) {
@@ -195,7 +194,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
                 // Tomcat 7
                 InstrumentMethod initInternalEditor = target.getDeclaredMethod("initInternal");
                 if (initInternalEditor != null) {
-                    initInternalEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
+                    initInternalEditor.addScopedInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor", TomcatConstants.TOMCAT_SERVLET_ASYNC_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -234,7 +233,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class.getName());
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
                 }

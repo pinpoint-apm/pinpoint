@@ -53,7 +53,7 @@ public class NormalClass {
     }
 
     public void innerCall() {
-        print("foo");
+
     }
 
     public void call() {
@@ -65,7 +65,6 @@ public class NormalClass {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                System.out.println("run");
             }
         };
         runnable.run();

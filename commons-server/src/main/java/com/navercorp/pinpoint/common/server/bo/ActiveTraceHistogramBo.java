@@ -94,7 +94,7 @@ public class ActiveTraceHistogramBo {
             case 0:
                 int numActiveTraceCounts = buffer.readVInt();
                 List<Integer> activeTraceCounts = new ArrayList<Integer>(numActiveTraceCounts);
-                for (int i = 0; i < numActiveTraceCounts; ++i) {
+                for (int i = 0; i < numActiveTraceCounts; i++) {
                     activeTraceCounts.add(buffer.readVInt());
                 }
                 this.activeTraceCountMap = createActiveTraceCountMap(version, activeTraceCounts);

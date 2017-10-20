@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.plugin.cxf.interceptor;
 
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
@@ -94,7 +94,7 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
         CxfClientInvokeSyncMethodInterceptor interceptor = new CxfClientInvokeSyncMethodInterceptor(traceContext, descriptor);
         interceptor.before(target, args);
 
-        verify(trace, times(0)).traceBlockBegin();
+        verify(trace, never()).traceBlockBegin();
     }
 
     @Test

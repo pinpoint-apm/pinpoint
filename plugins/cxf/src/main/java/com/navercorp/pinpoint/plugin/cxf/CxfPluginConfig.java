@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
 package com.navercorp.pinpoint.plugin.cxf;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author barney
@@ -42,16 +44,20 @@ public class CxfPluginConfig {
     }
 
     private String[] getStringArray(String value) {
-        if (value == null || value.length() <= 0) {
+        if (StringUtils.isEmpty(value)) {
             return null;
         }
-        String[] split = value.split(",");
-        String[] array = new String[split.length];
-        for (int i = 0; i < split.length; i++) {
-            array[i] = split[i].trim();
-        }
-        return array;
+        List<String> tokenList = StringUtils.tokenizeToStringList(value, ",");
+        return toStringArray(tokenList);
     }
+
+    private String[] toStringArray(List<String> list) {
+		if (list == null) {
+			return null;
+		}
+
+		return list.toArray(new String[list.size()]);
+	}
 
     @Override
     public String toString() {

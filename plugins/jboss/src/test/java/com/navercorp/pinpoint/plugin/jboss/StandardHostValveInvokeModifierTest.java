@@ -22,10 +22,11 @@ import static org.mockito.Mockito.when;
 import java.util.Enumeration;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardHost;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -128,7 +129,7 @@ public class StandardHostValveInvokeModifierTest extends BasePinpointTest {
         assertEquals(rootSpan.getParentSpanId(), -1);
         assertEquals(rootSpan.getServiceType(), SERVICE_TYPE.getCode());
         assertEquals(rootSpan.getRpc(), REQUEST_URI);
-        assertEquals(rootSpan.getEndPoint(), SERVER_NAME + ":" + SERVER_PORT);
+        assertEquals(rootSpan.getEndPoint(), HostAndPort.toHostAndPortString(SERVER_NAME, SERVER_PORT));
         assertTrue(StringUtils.isNotBlank(rootSpan.getRemoteAddr()));
     }
 

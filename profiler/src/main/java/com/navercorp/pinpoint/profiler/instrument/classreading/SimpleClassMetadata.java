@@ -35,5 +35,4 @@ public interface SimpleClassMetadata {
     List<String> getInterfaceNames();
 
     byte[] getClassBinary();
-
 }

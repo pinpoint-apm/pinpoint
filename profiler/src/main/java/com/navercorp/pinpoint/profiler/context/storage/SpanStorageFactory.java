@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 /**
@@ -33,7 +34,7 @@ public class SpanStorageFactory implements StorageFactory {
     }
 
     @Override
-    public Storage createStorage() {
-        return new SpanStorage(this.dataSender);
+    public Storage createStorage(TraceRoot traceRoot) {
+        return new SpanStorage(traceRoot, this.dataSender);
     }
 }

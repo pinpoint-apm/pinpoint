@@ -17,25 +17,15 @@
 	        replace: true,
 	        templateUrl: 'features/timeSlider/timeSlider.html?v=' + G_BUILD_TIME,
 	        link: function postLink(scope, element, attrs) {
+	        	var bAutoLoading = attrs["autoLoading"] === "true";
+	        	var bAutoLoadingPause = false;
+	            var $elSlider = element.find('.timeslider_input');
 	
-	            // define variables
-	            var $elSlider;
-	            // define private methods
-	            var initSlider, getScale, parseScaleAsTimeFormat, parseTimestampToTimeFormat, setInnerFromTo, checkDisableMore;
-	
-	            // initialize private variables
-	            $elSlider = element.find('.timeslider_input');
-	
-	            // initialize scope variables
 	            scope.oTimeSliderVoService = null;
 	            scope.disableMore = false;
 	            scope.done = false;
-	
-	            /**
-	             * init slider
-	             * @param timeSliderVoService
-	             */
-	            initSlider = function (timeSliderVoService) {
+
+	            function initSlider(timeSliderVoService) {
 	                scope.oTimeSliderVoService = timeSliderVoService;
 	
 	                if (scope.oTimeSliderVoService.getReady() === false) {
@@ -64,21 +54,17 @@
 	                    element.find('.jslider-bg .v').addClass('jslider-transition');
 	                }, 100);
 	                checkDisableMore();
-	            };
+	            }
 	
-	            checkDisableMore = function () {
+	            function checkDisableMore() {
 	                if (scope.oTimeSliderVoService.getCount() && scope.oTimeSliderVoService.getTotal()) {
 	                    if (scope.oTimeSliderVoService.getCount() >= scope.oTimeSliderVoService.getTotal()) {
 	                        scope.disableMore = true;
 	                    }
 	                }
-	            };
-	
-	            /**
-	             * get scale
-	             * @returns {Array}
-	             */
-	            getScale = function () {
+	            }
+
+	            function getScale() {
 	                // assumes maximum gap is 3 days - show in hours:minutes
 	                var from =  scope.oTimeSliderVoService.getFrom(),
 	                    to = scope.oTimeSliderVoService.getTo(),
@@ -90,88 +76,97 @@
 	                    tempScale.push(from + (unit * n));
 	                });
 	                return tempScale;
-	            };
+	            }
 	
-	            /**
-	             * parse scale as time format
-	             * @param scale
-	             * @returns {Array}
-	             */
-	            parseScaleAsTimeFormat = function (scale) {
+	            function parseScaleAsTimeFormat(scale) {
 	                var timeScale = [];
-	                _.each(scale, function (value) {
+	                $.each( scale, function( index, value ) {
 	                    timeScale.push(parseTimestampToTimeFormat(value));
 	                });
 	                return timeScale;
-	            };
+	            }
 	
-	            /**
-	             * parse timestamp to time format
-	             * @param timestamp
-	             * @returns {String}
-	             */
-	            parseTimestampToTimeFormat = function (timestamp) {
+	            function parseTimestampToTimeFormat(timestamp) {
 	                return moment(timestamp).format('HH:mm');
-	            };
+	            }
 	
-	            /**
-	             * set inner from-to
-	             * @param innerFrom
-	             * @param innerTo
-	             */
-	            setInnerFromTo = function (innerFrom, innerTo) {
+	            function setInnerFromTo(innerFrom, innerTo) {
 	                $elSlider.jslider("value", innerFrom, innerTo);
-	            };
+	            }
 	
-	            /**
-	             * scope more
-	             */
 	            scope.more = function () {
 	            	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_MORE);
-	                scope.$emit('timeSliderDirective.moreClicked', scope.oTimeSliderVoService);
+	            	if ( bAutoLoading ) {
+						bAutoLoadingPause = !bAutoLoadingPause;
+						scope.$emit('timeSliderDirective.changeLoadingStatus', bAutoLoadingPause);
+					} else {
+						scope.$emit('timeSliderDirective.moreClicked', scope.oTimeSliderVoService);
+					}
 	            };
+
+	            scope.showSlider = function() {
+					if ( scope.oTimeSliderVoService ) {
+						return scope.oTimeSliderVoService.getInnerFrom() && scope.oTimeSliderVoService.getInnerTo();
+					} else {
+						return false;
+					}
+				};
+	            scope.showCount = function() {
+	            	if ( scope.oTimeSliderVoService ) {
+						return scope.oTimeSliderVoService.getCount() && scope.oTimeSliderVoService.getTotal();
+					} else {
+	            		return false;
+					}
+				};
+	            scope.getButtonClass = function() {
+	            	if ( scope.disableMore ) {
+	            		if ( scope.done ) {
+	            			return "";
+						} else {
+	            			return "wait";
+						}
+					} else {
+	            		return "active tada";
+					}
+				};
+	            scope.getButtonText = function() {
+	            	if ( bAutoLoading ) {
+						return scope.done ? "Done" : bAutoLoadingPause ? "Resume" : "Pause";
+					} else {
+						return scope.done ? "Done" : "More";
+					}
+				};
 	
-	            /**
-	             * scope event on timeSliderDirective.initialize
-	             */
 	            scope.$on('timeSliderDirective.initialize', function (event, timeSliderVoService) {
 	                initSlider(timeSliderVoService);
-	                checkDisableMore();
+	                // checkDisableMore();
 	            });
 	
-	            /**
-	             * scope event on setInnerFromTo
-	             */
 	            scope.$on('timeSliderDirective.setInnerFromTo', function (event, timeSliderVoService) {
 	                scope.oTimeSliderVoService = timeSliderVoService;
 	                setInnerFromTo(timeSliderVoService.getInnerFrom(), timeSliderVoService.getInnerTo());
 	                checkDisableMore();
 	            });
+	            scope.getButtonStatus = function() {
+	            	if ( bAutoLoading ) {
+	            		return scope.done;
+					} else {
+						return scope.disableMore;
+					}
+				};
 	
-	            /**
-	             * scope event on enable more
-	             */
 	            scope.$on('timeSliderDirective.enableMore', function (event) {
 	                scope.disableMore = false;
 	            });
 	
-	            /**
-	             * scope event on disable more
-	             */
 	            scope.$on('timeSliderDirective.disableMore', function (event) {
 	                scope.disableMore = true;
 	            });
 	
-	            /**
-	             * scope event on change more to done
-	             */
 	            scope.$on('timeSliderDirective.changeMoreToDone', function (event) {
 	                scope.done = true;
 	            });
 	
-	            /**
-	             * scope event on change done to more
-	             */
 	            scope.$on('timeSliderDirective.changeDoneToMore', function (event) {
 	                scope.done = false;
 	            });

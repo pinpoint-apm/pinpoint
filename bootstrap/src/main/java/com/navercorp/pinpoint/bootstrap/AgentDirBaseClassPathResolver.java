@@ -41,15 +41,17 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
 
     static final String VERSION_PATTERN = "(-[0-9]+\\.[0-9]+\\.[0-9]+((\\-SNAPSHOT)|(-RC[0-9]+))?)?";
-    static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap" +VERSION_PATTERN + "\\.jar");
-    static final Pattern DEFAULT_AGENT_COMMONS_PATTERN = Pattern.compile("pinpoint-commons" + VERSION_PATTERN + "\\.jar");
-    static final Pattern DEFAULT_AGENT_CORE_PATTERN = Pattern.compile("pinpoint-bootstrap-core" + VERSION_PATTERN + "\\.jar");
-    static final Pattern DEFAULT_AGENT_CORE_OPTIONAL_PATTERN = Pattern.compile("pinpoint-bootstrap-core-optional" + VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_AGENT_PATTERN = compile("pinpoint-bootstrap" + VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_AGENT_COMMONS_PATTERN = compile("pinpoint-commons" + VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_AGENT_CORE_PATTERN = compile("pinpoint-bootstrap-core" + VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_AGENT_CORE_OPTIONAL_PATTERN = compile("pinpoint-bootstrap-core-optional" + VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_ANNOTATIONS = compile("pinpoint-annotations" + VERSION_PATTERN + "\\.jar");
 
     private final Pattern agentPattern;
     private final Pattern agentCommonsPattern;
     private final Pattern agentCorePattern;
     private final Pattern agentCoreOptionalPattern;
+    private final Pattern annotationsPattern;
 
     private String classPath;
 
@@ -61,8 +63,13 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     private String pinpointCommonsJar;
     private String bootStrapCoreJar;
     private String bootStrapCoreOptionalJar;
+    private String annotationsJar;
 
     private BootstrapJarFile bootstrapJarFile;
+
+    private static Pattern compile(String regex) {
+        return Pattern.compile(regex);
+    }
 
     public AgentDirBaseClassPathResolver() {
         this(getClassPathFromSystemProperty());
@@ -75,6 +82,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         this.agentCommonsPattern = DEFAULT_AGENT_COMMONS_PATTERN;
         this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
         this.agentCoreOptionalPattern = DEFAULT_AGENT_CORE_OPTIONAL_PATTERN;
+        this.annotationsPattern = DEFAULT_ANNOTATIONS;
         this.fileExtensionList = getDefaultFileExtensionList();
     }
 
@@ -92,6 +100,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         this.agentCommonsPattern = DEFAULT_AGENT_COMMONS_PATTERN;
         this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
         this.agentCoreOptionalPattern = DEFAULT_AGENT_CORE_OPTIONAL_PATTERN;
+        this.annotationsPattern = DEFAULT_ANNOTATIONS;
         this.fileExtensionList = getDefaultFileExtensionList();
     }
 
@@ -146,6 +155,15 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             }
         }
 
+        // 5th find annotations.jar : optional dependency
+        final String annotationsJar = getAnnotationsJar();
+        if (annotationsJar == null) {
+            logger.info("pinpoint-annotations-x.x.x(-SNAPSHOT).jar not found");
+        } else {
+            JarFile jarFile = getJarFile(annotationsJar);
+            bootstrapJarFile.append(jarFile);
+        }
+
         this.bootstrapJarFile = bootstrapJarFile;
         return true;
     }
@@ -184,9 +202,10 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         logger.info("Agent canonical-path:" + agentDirPath);
 
 
-        this.pinpointCommonsJar = findFromBootDir("pinpoint-commons", agentCommonsPattern);
-        this.bootStrapCoreJar = findFromBootDir("bootStrapCore", agentCorePattern);
-        this.bootStrapCoreOptionalJar = findFromBootDir("bootStrapCoreOptional", agentCoreOptionalPattern);
+        this.pinpointCommonsJar = findFromBootDir("pinpoint-commons.jar", agentCommonsPattern);
+        this.bootStrapCoreJar = findFromBootDir("pinpoint-bootstrap-core.jar", agentCorePattern);
+        this.bootStrapCoreOptionalJar = findFromBootDir("pinpoint-bootstrap-core-optional.jar", agentCoreOptionalPattern);
+        this.annotationsJar = findFromBootDir("pinpoint-annotations.jar", annotationsPattern);
         return true;
     }
 
@@ -206,8 +225,8 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private String findFromBootDir(final String name, final Pattern pattern) {
         String bootDirPath = agentDirPath + File.separator + "boot";
-        File[] files = listFiles(name, pattern, bootDirPath);
-        if (files== null || files.length == 0) {
+        final File[] files = listFiles(name, pattern, bootDirPath);
+        if (isEmpty(files)) {
             logger.info(name + " not found.");
             return null;
         } else if (files.length == 1) {
@@ -217,6 +236,10 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             logger.info("too many " + name + " found. " + Arrays.toString(files));
             return null;
         }
+    }
+
+    private boolean isEmpty(File[] files) {
+        return files == null || files.length == 0;
     }
 
     private File[] listFiles(final String name, final Pattern pattern, String bootDirPath) {
@@ -248,6 +271,10 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     @Override
     public String getBootStrapCoreOptionalJar() {
         return bootStrapCoreOptionalJar;
+    }
+
+    public String getAnnotationsJar() {
+        return annotationsJar;
     }
 
     private String parseAgentJar(Matcher matcher) {
@@ -356,7 +383,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             }
         });
 
-        if (jars == null || jars.length == 0) {
+        if (isEmpty(jars)) {
             return new URL[0];
         }
         

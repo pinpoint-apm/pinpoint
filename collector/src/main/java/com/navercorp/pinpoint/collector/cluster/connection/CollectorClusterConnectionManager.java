@@ -17,8 +17,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +28,9 @@ import java.net.SocketAddress;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
-public class CollectorClusterConnectionManager {
+public class CollectorClusterConnectionManager implements  ClusterConnectionManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -45,7 +45,7 @@ public class CollectorClusterConnectionManager {
     }
 
     public CollectorClusterConnectionManager(String clusterId, CollectorClusterConnectionRepository socketRepository, CollectorClusterConnector client, CollectorClusterAcceptor acceptor) {
-        AssertUtils.assertNotNull(client, "clusterConnector may not be null.");
+        Assert.requireNonNull(client, "clusterConnector must not be null.");
 
         this.clusterId = clusterId;
         this.socketRepository = socketRepository;
@@ -53,6 +53,7 @@ public class CollectorClusterConnectionManager {
         this.clusterAcceptor = acceptor;
     }
 
+    @Override
     public void start() {
         logger.info("{} initialization started.", ClassUtils.simpleClassName(this));
 
@@ -67,6 +68,7 @@ public class CollectorClusterConnectionManager {
         logger.info("{} initialization completed.", ClassUtils.simpleClassName(this));
     }
 
+    @Override
     public void stop() {
         logger.info("{} destroying started.", ClassUtils.simpleClassName(this));
 
@@ -87,6 +89,7 @@ public class CollectorClusterConnectionManager {
         logger.info("{} destroying completed.", ClassUtils.simpleClassName(this));
     }
 
+    @Override
     public void connectPointIfAbsent(InetSocketAddress address) {
         logger.info("localhost -> {} connect started.", address);
 
@@ -100,6 +103,7 @@ public class CollectorClusterConnectionManager {
         logger.info("localhost -> {} connect completed.", address);
     }
 
+    @Override
     public void disconnectPoint(SocketAddress address) {
         logger.info("localhost -> {} disconnect started.", address);
 
@@ -112,6 +116,7 @@ public class CollectorClusterConnectionManager {
         }
     }
 
+    @Override
     public List<SocketAddress> getConnectedAddressList() {
         return socketRepository.getAddressList();
     }

@@ -12,9 +12,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<bean id="batchJobLauncher" class="com.navercorp.pinpoint.web.batch.BatchJobLauncher">
-		<property name="batchServerIp" value="#{batchProps['batch.server.ip']}"/>
-	</bean>
+	<bean id="batchJobLauncher" class="com.navercorp.pinpoint.web.batch.BatchJobLauncher"/>
 
     <bean id="jobLauncher"
         class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
@@ -23,14 +21,12 @@
  
  	<batch:job-repository id="jobRepository" data-source="dataSource"/>
 	
-	<bean id="jobRegistry"	class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
 	
 	<bean id="jobRegistryBeanPostProcessor" class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
     	<property name="jobRegistry" ref="jobRegistry"/>
     </bean>
-    
-    <util:properties id="batchProps" location="classpath:batch.properties"/>
-	
+
 	<bean id="jobFailListener" class="com.navercorp.pinpoint.web.batch.JobFailListener"/>
 	
 </beans>

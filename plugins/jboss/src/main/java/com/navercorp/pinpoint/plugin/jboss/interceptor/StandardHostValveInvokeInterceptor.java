@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
@@ -34,19 +33,21 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.jboss.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.TraceAccessor;
-import com.navercorp.pinpoint.plugin.jboss.util.JbossUtility;
 
 /**
  * The Class StandardHostValveInvokeInterceptor.
@@ -89,6 +90,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     /** The trace context. */
     private final TraceContext traceContext;
 
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
+
     /**
      * Instantiates a new standard host valve invoke interceptor.
      *
@@ -103,7 +106,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         this.excludeUrlFilter = jbossConfig.getJbossExcludeUrlFilter();
 
         final String proxyIpHeader = jbossConfig.getJbossRealIpHeader();
-        if ((proxyIpHeader == null) || proxyIpHeader.isEmpty()) {
+        if (StringUtils.isEmpty(proxyIpHeader)) {
             this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         } else {
             final String jbossRealIpEmptyValue = jbossConfig.getJbossRealIpEmptyValue();
@@ -111,6 +114,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         }
         this.isTraceRequestParam = jbossConfig.isJbossTraceRequestParam();
         this.excludeProfileMethodFilter = jbossConfig.getJbossExcludeProfileMethodFilter();
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -216,7 +220,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         public String resolve(final T httpServletRequest) {
             final String realIp = httpServletRequest.getHeader(this.realIpHeaderName);
 
-            if ((realIp == null) || realIp.isEmpty()) {
+            if (StringUtils.isEmpty(realIp)) {
                 return httpServletRequest.getRemoteAddr();
             }
 
@@ -382,7 +386,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         recorder.recordRpcName(requestURL);
 
         final int port = request.getServerPort();
-        final String endPoint = request.getServerName() + ":" + port;
+        final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
         recorder.recordEndPoint(endPoint);
 
         final String remoteAddress = remoteAddressResolver.resolve(request);
@@ -397,6 +401,14 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             recordParentInfo(recorder, request);
         }
         recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+
+        // record proxy HTTP headers.
+        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
+            @Override
+            public String read(String name) {
+                return request.getHeader(name);
+            }
+        });
     }
 
     /**
@@ -450,7 +462,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 final HttpServletRequest request = (HttpServletRequest) args[0];
                 if (!excludeProfileMethodFilter.filter(request.getMethod())) {
                     final String parameters = getRequestParameter(request, 64, 512);
-                    if ((parameters != null) && (parameters.length() > 0)) {
+                    if (StringUtils.hasLength(parameters)) {
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
                     }
                 }
@@ -530,11 +542,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 return params.toString();
             }
             final String key = attrs.nextElement().toString();
-            params.append(StringUtils.drop(key, eachLimit));
-            params.append("=");
+            params.append(StringUtils.abbreviate(key, eachLimit));
+            params.append('=');
             final Object value = request.getParameter(key);
             if (value != null) {
-                params.append(StringUtils.drop(StringUtils.toString(value), eachLimit));
+                params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
             }
         }
         return params.toString();

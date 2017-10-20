@@ -1,13 +1,13 @@
 (function() {
 	'use strict';
 
-	 pinpointApp.service( "UrlVoService", [ "$location", "$routeParams", "PreferenceService", "CommonUtilService", function( $location, $routeParams, PreferenceService, CommonUtilService ) {
+	 pinpointApp.service( "UrlVoService", [ "$location", "$routeParams", "PreferenceService", "UserConfigurationService", "CommonUtilService", function( $location, $routeParams, PreferenceService, UserConfigService, CommonUtilService ) {
 		 var application = "";			// applicationName@serviceType 		- common
 		 var periodType = "";			// last or range or realtime		- common
 		 var filter = "";				// #/filteredMap
 		 var hint = "";					// #/filteredMap
 		 var agentId = "";				// #/Inspector
-		 var minutePeriod = 60 * 5;		// 기본 5분
+		 var minutePeriod = 5;			// 기본 5분
 		 var millisecondPeriod = -1;	// queryPeriod ( url에서 readablePeriod 시간을 밀리초로 환산한 값 )
 		 var queryStartTime = -1;		// ??
 		 var readablePeriod = "";		// ??
@@ -16,8 +16,10 @@
 		 var transactionInfo = "";		// #/transactionList
 		 var agentList = "";			// #/scatterFullScreenMode
 
-		 var callee = PreferenceService.getCallee();
-		 var caller = PreferenceService.getCaller();
+		 var callee = UserConfigService.getCallee();
+		 var caller = UserConfigService.getCaller();
+		 var bidirectional = UserConfigService.getBidirectional();
+		 var wasOnly = UserConfigService.getWasOnly();
 		 var oPeriodType = PreferenceService.getPeriodType();
 		 var aPeriodTime = PreferenceService.getPeriodTime();
 
@@ -32,7 +34,8 @@
 							 .setReadablePeriod( $routeParams.readablePeriod )
 							 .setQueryEndDateTime( $routeParams.queryEndDateTime )
 							 .setCallee( PreferenceService.getCalleeByApp($routeParams.application) )
-							 .setCaller( PreferenceService.getCallerByApp($routeParams.application) );
+							 .setCaller( PreferenceService.getCallerByApp($routeParams.application) )
+					   		 .setBidirectional( PreferenceService.getBidirectionalByApp($routeParams.application) );
 					 }
 					 break;
 				 case "filteredMap":
@@ -91,6 +94,17 @@
 			 caller = c;
 			 return this;
 		 };
+		 this.getBidirectional = function() {
+		 	return bidirectional;
+		 };
+		 this.setBidirectional = function( c ) {
+		 	bidirectional = c;
+		 	return this;
+		 };
+		 this.setWasOnly = function( c ) {
+		 	wasOnly = c;
+		 	return this;
+		 }
 		 // 검색 시간 범위
 		 this.getPeriod = function() {
 			 return minutePeriod;
@@ -140,6 +154,10 @@
 		 };
 		 this.setPeriodType = function( p ) {
 			 periodType = p;
+			 if ( periodType === oPeriodType.REALTIME ) {
+				 minutePeriod = parseInt( PreferenceService.getRealtimeScatterXRangeStr() );
+				 millisecondPeriod = minutePeriod * 60 * 1000;
+			 }
 			 return this;
 		 };
 		 this.setTransactionInfo = function( t ) {
@@ -162,9 +180,9 @@
 		 this.setReadablePeriod = function( periodStr ) {
 			 if ( periodStr === oPeriodType.REALTIME ) {
 				 periodType = oPeriodType.REALTIME;
-				 readablePeriod = "1m";
-				 minutePeriod = 1;
-				 millisecondPeriod = 1 * 60 * 1000;
+				 readablePeriod = "5m";
+				 minutePeriod = 5;
+				 millisecondPeriod = 5 * 60 * 1000;
 			 } else {
 				 var regex = /^(\d)+(s|m|h|d|w|M|y)$/;
 				 var match = regex.exec(periodStr);

@@ -27,11 +27,12 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.web.applicationmap.Link;
-import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author jaehong.kim
@@ -113,7 +114,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("logPageUrl")
     public String getLogPageUrl() {
-        if (logPageUrl != null && logPageUrl.length() > 0) {
+        if (StringUtils.isNotEmpty(logPageUrl)) {
             StringBuilder sb = new StringBuilder();
             sb.append("transactionId=").append(getTransactionId());
             sb.append("&time=").append(recordSet.getStartTime());

@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive("userGroupDirective", [ "$timeout", "helpContentService", "AlarmUtilService", "AnalyticsService", "globalConfig",
-	    function ( $timeout, helpContentService, AlarmUtilService, AnalyticsService, globalConfig ) {
+	pinpointApp.directive("userGroupDirective", [ "$timeout", "helpContentService", "AlarmUtilService", "AnalyticsService", "SystemConfigurationService",
+	    function ( $timeout, helpContentService, AlarmUtilService, AnalyticsService, SystemConfigService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -108,7 +108,7 @@
 						applyAddUserGroup();
 					};
 					function applyAddUserGroup() {
-						AddUserGroup.applyAction( AlarmUtilService, $elNewGroup, $elLoading, globalConfig.userId, function( oServerData, groupId ) {
+						AddUserGroup.applyAction( AlarmUtilService, $elNewGroup, $elLoading, SystemConfigService.get("userId"), function( oServerData, groupId ) {
 							oUserGroupList.push({
 								id: groupId,
 								number: oServerData.number
@@ -131,7 +131,7 @@
 						RemoveUserGroup.cancelAction( AlarmUtilService, $workingNode );
 					};
 					scope.onApplyRemoveUserGroup = function() {
-						RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, globalConfig.userId, function( groupId ) {
+						RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, SystemConfigService.get("userId"), function( groupId ) {
 							for (var i = 0; i < oUserGroupList.length; i++) {
 								if ( oUserGroupList[i].id == groupId ) {
 									oUserGroupList.splice(i, 1);

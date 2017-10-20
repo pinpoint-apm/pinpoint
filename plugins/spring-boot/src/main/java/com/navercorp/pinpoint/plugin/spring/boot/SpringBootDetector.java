@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.spring.boot;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +38,7 @@ public class SpringBootDetector implements ApplicationTypeDetector {
     private final List<String> bootstrapMains;
 
     public SpringBootDetector(List<String> bootstrapMains) {
-        if (bootstrapMains == null || bootstrapMains.isEmpty()) {
+        if (CollectionUtils.isEmpty(bootstrapMains)) {
             this.bootstrapMains = Arrays.asList(DEFAULT_SPRING_BOOT_BOOSTRAP_MAINS);
         } else {
             this.bootstrapMains = bootstrapMains;

@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class CpuLoadEncoder extends AgentStatEncoder<CpuLoadBo> {
 
     @Autowired
-    private CpuLoadEncoder(@Qualifier("cpuLoadCodecV1") AgentStatCodec<CpuLoadBo> cpuLoadCodec) {
+    private CpuLoadEncoder(@Qualifier("cpuLoadCodecV2") AgentStatCodec<CpuLoadBo> cpuLoadCodec) {
         super(cpuLoadCodec);
     }
 }

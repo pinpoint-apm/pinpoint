@@ -19,9 +19,15 @@ package com.navercorp.pinpoint.web.service.stat;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.chart.AgentStatChartGroup;
 
+import java.util.List;
+
 /**
  * @author HyunGil Jeong
  */
 public interface AgentStatChartService {
+
     AgentStatChartGroup selectAgentChart(String agentId, TimeWindow timeWindow);
+
+    List<AgentStatChartGroup> selectAgentChartList(String agentId, TimeWindow timeWindow);
+
 }

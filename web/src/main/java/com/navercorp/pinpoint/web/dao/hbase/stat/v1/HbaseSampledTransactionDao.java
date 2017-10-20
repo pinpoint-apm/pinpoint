@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 
+import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledTransactionDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV1;
-import com.navercorp.pinpoint.web.mapper.stat.SampledTransactionResultExtractor;
+import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.TransactionSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
@@ -30,6 +32,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledTransactionDaoV1")
 public class HbaseSampledTransactionDao implements SampledTransactionDao {
 
@@ -37,7 +40,7 @@ public class HbaseSampledTransactionDao implements SampledTransactionDao {
     private AgentStatMapperV1.TransactionMapper mapper;
 
     @Autowired
-    private Aggregator.TransactionAggregator aggregator;
+    private TransactionSampler transactionSampler;
 
     @Autowired
     private HbaseAgentStatDaoOperations operations;
@@ -47,7 +50,7 @@ public class HbaseSampledTransactionDao implements SampledTransactionDao {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
         Range range = new Range(scanFrom, scanTo);
-        SampledTransactionResultExtractor resultExtractor = new SampledTransactionResultExtractor(timeWindow, mapper);
+        SampledAgentStatResultExtractor<TransactionBo, SampledTransaction> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, transactionSampler);
         return operations.getSampledAgentStatList(resultExtractor, agentId, range);
     }
 }

@@ -7,8 +7,8 @@
 	 * @name TransactionDaoService
 	 * @class
 	 */
-	pinpointApp.constant('TransactionDaoServiceConfig', {
-	    transactionInfoUrl: '/transactionInfo.pinpoint'
+	pinpointApp.constant("TransactionDaoServiceConfig", {
+	    transactionInfoUrl: "transactionInfo.pinpoint"
 	});
 	
 	pinpointApp.service('TransactionDaoService', ['TransactionDaoServiceConfig', '$timeout', '$window',
@@ -49,13 +49,15 @@
 	         * @param focusTimestamp
 	         * @param cb
 	         */
-	        this.getTransactionDetail = function (traceId, focusTimestamp, cb) {
+	        this.getTransactionDetail = function (agentId, spanId, traceId, focusTimestamp, cb) {
 	            jQuery.ajax({
 	                type: 'GET',
 	                url: cfg.transactionInfoUrl,
 	                cache: false,
 	                dataType: 'json',
 	                data: {
+						agentId: agentId,
+						spanId: spanId,
 	                    traceId: traceId,
 	                    focusTimestamp: focusTimestamp
 	                },

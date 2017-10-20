@@ -97,7 +97,7 @@ public class ScanTask implements Runnable {
             return table.getScanner(scan);
         } else {
             ResultScanner[] scanners = new ResultScanner[this.scans.length];
-            for (int i = 0; i < scanners.length; ++i) {
+            for (int i = 0; i < scanners.length; i++) {
                 scanners[i] = table.getScanner(this.scans[i]);
             }
             return new DistributedScanner(this.rowKeyDistributor, scanners);

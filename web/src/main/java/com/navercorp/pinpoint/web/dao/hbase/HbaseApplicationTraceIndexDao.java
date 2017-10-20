@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper2;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper3;
@@ -40,6 +39,7 @@ import com.navercorp.pinpoint.web.vo.ResponseTimeRange;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -296,7 +296,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         TraceIndexScatterMapper3 mapper = new TraceIndexScatterMapper3(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         List<ScatterData> dotGroupList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
-        if (ListUtils.isEmpty(dotGroupList)) {
+        if (CollectionUtils.isEmpty(dotGroupList)) {
             return new ScatterData(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         } else {
             ScatterData firstScatterData = dotGroupList.get(0);

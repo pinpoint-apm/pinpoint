@@ -22,16 +22,13 @@ public class ConstructorExceptionClass {
 
     public ConstructorExceptionClass() {
         this("s", 1);
-        System.out.println("ConstructorExceptionClass()");
     }
 
     public ConstructorExceptionClass(String s) {
         this(s, 1);
-        System.out.println("ConstructorExceptionClass(String)");
     }
 
     public ConstructorExceptionClass(String s, int i) {
-        System.out.println("ConstructorExceptionClass(String, int)");
         throw new RuntimeException("constructor throw exception");
     }
 

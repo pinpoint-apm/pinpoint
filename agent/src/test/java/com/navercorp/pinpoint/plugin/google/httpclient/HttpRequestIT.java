@@ -1,5 +1,5 @@
-/**
-z * Copyright 2014 NAVER Corp.
+/*
+ * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
+import com.navercorp.pinpoint.plugin.WebServer;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -40,9 +43,25 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author jaehong.kim
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,)" })
+@Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,)", "org.nanohttpd:nanohttpd:2.3.1"})
 public class HttpRequestIT {
-    
+
+    private static WebServer webServer;
+
+    @BeforeClass
+    public static void BeforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
+    }
+
+    @AfterClass
+    public static void AfterClass() throws Exception {
+        final WebServer copy = webServer;
+        if (copy != null) {
+            copy.stop();
+            webServer = null;
+        }
+    }
+
     @Test
     public void execute() throws Exception {
         HttpTransport NET_HTTP_TRANSPORT = new NetHttpTransport();
@@ -52,7 +71,7 @@ public class HttpRequestIT {
             }
         });
 
-        GenericUrl url = new GenericUrl("http://google.com");
+        GenericUrl url = new GenericUrl(webServer.getCallHttpUrl());
         HttpRequest request = null;
         HttpResponse response = null;
         try {
@@ -83,7 +102,7 @@ public class HttpRequestIT {
         });
         
         
-        GenericUrl url = new GenericUrl("http://google.com");
+        GenericUrl url = new GenericUrl(webServer.getCallHttpUrl());
         HttpRequest request = null;
         HttpResponse response = null;
         try {

@@ -137,7 +137,7 @@ public class HbaseTraceDao implements TraceDao {
             return Collections.emptyList();
         }
         if (hBaseFamilyList == null) {
-            throw new NullPointerException("hBaseFamilyList may not be null.");
+            throw new NullPointerException("hBaseFamilyList must not be null.");
         }
 
         List<List<SpanBo>> spanBoList = new ArrayList<>();

@@ -22,11 +22,13 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.*;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -70,7 +72,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
         }
 
         @Override
-        public void receive(DatagramPacket packet) {
+        public void receive(DatagramSocket localSocket, DatagramPacket packet) {
             final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
 
             ByteBuffer requestBuffer = ByteBuffer.wrap(packet.getData());
@@ -99,12 +101,12 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     }
 
                     List<TBase<?, ?>> tbaseList = deserializer.deserializeList(componentData);
-                    if (tbaseList == null || tbaseList.isEmpty()) {
+                    if (CollectionUtils.isEmpty(tbaseList)) {
                         continue;
                     }
                     
                     if (tbaseList.size() == 1) {
-                        if (filter.filter(tbaseList.get(0), socketAddress) == TBaseFilter.BREAK) {
+                        if (filter.filter(localSocket, tbaseList.get(0), socketAddress) == TBaseFilter.BREAK) {
                             continue;
                         }
                     }
@@ -145,7 +147,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
     }
 
     private List<TSpanEvent> getSpanEventList(List<TBase<?, ?>> tbaseList) {
-        if (tbaseList == null || tbaseList.isEmpty()) {
+        if (CollectionUtils.isEmpty(tbaseList)) {
             return new ArrayList<>(0);
         }
 

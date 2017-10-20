@@ -97,19 +97,20 @@ public final class Range {
 
     @Override
     public String toString() {
-        return "Range{" +
-                "from=" + from +
-                ", to=" + to +
-                ", range=" + getRange() +
-                '}';
+        final StringBuilder sb = new StringBuilder("Range{");
+        sb.append("from=").append(from);
+        sb.append(", to=").append(to);
+        sb.append(", range=").append(getRange());
+        sb.append('}');
+        return sb.toString();
     }
 
-
     public String prettyToString() {
-        return "Range{" +
-                "from=" + DateUtils.longToDateStr(from) +
-                ", to=" + DateUtils.longToDateStr(to) +
-                ", range s=" + TimeUnit.MILLISECONDS.toSeconds(getRange()) +
-                '}';
+        final StringBuilder sb = new StringBuilder("Range{");
+        sb.append("from=").append(from);
+        sb.append(", to=").append(to);
+        sb.append(", range s=").append(TimeUnit.MILLISECONDS.toSeconds(getRange()));
+        sb.append('}');
+        return sb.toString();
     }
 }

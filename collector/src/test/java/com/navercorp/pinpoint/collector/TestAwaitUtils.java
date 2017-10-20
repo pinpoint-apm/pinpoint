@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class TestAwaitUtils {
 
@@ -42,7 +42,9 @@ public class TestAwaitUtils {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
+        int retryCount = 0;
         while (true) {
+            LOGGER.info("count:{}, awaitTime:{}, maxWaitTime:{}", retryCount++, stopWatch.stop(), maxWaitTime);
             try {
                 if (awaitTaskUtils.checkCompleted()) {
                     return true;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 
+import com.navercorp.pinpoint.plugin.WebServer;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,11 +40,28 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @JvmVersion({6, 7, 8})
+@Dependency({ "org.nanohttpd:nanohttpd:2.3.1"})
 public class HttpURLConnectionIT {
+
+    private static WebServer webServer;
+
+    @BeforeClass
+    public static void BeforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
+    }
+
+    @AfterClass
+    public static void AfterClass() throws Exception {
+        final WebServer copy = webServer;
+        if (copy != null) {
+            copy.stop();
+            webServer = null;
+        }
+    }
 
     @Test
     public void test() throws Exception {
-        URL url = new URL("http://www.naver.com");
+        URL url = new URL(webServer.getCallHttpUrl());
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.getHeaderFields();
         
@@ -50,13 +71,15 @@ public class HttpURLConnectionIT {
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("getInputStream");
         
+        String destinationId = webServer.getHostAndPort();
+        String httpUrl = webServer.getCallHttpUrl();
         verifier.verifyTraceCount(1);
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com")));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId, annotation("http.url", httpUrl)));
     }
     
     @Test
     public void testConnectTwice() throws Exception {
-        URL url = new URL("http://www.naver.com");
+        URL url = new URL(webServer.getCallHttpUrl());
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         
         connection.connect();
@@ -67,9 +90,11 @@ public class HttpURLConnectionIT {
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method connect = targetClass.getMethod("connect");
-        
+
+        String destinationId = webServer.getHostAndPort();
+        String httpUrl = webServer.getCallHttpUrl();
         verifier.verifyTraceCount(1);
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com")));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, destinationId, annotation("http.url", httpUrl)));
     }
     
     @Test

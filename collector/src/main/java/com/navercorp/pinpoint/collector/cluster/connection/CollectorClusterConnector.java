@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.collector.cluster.connection;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
@@ -31,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CollectorClusterConnector implements CollectorClusterConnectionProvider {
 
@@ -49,7 +50,7 @@ public class CollectorClusterConnector implements CollectorClusterConnectionProv
 
         ClusterOption clusterOption = new ClusterOption(true, option.getClusterId(), Role.ROUTER);
 
-        this.clientFactory = new PinpointClientFactory();
+        this.clientFactory = new DefaultPinpointClientFactory();
 
         this.clientFactory.setTimeoutMillis(1000 * 5);
         this.clientFactory.setMessageListener(option.getRouteMessageHandler());

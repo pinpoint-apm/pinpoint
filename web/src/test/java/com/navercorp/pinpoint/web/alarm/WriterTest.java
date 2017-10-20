@@ -50,8 +50,8 @@ public class WriterTest {
             }
             
             @Override
-            protected long getDetectedValue() {
-                return 10000;
+            protected Long getDetectedValue() {
+                return 10000L;
             }
         };
         
@@ -71,8 +71,8 @@ public class WriterTest {
             }
             
             @Override
-            protected long getDetectedValue() {
-                return 10000;
+            protected Long getDetectedValue() {
+                return 10000L;
             }
         };
         

@@ -22,11 +22,14 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
+import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.thrift.dto.TLongIntIntByteByteStringValue;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public class AnnotationTranscoder {
 
@@ -48,6 +51,8 @@ public class AnnotationTranscoder {
     // multivalue
     static final byte CODE_INT_STRING = 20;
     static final byte CODE_INT_STRING_STRING = 21;
+    static final byte CODE_LONG_INT_INT_BYTE_BYTE_STRING = 22;
+    static final byte CODE_INT_BOOLEAN_INT_BOOLEAN = 23;
 
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
@@ -79,7 +84,7 @@ public class AnnotationTranscoder {
                 return data[0];
             case CODE_SHORT:
                 // need short casting
-                return (short)BytesUtils.bytesToSVar32(data, 0);
+                return (short) BytesUtils.bytesToSVar32(data, 0);
             case CODE_FLOAT:
                 return Float.intBitsToFloat(BytesUtils.bytesToInt(data, 0));
             case CODE_DOUBLE:
@@ -94,6 +99,10 @@ public class AnnotationTranscoder {
                 return decodeIntStringValue(data);
             case CODE_INT_STRING_STRING:
                 return decodeIntStringStringValue(data);
+            case CODE_LONG_INT_INT_BYTE_BYTE_STRING:
+                return decodeLongIntIntByteByteStringValue(data);
+            case CODE_INT_BOOLEAN_INT_BOOLEAN:
+                return decodeIntBooleanIntBooleanValue(data);
         }
         throw new IllegalArgumentException("unsupported DataType:" + dataType);
     }
@@ -124,10 +133,14 @@ public class AnnotationTranscoder {
             return CODE_DOUBLE;
         } else if (o instanceof byte[]) {
             return CODE_BYTEARRAY;
-        } else if(o instanceof TIntStringValue) {
+        } else if (o instanceof TIntStringValue) {
             return CODE_INT_STRING;
-        } else if(o instanceof TIntStringStringValue) {
+        } else if (o instanceof TIntStringStringValue) {
             return CODE_INT_STRING_STRING;
+        } else if (o instanceof TLongIntIntByteByteStringValue) {
+            return CODE_LONG_INT_INT_BYTE_BYTE_STRING;
+        } else if (o instanceof TIntBooleanIntBooleanValue) {
+            return CODE_INT_BOOLEAN_INT_BOOLEAN;
         }
         return CODE_TOSTRING;
     }
@@ -150,7 +163,7 @@ public class AnnotationTranscoder {
             }
             case CODE_BYTE: {
                 final byte[] bytes = new byte[1];
-                bytes[0] = (Byte)o;
+                bytes[0] = (Byte) o;
                 return bytes;
             }
             case CODE_SHORT: {
@@ -177,6 +190,10 @@ public class AnnotationTranscoder {
                 return encodeIntStringValue(o);
             case CODE_INT_STRING_STRING:
                 return encodeIntStringStringValue(o);
+            case CODE_LONG_INT_INT_BYTE_BYTE_STRING:
+                return encodeLongIntIntByteByteStringValue(o);
+            case CODE_INT_BOOLEAN_INT_BOOLEAN:
+                return encodeIntBooleanIntBooleanValue(o);
         }
         throw new IllegalArgumentException("unsupported DataType:" + typeCode + " data:" + o);
     }
@@ -185,9 +202,10 @@ public class AnnotationTranscoder {
     private Object decodeIntStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final int intValue = buffer.readSVInt();
-        final String stringValue  = BytesUtils.toString(buffer.readPrefixedBytes());
+        final String stringValue = BytesUtils.toString(buffer.readPrefixedBytes());
         return new IntStringValue(intValue, stringValue);
     }
+
 
     private byte[] encodeIntStringValue(Object value) {
         final TIntStringValue tIntStringValue = (TIntStringValue) value;
@@ -212,8 +230,8 @@ public class AnnotationTranscoder {
     private Object decodeIntStringStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final int intValue = buffer.readSVInt();
-        final String stringValue1  = BytesUtils.toString(buffer.readPrefixedBytes());
-        final String stringValue2  = BytesUtils.toString(buffer.readPrefixedBytes());
+        final String stringValue1 = BytesUtils.toString(buffer.readPrefixedBytes());
+        final String stringValue2 = BytesUtils.toString(buffer.readPrefixedBytes());
         return new IntStringStringValue(intValue, stringValue1, stringValue2);
     }
 
@@ -243,6 +261,82 @@ public class AnnotationTranscoder {
         return length + reserve;
     }
 
+    private Object decodeLongIntIntByteByteStringValue(byte[] data) {
+        final Buffer buffer = new FixedBuffer(data);
+        final byte bitField = buffer.readByte();
+        final long longValue = buffer.readVLong();
+        final int intValue1 = buffer.readVInt();
+
+        int intValue2 = -1;
+        if (BitFieldUtils.testBit(bitField, 0)) {
+            intValue2 = buffer.readVInt();
+        }
+        byte byteValue1 = -1;
+        if (BitFieldUtils.testBit(bitField, 1)) {
+            byteValue1 = buffer.readByte();
+        }
+        byte byteValue2 = -1;
+        if (BitFieldUtils.testBit(bitField, 2)) {
+            byteValue2 = buffer.readByte();
+        }
+        String stringValue = null;
+        if (BitFieldUtils.testBit(bitField, 3)) {
+            stringValue = BytesUtils.toString(buffer.readPrefixedBytes());
+        }
+        return new LongIntIntByteByteStringValue(longValue, intValue1, intValue2, byteValue1, byteValue2, stringValue);
+    }
+
+    private byte[] encodeLongIntIntByteByteStringValue(Object o) {
+        final TLongIntIntByteByteStringValue value = (TLongIntIntByteByteStringValue) o;
+        byte bitField = 0;
+        bitField = BitFieldUtils.setBit(bitField, 0, value.isSetIntValue2());
+        bitField = BitFieldUtils.setBit(bitField, 1, value.isSetByteValue1());
+        bitField = BitFieldUtils.setBit(bitField, 2, value.isSetByteValue2());
+        bitField = BitFieldUtils.setBit(bitField, 3, value.isSetStringValue());
+        final byte[] stringValue = BytesUtils.toBytes(value.getStringValue());
+
+        // bitField + long + int + int + byte + byte + string
+        final int bufferSize = getBufferSize(stringValue, 1 + 8 + 4 + 4 + 1 + 1);
+        final Buffer buffer = new AutomaticBuffer(bufferSize);
+        buffer.putByte(bitField);
+        buffer.putVLong(value.getLongValue());
+        buffer.putVInt(value.getIntValue1());
+        if (value.isSetIntValue2()) {
+            buffer.putVInt(value.getIntValue2());
+        }
+        if (value.isSetByteValue1()) {
+            buffer.putByte(value.getByteValue1());
+        }
+        if (value.isSetByteValue2()) {
+            buffer.putByte(value.getByteValue2());
+        }
+        if (value.isSetStringValue()) {
+            buffer.putPrefixedBytes(stringValue);
+        }
+        return buffer.getBuffer();
+    }
+
+    private Object decodeIntBooleanIntBooleanValue(byte[] data) {
+        final Buffer buffer = new FixedBuffer(data);
+        final int intValue1 = buffer.readVInt();
+        final boolean booleanValue1 = buffer.readBoolean();
+        final int intValue2 = buffer.readVInt();
+        final boolean booleanValue2 = buffer.readBoolean();
+
+        return new IntBooleanIntBooleanValue(intValue1, booleanValue1, intValue2, booleanValue2);
+    }
+
+    private byte[] encodeIntBooleanIntBooleanValue(Object o) {
+        final TIntBooleanIntBooleanValue value = (TIntBooleanIntBooleanValue) o;
+
+        // int + int
+        final Buffer buffer = new AutomaticBuffer(8);
+        buffer.putVInt(value.getIntValue1());
+        buffer.putBoolean(value.isBoolValue1());
+        buffer.putVInt(value.getIntValue2());
+        buffer.putBoolean(value.isBoolValue2());
+        return buffer.getBuffer();
+    }
 
     /**
      * Decode the string with the current character set.

@@ -32,6 +32,7 @@
         </dependencySet>
         <dependencySet>
             <includes>
+                <include>com.navercorp.pinpoint:pinpoint-annotations</include>
                 <include>com.navercorp.pinpoint:pinpoint-commons</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-core</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-core-optional</include>
@@ -40,6 +41,7 @@
         </dependencySet>
         <dependencySet>
             <excludes>
+                <exclude>com.navercorp.pinpoint:pinpoint-annotations</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-commons</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core-optional</exclude>

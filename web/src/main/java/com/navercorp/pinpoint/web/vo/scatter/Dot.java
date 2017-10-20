@@ -35,6 +35,8 @@ public class Dot {
     private final int exceptionCode;
     private final String agentId;
 
+    private int hashCode = 0;
+
     /**
      * 
      * @param transactionId
@@ -55,6 +57,8 @@ public class Dot {
         this.elapsedTime = elapsedTime;
         this.exceptionCode = exceptionCode;
         this.agentId = agentId;
+
+        hashCode();
     }
 
     public TransactionId getTransactionId() {
@@ -107,4 +111,19 @@ public class Dot {
         sb.append('}');
         return sb.toString();
     }
+
+    @Override
+    public int hashCode() {
+        if (hashCode == 0) {
+            int result = transactionId != null ? transactionId.hashCode() : 0;
+            result = 31 * result + (int) (acceptedTime ^ (acceptedTime >>> 32));
+            result = 31 * result + elapsedTime;
+            result = 31 * result + exceptionCode;
+            result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
+
+            hashCode = result;
+        }
+        return hashCode;
+    }
+
 }

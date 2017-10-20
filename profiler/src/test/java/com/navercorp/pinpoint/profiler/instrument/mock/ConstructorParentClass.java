@@ -21,6 +21,5 @@ package com.navercorp.pinpoint.profiler.instrument.mock;
 public class ConstructorParentClass {
 
     public ConstructorParentClass() {
-        System.out.println("Constructor parent.");
     }
 }

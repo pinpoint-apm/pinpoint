@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.collector.dao.AgentEventDao;
 import com.navercorp.pinpoint.collector.dao.hbase.mapper.AgentEventValueMapper;
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;

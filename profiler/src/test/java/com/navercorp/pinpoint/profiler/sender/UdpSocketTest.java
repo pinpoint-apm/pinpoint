@@ -135,7 +135,7 @@ public class UdpSocketTest {
             DatagramPacket datagramPacket = newDatagramPacket(70000);
             try {
                 receiver.receive(datagramPacket);
-                logger.info("data size:{}", datagramPacket.getLength());
+                logger.debug("data size:{}", datagramPacket.getLength());
             } catch (IOException e) {
                 logger.warn("receive error:{}", e.getMessage(), e);
             }

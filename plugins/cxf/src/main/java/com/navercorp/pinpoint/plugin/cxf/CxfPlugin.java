@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  */
 package com.navercorp.pinpoint.plugin.cxf;
 
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+
+import java.security.ProtectionDomain;
 
 /**
  * @author barney
@@ -52,8 +54,9 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
                     throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                target.getDeclaredMethod("invokeSync", "java.lang.reflect.Method", "org.apache.cxf.service.model.BindingOperationInfo", "java.lang.Object[]")
-                    .addInterceptor("com.navercorp.pinpoint.plugin.cxf.interceptor.CxfClientInvokeSyncMethodInterceptor");
+                // invokeSyncMethod
+                InstrumentMethod invokeSyncMethod = InstrumentUtils.findMethod(target, "invokeSync", new String[]{"java.lang.reflect.Method", "org.apache.cxf.service.model.BindingOperationInfo", "java.lang.Object[]"});
+                invokeSyncMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.cxf.interceptor.CxfClientInvokeSyncMethodInterceptor", CxfPluginConstants.CXF_CLIENT_SCOPE);
 
                 return target.toBytecode();
             }

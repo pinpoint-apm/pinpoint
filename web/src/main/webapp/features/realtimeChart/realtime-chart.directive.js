@@ -24,7 +24,7 @@
 			TIMEOUT: 211
 		},
 		consts: {
-			maxDealyCount: 5,
+			maxDelayCount: 5,
 			verticalGridCount: 5
 		},
 		message: {
@@ -392,7 +392,7 @@
             	        d3transition = d3transition.each(function() {
             	        	delayCount++;
             	            if ( passingQueue.length === 0 ) {
-            	            	if ( delayCount > cfg.consts.maxDealyCount && oOuterOption.showExtraInfo === false ) {
+            	            	if ( delayCount > cfg.consts.maxDelayCount && oOuterOption.showExtraInfo === false ) {
             	            		setErrorMessage( false, [cfg.message.NO_RESPONSE]);
             	            	}
             	            	return;
@@ -462,14 +462,23 @@
 		            				y: parseInt( v ),
 		            				d: timeStamp
 		            			};
-		            		}) );
+		            		}));
 	            		}
 	    	        });
 	            	scope.$on('realtimeChartDirective.onError.' + oOuterOption.namespace, function (event, oError, timeStamp, yValue) {
 	            		maxY = yValue;
 	            		if ( oError.code === cfg.responseCode.TIMEOUT ) {
 		            		if ( timeoutCount < oOuterOption.timeoutMaxCount ) {
-		            			passingQueue.push( chartDataQueue[chartDataQueue.length - 1] );
+		            			if ( passingQueue.length > 0 ) {
+									var oTemp = passingQueue[passingQueue.length - 1];
+									passingQueue.push(oTemp.map(function(v) {
+										return {
+											"d": timeStamp,
+											"y": v["y"],
+											"y0": v["y0"]
+										};
+									}));
+								}
 		            		} else {
 								initDelayCount();
 		            			setErrorMessage( true, oError.message.split("_") );

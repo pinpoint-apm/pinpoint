@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,7 +19,7 @@ public class ExcludeMethodFilter implements Filter<String> {
             this.excludeMethods = Collections.emptySet();
             return;
         }
-        final List<String> splitList = StringUtils.splitAndTrim(excludeFormat, separator);
+        final List<String> splitList = StringUtils.tokenizeToStringList(excludeFormat, separator);
         this.excludeMethods = new HashSet<String>();
         for (String method : splitList) {
             this.excludeMethods.add(method.toUpperCase());

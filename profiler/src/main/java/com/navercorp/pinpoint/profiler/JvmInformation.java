@@ -24,7 +24,7 @@ public class JvmInformation {
     private final String jvmVersion;
     private final int gcTypeCode;
 
-    JvmInformation(String jvmVersion, int gcTypeCode) {
+    public JvmInformation(String jvmVersion, int gcTypeCode) {
         this.jvmVersion = jvmVersion;
         this.gcTypeCode = gcTypeCode;
     }

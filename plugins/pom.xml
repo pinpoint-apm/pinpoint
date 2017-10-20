@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins</artifactId>
@@ -15,7 +15,9 @@
         <module>httpclient3</module>
         <module>httpclient4</module>
         <module>ning-asynchttpclient</module>
+        <module>resttemplate</module>
         <module>gson</module>
+        <module>netty</module>
         <module>jackson</module>
         <module>cubrid-jdbc</module>
         <module>mysql-jdbc</module>
@@ -23,6 +25,8 @@
         <module>postgresql-jdbc</module>
         <module>jtds</module>
         <module>dbcp</module>
+        <module>dbcp2</module>
+        <module>hikaricp</module>
         <module>oracle-jdbc</module>
         <module>jdk-http</module>
         <module>json-lib</module>
@@ -33,6 +37,7 @@
         <module>arcus</module>
         <module>google-httpclient</module>
         <module>jetty</module>
+        <module>websphere</module>
         <module>spring</module>
         <module>spring-boot</module>
         <module>ibatis</module>
@@ -46,6 +51,9 @@
         <module>cxf</module>
         <module>hystrix</module>
         <module>jboss</module>
+        <module>vertx</module>
+        <module>resin</module>
+        <module>jsp</module>
     </modules>
 
     <dependencies>
@@ -62,6 +70,16 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-ning-asynchttpclient-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-resttemplate-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-netty-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -102,6 +120,16 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-dbcp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-dbcp2-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-hikaricp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -157,6 +185,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jetty-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-websphere-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -219,6 +252,46 @@
             <artifactId>pinpoint-jboss-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-vertx-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-resin-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jsp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>create-zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -30,10 +30,10 @@ public class AnnotationBoDecoder {
         if (annotationSize == 0) {
             // don' fix return Collections.emptyList();
             // exist outer add method
-            return new ArrayList<>();
+            return new ArrayList<AnnotationBo>();
         }
 
-        List<AnnotationBo> annotationBoList = new ArrayList<>(annotationSize);
+        List<AnnotationBo> annotationBoList = new ArrayList<AnnotationBo>(annotationSize);
         for (int i = 0; i < annotationSize; i++) {
 
             AnnotationBo annotation = decodeAnnotation(valueBuffer);

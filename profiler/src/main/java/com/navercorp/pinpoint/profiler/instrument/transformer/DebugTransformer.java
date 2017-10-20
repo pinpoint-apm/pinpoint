@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**
  * @author Jongho Moon
@@ -35,16 +36,25 @@ import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
  */
 public class DebugTransformer implements ClassFileTransformer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final DefaultProfilerPluginContext context;
-    
-    public DebugTransformer(DefaultProfilerPluginContext context) {
-        this.context = context;
+
+    private final InstrumentContext instrumentContext;
+    private final InstrumentEngine instrumentEngine;
+
+    public DebugTransformer(InstrumentEngine instrumentEngine, InstrumentContext instrumentContext) {
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
+        }
+        if (instrumentContext == null) {
+            throw new NullPointerException("instrumentContext must not be null");
+        }
+        this.instrumentEngine = instrumentEngine;
+        this.instrumentContext = instrumentContext;
     }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
-            final InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+            final InstrumentClass target = instrumentEngine.getClass(instrumentContext, loader, className, classfileBuffer);
             if (target == null) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("targetClass not found. className:{}, classBeingRedefined:{} :{} ", className, classBeingRedefined, loader);

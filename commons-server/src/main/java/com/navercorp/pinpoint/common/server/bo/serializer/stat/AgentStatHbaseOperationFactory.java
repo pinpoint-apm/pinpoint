@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,11 +62,11 @@ public class AgentStatHbaseOperationFactory {
     }
 
     public <T extends AgentStatDataPoint> List<Put> createPuts(String agentId, AgentStatType agentStatType, List<T> agentStatDataPoints, HbaseSerializer<List<T>, Put> agentStatSerializer) {
-        if (agentStatDataPoints == null || agentStatDataPoints.isEmpty()) {
+        if (CollectionUtils.isEmpty(agentStatDataPoints)) {
             return Collections.emptyList();
         }
         Map<Long, List<T>> timeslots = slotAgentStatDataPoints(agentStatDataPoints);
-        List<Put> puts = new ArrayList<>();
+        List<Put> puts = new ArrayList<Put>();
         for (Map.Entry<Long, List<T>> timeslot : timeslots.entrySet()) {
             long baseTimestamp = timeslot.getKey();
             List<T> slottedAgentStatDataPoints = timeslot.getValue();
@@ -109,13 +110,13 @@ public class AgentStatHbaseOperationFactory {
     }
 
     private <T extends AgentStatDataPoint> Map<Long, List<T>> slotAgentStatDataPoints(List<T> agentStatDataPoints) {
-        Map<Long, List<T>> timeslots = new TreeMap<>();
+        Map<Long, List<T>> timeslots = new TreeMap<Long, List<T>>();
         for (T agentStatDataPoint : agentStatDataPoints) {
             long timestamp = agentStatDataPoint.getTimestamp();
             long timeslot = AgentStatUtils.getBaseTimestamp(timestamp);
             List<T> slottedDataPoints = timeslots.get(timeslot);
             if (slottedDataPoints == null) {
-                slottedDataPoints = new ArrayList<>();
+                slottedDataPoints = new ArrayList<T>();
                 timeslots.put(timeslot, slottedDataPoints);
             }
             slottedDataPoints.add(agentStatDataPoint);

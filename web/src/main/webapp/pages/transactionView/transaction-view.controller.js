@@ -8,7 +8,7 @@
 	 * @class
 	 */
 	pinpointApp.constant( "TransactionViewConfig", {
-	    applicationUrl: "/transactionInfo.pinpoint"
+	    applicationUrl: "transactionInfo.pinpoint"
 	});
 	
 	pinpointApp.controller( "TransactionViewCtrl", [ "TransactionViewConfig", "$scope", "$rootScope", "$rootElement", "CommonUtilService", "AlertsService", "ProgressBarService", "$timeout", "$routeParams", "NavbarVoService", "TransactionDaoService", "AgentDaoService", "AnalyticsService", "PreferenceService",
@@ -35,7 +35,7 @@
 	            if ($routeParams.agentId && $routeParams.traceId && $routeParams.focusTimestamp) {
 	                oProgressBarService.startLoading();
 	                oProgressBarService.setLoading(30);
-	                TransactionDaoService.getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
+	                TransactionDaoService.getTransactionDetail($routeParams.agentId, $routeParams.spanId, $routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
 	                    if (err || result.exception ) {
                             oProgressBarService.stopLoading();
                             if ( err ) {

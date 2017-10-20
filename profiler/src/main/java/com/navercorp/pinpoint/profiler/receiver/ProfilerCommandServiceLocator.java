@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.receiver;
 
 import org.apache.thrift.TBase;
 
+import java.util.Set;
+
 /**
  * @author koo.taejin
  */
@@ -30,5 +32,9 @@ public interface ProfilerCommandServiceLocator {
     ProfilerRequestCommandService getRequestService(TBase tBase);
 
     ProfilerStreamCommandService getStreamService(TBase tBase);
+
+    Set<Class<? extends TBase>> getCommandServiceClasses();
+
+    Set<Short> getCommandServiceCodes();
 
 }

@@ -32,14 +32,14 @@ public class ValueEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_shorts_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Short> expectedValues = createRandomShorts(numTestValues, true);
-        ValueEncodingStrategy.Unsigned<Short> strategy = new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER);
+        ValueEncodingStrategy.Unsigned<Short> strategy = new ValueEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_shorts_should_be_encoded_and_decoded_correctly() {
         List<Short> expectedValues = Collections.emptyList();
-        ValueEncodingStrategy.Unsigned<Short> strategy = new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER);
+        ValueEncodingStrategy.Unsigned<Short> strategy = new ValueEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
@@ -47,14 +47,14 @@ public class ValueEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_ints_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Integer> expectedValues = createRandomIntegers(numTestValues, true);
-        ValueEncodingStrategy.Unsigned<Integer> strategy = new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER);
+        ValueEncodingStrategy.Unsigned<Integer> strategy = new ValueEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_ints_should_be_encoded_and_decoded_correctly() {
         List<Integer> expectedValues = Collections.emptyList();
-        ValueEncodingStrategy.Unsigned<Integer> strategy = new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER);
+        ValueEncodingStrategy.Unsigned<Integer> strategy = new ValueEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
@@ -62,14 +62,14 @@ public class ValueEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_longs_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Long> expectedValues = createRandomLongs(numTestValues, true);
-        ValueEncodingStrategy.Unsigned<Long> strategy = new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER);
+        ValueEncodingStrategy.Unsigned<Long> strategy = new ValueEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_longs_should_be_encoded_and_decoded_correctly() {
         List<Long> expectedValues = Collections.emptyList();
-        ValueEncodingStrategy.Unsigned<Long> strategy = new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER);
+        ValueEncodingStrategy.Unsigned<Long> strategy = new ValueEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 }

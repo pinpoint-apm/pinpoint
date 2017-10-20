@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +38,7 @@ public class TomcatDetector implements ApplicationTypeDetector {
     private final List<String> bootstrapMains;
 
     public TomcatDetector(List<String> bootstrapMains) {
-        if (bootstrapMains == null || bootstrapMains.isEmpty()) {
+        if (CollectionUtils.isEmpty(bootstrapMains)) {
             this.bootstrapMains = Arrays.asList(DEFAULT_BOOTSTRAP_MAIN);
         } else {
             this.bootstrapMains = bootstrapMains;

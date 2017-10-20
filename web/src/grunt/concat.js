@@ -21,7 +21,8 @@ module.exports = function( grunt, options ) {
 				'/d3/d3.min.js',
 				'/amcharts/amcharts.js',
 				'/amcharts/serial.js',
-				'/amcharts/themes/light.js'
+				'/amcharts/themes/light.js',
+				'/chartjs/Chart.min.js'
 			], options.RESOURCE_PATH.COMPONENT ),
 			dest: options.RESOURCE_PATH.DEST_JS + '/draw-lib.min.js'
 		},
@@ -31,7 +32,6 @@ module.exports = function( grunt, options ) {
 				'/bootstrap/dist/js/bootstrap.min.js',
 				'/google-code-prettify/prettify.js',
 				'/google-code-prettify/lang-sql.js',
-				'/moment/moment.js',
 				'/moment/moment-with-locales.min.js',
 				'/moment/moment-timezone-with-data.min.js',
 				'/select2/dist/js/select2.full.min.js',
@@ -85,7 +85,7 @@ module.exports = function( grunt, options ) {
 				'/time-slider.js',
 				'/time-slider.background.js',
 				'/time-slider.configuration.js',
-				'/time-slider.event-data.js',
+				'/time-slider.timeline-data.js',
 				'/time-slider.events.js',
 				'/time-slider.handler.js',
 				'/time-slider.loading-indicator.js',
@@ -143,7 +143,6 @@ module.exports = function( grunt, options ) {
 			options: concatCommonOptions,
 			src: options.makePath( [
 				'/common/filters/icon-url.filter.js',
-				'/common/filters/application-name-to-class-name.filter.js',
 				'/common/services/time-slider-vo.service.js',
 				'/common/services/alerts.service.js',
 				'/common/services/progress-bar.service.js',
@@ -153,12 +152,13 @@ module.exports = function( grunt, options ) {
 				'/common/services/location.service.js',
 				'/common/services/server-map-dao.service.js',
 				'/common/services/agent-dao.service.js',
-				'/common/services/sidebar-title-vo.service.js',
+				'/common/services/agent-histogram-dao.service.js',
 				'/common/services/filtered-map-util.service.js',
 				'/common/services/filter.config.js',
 				'/common/services/server-map-filter-vo.service.js',
 				'/common/services/alarm-ajax.service.js',
 				'/common/services/alarm-util.service.js',
+				'/common/services/installation-ajax.service.js',
 				'/common/services/server-map-hint-vo.service.js',
 				'/common/services/is-visible.service.js',
 				'/common/services/user-locales.service.js',
@@ -173,6 +173,9 @@ module.exports = function( grunt, options ) {
 				'/common/services/agent-ajax.service.js',
 				'/common/services/tooltip.service.js',
 				'/common/services/common-util.service.js',
+				'/common/services/local-storage-manager.service.js',
+				'/common/services/system-configuration.service.js',
+				'/common/services/user-configuration.service.js',
 
 				'/features/applicationList/application-list.directive.js',
 				'/features/periodSelector/period-selector.directive.js',
@@ -181,8 +184,8 @@ module.exports = function( grunt, options ) {
 				'/features/serverMap/server-map.directive.js',
 				'/features/realtimeChart/realtime-chart.directive.js',
 				'/features/scatter/scatter.directive.js',
+				'/features/groupedApplicationList/grouped-application-list.directive.js',
 				'/features/nodeInfoDetails/node-info-details.directive.js',
-				'/features/linkInfoDetails/link-info-details.directive.js',
 				'/features/serverList/server-list.directive.js',
 				'/features/agentList/agent-list.directive.js',
 				'/features/agentInfo/agent-info.directive.js',
@@ -193,12 +196,15 @@ module.exports = function( grunt, options ) {
 				'/features/sidebar/title/sidebar-title.directive.js',
 				'/features/sidebar/filter/filter-information.directive.js',
 				'/features/distributedCallFlow/distributed-call-flow.directive.js',
-				'/features/responseTimeChart/response-time-chart.directive.js',
+				'/features/responseTimeSummaryChart/response-time-summary-chart.directive.js',
 				'/features/loadChart/load-chart.directive.js',
 				'/features/jvmMemoryChart/jvm-memory-chart.directive.js',
+				'/features/dataSourceChart/data-source-chart.directive.js',
 				'/features/cpuLoadChart/cpu-load-chart.directive.js',
 				'/features/tpsChart/tps-chart.directive.js',
 				'/features/activeTraceChart/active-trace-chart.directive.js',
+				'/features/responseTimeChart/response-time-chart.directive.js',
+				'/features/dataSourceChart/data-source--chart.directive.js',
 				'/features/loading/loading.directive.js',
 				'/features/configuration/configuration.directive.js',
 				'/features/configuration/general/general.directive.js',
@@ -209,15 +215,21 @@ module.exports = function( grunt, options ) {
 				'/features/configuration/application/application-config.directive.js',
 				'/features/configuration/application/application-group.directive.js',
 				'/features/configuration/application/alarm-rule.directive.js',
+				'/features/configuration/installation/installation.directive.js',
 				'/features/configuration/help/help.directive.js',
+				'/features/threadDumpInfoLayer/thread-dump-info-layer.directive.js',
 				'/features/realtimeChart/realtime-chart.controller.js',
+				'/features/statisticChart/statistic-chart.directive.js',
+				'/features/applicationStatistic/application-statistic.directive.js',
 				'/pages/main/main.controller.js',
 				'/pages/inspector/inspector.controller.js',
 				'/pages/transactionList/transaction-list.controller.js',
 				'/pages/transactionDetail/transaction-detail.controller.js',
 				'/pages/filteredMap/filtered-map.controller.js',
 				'/pages/transactionView/transaction-view.controller.js',
-				'/pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js'
+				'/pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js',
+				'/pages/threadDump/thread-dump.controller.js',
+				'/pages/realtime/realtime.controller.js'
 
 			], options.RESOURCE_PATH.ROOT ),
 			dest: options.RESOURCE_PATH.DEST_JS + '/pinpoint.js'
@@ -241,7 +253,8 @@ module.exports = function( grunt, options ) {
 				'/angular-slider/angular-slider.min.css',
 				'/tooltipster/css/tooltipster.css',
 				'/google-code-prettify/prettify.css',
-				'/google-code-prettify/sunburst.css'
+				'/google-code-prettify/sunburst.css',
+				'/xeicon.min.css'
 			], options.RESOURCE_PATH.COMPONENT ),
 			dest: options.RESOURCE_PATH.DEST_CSS + '/vendor.css'
 		},
@@ -252,7 +265,6 @@ module.exports = function( grunt, options ) {
 				'/inspector.css',
 				'/navbar.css',
 				'/nodeInfoDetails.css',
-				'/linkInfoDetails.css',
 				'/transactionTable.css',
 				'/callStacks.css',
 				'/timeSlider.css',
@@ -264,8 +276,7 @@ module.exports = function( grunt, options ) {
 				'/loading.css',
 				'/jquery.BigScatterChart.css',
 				'/timer.css',
-				'/configuration.css',
-				'/xeicon.min.css'
+				'/configuration.css'
 			], options.RESOURCE_PATH.STYLE ),
 			dest: options.RESOURCE_PATH.DEST_CSS + '/pinpoint.css'
 		}

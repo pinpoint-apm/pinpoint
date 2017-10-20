@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * @author emeroad
@@ -46,7 +47,7 @@ public class SpanAlign {
         this.spanEventBo = null;
         this.span = true;
         List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
-        if (spanEvents == null || spanEvents.isEmpty()) {
+        if (CollectionUtils.isEmpty(spanEvents)) {
             this.hasChild = false;
         } else {
             this.hasChild = true;

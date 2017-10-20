@@ -17,10 +17,9 @@
 package com.navercorp.pinpoint.rpc.server;
 
 
-import com.navercorp.pinpoint.rpc.codec.PacketDecoder;
 import com.navercorp.pinpoint.rpc.codec.PacketEncoder;
+import com.navercorp.pinpoint.rpc.codec.ServerPacketDecoder;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor.PinpointServerChannelHandler;
-
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
@@ -42,10 +41,12 @@ public class ServerPipelineFactory implements ChannelPipelineFactory {
     public ChannelPipeline getPipeline() throws Exception {
         ChannelPipeline pipeline = Channels.pipeline();
 
-        pipeline.addLast("decoder", new PacketDecoder());
+        // ServerPacketDecoder passes the PING related packets(without status value) to the pinpointServerChannelHandler.
+        pipeline.addLast("decoder", new ServerPacketDecoder());
         pipeline.addLast("encoder", new PacketEncoder());
         pipeline.addLast("handler", pinpointServerChannelHandler);
 
         return pipeline;
     }
+
 }

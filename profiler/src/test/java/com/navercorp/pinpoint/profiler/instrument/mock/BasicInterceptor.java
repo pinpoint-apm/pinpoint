@@ -64,8 +64,6 @@ public class BasicInterceptor implements AroundInterceptor5 {
         this.beforeArg2 = arg2;
         this.beforeArg3 = arg3;
         this.beforeArg4 = arg4;
-
-        System.out.println(getClass().getName() + " BEFORE target=" + target + ", arg0=" + arg0 + ", arg1=" + arg1 + ", arg2=" + arg2 + ", arg3=" + arg3 + ", arg4=" + arg4);
     }
 
     @Override
@@ -79,6 +77,5 @@ public class BasicInterceptor implements AroundInterceptor5 {
         this.afterArg4 = arg4;
         this.result = result;
         this.throwable = throwable;
-        System.out.println(getClass().getName() + " AFTER target=" + target + ", arg0=" + arg0 + ", arg1=" + arg1 + ", arg3=" + arg2 + ", arg4=" + arg3 + ", arg4=" + arg4 + ", result=" + result + ", throwable=" + throwable);
     }
 }

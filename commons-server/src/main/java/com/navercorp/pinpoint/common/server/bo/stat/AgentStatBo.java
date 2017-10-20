@@ -24,11 +24,25 @@ import java.util.List;
 public class AgentStatBo {
 
     private String agentId;
+
+    private long startTimestamp;
+
     private List<JvmGcBo> jvmGcBos;
     private List<JvmGcDetailedBo> jvmGcDetailedBos;
     private List<CpuLoadBo> cpuLoadBos;
     private List<TransactionBo> transactionBos;
     private List<ActiveTraceBo> activeTraceBos;
+    private List<DataSourceListBo> dataSourceListBos;
+    private List<ResponseTimeBo> responseTimeBos;
+    private List<DeadlockBo> deadlockBos;
+
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
+    }
 
     public String getAgentId() {
         return agentId;
@@ -78,15 +92,44 @@ public class AgentStatBo {
         this.activeTraceBos = activeTraceBos;
     }
 
+    public List<DataSourceListBo> getDataSourceListBos() {
+        return dataSourceListBos;
+    }
+
+    public void setDataSourceListBos(List<DataSourceListBo> dataSourceListBos) {
+        this.dataSourceListBos = dataSourceListBos;
+    }
+
+    public List<ResponseTimeBo> getResponseTimeBos() {
+        return responseTimeBos;
+    }
+
+    public void setResponseTimeBos(List<ResponseTimeBo> responseTimeBos) {
+        this.responseTimeBos = responseTimeBos;
+    }
+
+    public List<DeadlockBo> getDeadlockBos() {
+        return deadlockBos;
+    }
+
+    public void setDeadlockBos(List<DeadlockBo> deadlockBos) {
+        this.deadlockBos = deadlockBos;
+    }
+
     @Override
     public String toString() {
-        return "AgentStatBatchBo{" +
-                "agentId='" + agentId + '\'' +
-                ", jvmGcBos=" + jvmGcBos +
-                ", jvmGcDetailedBos=" + jvmGcDetailedBos +
-                ", cpuLoadBos=" + cpuLoadBos +
-                ", transactionBos=" + transactionBos +
-                ", activeTraceBos=" + activeTraceBos +
-                '}';
+        final StringBuilder sb = new StringBuilder("AgentStatBo{");
+        sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", jvmGcBos=").append(jvmGcBos);
+        sb.append(", jvmGcDetailedBos=").append(jvmGcDetailedBos);
+        sb.append(", cpuLoadBos=").append(cpuLoadBos);
+        sb.append(", transactionBos=").append(transactionBos);
+        sb.append(", activeTraceBos=").append(activeTraceBos);
+        sb.append(", dataSourceListBos=").append(dataSourceListBos);
+        sb.append(", responseTimeBos=").append(responseTimeBos);
+        sb.append(", deadlockBos=").append(deadlockBos);
+        sb.append('}');
+        return sb.toString();
     }
+
 }

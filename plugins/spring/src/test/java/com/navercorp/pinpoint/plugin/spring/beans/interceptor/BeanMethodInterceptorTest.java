@@ -18,11 +18,15 @@ package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.test.mock.MockTraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,11 +40,14 @@ public class BeanMethodInterceptorTest {
 
     @Test
     public void testAfter() throws Exception {
-        final MockTraceContext traceContext = new MockTraceContext();
-        final Trace trace = Mockito.mock(Trace.class);
-        traceContext.setTrace(trace);
-        final SpanEventRecorder recorder = Mockito.mock(SpanEventRecorder.class);
-        Mockito.when(trace.currentSpanEventRecorder()).thenReturn(recorder);
+        final Trace trace = mock(Trace.class);
+        final TraceContext traceContext = mock(TraceContext.class);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
+        when(traceContext.currentTraceObject()).thenReturn(trace);
+        when(traceContext.continueTraceObject(Mockito.any(TraceId.class))).thenReturn(trace);
+
+        final SpanEventRecorder recorder = mock(SpanEventRecorder.class);
+        when(trace.currentSpanEventRecorder()).thenReturn(recorder);
 
         final BeanMethodInterceptor beanMethodInterceptor = new BeanMethodInterceptor(traceContext, true);
 

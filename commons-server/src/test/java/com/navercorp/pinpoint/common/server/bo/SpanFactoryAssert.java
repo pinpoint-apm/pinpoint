@@ -128,7 +128,6 @@ public class SpanFactoryAssert {
 
         Assert.assertEquals(tSpanChunk.getSpanId(), spanChunkBo.getSpanId());
 
-        Assert.assertEquals(tSpanChunk.getServiceType(), spanChunkBo.getServiceType());
         Assert.assertEquals(tSpanChunk.getEndPoint(), spanChunkBo.getEndPoint());
         Assert.assertEquals(tSpanChunk.getApplicationServiceType(), spanChunkBo.getApplicationServiceType());
 
@@ -142,7 +141,7 @@ public class SpanFactoryAssert {
     private void assertSpanEventList(List<SpanEventBo> spanEventBoList, List<TSpanEvent> spanEventList) {
         Assert.assertEquals(CollectionUtils.isEmpty(spanEventBoList), CollectionUtils.isEmpty(spanEventList));
         if (CollectionUtils.isNotEmpty(spanEventBoList)) {
-            Map<Long, SpanEventBo> spanEventBoMap = new HashMap<>();
+            Map<Long, SpanEventBo> spanEventBoMap = new HashMap<Long, SpanEventBo>();
             for (int i = 0; i < spanEventBoList.size(); i++) {
                 SpanEventBo spanEventBo = spanEventBoList.get(i);
                 spanEventBoMap.put((long)spanEventBo.getSequence(), spanEventBo);

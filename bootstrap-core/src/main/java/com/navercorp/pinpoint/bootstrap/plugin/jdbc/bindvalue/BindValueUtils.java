@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Map;
 
@@ -77,7 +77,7 @@ public final class BindValueUtils {
                 break;
             }
             final String bindValue = StringUtils.defaultString(bindValueArray[i], "");
-            StringUtils.appendDrop(sb, bindValue, limit);
+            StringUtils.appendAbbreviate(sb, bindValue, limit);
             if (i < end) {
                 sb.append(", ");
             }

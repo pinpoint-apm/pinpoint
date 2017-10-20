@@ -16,6 +16,21 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
+import com.navercorp.pinpoint.collector.receiver.DataReceiver;
+import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
+import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
+import com.navercorp.pinpoint.collector.util.ObjectPool;
+import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.collector.util.PooledObject;
+import com.navercorp.pinpoint.common.util.ExecutorFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.CpuUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -30,23 +45,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
-
-import com.navercorp.pinpoint.collector.receiver.DataReceiver;
-import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
-import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
-import com.navercorp.pinpoint.collector.util.ObjectPool;
-import com.navercorp.pinpoint.collector.util.PacketUtils;
-import com.navercorp.pinpoint.collector.util.PooledObject;
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.util.CpuUtils;
 
 public class TestUDPReceiver implements DataReceiver {
 
@@ -155,7 +153,7 @@ public class TestUDPReceiver implements DataReceiver {
             @Override
             public void run() {
                 PacketHandler<DatagramPacket> dispatchPacket = packetHandlerFactory.createPacketHandler();
-                PooledPacketWrap pooledPacketWrap = new PooledPacketWrap(dispatchPacket, pooledPacket);
+                PooledPacketWrap pooledPacketWrap = new PooledPacketWrap(socket, dispatchPacket, pooledPacket);
                 Runnable execution = pooledPacketWrap;
                 execution.run();
             }

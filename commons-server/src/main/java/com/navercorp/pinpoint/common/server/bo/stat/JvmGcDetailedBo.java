@@ -25,6 +25,7 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     public static final double UNCOLLECTED_PERCENTAGE = -1;
 
     private String agentId;
+    private long startTimestamp;
     private long timestamp;
     private long gcNewCount = UNCOLLECTED_VALUE;
     private long gcNewTime = UNCOLLECTED_VALUE;
@@ -43,6 +44,16 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    @Override
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    @Override
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
     }
 
     @Override
@@ -131,6 +142,7 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
 
         JvmGcDetailedBo that = (JvmGcDetailedBo) o;
 
+        if (startTimestamp != that.startTimestamp) return false;
         if (timestamp != that.timestamp) return false;
         if (gcNewCount != that.gcNewCount) return false;
         if (gcNewTime != that.gcNewTime) return false;
@@ -141,6 +153,7 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
         if (Double.compare(that.permGenUsed, permGenUsed) != 0) return false;
         if (Double.compare(that.metaspaceUsed, metaspaceUsed) != 0) return false;
         return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
+
     }
 
     @Override
@@ -148,6 +161,7 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
         int result;
         long temp;
         result = agentId != null ? agentId.hashCode() : 0;
+        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + (int) (gcNewCount ^ (gcNewCount >>> 32));
         result = 31 * result + (int) (gcNewTime ^ (gcNewTime >>> 32));
@@ -170,6 +184,7 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     public String toString() {
         return "JvmGcDetailedBo{" +
                 "agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
                 ", timestamp=" + timestamp +
                 ", gcNewCount=" + gcNewCount +
                 ", gcNewTime=" + gcNewTime +

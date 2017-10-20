@@ -1,20 +1,17 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.web.websocket.message;
@@ -29,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class PinpointWebSocketMessageConverter {
 
@@ -135,12 +132,10 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private String createRawPingMessage() {
-        StringBuilder emptyJsonMessage = new StringBuilder();
-        emptyJsonMessage.append("{");
-        emptyJsonMessage.append("\"").append(TYPE).append("\"").append(":").append("\"").append(PinpointWebSocketMessageType.PING.name()).append("\"");
-        emptyJsonMessage.append("}");
+        String ping = PinpointWebSocketMessageType.PING.name();
+        String emptyJsonMessage = createMessage(ping);
 
-        return emptyJsonMessage.toString();
+        return emptyJsonMessage;
     }
 
     private String createPongMessage() {
@@ -159,12 +154,19 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private String createRawPongMessage() {
-        StringBuilder emptyJsonMessage = new StringBuilder();
-        emptyJsonMessage.append("{");
-        emptyJsonMessage.append("\"").append(TYPE).append("\"").append(":").append("\"").append(PinpointWebSocketMessageType.PONG.name()).append("\"");
-        emptyJsonMessage.append("}");
+        String pong = PinpointWebSocketMessageType.PONG.name();
+        String emptyJsonMessage = createMessage(pong);
 
+        return emptyJsonMessage;
+    }
+
+    private String createMessage(String pingOrPong) {
+        StringBuilder emptyJsonMessage = new StringBuilder();
+        emptyJsonMessage.append('{');
+        emptyJsonMessage.append('\"').append(TYPE).append('\"').append(':').append('\"').append(pingOrPong).append('\"');
+        emptyJsonMessage.append('}');
         return emptyJsonMessage.toString();
     }
+
 
 }

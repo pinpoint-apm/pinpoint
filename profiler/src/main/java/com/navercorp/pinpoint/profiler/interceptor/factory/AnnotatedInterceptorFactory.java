@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.factory;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
@@ -38,7 +40,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterce
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor0;
@@ -60,6 +61,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 
@@ -68,43 +72,52 @@ import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider
  * @author jaehong.kim
  */
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
+    private final ProfilerConfig profilerConfig;
+    private final TraceContext traceContext;
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final ApiMetaDataService apiMetaDataService;
     private final InstrumentContext pluginContext;
     private final boolean exceptionHandle;
 
-    public AnnotatedInterceptorFactory(InstrumentContext pluginContext) {
-        this(pluginContext, false);
-    }
-
-    public AnnotatedInterceptorFactory(InstrumentContext pluginContext, boolean exceptionHandle) {
+    public AnnotatedInterceptorFactory(ProfilerConfig profilerConfig, TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, InstrumentContext pluginContext, boolean exceptionHandle) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (dataSourceMonitorRegistry == null) {
+            throw new NullPointerException("dataSourceMonitorRegistry must not be null");
+        }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
+        if (pluginContext == null) {
+            throw new NullPointerException("pluginContext must not be null");
+        }
+        this.profilerConfig = profilerConfig;
+        this.traceContext = traceContext;
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
+        this.apiMetaDataService = apiMetaDataService;
         this.pluginContext = pluginContext;
         this.exceptionHandle = exceptionHandle;
     }
 
     @Override
-    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorScope scope, ExecutionPolicy policy, InstrumentClass target, InstrumentMethod targetMethod) {
-        Class<? extends Interceptor> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
+    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, ScopeInfo scopeInfo, InstrumentClass target, InstrumentMethod targetMethod) {
 
-        if (scope == null) {
-            Scope interceptorScope = interceptorType.getAnnotation(Scope.class);
-
-            if (interceptorScope != null) {
-                String scopeName = interceptorScope.value();
-                scope = pluginContext.getInterceptorScope(scopeName);
-                policy = interceptorScope.executionPolicy();
-            }
-        }
-
-        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(pluginContext, classLoader);
+        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, classLoader);
         ObjectFactory objectFactory = ObjectFactory.byConstructor(interceptorClassName, providedArguments);
-        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(pluginContext.getTraceContext(), scope, target, targetMethod);
+        final InterceptorScope interceptorScope = scopeInfo.getInterceptorScope();
+        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, scopeInfo.getInterceptorScope(), target, targetMethod);
 
         Interceptor interceptor = (Interceptor) factory.createInstance(objectFactory, interceptorArgumentProvider);
 
-        if (scope != null) {
+        if (interceptorScope != null) {
             if (exceptionHandle) {
-                interceptor = wrapByExceptionHandleScope(interceptor, scope, policy == null ? ExecutionPolicy.BOUNDARY : policy);
+                interceptor = wrapByExceptionHandleScope(interceptor, interceptorScope, getExecutionPolicy(scopeInfo.getExecutionPolicy()));
             } else {
-                interceptor = wrapByScope(interceptor, scope, policy == null ? ExecutionPolicy.BOUNDARY : policy);
+                interceptor = wrapByScope(interceptor, interceptorScope, getExecutionPolicy(scopeInfo.getExecutionPolicy()));
             }
         } else {
             if (exceptionHandle) {
@@ -113,6 +126,13 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         }
 
         return interceptor;
+    }
+
+    private ExecutionPolicy getExecutionPolicy(ExecutionPolicy policy) {
+        if (policy == null) {
+            return ExecutionPolicy.BOUNDARY;
+        }
+        return policy;
     }
 
     private Interceptor wrapByScope(Interceptor interceptor, InterceptorScope scope, ExecutionPolicy policy) {

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.instrument.mock;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 
-import java.util.Arrays;
 
 /**
  * @author jaehong.kim
@@ -32,7 +31,6 @@ public class BaseAnnotationInterceptor implements AroundInterceptor {
     @Override
     public void before(Object target, Object[] args) {
         this.before = true;
-        System.out.println(getClass().getName() + " BEFORE " + target + " " + Arrays.asList(args));
     }
 
     @Override
@@ -41,6 +39,5 @@ public class BaseAnnotationInterceptor implements AroundInterceptor {
         if(throwable != null) {
             this.throwable = true;
         }
-        System.out.println(getClass().getName() + " AFTER " + target + " " + Arrays.asList(args) + " " + result + " " + throwable);
     }
 }

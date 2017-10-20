@@ -1,7 +1,7 @@
 (function() {
 	"use strict";
 
-	pinpointApp.factory("NavbarVoService", [ "PreferenceService", "CommonUtilService", function ( PreferenceService, CommonUtilService ) {
+	pinpointApp.factory("NavbarVoService", [ "UserConfigurationService", "CommonUtilService", function ( UserConfigService, CommonUtilService ) {
 	    return function () {
 	        // define and initialize private variables;
 	        var self = this;
@@ -18,8 +18,10 @@
 	        this._sReadablePeriod = false;
 	        this._sQueryEndDateTime = false;
 
-			this._nCalleeRange = PreferenceService.getCallee();
-	        this._nCallerRange = PreferenceService.getCaller();
+			this._nCalleeRange = UserConfigService.getCallee();
+	        this._nCallerRange = UserConfigService.getCaller();
+	        this._bBidirectional = UserConfigService.getBidirectional();
+	        this._bWasOnly = UserConfigService.getWasOnly();
 	        
 	        this._sHint = false;
 
@@ -70,12 +72,24 @@
 	        this.getCallerRange = function() {
 	        	return self._nCallerRange;
 	        };
+	        this.getBidirectional = function() {
+	        	return self._bBidirectional;
+			};
+	        this.getWasOnly = function() {
+	        	return self._bWasOnly;
+			};
 			this.setCalleeRange = function( calleeRange ) {
 				self._nCalleeRange = calleeRange;
 			};
 	        this.setCallerRange = function( callerRange ) {
 	        	self._nCallerRange = callerRange;
 	        };
+	        this.setBidirectional = function( bidirectional ) {
+	        	self._bBidirectional = bidirectional;
+			};
+	        this.setWasOnly = function( wasOnly ) {
+	        	self._bWasOnly = wasOnly;
+			};
 	        this.setQueryStartTime = function (queryStartTime) {
 	            if (angular.isNumber(queryStartTime) && queryStartTime > 0) {
 	                self._nQueryStartTime = queryStartTime;

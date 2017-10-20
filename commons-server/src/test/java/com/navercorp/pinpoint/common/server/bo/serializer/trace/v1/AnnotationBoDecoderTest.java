@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class AnnotationBoDecoderTest {
         final AnnotationBo annotation = new AnnotationBo();
         annotation.setKey(AnnotationKey.API.getCode());
 
-        final String value = RandomStringUtils.random(RandomUtils.nextInt(20));
+        final String value = RandomStringUtils.random(RandomUtils.nextInt(0, 20));
         annotation.setValue(value);
 
         final Buffer buffer = new AutomaticBuffer(128);

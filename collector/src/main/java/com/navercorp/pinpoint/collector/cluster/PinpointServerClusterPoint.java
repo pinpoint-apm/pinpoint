@@ -16,15 +16,21 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
+import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.thrift.TBase;
+import org.springframework.util.NumberUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author koo.taejin
@@ -38,23 +44,45 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
     private final long startTimeStamp;
 
     private final String version;
+    private final List<TCommandType> supportCommandList;
 
     public PinpointServerClusterPoint(PinpointServer pinpointServer) {
-        AssertUtils.assertNotNull(pinpointServer, "pinpointServer may not be null.");
+        Assert.requireNonNull(pinpointServer, "pinpointServer must not be null.");
         this.pinpointServer = pinpointServer;
 
         Map<Object, Object> properties = pinpointServer.getChannelProperties();
-        this.version = MapUtils.getString(properties, AgentHandshakePropertyType.VERSION.getName());
-        AssertUtils.assertTrue(!StringUtils.isBlank(version), "Version may not be null or empty.");
+        this.version = MapUtils.getString(properties, HandshakePropertyType.VERSION.getName());
+        Assert.isTrue(!StringUtils.isBlank(version), "Version must not be null or empty.");
 
-        this.applicationName = MapUtils.getString(properties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-        AssertUtils.assertTrue(!StringUtils.isBlank(applicationName), "ApplicationName may not be null or empty.");
+        this.supportCommandList = newSupportCommandList(properties);
 
-        this.agentId = MapUtils.getString(properties, AgentHandshakePropertyType.AGENT_ID.getName());
-        AssertUtils.assertTrue(!StringUtils.isBlank(agentId), "AgentId may not be null or empty.");
+        this.applicationName = MapUtils.getString(properties, HandshakePropertyType.APPLICATION_NAME.getName());
+        Assert.isTrue(!StringUtils.isBlank(applicationName), "ApplicationName must not be null or empty.");
 
-        this.startTimeStamp = MapUtils.getLong(properties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
-        AssertUtils.assertTrue(startTimeStamp > 0, "StartTimeStamp is must greater than zero.");
+        this.agentId = MapUtils.getString(properties, HandshakePropertyType.AGENT_ID.getName());
+        Assert.isTrue(!StringUtils.isBlank(agentId), "AgentId must not be null or empty.");
+
+        this.startTimeStamp = MapUtils.getLong(properties, HandshakePropertyType.START_TIMESTAMP.getName());
+        Assert.isTrue(startTimeStamp > 0, "StartTimeStamp is must greater than zero.");
+    }
+
+    private List<TCommandType> newSupportCommandList(Map<Object, Object> properties) {
+        final Object supportCommandCodeList = properties.get(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName());
+        if (!(supportCommandCodeList instanceof List)) {
+            return Collections.emptyList();
+        }
+
+        final List<TCommandType> result = new ArrayList<>();
+        for (Object supportCommandCode : (List)supportCommandCodeList) {
+            if (supportCommandCode instanceof Number) {
+                TCommandType commandType = TCommandType.getType(NumberUtils.convertNumberToTargetClass((Number) supportCommandCode, Short.class));
+                if (commandType != null) {
+                    result.add(commandType);
+                }
+            }
+        }
+        return result;
+
     }
 
     @Override
@@ -86,6 +114,22 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
         return version;
     }
 
+    @Override
+    public boolean isSupportCommand(TBase command) {
+        for (TCommandType supportCommand : supportCommandList) {
+            if (supportCommand.getClazz() == command.getClass()) {
+                return true;
+            }
+        }
+
+        TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(version);
+        if (commandVersion.isSupportCommand(command)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public PinpointServer getPinpointServer() {
         return pinpointServer;
     }
@@ -103,6 +147,8 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
         log.append(")");
         log.append(", version:");
         log.append(version);
+        log.append(", supportCommandList:");
+        log.append(supportCommandList);
         log.append(", pinpointServer:");
         log.append(pinpointServer);
         

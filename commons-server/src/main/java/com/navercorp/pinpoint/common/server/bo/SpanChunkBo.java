@@ -21,10 +21,11 @@ public class SpanChunkBo implements BasicSpan {
     private long spanId;
     private String endPoint;
 
+    @Deprecated
     private short serviceType;
     private Short applicationServiceType;
 
-    private List<SpanEventBo> spanEventBoList = new ArrayList<>();
+    private List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
 
     private long collectorAcceptTime;
 
@@ -102,10 +103,12 @@ public class SpanChunkBo implements BasicSpan {
         this.applicationServiceType  = applicationServiceType;
     }
 
+    @Deprecated
     public short getServiceType() {
         return serviceType;
     }
 
+    @Deprecated
     public void setServiceType(short serviceType) {
         this.serviceType = serviceType;
     }

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
@@ -51,7 +51,7 @@ public class PinpointClientFactoryTest {
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
 
-        clientFactory = new PinpointClientFactory();
+        clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setPingDelay(100);
     }
     
@@ -98,11 +98,10 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void pingInternal() throws IOException, InterruptedException {
-
         final CountDownLatch pingLatch = new CountDownLatch(1);
         PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
             @Override
-            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
                 pingLatch.countDown();
             }
         });
@@ -152,9 +151,9 @@ public class PinpointClientFactoryTest {
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
-            logger.info("send1");
+            logger.debug("send1");
             client.send(new byte[20]);
-            logger.info("send2");
+            logger.debug("send2");
             client.sendSync(new byte[20]);
 
             PinpointRPCTestUtils.close(client);
@@ -186,7 +185,7 @@ public class PinpointClientFactoryTest {
 
         PinpointClientFactory pinpointClientFactory = null;
         try {
-            pinpointClientFactory = new PinpointClientFactory();
+            pinpointClientFactory = new DefaultPinpointClientFactory();
             pinpointClientFactory.setConnectTimeout(timeout);
             int connectTimeout = pinpointClientFactory.getConnectTimeout();
             

@@ -36,7 +36,7 @@ public final class InterceptorUtils {
     public static String exceptionToString(Throwable ex) {
         if (ex != null) {
             StringBuilder sb = new StringBuilder(128);
-            sb.append(ex.toString()).append("\n");
+            sb.append(ex.toString()).append('\n');
 
             Writer writer = new StringWriter();
             PrintWriter printWriter = new PrintWriter(writer);
@@ -49,7 +49,7 @@ public final class InterceptorUtils {
     }
 
     public static String getHttpUrl(final String uriString, final boolean param) {
-        if (uriString == null || uriString.length() == 0) {
+        if (com.navercorp.pinpoint.common.util.StringUtils.isEmpty(uriString)) {
             return "";
         }
 

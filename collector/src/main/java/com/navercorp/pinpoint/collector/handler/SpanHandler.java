@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -48,7 +47,6 @@ public class SpanHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
     @Autowired
@@ -176,7 +174,7 @@ public class SpanHandler implements SimpleHandler {
             final int elapsed = spanEvent.getEndElapsed();
             final boolean hasException = spanEvent.hasException();
 
-            /**
+            /*
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that called span)

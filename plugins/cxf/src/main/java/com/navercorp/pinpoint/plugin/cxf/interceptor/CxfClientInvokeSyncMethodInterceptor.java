@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,26 @@
  */
 package com.navercorp.pinpoint.plugin.cxf.interceptor;
 
-import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConfig;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
+
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author barney
  *
  */
-@Scope(CxfPluginConstants.CXF_CLIENT_SCOPE)
 public class CxfClientInvokeSyncMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -107,7 +106,7 @@ public class CxfClientInvokeSyncMethodInterceptor implements AroundInterceptor {
         }
 
         String[] hiddenParams = pluginConfig.getClientHiddenParams();
-        if (hiddenParams == null || hiddenParams.length == 0) {
+        if (ArrayUtils.isEmpty(hiddenParams)) {
             return orgParams;
         }
         Object[] params = Arrays.copyOf(orgParams, orgParams.length);

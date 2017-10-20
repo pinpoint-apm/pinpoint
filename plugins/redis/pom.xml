@@ -5,7 +5,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-redis-plugin</artifactId>
@@ -25,6 +25,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-profiler-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

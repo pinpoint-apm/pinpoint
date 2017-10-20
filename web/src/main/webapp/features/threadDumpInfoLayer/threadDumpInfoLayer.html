@@ -1,0 +1,55 @@
+<div id="threadDump">
+	<div class="panel">
+		<div class="panel-heading">Thread Dump <i class="xi-spinner-2 xi-spin"></i> <button ng-click="hideThreadDump()" class="btn btn-sm">X</button></div>
+		<div class="thread-header" ng-hide="threadList.length === 0">
+			<table class="table table-info" style="table-layout:fixed;word-break: break-all">
+				<thead>
+					<tr>
+						<th>&nbsp;</th>
+						<th ng-click="changeSortType('threadId')">id</th>
+						<th ng-click="changeSortType('threadName')">name</th>
+						<th ng-click="changeSortType('threadState')">state</th>
+						<th ng-click="changeSortType('startTime')">start time</th>
+						<th ng-click="changeSortType('execTime')">exec(ms)</th>
+						<th>sampled</th>
+						<th ng-click="changeSortType('entryPoint')">path</th>
+						<th ng-click="changeSortType('transactionId')">transaction id</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="thread-list" ng-hide="threadList.length === 0">
+			<table class="table table-info" style="table-layout:fixed;word-break: break-all">
+				<tbody ng-click="loadDetailMessage($event)">
+					<tr ng-repeat="oThread in threadList | orderBy:sortType" data-traceId="{{oThread.localTraceId}}" data-transactionId="{{oThread.transactionId}}">
+						<td>{{ $index + 1 }}</td>
+						<td>{{ oThread.threadId }}</td>
+						<td>{{ oThread.threadName }}</td>
+						<td>{{ oThread.threadState }}</td>
+						<td>{{ formatDate( oThread.startTime ) }}</td>
+						<td>{{ oThread.execTime }}</td>
+						<td>{{ oThread.sampled }}</td>
+						<td>{{ oThread.entryPoint }}</td>
+						<td>{{ oThread.transactionId }}</td>
+						<td><button class="btn btn-xs btn-default"><span class="glyphicon glyphicon-search"></span></button></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="panel-body" ng-show="threadList.length === 0">
+			<span>There is no data</span>
+			<div class="when-has-message" style="display:none;">
+				<span style="color:red;"></span>
+				<div style="padding-top:10px;">For the above reasons, this agent does not support threaddump.</div>
+				<ul style="list-style:none;padding-top:10px;">
+					<li>1. check this agent version is 1.6.1+</li>
+					<li>2. check cluster feature is enabled.</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="detail-message">
+		<textarea style="resize:none;" readonly></textarea>
+	</div>
+</div>

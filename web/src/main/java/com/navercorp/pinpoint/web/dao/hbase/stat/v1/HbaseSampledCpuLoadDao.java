@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledCpuLoadDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV1;
-import com.navercorp.pinpoint.web.mapper.stat.SampledCpuLoadResultExtractor;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.CpuLoadSampler;
+import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
@@ -30,6 +32,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledCpuLoadDaoV1")
 public class HbaseSampledCpuLoadDao implements SampledCpuLoadDao {
 
@@ -37,7 +40,7 @@ public class HbaseSampledCpuLoadDao implements SampledCpuLoadDao {
     private AgentStatMapperV1.CpuLoadMapper mapper;
 
     @Autowired
-    private Aggregator.CpuLoadAggregator aggregator;
+    private CpuLoadSampler cpuLoadSampler;
 
     @Autowired
     private HbaseAgentStatDaoOperations operations;
@@ -47,7 +50,7 @@ public class HbaseSampledCpuLoadDao implements SampledCpuLoadDao {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
         Range range = new Range(scanFrom, scanTo);
-        SampledCpuLoadResultExtractor resultExtractor = new SampledCpuLoadResultExtractor(timeWindow, mapper);
+        SampledAgentStatResultExtractor<CpuLoadBo, SampledCpuLoad> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, cpuLoadSampler);
         return operations.getSampledAgentStatList(resultExtractor, agentId, range);
     }
 }

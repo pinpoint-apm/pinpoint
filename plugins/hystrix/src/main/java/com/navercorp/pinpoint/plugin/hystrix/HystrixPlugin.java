@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class HystrixPlugin implements ProfilerPlugin, TransformTemplateAware {
         // We start with 3 only because the most recent version requires this many. May be better to make this
         // configurable but for now let's just hard-code it.
         final int numAnonymousInnerClassesToTest = numHystrixCommandAnonymousLocalClass;
-        for (int i = 0; i < numAnonymousInnerClassesToTest; ++i) {
+        for (int i = 0; i < numAnonymousInnerClassesToTest; i++) {
             String anonymousInnerClassName = "com.netflix.hystrix.HystrixCommand$" + (i + 1);
             logger.debug("Registering transformer for {}", anonymousInnerClassName);
 

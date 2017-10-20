@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.user;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * 
@@ -39,22 +39,11 @@ public class UserPluginConfig {
     }
 
     private List<String> split(String values) {
-        if (values == null) {
+        if (StringUtils.isEmpty(values)) {
             return Collections.emptyList();
         }
 
-        String[] tokens = values.split(",");
-        List<String> result = new ArrayList<String>(tokens.length);
-
-        for (String token : tokens) {
-            String trimmed = token.trim();
-
-            if (!trimmed.isEmpty()) {
-                result.add(trimmed);
-            }
-        }
-
-        return result;
+        return StringUtils.tokenizeToStringList(values, ",");
     }
 
     @Override

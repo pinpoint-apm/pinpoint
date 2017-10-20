@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.profiler.util.ByteBufferUtils;
 import com.navercorp.pinpoint.profiler.util.ObjectPool;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -139,7 +140,7 @@ public class SpanStreamSendData {
     }
 
     private boolean checkAddAvailable(ByteBuffer[] bufferArray) {
-        if (bufferArray == null || bufferArray.length == 0) {
+        if (ArrayUtils.isEmpty(bufferArray)) {
             return false;
         }
 

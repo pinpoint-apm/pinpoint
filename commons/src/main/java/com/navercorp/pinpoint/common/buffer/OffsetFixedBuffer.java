@@ -26,16 +26,6 @@ public class OffsetFixedBuffer extends FixedBuffer {
     protected int startOffset;
     protected int endOffset;
 
-    /**
-     * Unsafe API
-     * Unsafe array access of HBase Cell
-     * @deprecated Since 1.6.0. Use {@link OffsetFixedBuffer(byte[], int, int)}
-     */
-    @Deprecated
-    public OffsetFixedBuffer(final byte[] buffer, final int startOffset) {
-        this(buffer, startOffset, buffer.length);
-    }
-
 
     public OffsetFixedBuffer(final byte[] buffer) {
         this(buffer, 0, buffer.length);

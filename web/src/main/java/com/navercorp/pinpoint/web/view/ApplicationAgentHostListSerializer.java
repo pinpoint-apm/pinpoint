@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ApplicationAgentHostListSerializer extends JsonSerializer<ApplicationAgentHostList> {
 

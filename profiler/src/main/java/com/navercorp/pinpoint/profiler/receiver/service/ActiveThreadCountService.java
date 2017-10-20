@@ -1,27 +1,24 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerStreamCommandService;
@@ -64,17 +61,17 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
     private final List<ServerStreamChannel> streamChannelRepository = new CopyOnWriteArrayList<ServerStreamChannel>();
 
-    private final ActiveTraceHistogramFactory activeTraceHistogramFactory;
+    private final ActiveTraceRepository activeTraceRepository;
 
-    public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator) {
-        this(activeTraceLocator, DEFAULT_FLUSH_DELAY);
+    public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
+        this(activeTraceRepository, DEFAULT_FLUSH_DELAY);
     }
 
-    public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator, long flushDelay) {
-        if (activeTraceLocator == null) {
-            throw new NullPointerException("activeTraceLocator");
+    public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository, long flushDelay) {
+        if (activeTraceRepository == null) {
+            throw new NullPointerException("activeTraceRepository");
         }
-        this.activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceLocator);
+        this.activeTraceRepository = activeTraceRepository;
         this.flushDelay = flushDelay;
     }
 
@@ -86,7 +83,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     @Override
     public TBase<?, ?> requestCommandService(TBase activeThreadCountObject) {
         if (activeThreadCountObject == null) {
-            throw new NullPointerException("activeThreadCountObject may not be null.");
+            throw new NullPointerException("activeThreadCountObject must not be null.");
         }
 
         return getActiveThreadCountResponse();
@@ -100,12 +97,17 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     }
 
     private TCmdActiveThreadCountRes getActiveThreadCountResponse() {
-        ActiveTraceHistogram activeTraceHistogram = this.activeTraceHistogramFactory.createHistogram();
+
+        final long currentTime = System.currentTimeMillis();
+        final ActiveTraceHistogram histogram = this.activeTraceRepository.getActiveTraceHistogram(currentTime);
+
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
-        response.setHistogramSchemaType(activeTraceHistogram.getHistogramSchema().getTypeCode());
-        response.setActiveThreadCount(activeTraceHistogram.getActiveTraceCounts());
-        response.setTimeStamp(System.currentTimeMillis());
+        response.setHistogramSchemaType(histogram.getHistogramSchema().getTypeCode());
+
+        final List<Integer> activeTraceCounts = ActiveTraceHistogramUtils.asList(histogram);
+        response.setActiveThreadCount(activeTraceCounts);
+        response.setTimeStamp(currentTime);
 
         return response;
     }

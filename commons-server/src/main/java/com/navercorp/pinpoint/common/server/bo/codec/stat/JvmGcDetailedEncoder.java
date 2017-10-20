@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class JvmGcDetailedEncoder extends AgentStatEncoder<JvmGcDetailedBo> {
 
     @Autowired
-    public JvmGcDetailedEncoder(@Qualifier("jvmGcDetailedCodecV1") AgentStatCodec<JvmGcDetailedBo> jvmGcDetailedCodec) {
+    public JvmGcDetailedEncoder(@Qualifier("jvmGcDetailedCodecV2") AgentStatCodec<JvmGcDetailedBo> jvmGcDetailedCodec) {
         super(jvmGcDetailedCodec);
     }
 }

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
- * This class attempts to resolve the current application type through {@link ServerTypeDetector}s.
+ * This class attempts to resolve the current application type through {@link ApplicationTypeDetector}s.
  * The application type is resolved by checking the conditions defined in each of the loaded detector's {@code detect} method.
  * <p>
  * If no match is found, the application type defaults to {@code ServiceType.STAND_ALONE}

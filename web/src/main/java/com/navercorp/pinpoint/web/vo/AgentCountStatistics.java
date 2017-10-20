@@ -56,11 +56,11 @@ public class AgentCountStatistics {
         this.timestamp = timestamp;
     }
 
-    public String getDateTime() {
+    public String getDateVal() {
         return DateUtils.longToDateStr(timestamp, DATE_TIME_FORMAT);
     }
 
-    public void setDateTime(String dateTime) throws ParseException {
+    public void setDateVal(String dateTime) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat(DATE_TIME_FORMAT);
         Date parsedDate = format.parse(dateTime);
 

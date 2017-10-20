@@ -111,6 +111,7 @@
 				break;
 		}
 		this._$elContainer = $( this._$elContainer );
+		this._$elContainer.attr( "id", this.option("sPrefix") );
 		this._$elContainer.css({
 			"width": this._oSCManager.getWidth(),
 			"height": this._oSCManager.getHeight(),
@@ -132,7 +133,7 @@
 		this._oDragManager = new BigScatterChart2.DragManager( this.option(), this._oSCManager, this._$elContainer, {
 			"onSelect": function( oDragAreaPosition, oDragXY ) {
 				if ( self.hasDataByXY( oDragXY.fromX, oDragXY.toX, oDragXY.fromY, oDragXY.toY ) ) {
-					self._oExternal.onSelect( oDragAreaPosition, oDragXY, self._currentAgent );
+					self._oExternal.onSelect( oDragAreaPosition, oDragXY, self._currentAgent, self._oBubbleTypeManager.getVisibleType().join(",") );
 				}
 			}
 		});
@@ -161,7 +162,7 @@
 		this._oDragManager.triggerDrag( oParam );
 	};
 	BigScatterChart2.prototype.selectArea = function( type, min, max ) {
-		this._oExternal.onSelect( type, min, max, this._currentAgent );
+		this._oExternal.onSelect( type, min, max, this._currentAgent, this._oBubbleTypeManager.getVisibleType() );
 	};
 	BigScatterChart2.prototype.selectType = function( type ) {
 		this._oBubbleTypeManager.selectType( type );
@@ -216,20 +217,17 @@
 		var oTypeInfo = this.option("typeInfo");
 		var oPropertyIndex = this.option( "propertyIndex" );
 		var sPrefix = this.option("sPrefix");
-
-		setTimeout(function () {
-			$.each(self._aAgentList, function (index, agentName) {
-				for (var i = 0, nLen = oDataBlock.countByAgent( agentName ); i < nLen && !self._bDestroied; i++) {
-					var aAgentBubbleData = oDataBlock.getDataByAgent(agentName, i);
-					var groupCount = aAgentBubbleData[oPropertyIndex.groupCount];
-					if ( groupCount !== 0 ) {
-						var aBubbleType = oTypeInfo[aAgentBubbleData[oPropertyIndex.type]];
-						self._oRendererManager.drawBubble( BigScatterChart2.Util.makeKey( agentName, sPrefix, aBubbleType[0] ), aBubbleType[1], aAgentBubbleData );
-					}
+		$.each(self._aAgentList, function (index, agentName) {
+			for (var i = 0, nLen = oDataBlock.countByAgent( agentName ); i < nLen && !self._bDestroied; i++) {
+				var aAgentBubbleData = oDataBlock.getDataByAgent(agentName, i);
+				var groupCount = aAgentBubbleData[oPropertyIndex.groupCount];
+				if ( groupCount !== 0 ) {
+					var aBubbleType = oTypeInfo[aAgentBubbleData[oPropertyIndex.type]];
+					self._oRendererManager.drawBubble( BigScatterChart2.Util.makeKey( agentName, sPrefix, aBubbleType[0] ), aBubbleType[1], aAgentBubbleData );
 				}
+			}
 
-			});
-		}, 0);
+		});
 	};
 	BigScatterChart2.prototype.addBubbleAndMoveAndDraw = function( oDataBlock, bRealtime, nextRequestTime ) {
 		if ( bRealtime === false ) {
@@ -275,7 +273,7 @@
 	BigScatterChart2.prototype.createDataBlock = function( oData ) {
 		return new BigScatterChart2.DataBlock( oData, this.option( "propertyIndex" ), this.option( "typeInfo" ) );
 	};
-	BigScatterChart2.prototype.getDataByXY = function( fromX, toX, fromY, toY, selectedAgent ) {
+	BigScatterChart2.prototype.getDataByXY = function( fromX, toX, fromY, toY, selectedAgent, visibleType ) {
 		var aData = [];
 		var oTypeInfo = this.option( "typeInfo" );
 		var oPropertyIndex = this.option( "propertyIndex" );
@@ -286,7 +284,7 @@
 		toY = parseInt(toY, 10);
 
 		var oRangeY = this._oSCManager.getY();
-		var aVisibleType = this._oBubbleTypeManager.getVisibleType();
+		var aVisibleType = visibleType.split(",");
 
 		for (var i = 0, nLen = this._aBubbles.length; i < nLen; i++) {
 			var oDataBlock = this._aBubbles[i];
@@ -312,10 +310,11 @@
 		}
 		return aData;
 	};
-	BigScatterChart2.prototype.getDataByRange = function( type, fromY, toY, selectedAgent ) {
+	BigScatterChart2.prototype.getDataByRange = function( type, fromY, toY, selectedAgent, visibleType ) {
 		var aData = [];
 		var oTypeInfo = this.option( "typeInfo" );
 		var oPropertyIndex = this.option( "propertyIndex" );
+		var aVisibleType = visibleType.split(",");
 
 		fromY = parseInt(fromY, 10);
 		toY = parseInt(toY, 10);
@@ -411,6 +410,9 @@
 	};
 	BigScatterChart2.prototype._drawWithDataSource = function() {
 		var self = this;
+		if ( typeof this._oDataLoadManager === "undefined" ) {
+			return;
+		}
 		if (this._bPause || this._bRequesting || this._oDataLoadManager.isCompleted() ) {
 			return;
 		}
@@ -485,7 +487,9 @@
 	};
 	BigScatterChart2.prototype.abort = function() {
 		this._bPause = true;
-		this._oDataLoadManager.abort();
+		if ( this._oDataLoadManager ) {
+			this._oDataLoadManager.abort();
+		}
 	};
 	BigScatterChart2.prototype.pause = function() {
 		this._bPause = true;

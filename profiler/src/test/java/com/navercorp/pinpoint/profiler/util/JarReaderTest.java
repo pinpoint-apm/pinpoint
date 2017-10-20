@@ -48,4 +48,13 @@ public class JarReaderTest {
             Assert.assertThat(fileBinary.getFileName(), Matchers.endsWith(".class"));
         }
     }
+
+    @Test
+    public void getInputStream() throws Exception {
+        URL location = Logger.class.getProtectionDomain().getCodeSource().getLocation();
+        JarFile jarFile = new JarFile(location.getPath());
+        JarReader jarReader = new JarReader(jarFile);
+        Assert.assertNotNull(jarReader.getInputStream("org/slf4j/Logger.class"));
+        Assert.assertNull(jarReader.getInputStream("org/slf4j/NotFound.class"));
+    }
 }

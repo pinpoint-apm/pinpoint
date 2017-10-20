@@ -27,6 +27,7 @@
                                          com.navercorp.pinpoint.web.filter,
                                          com.navercorp.pinpoint.web.config,
                                          com.navercorp.pinpoint.web.view,
+                                         com.navercorp.pinpoint.web.applicationmap,
                                          com.navercorp.pinpoint.common.server.bo,
                                          com.navercorp.pinpoint.common.server.util" />
 
@@ -67,11 +68,11 @@
     </bean>
     
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
-        <constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
     </bean>
 
     <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
-        <constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
+    </bean>
+    <bean id="agentEventHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory">
     </bean>
 
     <bean id="clusterConnectionManager" class="com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager">
@@ -87,7 +88,12 @@
     </bean>
 
     <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
-        <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
+        <constructor-arg>
+            <list value-type="com.navercorp.pinpoint.thrift.io.DeserializerFactory">
+                <ref bean="commandHeaderTBaseDeserializerFactory"/>
+                <ref bean="agentEventHeaderTBaseDeserializerFactory"/>
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
@@ -122,8 +128,44 @@
     <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
         <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
     </bean>
-    
-    <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
-    <bean id="batchConfigruation" class="com.navercorp.pinpoint.web.batch.BatchConfiguration"/>
 
+    <util:properties id="batchProps" location="classpath:batch.properties"/>
+
+    <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
+    <bean id="batchConfigruation" class="com.navercorp.pinpoint.web.batch.BatchConfiguration">
+        <property name="properties" ref="batchProps"/>
+    </bean>
+
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="objectMapper">
+                        <bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
+                    </property>
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/json</value>
+                            <value>application/json</value>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="org.springframework.http.converter.FormHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>application/x-www-form-urlencoded</value>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/plain</value>
+                            <value>text/html</value>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
 </beans>

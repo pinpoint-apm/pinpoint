@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,25 @@
  */
 package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  */
-@Scope(ArcusConstants.ARCUS_FUTURE_SCOPE)
-public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
+public class FutureInternalMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
     public FutureInternalMethodInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
     }
 
     @Override

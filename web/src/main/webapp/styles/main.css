@@ -65,14 +65,18 @@ canvas {outline:none}
 
 /* sidebar */
 .sidebar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding-left: 12px;
-  padding-right: 10px;
-  width: 422px;
-  height: 100%;
-  border-left: 1px solid #ddd;
+    top: 0;
+    right: 0;
+    width: 422px;
+    height: 100%;
+    z-index: 100;
+    position: absolute;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-left: 1px solid #DDD;
+    padding-left: 12px;
+    padding-right: 10px;
+    background-color: #FFF;
 }
 .sidebar.smallsize {
   width: 0;
@@ -200,6 +204,7 @@ canvas {outline:none}
 .pinpoint-tooltip dt { 
 	color: yellow;
 	font-size: 16px;
+    margin: 12px 0px 2px 0px
 }
 .pinpoint-tooltip hr {
 	margin-top:10px;
@@ -208,10 +213,10 @@ canvas {outline:none}
 .pinpoint-tooltip table {
 	width:100%;
 	padding-bottom: 6px;
-	line-height:20px;
+	line-height:16px;
 }
 .pinpoint-tooltip tr {
-	padding-bottom: 6px;
+	padding-bottom: 2px;
 }
 .pinpoint-tooltip tr td {
 	padding-top: 2px;
@@ -226,7 +231,8 @@ canvas {outline:none}
 	font-weight:bold;
 }
 .pinpoint-tooltip p {
-	padding-bottom:4px;
+    padding-top: 10px;
+	padding-bottom:0px;
 }
 .pinpoint-tooltip ul {
 	padding-left: 4px;
@@ -235,6 +241,261 @@ canvas {outline:none}
 	list-style: none;
 	padding-top: 2px;
 	padding-bottom: 2px;
-	background: url("/images/circle.png") no-repeat left center;
+	background: url("../images/circle.png") no-repeat left center;
 	padding-left: 20px;
+}
+
+#threadDump {
+    display: none;
+    z-index: 999999;
+    position: absolute;
+    background-color: #FFF;
+    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
+}
+#threadDump i {
+    color: #F00;
+    display: none;
+}
+#threadDump .panel {
+    border-color: transparent;
+    margin-bottom: 0px;
+}
+#threadDump .panel-heading {
+    color: #498ED2;
+    cursor: move;
+    padding: 24px 30px 24px 30px;
+    font-size: 20px;
+    font-weight: 100;
+    font-family: sans-serif;
+    border-bottom: 1px solid #EAEDF4;
+}
+#threadDump .panel-heading button {
+    float: right;
+    padding: 0px 3px;
+    font-size: 32px;
+    margin-top: -6px;
+    font-weight: 100;
+    font-family: sans-serif;
+    background-color: #FFF;
+}
+#threadDump .panel-body {
+    text-align: center;
+    padding-top: 50px;
+    font-weight: bold;
+}
+#threadDump .thread-list {
+    margin: 0px 30px 29px 30px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#threadDump .detail-message {
+    padding: 30px;
+    border-top: 1px solid #E7E8ED;
+    background-color: #F7F8FC;
+}
+#threadDump textarea {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    border: 1px solid #D0D7E1;
+}
+#threadDump .thread-header {
+    margin: 29px 30px 0px 30px;
+}
+#threadDump .thread-header table {
+    margin-bottom: 0px;
+    border-top: 1px solid #E7E8ED;
+    border-bottom: 1px solid #E7E8ED;
+}
+#threadDump .thread-header tr {
+    background-color: #F7F8FC;
+}
+#threadDump .thread-header th {
+    padding: 8px 2px 8px 2px;
+    border: 0px solid #E7E8ED;
+}
+
+#threadDump .thread-header tr th:nth-child(1) {
+    width: 3%;
+}
+#threadDump .thread-header tr th:nth-child(2) {
+    width: 5%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(3) {
+    width: 15%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(4) {
+    width: 12%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(5) {
+    width: 12%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(6) {
+    width: 5%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(7) {
+    width: 5%;
+}
+#threadDump .thread-header tr th:nth-child(8) {
+    width: 18%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(9) {
+    width: 22%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(10) {
+    width: 3%;
+}
+
+#threadDump .thread-list tr.selected {
+    background-color: #FAFAFC;
+}
+#threadDump .thread-list tr.selected button {
+    color: #4799E2;
+    background-color: #FAFAFC;
+}
+#threadDump .thread-list td {
+    padding: 8px 2px 8px 2px;
+    border-top: 0px solid #E7E8ED;
+    border-bottom: 1px solid #E7E8ED;
+}
+#threadDump .thread-list button {
+    border: 0px solid #FFF;
+}
+#threadDump .thread-list tr td:nth-child(1) {
+    width: 3%;
+    text-align: center;
+}
+#threadDump .thread-list tr td:nth-child(2) {
+    width: 5%;
+}
+#threadDump .thread-list tr td:nth-child(3) {
+    width: 15%;
+}
+#threadDump .thread-list tr td:nth-child(4) {
+    width: 12%;
+}
+#threadDump .thread-list tr td:nth-child(5) {
+    width: 12%;
+}
+#threadDump .thread-list tr td:nth-child(6) {
+    width: 5%;
+}
+#threadDump .thread-list tr td:nth-child(7) {
+    width: 5%;
+}
+#threadDump .thread-list tr td:nth-child(8) {
+    width: 18%;
+}
+#threadDump .thread-list tr td:nth-child(9) {
+    width: 22%;
+}
+#threadDump .thread-list tr td:nth-child(10) {
+    width: 3%;
+}
+
+.grouped-application-list {
+    margin-top: 6px;
+    margin-bottom: 10px;
+    border-radius: 0px;
+}
+.grouped-application-list .input-group {
+    margin: 10px 0px 0px 0px;
+}
+.grouped-application-list .input-group input {
+    border-radius: 0px;
+}
+.grouped-application-list .input-group span {
+    border-radius: 0px;
+}
+.grouped-application-list div.panel-heading {
+    padding: 10px 6px;
+}
+.grouped-application-list div.panel-body {
+    height: 280px;
+    padding: 6px;
+    overflow-y: auto;
+}
+.grouped-application-list span.count {
+    float: right;
+    width: 100px;
+    overflow: hidden;
+    text-align: right;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.grouped-application-list ul.outer {
+    padding-left: 0px;
+}
+.grouped-application-list ul.outer > li {
+    cursor: pointer;
+    padding: 1px 2px;
+    list-style: none;
+}
+.grouped-application-list ul.inner {
+    padding-left: 14px;
+}
+.grouped-application-list ul.inner > li {
+    height: 20px;
+    font-size: 11px;
+    list-style: none;
+}
+.grouped-application-list ul.outer > li > p.name {
+    width: 244px;
+    margin: 0px 0px -4px 0px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.grouped-application-list ul.with-icon > li > p.name {
+    width: 220px;
+    margin: 0px 0px -4px 0px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.grouped-application-list ul.inner > li > p.name {
+    width: 250px;
+    margin: 0px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.grouped-application-list ul.outer > li > img {
+    margin-top: -12x;
+    margin-right: 6px;
+}
+.grouped-application-list ul.outer > li > button {
+    padding: 1px 3px;
+    font-size: 10px;
+    margin-top: -2px;
+}
+.grouped-application-list ul.outer > li > button:nth-child(1) {
+    color: #3C763D;
+}
+.grouped-application-list ul.outer > li > button:nth-child(2) {
+    color: #A94442;
+    margin-right: 2px;
+}
+.grouped-application-list ul.outer > li p.selected {
+    color: #1babf4;
+}
+.grouped-application-list ul.outer > li {
+    border-bottom: 1px solid #F3F3F3;
+}
+.grouped-application-list ul.outer > li:hover {
+    background-color: #c1ecff;
+}
+.grouped-application-list .count {
+    float: right;
 }

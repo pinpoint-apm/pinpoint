@@ -18,4 +18,18 @@
             "width": aSelectionZone[1] - aSelectionZone[0]
         }, this.opt.duration);
     };
+	ts.SelectionZone.prototype.onDragXStart = function(x) {
+		var aSelectionZone = this.timeSlider.oPositionManager.getSelectionPosition();
+		this.elZone.attr({
+			"x": x,
+			"width": aSelectionZone[1] - x
+		});
+	};
+	ts.SelectionZone.prototype.onDragXEnd = function(x) {
+		var aSelectionZone = this.timeSlider.oPositionManager.getSelectionPosition();
+		this.elZone.attr({
+			"x": aSelectionZone[0],
+			"width": x - aSelectionZone[0]
+		});
+	};
 })(window, jQuery);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,43 @@
  */
 package com.navercorp.pinpoint.profiler.objectfactory;
 
-import java.lang.annotation.Annotation;
-
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.NoCache;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
+
+import java.lang.annotation.Annotation;
 
 /**
  * @author Jongho Moon
  *
  */
 public class InterceptorArgumentProvider implements ArgumentProvider {
-    private final TraceContext traceContext;
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final ApiMetaDataService apiMetaDataService;
     private final InterceptorScope interceptorScope;
     private final InstrumentClass targetClass;
     private final InstrumentMethod targetMethod;
 
-    public InterceptorArgumentProvider(TraceContext traceContext, InstrumentClass targetClass) {
-        this(traceContext, null, targetClass, null);
+    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, InstrumentClass targetClass) {
+        this(dataSourceMonitorRegistry, apiMetaDataService, null, targetClass, null);
     }
     
-    public InterceptorArgumentProvider(TraceContext traceContext, InterceptorScope interceptorScope, InstrumentClass targetClass, InstrumentMethod targetMethod) {
-        this.traceContext = traceContext;
+    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, InterceptorScope interceptorScope, InstrumentClass targetClass, InstrumentMethod targetMethod) {
+        if (dataSourceMonitorRegistry == null) {
+            throw new NullPointerException("dataSourceMonitorRegistry must not be null");
+        }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
+        this.apiMetaDataService = apiMetaDataService;
         this.interceptorScope = interceptorScope;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
@@ -70,6 +79,8 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
             } else {
                 return Option.empty();
             }
+        } else if (type == DataSourceMonitorRegistry.class) {
+            return Option.withValue(dataSourceMonitorRegistry);
         }
         
         return Option.empty();
@@ -78,7 +89,7 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
     private void cacheApiIfAnnotationNotPresent(Annotation[] annotations, MethodDescriptor descriptor) {
         Annotation annotation = TypeUtils.findAnnotation(annotations, NoCache.class);
         if (annotation == null) {
-            traceContext.cacheApi(descriptor);
+            this.apiMetaDataService.cacheApi(descriptor);
         }
     }
 }

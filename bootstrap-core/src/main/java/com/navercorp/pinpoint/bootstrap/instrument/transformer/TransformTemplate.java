@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 
 /**
  * @author emeroad
@@ -40,7 +42,7 @@ public class TransformTemplate implements TransformOperations {
         if (transformCallback == null) {
             throw new NullPointerException("transformCallback must not be null");
         }
-        this.instrumentContext.addClassFileTransformer(className, transformCallback);
+        final Matcher matcher = Matchers.newClassNameMatcher(className);
+        this.instrumentContext.addClassFileTransformer(matcher, transformCallback);
     }
-
 }

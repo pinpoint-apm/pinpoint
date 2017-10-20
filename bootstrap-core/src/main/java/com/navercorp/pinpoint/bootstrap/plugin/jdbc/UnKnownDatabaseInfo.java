@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -31,7 +31,7 @@ public class UnKnownDatabaseInfo {
     static{
         final List<String> urls = new ArrayList<String>();
         urls.add("unknown");
-        INSTANCE = new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", urls, "unknown");
+        INSTANCE = new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", urls, "unknown", false);
     }
     
     public static DatabaseInfo createUnknownDataBase(String url) {
@@ -41,6 +41,7 @@ public class UnKnownDatabaseInfo {
     public static DatabaseInfo createUnknownDataBase(ServiceType type, ServiceType executeQueryType, String url) {
         List<String> list = new ArrayList<String>();
         list.add("error");
-        return new DefaultDatabaseInfo(type, executeQueryType, url, url, list, "error");
+        return new DefaultDatabaseInfo(type, executeQueryType, url, url, list, "error", false);
     }
+
 }

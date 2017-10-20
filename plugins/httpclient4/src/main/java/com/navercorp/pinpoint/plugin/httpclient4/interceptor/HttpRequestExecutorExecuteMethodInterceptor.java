@@ -20,6 +20,10 @@ import java.io.IOException;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
+import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
@@ -42,8 +46,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
@@ -52,7 +54,6 @@ import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -60,7 +61,6 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
     private static final int HTTP_REQUEST_INDEX = 1;
 
@@ -171,8 +171,9 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
 
     private NameIntValuePair<String> getHost() {
         final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-        if (transaction != null && transaction.getAttachment() != null && transaction.getAttachment() instanceof  HttpCallContext) {
-            HttpCallContext callContext = (HttpCallContext) transaction.getAttachment();
+        final Object attachment = getAttachment(transaction);
+        if (attachment instanceof HttpCallContext) {
+            HttpCallContext callContext = (HttpCallContext) attachment;
             return new NameIntValuePair<String>(callContext.getHost(), callContext.getPort());
         }
 
@@ -195,7 +196,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                if(httpRequest.getRequestLine() != null) {
+                if (httpRequest.getRequestLine() != null) {
                     final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
                     recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
                 }
@@ -219,20 +220,13 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             recorder.recordException(throwable);
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof  HttpCallContext) {
-                final HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
+            final Object attachment = getAttachment(invocation);
+            if (attachment instanceof HttpCallContext) {
+                final HttpCallContext callContext = (HttpCallContext) attachment;
                 logger.debug("Check call context {}", callContext);
                 if (io) {
-                    final StringBuilder sb = new StringBuilder();
-                    sb.append("write=").append(callContext.getWriteElapsedTime());
-                    if (callContext.isWriteFail()) {
-                        sb.append("(fail)");
-                    }
-                    sb.append(", read=").append(callContext.getReadElapsedTime());
-                    if (callContext.isReadFail()) {
-                        sb.append("(fail)");
-                    }
-                    recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
+                    final IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) callContext.getWriteElapsedTime(), callContext.isWriteFail(), (int) callContext.getReadElapsedTime(), callContext.isReadFail());
+                    recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
                 }
                 // clear
                 invocation.removeAttachment();
@@ -241,6 +235,13 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
     }
 
     private Integer getStatusCode(Object result) {
@@ -265,14 +266,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         if (host == null) {
             return "UnknownHttpClient";
         }
-        if (port < 0) {
-            return host;
-        }
-        StringBuilder sb = new StringBuilder(host.length() + 8);
-        sb.append(host);
-        sb.append(':');
-        sb.append(port);
-        return sb.toString();
+        port = HostAndPort.getPortOrNoPort(port);
+        return HostAndPort.toHostAndPortString(host, port);
     }
 
     private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Throwable throwable) {
@@ -297,10 +292,10 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
         for (org.apache.http.Header header : cookies) {
             final String value = header.getValue();
-            if (value != null && !value.isEmpty()) {
+            if (StringUtils.hasLength(value)) {
                 if (cookieSampler.isSampling()) {
                     final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(value, 1024));
                 }
 
                 // Can a cookie have 2 or more values?
@@ -317,7 +312,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
                 final HttpEntity entity = entityRequest.getEntity();
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
-                        final String entityString = entityUtilsToString(entity, "UTF8", 1024);
+                        final String entityString = entityUtilsToString(entity, Charsets.UTF_8_NAME, 1024);
                         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityString);
                     }
@@ -331,22 +326,17 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     /**
      * copy: EntityUtils Get the entity content as a String, using the provided default character set if none is found in the entity. If defaultCharset is null, the default "ISO-8859-1" is used.
      *
-     * @param entity
-     *            must not be null
-     * @param defaultCharset
-     *            character set to be applied if none found in the entity
+     * @param entity         must not be null
+     * @param defaultCharset character set to be applied if none found in the entity
      * @return the entity content as a String. May be null if {@link HttpEntity#getContent()} is null.
-     * @throws ParseException
-     *             if header elements cannot be parsed
-     * @throws IllegalArgumentException
-     *             if entity is null or if content length > Integer.MAX_VALUE
-     * @throws IOException
-     *             if an error occurs reading the input stream
+     * @throws ParseException           if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IOException              if an error occurs reading the input stream
      */
     @SuppressWarnings("deprecation")
     public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws Exception {
         if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
+            throw new IllegalArgumentException("HTTP entity must not be null");
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
             return "HTTP entity is too large to be buffered in memory length:" + entity.getContentLength();
@@ -354,21 +344,21 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         if (entity.getContentType().getValue().startsWith("multipart/form-data")) {
             return "content type is multipart/form-data. content length:" + entity.getContentLength();
         }
-        
+
         String charset = getContentCharSet(entity);
-        
+
         if (charset == null) {
             charset = defaultCharset;
         }
         if (charset == null) {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
-        
+
         FixedByteArrayOutputStream outStream = new FixedByteArrayOutputStream(maxLength);
         entity.writeTo(outStream);
-        
+
         String entityValue = outStream.toString(charset);
-        
+
         if (entity.getContentLength() > maxLength) {
             StringBuilder sb = new StringBuilder();
             sb.append(entityValue);
@@ -377,24 +367,21 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             sb.append(" )");
             return sb.toString();
         }
-        
+
         return entityValue;
     }
 
     /**
      * copy: EntityUtils Obtains character set of the entity, if known.
      *
-     * @param entity
-     *            must not be null
+     * @param entity must not be null
      * @return the character set, or null if not found
-     * @throws ParseException
-     *             if header elements cannot be parsed
-     * @throws IllegalArgumentException
-     *             if entity is null
+     * @throws ParseException           if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null
      */
     public static String getContentCharSet(final HttpEntity entity) throws ParseException {
         if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
+            throw new IllegalArgumentException("HTTP entity must not be null");
         }
         String charset = null;
         if (entity.getContentType() != null) {

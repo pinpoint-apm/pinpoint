@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV1;
-import com.navercorp.pinpoint.web.mapper.stat.SampledJvmGcResultExtractor;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JvmGcSampler;
+import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
@@ -30,6 +32,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledJvmGcDaoV1")
 public class HbaseSampledJvmGcDao implements SampledJvmGcDao {
 
@@ -37,7 +40,7 @@ public class HbaseSampledJvmGcDao implements SampledJvmGcDao {
     private AgentStatMapperV1.JvmGcMapper mapper;
 
     @Autowired
-    private Aggregator.JvmGcAggregator aggregator;
+    private JvmGcSampler sampler;
 
     @Autowired
     private HbaseAgentStatDaoOperations operations;
@@ -47,7 +50,7 @@ public class HbaseSampledJvmGcDao implements SampledJvmGcDao {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
         Range range = new Range(scanFrom, scanTo);
-        SampledJvmGcResultExtractor resultExtractor = new SampledJvmGcResultExtractor(timeWindow, mapper);
+        SampledAgentStatResultExtractor<JvmGcBo, SampledJvmGc> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, sampler);
         return operations.getSampledAgentStatList(resultExtractor, agentId, range);
     }
 }
