@@ -122,10 +122,10 @@ public class ProxyHttpHeader {
     }
 
     public Object getAnnotationValue() {
-        if (app == null) {
-            return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, null);
+        if (this.type == TYPE_APP && this.app != null) {
+            return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, StringUtils.abbreviate(app, APP_MAX_LENGTH));
         }
-        return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, StringUtils.abbreviate(app, APP_MAX_LENGTH));
+        return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, null);
     }
 
     @Override
