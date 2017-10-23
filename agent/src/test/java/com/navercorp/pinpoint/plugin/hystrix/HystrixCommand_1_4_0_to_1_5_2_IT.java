@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.hystrix.commands.SayHelloCommand;
 import com.navercorp.pinpoint.plugin.hystrix.runners.HystrixCommandTestRunner;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.test.pinpoint.plugin.hystrix.repository.HelloRepository;
@@ -50,6 +51,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
+// Hystrix 1.4.0 - 1.4.2 requires Java 7
+@JvmVersion(7)
 // rxjava, hystrix plugin enabled + custom trace method config
 @PinpointConfig("hystrix/pinpoint-hystrix.config")
 @Dependency({"com.netflix.hystrix:hystrix-core:[1.4.0,1.5.2]","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
