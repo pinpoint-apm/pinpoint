@@ -54,7 +54,7 @@
 	
 	                        $("#main-container").layout({
 	                            north__minSize: 50,
-	                            north__size: 210,
+	                            north__size: 320,
 	//                north__spacing_closed: 20,
 	//                north__togglerLength_closed: 100,
 	//                north__togglerAlign_closed: "top",

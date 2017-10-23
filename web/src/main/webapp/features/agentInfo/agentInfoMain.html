@@ -61,7 +61,6 @@
 			</div>
 		</div>
 		<div>
-			<!--h3 style="text-align:right"><span style="font-size:16px;font-weight:normal;border-radius:0px" class="label label-default">{{formatDate(selectTime)}}</span></h3-->
 			<div class="row">
 				<div class="col-md-12">
 					<table class="table table-condensed" style="font-size:12px;margin-bottom:0px">
@@ -175,42 +174,41 @@
 		<div class="chart-collection">
 			<div class="row">
 				<div class="col-md-6">
-					<h4><span class="glyphicon glyphicon-question-sign heapTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[0].title}}</h4>
-					<jvm-memory-chart-directive namespace="forHeap"></jvm-memory-chart-directive>
+					<h4><span class="glyphicon glyphicon-question-sign heapTooltip" style="cursor:pointer;float:right;"></span> Heap Usage</h4>
+					<agent-inspector-chart-directive namespace="agent-heap"></agent-inspector-chart-directive>
 				</div>
 				<div class="col-md-6">
-					<h4><span class="glyphicon glyphicon-question-sign permGenTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[1].title}}</h4>
-					<jvm-memory-chart-directive namespace="forNonHeap"></jvm-memory-chart-directive>
-				</div>
-			</div>
-			<hr>
-			<div class="row">
-				<div class="col-md-6">
-					<h4><span class="glyphicon glyphicon-question-sign cpuUsageTooltip" style="cursor:pointer;float:right;"></span> {{cpuLoadChart.title}}</h4>
-					<cpu-load-chart-directive namespace="forCpuLoad"></cpu-load-chart-directive>
-				</div>
-				<div class="col-md-6">
-					<h4><span class="glyphicon glyphicon-question-sign tpsTooltip" style="cursor:pointer;float:right;"></span> {{tpsChart.title}}</h4>
-					<tps-chart-directive namespace="forTps"></tps-chart-directive>
+					<h4><span class="glyphicon glyphicon-question-sign permGenTooltip" style="cursor:pointer;float:right;"></span> PermGen Usage</h4>
+					<agent-inspector-chart-directive namespace="agent-non-heap"></agent-inspector-chart-directive>
 				</div>
 			</div>
 			<hr>
 			<div class="row">
 				<div class="col-md-6">
-					<h4><span class="glyphicon glyphicon-question-sign activeThreadTooltip" style="cursor:pointer;float:right;"></span> {{activeTraceChart.title}}</h4>
-					<active-trace-chart-directive namespace="forActiveTrace"></active-trace-chart-directive>
+					<h4><span class="glyphicon glyphicon-question-sign cpuUsageTooltip" style="cursor:pointer;float:right;"></span> JVM/System Cpu Usage</h4>
+					<agent-inspector-chart-directive namespace="agent-cpu-load"></agent-inspector-chart-directive>
 				</div>
 				<div class="col-md-6">
-					<h4><span class="glyphicon glyphicon-question-sign responseTimeTooltip" style="cursor:pointer;float:right;"></span> {{responseTimeChart.title}}</h4>
-					<response-time-chart-directive namespace="forResponseTime"></response-time-chart-directive>
+					<h4><span class="glyphicon glyphicon-question-sign tpsTooltip" style="cursor:pointer;float:right;"></span> Transactions Per Second</h4>
+					<agent-inspector-chart-directive namespace="agent-tps"></agent-inspector-chart-directive>
+				</div>
+			</div>
+			<hr>
+			<div class="row">
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign activeThreadTooltip" style="cursor:pointer;float:right;"></span> Active Thread</h4>
+					<agent-inspector-chart-directive namespace="agent-active-thread"></agent-inspector-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign responseTimeTooltip" style="cursor:pointer;float:right;"></span> Response Time</h4>
+					<agent-inspector-chart-directive namespace="agent-response-time"></agent-inspector-chart-directive>
 				</div>
 			</div>
 			<hr>
 			<div class="row">
 				<div class="col-md-6" id="data-source-chart">
 					<h4>
-						<span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChartDescription.title}}
-						<span class="label label-info not-found" ng-show="emptyDataSource()">NOT FOUND</span>
+						<span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> Data Source
 						<span class="type-selector" ng-show="hasDataSource()" ng-click="toggleSourceSelectLayer()">Select Source <span class="glyphicon glyphicon-chevron-down"></span></span>
 						<div class="type-select-layer" ng-click="changeDataSource($event)">
 							<div>
@@ -225,7 +223,7 @@
 							</div>
 						</div>
 					</h4>
-					<ds-chart-directive namespace="forDataSource"></ds-chart-directive>
+					<ds-chart-directive namespace="agent-data-source"></ds-chart-directive>
 					<br/>
 					<div class="panel panel-success" ng-show="hasDataSource()">
 						<div class="panel-heading">Data Source Info</div>

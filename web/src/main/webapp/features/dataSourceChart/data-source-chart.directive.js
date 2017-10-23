@@ -1,9 +1,9 @@
 (function() {
 	'use strict';
-	pinpointApp.directive( "dsChartDirective", [
-		function () {
+	pinpointApp.directive( "dsChartDirective", [ "helpContentService",
+		function ( helpContentService ) {
 			return {
-				template: "<div></div>",
+				template: "<div><div></div></div>",
 				replace: true,
 				restrict: "E",
 				scope: {
@@ -11,27 +11,30 @@
 				},
 				link: function postLink(scope, element, attrs) {
 					var sId = "", oChart;
+					var currentChartData;
+					var elNoData;
+					var noDataCollected = helpContentService.inspector.noDataCollected;
 					var aColorMap = [
 						"#850901", "#969755", "#421416", "#c8814b", "#aa8735", "#cd7af4", "#f6546a", "#1c1a1f", "#127999", "#b7ebd9",
 						"#f6546a", "#bea87f", "#d1b4b0", "#e0d4ba", "#0795d9", "#43aa83", "#09d05b", "#c26e67", "#ed7575", "#96686a"
 					];
 
 					function setIdAutomatically() {
-						sId = 'multipleValueAxesId-' + scope.namespace;
-						element.attr('id', sId);
+						sId = "multipleValueAxesId-" + scope.namespace;
+						element.find("div").attr("id", sId);
 					}
-					function hasId() {
-						return sId === "" ? false : true;
-					}
+					// function hasId() {
+					// 	return sId === "" ? false : true;
+					// }
 					function setWidthHeight(w, h) {
-						if (w) element.css('width', w);
-						if (h) element.css('height', h);
+						if (w) element.find("#"+ sId).css("width", w);
+						if (h) element.find("#"+ sId).css("height", h);
 					}
 					// function renderUpdate(data) {
 					// 	oChart.dataProvider = data;
 					// 	oChart.validateData();
 					// }
-					function render(oChartData, maxValue, oVisible) {
+					function render(oVisible) {
 						var options = {
 							"type": "serial",
 							"theme": "light",
@@ -41,7 +44,7 @@
 							"marginRight": 70,
 							"marginBottom": 40,
 							"usePrefixes": true,
-							"dataProvider": oChartData,
+							"dataProvider": currentChartData.data,
 							"switchable": true,
 							"valueAxes": [
 								{
@@ -50,7 +53,7 @@
 									"axisAlpha": 1,
 									"position": "left",
 									"title": "Connection(count)",
-									"maximum" : Math.max( maxValue, 10 ),
+									"maximum" : currentChartData.defaultMax,
 									"minimum" : 0
 								}
 							],
@@ -82,7 +85,7 @@
 							}
 						};
 						var index = 0;
-						for( var p in oChartData[0] ) {
+						for( var p in currentChartData.data[0] ) {
 							if ( p === "time" ) {
 								continue;
 							}
@@ -102,10 +105,16 @@
 
 						}
 						oChart = AmCharts.makeChart(sId, options);
+						addNoDataElement();
+						elNoData[currentChartData["empty"] ? "show" : "hide"]();
 					}
 					function showBalloonData( valueField, index ) {
 						scope.$emit("dsChartDirective.cursorChanged." + scope.namespace, valueField, index);
 					}
+					function addNoDataElement() {
+						elNoData = element.append('<div class="no-data"><span>' + noDataCollected + '</span></div>').find(".no-data").hide();
+					}
+
 					function getNextColor( i ) {
 						if ( i < aColorMap.length ) {
 							return aColorMap[i];
@@ -123,14 +132,12 @@
 						}
 					}
 					function showCursorAt(category) {
-						if (category) {
-							if (angular.isNumber(category)) {
-								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
-									try {
-										oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
-									} catch(e) {}
-									return;
-								}
+						if (category && angular.isNumber(category)) {
+							if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
+								try {
+									oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+								} catch(e) {}
+								return;
 							}
 						}
 						oChart.chartCursor.hideCursor();
@@ -150,14 +157,15 @@
 						}
 						return "";
 					}
-					scope.$on("dsChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, oVisible, w, h) {
+					scope.$on("dsChartDirective.initAndRenderWithData." + scope.namespace, function (event, oChartData, oVisible, w, h) {
+						currentChartData = oChartData;
 						// if ( hasId() ) {
 						// 	renderUpdate( data );
 						// } else {
-							element.empty();
+							element.html("<div></div>");
 							setIdAutomatically();
 							setWidthHeight(w, h);
-							render(data.data, data.max, oVisible);
+							render( oVisible );
 						// }
 					});
 					scope.$on("dsChartDirective.toggleGraph." + scope.namespace, function(event, valueField, bVisible) {
@@ -172,7 +180,9 @@
 						}
 					});
 					scope.$on("dsChartDirective.showCursorAt." + scope.namespace, function (event, category) {
-						showCursorAt(category);
+						if ( currentChartData && currentChartData.empty === false ) {
+							showCursorAt(category);
+						}
 					});
 					scope.$on("dsChartDirective.resize." + scope.namespace, function (event) {
 						resize();
