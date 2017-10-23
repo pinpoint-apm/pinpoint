@@ -795,18 +795,18 @@
 			statDataSource: {
 				mainStyle: "",
 				title: "Data Source",
-				desc: "Agent들의 DataSource 현황",
+				desc: "Status of the agents' data source",
 				category: [{
-					title: "[범례]",
+					title: "[Legend]",
 					items: [{
 						name: "MAX",
-						desc: "agent들의 DataSource connection 개수 중 가장 큰 값"
+						desc: "Largest data source connection count of the agents"
 					},{
 						name: "AVG",
-						desc: "agent들의 DataSource connection 개수의 평균값"
+						desc: "Average data source connection count of the agents"
 					},{
 						name: "MIN",
-						desc: "agent들의 DataSource connection 개수 중 가장 작은 값"
+						desc: "Smallest data source connection count of the agents"
 					}]
 				}]
 			}
