@@ -17,19 +17,28 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 /**
  * @author Taejin Koo
  */
 public class SampledDeadlock implements SampledAgentStatDataPoint {
 
-    private Point<Long, Integer> deadlockedThreadCount;
+    public static final int UNCOLLECTED_COUNT = -1;
+    public static final Point.UncollectedPointCreater<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreater<AgentStatPoint<Integer>>() {
+        @Override
+        public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
+            return new AgentStatPoint<>(xVal, UNCOLLECTED_COUNT);
+        }
+    };
 
-    public Point<Long, Integer> getDeadlockedThreadCount() {
+    private AgentStatPoint<Integer> deadlockedThreadCount;
+
+    public AgentStatPoint<Integer> getDeadlockedThreadCount() {
         return deadlockedThreadCount;
     }
 
-    public void setDeadlockedThreadCount(Point<Long, Integer> deadlockedThreadCount) {
+    public void setDeadlockedThreadCount(AgentStatPoint<Integer> deadlockedThreadCount) {
         this.deadlockedThreadCount = deadlockedThreadCount;
     }
 
@@ -41,7 +50,6 @@ public class SampledDeadlock implements SampledAgentStatDataPoint {
         SampledDeadlock that = (SampledDeadlock) o;
 
         return deadlockedThreadCount != null ? deadlockedThreadCount.equals(that.deadlockedThreadCount) : that.deadlockedThreadCount == null;
-
     }
 
     @Override
@@ -56,5 +64,4 @@ public class SampledDeadlock implements SampledAgentStatDataPoint {
         sb.append('}');
         return sb.toString();
     }
-
 }

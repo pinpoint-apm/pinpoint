@@ -16,11 +16,10 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.web.dao.ApplicationTransactionDao;
-import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationStatChartGroup;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationTransactionChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationTransactionChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +35,7 @@ public class ApplicationTransactionService implements ApplicationStatChartServic
     private ApplicationTransactionDao applicationTransactionDao;
 
     @Override
-    public ApplicationStatChartGroup selectApplicationChart(String applicationId, TimeWindow timeWindow) {
+    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
             throw new NullPointerException("applicationId must not be null");
         }
@@ -44,6 +43,6 @@ public class ApplicationTransactionService implements ApplicationStatChartServic
             throw new NullPointerException("timeWindow must not be null");
         }
         List<AggreJoinTransactionBo> aggreJoinTransactionBoList = this.applicationTransactionDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationTransactionChartGroup(timeWindow, aggreJoinTransactionBoList);
+        return new ApplicationTransactionChart(timeWindow, aggreJoinTransactionBoList);
     }
 }

@@ -17,46 +17,55 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 /**
  * @author HyunGil Jeong
  */
 public class SampledActiveTrace implements SampledAgentStatDataPoint {
 
-    private Point<Long, Integer> fastCounts;
-    private Point<Long, Integer> normalCounts;
-    private Point<Long, Integer> slowCounts;
-    private Point<Long, Integer> verySlowCounts;
+    public static final int UNCOLLECTED_COUNT = -1;
+    public static final Point.UncollectedPointCreater<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreater<AgentStatPoint<Integer>>() {
+        @Override
+        public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
+            return new AgentStatPoint<>(xVal, UNCOLLECTED_COUNT);
+        }
+    };
 
-    public Point<Long, Integer> getFastCounts() {
+    private AgentStatPoint<Integer> fastCounts;
+    private AgentStatPoint<Integer> normalCounts;
+    private AgentStatPoint<Integer> slowCounts;
+    private AgentStatPoint<Integer> verySlowCounts;
+
+    public AgentStatPoint<Integer> getFastCounts() {
         return fastCounts;
     }
 
-    public void setFastCounts(Point<Long, Integer> fastCounts) {
+    public void setFastCounts(AgentStatPoint<Integer> fastCounts) {
         this.fastCounts = fastCounts;
     }
 
-    public Point<Long, Integer> getNormalCounts() {
+    public AgentStatPoint<Integer> getNormalCounts() {
         return normalCounts;
     }
 
-    public void setNormalCounts(Point<Long, Integer> normalCounts) {
+    public void setNormalCounts(AgentStatPoint<Integer> normalCounts) {
         this.normalCounts = normalCounts;
     }
 
-    public Point<Long, Integer> getSlowCounts() {
+    public AgentStatPoint<Integer> getSlowCounts() {
         return slowCounts;
     }
 
-    public void setSlowCounts(Point<Long, Integer> slowCounts) {
+    public void setSlowCounts(AgentStatPoint<Integer> slowCounts) {
         this.slowCounts = slowCounts;
     }
 
-    public Point<Long, Integer> getVerySlowCounts() {
+    public AgentStatPoint<Integer> getVerySlowCounts() {
         return verySlowCounts;
     }
 
-    public void setVerySlowCounts(Point<Long, Integer> verySlowCounts) {
+    public void setVerySlowCounts(AgentStatPoint<Integer> verySlowCounts) {
         this.verySlowCounts = verySlowCounts;
     }
 

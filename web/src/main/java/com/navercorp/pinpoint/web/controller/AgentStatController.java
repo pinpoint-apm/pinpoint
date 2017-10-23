@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
@@ -48,7 +47,7 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.stat.chart.AgentStatChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -89,7 +88,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/chart", method = RequestMethod.GET)
     @ResponseBody
-    public AgentStatChartGroup getAgentStatChart(
+    public StatChart getAgentStatChart(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -101,7 +100,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/chart", method = RequestMethod.GET, params = {"interval"})
     @ResponseBody
-    public AgentStatChartGroup getAgentStatChart(
+    public StatChart getAgentStatChart(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
@@ -121,7 +120,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/chartList", method = RequestMethod.GET)
     @ResponseBody
-    public List<AgentStatChartGroup> getAgentStatChartList(
+    public List<StatChart> getAgentStatChartList(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -133,7 +132,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/chartList", method = RequestMethod.GET, params = {"interval"})
     @ResponseBody
-    public List<AgentStatChartGroup> getAgentStatChartList(
+    public List<StatChart> getAgentStatChartList(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,

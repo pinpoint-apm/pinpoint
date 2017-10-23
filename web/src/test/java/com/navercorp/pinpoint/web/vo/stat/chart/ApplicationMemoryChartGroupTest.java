@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryCodec;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.chart.Chart;
+import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationMemoryChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.MemoryPoint;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -50,10 +53,10 @@ public class ApplicationMemoryChartGroupTest {
         aggreJoinMemoryList.add(aggreJoinMemoryBo4);
         aggreJoinMemoryList.add(aggreJoinMemoryBo5);
 
-        ApplicationMemoryChartGroup applicationMemoryChartGroup = new ApplicationMemoryChartGroup(timeWindow, aggreJoinMemoryList);
-        Map<ApplicationStatChartGroup.ChartType, Chart> charts = applicationMemoryChartGroup.getCharts();
+        StatChartGroup applicationMemoryChartGroup = new ApplicationMemoryChart.ApplicationMemoryChartGroup(timeWindow, aggreJoinMemoryList);
+        Map<StatChartGroup.ChartType, Chart> charts = applicationMemoryChartGroup.getCharts();
 
-        Chart heapChart = charts.get(ApplicationMemoryChartGroup.MemoryChartType.MEMORY_HEAP);
+        Chart heapChart = charts.get(ApplicationMemoryChart.ApplicationMemoryChartGroup.MemoryChartType.MEMORY_HEAP);
         List<Point> heapPoints = heapChart.getPoints();
         assertEquals(5, heapPoints.size());
         int index = heapPoints.size();
@@ -61,7 +64,7 @@ public class ApplicationMemoryChartGroupTest {
             testHeap((MemoryPoint)point, aggreJoinMemoryList.get(--index));
         }
 
-        Chart nonHeapChart = charts.get(ApplicationMemoryChartGroup.MemoryChartType.MEMORY_NON_HEAP);
+        Chart nonHeapChart = charts.get(ApplicationMemoryChart.ApplicationMemoryChartGroup.MemoryChartType.MEMORY_NON_HEAP);
         List<Point> nonHeapPoints = heapChart.getPoints();
         assertEquals(5, nonHeapPoints.size());
         index = nonHeapPoints.size();

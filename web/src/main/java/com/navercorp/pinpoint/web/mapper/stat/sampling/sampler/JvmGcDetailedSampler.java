@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -34,8 +33,8 @@ import java.util.List;
 public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, SampledJvmGcDetailed> {
 
     private static final int NUM_DECIMAL_PLACES = 1;
-    public static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(JvmGcDetailedBo.UNCOLLECTED_VALUE);
-    public static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE, NUM_DECIMAL_PLACES);
+    private static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(SampledJvmGcDetailed.UNCOLLECTED_VALUE);
+    private static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE, NUM_DECIMAL_PLACES);
 
     @Override
     public SampledJvmGcDetailed sampleDataPoints(int timeWindowIndex, long timestamp, List<JvmGcDetailedBo> dataPoints, JvmGcDetailedBo previousDataPoint) {
@@ -85,11 +84,11 @@ public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, S
         return sampledJvmGcDetailed;
     }
 
-    private Point<Long, Long> createLongPoint(long timestamp, List<Long> values) {
+    private AgentStatPoint<Long> createLongPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, JvmGcDetailedBo.UNCOLLECTED_VALUE);
+            return SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATER.createUnCollectedPoint(timestamp);
         } else {
-            return new Point<>(
+            return new AgentStatPoint<>(
                     timestamp,
                     LONG_DOWN_SAMPLER.sampleMin(values),
                     LONG_DOWN_SAMPLER.sampleMax(values),
@@ -98,11 +97,11 @@ public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, S
         }
     }
 
-    private Point<Long, Double> createDoublePoint(long timestamp, List<Double> values) {
+    private AgentStatPoint<Double> createDoublePoint(long timestamp, List<Double> values) {
         if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE);
+            return SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
-            return new Point<>(
+            return new AgentStatPoint<>(
                     timestamp,
                     DOUBLE_DOWN_SAMPLER.sampleMin(values),
                     DOUBLE_DOWN_SAMPLER.sampleMax(values),

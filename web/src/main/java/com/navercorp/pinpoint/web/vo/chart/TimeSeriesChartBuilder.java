@@ -17,38 +17,53 @@
 package com.navercorp.pinpoint.web.vo.chart;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
+ * @author minwoo.jung
  */
-public class TimeSeriesChartBuilder<Y extends Number> {
+public class TimeSeriesChartBuilder {
 
     private final TimeWindow timeWindow;
-    private final List<Point<Long, Y>> points;
+    private final Point.UncollectedPointCreater<?> uncollectedPointCreater;
 
-    public TimeSeriesChartBuilder(TimeWindow timeWindow, Y uncollectedValue) {
+    public TimeSeriesChartBuilder(TimeWindow timeWindow, Point.UncollectedPointCreater<?> uncollectedPointCreator) {
         if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("range yields too many timeslots");
         }
-        this.timeWindow = timeWindow;
-        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
-        this.points = new ArrayList<>(numTimeslots);
-        for (long timestamp : this.timeWindow) {
-            this.points.add(new UncollectedPoint<>(timestamp, uncollectedValue));
+        if (uncollectedPointCreator == null) {
+            throw new NullPointerException("uncollectedPointCreator must not be null");
         }
+        this.timeWindow = timeWindow;
+        this.uncollectedPointCreater = uncollectedPointCreator;
     }
 
-    public Chart<Long, Y> build(List<Point<Long, Y>> sampledPoints) {
-        for (Point<Long, Y> sampledPoint : sampledPoints) {
+    public Chart build(List<Point> sampledPoints) {
+        if (CollectionUtils.isEmpty(sampledPoints)) {
+            return new Chart(Collections.emptyList());
+        }
+        List<Point> points = createInitialPoints();
+        for (Point sampledPoint : sampledPoints) {
             int timeslotIndex = this.timeWindow.getWindowIndex(sampledPoint.getxVal());
             if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
                 continue;
             }
-            this.points.set(timeslotIndex, sampledPoint);
+            points.set(timeslotIndex, sampledPoint);
         }
-        return new Chart<>(this.points);
+        return new Chart(points);
+    }
+
+    private List<Point> createInitialPoints() {
+        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        List<Point> points = new ArrayList<>(numTimeslots);
+        for (long timestamp : this.timeWindow) {
+            points.add(uncollectedPointCreater.createUnCollectedPoint(timestamp));
+        }
+        return points;
     }
 }
