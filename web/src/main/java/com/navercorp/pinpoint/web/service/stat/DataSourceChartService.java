@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
-import com.navercorp.pinpoint.web.vo.stat.chart.AgentStatChartGroup;
-import com.navercorp.pinpoint.web.vo.stat.chart.DataSourceChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,7 @@ public class DataSourceChartService implements AgentStatChartService {
     }
 
     @Override
-    public AgentStatChartGroup selectAgentChart(String agentId, TimeWindow timeWindow) {
+    public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -59,14 +59,14 @@ public class DataSourceChartService implements AgentStatChartService {
 
         List<SampledDataSourceList> sampledAgentStatList = this.sampledDataSourceDao.getSampledAgentStatList(agentId, timeWindow);
         if (CollectionUtils.isEmpty(sampledAgentStatList)) {
-            return new DataSourceChartGroup(timeWindow, Collections.<SampledDataSource>emptyList(), serviceTypeRegistryService);
+            return new DataSourceChart(timeWindow, Collections.<SampledDataSource>emptyList(), serviceTypeRegistryService);
         } else {
-            return new DataSourceChartGroup(timeWindow, ListUtils.getFirst(sampledAgentStatList).getSampledDataSourceList(), serviceTypeRegistryService);
+            return new DataSourceChart(timeWindow, ListUtils.getFirst(sampledAgentStatList).getSampledDataSourceList(), serviceTypeRegistryService);
         }
     }
 
     @Override
-    public List<AgentStatChartGroup> selectAgentChartList(String agentId, TimeWindow timeWindow) {
+    public List<StatChart> selectAgentChartList(String agentId, TimeWindow timeWindow) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -76,13 +76,13 @@ public class DataSourceChartService implements AgentStatChartService {
 
         List<SampledDataSourceList> sampledAgentStatList = this.sampledDataSourceDao.getSampledAgentStatList(agentId, timeWindow);
         if (CollectionUtils.isEmpty(sampledAgentStatList)) {
-            List<AgentStatChartGroup> result = new ArrayList<>(sampledAgentStatList.size());
-            result.add(new DataSourceChartGroup(timeWindow, Collections.<SampledDataSource>emptyList(), serviceTypeRegistryService));
+            List<StatChart> result = new ArrayList<>(sampledAgentStatList.size());
+            result.add(new DataSourceChart(timeWindow, Collections.<SampledDataSource>emptyList(), serviceTypeRegistryService));
             return result;
         } else {
-            List<AgentStatChartGroup> result = new ArrayList<>(sampledAgentStatList.size());
+            List<StatChart> result = new ArrayList<>(sampledAgentStatList.size());
             for (SampledDataSourceList sampledDataSourceList : sampledAgentStatList) {
-                result.add(new DataSourceChartGroup(timeWindow, sampledDataSourceList.getSampledDataSourceList(), serviceTypeRegistryService));
+                result.add(new DataSourceChart(timeWindow, sampledDataSourceList.getSampledDataSourceList(), serviceTypeRegistryService));
             }
             return result;
         }

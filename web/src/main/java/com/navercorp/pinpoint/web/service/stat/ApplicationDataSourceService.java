@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.web.dao.ApplicationDataSourceDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationDataSourceChartGroup;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationStatChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationDataSourceChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +42,7 @@ public class ApplicationDataSourceService {
 
     private static final AggreJoinDataSourceBoComparator comparator = new AggreJoinDataSourceBoComparator();
 
-    public List<ApplicationStatChartGroup> selectApplicationChart(String applicationId, TimeWindow timeWindow) {
+    public List<StatChart> selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
             throw new NullPointerException("applicationId must not be null");
         }
@@ -50,11 +50,11 @@ public class ApplicationDataSourceService {
             throw new NullPointerException("timeWindow must not be null");
         }
 
-        List<ApplicationStatChartGroup> result = new ArrayList<ApplicationStatChartGroup>();
+        List<StatChart> result = new ArrayList<>();
         List<AggreJoinDataSourceListBo> aggreJoinDataSourceListBoList = this.applicationDataSourceDao.getApplicationStatList(applicationId, timeWindow);
 
         if (aggreJoinDataSourceListBoList.size() == 0) {
-            result.add(new ApplicationDataSourceChartGroup(timeWindow, "", "", Collections.EMPTY_LIST));
+            result.add(new ApplicationDataSourceChart(timeWindow, "", "", Collections.emptyList()));
             return result;
         }
 
@@ -62,8 +62,8 @@ public class ApplicationDataSourceService {
 
         for (Map.Entry<DataSourceKey, List<AggreJoinDataSourceBo>> entry: aggreJoinDataSourceBoMap.entrySet()) {
             DataSourceKey dataSourceKey = entry.getKey();
-            String serviceTypeName = serviceTypeRegistryService.findServiceType((short) dataSourceKey.getServiceTypeCode()).getName();
-            result.add(new ApplicationDataSourceChartGroup(timeWindow, dataSourceKey.getUrl(), serviceTypeName, entry.getValue()));
+            String serviceTypeName = serviceTypeRegistryService.findServiceType(dataSourceKey.getServiceTypeCode()).getName();
+            result.add(new ApplicationDataSourceChart(timeWindow, dataSourceKey.getUrl(), serviceTypeName, entry.getValue()));
         }
 
         return result;
@@ -80,7 +80,7 @@ public class ApplicationDataSourceService {
                 List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList = aggreJoinDataSourceBoMap.get(dataSourceKey);
 
                 if (aggreJoinDataSourceBoList == null) {
-                    aggreJoinDataSourceBoList = new ArrayList<AggreJoinDataSourceBo>();
+                    aggreJoinDataSourceBoList = new ArrayList<>();
                     aggreJoinDataSourceBoMap.put(dataSourceKey, aggreJoinDataSourceBoList);
                 }
 

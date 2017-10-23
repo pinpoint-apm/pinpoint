@@ -16,11 +16,10 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.web.dao.ApplicationMemoryDao;
-import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationMemoryChartGroup;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationStatChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationMemoryChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +35,7 @@ public class ApplicationMemoryService implements ApplicationStatChartService {
     private ApplicationMemoryDao applicationMemoryDao;
 
     @Override
-    public ApplicationStatChartGroup selectApplicationChart(String applicationId, TimeWindow timeWindow) {
+    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
             throw new NullPointerException("applicationId must not be null");
         }
@@ -44,6 +43,6 @@ public class ApplicationMemoryService implements ApplicationStatChartService {
             throw new NullPointerException("timeWindow must not be null");
         }
         List<AggreJoinMemoryBo> aggreJoinMemoryBoList = this.applicationMemoryDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationMemoryChartGroup(timeWindow, aggreJoinMemoryBoList);
+        return new ApplicationMemoryChart(timeWindow, aggreJoinMemoryBoList);
     }
 }

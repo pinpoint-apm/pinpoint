@@ -17,28 +17,37 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 /**
  * @author HyunGil Jeong
  */
 public class SampledCpuLoad implements SampledAgentStatDataPoint {
 
-    private Point<Long, Double> jvmCpuLoad;
-    private Point<Long, Double> systemCpuLoad;
+    public static final Double UNCOLLECTED_PERCENTAGE = -1D;
+    public static final Point.UncollectedPointCreater<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreater<AgentStatPoint<Double>>() {
+        @Override
+        public AgentStatPoint<Double> createUnCollectedPoint(long xVal) {
+            return new AgentStatPoint<>(xVal, UNCOLLECTED_PERCENTAGE);
+        }
+    };
 
-    public Point<Long, Double> getJvmCpuLoad() {
+    private AgentStatPoint<Double> jvmCpuLoad;
+    private AgentStatPoint<Double> systemCpuLoad;
+
+    public AgentStatPoint<Double> getJvmCpuLoad() {
         return jvmCpuLoad;
     }
 
-    public void setJvmCpuLoad(Point<Long, Double> jvmCpuLoad) {
+    public void setJvmCpuLoad(AgentStatPoint<Double> jvmCpuLoad) {
         this.jvmCpuLoad = jvmCpuLoad;
     }
 
-    public Point<Long, Double> getSystemCpuLoad() {
+    public AgentStatPoint<Double> getSystemCpuLoad() {
         return systemCpuLoad;
     }
 
-    public void setSystemCpuLoad(Point<Long, Double> systemCpuLoad) {
+    public void setSystemCpuLoad(AgentStatPoint<Double> systemCpuLoad) {
         this.systemCpuLoad = systemCpuLoad;
     }
 

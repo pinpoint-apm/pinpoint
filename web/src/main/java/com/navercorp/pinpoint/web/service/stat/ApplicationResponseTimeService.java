@@ -16,11 +16,10 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.web.dao.ApplicationResponseTimeDao;
-import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationResponseTimeChartGroup;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationStatChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationResponseTimeChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +35,7 @@ public class ApplicationResponseTimeService implements ApplicationStatChartServi
     private ApplicationResponseTimeDao applicationResponseTimeDao;
 
     @Override
-    public ApplicationStatChartGroup selectApplicationChart(String applicationId, TimeWindow timeWindow) {
+    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
             throw new NullPointerException("applicationId must not be null");
         }
@@ -45,6 +44,6 @@ public class ApplicationResponseTimeService implements ApplicationStatChartServi
         }
 
         List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList = this.applicationResponseTimeDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationResponseTimeChartGroup(timeWindow, aggreJoinResponseTimeBoList);
+        return new ApplicationResponseTimeChart(timeWindow, aggreJoinResponseTimeBoList);
     }
 }

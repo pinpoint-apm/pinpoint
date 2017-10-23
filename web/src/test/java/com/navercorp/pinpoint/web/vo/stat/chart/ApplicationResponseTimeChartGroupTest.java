@@ -18,7 +18,11 @@ package com.navercorp.pinpoint.web.vo.stat.chart;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.chart.Chart;
+import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationResponseTimeChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ResponseTimePoint;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -50,10 +54,10 @@ public class ApplicationResponseTimeChartGroupTest {
         aggreJoinResponseTimeBoList.add(aggreJoinResponseTimeBo3);
         aggreJoinResponseTimeBoList.add(aggreJoinResponseTimeBo4);
         aggreJoinResponseTimeBoList.add(aggreJoinResponseTimeBo5);
-        ApplicationResponseTimeChartGroup applicationResponseTimeChartGroup = new ApplicationResponseTimeChartGroup(timeWindow, aggreJoinResponseTimeBoList);
-        Map<ApplicationStatChartGroup.ChartType, Chart> charts = applicationResponseTimeChartGroup.getCharts();
+        StatChartGroup applicationResponseTimeChartGroup = new ApplicationResponseTimeChart.ApplicationResponseTimeChartGroup(timeWindow, aggreJoinResponseTimeBoList);
+        Map<StatChartGroup.ChartType, Chart> charts = applicationResponseTimeChartGroup.getCharts();
 
-        Chart responseTimeChart = charts.get(ApplicationResponseTimeChartGroup.ResponseTimeChartType.RESPONSE_TIME);
+        Chart responseTimeChart = charts.get(ApplicationResponseTimeChart.ApplicationResponseTimeChartGroup.ResponseTimeChartType.RESPONSE_TIME);
         List<Point> responseTimePointList = responseTimeChart.getPoints();
         assertEquals(5, responseTimePointList.size());
         int index = responseTimePointList.size();

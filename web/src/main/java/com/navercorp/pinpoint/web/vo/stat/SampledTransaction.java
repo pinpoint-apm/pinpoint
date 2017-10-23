@@ -17,55 +17,64 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 /**
  * @author HyunGil Jeong
  */
 public class SampledTransaction implements SampledAgentStatDataPoint {
 
-    private Point<Long, Double> sampledNew;
-    private Point<Long, Double> sampledContinuation;
-    private Point<Long, Double> unsampledNew;
-    private Point<Long, Double> unsampledContinuation;
-    private Point<Long, Double> total;
+    public static final double UNCOLLECTED_VALUE = -1D;
+    public static final Point.UncollectedPointCreater UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreater() {
+        @Override
+        public Point createUnCollectedPoint(long xVal) {
+            return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);
+        }
+    };
 
-    public Point<Long, Double> getSampledNew() {
+    private AgentStatPoint<Double> sampledNew;
+    private AgentStatPoint<Double> sampledContinuation;
+    private AgentStatPoint<Double> unsampledNew;
+    private AgentStatPoint<Double> unsampledContinuation;
+    private AgentStatPoint<Double> total;
+
+    public AgentStatPoint<Double> getSampledNew() {
         return sampledNew;
     }
 
-    public void setSampledNew(Point<Long, Double> sampledNew) {
+    public void setSampledNew(AgentStatPoint<Double> sampledNew) {
         this.sampledNew = sampledNew;
     }
 
-    public Point<Long, Double> getSampledContinuation() {
+    public AgentStatPoint<Double> getSampledContinuation() {
         return sampledContinuation;
     }
 
-    public void setSampledContinuation(Point<Long, Double> sampledContinuation) {
+    public void setSampledContinuation(AgentStatPoint<Double> sampledContinuation) {
         this.sampledContinuation = sampledContinuation;
     }
 
-    public Point<Long, Double> getUnsampledNew() {
+    public AgentStatPoint<Double> getUnsampledNew() {
         return unsampledNew;
     }
 
-    public void setUnsampledNew(Point<Long, Double> unsampledNew) {
+    public void setUnsampledNew(AgentStatPoint<Double> unsampledNew) {
         this.unsampledNew = unsampledNew;
     }
 
-    public Point<Long, Double> getUnsampledContinuation() {
+    public AgentStatPoint<Double> getUnsampledContinuation() {
         return unsampledContinuation;
     }
 
-    public void setUnsampledContinuation(Point<Long, Double> unsampledContinuation) {
+    public void setUnsampledContinuation(AgentStatPoint<Double> unsampledContinuation) {
         this.unsampledContinuation = unsampledContinuation;
     }
 
-    public Point<Long, Double> getTotal() {
+    public AgentStatPoint<Double> getTotal() {
         return total;
     }
 
-    public void setTotal(Point<Long, Double> total) {
+    public void setTotal(AgentStatPoint<Double> total) {
         this.total = total;
     }
 

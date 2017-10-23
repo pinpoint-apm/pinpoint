@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.chart.Chart;
+import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationTransactionChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.TransactionPoint;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -54,10 +57,10 @@ public class ApplicationTransactionChartGroupTest {
         aggreJoinTransactionBoList.add(aggreJoinTransactionBo4);
         aggreJoinTransactionBoList.add(aggreJoinTransactionBo5);
 
-        ApplicationTransactionChartGroup applicationTransactionChartGroup = new ApplicationTransactionChartGroup(timeWindow, aggreJoinTransactionBoList);
-        Map<ApplicationStatChartGroup.ChartType, Chart> charts = applicationTransactionChartGroup.getCharts();
+        StatChartGroup applicationTransactionChartGroup = new ApplicationTransactionChart.ApplicationTransactionChartGroup(timeWindow, aggreJoinTransactionBoList);
+        Map<StatChartGroup.ChartType, Chart> charts = applicationTransactionChartGroup.getCharts();
 
-        Chart tranCountChart = charts.get(ApplicationTransactionChartGroup.TransactionChartType.TRANSACTION_COUNT);
+        Chart tranCountChart = charts.get(ApplicationTransactionChart.ApplicationTransactionChartGroup.TransactionChartType.TRANSACTION_COUNT);
         List<Point> tranCountPointList = tranCountChart.getPoints();
         assertEquals(5, tranCountPointList.size());
         int index = tranCountPointList.size();

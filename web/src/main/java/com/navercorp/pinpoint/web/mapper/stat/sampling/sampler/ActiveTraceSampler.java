@@ -21,12 +21,11 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
-import com.navercorp.pinpoint.web.vo.chart.TitledPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.TitledAgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ import java.util.function.ToIntFunction;
 @Component
 public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, SampledActiveTrace> {
 
-    public static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT);
+    private static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(SampledActiveTrace.UNCOLLECTED_COUNT);
 
     @Override
     public SampledActiveTrace sampleDataPoints(int timeWindowIndex, long timestamp, List<ActiveTraceBo> dataPoints, ActiveTraceBo previousDataPoint) {
@@ -47,10 +46,10 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
         final HistogramSchema schema = BaseHistogramSchema.getDefaultHistogramSchemaByTypeCode(dataPoints.get(0).getHistogramSchemaType());
         if (schema == null) {
             SampledActiveTrace sampledActiveTrace = new SampledActiveTrace();
-            sampledActiveTrace.setFastCounts(new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
-            sampledActiveTrace.setNormalCounts(new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
-            sampledActiveTrace.setSlowCounts(new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
-            sampledActiveTrace.setVerySlowCounts(new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
+            sampledActiveTrace.setFastCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp));
+            sampledActiveTrace.setNormalCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp));
+            sampledActiveTrace.setSlowCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp));
+            sampledActiveTrace.setVerySlowCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp));
             return sampledActiveTrace;
         }
 
@@ -82,12 +81,12 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
         return result;
     }
 
-    private Point<Long, Integer> createSampledTitledPoint(String title, long timestamp, List<Integer> values) {
+    private AgentStatPoint<Integer> createSampledTitledPoint(String title, long timestamp, List<Integer> values) {
         if (CollectionUtils.isEmpty(values)) {
-            return new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT);
+            return SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp);
         }
 
-        return new TitledPoint<>(
+        return new TitledAgentStatPoint<>(
                 title,
                 timestamp,
                 INTEGER_DOWN_SAMPLER.sampleMin(values),
