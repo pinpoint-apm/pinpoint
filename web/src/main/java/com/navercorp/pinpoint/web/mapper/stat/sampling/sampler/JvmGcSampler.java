@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ import java.util.List;
 @Component
 public class JvmGcSampler implements AgentStatSampler<JvmGcBo, SampledJvmGc> {
 
-    public static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(JvmGcBo.UNCOLLECTED_VALUE);
+    private static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(SampledJvmGc.UNCOLLECTED_VALUE);
 
     @Override
     public SampledJvmGc sampleDataPoints(int timeWindowIndex, long timestamp, List<JvmGcBo> dataPoints, JvmGcBo previousDataPoint) {
@@ -129,11 +128,11 @@ public class JvmGcSampler implements AgentStatSampler<JvmGcBo, SampledJvmGc> {
         }
     }
 
-    private Point<Long, Long> createSampledPoint(long timestamp, List<Long> values) {
+    private AgentStatPoint<Long> createSampledPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, JvmGcBo.UNCOLLECTED_VALUE);
+            return SampledJvmGc.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp);
         } else {
-            return new Point<>(
+            return new AgentStatPoint<>(
                     timestamp,
                     LONG_DOWN_SAMPLER.sampleMin(values),
                     LONG_DOWN_SAMPLER.sampleMax(values),

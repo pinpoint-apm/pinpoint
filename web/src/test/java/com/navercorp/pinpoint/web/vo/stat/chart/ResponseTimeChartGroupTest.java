@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.ResponseTimeChart;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class ResponseTimeChartGroupTest {
 
         List<SampledResponseTime> sampledResponseTimeList = createSampledResponseTimeList(timeWindow);
 
-        ResponseTimeChartGroup responseTimeChartGroup = new ResponseTimeChartGroup(timeWindow, sampledResponseTimeList);
+        StatChartGroup responseTimeChartGroup = new ResponseTimeChart.ResponseTimeChartGroup(timeWindow, sampledResponseTimeList);
 
         assertEquals(sampledResponseTimeList, responseTimeChartGroup);
     }
@@ -83,15 +84,15 @@ public class ResponseTimeChartGroupTest {
         return sampler.sampleDataPoints(0, timestamp, responseTimeBoList, null);
     }
 
-    private void assertEquals(List<SampledResponseTime> sampledResponseTimeList, ResponseTimeChartGroup responseTimeChartGroup) {
-        Map<AgentStatChartGroup.ChartType, Chart> charts = responseTimeChartGroup.getCharts();
+    private void assertEquals(List<SampledResponseTime> sampledResponseTimeList, StatChartGroup responseTimeChartGroup) {
+        Map<StatChartGroup.ChartType, Chart> charts = responseTimeChartGroup.getCharts();
 
-        Chart avgChart = charts.get(ResponseTimeChartGroup.ResponseTimeChartType.AVG);
+        Chart avgChart = charts.get(ResponseTimeChart.ResponseTimeChartGroup.ResponseTimeChartType.AVG);
         List<Point> avgChartPointList = avgChart.getPoints();
 
         for (int i = 0; i < sampledResponseTimeList.size(); i++) {
             SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
-            Point<Long, Long> point = sampledResponseTime.getAvg();
+            Point point = sampledResponseTime.getAvg();
 
             Assert.assertEquals(avgChartPointList.get(i), point);
         }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DeadlockChart;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class DeadlockChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDeadlock> sampledDeadlockList = createSampledResponseTimeList(timeWindow);
-        DeadlockChartGroup deadlockChartGroup = new DeadlockChartGroup(timeWindow, sampledDeadlockList);
+        StatChartGroup deadlockChartGroup = new DeadlockChart.DeadlockChartGroup(timeWindow, sampledDeadlockList);
 
         assertEquals(sampledDeadlockList, deadlockChartGroup);
     }
@@ -80,15 +81,15 @@ public class DeadlockChartGroupTest {
         return sampler.sampleDataPoints(0, timestamp, deadlockBoList, null);
     }
 
-    private void assertEquals(List<SampledDeadlock> sampledDeadlockList, DeadlockChartGroup deadlockChartGroup) {
-        Map<AgentStatChartGroup.ChartType, Chart> charts = deadlockChartGroup.getCharts();
+    private void assertEquals(List<SampledDeadlock> sampledDeadlockList, StatChartGroup deadlockChartGroup) {
+        Map<StatChartGroup.ChartType, Chart> charts = deadlockChartGroup.getCharts();
 
-        Chart deadlockCountChart = charts.get(DeadlockChartGroup.DeadlockChartType.DEADLOCK_COUNT);
+        Chart deadlockCountChart = charts.get(DeadlockChart.DeadlockChartGroup.DeadlockChartType.DEADLOCK_COUNT);
         List<Point> deadlockCountChartPointList = deadlockCountChart.getPoints();
 
         for (int i = 0; i < sampledDeadlockList.size(); i++) {
             SampledDeadlock sampledDeadlock = sampledDeadlockList.get(i);
-            Point<Long, Integer> point = sampledDeadlock.getDeadlockedThreadCount();
+            Point point = sampledDeadlock.getDeadlockedThreadCount();
 
             Assert.assertEquals(deadlockCountChartPointList.get(i), point);
         }

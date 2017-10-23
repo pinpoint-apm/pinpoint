@@ -16,11 +16,10 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.web.dao.ApplicationActiveTraceDao;
-import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationActiveTraceChartGroup;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationStatChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationActiveTraceChart;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,9 +35,8 @@ public class ApplicationActiveTraceService implements ApplicationStatChartServic
     @Autowired
     private ApplicationActiveTraceDao applicationActiveTraceDao;
 
-
     @Override
-    public ApplicationStatChartGroup selectApplicationChart(String applicationId, TimeWindow timeWindow) {
+    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
             throw new NullPointerException("applicationId must not be null");
         }
@@ -46,6 +44,6 @@ public class ApplicationActiveTraceService implements ApplicationStatChartServic
             throw new NullPointerException("timeWindow must not be null");
         }
         List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList = this.applicationActiveTraceDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationActiveTraceChartGroup(timeWindow, aggreJoinActiveTraceBoList);
+        return new ApplicationActiveTraceChart(timeWindow, aggreJoinActiveTraceBoList);
     }
 }

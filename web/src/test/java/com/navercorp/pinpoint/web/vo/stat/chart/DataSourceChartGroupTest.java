@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +67,7 @@ public class DataSourceChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = createSampledDataSourceList(timeWindow);
-        DataSourceChartGroup dataSourceChartGroup = new DataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
+        StatChartGroup dataSourceChartGroup = new DataSourceChart.DataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
 
         assertEquals(sampledDataSourceList, dataSourceChartGroup);
     }
@@ -77,12 +78,12 @@ public class DataSourceChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = Collections.emptyList();
-        DataSourceChartGroup dataSourceChartGroup = new DataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
+        DataSourceChart dataSourceChartGroup = new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
 
         Assert.assertEquals(-1, dataSourceChartGroup.getId());
         Assert.assertEquals(null, dataSourceChartGroup.getJdbcUrl());
         Assert.assertEquals(null, dataSourceChartGroup.getDatabaseName());
-        Assert.assertEquals(null, dataSourceChartGroup.getServiceTypeName());
+        Assert.assertEquals(null, dataSourceChartGroup.getServiceType());
     }
 
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {
@@ -106,24 +107,24 @@ public class DataSourceChartGroupTest {
         return sampler.sampleDataPoints(0, timestamp, dataSourceBoList, null);
     }
 
-    private void assertEquals(List<SampledDataSource> sampledDataSourceList, DataSourceChartGroup dataSourceChartGroup) {
-        Map<AgentStatChartGroup.ChartType, Chart> charts = dataSourceChartGroup.getCharts();
+    private void assertEquals(List<SampledDataSource> sampledDataSourceList, StatChartGroup dataSourceChartGroup) {
+        Map<StatChartGroup.ChartType, Chart> charts = dataSourceChartGroup.getCharts();
 
-        Chart activeConnectionSizeChart = charts.get(DataSourceChartGroup.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
+        Chart activeConnectionSizeChart = charts.get(DataSourceChart.DataSourceChartGroup.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
         List<Point> activeConnectionSizeChartPointList = activeConnectionSizeChart.getPoints();
 
         for (int i = 0; i < sampledDataSourceList.size(); i++) {
             SampledDataSource sampledDataSource = sampledDataSourceList.get(i);
-            Point<Long, Integer> point = sampledDataSource.getActiveConnectionSize();
+            Point point = sampledDataSource.getActiveConnectionSize();
 
             Assert.assertEquals(activeConnectionSizeChartPointList.get(i), point);
         }
 
-        Chart maxConnectionSizeChart = charts.get(DataSourceChartGroup.DataSourceChartType.MAX_CONNECTION_SIZE);
+        Chart maxConnectionSizeChart = charts.get(DataSourceChart.DataSourceChartGroup.DataSourceChartType.MAX_CONNECTION_SIZE);
         List<Point> maxConnectionSizeChartPointList = maxConnectionSizeChart.getPoints();
         for (int i = 0; i < sampledDataSourceList.size(); i++) {
             SampledDataSource sampledDataSource = sampledDataSourceList.get(i);
-            Point<Long, Integer> point = sampledDataSource.getMaxConnectionSize();
+            Point point = sampledDataSource.getMaxConnectionSize();
 
             Assert.assertEquals(maxConnectionSizeChartPointList.get(i), point);
         }

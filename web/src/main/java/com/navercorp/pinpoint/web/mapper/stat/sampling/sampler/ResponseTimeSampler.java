@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ import java.util.List;
 @Component
 public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, SampledResponseTime> {
 
-    public static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(ResponseTimeBo.UNCOLLECTED_VALUE);
+    private static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(SampledResponseTime.UNCOLLECTED_RESPONSE_TIME);
 
     @Override
     public SampledResponseTime sampleDataPoints(int timeWindowIndex, long timestamp, List<ResponseTimeBo> dataPoints, ResponseTimeBo previousDataPoint) {
@@ -47,11 +46,11 @@ public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, Sam
         return sampledResponseTime;
     }
 
-    private Point<Long, Long> createPoint(long timestamp, List<Long> values) {
+    private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, ResponseTimeBo.UNCOLLECTED_VALUE);
+            return SampledResponseTime.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp);
         } else {
-            return new Point<>(
+            return new AgentStatPoint<>(
                     timestamp,
                     LONG_DOWN_SAMPLER.sampleMin(values),
                     LONG_DOWN_SAMPLER.sampleMax(values),

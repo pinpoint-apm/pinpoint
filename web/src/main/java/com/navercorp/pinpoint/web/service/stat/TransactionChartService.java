@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.service.stat;
 import com.navercorp.pinpoint.web.dao.stat.SampledTransactionDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
-import com.navercorp.pinpoint.web.vo.stat.chart.AgentStatChartGroup;
-import com.navercorp.pinpoint.web.vo.stat.chart.TransactionChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.TransactionChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class TransactionChartService implements AgentStatChartService {
     }
 
     @Override
-    public AgentStatChartGroup selectAgentChart(String agentId, TimeWindow timeWindow) {
+    public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -50,15 +50,15 @@ public class TransactionChartService implements AgentStatChartService {
             throw new NullPointerException("timeWindow must not be null");
         }
         List<SampledTransaction> sampledTransactions = this.sampledTransactionDao.getSampledAgentStatList(agentId, timeWindow);
-        return new TransactionChartGroup(timeWindow, sampledTransactions);
+        return new TransactionChart(timeWindow, sampledTransactions);
     }
 
     @Override
-    public List<AgentStatChartGroup> selectAgentChartList(String agentId, TimeWindow timeWindow) {
-        AgentStatChartGroup agentStatChartGroup = selectAgentChart(agentId, timeWindow);
+    public List<StatChart> selectAgentChartList(String agentId, TimeWindow timeWindow) {
+        StatChart agentStatChart = selectAgentChart(agentId, timeWindow);
 
-        List<AgentStatChartGroup> result = new ArrayList<>(1);
-        result.add(agentStatChartGroup);
+        List<StatChart> result = new ArrayList<>(1);
+        result.add(agentStatChart);
 
         return result;
     }
