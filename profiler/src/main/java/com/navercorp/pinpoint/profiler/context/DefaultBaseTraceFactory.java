@@ -104,10 +104,6 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     }
 
 
-    @Override
-    public Trace continueTraceObject(Trace trace) {
-        return trace;
-    }
 
 
     @Override
