@@ -12,7 +12,7 @@ public interface SpanRecorder extends FrameAttachment {
 
     void recordStartTime(long startTime);
 
-    void recordTime(boolean time);
+    void recordTime(boolean autoTimeRecoding);
 
     void recordError();
 

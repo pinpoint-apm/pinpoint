@@ -138,10 +138,10 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
     
     @Override
-    public void recordTime(boolean time) {
-        span.setTimeRecording(time);
-        if (time) {
-            if(!span.isSetStartTime()) {
+    public void recordTime(boolean autoTimeRecoding) {
+        span.setTimeRecording(autoTimeRecoding);
+        if (autoTimeRecoding) {
+            if (!span.isSetStartTime()) {
                 span.markBeforeTime();
             }
         } else {
