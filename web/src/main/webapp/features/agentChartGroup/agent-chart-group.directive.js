@@ -14,8 +14,8 @@
 	    POINTS_AVG: 3
 	});
 	
-	pinpointApp.directive("agentChartGroupDirective", [ "agentChartGroupConfig", "$timeout", "AgentAjaxService", "CPULoadChartDaoService", "MemoryChartDaoService", "AgentDaoService", "AnalyticsService",
-	    function (cfg, $timeout, AgentAjaxService, CPULoadChartDaoService, MemoryChartDaoService, AgentDaoService, AnalyticsService) {
+	pinpointApp.directive("agentChartGroupDirective", [ "agentChartGroupConfig", "$timeout", "AgentAjaxService", "CPULoadChartDaoService", "MemoryChartDaoService", "AnalyticsService",
+	    function (cfg, $timeout, AgentAjaxService, CPULoadChartDaoService, MemoryChartDaoService, AnalyticsService) {
 	    return {
 	        restrict: "EA",
 	        replace: true,

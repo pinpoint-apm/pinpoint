@@ -61,14 +61,16 @@
 							if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
 								try {
 									oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
-									return;
 								} catch(e) {}
+								return;
 							}
 						} else {
-							try {
-								oChart.chartCursor.showCursorAt(category);
+							if ( angular.isString(category) ) {
+								try {
+									oChart.chartCursor.showCursorAt(category);
+								} catch(e) {}
 								return;
-							} catch(e) {}
+							}
 						}
 						oChart.chartCursor.hideCursor();
 					}
