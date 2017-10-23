@@ -140,7 +140,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
         final boolean samplingEnable = true;
-        final SpanRecorder spanRecorder = newAsyncChildSpanRecorder(traceRoot, samplingEnable);
+        final SpanRecorder spanRecorder = recorderFactory.newTraceRootSpanRecorder(traceRoot, samplingEnable);
 
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder();
 
@@ -149,13 +149,13 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         return asyncTrace;
     }
 
-    private SpanRecorder newAsyncChildSpanRecorder(TraceRoot traceRoot, boolean samplingEnable) {
-        // TODO implement SpanRecorder based on TraceRoot
-        // remove span allocation
-        final Span span = spanFactory.newSpan(traceRoot);
-        final TraceId traceId = traceRoot.getTraceId();
-        return recorderFactory.newSpanRecorder(span, traceId.isRoot(), samplingEnable);
-    }
+//    private SpanRecorder newAsyncChildSpanRecorder(TraceRoot traceRoot, boolean samplingEnable) {
+//        // TODO implement SpanRecorder based on TraceRoot
+//        // remove span allocation
+//        final Span span = spanFactory.newSpan(traceRoot);
+//        final TraceId traceId = traceRoot.getTraceId();
+//        return recorderFactory.newSpanRecorder(span, traceId.isRoot(), samplingEnable);
+//    }
 
     // entry point async trace.
     @InterfaceAudience.LimitedPrivate("vert.x")

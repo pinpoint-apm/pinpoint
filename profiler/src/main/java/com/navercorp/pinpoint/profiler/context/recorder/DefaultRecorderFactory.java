@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -45,6 +46,11 @@ public class DefaultRecorderFactory implements RecorderFactory {
     @Override
     public SpanRecorder newSpanRecorder(Span span, boolean isRoot, boolean sampling) {
         return new DefaultSpanRecorder(span, isRoot, sampling, stringMetaDataService, sqlMetaDataService);
+    }
+
+    @Override
+    public SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling) {
+        return new TraceRootSpanRecorder(traceRoot, sampling);
     }
 
     @Override
