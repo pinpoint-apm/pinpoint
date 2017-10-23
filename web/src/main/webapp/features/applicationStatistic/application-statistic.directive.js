@@ -51,35 +51,9 @@
 							applicationId: UrlVoService.getApplicationName()
 						};
 						if ( oParam.from > 0 && oParam.to > 0 ) {
-							AgentAjaxService.getStatCpuLoad( oParam, function(chartData) {
-								if ( angular.isUndefined(chartData.exception) ) {
-									scope.$broadcast("statisticChartDirective.initAndRenderWithData.jvm", makeChartData({
-										title: "JVM Cpu Usage",
-										fixMax: true,
-										appendUnit: "%",
-										defaultMax: 100,
-										yAxisTitle: "Cpu Usage (%)",
-										labelFunc: function(value) {
-											return value + "%";
-										}
-									}, chartData.charts["CPU_LOAD_JVM"]), "100%", "270px");
-									scope.$broadcast("statisticChartDirective.initAndRenderWithData.system", makeChartData({
-										title: "System Cpu Usage",
-										fixMax: true,
-										appendUnit: "%",
-										defaultMax: 100,
-										yAxisTitle: "Cpu Usage (%)",
-										labelFunc: function(value) {
-											return value + "%";
-										}
-									}, chartData.charts["CPU_LOAD_SYSTEM"]), "100%", "270px");
-								} else {
-									console.log("error");
-								}
-							});
 							AgentAjaxService.getStatMemory( oParam, function(chartData) {
 								if ( angular.isUndefined(chartData.exception) ) {
-									scope.$broadcast("statisticChartDirective.initAndRenderWithData.heap", makeChartData({
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-heap", makeChartData({
 										title: "Memory Heap",
 										fixMax: false,
 										defaultMax: 100000,
@@ -88,7 +62,7 @@
 											return convertWithUnits(value, ["", "K", "M", "G"]);
 										}
 									}, chartData.charts["MEMORY_HEAP"]), "100%", "270px");
-									scope.$broadcast("statisticChartDirective.initAndRenderWithData.non-heap", makeChartData({
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-non-heap", makeChartData({
 										title: "Memory Non Heap",
 										fixMax: false,
 										defaultMax: 100000,
@@ -101,9 +75,34 @@
 									console.log("error");
 								}
 							});
+							AgentAjaxService.getStatCpuLoad( oParam, function(chartData) {
+								if ( angular.isUndefined(chartData.exception) ) {
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-jvm", makeChartData({
+										title: "JVM Cpu Usage",
+										fixMax: true,
+										appendUnit: "%",
+										defaultMax: 100,
+										yAxisTitle: "Cpu Usage (%)",
+										labelFunc: function(value) {
+											return value + "%";
+										}
+									}, chartData.charts["CPU_LOAD_JVM"]), "100%", "270px");
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-system", makeChartData({
+										title: "System Cpu Usage",
+										fixMax: true,
+										appendUnit: "%",
+										defaultMax: 100,
+										yAxisTitle: "Cpu Usage (%)",
+										labelFunc: function(value) {
+											return value + "%";
+										}
+									}, chartData.charts["CPU_LOAD_SYSTEM"]), "100%", "270px");
+								} else {
+								}
+							});
 							AgentAjaxService.getStatTPS( oParam, function(chartData) {
 								if ( angular.isUndefined(chartData.exception) ) {
-									scope.$broadcast("statisticChartDirective.initAndRenderWithData.tps", makeChartData({
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-tps", makeChartData({
 										title: "Transaction Per Second",
 										fixMax: false,
 										defaultMax: 10,
@@ -118,7 +117,7 @@
 							});
 							AgentAjaxService.getStatActiveThread( oParam, function(chartData) {
 								if ( angular.isUndefined(chartData.exception) ) {
-									scope.$broadcast("statisticChartDirective.initAndRenderWithData.active-thread", makeChartData({
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-active-thread", makeChartData({
 										title: "Active Thread",
 										fixMax: false,
 										defaultMax: 10,
@@ -133,7 +132,7 @@
 							});
 							AgentAjaxService.getStatResponseTime( oParam, function(chartData) {
 								if ( angular.isUndefined(chartData.exception) ) {
-									scope.$broadcast("statisticChartDirective.initAndRenderWithData.response-time", makeChartData({
+									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-response-time", makeChartData({
 										title: "Response Time",
 										fixMax: false,
 										defaultMax: 100,
@@ -149,13 +148,8 @@
 							AgentAjaxService.getStatDataSource( oParam, function(chartData) {
 								if ( angular.isUndefined(chartData.exception) ) {
 									scope.dataSourceData = chartData;
-									if ( chartData.length === 0 ) {
-										bEmptyDataSource = true;
-										scope.$broadcast("statisticChartDirective.hide.data-source");
-									} else {
-										bEmptyDataSource = false;
-										broadcastToDataSource(chartData[scope.dataSourceSelectedIndex].charts["ACTIVE_CONNECTION_SIZE"]);
-									}
+									bEmptyDataSource = false;
+									broadcastToDataSource(chartData[scope.dataSourceSelectedIndex].charts["ACTIVE_CONNECTION_SIZE"]);
 								} else {
 									console.log("error");
 								}
@@ -163,7 +157,7 @@
 						}
 					}
 					function broadcastToDataSource( data ) {
-						scope.$broadcast("statisticChartDirective.initAndRenderWithData.data-source", makeChartData({
+						var oMakeChartData = makeChartData({
 							title: "Data Source",
 							fixMax: false,
 							defaultMax: 10,
@@ -171,7 +165,9 @@
 							labelFunc: function(value, valueStr) {
 								return valueStr;
 							}
-						}, data), "100%", "270px");
+						}, data);
+						bEmptyDataSource = oMakeChartData.empty;
+						scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-data-source", oMakeChartData, "100%", "270px");
 					}
 					function convertWithUnits(value, units) {
 						var result = value;

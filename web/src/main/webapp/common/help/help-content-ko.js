@@ -512,7 +512,7 @@
 			}
 		},
 		inspector: {
-			noDataCollected: "수집된 정보가 없습니다",
+			noDataCollected: "No data collected",
 			list: {
 				mainStyle: "",
 				title: "Agent 리스트",
