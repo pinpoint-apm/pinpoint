@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
@@ -640,13 +641,13 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with asyncId[" + expected.asyncId + "] but was [" + actual.getAsyncId() + "]. expected: " + expected + ", was: " + actual);
         }
 
-        TIntStringValue actualExceptionInfo = actual.getExceptionInfo();
-        if (actualExceptionInfo != null && actualExceptionInfo.isSetIntValue()) {
-            String actualExceptionClassName = getTestTcpDataSender().getString(actualExceptionInfo.getIntValue());
-            String actualExceptionMessage = actualExceptionInfo.getStringValue();
-            verifyException(expected.exception, actualExceptionClassName, actualExceptionMessage);
-        } else {
-            if (expected.exception != null) {
+        if (expected.exception != null) {
+            TIntStringValue actualExceptionInfo = actual.getExceptionInfo();
+            if (actualExceptionInfo != null && actualExceptionInfo.isSetIntValue()) {
+                String actualExceptionClassName = getTestTcpDataSender().getString(actualExceptionInfo.getIntValue());
+                String actualExceptionMessage = actualExceptionInfo.getStringValue();
+                verifyException(expected.exception, actualExceptionClassName, actualExceptionMessage);
+            } else {
                 throw new AssertionError("Expected [" + expected.exception.getClass().getName() + "] but was none");
             }
         }
@@ -690,11 +691,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private void verifyException(Exception expectedException, String actualExceptionClassName, String actualExceptionMessage) {
-        if (expectedException == null) {
-            throw new AssertionError("Expected no exception but was [" + actualExceptionClassName + "]");
-        }
         String expectedExceptionClassName = expectedException.getClass().getName();
-        String expectedExceptionMessage = expectedException.getMessage();
+        String expectedExceptionMessage = StringUtils.abbreviate(expectedException.getMessage(), 256);
         if (!Objects.equal(actualExceptionClassName, expectedExceptionClassName)) {
             throw new AssertionError("Expected [" + expectedExceptionClassName + "] but was [" + actualExceptionClassName + "]");
         }
