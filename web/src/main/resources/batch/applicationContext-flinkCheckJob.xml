@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <job id="flinkCheckJob" xmlns="http://www.springframework.org/schema/batch" >
-        <step id="step1" xmlns="http://www.springframework.org/schema/batch" >
+        <step id="flinkCheckStep" xmlns="http://www.springframework.org/schema/batch" >
             <tasklet ref="healthCheckTasklet"/>
         </step>
         <listeners>
