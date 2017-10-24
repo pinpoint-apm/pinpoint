@@ -60,7 +60,11 @@ public class SendAgentStatService implements AgentStatService {
             }
 
             TFAgentStatBatch tFAgentStatBatch = tFAgentStatBatchMapper.map(agentStatBo);
-            logger.info("send to flinkserver : " + tFAgentStatBatch);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("send to flinkserver : {}", tFAgentStatBatch);
+            }
+
             tcpDataSender.send(tFAgentStatBatch);
         } catch (Exception e) {
             logger.error("Error sending to flink server. Caused:{}", e.getMessage(), e);
