@@ -215,7 +215,7 @@
 					scope.selectTime = -1;
 					var timeSlider = null;
 					function initTimeSliderUI( sliderTimeSeriesOption ) {
-						if ( sliderTimeSeriesOption === undefined || sliderTimeSeriesOption === null ) {
+						if ( angular.isUndefined( sliderTimeSeriesOption ) || sliderTimeSeriesOption === null ) {
 							var aSelectionFromTo = [];
 							aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
 							aSelectionFromTo[1] = UrlVoService.getQueryEndTime();

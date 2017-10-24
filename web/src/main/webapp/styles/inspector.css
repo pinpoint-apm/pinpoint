@@ -252,6 +252,12 @@
     margin-bottom: -1px;
     background-color: #FF0;
 }
+.inspector-container .loading {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    height: 100%;
+}
 .inspector-container .slider > span {
     float: left;
     font-size: 12px;
@@ -427,7 +433,9 @@
     color: #FFF;
 }
 .data-source-detail tr.selected td:last-child > div:first-child {
-    text-decoration: underline;
+    font-style: italic;
+    word-wrap: break-word;
+    word-break: break-all;
 }
 .data-source-detail > table > tbody > tr:nth-child(odd) {
     background-color: #f7fcff;
