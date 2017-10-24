@@ -3,38 +3,47 @@
 	angular.module("pinpointApp").directive("statisticChartDirective", [ "helpContentService",
 		function (helpContentService) {
 			return {
-				template: '<div style="width:100%;height:270px"><div></div></div>',
+				template: "<div style='width:100%;height:270px'><div class='chart'></div><div class='loading'><i class='xi-spinner-3 xi-spin xi-3x'></i></div><div class='no-data'><span></span></div></div>",
 				replace: true,
-				restrict: 'E',
+				restrict: "E",
 				scope: {
-					namespace: '@' // string value
+					namespace: "@" // string value
 				},
 				link: function postLink(scope, element, attrs) {
 					var sId = "", oChart;
 					var currentChartData;
+					var elChart;
 					var elNoData;
+					var elLoading;
 					var noDataCollected = helpContentService.inspector.noDataCollected;
+					elChart = element.find("div.chart");
+					elLoading = element.find("div.loading");
+					elNoData = element.find("div.no-data").hide();
+					elNoData.find("span").html( noDataCollected );
 
 					function setIdAutomatically() {
 						sId = "multipleValueAxesId-" + scope.namespace;
-						element.find("div").attr("id", sId);
+						elChart.attr("id", sId);
 					}
 
 					function hasId() {
 						return sId === "" ? false : true;
 					}
 					function setWidthHeight(w, h) {
-						if (w) element.find("#" + sId).css("width", w);
-						if (h) element.find("#" + sId).css("height", h);
+						if (w) elChart.css("width", w);
+						if (h) elChart.css("height", h);
 					}
 
 					function renderUpdate() {
 						oChart.dataProvider = currentChartData.data;
 						if ( currentChartData.empty || currentChartData.fixMax ) {
 							setYMax( oChart );
+						} else {
+							removeYMax( oChart );
 						}
 						oChart.validateData();
 						elNoData[currentChartData["empty"] ? "show" : "hide"]();
+						elLoading.hide();
 					}
 
 					function render() {
@@ -135,16 +144,17 @@
 							setYMax( options );
 						}
 						oChart = AmCharts.makeChart(sId, options);
-
-						addNoDataElement();
 						elNoData[currentChartData["empty"] ? "show" : "hide"]();
-					}
-					function addNoDataElement() {
-						elNoData = element.append('<div class="no-data"><span>' + noDataCollected + '</span></div>').find(".no-data").hide();
+						elLoading.hide();
 					}
 					function setYMax( oTarget ) {
 						for( var i = 0 ; i < oTarget["valueAxes"].length ; i++ ) {
 							oTarget["valueAxes"][i].maximum = currentChartData["defaultMax"];
+						}
+					}
+					function removeYMax( oTarget ) {
+						for( var i = 0 ; i < oTarget["valueAxes"].length ; i++ ) {
+							delete oTarget["valueAxes"][i].maximum;
 						}
 					}
 					function showCursorAt(category) {
@@ -158,7 +168,6 @@
 						}
 						oChart.chartCursor.hideCursor();
 					}
-
 					function resize() {
 						if (oChart) {
 							oChart.validateNow();
@@ -166,6 +175,7 @@
 						}
 					}
 					scope.$on("statisticChartDirective.initAndRenderWithData." + scope.namespace, function (event, chartData, w, h) {
+						elLoading.show();
 						currentChartData = chartData;
 						if ( hasId() ) {
 							renderUpdate();
@@ -179,9 +189,6 @@
 						if ( currentChartData && currentChartData.empty === false && scope.namespace !== namespace ) {
 							showCursorAt(category);
 						}
-					});
-					scope.$on("statisticChartDirective.hide", function () {
-						console.log( "hide statistic chart" );
 					});
 					scope.$on("statisticChartDirective.resize." + scope.namespace, function (event) {
 						resize();
