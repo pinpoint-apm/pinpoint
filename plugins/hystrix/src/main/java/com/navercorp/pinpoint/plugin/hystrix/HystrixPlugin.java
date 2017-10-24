@@ -76,7 +76,7 @@ public class HystrixPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
                 InstrumentMethod getFallbackObservable = target.getDeclaredMethod("getFallbackObservable");
                 if (getFallbackObservable != null) {
-                    getExecutionObservable.addScopedInterceptor(BasicMethodInterceptor.class.getName(), va(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE), HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_SCOPE, ExecutionPolicy.ALWAYS);
+                    getFallbackObservable.addScopedInterceptor(BasicMethodInterceptor.class.getName(), va(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE), HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_SCOPE, ExecutionPolicy.ALWAYS);
                 }
                 // pre 1.4.0
                 InstrumentMethod getFallbackOrThrowException = target.getDeclaredMethod(
@@ -105,7 +105,7 @@ public class HystrixPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
                 InstrumentMethod getFallbackObservable = target.getDeclaredMethod("getFallbackObservable");
                 if (getFallbackObservable != null) {
-                    getExecutionObservable.addScopedInterceptor(BasicMethodInterceptor.class.getName(), va(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE), HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_SCOPE, ExecutionPolicy.ALWAYS);
+                    getFallbackObservable.addScopedInterceptor(BasicMethodInterceptor.class.getName(), va(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE), HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_SCOPE, ExecutionPolicy.ALWAYS);
                 }
                 return target.toBytecode();
             }

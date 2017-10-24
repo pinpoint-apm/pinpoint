@@ -85,6 +85,8 @@ public class HystrixCommand_1_5_3_to_1_5_x_IT {
         verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", getExecutionObservable));
         Method helloMethod = HelloRepository.class.getDeclaredMethod("hello", String.class);
         verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), helloMethod));
+
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -117,6 +119,9 @@ public class HystrixCommand_1_5_3_to_1_5_x_IT {
                 "HYSTRIX_COMMAND_INTERNAL",
                 "com.netflix.hystrix.AbstractCommand.getFallbackOrThrowException(com.netflix.hystrix.AbstractCommand, com.netflix.hystrix.HystrixEventType, com.netflix.hystrix.exception.HystrixRuntimeException$FailureType, java.lang.String, java.lang.Exception)",
                 fallbackCauseAnnotation, exceptionAnnotation));
+        verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", "com.netflix.hystrix.HystrixCommand.getFallbackObservable()"));
+
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -143,6 +148,7 @@ public class HystrixCommand_1_5_3_to_1_5_x_IT {
                 "HYSTRIX_COMMAND_INTERNAL",
                 "com.netflix.hystrix.AbstractCommand.getFallbackOrThrowException(com.netflix.hystrix.AbstractCommand, com.netflix.hystrix.HystrixEventType, com.netflix.hystrix.exception.HystrixRuntimeException$FailureType, java.lang.String, java.lang.Exception)",
                 fallbackCauseAnnotation, exceptionAnnotation));
+        verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", "com.netflix.hystrix.HystrixCommand.getFallbackObservable()"));
 
         // execution
         verifier.verifyTrace(event(ServiceType.ASYNC.getName(), "Asynchronous Invocation"));
@@ -150,6 +156,8 @@ public class HystrixCommand_1_5_3_to_1_5_x_IT {
         verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", getExecutionObservable));
         Method helloMethod = HelloRepository.class.getDeclaredMethod("hello", String.class, long.class);
         verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), helloMethod, HystrixTestHelper.INTERRUPTED_EXCEPTION_DUE_TO_TIMEOUT));
+
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -172,6 +180,9 @@ public class HystrixCommand_1_5_3_to_1_5_x_IT {
                 "HYSTRIX_COMMAND_INTERNAL",
                 "com.netflix.hystrix.AbstractCommand.getFallbackOrThrowException(com.netflix.hystrix.AbstractCommand, com.netflix.hystrix.HystrixEventType, com.netflix.hystrix.exception.HystrixRuntimeException$FailureType, java.lang.String, java.lang.Exception)",
                 fallbackCauseAnnotation, exceptionAnnotation));
+        verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", "com.netflix.hystrix.HystrixCommand.getFallbackObservable()"));
+
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -194,6 +205,8 @@ public class HystrixCommand_1_5_3_to_1_5_x_IT {
         verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", getExecutionObservable));
         Method helloMethod = HelloRepository.class.getDeclaredMethod("hello", String.class);
         verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), helloMethod));
+
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -216,5 +229,7 @@ public class HystrixCommand_1_5_3_to_1_5_x_IT {
         verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", getExecutionObservable));
         Method helloMethod = HelloRepository.class.getDeclaredMethod("hello", String.class);
         verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), helloMethod));
+
+        verifier.verifyTraceCount(0);
     }
 }
