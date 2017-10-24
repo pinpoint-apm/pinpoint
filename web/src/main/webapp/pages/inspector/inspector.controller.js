@@ -22,6 +22,7 @@
 
 			UrlVoService.initUrlVo( "inspector", $routeParams );
 			$scope.$on( "up.changed.application", function ( event, invokerId, newAppName ) {
+				$scope.selectedAgent = false;
 				UrlVoService.setApplication( newAppName );
 				UrlVoService.setAgentId( "" );
 				$timeout(function() {

@@ -23,9 +23,6 @@
 					scope.showConfig = function() {
 						$rootScope.$broadcast("configuration.open");
 					};
-					$timeout(function() {
-						scope.$broadcast( "period-selector.initialize", cfg.ID );
-					});
 				}
 			};
 		}

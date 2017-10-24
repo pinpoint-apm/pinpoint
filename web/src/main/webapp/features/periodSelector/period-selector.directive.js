@@ -259,9 +259,7 @@
 					scope.isNotRangePeriod = function() {
 						return scope.periodType !== oPeriodType.RANGE;
 					};
-					scope.$on( "period-selector.initialize", function() {
-						initialize();
-					});
+					initialize();
 				}
 			};
 		}

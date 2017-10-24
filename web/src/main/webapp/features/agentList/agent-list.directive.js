@@ -48,7 +48,7 @@
 								if ( bApplicationChange ) {
 									// scope.$emit( "up.changed.agent", cfg.ID, { agentId: "" }, true );
 									scope.currentAgent = null;
-									scope.$emit( "up.select.application", cfg.ID );
+									// scope.$emit( "up.select.application", cfg.ID );
 								} else {
 									scope.currentAgent = findAgentByAgentId(UrlVoService.getAgentId());
 									if ( scope.currentAgent === null ) {
