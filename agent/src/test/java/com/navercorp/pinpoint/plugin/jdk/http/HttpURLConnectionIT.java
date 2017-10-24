@@ -99,19 +99,20 @@ public class HttpURLConnectionIT {
     
     @Test
     public void testConnecting() throws Exception {
+        Exception expected = null;
         URL url = new URL("http://no.such.url");
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         
         try {
             connection.connect();
         } catch (UnknownHostException e) {
-            // ignore
+            expected = e;
         }
         
         try {
             connection.connect();
         } catch (UnknownHostException e) {
-            // ignore
+            expected = e;
         }
         
         Field field = null;
@@ -129,11 +130,11 @@ public class HttpURLConnectionIT {
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("connect");
         
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
         
         if (field == null) {
             // JDK 6, 7
-            verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
+            verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
         }
         
         verifier.verifyTraceCount(0);
