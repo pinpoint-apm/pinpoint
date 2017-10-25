@@ -49,8 +49,8 @@ public class MemoryDao {
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinMemoryBoList, StatType statType) {
-        if (logger.isInfoEnabled()) {
-            logger.info("[insert] {} : ({})", new Date(timestamp), joinMemoryBoList);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[insert] {} : ({})", new Date(timestamp), joinMemoryBoList);
         }
         List<Put> memoryPuts = applicationStatHbaseOperationFactory.createPuts(id, joinMemoryBoList, statType, memorySerializer);
         if (!memoryPuts.isEmpty()) {

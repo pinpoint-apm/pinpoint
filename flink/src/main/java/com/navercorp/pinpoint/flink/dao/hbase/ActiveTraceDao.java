@@ -49,8 +49,8 @@ public class ActiveTraceDao {
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinActiveTraceBoList, StatType statType) {
-        if (logger.isInfoEnabled()) {
-            logger.info("[insert] {} : ({})", new Date(timestamp), joinActiveTraceBoList);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[insert] {} : ({})", new Date(timestamp), joinActiveTraceBoList);
         }
         List<Put> activeTracePuts = applicationStatHbaseOperationFactory.createPuts(id, joinActiveTraceBoList, statType, activeTraceSerializer);
         if (!activeTracePuts.isEmpty()) {
