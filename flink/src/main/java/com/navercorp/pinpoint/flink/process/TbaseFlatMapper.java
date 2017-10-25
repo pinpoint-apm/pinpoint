@@ -56,8 +56,8 @@ public class TbaseFlatMapper extends RichFlatMapFunction<TBase, Tuple3<String, J
     @Override
     public void flatMap(TBase tBase, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
         if (tBase instanceof TFAgentStatBatch) {
-            if (logger.isInfoEnabled()) {
-                logger.info("raw data : {}", tBase);
+            if (logger.isDebugEnabled()) {
+                logger.debug("raw data : {}", tBase);
             }
             final TFAgentStatBatch tFAgentStatBatch = (TFAgentStatBatch) tBase;
             final JoinAgentStatBo joinAgentStatBo;

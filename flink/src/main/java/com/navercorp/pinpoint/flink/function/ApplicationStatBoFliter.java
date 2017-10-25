@@ -33,9 +33,6 @@ public class ApplicationStatBoFliter implements FilterFunction<Tuple3<String, Jo
     @Override
     public boolean filter(Tuple3<String, JoinStatBo, Long> value) throws Exception {
         if (value.f1 instanceof JoinApplicationStatBo) {
-            if (logger.isInfoEnabled()) {
-                logger.info("1-1 ({}) {}", new Date(value.f1.getTimestamp()), value.f1.toString());
-            }
             return true;
         }
 

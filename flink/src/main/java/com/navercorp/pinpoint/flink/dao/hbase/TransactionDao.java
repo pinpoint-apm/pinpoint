@@ -50,8 +50,8 @@ public class TransactionDao {
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinTransactionBoList, StatType statType) {
-        if (logger.isInfoEnabled()) {
-            logger.info("[insert] {} : ({})", new Date(timestamp), joinTransactionBoList);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[insert] {} : ({})", new Date(timestamp), joinTransactionBoList);
         }
         List<Put> transactionPuts = applicationStatHbaseOperationFactory.createPuts(id, joinTransactionBoList, statType, transactionSerializer);
         if (!transactionPuts.isEmpty()) {
