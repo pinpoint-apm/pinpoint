@@ -69,8 +69,8 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     public void writeRecord(Tuple3<String, JoinStatBo, Long> statData) throws IOException {
         JoinStatBo joinStatBo = (JoinStatBo)statData.f1;
         if (joinStatBo instanceof JoinAgentStatBo) {
-            if (logger.isInfoEnabled()) {
-                logger.info("JoinAgentStatBo insert data : {}", joinStatBo);
+            if (logger.isDebugEnabled()) {
+                logger.debug("JoinAgentStatBo insert data : {}", joinStatBo);
             }
 
             insertJoinAgentStatBo((JoinAgentStatBo)joinStatBo);

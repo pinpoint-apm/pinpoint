@@ -49,8 +49,8 @@ public class CpuLoadDao {
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinCpuLoadBoList, StatType statType) {
-        if (logger.isInfoEnabled()) {
-            logger.info("[insert] {} : ({})", new Date(timestamp), joinCpuLoadBoList);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[insert] {} : ({})", new Date(timestamp), joinCpuLoadBoList);
         }
         List<Put> cpuLoadPuts = applicationStatHbaseOperationFactory.createPuts(id, joinCpuLoadBoList, statType, cpuLoadSerializer);
         if (!cpuLoadPuts.isEmpty()) {

@@ -49,8 +49,8 @@ public class DataSourceDao {
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinResponseTimeBoList, StatType statType) {
-        if (logger.isInfoEnabled()) {
-            logger.info("[insert] {} : ({})", new Date(timestamp), joinResponseTimeBoList);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[insert] {} : ({})", new Date(timestamp), joinResponseTimeBoList);
         }
         List<Put> responseTimePuts = applicationStatHbaseOperationFactory.createPuts(id, joinResponseTimeBoList, statType, dataSourceSerializer);
         if (!responseTimePuts.isEmpty()) {

@@ -44,20 +44,20 @@ public class ApplicationStatBoWindow implements WindowFunction<Tuple3<String, Jo
             JoinApplicationStatBo joinApplicationStatBo = join(values);
             long delayTime = new Date().getTime() - joinApplicationStatBo.getTimestamp();
             if (delayTime > 35000) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("[join][delay3] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("[join][delay3] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
                 }
             } else if (delayTime > 25000) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("[join][delay2] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("[join][delay2] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
                 }
             } else if (delayTime > 15000) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("[join][delay1] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("[join][delay1] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
                 }
             } else {
-                if (logger.isInfoEnabled()) {
-                    logger.info("[join][non] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("[join][non] {} : {}", new Date(joinApplicationStatBo.getTimestamp()), joinApplicationStatBo);
                 }
             }
 
