@@ -145,7 +145,7 @@ public class DisableTrace implements Trace {
 
     @Override
     public SpanEventRecorder currentSpanEventRecorder() {
-        return null;
+       return null;
     }
 
     @Override

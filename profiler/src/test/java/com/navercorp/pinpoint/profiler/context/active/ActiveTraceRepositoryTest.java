@@ -26,11 +26,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.context.MockApplicationContext;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
+import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,21 +58,29 @@ public class ActiveTraceRepositoryTest {
     private TransactionCounter transactionCounter;
     private ActiveTraceRepository activeTraceRepository;
 
+    private MockApplicationContext applicationContext;
+
     @Before
     public void setUp() {
 
-
-        final ProfilerConfig profilerConfig = Mockito.mock(ProfilerConfig.class);
+        ProfilerConfig profilerConfig = Mockito.spy(new DefaultProfilerConfig());
         Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
 
         Mockito.when(profilerConfig.isSamplingEnable()).thenReturn(true);
         Mockito.when(profilerConfig.getSamplingRate()).thenReturn(SAMPLING_RATE);
 
-        MockTraceContextFactory mockTraceContextFactory = MockTraceContextFactory.newTestTraceContextFactory(profilerConfig);
+        this.applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
 
-        this.traceContext = mockTraceContextFactory.getTraceContext();
-        this.transactionCounter = new DefaultTransactionCounter(mockTraceContextFactory.getIdGenerator());
-        this.activeTraceRepository = mockTraceContextFactory.getActiveTraceRepository();
+        this.traceContext = applicationContext.getTraceContext();
+        this.transactionCounter = new DefaultTransactionCounter(applicationContext.getInjector().getInstance(IdGenerator.class));
+        this.activeTraceRepository = applicationContext.getInjector().getInstance(ActiveTraceRepository.class);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (applicationContext != null) {
+            applicationContext.close();
+        }
     }
 
     @Test

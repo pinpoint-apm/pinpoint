@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
@@ -81,17 +82,15 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final Injector injector;
 
-
     public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {
-        if (agentOption == null) {
-            throw new NullPointerException("agentOption must not be null");
-        }
-        if (interceptorRegistryBinder == null) {
-            throw new NullPointerException("interceptorRegistryBinder must not be null");
-        }
+        this(agentOption, interceptorRegistryBinder, new ApplicationContextModuleFactory());
+    }
 
-        this.agentOption = agentOption;
-        this.profilerConfig = agentOption.getProfilerConfig();
+    public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder, ModuleFactory moduleFactory) {
+        this.agentOption = Assert.requireNonNull(agentOption, "agentOption must not be null");
+        this.profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
+        Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
+
         this.instrumentation = agentOption.getInstrumentation();
         this.serviceTypeRegistryService = agentOption.getServiceTypeRegistryService();
 
@@ -99,7 +98,7 @@ public class DefaultApplicationContext implements ApplicationContext {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
 
-        final Module applicationContextModule = newApplicationContextModule(agentOption, interceptorRegistryBinder);
+        final Module applicationContextModule = moduleFactory.newModule(agentOption, interceptorRegistryBinder);
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
         this.instrumentEngine = injector.getInstance(InstrumentEngine.class);
@@ -146,7 +145,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-        return new ApplicationContextModule(agentOption, profilerConfig, serviceTypeRegistryService, interceptorRegistryBinder);
+        return new ApplicationContextModule(agentOption, interceptorRegistryBinder);
     }
 
     private DataSender newUdpStatDataSender() {

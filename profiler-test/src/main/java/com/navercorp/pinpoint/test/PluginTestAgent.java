@@ -37,7 +37,9 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
 import com.google.common.base.Objects;
@@ -92,17 +94,17 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
         this.pluginApplicationContextModule = new PluginApplicationContextModule();
 
-        ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, interceptorRegistryBinder) {
-
+        final ModuleFactory moduleFactory = new ModuleFactory() {
             @Override
-            protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-                Module applicationContextModule = super.newApplicationContextModule(agentOption, interceptorRegistryBinder);
+            public Module newModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
 
-                return Modules.override(applicationContextModule).with(pluginApplicationContextModule);
+                Module module = new ApplicationContextModule(agentOption, interceptorRegistryBinder);
+
+                return Modules.override(module).with(pluginApplicationContextModule);
             }
         };
 
-
+        ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, interceptorRegistryBinder, moduleFactory);
         return applicationContext;
 
     }
