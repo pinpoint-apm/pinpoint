@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.test.MockApplicationContext;
+import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import javassist.bytecode.Descriptor;
@@ -209,7 +210,9 @@ public class JavassistClassTest {
 
         DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
-        MockApplicationContext applicationContext = MockApplicationContext.of(profilerConfig);
+
+        MockApplicationContextFactory factory = new MockApplicationContextFactory();
+        MockApplicationContext applicationContext = factory.of(profilerConfig);
 
         TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         testClassLoader.initialize();

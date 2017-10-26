@@ -27,8 +27,9 @@ import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,26 +49,7 @@ public class MockApplicationContextModuleTest {
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
 
-        final PluginApplicationContextModule pluginApplicationContextModule = new PluginApplicationContextModule();
-        PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption) {
-            @Override
-            protected ApplicationContext newApplicationContext(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-
-
-                ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, interceptorRegistryBinder) {
-
-                    @Override
-                    protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-                        Module applicationContextModule = super.newApplicationContextModule(agentOption, interceptorRegistryBinder);
-//                        PluginApplicationContextModule pluginApplicationContextModule = new PluginApplicationContextModule();
-                        return Modules.override(applicationContextModule).with(pluginApplicationContextModule);
-                    }
-                };
-
-
-                return applicationContext;
-            }
-        };
+        PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
         try {
             pluginTestAgent.start();
         } finally {
@@ -82,15 +64,19 @@ public class MockApplicationContextModuleTest {
         AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
-        DefaultApplicationContext applicationContext = new DefaultApplicationContext(agentOption, binder) {
-            @Override
-            protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-                Module module = super.newApplicationContextModule(agentOption, interceptorRegistryBinder);
-                PluginApplicationContextModule pluginApplicationContextModule = new PluginApplicationContextModule();
 
-                return Modules.override(module).with(pluginApplicationContextModule);
+        ModuleFactory moduleFactory = new ModuleFactory() {
+            @Override
+            public Module newModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+
+                Module module = new ApplicationContextModule(agentOption, interceptorRegistryBinder);
+                Module pluginModule = new PluginApplicationContextModule();
+
+                return Modules.override(module).with(pluginModule);
             }
         };
+
+        DefaultApplicationContext applicationContext = new DefaultApplicationContext(agentOption, binder, moduleFactory);
 
         Injector injector = applicationContext.getInjector();
         // singleton check
