@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test.junit4;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.classloader.TestClassLoaderFactory;
 import org.junit.runners.model.TestClass;
@@ -61,7 +62,8 @@ public class TestContext implements Closeable {
 
     private MockApplicationContext createMockApplicationContext() {
         logger.trace("agent create");
-        return MockApplicationContext.of("pinpoint.config");
+        MockApplicationContextFactory factory = new MockApplicationContextFactory();
+        return factory.of("pinpoint.config");
     }
 
     public ClassLoader getClassLoader() {

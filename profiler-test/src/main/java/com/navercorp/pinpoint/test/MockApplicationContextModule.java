@@ -45,7 +45,6 @@ public class MockApplicationContextModule extends AbstractModule {
     public MockApplicationContextModule() {
     }
 
-    private ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     @Override
     protected void configure() {
@@ -93,7 +92,6 @@ public class MockApplicationContextModule extends AbstractModule {
     private ServerMetaDataRegistryService newServerMetaDataRegistryService() {
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
         ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(vmArgs);
-        this.serverMetaDataRegistryService = serverMetaDataRegistryService;
         return serverMetaDataRegistryService;
     }
 

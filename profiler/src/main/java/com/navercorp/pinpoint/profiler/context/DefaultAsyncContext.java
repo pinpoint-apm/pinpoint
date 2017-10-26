@@ -108,7 +108,7 @@ public class DefaultAsyncContext implements AsyncContext {
     }
 
     private void bind(Reference<Trace> reference, Trace asyncTrace) {
-        Assert.state(reference.get() == null, "traceReference is not null");
+        Assert.state(reference.get() == null, "traceReference is  null");
 
         reference.set(asyncTrace);
     }

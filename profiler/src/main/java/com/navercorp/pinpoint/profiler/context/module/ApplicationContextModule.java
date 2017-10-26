@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
@@ -176,14 +177,10 @@ public class ApplicationContextModule extends AbstractModule {
     private final AgentOption agentOption;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
-    public ApplicationContextModule(AgentOption agentOption, ProfilerConfig profilerConfig,
-                                    ServiceTypeRegistryService serviceTypeRegistryService, InterceptorRegistryBinder interceptorRegistryBinder) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        this.agentOption = agentOption;
-        this.profilerConfig = profilerConfig;
-        this.serviceTypeRegistryService = serviceTypeRegistryService;
+    public ApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+        this.agentOption = Assert.requireNonNull(agentOption, "agentOption must not be null");
+        this.profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "agentOption.getProfilerConfig() must not be null");
+        this.serviceTypeRegistryService = Assert.requireNonNull(agentOption.getServiceTypeRegistryService(), "agentOption.getServiceTypeRegistryService() must not be null");
         this.interceptorRegistryBinder = interceptorRegistryBinder;
     }
 

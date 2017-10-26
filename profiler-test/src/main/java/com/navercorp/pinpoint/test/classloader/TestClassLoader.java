@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.inject.Injector;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
@@ -59,7 +60,6 @@ public class TestClassLoader extends TransformClassLoader {
         Assert.requireNonNull(applicationContext, "applicationContext must not be null");
 
         this.applicationContext = applicationContext;
-
         this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
 
 //        ClassInjector classInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
