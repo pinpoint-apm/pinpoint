@@ -25,7 +25,7 @@ httpd.conf
 ~~~
 <IfModule mod_jk.c>
 ...
-RequestHeader set Pinpoint-ProxyApache "%t %D %i %b app=foo-bar"
+RequestHeader set Pinpoint-ProxyApache "%t %D %i %b"
 ...
 </IfModule>
 ~~~
@@ -51,7 +51,7 @@ nginx.conf
 
         location / {
             ...
-            set $pinpoint_proxy_header "t=$msec D=$request_time app=foo-bar";
+            set $pinpoint_proxy_header "t=$msec D=$request_time";
             proxy_set_header Pinpoint-ProxyNginx $pinpoint_proxy_header;
         }
   }
