@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
-import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
 import org.junit.Assert;
@@ -71,15 +71,16 @@ public class ActiveTraceBoMapperTest extends ThriftBoMapperTestBase<TActiveTrace
 
         List<Integer> activeTraceCountList = original.getHistogram().getActiveTraceCount();
         for (int i = 0; i < activeTraceCountList.size(); i++) {
-            Integer activeTraceCount = activeTraceCountList.get(i);
+            int activeTraceCount = activeTraceCountList.get(i);
+            final ActiveTraceHistogram activeTraceHistogram = mappedStatDataPoint.getActiveTraceHistogram();
             if (i == 0) {
-                Assert.assertEquals("FAST", activeTraceCount, mappedStatDataPoint.getActiveTraceCounts().get(SlotType.FAST));
+                Assert.assertEquals("FAST", activeTraceCount, activeTraceHistogram.getFastCount());
             } else if (i == 1) {
-                Assert.assertEquals("NORMAL", activeTraceCount, mappedStatDataPoint.getActiveTraceCounts().get(SlotType.NORMAL));
+                Assert.assertEquals("NORMAL", activeTraceCount, activeTraceHistogram.getNormalCount());
             } else if (i == 2) {
-                Assert.assertEquals("SLOW", activeTraceCount, mappedStatDataPoint.getActiveTraceCounts().get(SlotType.SLOW));
+                Assert.assertEquals("SLOW", activeTraceCount, activeTraceHistogram.getSlowCount());
             } else if (i == 3) {
-                Assert.assertEquals("VERY_SLOW", activeTraceCount, mappedStatDataPoint.getActiveTraceCounts().get(SlotType.VERY_SLOW));
+                Assert.assertEquals("VERY_SLOW", activeTraceCount, activeTraceHistogram.getVerySlowCount());
             } else {
                 Assert.fail();
             }

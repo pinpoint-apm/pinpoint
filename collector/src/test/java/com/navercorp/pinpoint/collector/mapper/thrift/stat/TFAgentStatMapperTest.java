@@ -17,16 +17,12 @@
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeCodec;
 import com.navercorp.pinpoint.common.server.bo.stat.*;
-import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.thrift.dto.flink.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -325,12 +321,8 @@ public class TFAgentStatMapperTest {
         activeTraceBo1.setTimestamp(collectTime1st);
         activeTraceBo1.setVersion((short) 1);
         activeTraceBo1.setHistogramSchemaType(2);
-        Map<SlotType, Integer> activeTraceCountMap1 = new HashMap<>();
-        activeTraceCountMap1.put(SlotType.FAST, 30);
-        activeTraceCountMap1.put(SlotType.NORMAL, 40);
-        activeTraceCountMap1.put(SlotType.SLOW, 10);
-        activeTraceCountMap1.put(SlotType.VERY_SLOW, 50);
-        activeTraceBo1.setActiveTraceCounts(activeTraceCountMap1);
+        ActiveTraceHistogram activeTraceHistogram1 = new ActiveTraceHistogram(30, 40, 10, 50);
+        activeTraceBo1.setActiveTraceHistogram(activeTraceHistogram1);
         activeTraceBoList.add(activeTraceBo1);
 
         ActiveTraceBo activeTraceBo2 = new ActiveTraceBo();
@@ -339,12 +331,9 @@ public class TFAgentStatMapperTest {
         activeTraceBo2.setTimestamp(collectTime2nd);
         activeTraceBo2.setVersion((short) 1);
         activeTraceBo2.setHistogramSchemaType(2);
-        Map<SlotType, Integer> activeTraceCountMap2 = new HashMap<>();
-        activeTraceCountMap2.put(SlotType.FAST, 31);
-        activeTraceCountMap2.put(SlotType.NORMAL, 41);
-        activeTraceCountMap2.put(SlotType.SLOW, 11);
-        activeTraceCountMap2.put(SlotType.VERY_SLOW, 51);
-        activeTraceBo2.setActiveTraceCounts(activeTraceCountMap2);
+
+        ActiveTraceHistogram activeTraceHistogram2 = new ActiveTraceHistogram(31, 41, 11, 51);
+        activeTraceBo2.setActiveTraceHistogram(activeTraceHistogram2);
         activeTraceBoList.add(activeTraceBo2);
 
         return activeTraceBoList;

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.event;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
@@ -42,14 +43,17 @@ public class AgentEventBatchMapper implements ThriftBoMapper<List<AgentEventBo>,
         if (tAgentStatBatch == null) {
             return Collections.emptyList();
         }
+        final List<TAgentStat> agentStats = tAgentStatBatch.getAgentStats();
+        if (CollectionUtils.isEmpty(agentStats)) {
+            return Collections.emptyList();
+        }
 
         final String agentId = tAgentStatBatch.getAgentId();
         final long startTimestamp = tAgentStatBatch.getStartTimestamp();
 
-        int agentStatsSize = tAgentStatBatch.getAgentStatsSize();
-        List<AgentEventBo> agentEventBoList = new ArrayList<>(agentStatsSize);
+        List<AgentEventBo> agentEventBoList = new ArrayList<>(agentStats.size());
 
-        for (TAgentStat tAgentStat : tAgentStatBatch.getAgentStats()) {
+        for (TAgentStat tAgentStat : agentStats) {
             final long timestamp = tAgentStat.getTimestamp();
             if (tAgentStat.isSetDeadlock()) {
                 TDeadlock deadlock = tAgentStat.getDeadlock();

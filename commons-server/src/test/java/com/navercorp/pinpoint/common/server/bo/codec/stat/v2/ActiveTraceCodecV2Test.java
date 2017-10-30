@@ -58,14 +58,6 @@ public class ActiveTraceCodecV2Test extends AgentStatCodecTestBase<ActiveTraceBo
         Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
         Assert.assertEquals("version", expected.getVersion(), actual.getVersion());
         Assert.assertEquals("histogramSchemaType", expected.getHistogramSchemaType(), actual.getHistogramSchemaType());
-        if (CollectionUtils.isEmpty(expected.getActiveTraceCounts())) {
-            for (Map.Entry<SlotType, Integer> e : actual.getActiveTraceCounts().entrySet()) {
-                SlotType slotType = e.getKey();
-                int activeTraceCount = e.getValue();
-                Assert.assertEquals("activeTraceCount [" + slotType + "]", ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT, activeTraceCount);
-            }
-        } else {
-            Assert.assertEquals("activeTraceCounts", expected.getActiveTraceCounts(), actual.getActiveTraceCounts());
-        }
+        Assert.assertEquals("activeTraceCounts", expected.getActiveTraceHistogram(), actual.getActiveTraceHistogram());
     }
 }

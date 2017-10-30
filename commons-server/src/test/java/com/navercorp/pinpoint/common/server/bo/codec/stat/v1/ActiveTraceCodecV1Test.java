@@ -20,16 +20,14 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import com.navercorp.pinpoint.common.trace.SlotType;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * @author HyunGil Jeong
@@ -57,14 +55,6 @@ public class ActiveTraceCodecV1Test extends AgentStatCodecTestBase<ActiveTraceBo
         Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
         Assert.assertEquals("version", expected.getVersion(), actual.getVersion());
         Assert.assertEquals("histogramSchemaType", expected.getHistogramSchemaType(), actual.getHistogramSchemaType());
-        if (CollectionUtils.isEmpty(expected.getActiveTraceCounts())) {
-            for (Map.Entry<SlotType, Integer> e : actual.getActiveTraceCounts().entrySet()) {
-                SlotType slotType = e.getKey();
-                int activeTraceCount = e.getValue();
-                Assert.assertEquals("activeTraceCount [" + slotType + "]", ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT, activeTraceCount);
-            }
-        } else {
-            Assert.assertEquals("activeTraceCounts", expected.getActiveTraceCounts(), actual.getActiveTraceCounts());
-        }
+        Assert.assertEquals("activeTraceHistogram", expected.getActiveTraceHistogram(), actual.getActiveTraceHistogram());
     }
 }
