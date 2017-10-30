@@ -23,8 +23,8 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 public class ActiveTraceHistogram {
 
     private static final int UNCOLLECTED_COUNT = ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT;
-    public static ActiveTraceHistogram UNCOLLECTED = new ActiveTraceHistogram(UNCOLLECTED_COUNT, UNCOLLECTED_COUNT, UNCOLLECTED_COUNT, UNCOLLECTED_COUNT);
-    public static ActiveTraceHistogram EMPTY = new ActiveTraceHistogram(0, 0, 0, 0);
+    public static final ActiveTraceHistogram UNCOLLECTED = new ActiveTraceHistogram(UNCOLLECTED_COUNT, UNCOLLECTED_COUNT, UNCOLLECTED_COUNT, UNCOLLECTED_COUNT);
+    public static final ActiveTraceHistogram EMPTY = new ActiveTraceHistogram(0, 0, 0, 0);
 
     private final int fastCount;
     private final int normalCount;
