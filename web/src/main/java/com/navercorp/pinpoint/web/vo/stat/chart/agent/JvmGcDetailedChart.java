@@ -49,7 +49,7 @@ public class JvmGcDetailedChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private final Map<ChartType, Chart> jvmGcDetailedCharts;
+        private final Map<ChartType, Chart<? extends Point>> jvmGcDetailedCharts;
 
         public enum JvmGcDetailedChartType implements AgentChartType {
             JVM_DETAILED_GC_NEW_COUNT,
@@ -65,14 +65,14 @@ public class JvmGcDetailedChart implements StatChart {
         public JvmGcDetailedChartGroup(TimeWindow timeWindow, List<SampledJvmGcDetailed> sampledJvmGcDetailedList) {
             this.timeWindow = timeWindow;
             this.jvmGcDetailedCharts = new HashMap<>();
-            List<Point> gcNewCounts = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<Point> gcNewTimes = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<Point> codeCacheUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<Point> newGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<Point> oldGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<Point> survivorSpaceUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<Point> permGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<Point> metaspaceUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
+            List<AgentStatPoint<Long>> gcNewCounts = new ArrayList<>(sampledJvmGcDetailedList.size());
+            List<AgentStatPoint<Long>> gcNewTimes = new ArrayList<>(sampledJvmGcDetailedList.size());
+            List<AgentStatPoint<Double>> codeCacheUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
+            List<AgentStatPoint<Double>> newGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
+            List<AgentStatPoint<Double>> oldGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
+            List<AgentStatPoint<Double>> survivorSpaceUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
+            List<AgentStatPoint<Double>> permGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
+            List<AgentStatPoint<Double>> metaspaceUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
             for (SampledJvmGcDetailed sampledJvmGcDetailed : sampledJvmGcDetailedList) {
                 gcNewCounts.add(sampledJvmGcDetailed.getGcNewCount());
                 gcNewTimes.add(sampledJvmGcDetailed.getGcNewTime());
@@ -83,8 +83,8 @@ public class JvmGcDetailedChart implements StatChart {
                 permGenUseds.add(sampledJvmGcDetailed.getPermGenUsed());
                 metaspaceUseds.add(sampledJvmGcDetailed.getMetaspaceUsed());
             }
-            TimeSeriesChartBuilder valueChartBuilder = new TimeSeriesChartBuilder(this.timeWindow, SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATER);
-            TimeSeriesChartBuilder percentageChartBuilder = new TimeSeriesChartBuilder(this.timeWindow, SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR);
+            TimeSeriesChartBuilder<AgentStatPoint<Long>> valueChartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATER);
+            TimeSeriesChartBuilder<AgentStatPoint<Double>> percentageChartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR);
             this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_COUNT, valueChartBuilder.build(gcNewCounts));
             this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_TIME, valueChartBuilder.build(gcNewTimes));
             this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_CODE_CACHE_USED, percentageChartBuilder.build(codeCacheUseds));
@@ -101,7 +101,7 @@ public class JvmGcDetailedChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return jvmGcDetailedCharts;
         }
     }

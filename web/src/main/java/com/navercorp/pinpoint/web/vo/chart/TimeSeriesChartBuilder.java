@@ -27,12 +27,12 @@ import java.util.List;
  * @author HyunGil Jeong
  * @author minwoo.jung
  */
-public class TimeSeriesChartBuilder {
+public class TimeSeriesChartBuilder<P extends Point> {
 
     private final TimeWindow timeWindow;
-    private final Point.UncollectedPointCreater<?> uncollectedPointCreater;
+    private final Point.UncollectedPointCreater<P> uncollectedPointCreater;
 
-    public TimeSeriesChartBuilder(TimeWindow timeWindow, Point.UncollectedPointCreater<?> uncollectedPointCreator) {
+    public TimeSeriesChartBuilder(TimeWindow timeWindow, Point.UncollectedPointCreater<P> uncollectedPointCreator) {
         if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("range yields too many timeslots");
         }
@@ -43,24 +43,24 @@ public class TimeSeriesChartBuilder {
         this.uncollectedPointCreater = uncollectedPointCreator;
     }
 
-    public Chart build(List<Point> sampledPoints) {
+    public Chart<P> build(List<P> sampledPoints) {
         if (CollectionUtils.isEmpty(sampledPoints)) {
-            return new Chart(Collections.emptyList());
+            return new Chart<>(Collections.emptyList());
         }
-        List<Point> points = createInitialPoints();
-        for (Point sampledPoint : sampledPoints) {
+        List<P> points = createInitialPoints();
+        for (P sampledPoint : sampledPoints) {
             int timeslotIndex = this.timeWindow.getWindowIndex(sampledPoint.getxVal());
             if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
                 continue;
             }
             points.set(timeslotIndex, sampledPoint);
         }
-        return new Chart(points);
+        return new Chart<>(points);
     }
 
-    private List<Point> createInitialPoints() {
+    private List<P> createInitialPoints() {
         int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
-        List<Point> points = new ArrayList<>(numTimeslots);
+        List<P> points = new ArrayList<>(numTimeslots);
         for (long timestamp : this.timeWindow) {
             points.add(uncollectedPointCreater.createUnCollectedPoint(timestamp));
         }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
+import com.navercorp.pinpoint.web.vo.chart.Point;
 
 import java.util.Map;
 
@@ -56,5 +57,5 @@ public interface StatChartGroup {
 
     TimeWindow getTimeWindow();
 
-    Map<ChartType, Chart> getCharts();
+    Map<ChartType, Chart<? extends Point>> getCharts();
 }

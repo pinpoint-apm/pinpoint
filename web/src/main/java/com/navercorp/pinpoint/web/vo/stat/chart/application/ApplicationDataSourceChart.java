@@ -44,6 +44,14 @@ public class ApplicationDataSourceChart implements StatChart {
         return applicationDataSourceChartGroup;
     }
 
+    public String getServiceType() {
+        return applicationDataSourceChartGroup.getServiceTypeCodeName();
+    }
+
+    public String getJdbcUrl() {
+        return applicationDataSourceChartGroup.getJdbcUrl();
+    }
+
     public static class ApplicationDataSourceChartGroup implements StatChartGroup {
 
         private static final DataSourcePoint.UncollectedDataSourcePointCreater UNCOLLECTED_DATASOURCE_POINT = new DataSourcePoint.UncollectedDataSourcePointCreater();
@@ -51,7 +59,7 @@ public class ApplicationDataSourceChart implements StatChart {
         private final TimeWindow timeWindow;
         private final String url;
         private final String serviceTypeCodeName;
-        private final Map<ChartType, Chart> dataSourceChartMap;
+        private final Map<ChartType, Chart<? extends Point>> dataSourceChartMap;
 
         public enum DataSourceChartType implements ApplicationChartType {
             ACTIVE_CONNECTION_SIZE
@@ -62,12 +70,12 @@ public class ApplicationDataSourceChart implements StatChart {
             this.url = url;
             this.serviceTypeCodeName = serviceTypeCodeName;
             this.dataSourceChartMap = new HashMap<>();
-            List<Point> activeConnectionCountList = new ArrayList<>(aggreJoinDataSourceBoList.size());
+            List<DataSourcePoint> activeConnectionCountList = new ArrayList<>(aggreJoinDataSourceBoList.size());
 
             for (AggreJoinDataSourceBo aggreJoinDataSourceBo : aggreJoinDataSourceBoList) {
                 activeConnectionCountList.add(new DataSourcePoint(aggreJoinDataSourceBo.getTimestamp(), aggreJoinDataSourceBo.getMinActiveConnectionSize(), aggreJoinDataSourceBo.getMinActiveConnectionAgentId(), aggreJoinDataSourceBo.getMaxActiveConnectionSize(), aggreJoinDataSourceBo.getMaxActiveConnectionAgentId(), aggreJoinDataSourceBo.getAvgActiveConnectionSize()));
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, UNCOLLECTED_DATASOURCE_POINT);
+            TimeSeriesChartBuilder<DataSourcePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_DATASOURCE_POINT);
             dataSourceChartMap.put(DataSourceChartType.ACTIVE_CONNECTION_SIZE, chartBuilder.build(activeConnectionCountList));
         }
 
@@ -85,7 +93,7 @@ public class ApplicationDataSourceChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return dataSourceChartMap;
         }
     }

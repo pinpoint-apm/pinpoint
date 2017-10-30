@@ -56,7 +56,7 @@ public class JvmGcChart implements StatChart {
 
         private final String type;
 
-        private final Map<ChartType, Chart> jvmGcCharts;
+        private final Map<ChartType, Chart<? extends Point>> jvmGcCharts;
 
         public enum JvmGcChartType implements AgentChartType {
             JVM_MEMORY_HEAP_USED,
@@ -71,12 +71,12 @@ public class JvmGcChart implements StatChart {
             this.timeWindow = timeWindow;
             this.jvmGcCharts = new HashMap<>();
             JvmGcType jvmGcType = JvmGcType.UNKNOWN;
-            List<Point> heapUseds = new ArrayList<>(sampledJvmGcs.size());
-            List<Point> heapMaxes = new ArrayList<>(sampledJvmGcs.size());
-            List<Point> nonHeapUseds = new ArrayList<>(sampledJvmGcs.size());
-            List<Point> nonHeapMaxes = new ArrayList<>(sampledJvmGcs.size());
-            List<Point> gcOldCounts = new ArrayList<>(sampledJvmGcs.size());
-            List<Point> gcOldTimes = new ArrayList<>(sampledJvmGcs.size());
+            List<AgentStatPoint<Long>> heapUseds = new ArrayList<>(sampledJvmGcs.size());
+            List<AgentStatPoint<Long>> heapMaxes = new ArrayList<>(sampledJvmGcs.size());
+            List<AgentStatPoint<Long>> nonHeapUseds = new ArrayList<>(sampledJvmGcs.size());
+            List<AgentStatPoint<Long>> nonHeapMaxes = new ArrayList<>(sampledJvmGcs.size());
+            List<AgentStatPoint<Long>> gcOldCounts = new ArrayList<>(sampledJvmGcs.size());
+            List<AgentStatPoint<Long>> gcOldTimes = new ArrayList<>(sampledJvmGcs.size());
             for (SampledJvmGc sampledJvmGc : sampledJvmGcs) {
                 heapUseds.add(sampledJvmGc.getHeapUsed());
                 heapMaxes.add(sampledJvmGc.getHeapMax());
@@ -86,7 +86,7 @@ public class JvmGcChart implements StatChart {
                 gcOldTimes.add(sampledJvmGc.getGcOldTime());
                 jvmGcType = sampledJvmGc.getJvmGcType();
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, SampledJvmGc.UNCOLLECTED_POINT_CREATER);
+            TimeSeriesChartBuilder<AgentStatPoint<Long>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledJvmGc.UNCOLLECTED_POINT_CREATER);
             jvmGcCharts.put(JvmGcChartType.JVM_MEMORY_HEAP_USED, chartBuilder.build(heapUseds));
             jvmGcCharts.put(JvmGcChartType.JVM_MEMORY_HEAP_MAX, chartBuilder.build(heapMaxes));
             jvmGcCharts.put(JvmGcChartType.JVM_MEMORY_NON_HEAP_USED, chartBuilder.build(nonHeapUseds));
@@ -102,7 +102,7 @@ public class JvmGcChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return jvmGcCharts;
         }
 

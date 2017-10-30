@@ -49,7 +49,7 @@ public class DeadlockChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private final Map<ChartType, Chart> deadlockCharts;
+        private final Map<ChartType, Chart<? extends Point>> deadlockCharts;
 
         public enum DeadlockChartType implements AgentChartType {
             DEADLOCK_COUNT
@@ -59,11 +59,11 @@ public class DeadlockChart implements StatChart {
             this.timeWindow = timeWindow;
             this.deadlockCharts = new HashMap<>();
 
-            List<Point> deadlockCountList = new ArrayList<>(sampledDeadlockList.size());
+            List<AgentStatPoint<Integer>> deadlockCountList = new ArrayList<>(sampledDeadlockList.size());
             for (SampledDeadlock sampledDeadlock : sampledDeadlockList) {
                 deadlockCountList.add(sampledDeadlock.getDeadlockedThreadCount());
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, SampledDeadlock.UNCOLLECTED_POINT_CREATER);
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledDeadlock.UNCOLLECTED_POINT_CREATER);
             deadlockCharts.put(DeadlockChartType.DEADLOCK_COUNT, chartBuilder.build(deadlockCountList));
         }
 
@@ -73,7 +73,7 @@ public class DeadlockChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return this.deadlockCharts;
         }
     }

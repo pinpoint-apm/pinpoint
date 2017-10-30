@@ -49,7 +49,7 @@ public class ApplicationCpuLoadChart implements StatChart {
         private static final CpuLoadPoint.UncollectedCpuLoadPointCreater UNCOLLECTED_CPULOAD_POINT = new CpuLoadPoint.UncollectedCpuLoadPointCreater();
 
         private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart> cpuLoadChartMap;
+        private final Map<ChartType, Chart<? extends Point>> cpuLoadChartMap;
 
         public enum CpuLoadChartType implements ApplicationChartType {
             CPU_LOAD_JVM,
@@ -59,14 +59,14 @@ public class ApplicationCpuLoadChart implements StatChart {
         public ApplicationCpuLoadChartGroup(TimeWindow timeWindow, List<AggreJoinCpuLoadBo> aggreCpuLoadList) {
             this.timeWindow = timeWindow;
             cpuLoadChartMap = new HashMap<>();
-            List<Point> jvmCpuLoadList = new ArrayList<>(aggreCpuLoadList.size());
-            List<Point> systemCpuLoadList = new ArrayList<>(aggreCpuLoadList.size());
+            List<CpuLoadPoint> jvmCpuLoadList = new ArrayList<>(aggreCpuLoadList.size());
+            List<CpuLoadPoint> systemCpuLoadList = new ArrayList<>(aggreCpuLoadList.size());
 
             for (AggreJoinCpuLoadBo aggreJoinCpuLoadBo : aggreCpuLoadList) {
                 jvmCpuLoadList.add(new CpuLoadPoint(aggreJoinCpuLoadBo.getTimestamp(), aggreJoinCpuLoadBo.getMinJvmCpuLoad(), aggreJoinCpuLoadBo.getMinJvmCpuAgentId(), aggreJoinCpuLoadBo.getMaxJvmCpuLoad(), aggreJoinCpuLoadBo.getMaxJvmCpuAgentId(), aggreJoinCpuLoadBo.getJvmCpuLoad()));
                 systemCpuLoadList.add(new CpuLoadPoint(aggreJoinCpuLoadBo.getTimestamp(), aggreJoinCpuLoadBo.getMinSystemCpuLoad(), aggreJoinCpuLoadBo.getMinSysCpuAgentId(), aggreJoinCpuLoadBo.getMaxSystemCpuLoad(), aggreJoinCpuLoadBo.getMaxSysCpuAgentId(), aggreJoinCpuLoadBo.getSystemCpuLoad()));
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, UNCOLLECTED_CPULOAD_POINT);
+            TimeSeriesChartBuilder<CpuLoadPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_CPULOAD_POINT);
             cpuLoadChartMap.put(CpuLoadChartType.CPU_LOAD_JVM, chartBuilder.build(jvmCpuLoadList));
             cpuLoadChartMap.put(CpuLoadChartType.CPU_LOAD_SYSTEM, chartBuilder.build(systemCpuLoadList));
         }
@@ -77,7 +77,7 @@ public class ApplicationCpuLoadChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return this.cpuLoadChartMap;
         }
     }

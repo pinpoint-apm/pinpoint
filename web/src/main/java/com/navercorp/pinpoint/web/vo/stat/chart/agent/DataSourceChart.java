@@ -67,7 +67,7 @@ public class DataSourceChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private final Map<ChartType, Chart> dataSourceCharts;
+        private final Map<ChartType, Chart<? extends Point>> dataSourceCharts;
 
         private final int id;
         private final String serviceTypeName;
@@ -84,13 +84,13 @@ public class DataSourceChart implements StatChart {
             this.dataSourceCharts = new HashMap<>();
 
             int size = sampledDataSourceList.size();
-            List<Point> activeConnectionSizes = new ArrayList<>(size);
-            List<Point> maxConnectionSizes = new ArrayList<>(size);
+            List<AgentStatPoint<Integer>> activeConnectionSizes = new ArrayList<>(size);
+            List<AgentStatPoint<Integer>> maxConnectionSizes = new ArrayList<>(size);
             for (SampledDataSource sampledDataSource : sampledDataSourceList) {
                 activeConnectionSizes.add(sampledDataSource.getActiveConnectionSize());
                 maxConnectionSizes.add(sampledDataSource.getMaxConnectionSize());
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, SampledDataSource.UNCOLLECTED_POINT_CREATER);
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledDataSource.UNCOLLECTED_POINT_CREATER);
             this.dataSourceCharts.put(DataSourceChartType.ACTIVE_CONNECTION_SIZE, chartBuilder.build(activeConnectionSizes));
             this.dataSourceCharts.put(DataSourceChartType.MAX_CONNECTION_SIZE, chartBuilder.build(maxConnectionSizes));
 
@@ -115,7 +115,7 @@ public class DataSourceChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return dataSourceCharts;
         }
 

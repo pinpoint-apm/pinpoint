@@ -49,7 +49,7 @@ public class ApplicationActiveTraceChart implements StatChart {
 
         private static final ActiveTracePoint.UncollectedActiveTracePointCreater UNCOLLECTED_ACTIVE_TRACE_POINT = new ActiveTracePoint.UncollectedActiveTracePointCreater();
         private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart> activeTraceChartMap;
+        private final Map<ChartType, Chart<? extends Point>> activeTraceChartMap;
 
         public enum ActiveTraceChartType implements ApplicationChartType {
             ACTIVE_TRACE_COUNT
@@ -58,12 +58,12 @@ public class ApplicationActiveTraceChart implements StatChart {
         public ApplicationActiveTraceChartGroup(TimeWindow timeWindow, List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList) {
             this.timeWindow = timeWindow;
             activeTraceChartMap = new HashMap<>();
-            List<Point> activeTraceList = new ArrayList<>(aggreJoinActiveTraceBoList.size());
+            List<ActiveTracePoint> activeTraceList = new ArrayList<>(aggreJoinActiveTraceBoList.size());
 
             for (AggreJoinActiveTraceBo aggreJoinActiveTraceBo : aggreJoinActiveTraceBoList) {
                 activeTraceList.add(new ActiveTracePoint(aggreJoinActiveTraceBo.getTimestamp(), aggreJoinActiveTraceBo.getMinTotalCount(), aggreJoinActiveTraceBo.getMinTotalCountAgentId(), aggreJoinActiveTraceBo.getMaxTotalCount(), aggreJoinActiveTraceBo.getMaxTotalCountAgentId(), aggreJoinActiveTraceBo.getTotalCount()));
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, UNCOLLECTED_ACTIVE_TRACE_POINT);
+            TimeSeriesChartBuilder<ActiveTracePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_ACTIVE_TRACE_POINT);
             activeTraceChartMap.put(ActiveTraceChartType.ACTIVE_TRACE_COUNT, chartBuilder.build(activeTraceList));
         }
 
@@ -73,7 +73,7 @@ public class ApplicationActiveTraceChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return activeTraceChartMap;
         }
     }

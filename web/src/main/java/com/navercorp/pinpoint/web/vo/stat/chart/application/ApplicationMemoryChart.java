@@ -49,7 +49,7 @@ public class ApplicationMemoryChart implements StatChart {
 
         private static final MemoryPoint.UncollectedMemoryPointCreater UNCOLLECTED_MEMORY_POINT = new MemoryPoint.UncollectedMemoryPointCreater();
         private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart> memoryChartMap;
+        private final Map<ChartType, Chart<? extends Point>> memoryChartMap;
 
         public enum MemoryChartType implements ApplicationChartType {
             MEMORY_HEAP,
@@ -59,14 +59,14 @@ public class ApplicationMemoryChart implements StatChart {
         public ApplicationMemoryChartGroup(TimeWindow timeWindow, List<AggreJoinMemoryBo> aggreJoinMemoryBoList) {
             this.timeWindow = timeWindow;
             memoryChartMap = new HashMap<>();
-            List<Point> heapList = new ArrayList<>(aggreJoinMemoryBoList.size());
-            List<Point> nonHeapList = new ArrayList<>(aggreJoinMemoryBoList.size());
+            List<MemoryPoint> heapList = new ArrayList<>(aggreJoinMemoryBoList.size());
+            List<MemoryPoint> nonHeapList = new ArrayList<>(aggreJoinMemoryBoList.size());
 
             for (AggreJoinMemoryBo aggreJoinMemoryBo : aggreJoinMemoryBoList) {
                 heapList.add(new MemoryPoint(aggreJoinMemoryBo.getTimestamp(), aggreJoinMemoryBo.getMinHeapUsed(), aggreJoinMemoryBo.getMinHeapAgentId(), aggreJoinMemoryBo.getMaxHeapUsed(), aggreJoinMemoryBo.getMaxHeapAgentId(), aggreJoinMemoryBo.getHeapUsed()));
                 nonHeapList.add(new MemoryPoint(aggreJoinMemoryBo.getTimestamp(), aggreJoinMemoryBo.getMinNonHeapUsed(), aggreJoinMemoryBo.getMinNonHeapAgentId(), aggreJoinMemoryBo.getMaxNonHeapUsed(), aggreJoinMemoryBo.getMaxNonHeapAgentId(), aggreJoinMemoryBo.getNonHeapUsed()));
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, UNCOLLECTED_MEMORY_POINT);
+            TimeSeriesChartBuilder<MemoryPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_MEMORY_POINT);
             memoryChartMap.put(MemoryChartType.MEMORY_HEAP, chartBuilder.build(heapList));
             memoryChartMap.put(MemoryChartType.MEMORY_NON_HEAP, chartBuilder.build(nonHeapList));
         }
@@ -77,7 +77,7 @@ public class ApplicationMemoryChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return this.memoryChartMap;
         }
     }
