@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.web.vo.chart;
 
 import java.util.List;
 
-public class Chart {
+public class Chart<P extends Point> {
 
-    private final List<Point> points;
+    private final List<P> points;
 
-    Chart(List<Point> points) {
+    Chart(List<P> points) {
         this.points = points;
     }
 
-    public List<Point> getPoints() {
+    public List<P> getPoints() {
         return this.points;
     }
 
@@ -35,7 +35,7 @@ public class Chart {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Chart chart = (Chart) o;
+        Chart<?> chart = (Chart<?>) o;
 
         return points != null ? points.equals(chart.points) : chart.points == null;
     }

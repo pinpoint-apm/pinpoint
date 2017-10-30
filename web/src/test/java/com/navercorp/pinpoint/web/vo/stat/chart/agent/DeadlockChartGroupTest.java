@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DeadlockSampler;
@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.DeadlockChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -82,7 +82,7 @@ public class DeadlockChartGroupTest {
     }
 
     private void assertEquals(List<SampledDeadlock> sampledDeadlockList, StatChartGroup deadlockChartGroup) {
-        Map<StatChartGroup.ChartType, Chart> charts = deadlockChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = deadlockChartGroup.getCharts();
 
         Chart deadlockCountChart = charts.get(DeadlockChart.DeadlockChartGroup.DeadlockChartType.DEADLOCK_COUNT);
         List<Point> deadlockCountChartPointList = deadlockCountChart.getPoints();

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationTransactionChart;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.TransactionPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -58,7 +57,7 @@ public class ApplicationTransactionChartGroupTest {
         aggreJoinTransactionBoList.add(aggreJoinTransactionBo5);
 
         StatChartGroup applicationTransactionChartGroup = new ApplicationTransactionChart.ApplicationTransactionChartGroup(timeWindow, aggreJoinTransactionBoList);
-        Map<StatChartGroup.ChartType, Chart> charts = applicationTransactionChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationTransactionChartGroup.getCharts();
 
         Chart tranCountChart = charts.get(ApplicationTransactionChart.ApplicationTransactionChartGroup.TransactionChartType.TRANSACTION_COUNT);
         List<Point> tranCountPointList = tranCountChart.getPoints();

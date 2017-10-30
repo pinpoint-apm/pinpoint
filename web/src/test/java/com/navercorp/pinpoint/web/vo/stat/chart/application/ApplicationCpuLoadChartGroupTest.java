@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationCpuLoadChart;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.CpuLoadPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class ApplicationCpuLoadChartGroupTest {
         aggreCpuLoadList.add(aggreJoinCpuLoadBo5);
 
         StatChartGroup applicationCpuLoadChartGroup = new ApplicationCpuLoadChart.ApplicationCpuLoadChartGroup(timeWindow, aggreCpuLoadList);
-        Map<StatChartGroup.ChartType, Chart> charts = applicationCpuLoadChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationCpuLoadChartGroup.getCharts();
         assertEquals(2, charts.size());
 
         Chart jvmCpuLodChart = charts.get(ApplicationCpuLoadChart.ApplicationCpuLoadChartGroup.CpuLoadChartType.CPU_LOAD_JVM);

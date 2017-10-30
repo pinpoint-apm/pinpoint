@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,10 +108,10 @@ public class DataSourceChartGroupTest {
     }
 
     private void assertEquals(List<SampledDataSource> sampledDataSourceList, StatChartGroup dataSourceChartGroup) {
-        Map<StatChartGroup.ChartType, Chart> charts = dataSourceChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = dataSourceChartGroup.getCharts();
 
-        Chart activeConnectionSizeChart = charts.get(DataSourceChart.DataSourceChartGroup.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
-        List<Point> activeConnectionSizeChartPointList = activeConnectionSizeChart.getPoints();
+        Chart<? extends Point> activeConnectionSizeChart = charts.get(DataSourceChart.DataSourceChartGroup.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
+        List<? extends Point> activeConnectionSizeChartPointList = activeConnectionSizeChart.getPoints();
 
         for (int i = 0; i < sampledDataSourceList.size(); i++) {
             SampledDataSource sampledDataSource = sampledDataSourceList.get(i);

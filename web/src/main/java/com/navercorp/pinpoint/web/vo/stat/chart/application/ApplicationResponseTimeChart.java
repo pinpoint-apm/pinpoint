@@ -50,7 +50,7 @@ public class ApplicationResponseTimeChart implements StatChart {
         private static final ResponseTimePoint.UncollectedResponseTimePointCreater UNCOLLECTED_RESPONSE_TIME_POINT = new ResponseTimePoint.UncollectedResponseTimePointCreater();
 
         private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart> responseTimeChartMap;
+        private final Map<ChartType, Chart<? extends Point>> responseTimeChartMap;
 
         public enum ResponseTimeChartType implements ApplicationChartType {
             RESPONSE_TIME
@@ -59,12 +59,12 @@ public class ApplicationResponseTimeChart implements StatChart {
         public ApplicationResponseTimeChartGroup(TimeWindow timeWindow, List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList) {
             this.timeWindow = timeWindow;
             responseTimeChartMap = new HashMap<>();
-            List<Point> responseTimeList = new ArrayList<>(aggreJoinResponseTimeBoList.size());
+            List<ResponseTimePoint> responseTimeList = new ArrayList<>(aggreJoinResponseTimeBoList.size());
 
             for (AggreJoinResponseTimeBo aggreJoinResponseTimeBo : aggreJoinResponseTimeBoList) {
                 responseTimeList.add(new ResponseTimePoint(aggreJoinResponseTimeBo.getTimestamp(), aggreJoinResponseTimeBo.getMinAvg(), aggreJoinResponseTimeBo.getMinAvgAgentId(), aggreJoinResponseTimeBo.getMaxAvg(), aggreJoinResponseTimeBo.getMaxAvgAgentId(), aggreJoinResponseTimeBo.getAvg()));
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, UNCOLLECTED_RESPONSE_TIME_POINT);
+            TimeSeriesChartBuilder<ResponseTimePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_RESPONSE_TIME_POINT);
             responseTimeChartMap.put(ResponseTimeChartType.RESPONSE_TIME, chartBuilder.build(responseTimeList));
         }
 
@@ -74,7 +74,7 @@ public class ApplicationResponseTimeChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return responseTimeChartMap;
         }
     }

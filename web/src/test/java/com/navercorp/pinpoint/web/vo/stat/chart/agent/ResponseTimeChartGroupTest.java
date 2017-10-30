@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ResponseTimeSampler;
@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.ResponseTimeChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -85,7 +85,7 @@ public class ResponseTimeChartGroupTest {
     }
 
     private void assertEquals(List<SampledResponseTime> sampledResponseTimeList, StatChartGroup responseTimeChartGroup) {
-        Map<StatChartGroup.ChartType, Chart> charts = responseTimeChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = responseTimeChartGroup.getCharts();
 
         Chart avgChart = charts.get(ResponseTimeChart.ResponseTimeChartGroup.ResponseTimeChartType.AVG);
         List<Point> avgChartPointList = avgChart.getPoints();

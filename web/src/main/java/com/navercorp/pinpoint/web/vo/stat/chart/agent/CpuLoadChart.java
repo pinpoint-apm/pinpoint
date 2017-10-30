@@ -49,7 +49,7 @@ public class CpuLoadChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private Map<ChartType, Chart> cpuLoadCharts;
+        private Map<ChartType, Chart<? extends Point>> cpuLoadCharts;
 
         public enum CpuLoadChartType implements AgentChartType {
             CPU_LOAD_JVM,
@@ -59,13 +59,13 @@ public class CpuLoadChart implements StatChart {
         private CpuLoadChartGroup(TimeWindow timeWindow, List<SampledCpuLoad> sampledCpuLoads) {
             this.timeWindow = timeWindow;
             this.cpuLoadCharts = new HashMap<>();
-            List<Point> jvmCpuLoads = new ArrayList<>(sampledCpuLoads.size());
-            List<Point> systemCpuLoads = new ArrayList<>(sampledCpuLoads.size());
+            List<AgentStatPoint<Double>> jvmCpuLoads = new ArrayList<>(sampledCpuLoads.size());
+            List<AgentStatPoint<Double>> systemCpuLoads = new ArrayList<>(sampledCpuLoads.size());
             for (SampledCpuLoad sampledCpuLoad : sampledCpuLoads) {
                 jvmCpuLoads.add(sampledCpuLoad.getJvmCpuLoad());
                 systemCpuLoads.add(sampledCpuLoad.getSystemCpuLoad());
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, SampledCpuLoad.UNCOLLECTED_POINT_CREATER);
+            TimeSeriesChartBuilder<AgentStatPoint<Double>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledCpuLoad.UNCOLLECTED_POINT_CREATER);
             this.cpuLoadCharts.put(CpuLoadChartType.CPU_LOAD_JVM, chartBuilder.build(jvmCpuLoads));
             this.cpuLoadCharts.put(CpuLoadChartType.CPU_LOAD_SYSTEM, chartBuilder.build(systemCpuLoads));
         }
@@ -76,7 +76,7 @@ public class CpuLoadChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return cpuLoadCharts;
         }
     }
