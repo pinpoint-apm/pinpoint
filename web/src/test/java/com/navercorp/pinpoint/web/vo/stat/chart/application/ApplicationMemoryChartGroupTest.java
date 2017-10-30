@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationMemoryChart;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.MemoryPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class ApplicationMemoryChartGroupTest {
         aggreJoinMemoryList.add(aggreJoinMemoryBo5);
 
         StatChartGroup applicationMemoryChartGroup = new ApplicationMemoryChart.ApplicationMemoryChartGroup(timeWindow, aggreJoinMemoryList);
-        Map<StatChartGroup.ChartType, Chart> charts = applicationMemoryChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationMemoryChartGroup.getCharts();
 
         Chart heapChart = charts.get(ApplicationMemoryChart.ApplicationMemoryChartGroup.MemoryChartType.MEMORY_HEAP);
         List<Point> heapPoints = heapChart.getPoints();

@@ -49,7 +49,7 @@ public class ActiveTraceChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private final Map<ChartType, Chart> activeTraceCharts;
+        private final Map<ChartType, Chart<? extends Point>> activeTraceCharts;
 
         public enum ActiveTraceChartType implements AgentChartType {
             ACTIVE_TRACE_VERY_SLOW,
@@ -68,17 +68,17 @@ public class ActiveTraceChart implements StatChart {
         public ActiveTraceChartGroup(TimeWindow timeWindow, List<SampledActiveTrace> sampledActiveTraces) {
             this.timeWindow = timeWindow;
             this.activeTraceCharts = new HashMap<>();
-            List<Point> fastCounts = new ArrayList<>(sampledActiveTraces.size());
-            List<Point> normalCounts = new ArrayList<>(sampledActiveTraces.size());
-            List<Point> slowCounts = new ArrayList<>(sampledActiveTraces.size());
-            List<Point> verySlowCounts = new ArrayList<>(sampledActiveTraces.size());
+            List<AgentStatPoint<Integer>> fastCounts = new ArrayList<>(sampledActiveTraces.size());
+            List<AgentStatPoint<Integer>> normalCounts = new ArrayList<>(sampledActiveTraces.size());
+            List<AgentStatPoint<Integer>> slowCounts = new ArrayList<>(sampledActiveTraces.size());
+            List<AgentStatPoint<Integer>> verySlowCounts = new ArrayList<>(sampledActiveTraces.size());
             for (SampledActiveTrace sampledActiveTrace : sampledActiveTraces) {
                 fastCounts.add(sampledActiveTrace.getFastCounts());
                 normalCounts.add(sampledActiveTrace.getNormalCounts());
                 slowCounts.add(sampledActiveTrace.getSlowCounts());
                 verySlowCounts.add(sampledActiveTrace.getVerySlowCounts());
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, SampledActiveTrace.UNCOLLECTED_POINT_CREATER);
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledActiveTrace.UNCOLLECTED_POINT_CREATER);
             activeTraceCharts.put(ActiveTraceChartType.ACTIVE_TRACE_FAST, chartBuilder.build(fastCounts));
             activeTraceCharts.put(ActiveTraceChartType.ACTIVE_TRACE_NORMAL, chartBuilder.build(normalCounts));
             activeTraceCharts.put(ActiveTraceChartType.ACTIVE_TRACE_SLOW, chartBuilder.build(slowCounts));
@@ -91,7 +91,7 @@ public class ActiveTraceChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return activeTraceCharts;
         }
     }

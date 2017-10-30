@@ -49,7 +49,7 @@ public class ResponseTimeChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private final Map<ChartType, Chart> responseTimeCharts;
+        private final Map<ChartType, Chart<? extends Point>> responseTimeCharts;
 
         public enum ResponseTimeChartType implements AgentChartType {
             AVG
@@ -58,11 +58,11 @@ public class ResponseTimeChart implements StatChart {
         public ResponseTimeChartGroup(TimeWindow timeWindow, List<SampledResponseTime> sampledResponseTimes) {
             this.timeWindow = timeWindow;
             this.responseTimeCharts = new HashMap<>();
-            List<Point> avg = new ArrayList<>(sampledResponseTimes.size());
+            List<AgentStatPoint<Long>> avg = new ArrayList<>(sampledResponseTimes.size());
             for (SampledResponseTime sampledResponseTime : sampledResponseTimes) {
                 avg.add(sampledResponseTime.getAvg());
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, SampledResponseTime.UNCOLLECTED_POINT_CREATER);
+            TimeSeriesChartBuilder<AgentStatPoint<Long>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledResponseTime.UNCOLLECTED_POINT_CREATER);
             responseTimeCharts.put(ResponseTimeChartType.AVG, chartBuilder.build(avg));
         }
 
@@ -72,7 +72,7 @@ public class ResponseTimeChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return this.responseTimeCharts;
         }
     }

@@ -67,8 +67,9 @@ public class CpuLoadPoint implements Point {
         return this.xVal;
     }
 
-    public static class UncollectedCpuLoadPointCreater implements UncollectedPointCreater {
-        public Point createUnCollectedPoint(long xVal) {
+    public static class UncollectedCpuLoadPointCreater implements UncollectedPointCreater<CpuLoadPoint> {
+        @Override
+        public CpuLoadPoint createUnCollectedPoint(long xVal) {
             return new CpuLoadPoint(xVal, JoinCpuLoadBo.UNCOLLECTED_VALUE, JoinCpuLoadBo.UNKNOWN_AGENT, JoinCpuLoadBo.UNCOLLECTED_VALUE, JoinCpuLoadBo.UNKNOWN_AGENT, JoinCpuLoadBo.UNCOLLECTED_VALUE);
         }
     }

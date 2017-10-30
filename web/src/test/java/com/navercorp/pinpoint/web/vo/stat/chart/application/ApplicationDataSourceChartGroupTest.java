@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationDataSourceChart;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.DataSourcePoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class ApplicationDataSourceChartGroupTest {
         aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo5);
 
         StatChartGroup applicationDataSourceChartGroup = new ApplicationDataSourceChart.ApplicationDataSourceChartGroup(timeWindow, "jdbc:mysql", "dbcp2", aggreJoinDataSourceBoList);
-        Map<StatChartGroup.ChartType, Chart> charts = applicationDataSourceChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationDataSourceChartGroup.getCharts();
         assertEquals(1, charts.size());
 
         Chart dataSourceChart = charts.get(ApplicationDataSourceChart.ApplicationDataSourceChartGroup.DataSourceChartType.ACTIVE_CONNECTION_SIZE);

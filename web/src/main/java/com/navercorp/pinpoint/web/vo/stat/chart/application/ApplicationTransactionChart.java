@@ -52,7 +52,7 @@ public class ApplicationTransactionChart implements StatChart {
         private static final TransactionPoint.UncollectedTransactionPointCreater UNCOLLECTED_TRANSACTION_POINT = new TransactionPoint.UncollectedTransactionPointCreater();
 
         private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart> transactionChartMap;
+        private final Map<ChartType, Chart<? extends Point>> transactionChartMap;
 
         public enum TransactionChartType implements ApplicationChartType {
             TRANSACTION_COUNT
@@ -61,7 +61,7 @@ public class ApplicationTransactionChart implements StatChart {
         public ApplicationTransactionChartGroup(TimeWindow timeWindow, List<AggreJoinTransactionBo> aggreJoinTransactionBoList) {
             this.timeWindow = timeWindow;
             transactionChartMap = new HashMap<>();
-            List<Point> transactionList = new ArrayList<>(aggreJoinTransactionBoList.size());
+            List<TransactionPoint> transactionList = new ArrayList<>(aggreJoinTransactionBoList.size());
 
             for (AggreJoinTransactionBo aggreJoinTransactionBo : aggreJoinTransactionBoList) {
                 double minTotalCount = calculateTPS(aggreJoinTransactionBo.getMinTotalCount(), aggreJoinTransactionBo.getCollectInterval());
@@ -69,7 +69,7 @@ public class ApplicationTransactionChart implements StatChart {
                 double totalCount = calculateTPS(aggreJoinTransactionBo.getTotalCount(), aggreJoinTransactionBo.getCollectInterval());
                 transactionList.add(new TransactionPoint(aggreJoinTransactionBo.getTimestamp(), minTotalCount, aggreJoinTransactionBo.getMinTotalCountAgentId(), maxTotalCount, aggreJoinTransactionBo.getMaxTotalCountAgentId(), totalCount));
             }
-            TimeSeriesChartBuilder chartBuilder = new TimeSeriesChartBuilder(this.timeWindow, UNCOLLECTED_TRANSACTION_POINT);
+            TimeSeriesChartBuilder<TransactionPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_TRANSACTION_POINT);
             transactionChartMap.put(TransactionChartType.TRANSACTION_COUNT, chartBuilder.build(transactionList));
         }
 
@@ -87,7 +87,7 @@ public class ApplicationTransactionChart implements StatChart {
         }
 
         @Override
-        public Map<ChartType, Chart> getCharts() {
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
             return this.transactionChartMap;
         }
     }

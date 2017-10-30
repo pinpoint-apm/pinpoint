@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
+import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class StatChartGroupSerializer extends JsonSerializer<StatChartGroup> {
     @Override
     public void serialize(StatChartGroup statChartGroup, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
-        Map<StatChartGroup.ChartType, Chart> charts = statChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = statChartGroup.getCharts();
         writeSchema(jgen, charts.keySet());
 
         TimeWindow timeWindow = statChartGroup.getTimeWindow();
@@ -67,12 +68,12 @@ public class StatChartGroupSerializer extends JsonSerializer<StatChartGroup> {
         jgen.writeObjectField("x", timestamps);
     }
 
-    private void writeCharts(JsonGenerator jgen, Map<StatChartGroup.ChartType, Chart> charts) throws IOException {
+    private void writeCharts(JsonGenerator jgen, Map<StatChartGroup.ChartType, Chart<? extends Point>> charts) throws IOException {
         jgen.writeFieldName("y");
         jgen.writeStartObject();
-        for (Map.Entry<StatChartGroup.ChartType, Chart> e : charts.entrySet()) {
+        for (Map.Entry<StatChartGroup.ChartType, Chart<? extends Point>> e : charts.entrySet()) {
             StatChartGroup.ChartType chartType = e.getKey();
-            Chart chart = e.getValue();
+            Chart<? extends Point> chart = e.getValue();
             jgen.writeObjectField(chartType.toString(), chart);
         }
         jgen.writeEndObject();

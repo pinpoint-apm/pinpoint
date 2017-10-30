@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.ActiveTracePoint;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationActiveTraceChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -55,10 +54,10 @@ public class ApplicationActiveTraceChartGroupTest {
         aggreJoinActiveTraceBoList.add(aggreJoinActiveTraceBo5);
 
         StatChartGroup applicationActiveTraceChartGroup = new ApplicationActiveTraceChart.ApplicationActiveTraceChartGroup(timeWindow, aggreJoinActiveTraceBoList);
-        Map<StatChartGroup.ChartType, Chart> charts = applicationActiveTraceChartGroup.getCharts();
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationActiveTraceChartGroup.getCharts();
 
-        Chart activeTraceChart = charts.get(ApplicationActiveTraceChart.ApplicationActiveTraceChartGroup.ActiveTraceChartType.ACTIVE_TRACE_COUNT);
-        List<Point> activeTracePointList = activeTraceChart.getPoints();
+        Chart<? extends Point> activeTraceChart = charts.get(ApplicationActiveTraceChart.ApplicationActiveTraceChartGroup.ActiveTraceChartType.ACTIVE_TRACE_COUNT);
+        List<? extends Point> activeTracePointList = activeTraceChart.getPoints();
         assertEquals(5, activeTracePointList.size());
         int index = activeTracePointList.size();
         for (Point point : activeTracePointList) {
