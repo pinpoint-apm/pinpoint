@@ -874,6 +874,9 @@
 	        var foundNode = false;
 	        nodes.forEach(function (node) {
 	            if (node.key === key) {
+		            	if(node.category){
+		            		delete node.category;
+		            	}
 	                foundNode = node;
 	            }
 	        });
