@@ -63,10 +63,8 @@ public final class Application {
         if (thatServiceType == null) {
             throw new NullPointerException("thatServiceType must not be null");
         }
-        if (serviceType != thatServiceType) return false;
         if (!name.equals(thatName)) return false;
-
-        return true;
+        return serviceType.equals(thatServiceType);
     }
 
     @Override
@@ -76,10 +74,8 @@ public final class Application {
 
         Application that = (Application) o;
 
-        if (serviceType != that.serviceType) return false;
         if (!name.equals(that.name)) return false;
-
-        return true;
+        return serviceType.equals(that.serviceType);
     }
 
     @Override
