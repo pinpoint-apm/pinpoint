@@ -51,19 +51,25 @@ public class DataSourceMonitorWrapper implements PluginMonitorWrapper, DataSourc
 
     @Override
     public ServiceType getServiceType() {
-        if (this.serviceType != null) {
-            return this.serviceType;
+        final ServiceType copy = this.serviceType;
+        if (copy != null) {
+            return copy;
         }
 
-        DataSourceMonitor dataSourceMonitor = getInstance();
+        final DataSourceMonitor dataSourceMonitor = getInstance();
         if (dataSourceMonitor != null) {
-            ServiceType serviceType = dataSourceMonitor.getServiceType();
-            if (serviceType != null) {
-                this.serviceType = serviceType;
-            }
+            this.serviceType = getServiceType0(dataSourceMonitor);
             return serviceType;
         }
         return ServiceType.UNKNOWN;
+    }
+
+    public ServiceType getServiceType0(DataSourceMonitor dataSourceMonitor) {
+        final ServiceType serviceType = dataSourceMonitor.getServiceType();
+        if (serviceType == null) {
+            return ServiceType.UNKNOWN;
+        }
+        return serviceType;
     }
 
     @Override
