@@ -28,15 +28,12 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedInteg
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedShortEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import com.navercorp.pinpoint.common.trace.SlotType;
-import org.apache.commons.collections.MapUtils;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author HyunGil Jeong
@@ -94,11 +91,11 @@ public class ActiveTraceCodecV2 extends AgentStatCodecV2<ActiveTraceBo> {
         public void addValue(ActiveTraceBo activeTraceBo) {
             versionAnalyzerBuilder.addValue(activeTraceBo.getVersion());
             schemaTypeAnalyzerBuilder.addValue(activeTraceBo.getHistogramSchemaType());
-            final Map<SlotType, Integer> activeTraceCounts = activeTraceBo.getActiveTraceCounts();
-            fastTraceCountsAnalyzerBuilder.addValue(MapUtils.getIntValue(activeTraceCounts, SlotType.FAST, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
-            normalTraceCountsAnalyzerBuilder.addValue(MapUtils.getIntValue(activeTraceCounts, SlotType.NORMAL, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
-            slowTraceCountsAnalyzerBuilder.addValue(MapUtils.getIntValue(activeTraceCounts, SlotType.SLOW, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
-            verySlowTraceCountsAnalyzerBuilder.addValue(MapUtils.getIntValue(activeTraceCounts, SlotType.VERY_SLOW, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
+            final ActiveTraceHistogram activeTraceHistogram = activeTraceBo.getActiveTraceHistogram();
+            fastTraceCountsAnalyzerBuilder.addValue(activeTraceHistogram.getFastCount());
+            normalTraceCountsAnalyzerBuilder.addValue(activeTraceHistogram.getNormalCount());
+            slowTraceCountsAnalyzerBuilder.addValue(activeTraceHistogram.getSlowCount());
+            verySlowTraceCountsAnalyzerBuilder.addValue(activeTraceHistogram.getVerySlowCount());
         }
 
         @Override
@@ -168,13 +165,18 @@ public class ActiveTraceCodecV2 extends AgentStatCodecV2<ActiveTraceBo> {
             ActiveTraceBo activeTraceBo = new ActiveTraceBo();
             activeTraceBo.setVersion(versions.get(index));
             activeTraceBo.setHistogramSchemaType(schemaTypes.get(index));
-            Map<SlotType, Integer> activeTraceCounts = new HashMap<SlotType, Integer>();
-            activeTraceCounts.put(SlotType.FAST, fastTraceCounts.get(index));
-            activeTraceCounts.put(SlotType.NORMAL, normalTraceCounts.get(index));
-            activeTraceCounts.put(SlotType.SLOW, slowTraceCounts.get(index));
-            activeTraceCounts.put(SlotType.VERY_SLOW, verySlowTraceCounts.get(index));
-            activeTraceBo.setActiveTraceCounts(activeTraceCounts);
+
+            ActiveTraceHistogram activeTraceHistogram = newActiveTraceHistogram(index);
+            activeTraceBo.setActiveTraceHistogram(activeTraceHistogram);
             return activeTraceBo;
+        }
+
+        private ActiveTraceHistogram newActiveTraceHistogram(int index) {
+            final int fast = fastTraceCounts.get(index);
+            final int normal = normalTraceCounts.get(index);
+            final int slow = slowTraceCounts.get(index);
+            final int verySlow = verySlowTraceCounts.get(index);
+            return new ActiveTraceHistogram(fast, normal, slow, verySlow);
         }
 
     }

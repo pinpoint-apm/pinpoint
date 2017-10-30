@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
@@ -27,14 +28,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.SlotType;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -249,18 +246,22 @@ public class TestAgentStatFactory {
             activeTraceBo.setTimestamp(timestamps.get(i));
             activeTraceBo.setHistogramSchemaType(histogramSchemaType);
             if (RANDOM.nextInt(5) > 0) {
-                Map<SlotType, Integer> activeTraceCounts = new HashMap<SlotType, Integer>();
-                activeTraceCounts.put(SlotType.FAST, fastTraceCounts.get(i));
-                activeTraceCounts.put(SlotType.NORMAL, normalTraceCounts.get(i));
-                activeTraceCounts.put(SlotType.SLOW, slowTraceCounts.get(i));
-                activeTraceCounts.put(SlotType.VERY_SLOW, verySlowTraceCounts.get(i));
-                activeTraceBo.setActiveTraceCounts(activeTraceCounts);
+                ActiveTraceHistogram activeTraceHistogram = newActiveTraceHistogram(fastTraceCounts, normalTraceCounts, slowTraceCounts, verySlowTraceCounts, i);
+                activeTraceBo.setActiveTraceHistogram(activeTraceHistogram);
             } else {
-                activeTraceBo.setActiveTraceCounts(Collections.<SlotType, Integer>emptyMap());
+                activeTraceBo.setActiveTraceHistogram(ActiveTraceHistogram.UNCOLLECTED);
             }
             activeTraceBos.add(activeTraceBo);
         }
         return activeTraceBos;
+    }
+
+    private static ActiveTraceHistogram newActiveTraceHistogram(List<Integer> fastTraceCounts, List<Integer> normalTraceCounts, List<Integer> slowTraceCounts, List<Integer> verySlowTraceCounts, int index) {
+        int fast = fastTraceCounts.get(index);
+        int normal = normalTraceCounts.get(index);
+        int slow = slowTraceCounts.get(index);
+        int verySlow = verySlowTraceCounts.get(index);
+        return new ActiveTraceHistogram(fast, normal, slow, verySlow);
     }
 
     public static List<ResponseTimeBo> createResponseTimeBos(String agentId, long startTimestamp, long initialTimestamp) {

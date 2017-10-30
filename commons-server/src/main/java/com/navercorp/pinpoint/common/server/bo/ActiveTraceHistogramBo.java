@@ -19,13 +19,10 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.trace.SlotType;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author HyunGil Jeong
@@ -35,7 +32,7 @@ public class ActiveTraceHistogramBo {
 
     private final byte version;
     private final int histogramSchemaType;
-    private final Map<SlotType, Integer> activeTraceCountMap;
+    private final ActiveTraceHistogram activeTraceHistogram;
 
     public ActiveTraceHistogramBo(int version, int histogramSchemaType, List<Integer> activeTraceCounts) {
         if (version < 0 || version > 255) {
@@ -43,10 +40,10 @@ public class ActiveTraceHistogramBo {
         }
         this.version = (byte) (version & 0xFF);
         this.histogramSchemaType = histogramSchemaType;
-        this.activeTraceCountMap = createActiveTraceCountMap(version, activeTraceCounts);
+        this.activeTraceHistogram = createActiveTraceHistogram(version, activeTraceCounts);
     }
 
-    private Map<SlotType, Integer> createActiveTraceCountMap(int version, List<Integer> activeTraceCounts) {
+    private ActiveTraceHistogram createActiveTraceHistogram(int version, List<Integer> activeTraceCounts) {
         if (activeTraceCounts == null) {
             return createUnknownActiveTraceCountMap(version);
         }
@@ -54,34 +51,29 @@ public class ActiveTraceHistogramBo {
             case 0:
                 if (activeTraceCounts.size() != 4) {
                     throw new IllegalArgumentException("activeTraceCounts does not match specification. Version : " + version + ", activeTraceCounts : " + activeTraceCounts);
-                } else {
-                    int fastCount = activeTraceCounts.get(0) == null ? 0 : activeTraceCounts.get(0);
-                    int normalCount = activeTraceCounts.get(1) == null ? 0 : activeTraceCounts.get(1);
-                    int slowCount = activeTraceCounts.get(2) == null ? 0 : activeTraceCounts.get(2);
-                    int verySlowCount = activeTraceCounts.get(3) == null ? 0 : activeTraceCounts.get(3);
-                    Map<SlotType, Integer> activeTraceCountMap = new HashMap<SlotType, Integer>();
-                    activeTraceCountMap.put(SlotType.FAST, fastCount);
-                    activeTraceCountMap.put(SlotType.NORMAL, normalCount);
-                    activeTraceCountMap.put(SlotType.SLOW, slowCount);
-                    activeTraceCountMap.put(SlotType.VERY_SLOW, verySlowCount);
-                    return activeTraceCountMap;
                 }
+                final int fastCount = getCount(activeTraceCounts, 0);
+                final int normalCount = getCount(activeTraceCounts, 1);
+                final int slowCount = getCount(activeTraceCounts, 2);
+                final int verySlowCount = getCount(activeTraceCounts, 3);
+
+                return new ActiveTraceHistogram(fastCount, normalCount, slowCount, verySlowCount);
             default:
-                return Collections.emptyMap();
+                return ActiveTraceHistogram.UNCOLLECTED;
         }
     }
 
-    private Map<SlotType, Integer> createUnknownActiveTraceCountMap(int version) {
+    private int getCount(List<Integer> activeTraceCounts, int index) {
+        final Integer value = activeTraceCounts.get(index);
+        return value == null ? 0 : value;
+    }
+
+    private ActiveTraceHistogram createUnknownActiveTraceCountMap(int version) {
         switch (version) {
             case 0:
-                Map<SlotType, Integer> map = new HashMap<SlotType, Integer>();
-                map.put(SlotType.FAST, 0);
-                map.put(SlotType.NORMAL, 0);
-                map.put(SlotType.SLOW, 0);
-                map.put(SlotType.VERY_SLOW, 0);
-                return map;
+                return ActiveTraceHistogram.EMPTY;
             default:
-                return Collections.emptyMap();
+                return ActiveTraceHistogram.UNCOLLECTED;
         }
     }
 
@@ -97,10 +89,10 @@ public class ActiveTraceHistogramBo {
                 for (int i = 0; i < numActiveTraceCounts; i++) {
                     activeTraceCounts.add(buffer.readVInt());
                 }
-                this.activeTraceCountMap = createActiveTraceCountMap(version, activeTraceCounts);
+                this.activeTraceHistogram = createActiveTraceHistogram(version, activeTraceCounts);
                 break;
             default:
-                this.activeTraceCountMap = Collections.emptyMap();
+                this.activeTraceHistogram = ActiveTraceHistogram.UNCOLLECTED;
                 break;
         }
     }
@@ -113,8 +105,8 @@ public class ActiveTraceHistogramBo {
         return histogramSchemaType;
     }
 
-    public Map<SlotType, Integer> getActiveTraceCountMap() {
-        return activeTraceCountMap;
+    public ActiveTraceHistogram getActiveTraceHistogram() {
+        return activeTraceHistogram;
     }
 
     public byte[] writeValue() {
@@ -124,11 +116,12 @@ public class ActiveTraceHistogramBo {
         int version = this.version & 0xFF;
         switch (version) {
             case 0:
-                buffer.putVInt(this.activeTraceCountMap.size());
-                buffer.putVInt(this.activeTraceCountMap.get(SlotType.FAST));
-                buffer.putVInt(this.activeTraceCountMap.get(SlotType.NORMAL));
-                buffer.putVInt(this.activeTraceCountMap.get(SlotType.SLOW));
-                buffer.putVInt(this.activeTraceCountMap.get(SlotType.VERY_SLOW));
+                final int slotSize = 4;
+                buffer.putVInt(slotSize);
+                buffer.putVInt(this.activeTraceHistogram.getFastCount());
+                buffer.putVInt(this.activeTraceHistogram.getNormalCount());
+                buffer.putVInt(this.activeTraceHistogram.getSlowCount());
+                buffer.putVInt(this.activeTraceHistogram.getVerySlowCount());
                 break;
             default:
                 break;
@@ -145,7 +138,7 @@ public class ActiveTraceHistogramBo {
 
         if (version != that.version) return false;
         if (histogramSchemaType != that.histogramSchemaType) return false;
-        return activeTraceCountMap != null ? activeTraceCountMap.equals(that.activeTraceCountMap) : that.activeTraceCountMap == null;
+        return activeTraceHistogram != null ? activeTraceHistogram.equals(that.activeTraceHistogram) : that.activeTraceHistogram == null;
 
     }
 
@@ -153,7 +146,7 @@ public class ActiveTraceHistogramBo {
     public int hashCode() {
         int result = (int) version;
         result = 31 * result + histogramSchemaType;
-        result = 31 * result + (activeTraceCountMap != null ? activeTraceCountMap.hashCode() : 0);
+        result = 31 * result + (activeTraceHistogram != null ? activeTraceHistogram.hashCode() : 0);
         return result;
     }
 }
