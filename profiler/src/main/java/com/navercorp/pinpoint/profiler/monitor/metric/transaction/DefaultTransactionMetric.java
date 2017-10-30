@@ -93,7 +93,7 @@ public class DefaultTransactionMetric implements TransactionMetric {
             this.longCounter = longCounter;
         }
 
-        private final long getTransactionCount() {
+        private long getTransactionCount() {
             final long transactionCount = longCounter.getCount();
             if (transactionCount < 0) {
                 return UNCOLLECTED;
