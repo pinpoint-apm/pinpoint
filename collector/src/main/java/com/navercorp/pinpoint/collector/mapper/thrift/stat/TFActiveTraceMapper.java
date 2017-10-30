@@ -16,14 +16,13 @@
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import com.navercorp.pinpoint.common.trace.SlotType;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author minwoo.jung
@@ -34,23 +33,23 @@ public class TFActiveTraceMapper {
         TFActiveTraceHistogram tFActiveTraceHistogram = new TFActiveTraceHistogram();
         tFActiveTraceHistogram.setVersion(activeTraceBo.getVersion());
         tFActiveTraceHistogram.setHistogramSchemaType(activeTraceBo.getHistogramSchemaType());
-        tFActiveTraceHistogram.setActiveTraceCount(createActiveTraceCount(activeTraceBo.getActiveTraceCounts()));
+        tFActiveTraceHistogram.setActiveTraceCount(createActiveTraceCount(activeTraceBo.getActiveTraceHistogram()));
 
         TFActiveTrace tFActiveTrace = new TFActiveTrace();
         tFActiveTrace.setHistogram(tFActiveTraceHistogram);
         return tFActiveTrace;
     }
 
-    private List<Integer> createActiveTraceCount(Map<SlotType, Integer> activeTraceCountMap) {
-        if (activeTraceCountMap == null || activeTraceCountMap.size() == 0) {
+    private List<Integer> createActiveTraceCount(ActiveTraceHistogram activeTraceCountMap) {
+        if (activeTraceCountMap == null) {
             return Collections.emptyList();
         }
 
         List<Integer> activeTraceCountList = new ArrayList<>();
-        activeTraceCountList.add(0, activeTraceCountMap.get(SlotType.FAST));
-        activeTraceCountList.add(1, activeTraceCountMap.get(SlotType.NORMAL));
-        activeTraceCountList.add(2, activeTraceCountMap.get(SlotType.SLOW));
-        activeTraceCountList.add(3, activeTraceCountMap.get(SlotType.VERY_SLOW));
+        activeTraceCountList.add(0, activeTraceCountMap.getFastCount());
+        activeTraceCountList.add(1, activeTraceCountMap.getNormalCount());
+        activeTraceCountList.add(2, activeTraceCountMap.getSlowCount());
+        activeTraceCountList.add(3, activeTraceCountMap.getVerySlowCount());
         return activeTraceCountList;
     }
 }

@@ -267,7 +267,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
             normalized.setTimestamp(normalizedTimestamp);
             normalized.setVersion(src.getVersion());
             normalized.setHistogramSchemaType(src.getHistogramSchemaType());
-            normalized.setActiveTraceCounts(src.getActiveTraceCounts());
+            normalized.setActiveTraceHistogram(src.getActiveTraceHistogram());
             return normalized;
         }
 
@@ -279,7 +279,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
             merged.setTimestamp(latest.getTimestamp());
             merged.setVersion(latest.getVersion());
             merged.setHistogramSchemaType(latest.getHistogramSchemaType());
-            merged.setActiveTraceCounts(latest.getActiveTraceCounts());
+            merged.setActiveTraceHistogram(latest.getActiveTraceHistogram());
             return merged;
         }
     }

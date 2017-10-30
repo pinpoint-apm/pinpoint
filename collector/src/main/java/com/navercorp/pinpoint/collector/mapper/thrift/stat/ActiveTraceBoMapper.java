@@ -18,15 +18,13 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import com.navercorp.pinpoint.common.trace.SlotType;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author HyunGil Jeong
@@ -37,28 +35,27 @@ public class ActiveTraceBoMapper implements ThriftBoMapper<ActiveTraceBo, TActiv
     @Override
     public ActiveTraceBo map(TActiveTrace tActiveTrace) {
         TActiveTraceHistogram tActiveTraceHistogram = tActiveTrace.getHistogram();
-        Map<SlotType, Integer> activeTraceCounts = createActiveTraceCountMap(tActiveTraceHistogram.getActiveTraceCount());
+        ActiveTraceHistogram activeTraceHistogram = createActiveTraceCountMap(tActiveTraceHistogram.getActiveTraceCount());
         ActiveTraceBo activeTraceBo = new ActiveTraceBo();
         activeTraceBo.setVersion(tActiveTraceHistogram.getVersion());
         activeTraceBo.setHistogramSchemaType(tActiveTraceHistogram.getHistogramSchemaType());
-        activeTraceBo.setActiveTraceCounts(activeTraceCounts);
+        activeTraceBo.setActiveTraceHistogram(activeTraceHistogram);
         return activeTraceBo;
     }
 
-    private Map<SlotType, Integer> createActiveTraceCountMap(List<Integer> activeTraceCounts) {
-        if (activeTraceCounts == null || activeTraceCounts.isEmpty()) {
-            return Collections.emptyMap();
-        } else {
-            if (activeTraceCounts.size() != 4) {
-                return Collections.emptyMap();
-            } else {
-                Map<SlotType, Integer> activeTraceCountMap = new HashMap<SlotType, Integer>();
-                activeTraceCountMap.put(SlotType.FAST, activeTraceCounts.get(0));
-                activeTraceCountMap.put(SlotType.NORMAL, activeTraceCounts.get(1));
-                activeTraceCountMap.put(SlotType.SLOW, activeTraceCounts.get(2));
-                activeTraceCountMap.put(SlotType.VERY_SLOW, activeTraceCounts.get(3));
-                return activeTraceCountMap;
-            }
+    private ActiveTraceHistogram createActiveTraceCountMap(List<Integer> activeTraceCounts) {
+        if (CollectionUtils.isEmpty(activeTraceCounts)) {
+            return ActiveTraceHistogram.UNCOLLECTED;
         }
+        if (activeTraceCounts.size() != 4) {
+            return ActiveTraceHistogram.UNCOLLECTED;
+        }
+
+        final int fast = activeTraceCounts.get(0);
+        final int normal = activeTraceCounts.get(1);
+        final int slow = activeTraceCounts.get(2);
+        final int verySlow = activeTraceCounts.get(3);
+
+        return new ActiveTraceHistogram(fast, normal, slow, verySlow);
     }
 }

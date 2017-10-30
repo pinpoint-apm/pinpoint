@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import com.navercorp.pinpoint.common.trace.SlotType;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 import org.junit.Test;
@@ -47,12 +47,8 @@ public class TFActiveTraceMapperTest {
         activeTraceBo.setTimestamp(timestamp);
         activeTraceBo.setHistogramSchemaType(1);
 
-        Map<SlotType, Integer> activeTraceCountMap = new HashMap<>();
-        activeTraceCountMap.put(SlotType.FAST, 30);
-        activeTraceCountMap.put(SlotType.NORMAL, 40);
-        activeTraceCountMap.put(SlotType.SLOW, 10);
-        activeTraceCountMap.put(SlotType.VERY_SLOW, 50);
-        activeTraceBo.setActiveTraceCounts(activeTraceCountMap);
+        ActiveTraceHistogram activeTraceHistogram = new ActiveTraceHistogram(30, 40, 10, 50);
+        activeTraceBo.setActiveTraceHistogram(activeTraceHistogram);
 
         TFActiveTraceMapper mapper = new TFActiveTraceMapper();
         TFActiveTrace tFActiveTrace = mapper.map(activeTraceBo);

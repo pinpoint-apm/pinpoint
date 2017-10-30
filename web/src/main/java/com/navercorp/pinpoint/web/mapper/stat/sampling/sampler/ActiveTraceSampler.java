@@ -17,9 +17,10 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
-import com.navercorp.pinpoint.common.trace.SlotType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
@@ -30,7 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.function.ToIntFunction;
 
 /**
  * @author HyunGil Jeong
@@ -42,52 +43,56 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
 
     @Override
     public SampledActiveTrace sampleDataPoints(int timeWindowIndex, long timestamp, List<ActiveTraceBo> dataPoints, ActiveTraceBo previousDataPoint) {
-        SampledActiveTrace sampledActiveTrace = new SampledActiveTrace();
-        HistogramSchema schema = BaseHistogramSchema.getDefaultHistogramSchemaByTypeCode(dataPoints.get(0).getHistogramSchemaType());
+
+        final HistogramSchema schema = BaseHistogramSchema.getDefaultHistogramSchemaByTypeCode(dataPoints.get(0).getHistogramSchemaType());
         if (schema == null) {
+            SampledActiveTrace sampledActiveTrace = new SampledActiveTrace();
             sampledActiveTrace.setFastCounts(new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
             sampledActiveTrace.setNormalCounts(new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
             sampledActiveTrace.setSlowCounts(new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
             sampledActiveTrace.setVerySlowCounts(new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
-        } else {
-            List<Integer> fastCounts = new ArrayList<>(dataPoints.size());
-            List<Integer> normalCounts = new ArrayList<>(dataPoints.size());
-            List<Integer> slowCounts = new ArrayList<>(dataPoints.size());
-            List<Integer> verySlowCounts = new ArrayList<>(dataPoints.size());
-            for (ActiveTraceBo activeTraceBo : dataPoints) {
-                Map<SlotType, Integer> activeTraceCounts = activeTraceBo.getActiveTraceCounts();
-                if (activeTraceCounts.get(SlotType.FAST) != ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT) {
-                    fastCounts.add(activeTraceCounts.get(SlotType.FAST));
-                }
-                if (activeTraceCounts.get(SlotType.NORMAL) != ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT) {
-                    normalCounts.add(activeTraceCounts.get(SlotType.NORMAL));
-                }
-                if (activeTraceCounts.get(SlotType.SLOW) != ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT) {
-                    slowCounts.add(activeTraceCounts.get(SlotType.SLOW));
-                }
-                if (activeTraceCounts.get(SlotType.VERY_SLOW) != ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT) {
-                    verySlowCounts.add(activeTraceCounts.get(SlotType.VERY_SLOW));
-                }
-            }
-            sampledActiveTrace.setFastCounts(createSampledTitledPoint(schema.getFastSlot().getSlotName(), timestamp, fastCounts));
-            sampledActiveTrace.setNormalCounts(createSampledTitledPoint(schema.getNormalSlot().getSlotName(), timestamp, normalCounts));
-            sampledActiveTrace.setSlowCounts(createSampledTitledPoint(schema.getSlowSlot().getSlotName(), timestamp, slowCounts));
-            sampledActiveTrace.setVerySlowCounts(createSampledTitledPoint(schema.getVerySlowSlot().getSlotName(), timestamp, verySlowCounts));
+            return sampledActiveTrace;
         }
+
+        SampledActiveTrace sampledActiveTrace = new SampledActiveTrace();
+        List<Integer> fastCounts = filterActiveTraceBoList(dataPoints, ActiveTraceHistogram::getFastCount);
+        sampledActiveTrace.setFastCounts(createSampledTitledPoint(schema.getFastSlot().getSlotName(), timestamp, fastCounts));
+
+        List<Integer> normalCounts = filterActiveTraceBoList(dataPoints, ActiveTraceHistogram::getNormalCount);
+        sampledActiveTrace.setNormalCounts(createSampledTitledPoint(schema.getNormalSlot().getSlotName(), timestamp, normalCounts));
+
+        List<Integer> slowCounts = filterActiveTraceBoList(dataPoints, ActiveTraceHistogram::getSlowCount);
+        sampledActiveTrace.setSlowCounts(createSampledTitledPoint(schema.getSlowSlot().getSlotName(), timestamp, slowCounts));
+
+        List<Integer> verySlowCounts = filterActiveTraceBoList(dataPoints, ActiveTraceHistogram::getVerySlowCount);
+        sampledActiveTrace.setVerySlowCounts(createSampledTitledPoint(schema.getVerySlowSlot().getSlotName(), timestamp, verySlowCounts));
+
         return sampledActiveTrace;
     }
 
-    private Point<Long, Integer> createSampledTitledPoint(String title, long timestamp, List<Integer> values) {
-        if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT);
-        } else {
-            return new TitledPoint<>(
-                    title,
-                    timestamp,
-                    INTEGER_DOWN_SAMPLER.sampleMin(values),
-                    INTEGER_DOWN_SAMPLER.sampleMax(values),
-                    INTEGER_DOWN_SAMPLER.sampleAvg(values, 1),
-                    INTEGER_DOWN_SAMPLER.sampleSum(values));
+    private List<Integer> filterActiveTraceBoList(List<ActiveTraceBo> dataPoints, ToIntFunction<ActiveTraceHistogram> counter) {
+        final List<Integer> result = new ArrayList<>(dataPoints.size());
+        for (ActiveTraceBo activeTraceBo : dataPoints) {
+            final ActiveTraceHistogram activeTraceHistogram = activeTraceBo.getActiveTraceHistogram();
+            final int count = counter.applyAsInt(activeTraceHistogram);
+            if (count != ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT) {
+                result.add(count);
+            }
         }
+        return result;
+    }
+
+    private Point<Long, Integer> createSampledTitledPoint(String title, long timestamp, List<Integer> values) {
+        if (CollectionUtils.isEmpty(values)) {
+            return new UncollectedPoint<>(timestamp, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT);
+        }
+
+        return new TitledPoint<>(
+                title,
+                timestamp,
+                INTEGER_DOWN_SAMPLER.sampleMin(values),
+                INTEGER_DOWN_SAMPLER.sampleMax(values),
+                INTEGER_DOWN_SAMPLER.sampleAvg(values, 1),
+                INTEGER_DOWN_SAMPLER.sampleSum(values));
     }
 }

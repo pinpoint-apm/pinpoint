@@ -289,7 +289,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
             if (qualifierMap.containsKey(AGENT_STAT_COL_ACTIVE_TRACE_HISTOGRAM)) {
                 ActiveTraceHistogramBo activeTraceHistogramBo = new ActiveTraceHistogramBo(qualifierMap.get(AGENT_STAT_COL_ACTIVE_TRACE_HISTOGRAM));
                 activeTraceBo.setHistogramSchemaType(activeTraceHistogramBo.getHistogramSchemaType());
-                activeTraceBo.setActiveTraceCounts(activeTraceHistogramBo.getActiveTraceCountMap());
+                activeTraceBo.setActiveTraceHistogram(activeTraceHistogramBo.getActiveTraceHistogram());
             }
             return Arrays.asList(activeTraceBo);
         }

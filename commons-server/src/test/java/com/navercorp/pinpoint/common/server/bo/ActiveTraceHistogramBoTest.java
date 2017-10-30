@@ -18,15 +18,11 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import static org.junit.Assert.*;
 
-import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
-import com.navercorp.pinpoint.common.trace.SlotType;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author HyunGil Jeong
@@ -59,7 +55,7 @@ public class ActiveTraceHistogramBoTest {
         // Then
         assertEquals(unsupportedVersion, deserializedBo.getVersion());
         assertEquals(expectedHistogramSchemaType, deserializedBo.getHistogramSchemaType());
-        assertEquals(Collections.emptyMap(), deserializedBo.getActiveTraceCountMap());
+        assertEquals(ActiveTraceHistogram.UNCOLLECTED, deserializedBo.getActiveTraceHistogram());
     }
 
     @Test
@@ -67,11 +63,6 @@ public class ActiveTraceHistogramBoTest {
         // Given
         final int validVersion = 0;
         final int expectedHistogramSchemaType = 1;
-        final Map<SlotType, Integer> expectedActiveTraceCountMap = new HashMap<SlotType, Integer>();
-        expectedActiveTraceCountMap.put(SlotType.FAST, 0);
-        expectedActiveTraceCountMap.put(SlotType.NORMAL, 0);
-        expectedActiveTraceCountMap.put(SlotType.SLOW, 0);
-        expectedActiveTraceCountMap.put(SlotType.VERY_SLOW, 0);
         // When
         ActiveTraceHistogramBo expectedBo = new ActiveTraceHistogramBo(validVersion, expectedHistogramSchemaType, null);
         byte[] serializedBo = expectedBo.writeValue();
@@ -79,7 +70,7 @@ public class ActiveTraceHistogramBoTest {
         // Then
         assertEquals(validVersion, deserializedBo.getVersion());
         assertEquals(expectedHistogramSchemaType, deserializedBo.getHistogramSchemaType());
-        assertEquals(expectedActiveTraceCountMap, deserializedBo.getActiveTraceCountMap());
+        assertEquals(ActiveTraceHistogram.EMPTY, deserializedBo.getActiveTraceHistogram());
     }
 
     @Test(expected = IllegalArgumentException.class)
