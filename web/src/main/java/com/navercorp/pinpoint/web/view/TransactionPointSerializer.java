@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.TransactionPoint;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 
@@ -29,14 +30,29 @@ import java.io.IOException;
  */
 public class TransactionPointSerializer extends JsonSerializer<TransactionPoint> {
 
+    @Deprecated
+    @Value("#{pinpointWebProps['web.stat.chart.version'] ?: 'v1'}")
+    private String version;
+
     @Override
     public void serialize(TransactionPoint transactionPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        jgen.writeStartArray();
-        jgen.writeNumber(transactionPoint.getyValForMin());
-        jgen.writeString(transactionPoint.getAgentIdForMin());
-        jgen.writeNumber(transactionPoint.getyValForMax());
-        jgen.writeString(transactionPoint.getAgentIdForMax());
-        jgen.writeNumber(transactionPoint.getyValForAvg());
-        jgen.writeEndArray();
+        if ("v1".equalsIgnoreCase(version)) {
+            jgen.writeStartObject();
+            jgen.writeNumberField("xVal", transactionPoint.getxVal());
+            jgen.writeNumberField("yValForMin", transactionPoint.getyValForMin());
+            jgen.writeStringField("agentIdForMin", transactionPoint.getAgentIdForMin());
+            jgen.writeNumberField("yValForMax", transactionPoint.getyValForMax());
+            jgen.writeStringField("agentIdForMax", transactionPoint.getAgentIdForMax());
+            jgen.writeNumberField("yValForAvg", transactionPoint.getyValForAvg());
+            jgen.writeEndObject();
+        } else {
+            jgen.writeStartArray();
+            jgen.writeNumber(transactionPoint.getyValForMin());
+            jgen.writeString(transactionPoint.getAgentIdForMin());
+            jgen.writeNumber(transactionPoint.getyValForMax());
+            jgen.writeString(transactionPoint.getAgentIdForMax());
+            jgen.writeNumber(transactionPoint.getyValForAvg());
+            jgen.writeEndArray();
+        }
     }
 }

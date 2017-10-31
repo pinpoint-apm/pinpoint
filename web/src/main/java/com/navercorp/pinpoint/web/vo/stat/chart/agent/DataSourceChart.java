@@ -43,7 +43,7 @@ public class DataSourceChart implements StatChart {
         this.dataSourceChartGroup = new DataSourceChartGroup(timeWindow, sampledDataSources, serviceTypeRegistryService);
     }
     @Override
-    public StatChartGroup getChartGroup() {
+    public StatChartGroup getCharts() {
         return dataSourceChartGroup;
     }
 

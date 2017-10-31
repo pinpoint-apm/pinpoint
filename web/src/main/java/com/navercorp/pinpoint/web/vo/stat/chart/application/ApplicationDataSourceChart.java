@@ -40,7 +40,7 @@ public class ApplicationDataSourceChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getChartGroup() {
+    public StatChartGroup getCharts() {
         return applicationDataSourceChartGroup;
     }
 

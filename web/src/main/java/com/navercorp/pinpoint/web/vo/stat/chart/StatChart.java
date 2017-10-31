@@ -26,5 +26,5 @@ import com.navercorp.pinpoint.web.view.StatChartGroupSerializer;
 public interface StatChart {
 
     @JsonSerialize(using = StatChartGroupSerializer.class)
-    StatChartGroup getChartGroup();
+    StatChartGroup getCharts();
 }
