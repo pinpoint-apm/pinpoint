@@ -26,6 +26,7 @@
 					function initTimeSlider( aSelectionFromTo, aFromTo, selectedTime ) {
 						if ( timeSlider !== null ) {
 							timeSlider.resetTimeSeriesAndSelectionZone( aSelectionFromTo, aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ), selectedTime );
+							getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 						} else {
 							$timeout(function() {
 								timeSlider = new TimeSlider("timeSlider-for-agent-info", {
@@ -49,6 +50,7 @@
 									sendUpTimeSliderTimeInfo(timeSlider.getSliderTimeSeries(), aTime, timeSlider.getSelectTime());
 								}).addEvent("changeSliderTimeSeries", function (aEvents) {
 								});
+								getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 							});
 						}
 					}
@@ -417,7 +419,7 @@
 					function initTimeSliderUI( aSelectionFromTo, aFromTo, selectedTime ) {
 						initTime( selectedTime );
 						initTimeSlider( aSelectionFromTo, aFromTo, selectedTime );
-						getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
+						// getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
 					scope.$on("agentInspectorChartDirective.cursorChanged", function (e, sourceTarget, event) {
 						scope.$broadcast( "agentInspectorChartDirective.showCursorAt", sourceTarget, event.index );
