@@ -1,4 +1,4 @@
-# application inspector 기능
+# application inspector
 
 ## 1. 기능 설명
 
