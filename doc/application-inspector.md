@@ -4,11 +4,15 @@
 
 application inspector 기능은 agent들의 리소스 데이터(stat : cpu, memory, tps, datasource connection count)를 집계하여 데이터를 보여주는 기능이다. 참고로 application은 agent의 그룹으로 이뤄진다. 그리고 agent의 리소스 데이터는 agent inspector 화면에서 에서 볼 수 있다. application inspector 기능 또한 별도의 화면에서 확인할 수 있다.
 
-예를들면 A라는 application에 포함된 agent들의 cpu 사용량을 모아서 cpu 사용량 평균값 , cpu 사용량의 평균값,  cpu 사용량이 가장 높은 agentid와 사용량, cpu 사용량이 가장 적은 agentid와 사용량을 보여준다. 이외에도 agent inspector 에서 제공하는 다른 데이터들도 집계하여 application inspector에서 제공한다.
+inspector 화면 왼쪽 메뉴의 링크를 클릭하면 application inspector 버튼을 클릭하고 데이터를 볼 수 있다.
 
-inspector 화면의 왼쪽 메뉴를 클릭하면 application inspector 버튼을 클릭하고 데이터를 볼수 있다.
 - 1  : application inspector menu, 2: application stat data
-![inspector_view5](https://~~~~~~~~~~~/user/656/files/d7229b82-bd96-11e7-95cf-7ef274a281c8)
+![inspector_view.jpg](img/applicationInspector/inspector_view.jpg)
+
+예를들면 A라는 application에 포함된 agent들의 heap 사용량을 모아서 heap 사용량 평균값 , heap 사용량의 평균값,  heap 사용량이 가장 높은 agentid와 사용량, heap 사용량이 가장 적은 agentid와 사용량을 보여준다. 이외에도 agent inspector 에서 제공하는 다른 데이터들도 집계하여 application inspector에서 제공한다.
+
+![graph.jpg](img/applicationInspector/graph.jpg)
+
 
 application inspector 기능을 동작시키기 위해서는 [flink](https://flink.apache.org)와 [zookeeper](https://zookeeper.apache.org/)가 필요하고, 기능의 동작 구조와 구성 및 설정 방법을 아래 설명한다.
 
@@ -16,7 +20,7 @@ application inspector 기능을 동작시키기 위해서는 [flink](https://fli
 
 application inspector 기능의 동작 및 구조를 그림과 함께 보자.
 
-![execute_flow3](https://~~~/user/656/files/adc26eb6-bd96-11e7-800a-9c5c021e3a43)
+![execute_flow.jpg](img/applicationInspector/execute_flow.jpg)
 
 
 
