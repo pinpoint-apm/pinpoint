@@ -36,7 +36,7 @@ application inspector 기능을 실행하기 위해서 아래와 같이 설정�
 **A.** [테이블 생성 스크립트를 참조](https://github.com/naver/pinpoint/tree/master/hbase/scripts)하여 application 통계 데이터를 저장하는 'ApplicationStatAggre' 테이블을 생성한다.
 
 **B.** flink 프로젝트 설정파일(pinpoint-flink.porperties)에 taskmanager 서버 정보를 저장하는 zookeeper 주소를 설정한다.
-```
+```properties
 	flink.cluster.enable=true
 	flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
 	flink.cluster.zookeeper.sessiontimeout=3000
@@ -45,7 +45,7 @@ application inspector 기능을 실행하기 위해서 아래와 같이 설정�
 ```
 
 **C.** flink 프로젝트 설정파일(hbase.properties)에 집계 데이터를 저장하는 hbase 주소를 설정한다.
-```
+```properties
 	hbase.client.host=YOUR_HBASE_ADDRESS
 	hbase.client.port=2181
 ```
@@ -55,17 +55,38 @@ application inspector 기능을 실행하기 위해서 아래와 같이 설정�
 	- 실행방법은 [flink 사이트](https://flink.apache.org)를 참조한다.
 
 **E.** collector에서 flink와 연결을 맺을 수 있도록 설정파일(pinpoint-collector.porperties)에 zookeeper 주소를 설정한다.
-```
+```properties
         flink.cluster.enable=true
 	flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
 	flink.cluster.zookeeper.sessiontimeout=3000
 ```
 
 **F.** web에서 application inspector 버튼을 활성화 하기 위해서 설정파일(pinpoint-web.porperties)을 수정한다.
-```
+```properties
 	config.show.applicationStat=true
 ```
 
-## 4. 기타
+## 4. streaming job 동작 확인 모니터링 batch
+
+pinpoint streaming job이 실행되고 있는지 확인하는 batch job이 있다. 
+batch job을 동작 시키고 싶다면 pinpoint web 프로젝트의 설정 파일을 수정하면 된다.
+
+**`batch.properties`**
+```properties
+batch.flink.server=FLINK_MANGER_SERVER_IP_LIST
+#`batch.flink.server` 속성 값에 flink job manager 서버 IP를 입력하면 된다. 서버 리스트의 구분자는 ','이다.
+# ex) batch.flink.server=123.124.125.126,123.124.125.127
+```
+**`applicationContext-batch-schedule.xml`**
+```xml
+<task:scheduled-tasks scheduler="scheduler">
+	...
+	<task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/10 * * * *" />
+</task:scheduled-tasks>
+```
+
+batch job이 실패할 경우 알람이 전송되도록 기능을 추가 하고싶다면 `com.navercorp.pinpoint.web.batch.JobFailMessageSender class` 구현체를 만들고 bean으로 등록하면 된다.
+
+## 5. 기타
 
 자세한 flink 운영 설치에 대한 내용은 [flink 사이트](https://flink.apache.org)를 참고하자.
