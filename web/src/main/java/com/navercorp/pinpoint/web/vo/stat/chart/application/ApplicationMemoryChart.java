@@ -41,7 +41,7 @@ public class ApplicationMemoryChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getChartGroup() {
+    public StatChartGroup getCharts() {
         return applicationMemoryChartGroup;
     }
 

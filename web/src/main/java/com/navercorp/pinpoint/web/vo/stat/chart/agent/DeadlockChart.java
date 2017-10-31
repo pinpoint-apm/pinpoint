@@ -41,7 +41,7 @@ public class DeadlockChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getChartGroup() {
+    public StatChartGroup getCharts() {
         return deadlockChartGroup;
     }
 

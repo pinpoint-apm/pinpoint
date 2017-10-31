@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.MemoryPoint;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 
@@ -29,14 +30,29 @@ import java.io.IOException;
  */
 public class MemoryPointSerializer extends JsonSerializer<MemoryPoint> {
 
+    @Deprecated
+    @Value("#{pinpointWebProps['web.stat.chart.version'] ?: 'v1'}")
+    private String version;
+
     @Override
     public void serialize(MemoryPoint memoryPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        jgen.writeStartArray();
-        jgen.writeNumber(memoryPoint.getyValForMin());
-        jgen.writeString(memoryPoint.getAgentIdForMin());
-        jgen.writeNumber(memoryPoint.getyValForMax());
-        jgen.writeString(memoryPoint.getAgentIdForMax());
-        jgen.writeNumber(memoryPoint.getyValForAvg());
-        jgen.writeEndArray();
+        if ("v1".equalsIgnoreCase(version)) {
+            jgen.writeStartObject();
+            jgen.writeNumberField("xVal", memoryPoint.getxVal());
+            jgen.writeNumberField("yValForMin", memoryPoint.getyValForMin());
+            jgen.writeStringField("agentIdForMin", memoryPoint.getAgentIdForMin());
+            jgen.writeNumberField("yValForMax", memoryPoint.getyValForMax());
+            jgen.writeStringField("agentIdForMax", memoryPoint.getAgentIdForMax());
+            jgen.writeNumberField("yValForAvg", memoryPoint.getyValForAvg());
+            jgen.writeEndObject();
+        } else {
+            jgen.writeStartArray();
+            jgen.writeNumber(memoryPoint.getyValForMin());
+            jgen.writeString(memoryPoint.getAgentIdForMin());
+            jgen.writeNumber(memoryPoint.getyValForMax());
+            jgen.writeString(memoryPoint.getAgentIdForMax());
+            jgen.writeNumber(memoryPoint.getyValForAvg());
+            jgen.writeEndArray();
+        }
     }
 }

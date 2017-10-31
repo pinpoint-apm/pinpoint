@@ -41,7 +41,7 @@ public class JvmGcDetailedChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getChartGroup() {
+    public StatChartGroup getCharts() {
         return jvmGcDetailedChartGroup;
     }
 
