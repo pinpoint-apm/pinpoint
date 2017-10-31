@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.CpuLoadPoint;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 
@@ -29,14 +30,29 @@ import java.io.IOException;
  */
 public class CpuLoadPointSerializer extends JsonSerializer<CpuLoadPoint> {
 
+    @Deprecated
+    @Value("#{pinpointWebProps['web.stat.chart.version'] ?: 'v1'}")
+    private String version;
+
     @Override
     public void serialize(CpuLoadPoint cpuLoadPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        jgen.writeStartArray();
-        jgen.writeNumber(cpuLoadPoint.getyValForMin());
-        jgen.writeString(cpuLoadPoint.getAgentIdForMin());
-        jgen.writeNumber(cpuLoadPoint.getyValForMax());
-        jgen.writeString(cpuLoadPoint.getAgentIdForMax());
-        jgen.writeNumber(cpuLoadPoint.getyValForAvg());
-        jgen.writeEndArray();
+        if ("v1".equalsIgnoreCase(version)) {
+            jgen.writeStartObject();
+            jgen.writeNumberField("xVal", cpuLoadPoint.getxVal());
+            jgen.writeNumberField("yValForMin", cpuLoadPoint.getyValForMin());
+            jgen.writeStringField("agentIdForMin", cpuLoadPoint.getAgentIdForMin());
+            jgen.writeNumberField("yValForMax", cpuLoadPoint.getyValForMax());
+            jgen.writeStringField("agentIdForMax", cpuLoadPoint.getAgentIdForMax());
+            jgen.writeNumberField("yValForAvg", cpuLoadPoint.getyValForAvg());
+            jgen.writeEndObject();
+        } else {
+            jgen.writeStartArray();
+            jgen.writeNumber(cpuLoadPoint.getyValForMin());
+            jgen.writeString(cpuLoadPoint.getAgentIdForMin());
+            jgen.writeNumber(cpuLoadPoint.getyValForMax());
+            jgen.writeString(cpuLoadPoint.getAgentIdForMax());
+            jgen.writeNumber(cpuLoadPoint.getyValForAvg());
+            jgen.writeEndArray();
+        }
     }
 }

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ResponseTimePoint;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 
@@ -29,14 +30,29 @@ import java.io.IOException;
  */
 public class ResponseTimePointSerializer extends JsonSerializer<ResponseTimePoint> {
 
+    @Deprecated
+    @Value("#{pinpointWebProps['web.stat.chart.version'] ?: 'v1'}")
+    private String version;
+
     @Override
     public void serialize(ResponseTimePoint responseTimePoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        jgen.writeStartArray();
-        jgen.writeNumber(responseTimePoint.getyValForMin());
-        jgen.writeString(responseTimePoint.getAgentIdForMin());
-        jgen.writeNumber(responseTimePoint.getyValForMax());
-        jgen.writeString(responseTimePoint.getAgentIdForMax());
-        jgen.writeNumber(responseTimePoint.getyValForAvg());
-        jgen.writeEndArray();
+        if ("v1".equalsIgnoreCase(version)) {
+            jgen.writeStartObject();
+            jgen.writeNumberField("xVal", responseTimePoint.getxVal());
+            jgen.writeNumberField("yValForMin", responseTimePoint.getyValForMin());
+            jgen.writeStringField("agentIdForMin", responseTimePoint.getAgentIdForMin());
+            jgen.writeNumberField("yValForMax", responseTimePoint.getyValForMax());
+            jgen.writeStringField("agentIdForMax", responseTimePoint.getAgentIdForMax());
+            jgen.writeNumberField("yValForAvg", responseTimePoint.getyValForAvg());
+            jgen.writeEndObject();
+        } else {
+            jgen.writeStartArray();
+            jgen.writeNumber(responseTimePoint.getyValForMin());
+            jgen.writeString(responseTimePoint.getAgentIdForMin());
+            jgen.writeNumber(responseTimePoint.getyValForMax());
+            jgen.writeString(responseTimePoint.getAgentIdForMax());
+            jgen.writeNumber(responseTimePoint.getyValForAvg());
+            jgen.writeEndArray();
+        }
     }
 }

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,9 +37,32 @@ import java.util.Set;
  */
 public class StatChartGroupSerializer extends JsonSerializer<StatChartGroup> {
 
+    @Deprecated
+    @Value("#{pinpointWebProps['web.stat.chart.version'] ?: 'v1'}")
+    private String version;
+
     @Override
     public void serialize(StatChartGroup statChartGroup, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
+        if ("v1".equalsIgnoreCase(version)) {
+            writeV1(statChartGroup, jgen, serializers);
+        } else {
+            writeV2(statChartGroup, jgen, serializers);
+        }
+        jgen.writeEndObject();
+    }
+
+    @Deprecated
+    private void writeV1(StatChartGroup statChartGroup, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = statChartGroup.getCharts();
+        for (Map.Entry<StatChartGroup.ChartType, Chart<? extends Point>> e : charts.entrySet()) {
+            StatChartGroup.ChartType chartType = e.getKey();
+            Chart<? extends Point> chart = e.getValue();
+            jgen.writeObjectField(chartType.toString(), chart);
+        }
+    }
+
+    private void writeV2(StatChartGroup statChartGroup, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = statChartGroup.getCharts();
         writeSchema(jgen, charts.keySet());
 
@@ -46,7 +70,6 @@ public class StatChartGroupSerializer extends JsonSerializer<StatChartGroup> {
         writeTimestamp(jgen, timeWindow);
 
         writeCharts(jgen, charts);
-        jgen.writeEndObject();
     }
 
     private void writeSchema(JsonGenerator jgen, Set<StatChartGroup.ChartType> chartTypes) throws IOException {
@@ -74,7 +97,8 @@ public class StatChartGroupSerializer extends JsonSerializer<StatChartGroup> {
         for (Map.Entry<StatChartGroup.ChartType, Chart<? extends Point>> e : charts.entrySet()) {
             StatChartGroup.ChartType chartType = e.getKey();
             Chart<? extends Point> chart = e.getValue();
-            jgen.writeObjectField(chartType.toString(), chart);
+            List<? extends Point> points = chart.getPoints();
+            jgen.writeObjectField(chartType.toString(), points);
         }
         jgen.writeEndObject();
     }

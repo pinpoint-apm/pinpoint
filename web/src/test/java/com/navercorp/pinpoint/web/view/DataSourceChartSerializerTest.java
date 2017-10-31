@@ -77,7 +77,7 @@ public class DataSourceChartSerializerTest {
         Assert.assertTrue(map.containsKey("jdbcUrl"));
         Assert.assertTrue(map.containsKey("databaseName"));
         Assert.assertTrue(map.containsKey("serviceType"));
-        Assert.assertTrue(map.containsKey("chartGroup"));
+        Assert.assertTrue(map.containsKey("charts"));
     }
 
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {

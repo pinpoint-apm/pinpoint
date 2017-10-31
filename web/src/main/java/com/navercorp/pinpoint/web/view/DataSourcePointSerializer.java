@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.DataSourcePoint;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 
@@ -29,14 +30,29 @@ import java.io.IOException;
  */
 public class DataSourcePointSerializer extends JsonSerializer<DataSourcePoint> {
 
+    @Deprecated
+    @Value("#{pinpointWebProps['web.stat.chart.version'] ?: 'v1'}")
+    private String version;
+
     @Override
     public void serialize(DataSourcePoint dataSourcePoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        jgen.writeStartArray();
-        jgen.writeNumber(dataSourcePoint.getyValForMin());
-        jgen.writeString(dataSourcePoint.getAgentIdForMin());
-        jgen.writeNumber(dataSourcePoint.getyValForMax());
-        jgen.writeString(dataSourcePoint.getAgentIdForMax());
-        jgen.writeNumber(dataSourcePoint.getyValForAvg());
-        jgen.writeEndArray();
+        if ("v1".equalsIgnoreCase(version)) {
+            jgen.writeStartObject();
+            jgen.writeNumberField("xVal", dataSourcePoint.getxVal());
+            jgen.writeNumberField("yValForMin", dataSourcePoint.getyValForMin());
+            jgen.writeStringField("agentIdForMin", dataSourcePoint.getAgentIdForMin());
+            jgen.writeNumberField("yValForMax", dataSourcePoint.getyValForMax());
+            jgen.writeStringField("agentIdForMax", dataSourcePoint.getAgentIdForMax());
+            jgen.writeNumberField("yValForAvg", dataSourcePoint.getyValForAvg());
+            jgen.writeEndObject();
+        } else {
+            jgen.writeStartArray();
+            jgen.writeNumber(dataSourcePoint.getyValForMin());
+            jgen.writeString(dataSourcePoint.getAgentIdForMin());
+            jgen.writeNumber(dataSourcePoint.getyValForMax());
+            jgen.writeString(dataSourcePoint.getAgentIdForMax());
+            jgen.writeNumber(dataSourcePoint.getyValForAvg());
+            jgen.writeEndArray();
+        }
     }
 }

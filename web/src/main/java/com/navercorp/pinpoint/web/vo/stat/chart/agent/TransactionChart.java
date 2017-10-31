@@ -41,7 +41,7 @@ public class TransactionChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getChartGroup() {
+    public StatChartGroup getCharts() {
         return transactionChartGroup;
     }
 

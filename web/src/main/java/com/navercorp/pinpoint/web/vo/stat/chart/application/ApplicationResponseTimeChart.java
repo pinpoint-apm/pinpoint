@@ -41,7 +41,7 @@ public class ApplicationResponseTimeChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getChartGroup() {
+    public StatChartGroup getCharts() {
         return applicationResponseTimeChartGroup;
     }
 

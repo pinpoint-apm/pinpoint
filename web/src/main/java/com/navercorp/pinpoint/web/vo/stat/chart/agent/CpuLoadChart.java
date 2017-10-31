@@ -41,7 +41,7 @@ public class CpuLoadChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getChartGroup() {
+    public StatChartGroup getCharts() {
         return cpuLoadChartGroup;
     }
 
