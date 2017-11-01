@@ -1,4 +1,94 @@
-# application inspector
+[English](#application-inspector) | [한글](#application-inspector-1)
+# Application Inspector
+
+## 1. Introduction
+
+Application inspector provides an aggregate view of all the agent's resource data (cpu, memory, tps, datasource connection count, etc) registered under the same application name. A separate view is provided for the application inspector with stat charts similar to the agent inspector.
+
+To access application inspector, click on the application inspector menu on the left side of the screen.
+
+- 1 : application inspector menu, 2 : application stat data
+![inspector_view.jpg](img/applicationInspector/inspector_view.jpg)
+
+The Heap Usage chart above for example, shows the average(Avg), smallest(Min), greatest(Max) heap usage of the agents registered under the same application name along with the id of the agent that had the smallest/greatest heap usage at a certain point in time. The application inspector also provides other statistics found in the agent inspector in a similar fashion.
+
+![graph.jpg](img/applicationInspector/graph.jpg)
+
+
+Application inspector requires [flink](https://flink.apache.org) and [zookeeper](https://zookeeper.apache.org/). Please read on for more detail.
+
+## 2. Architecture
+
+![execute_flow.jpg](img/applicationInspector/execute_flow.jpg)
+
+**A.** Run a streaming job on [flink](https://flink.apache.org).  
+**B.** The taskmanager server is registered to zookeeper as a data node once the job starts.  
+**C.** The collector obtains the flink server info from zookeeper to create a tcp connection with it and starts sending agent data.  
+**D.** The flink server aggregates data sent by the collector and stores them into hbase.
+
+## 3. Configuration
+
+In order to enable application inspector, you will need to do the following and run pinpoint.
+
+**A.** Create **ApplicationStatAggre** table (refer to [create table script](https://github.com/naver/pinpoint/tree/master/hbase/scripts)), which stores application stat data.
+
+**B.** Configure zookeeper address in [pinpoint-flink.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/pinpoint-flink.properties) which will be used to store flink's taskmanager server information.
+```properties
+    flink.cluster.enable=true
+    flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
+    flink.cluster.zookeeper.sessiontimeout=3000
+    flink.cluster.zookeeper.retry.interval=5000
+    flink.cluster.tcp.port=19994
+```
+
+**C.** Configure hbase address in [hbase.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/hbase.properties) which will be used to store aggregated application data.
+```properties
+    hbase.client.host=YOUR_HBASE_ADDRESS
+    hbase.client.port=2181
+```
+
+**D.** Build [pinpoint-flink](https://github.com/naver/pinpoint/tree/master/flink) and run the streaming job file created under *target* directory on the flink server.  
+  - The name of the streaming job is `pinpoint-flink-job.2.0.jar`.
+  - For details on how to run the job, please refer to the [flink website](https://flink.apache.org).
+
+**E.** Configure zookeeper address in [pinpoint-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties) so that the collector can connect to the flink server.
+```properties
+    flink.cluster.enable=true
+    flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
+    flink.cluster.zookeeper.sessiontimeout=3000
+```
+
+**F.** Enable application inspector in the web-ui by enabling the following configuration in [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties).
+```properties
+    config.show.applicationStat=true
+```
+
+## Monitoring Streaming Jobs
+
+There is a batch job that monitors how pinpoint streaming jobs are running. To enable this batch job, configure the following files for *pinpoint-web*.
+
+**batch.properties**
+```properties
+batch.flink.server=FLINK_MANGER_SERVER_IP_LIST
+# Flink job manager server IPs, separated by ','.
+# ex) batch.flink.server=123.124.125.126,123.124.125.127
+```
+**applicationContext-batch-schedule.xml**
+```xml
+<task:scheduled-tasks scheduler="scheduler">
+	...
+	<task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/10 * * * *" />
+</task:scheduled-tasks>
+```
+
+If you would like to send alarms in case of batch job failure, you must implement `com.navercorp.pinpoint.web.batch.JobFailMessageSender class` and register it as a Spring bean.
+
+## Others
+
+For more detailes on how to install and operate flink, please refer to the [flink website](https://flink.apache.org).
+
+
+# Application Inspector
 
 ## 1. 기능 설명
 
@@ -6,7 +96,7 @@ application inspector 기능은 agent들의 리소스 데이터(stat : cpu, memo
 
 inspector 화면 왼쪽 메뉴의 링크를 클릭하면 application inspector 버튼을 클릭하고 데이터를 볼 수 있다.
 
-- 1  : application inspector menu, 2: application stat data
+- 1 : application inspector menu, 2: application stat data
 ![inspector_view.jpg](img/applicationInspector/inspector_view.jpg)
 
 예를들면 A라는 application에 포함된 agent들의 heap 사용량을 모아서 heap 사용량 평균값 , heap 사용량의 평균값,  heap 사용량이 가장 높은 agentid와 사용량, heap 사용량이 가장 적은 agentid와 사용량을 보여준다. 이외에도 agent inspector 에서 제공하는 다른 데이터들도 집계하여 application inspector에서 제공한다.
@@ -24,46 +114,46 @@ application inspector 기능의 동작 및 구조를 그림과 함께 보자.
 
 
 
-**A.** [flink](https://flink.apache.org)에 streaming job을 실행시킨다.
-**B.** job이 실행되면 taskmanager 서버의 정보가 zookeeper의 데이터 노드로 등록이 된다.
-**C.** collector는 zookeeper에서 flink 서버의 정보를 가져와서flin 서버와 tcp 연결을 맺고 agent stat 데이터를 전송한다.
+**A.** [flink](https://flink.apache.org)에 streaming job을 실행시킨다.  
+**B.** job이 실행되면 taskmanager 서버의 정보가 zookeeper의 데이터 노드로 등록이 된다.  
+**C.** collector는 zookeeper에서 flink 서버의 정보를 가져와서 flink 서버와 tcp 연결을 맺고 agent stat 데이터를 전송한다.  
 **D.** flink 서버에서는 agent 데이터를 집계하여 통계 데이터를 hbase에 저장한다.
 
 ## 3. 기능 실행 방법
 
 application inspector 기능을 실행하기 위해서 아래와 같이 설정을 변경하고 pinpoint를 실행해야 한다.
 
-**A.** [테이블 생성 스크립트를 참조](https://github.com/naver/pinpoint/tree/master/hbase/scripts)하여 application 통계 데이터를 저장하는 'ApplicationStatAggre' 테이블을 생성한다.
+**A.** [테이블 생성 스크립트를 참조](https://github.com/naver/pinpoint/tree/master/hbase/scripts)하여 application 통계 데이터를 저장하는 **ApplicationStatAggre** 테이블을 생성한다.
 
-**B.** flink 프로젝트 설정파일(pinpoint-flink.porperties)에 taskmanager 서버 정보를 저장하는 zookeeper 주소를 설정한다.
+**B.** flink 프로젝트 설정파일([pinpoint-flink.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/pinpoint-flink.properties))에 taskmanager 서버 정보를 저장하는 zookeeper 주소를 설정한다.
 ```properties
-	flink.cluster.enable=true
-	flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
-	flink.cluster.zookeeper.sessiontimeout=3000
-	flink.cluster.zookeeper.retry.interval=5000
-	flink.cluster.tcp.port=19994
+    flink.cluster.enable=true
+    flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
+    flink.cluster.zookeeper.sessiontimeout=3000
+    flink.cluster.zookeeper.retry.interval=5000
+    flink.cluster.tcp.port=19994
 ```
 
-**C.** flink 프로젝트 설정파일(hbase.properties)에 집계 데이터를 저장하는 hbase 주소를 설정한다.
+**C.** flink 프로젝트 설정파일([hbase.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/hbase.properties))에 집계 데이터를 저장하는 hbase 주소를 설정한다.
 ```properties
-	hbase.client.host=YOUR_HBASE_ADDRESS
-	hbase.client.port=2181
+    hbase.client.host=YOUR_HBASE_ADDRESS
+    hbase.client.port=2181
 ```
 
-**D.** [flink 프로젝트](https://github.com/naver/pinpoint/tree/master/flink)를 빌드하여 target 폴더 하위에 생성된 streaming job 파일을 flink 서버에 job을 실행한다.
-	- streaming job 파일 이름은 `pinpoint-flink-job.2.0.jar` 이다.
-	- 실행방법은 [flink 사이트](https://flink.apache.org)를 참조한다.
+**D.** [flink 프로젝트](https://github.com/naver/pinpoint/tree/master/flink)를 빌드하여 target 폴더 하위에 생성된 streaming job 파일을 flink 서버에 job을 실행한다.  
+  - streaming job 파일 이름은 `pinpoint-flink-job.2.0.jar` 이다.
+  - 실행방법은 [flink 사이트](https://flink.apache.org)를 참조한다.
 
-**E.** collector에서 flink와 연결을 맺을 수 있도록 설정파일(pinpoint-collector.porperties)에 zookeeper 주소를 설정한다.
+**E.** collector에서 flink와 연결을 맺을 수 있도록 설정파일([pinpoint-collector.porperties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties))에 zookeeper 주소를 설정한다.
 ```properties
-        flink.cluster.enable=true
-	flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
-	flink.cluster.zookeeper.sessiontimeout=3000
+    flink.cluster.enable=true
+    flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
+    flink.cluster.zookeeper.sessiontimeout=3000
 ```
 
 **F.** web에서 application inspector 버튼을 활성화 하기 위해서 설정파일(pinpoint-web.porperties)을 수정한다.
 ```properties
-	config.show.applicationStat=true
+    config.show.applicationStat=true
 ```
 
 ## 4. streaming job 동작 확인 모니터링 batch
@@ -71,13 +161,13 @@ application inspector 기능을 실행하기 위해서 아래와 같이 설정�
 pinpoint streaming job이 실행되고 있는지 확인하는 batch job이 있다. 
 batch job을 동작 시키고 싶다면 pinpoint web 프로젝트의 설정 파일을 수정하면 된다.
 
-**`batch.properties`**
+**batch.properties**
 ```properties
 batch.flink.server=FLINK_MANGER_SERVER_IP_LIST
 #`batch.flink.server` 속성 값에 flink job manager 서버 IP를 입력하면 된다. 서버 리스트의 구분자는 ','이다.
 # ex) batch.flink.server=123.124.125.126,123.124.125.127
 ```
-**`applicationContext-batch-schedule.xml`**
+**applicationContext-batch-schedule.xml**
 ```xml
 <task:scheduled-tasks scheduler="scheduler">
 	...
