@@ -63,7 +63,7 @@ In order to enable application inspector, you will need to do the following and 
     config.show.applicationStat=true
 ```
 
-## Monitoring Streaming Jobs
+## 4. Monitoring Streaming Jobs
 
 There is a batch job that monitors how pinpoint streaming jobs are running. To enable this batch job, configure the following files for *pinpoint-web*.
 
@@ -83,7 +83,7 @@ batch.flink.server=FLINK_MANGER_SERVER_IP_LIST
 
 If you would like to send alarms in case of batch job failure, you must implement `com.navercorp.pinpoint.web.batch.JobFailMessageSender class` and register it as a Spring bean.
 
-## Others
+## 5. Others
 
 For more detailes on how to install and operate flink, please refer to the [flink website](https://flink.apache.org).
 
