@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * @author Taejin Koo
  */
-public class ResponseMessage extends AbstractPinpointWebSocketMessage {
+public class ResponseMessage implements PinpointWebSocketMessage {
 
     private final String command;
     private final Map result;

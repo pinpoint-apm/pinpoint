@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class PinpointWebSocketMessageConverterTest {
 
-    PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
+    private PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
 
     @Test
     public void requestMessageTest() throws Exception {
@@ -44,7 +44,7 @@ public class PinpointWebSocketMessageConverterTest {
 
         Assert.assertEquals(PinpointWebSocketMessageType.REQUEST, requestMessage.getType());
         Assert.assertEquals(command, requestMessage.getCommand());
-        Assert.assertEquals(parameters, requestMessage.getParams());
+        Assert.assertEquals(parameters, requestMessage.getParameters());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class PinpointWebSocketMessageConverterTest {
 
         Assert.assertEquals(PinpointWebSocketMessageType.SEND, sendMessage.getType());
         Assert.assertEquals(command, sendMessage.getCommand());
-        Assert.assertEquals(parameters, sendMessage.getParams());
+        Assert.assertEquals(parameters, sendMessage.getParameters());
     }
 
     @Test
@@ -103,5 +103,18 @@ public class PinpointWebSocketMessageConverterTest {
         Assert.assertTrue(webSocketMessage instanceof PongMessage);
         Assert.assertEquals(PinpointWebSocketMessageType.PONG, webSocketMessage.getType());
     }
+
+    @Test
+    public void UnknownMessageTest() throws Exception {
+        PinpointWebSocketMessage emptyString = messageConverter.getWebSocketMessage("");
+        Assert.assertSame(emptyString.getClass(), UnknownMessage.class);
+
+        PinpointWebSocketMessage nullValue = messageConverter.getWebSocketMessage(null);
+        Assert.assertSame(nullValue.getClass(), UnknownMessage.class);
+
+        PinpointWebSocketMessage emptyObject = messageConverter.getWebSocketMessage("{}");
+        Assert.assertSame(emptyObject.getClass(), UnknownMessage.class);
+    }
+
 
 }

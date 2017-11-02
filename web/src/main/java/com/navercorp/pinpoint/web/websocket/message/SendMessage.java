@@ -21,21 +21,21 @@ import java.util.Map;
 /**
  * @author Taejin Koo
  */
-public class SendMessage extends AbstractPinpointWebSocketMessage {
+public class SendMessage implements PinpointWebSocketMessage {
 
     private final String command;
     private final Map params;
 
-    public SendMessage(String command, Map params) {
+    public SendMessage(String command, Map parameters) {
         this.command = command;
-        this.params = params;
+        this.params = parameters;
     }
 
     public String getCommand() {
         return command;
     }
 
-    public Map getParams() {
+    public Map getParameters() {
         return params;
     }
 
