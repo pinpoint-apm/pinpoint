@@ -3,7 +3,7 @@
 	pinpointApp.directive( "dsChartDirective", [ "helpContentService",
 		function ( helpContentService ) {
 			return {
-				template: "<div><div></div></div>",
+				template: "<div style='width:100%;height:270px;'><div></div></div>",
 				replace: true,
 				restrict: "E",
 				scope: {
@@ -48,13 +48,15 @@
 							"switchable": true,
 							"valueAxes": [
 								{
-									"id": "v1",
 									"gridAlpha": 0,
 									"axisAlpha": 1,
 									"position": "left",
 									"title": "Connection(count)",
-									"maximum" : currentChartData.defaultMax,
-									"minimum" : 0
+									"maximum" : 10,
+									"minimum" : 0,
+									"labelFunction": function(value) {
+										return parseInt(value);
+									}
 								}
 							],
 							"graphs": [],
@@ -91,7 +93,6 @@
 							}
 							var aSplit = p.split("_");
 							options.graphs.push({
-								"valueAxis": "v1",
 								"balloonFunction": function() {
 									return "";
 								},
@@ -102,7 +103,22 @@
 								"connect": false,
 								"hidden": !oVisible[p]
 							});
-
+						}
+						if ( index === 0 ) {
+							options.graphs.push({
+								"balloonFunction": function() {
+									return "";
+								},
+								"lineColor": getNextColor(index),
+								"title": "0",
+								"valueField": p,
+								"fillAlphas": 0,
+								"connect": false,
+								"hidden": false
+							});
+						}
+						if ( currentChartData.empty || currentChartData.forceMax ) {
+							options.valueAxes[0].maximum = currentChartData["defaultMax"];
 						}
 						oChart = AmCharts.makeChart(sId, options);
 						addNoDataElement();

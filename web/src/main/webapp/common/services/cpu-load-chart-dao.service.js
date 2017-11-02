@@ -27,11 +27,16 @@
 					refinedChartData.empty = true;
 				}
 				for (var i = 0; i < xLen; ++i) {
-					refinedChartData.data.push({
-						time: moment(aX[i]).format( cfg.dateFormat ),
-						jvmCpuLoad: jvmCpuLen > i ? pointsJvmCpuLoad[i][1].toFixed(2) : -1,
-						systemCpuLoad: systemCpuLen > i ? pointsSystemCpuLoad[i][1].toFixed(2) : -1
-					});
+					var thisData = {
+						time: moment(aX[i]).format( cfg.dateFormat )
+					};
+					if ( jvmCpuLen > i ) {
+						thisData["jvmCpuLoad"] = pointsJvmCpuLoad[i][1].toFixed(2);
+					}
+					if ( systemCpuLen > i ) {
+						thisData["systemCpuLoad"] = pointsSystemCpuLoad[i][1].toFixed(2);
+					}
+					refinedChartData.data.push(thisData);
 				}
 				return refinedChartData;
 			};

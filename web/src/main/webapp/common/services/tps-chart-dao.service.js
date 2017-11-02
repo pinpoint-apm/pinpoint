@@ -32,14 +32,25 @@
 					refinedChartData.empty = true;
 				}
 				for ( var i = 0 ; i < xLen ; i++ ) {
-					refinedChartData.data.push({
-						"time": moment(aX[i]).format(cfg.dateFormat),
-						"sampledContinuationTps": scdLen > i ? getFloatValue(aSampledContinuationData[i][2]) : -1,
-						"sampledNewTps": sndLen > i ? getFloatValue(aSampledNewData[i][2]) : -1,
-						"unsampledContinuationTps": ucdLen > i ? getFloatValue(aUnsampledContinuationData[i][2]) : -1,
-						"unsampledNewTps": undLen > i ? getFloatValue(aUnsampledNewData[i][2]) : -1,
-						"totalTps": tdLen > i ? getFloatValue(aTotalData[i][2]) : -1
-					});
+					var thisData = {
+						"time": moment(aX[i]).format(cfg.dateFormat)
+					};
+					if ( scdLen > i ) {
+						thisData["sampledContinuationTps"] = getFloatValue(aSampledContinuationData[i][2]);
+					}
+					if ( sndLen > i ) {
+						thisData["sampledNewTps"] = getFloatValue(aSampledNewData[i][2]);
+					}
+					if ( ucdLen > i ) {
+						thisData["unsampledContinuationTps"] = getFloatValue(aUnsampledContinuationData[i][2]);
+					}
+					if ( undLen > i ) {
+						thisData["unsampledNewTps"] = getFloatValue(aUnsampledNewData[i][2]);
+					}
+					if ( tdLen > i ) {
+						thisData["totalTps"] = getFloatValue(aTotalData[i][2]);
+					}
+					refinedChartData.data.push( thisData );
 				}
 				return refinedChartData;
 			};

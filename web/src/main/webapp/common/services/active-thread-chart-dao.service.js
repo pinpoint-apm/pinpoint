@@ -30,17 +30,26 @@
 					refinedChartData.empty = true;
 				}
 				for ( var i = 0 ; i < xLen ; i++ ) {
-					refinedChartData.data.push({
-						"time": moment(aX[i]).format(cfg.dateFormat),
-						"fast": fastLen > i ? getFloatValue(aActiveTraceFast[i][2]) : -1,
-						"normal": normalLen > i ? getFloatValue(aActiveTraceNormal[i][2]) : -1,
-						"slow": slowLen > i ? getFloatValue(aActiveTraceSlow[i][2]) : -1,
-						"verySlow": verySlowLen > i ? getFloatValue(aActiveTraceVerySlow[i][2]) : -1,
-						"fastTitle": fastLen > i ? aActiveTraceFast[i][4] : "",
-						"normalTitle": normalLen > i ? aActiveTraceNormal[i][4] : "",
-						"slowTitle": slowLen > i ? aActiveTraceSlow[i][4] : "",
-						"verySlowTitle": verySlowLen > i ? aActiveTraceVerySlow[i][4] : ""
-					});
+					var thisData = {
+						"time": moment(aX[i]).format(cfg.dateFormat)
+					};
+					if ( fastLen > i ) {
+						thisData["fast"] = getFloatValue(aActiveTraceFast[i][2]);
+						thisData["fastTitle"] = aActiveTraceFast[i][4];
+					}
+					if ( normalLen > i ) {
+						thisData["normal"] = getFloatValue(aActiveTraceNormal[i][2]);
+						thisData["normalTitle"] = aActiveTraceNormal[i][4];
+					}
+					if ( slowLen > i ) {
+						thisData["slow"] = getFloatValue(aActiveTraceSlow[i][2]);
+						thisData["slowTitle"] = aActiveTraceSlow[i][4];
+					}
+					if ( verySlowLen > i ) {
+						thisData["verySlow"] = getFloatValue(aActiveTraceVerySlow[i][2]);
+						thisData["verySlowTitle"] = aActiveTraceVerySlow[i][4];
+					}
+					refinedChartData.data.push( thisData );
 				}
 				return refinedChartData;
 			};

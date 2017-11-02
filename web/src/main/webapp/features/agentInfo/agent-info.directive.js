@@ -435,7 +435,7 @@
 						scope.$broadcast( "agentInspectorChartDirective.showCursorAt", sourceTarget, event.index );
 						scope.$broadcast( "dsChartDirective.showCursorAt.agent-data-source", event.index);
 					});
-					scope.$on("dsChartDirective.cursorChanged.forDataSource", function (e, targetId, index) {
+					scope.$on("dsChartDirective.cursorChanged.agent-data-source", function (e, targetId, index) {
 						showDataSourceDetailInfo( targetId, index );
 						scope.$broadcast( "agentInspectorChartDirective.showCursorAt", "agent-data-source", index );
 					});

@@ -194,14 +194,17 @@
 						};
 
 						for (var i = 0; i < xLen; ++i) {
-							returnData.data.push({
-								"time": moment(aX[i]).format("YYYY-MM-DD HH:mm:ss"),
-								"avg": yLen > i ? aY[i][4].toFixed(2) : -1,
-								"min": yLen > i ? aY[i][0].toFixed(2) : -1,
-								"max": yLen > i ? aY[i][2].toFixed(2) : -1,
-								"minAgent": yLen > i ? aY[i][1] : "",
-								"maxAgent": yLen > i ? aY[i][3] : ""
-							});
+							var thisData = {
+								"time": moment(aX[i]).format("YYYY-MM-DD HH:mm:ss")
+							};
+							if ( yLen > i ) {
+								thisData["avg"] = aY[i][4].toFixed(2);
+								thisData["min"] = aY[i][0].toFixed(2);
+								thisData["max"] = aY[i][2].toFixed(2);
+								thisData["minAgent"] = aY[i][1];
+								thisData["maxAgent"] = aY[i][3];
+							}
+							returnData.data.push( thisData );
 						}
 						return returnData;
 					}
