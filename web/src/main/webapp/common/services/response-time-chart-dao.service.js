@@ -21,11 +21,14 @@
 				};
 
 				for ( var i = 0 ; i < xLen ; i++ ) {
-					refinedChartData.data.push({
-						"avg" : avgLen > i ? getFloatValue( aAVGData[i][2] ): -1,
-						"time": moment( aX[i] ).format( cfg.dateFormat ),
-						"title": "AVG"
-					});
+					var thisData = {
+						"time": moment( aX[i] ).format( cfg.dateFormat )
+					};
+					if ( avgLen > i ) {
+						thisData["avg"] = getFloatValue( aAVGData[i][2] );
+						thisData["title"] = "AVG";
+					}
+					refinedChartData.data.push( thisData );
 				}
 				return refinedChartData;
 			};

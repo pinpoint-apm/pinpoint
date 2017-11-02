@@ -104,6 +104,9 @@
 						}
 					});
 
+					scope.$on("agentInspectorChartDirective.showLoading." + scope.namespace, function() {
+						elLoading.show();
+					});
 					scope.$on("agentInspectorChartDirective.showCursorAt", function (event, sourceNamespace, category ) {
 						if ( currentChartData && currentChartData.empty === false && scope.namespace !== sourceNamespace) {
 							showCursorAt(category);
