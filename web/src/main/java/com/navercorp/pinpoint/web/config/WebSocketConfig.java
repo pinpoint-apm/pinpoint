@@ -17,15 +17,16 @@
 package com.navercorp.pinpoint.web.config;
 
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
+import com.navercorp.pinpoint.web.websocket.WebSocketSessionContextPrepareHandshakeInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistration;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
@@ -49,10 +50,15 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        String[] allowedOriginArray = getAllowedOriginArray(configProperties.getWebSocketAllowedOrigins());
+        final String[] allowedOriginArray = getAllowedOriginArray(configProperties.getWebSocketAllowedOrigins());
 
         for (PinpointWebSocketHandler handler : handlerRepository.getWebSocketHandlerRepository()) {
-            registry.addHandler(handler, handler.getRequestMapping() + WEBSOCKET_SUFFIX).addInterceptors(new HttpSessionHandshakeInterceptor()).setAllowedOrigins(allowedOriginArray);
+            String path = handler.getRequestMapping() + WEBSOCKET_SUFFIX;
+            final WebSocketHandlerRegistration webSocketHandlerRegistration = registry.addHandler(handler, path);
+
+            webSocketHandlerRegistration.addInterceptors(new HttpSessionHandshakeInterceptor());
+            webSocketHandlerRegistration.addInterceptors(new WebSocketSessionContextPrepareHandshakeInterceptor());
+            webSocketHandlerRegistration.setAllowedOrigins(allowedOriginArray);
         }
     }
 
@@ -60,17 +66,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         if (!StringUtils.hasText(allowedOrigins)) {
             return DEFAULT_ALLOWED_ORIGIN;
         }
-
-        String[] splitString = StringUtils.split(allowedOrigins, ",");
-        if (ArrayUtils.isEmpty(splitString)) {
-            return new String[]{StringUtils.trimAllWhitespace(allowedOrigins)};
-        } else {
-            String[] result = new String[splitString.length];
-            for (int i = 0; i < splitString.length; i++) {
-                result[i] = StringUtils.trimAllWhitespace(splitString[i]);
-            }
-            return result;
-        }
+        return StringUtils.tokenizeToStringArray(allowedOrigins, ",");
     }
 
 }
