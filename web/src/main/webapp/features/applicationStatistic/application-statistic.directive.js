@@ -61,7 +61,7 @@
 										labelFunc: function(value) {
 											return convertWithUnits(value, ["", "K", "M", "G"]);
 										}
-									}, chartData.charts["MEMORY_HEAP"]), "100%", "270px");
+									}, chartData.charts.x, chartData.charts.y["MEMORY_HEAP"]), "100%", "270px");
 									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-non-heap", makeChartData({
 										title: "Memory Non Heap",
 										fixMax: false,
@@ -70,7 +70,7 @@
 										labelFunc: function(value) {
 											return convertWithUnits(value, ["", "K", "M", "G"]);
 										}
-									}, chartData.charts["MEMORY_NON_HEAP"]), "100%", "270px");
+									}, chartData.charts.x, chartData.charts.y["MEMORY_NON_HEAP"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
@@ -86,7 +86,7 @@
 										labelFunc: function(value) {
 											return value + "%";
 										}
-									}, chartData.charts["CPU_LOAD_JVM"]), "100%", "270px");
+									}, chartData.charts.x, chartData.charts.y["CPU_LOAD_JVM"]), "100%", "270px");
 									scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-system", makeChartData({
 										title: "System Cpu Usage",
 										fixMax: true,
@@ -96,7 +96,7 @@
 										labelFunc: function(value) {
 											return value + "%";
 										}
-									}, chartData.charts["CPU_LOAD_SYSTEM"]), "100%", "270px");
+									}, chartData.charts.x, chartData.charts.y["CPU_LOAD_SYSTEM"]), "100%", "270px");
 								} else {
 								}
 							});
@@ -110,7 +110,7 @@
 										labelFunc: function(value) {
 											return convertWithUnits(value, ["", "K", "M", "G"]);
 										}
-									}, chartData.charts["TRANSACTION_COUNT"]), "100%", "270px");
+									}, chartData.charts.x, chartData.charts.y["TRANSACTION_COUNT"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
@@ -125,7 +125,7 @@
 										labelFunc: function(value) {
 											return convertWithUnits(value, ["", "K", "M", "G"]);
 										}
-									}, chartData.charts["ACTIVE_TRACE_COUNT"]), "100%", "270px");
+									}, chartData.charts.x, chartData.charts.y["ACTIVE_TRACE_COUNT"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
@@ -140,7 +140,7 @@
 										labelFunc: function(value) {
 											return convertWithUnits(value, ["ms", "sec", "min"]);
 										}
-									}, chartData.charts["RESPONSE_TIME"]), "100%", "270px");
+									}, chartData.charts.x, chartData.charts.y["RESPONSE_TIME"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
@@ -149,14 +149,14 @@
 								if ( angular.isUndefined(chartData.exception) ) {
 									scope.dataSourceData = chartData;
 									bEmptyDataSource = false;
-									broadcastToDataSource(chartData[scope.dataSourceSelectedIndex].charts["ACTIVE_CONNECTION_SIZE"]);
+									broadcastToDataSource(chartData[scope.dataSourceSelectedIndex].charts.x, chartData[scope.dataSourceSelectedIndex].charts.y["ACTIVE_CONNECTION_SIZE"]);
 								} else {
 									console.log("error");
 								}
 							});
 						}
 					}
-					function broadcastToDataSource( data ) {
+					function broadcastToDataSource( xData, yData ) {
 						var oMakeChartData = makeChartData({
 							title: "Data Source",
 							fixMax: false,
@@ -165,7 +165,7 @@
 							labelFunc: function(value, valueStr) {
 								return valueStr;
 							}
-						}, data);
+						}, xData, yData);
 						bEmptyDataSource = oMakeChartData.empty;
 						scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-data-source", oMakeChartData, "100%", "270px");
 					}
@@ -178,10 +178,12 @@
 						}
 						return result + units[index] + " ";
 					}
-					function makeChartData(chartProperty, chartData) {
+					function makeChartData(chartProperty, aX, aY) {
+						var xLen = aX.length;
+						var yLen = aY.length;
 						var returnData = {
 							data: [],
-							empty: true,
+							empty: yLen === 0 ? true : false,
 							field: ["avg", "max", "min", "maxAgent", "minAgent"],
 							fixMax: chartProperty.fixMax,
 							category: ["Avg", "Max", "Min"],
@@ -190,24 +192,16 @@
 							defaultMax: chartProperty.defaultMax,
 							appendUnit: chartProperty.appendUnit || ""
 						};
-						var pointsData = chartData.points;
-						var length = pointsData.length;
-						for (var i = 0; i < length; ++i) {
-							if ( pointsData[i]['yValForAvg'] === -1 || pointsData[i]['yValForMin'] === -1 || pointsData[i]['yValForMax'] === -1 ) {
-								returnData.data.push({
-									"time": moment(pointsData[i]['xVal']).format("YYYY-MM-DD HH:mm:ss")
-								});
-							} else {
-								returnData.empty = false;
-								returnData.data.push({
-									"time": moment(pointsData[i]['xVal']).format("YYYY-MM-DD HH:mm:ss"),
-									"avg": pointsData[i]['yValForAvg'].toFixed(2),
-									"min": pointsData[i]['yValForMin'].toFixed(2),
-									"max": pointsData[i]['yValForMax'].toFixed(2),
-									"minAgent": pointsData[i]['agentIdForMin'],
-									"maxAgent": pointsData[i]['agentIdForMax']
-								});
-							}
+
+						for (var i = 0; i < xLen; ++i) {
+							returnData.data.push({
+								"time": moment(aX[i]).format("YYYY-MM-DD HH:mm:ss"),
+								"avg": aY[i][4].toFixed(2),
+								"min": aY[i][0].toFixed(2),
+								"max": aY[i][2].toFixed(2),
+								"minAgent": aY[i][1],
+								"maxAgent": aY[i][3]
+							});
 						}
 						return returnData;
 					}
@@ -298,7 +292,7 @@
 							if ( target.nodeName.toUpperCase() === "BODY" ) return;
 						}
 						scope.dataSourceSelectedIndex = parseInt(target.getAttribute("data-source"));
-						broadcastToDataSource(scope.dataSourceData[scope.dataSourceSelectedIndex].charts["ACTIVE_CONNECTION_SIZE"]);
+						broadcastToDataSource(scope.dataSourceData[scope.dataSourceSelectedIndex].charts.x, scope.dataSourceData[scope.dataSourceSelectedIndex].charts.y["ACTIVE_CONNECTION_SIZE"]);
 					};
 					scope.movePrev2 = function() {
 						timeSlider.movePrev();

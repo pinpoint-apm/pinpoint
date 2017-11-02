@@ -25,38 +25,41 @@
 				return _parseData( category, aChartData );
 			};
 			function _parseData( category, aChartData ) {
-				var pointsTime = aChartData.charts["JVM_GC_OLD_TIME"].points;
-				var pointsCount = aChartData.charts["JVM_GC_OLD_COUNT"].points;
+				var aX = aChartData.charts.x;
+				var pointsTime = aChartData.charts.y["JVM_GC_OLD_TIME"];
+				var pointsCount = aChartData.charts.y["JVM_GC_OLD_COUNT"];
 				var refinedChartData = {
 					data: [],
-					empty: true,
+					empty: false,
+					forceMax: false,
 					defaultMax: 100
 				};
-
 				var cumulativeGcTime = 0;
-				for (var i = 0; i < pointsCount.length; ++i) {
+
+				for (var i = 0; i < aX.length; ++i) {
 					var thisData = {
-						time: moment(pointsTime[i]["xVal"]).format( cfg.dateFormat )
+						time: moment(aX[i]).format( cfg.dateFormat )
 					};
-					for( var j = 0 ; j < category.length ; j++ ) {
-						if ( category[j].isFgc ) {
-							var gcCount = pointsCount[i]["sumYVal"];
-							var gcTime = pointsTime[i]["sumYVal"];
-							if (gcTime > 0) {
-								refinedChartData.empty = false;
-								cumulativeGcTime += gcTime;
-							}
-							if (gcCount > 0) {
-								refinedChartData.empty = false;
-								thisData[category[j].key+"Count"] = gcCount;
-								thisData[category[j].key+"Time"] = cumulativeGcTime;
-								cumulativeGcTime = 0;
-							}
-						} else {
-							var yValue = aChartData.charts[category[j]["id"]].points[i]["maxYVal"];
-							if ( yValue > 0 ) {
-								refinedChartData.empty = false;
-								thisData[category[j].key] = yValue;
+					if ( pointsTime.length === 0 ) {
+						refinedChartData.empty = true;
+					} else {
+						for (var j = 0; j < category.length; j++) {
+							if (category[j].isFgc) {
+								var gcCount = pointsCount[i][3];
+								var gcTime = pointsTime[i][3];
+								if (gcTime > 0) {
+									cumulativeGcTime += gcTime;
+								}
+								if (gcCount > 0) {
+									thisData[category[j].key + "Count"] = gcCount;
+									thisData[category[j].key + "Time"] = cumulativeGcTime;
+									cumulativeGcTime = 0;
+								}
+							} else {
+								var yValue = aChartData.charts.y[category[j]["id"]][i][1];
+								if (yValue > 0) {
+									thisData[category[j].key] = yValue;
+								}
 							}
 						}
 					}

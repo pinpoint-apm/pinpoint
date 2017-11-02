@@ -9,37 +9,38 @@
 		function ActiveThreadChartDaoService( cfg ) {
 
 			this.parseData = function( aChartData ) {
-				var aActiveTraceFastData = aChartData.charts[ "ACTIVE_TRACE_FAST" ].points;
-				var aActiveTraceNormal = aChartData.charts[ "ACTIVE_TRACE_NORMAL" ].points;
-				var aActiveTraceSlow = aChartData.charts[ "ACTIVE_TRACE_SLOW" ].points;
-				var aActiveTraceVerySlow = aChartData.charts[ "ACTIVE_TRACE_VERY_SLOW" ].points;
+				var aX = aChartData.charts.x;
+				var aActiveTraceFast = aChartData.charts.y[ "ACTIVE_TRACE_FAST" ];
+				var aActiveTraceNormal = aChartData.charts.y[ "ACTIVE_TRACE_NORMAL" ];
+				var aActiveTraceSlow = aChartData.charts.y[ "ACTIVE_TRACE_SLOW" ];
+				var aActiveTraceVerySlow = aChartData.charts.y[ "ACTIVE_TRACE_VERY_SLOW" ];
+				var xLen = aX.length;
+				var fastLen = aActiveTraceFast.length;
+				var normalLen = aActiveTraceNormal.length;
+				var slowLen = aActiveTraceSlow.length;
+				var verySlowLen = aActiveTraceVerySlow.length;
 				var refinedChartData = {
 					data: [],
-					empty: true,
+					empty: false,
+					forceMax: false,
 					defaultMax: 10
 				};
 
-				for ( var i = 0 ; i < aActiveTraceFastData.length ; i++ ) {
-					var obj = {
-						"time": moment(aActiveTraceFastData[i]["xVal"]).format(cfg.dateFormat)
-					};
-
-					var fast = aActiveTraceFastData[i]["avgYVal"];
-					var normal = aActiveTraceNormal[i]["avgYVal"];
-					var slow =  aActiveTraceSlow[i]["avgYVal"];
-					var verySlow =  aActiveTraceVerySlow[i]["avgYVal"];
-					if ( fast !== -1 || normal !== -1 || slow !== -1 || verySlow !== -1 ) {
-						refinedChartData.empty = false;
-					}
-					obj.fast = getFloatValue( fast );
-					obj.fastTitle = aActiveTraceFastData[i].title;
-					obj.normal = getFloatValue( normal );
-					obj.normalTitle = aActiveTraceNormal[i].title;
-					obj.slow = getFloatValue( slow );
-					obj.slowTitle = aActiveTraceSlow[i].title;
-					obj.verySlow = getFloatValue( verySlow );
-					obj.verySlowTitle = aActiveTraceVerySlow[i].title;
-					refinedChartData.data.push( obj );
+				if ( fastLen === 0 && normalLen === 0 && slowLen === 0 && verySlowLen === 0 ) {
+					refinedChartData.empty = true;
+				}
+				for ( var i = 0 ; i < xLen ; i++ ) {
+					refinedChartData.data.push({
+						"time": moment(aX[i]).format(cfg.dateFormat),
+						"fast": fastLen > i ? getFloatValue(aActiveTraceFast[i][2]) : -1,
+						"normal": normalLen > i ? getFloatValue(aActiveTraceNormal[i][2]) : -1,
+						"slow": slowLen > i ? getFloatValue(aActiveTraceSlow[i][2]) : -1,
+						"verySlow": verySlowLen > i ? getFloatValue(aActiveTraceVerySlow[i][2]) : -1,
+						"fastTitle": fastLen > i ? aActiveTraceFast[i][4] : "",
+						"normalTitle": normalLen > i ? aActiveTraceNormal[i][4] : "",
+						"slowTitle": slowLen > i ? aActiveTraceSlow[i][4] : "",
+						"verySlowTitle": verySlowLen > i ? aActiveTraceVerySlow[i][4] : ""
+					});
 				}
 				return refinedChartData;
 			};

@@ -16,27 +16,29 @@
 			this.parseDataSourceChartDataForAmcharts = function ( aChartData, prefix ) {
 				var refinedChartData = {
 					data: [],
-					empty: true,
+					empty: false,
+					forceMax: false,
 					defaultMax: 10
 				};
 				var maxAvg = 0;
 				for( var groupIndex = 0 ; groupIndex < aChartData.length ; groupIndex++ ) {
 					var oGroupData = aChartData[groupIndex];
 					var targetId = oGroupData.id;
-					var aAvgData = oGroupData.charts["ACTIVE_CONNECTION_SIZE"].points;
+					var aAvgData = oGroupData.charts.y["ACTIVE_CONNECTION_SIZE"];
+					var avgLen = aAvgData.length;
 
-					for( var fieldIndex = 0 ; fieldIndex < aAvgData.length ; fieldIndex++ ) {
+					if ( avgLen === 0 ) {
+						refinedChartData.empty = true;
+					}
+					for( var fieldIndex = 0 ; fieldIndex < avgLen ; fieldIndex++ ) {
 						var oData = aAvgData[fieldIndex];
 						if ( groupIndex === 0 ) {
 							refinedChartData.data[fieldIndex] = {
-								"time": moment(oData["xVal"]).format(cfg.dateFormat)
+								"time": moment(oGroupData.charts.x[fieldIndex]).format(cfg.dateFormat)
 							};
 						}
-						maxAvg = Math.max( maxAvg, oData["avgYVal"] );
-						if ( oData["avgYVal"] !== -1 ) {
-							refinedChartData.empty = false;
-						}
-						refinedChartData.data[fieldIndex][prefix+targetId]  = oData["avgYVal"].toFixed(1);
+						maxAvg = Math.max( maxAvg, oData[2] );
+						refinedChartData.data[fieldIndex][prefix+targetId]  = oData[2].toFixed(1);
 					}
 				}
 				refinedChartData.defaultMax = refinedChartData.empty ? refinedChartData.defaultMax : parseInt(maxAvg) + 1;
