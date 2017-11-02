@@ -9,34 +9,36 @@
 		function TPSChartDaoService( cfg ) {
 
 			this.parseData = function( aChartData ) {
-				var aSampledContinuationData = aChartData.charts["TPS_SAMPLED_CONTINUATION"].points;
-				var aSampledNewData = aChartData.charts["TPS_SAMPLED_NEW"].points;
-				var aUnsampledContinuationData = aChartData.charts["TPS_UNSAMPLED_CONTINUATION"].points;
-				var aUnsampledNewData = aChartData.charts["TPS_UNSAMPLED_NEW"].points;
-				var aTotalData = aChartData.charts["TPS_TOTAL"].points;
+				var aX = aChartData.charts.x;
+				var aSampledContinuationData = aChartData.charts.y["TPS_SAMPLED_CONTINUATION"];
+				var aSampledNewData = aChartData.charts.y["TPS_SAMPLED_NEW"];
+				var aUnsampledContinuationData = aChartData.charts.y["TPS_UNSAMPLED_CONTINUATION"];
+				var aUnsampledNewData = aChartData.charts.y["TPS_UNSAMPLED_NEW"];
+				var aTotalData = aChartData.charts.y["TPS_TOTAL"];
+				var xLen = aX.length;
+				var scdLen = aSampledContinuationData.length;
+				var sndLen = aSampledNewData.length;
+				var ucdLen = aUnsampledContinuationData.length;
+				var undLen = aUnsampledNewData.length;
+				var tdLen = aTotalData.length;
+
 				var refinedChartData = {
 					data: [],
-					empty: true,
+					empty: false,
+					forceMax: false,
 					defaultMax: 10
 				};
-				var tpsLength = aTotalData.length;
-
-				for ( var i = 0 ; i < tpsLength ; i++ ) {
-					var sampledContinuationTps = aSampledContinuationData[i]["avgYVal"];
-					var sampledNewTps = aSampledNewData[i]["avgYVal"];
-					var unsampledContinuationTps = aUnsampledContinuationData[i]["avgYVal"];
-					var unsampledNewTps = aUnsampledNewData[i]["avgYVal"];
-					var totalTps = aTotalData[i]["avgYVal"];
-					if ( sampledContinuationTps !== -1 || sampledNewTps !== -1 || unsampledContinuationTps !== -1 || unsampledNewTps !== -1 || totalTps !== -1 ) {
-						refinedChartData.empty = false;
-					}
+				if ( scdLen === 0 && sndLen === 0 && ucdLen === 0 && undLen === 0 && tdLen === 0 ) {
+					refinedChartData.empty = true;
+				}
+				for ( var i = 0 ; i < xLen ; i++ ) {
 					refinedChartData.data.push({
-						"time" : moment(aSampledContinuationData[i]["xVal"]).format( cfg.dateFormat ),
-						"sampledContinuationTps": getFloatValue( sampledContinuationTps ),
-						"sampledNewTps": getFloatValue( sampledNewTps ),
-						"unsampledContinuationTps": getFloatValue( unsampledContinuationTps ),
-						"unsampledNewTps": getFloatValue( unsampledNewTps ),
-						"totalTps": getFloatValue( totalTps )
+						"time": moment(aX[i]).format(cfg.dateFormat),
+						"sampledContinuationTps": scdLen > i ? getFloatValue(aSampledContinuationData[i][2]) : -1,
+						"sampledNewTps": sndLen > i ? getFloatValue(aSampledNewData[i][2]) : -1,
+						"unsampledContinuationTps": ucdLen > i ? getFloatValue(aUnsampledContinuationData[i][2]) : -1,
+						"unsampledNewTps": undLen > i ? getFloatValue(aUnsampledNewData[i][2]) : -1,
+						"totalTps": tdLen > i ? getFloatValue(aTotalData[i][2]) : -1
 					});
 				}
 				return refinedChartData;

@@ -9,24 +9,28 @@
 		function CPULoadChartDaoService( cfg ) {
 
 			this.parseData = function( aChartData ) {
-				var pointsJvmCpuLoad = aChartData.charts["CPU_LOAD_JVM"].points;
-				var pointsSystemCpuLoad = aChartData.charts["CPU_LOAD_SYSTEM"].points;
+				var aX = aChartData.charts.x;
+				var pointsJvmCpuLoad = aChartData.charts.y["CPU_LOAD_JVM"];
+				var pointsSystemCpuLoad = aChartData.charts.y["CPU_LOAD_SYSTEM"];
+				var xLen = aX.length;
+				var jvmCpuLen = pointsJvmCpuLoad.length;
+				var systemCpuLen = pointsSystemCpuLoad.length;
+
 				var refinedChartData = {
 					data: [],
-					empty: true,
+					empty: false,
+					forceMax: true,
 					defaultMax: 100
 				};
 
-				for (var i = 0; i < pointsJvmCpuLoad.length; ++i) {
-					var jvmCpuLoad = pointsJvmCpuLoad[i]["maxYVal"];
-					var systemCpuLoad = pointsSystemCpuLoad[i]["maxYVal"];
-					if ( jvmCpuLoad !== -1 || systemCpuLoad !== -1 ) {
-						refinedChartData.empty = false;
-					}
+				if ( jvmCpuLen.length === 0 && systemCpuLen.length === 0 ) {
+					refinedChartData.empty = true;
+				}
+				for (var i = 0; i < xLen; ++i) {
 					refinedChartData.data.push({
-						time: moment(pointsJvmCpuLoad[i]["xVal"]).format( cfg.dateFormat ),
-						jvmCpuLoad: jvmCpuLoad.toFixed(2),
-						systemCpuLoad: systemCpuLoad.toFixed(2)
+						time: moment(aX[i]).format( cfg.dateFormat ),
+						jvmCpuLoad: jvmCpuLen > i ? pointsJvmCpuLoad[i][1].toFixed(2) : -1,
+						systemCpuLoad: systemCpuLen > i ? pointsSystemCpuLoad[i][1].toFixed(2) : -1
 					});
 				}
 				return refinedChartData;
