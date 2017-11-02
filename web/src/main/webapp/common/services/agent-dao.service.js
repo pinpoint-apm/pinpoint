@@ -21,24 +21,30 @@
 					defaultMax: 10
 				};
 				var maxAvg = 0;
+
 				for( var groupIndex = 0 ; groupIndex < aChartData.length ; groupIndex++ ) {
 					var oGroupData = aChartData[groupIndex];
 					var targetId = oGroupData.id;
 					var aAvgData = oGroupData.charts.y["ACTIVE_CONNECTION_SIZE"];
+					var xLen = oGroupData.charts.x.length;
 					var avgLen = aAvgData.length;
 
 					if ( avgLen === 0 ) {
 						refinedChartData.empty = true;
 					}
-					for( var fieldIndex = 0 ; fieldIndex < avgLen ; fieldIndex++ ) {
-						var oData = aAvgData[fieldIndex];
+					for( var fieldIndex = 0 ; fieldIndex < xLen ; fieldIndex++ ) {
 						if ( groupIndex === 0 ) {
 							refinedChartData.data[fieldIndex] = {
 								"time": moment(oGroupData.charts.x[fieldIndex]).format(cfg.dateFormat)
 							};
 						}
-						maxAvg = Math.max( maxAvg, oData[2] );
-						refinedChartData.data[fieldIndex][prefix+targetId]  = oData[2].toFixed(1);
+						if ( avgLen > fieldIndex ) {
+							var oData = aAvgData[fieldIndex];
+							maxAvg = Math.max( maxAvg, oData[2] );
+							refinedChartData.data[fieldIndex][prefix+targetId]  = oData[2].toFixed(1);
+						} else {
+							refinedChartData.data[fieldIndex][prefix+targetId]  = -1;
+						}
 					}
 				}
 				refinedChartData.defaultMax = refinedChartData.empty ? refinedChartData.defaultMax : parseInt(maxAvg) + 1;

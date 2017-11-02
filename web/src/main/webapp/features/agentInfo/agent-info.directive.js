@@ -68,6 +68,7 @@
 							"sampleRate": AgentDaoService.getSampleRate( period )
 						};
 
+						// showLoading();
 						AgentAjaxService.getJVMChartData( oParam, function (result) {
 							if ( angular.isDefined(result.type) ) {
 								scope.agent["jvmGcType"] = result.type;
@@ -149,6 +150,15 @@
 							}
 						}
 					}
+					// function showLoading() {
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-heap");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-non-heap");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-cpu-load");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-tps");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-active-thread");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-response-time");
+					// 	scope.$broadcast("dsChartDirective.showLoading.agent-data-source");
+					// }
 					function showJvmChart( chartData ) {
 						var refinedChartData = MemoryChartDaoService.parseHeapData( chartData );
 						scope.$broadcast(
