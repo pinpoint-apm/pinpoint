@@ -196,11 +196,11 @@
 						for (var i = 0; i < xLen; ++i) {
 							returnData.data.push({
 								"time": moment(aX[i]).format("YYYY-MM-DD HH:mm:ss"),
-								"avg": aY[i][4].toFixed(2),
-								"min": aY[i][0].toFixed(2),
-								"max": aY[i][2].toFixed(2),
-								"minAgent": aY[i][1],
-								"maxAgent": aY[i][3]
+								"avg": yLen > i ? aY[i][4].toFixed(2) : -1,
+								"min": yLen > i ? aY[i][0].toFixed(2) : -1,
+								"max": yLen > i ? aY[i][2].toFixed(2) : -1,
+								"minAgent": yLen > i ? aY[i][1] : "",
+								"maxAgent": yLen > i ? aY[i][3] : ""
 							});
 						}
 						return returnData;
