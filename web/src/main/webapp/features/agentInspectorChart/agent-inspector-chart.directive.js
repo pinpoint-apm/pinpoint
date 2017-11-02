@@ -34,7 +34,7 @@
 					}
 					function renderUpdate() {
 						oChart.dataProvider = currentChartData.data;
-						if ( currentChartData.empty ) {
+						if ( currentChartData.empty || currentChartData.forceMax ) {
 							setYMax( oChart );
 						} else {
 							removeYMax( oChart );
@@ -61,7 +61,7 @@
 								scope.$emit( "agentInspectorChartDirective.cursorChanged", scope.namespace, event );
 							}
 						}];
-						if ( currentChartData.empty ) {
+						if ( currentChartData.empty || currentChartData.forceMax ) {
 							setYMax( chartOptions );
 						}
 						oChart = AmCharts.makeChart(sId, chartOptions);

@@ -9,20 +9,21 @@
 		function ResponseTimeChartDaoService( cfg ) {
 
 			this.parseData = function( aChartData ) {
-				var aAVGData = aChartData.charts[ "AVG" ].points;
+				var aX = aChartData.charts.x;
+				var aAVGData = aChartData.charts.y[ "AVG" ];
+				var xLen = aX.length;
+				var avgLen = aAVGData.length;
 				var refinedChartData = {
 					data: [],
-					empty: true,
+					empty: avgLen === 0 ? true : false,
+					forceMax: false,
 					defaultMax: 100
 				};
-				for ( var i = 0 ; i < aAVGData.length ; i++ ) {
-					var yVal = aAVGData[i]["avgYVal"];
-					if ( yVal !== -1 ) {
-						refinedChartData.empty = false;
-					}
+
+				for ( var i = 0 ; i < xLen ; i++ ) {
 					refinedChartData.data.push({
-						"avg" : getFloatValue( yVal ),
-						"time": moment( aAVGData[i]["xVal"] ).format( cfg.dateFormat ),
+						"avg" : avgLen > i ? getFloatValue( aAVGData[i][2] ): -1,
+						"time": moment( aX[i] ).format( cfg.dateFormat ),
 						"title": "AVG"
 					});
 				}

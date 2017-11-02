@@ -235,7 +235,7 @@
 						scope.$broadcast( "dsChartDirective.toggleGraphAll.agent-data-source" );
 					};
 					scope.hasDataSource = function() {
-						return dataSourceChartData.length === 0 || dataSourceChartData[0].id === -1 ? false : true;
+						return dataSourceChartData.length !== 0 && dataSourceChartData[0].charts.y["ACTIVE_CONNECTION_SIZE"].length !== 0;
 					};
 					function setDataSourceDetail( activeAvg, activeMax, totalMax, id, type, databaseName, jdbcUrl ) {
 						var bInit = arguments.length === 0 ? true : false;
@@ -265,9 +265,9 @@
 							var oTarget = dataSourceChartData[i];
 							if ( oTarget.id == id ) {
 								setDataSourceDetail(
-									oTarget.charts["ACTIVE_CONNECTION_SIZE"].points[index].avgYVal,
-									oTarget.charts["ACTIVE_CONNECTION_SIZE"].points[index].maxYVal,
-									oTarget.charts["MAX_CONNECTION_SIZE"].points[index].maxYVal,
+									oTarget.charts.y["ACTIVE_CONNECTION_SIZE"][index][2],
+									oTarget.charts.y["ACTIVE_CONNECTION_SIZE"][index][1],
+									oTarget.charts.y["MAX_CONNECTION_SIZE"][index][1],
 									oTarget.id,
 									oTarget.serviceType,
 									oTarget.databaseName,
