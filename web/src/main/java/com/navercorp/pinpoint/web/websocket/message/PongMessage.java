@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.websocket.message;
 /**
  * @author Taejin Koo
  */
-public class PongMessage extends AbstractPinpointWebSocketMessage {
+public class PongMessage implements PinpointWebSocketMessage {
 
     @Override
     public PinpointWebSocketMessageType getType() {

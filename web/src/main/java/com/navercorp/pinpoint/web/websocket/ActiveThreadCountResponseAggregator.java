@@ -248,7 +248,8 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     private TextMessage createWebSocketTextMessage(AgentActiveThreadCountList activeThreadCountList) {
         Map resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
         try {
-            TextMessage responseTextMessage = new TextMessage(messageConverter.getResponseTextMessage(ActiveThreadCountHandler.API_ACTIVE_THREAD_COUNT, resultMap));
+            String response = messageConverter.getResponseTextMessage(ActiveThreadCountHandler.API_ACTIVE_THREAD_COUNT, resultMap);
+            TextMessage responseTextMessage = new TextMessage(response);
             return responseTextMessage;
         } catch (JsonProcessingException e) {
             logger.warn("failed while to convert message. applicationName:{}, original:{}, message:{}.", applicationName, resultMap, e.getMessage(), e);
