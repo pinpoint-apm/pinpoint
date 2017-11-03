@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.cluster.flink;
 import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,15 +32,20 @@ import java.util.List;
  */
 public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final DefaultPinpointClientFactory pinpointClientFactory;
+    private final PinpointClientFactory pinpointClientFactory;
     private final TcpDataSenderRepository tcpDataSenderRepository;
     private final FlinkHeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory;
 
     public FlinkClusterConnectionManager(TcpDataSenderRepository tcpDataSenderRepository) {
         this.tcpDataSenderRepository = tcpDataSenderRepository;
-        this.pinpointClientFactory = new DefaultPinpointClientFactory();
-        this.pinpointClientFactory.setTimeoutMillis(1000 * 5);
+        this.pinpointClientFactory = newPointClientFactory();
         this.flinkHeaderTBaseSerializerFactory = new FlinkHeaderTBaseSerializerFactory();
+    }
+
+    private PinpointClientFactory newPointClientFactory() {
+        PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory();
+        pinpointClientFactory.setTimeoutMillis(1000 * 5);
+        return pinpointClientFactory;
     }
 
     @Override

@@ -75,14 +75,13 @@ public class RpcURLPatternFilter implements URLPatternFilter {
     private Set<Integer> initRpcEndpointAnnotations(String... annotationKeyNames) {
         Set<Integer> rpcEndPointAnnotationCodes = new HashSet<>();
         for (String annotationKeyName : annotationKeyNames) {
-            AnnotationKey pluginRpcEndpointAnnotationKey = null;
             try {
-                pluginRpcEndpointAnnotationKey = annotationKeyRegistryService.findAnnotationKeyByName(annotationKeyName);
-            } catch (NoSuchElementException e) {
+                final AnnotationKey pluginRpcEndpointAnnotationKey = annotationKeyRegistryService.findAnnotationKeyByName(annotationKeyName);
+                if (pluginRpcEndpointAnnotationKey != null) {
+                    rpcEndPointAnnotationCodes.add(pluginRpcEndpointAnnotationKey.getCode());
+                }
+            } catch (NoSuchElementException ignore) {
                 // ignore
-            }
-            if (pluginRpcEndpointAnnotationKey != null) {
-                rpcEndPointAnnotationCodes.add(pluginRpcEndpointAnnotationKey.getCode());
             }
         }
         return ImmutableSet.copyOf(rpcEndPointAnnotationCodes);

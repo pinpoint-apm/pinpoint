@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
@@ -144,7 +145,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         ServerPipelineFactory serverPipelineFactory = new ServerPipelineFactory(nettyChannelHandler);
         bootstrap.setPipelineFactory(serverPipelineFactory);
     }
-    
+
+    @VisibleForTesting
     void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
         if (channelPipelineFactory == null) {
             throw new NullPointerException("channelPipelineFactory must not be null");
