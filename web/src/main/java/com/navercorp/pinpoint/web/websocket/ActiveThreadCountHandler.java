@@ -112,7 +112,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         reactiveTimer = newJavaTimer(ClassUtils.simpleClassName(this) + "-Reactive-Timer");
     }
 
-    public Timer newJavaTimer(String timerName) {
+    private Timer newJavaTimer(String timerName) {
         return new java.util.Timer(timerName, true);
     }
 

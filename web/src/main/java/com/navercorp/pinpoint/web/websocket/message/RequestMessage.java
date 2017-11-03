@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
+@JsonPropertyOrder({"type", "command", "parameters"})
 public class RequestMessage implements PinpointWebSocketMessage {
 
     private final String command;
