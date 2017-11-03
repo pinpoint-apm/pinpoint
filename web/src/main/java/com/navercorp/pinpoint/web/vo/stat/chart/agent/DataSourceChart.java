@@ -28,9 +28,12 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Taejin Koo
@@ -80,21 +83,12 @@ public class DataSourceChart implements StatChart {
         }
 
         public DataSourceChartGroup(TimeWindow timeWindow, List<SampledDataSource> sampledDataSourceList, ServiceTypeRegistryService serviceTypeRegistryService) {
-            this.timeWindow = timeWindow;
-            this.dataSourceCharts = new HashMap<>();
+            this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow must not be null");
 
-            int size = sampledDataSourceList.size();
-            List<AgentStatPoint<Integer>> activeConnectionSizes = new ArrayList<>(size);
-            List<AgentStatPoint<Integer>> maxConnectionSizes = new ArrayList<>(size);
-            for (SampledDataSource sampledDataSource : sampledDataSourceList) {
-                activeConnectionSizes.add(sampledDataSource.getActiveConnectionSize());
-                maxConnectionSizes.add(sampledDataSource.getMaxConnectionSize());
-            }
-            TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledDataSource.UNCOLLECTED_POINT_CREATER);
-            this.dataSourceCharts.put(DataSourceChartType.ACTIVE_CONNECTION_SIZE, chartBuilder.build(activeConnectionSizes));
-            this.dataSourceCharts.put(DataSourceChartType.MAX_CONNECTION_SIZE, chartBuilder.build(maxConnectionSizes));
 
-            if (CollectionUtils.nullSafeSize(sampledDataSourceList) == 0) {
+            this.dataSourceCharts = newDatasourceChart(timeWindow, sampledDataSourceList);
+
+            if (CollectionUtils.isEmpty(sampledDataSourceList)) {
                 this.id = SampledDataSource.UNCOLLECTED_VALUE;
                 this.serviceTypeName = SampledDataSource.UNCOLLECTED_STRING;
                 this.databaseName = SampledDataSource.UNCOLLECTED_STRING;
@@ -107,6 +101,38 @@ public class DataSourceChart implements StatChart {
                 this.databaseName = latestSampledDataSource.getDatabaseName();
                 this.jdbcUrl = latestSampledDataSource.getJdbcUrl();
             }
+        }
+
+        private Map<ChartType, Chart<? extends Point>> newDatasourceChart(TimeWindow timeWindow, List<SampledDataSource> sampledDataSourceList) {
+            List<AgentStatPoint<Integer>> activeConnectionSizes = filterDataSourceList(sampledDataSourceList, SampledDataSource::getActiveConnectionSize);
+            Chart<AgentStatPoint<Integer>> activeConnectionChart = buildChart(timeWindow, activeConnectionSizes);
+
+            List<AgentStatPoint<Integer>> maxConnectionSizes = filterDataSourceList(sampledDataSourceList, SampledDataSource::getMaxConnectionSize);
+            Chart<AgentStatPoint<Integer>> maxConnectionChart = buildChart(timeWindow, maxConnectionSizes);
+
+            Map<ChartType, Chart<? extends Point>> chart = new HashMap<>();
+            chart.put(DataSourceChartType.ACTIVE_CONNECTION_SIZE, activeConnectionChart);
+            chart.put(DataSourceChartType.MAX_CONNECTION_SIZE, maxConnectionChart);
+            return chart;
+        }
+
+        private List<AgentStatPoint<Integer>> filterDataSourceList(List<SampledDataSource> dataSourceList, Function<SampledDataSource, AgentStatPoint<Integer>> filter) {
+            if (CollectionUtils.isEmpty(dataSourceList)) {
+                return Collections.emptyList();
+            }
+
+            final List<AgentStatPoint<Integer>> result = new ArrayList<>(dataSourceList.size());
+            for (SampledDataSource sampledDataSource : dataSourceList) {
+                AgentStatPoint<Integer> apply = filter.apply(sampledDataSource);
+                result.add(apply);
+            }
+            return result;
+        }
+
+        private Chart<AgentStatPoint<Integer>> buildChart(TimeWindow timeWindow, List<AgentStatPoint<Integer>> activeConnectionSizes) {
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledDataSource.UNCOLLECTED_POINT_CREATER);
+            Chart<AgentStatPoint<Integer>> chart = builder.build(activeConnectionSizes);
+            return chart;
         }
 
         @Override
