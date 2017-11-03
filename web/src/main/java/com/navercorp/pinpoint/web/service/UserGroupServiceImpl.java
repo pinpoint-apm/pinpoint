@@ -17,6 +17,9 @@ package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
+import com.navercorp.pinpoint.web.util.UserInfoDecoder;
+import com.navercorp.pinpoint.web.vo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +35,9 @@ public class UserGroupServiceImpl implements UserGroupService {
 
     @Autowired
     UserGroupDao userGroupDao;
+
+    @Autowired(required = false)
+    UserInfoDecoder userInfoDecoder = DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER;
     
     @Override
     public String createUserGroup(UserGroup userGroup) {
@@ -85,7 +91,14 @@ public class UserGroupServiceImpl implements UserGroupService {
     
     @Override
     public List<String> selectPhoneNumberOfMember(String userGroupId) {
-        return userGroupDao.selectPhoneNumberOfMember(userGroupId);
+        final List<String> phoneNumberList = userGroupDao.selectPhoneNumberOfMember(userGroupId);
+        List<String> decodedPhoneNumberList = phoneNumberList;
+
+        if (!DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER.equals(userInfoDecoder)) {
+            decodedPhoneNumberList =  userInfoDecoder.decodePhoneNumberList(phoneNumberList);
+        }
+
+        return User.removeHyphenForPhoneNumberList(decodedPhoneNumberList);
     }
 
     @Override
