@@ -144,18 +144,18 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
     }
 
     private AgentStatusTimelineSegment createUnstableTimelineSegment(List<AgentWarningStatDataPoint> agentWarningStatDataPointList) {
-        if (CollectionUtils.hasLength(agentWarningStatDataPointList)) {
-            AgentWarningStatDataPoint first = ListUtils.getFirst(agentWarningStatDataPointList);
-            AgentWarningStatDataPoint last = ListUtils.getLast(agentWarningStatDataPointList);
-
-            AgentStatusTimelineSegment timelineSegment = new AgentStatusTimelineSegment();
-            timelineSegment.setStartTimestamp(first.getTimestamp());
-            timelineSegment.setEndTimestamp(last.getTimestamp());
-            timelineSegment.setValue(AgentState.UNSTABLE_RUNNING);
-            return timelineSegment;
+        if (CollectionUtils.isEmpty(agentWarningStatDataPointList)) {
+            return null;
         }
 
-        return null;
+        AgentWarningStatDataPoint first = ListUtils.getFirst(agentWarningStatDataPointList);
+        AgentWarningStatDataPoint last = ListUtils.getLast(agentWarningStatDataPointList);
+
+        AgentStatusTimelineSegment timelineSegment = new AgentStatusTimelineSegment();
+        timelineSegment.setStartTimestamp(first.getTimestamp());
+        timelineSegment.setEndTimestamp(last.getTimestamp());
+        timelineSegment.setValue(AgentState.UNSTABLE_RUNNING);
+        return timelineSegment;
     }
 
 }
