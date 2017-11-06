@@ -90,7 +90,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
 
             final String hostAndPort = toHostAndPort(args);
-            if(hostAndPort != null) {
+            if (hostAndPort != null) {
                 recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
                 if (isDebug) {
                     logger.debug("Set hostAndPort {}", hostAndPort);
@@ -133,6 +133,13 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             if (args[1] instanceof String && args[2] instanceof Integer) {
                 final String host = (String) args[1];
                 final int port = (Integer) args[2];
+                return HostAndPort.toHostAndPortString(host, port);
+            }
+        } else if (args != null && args.length == 7) {
+            // 3.4.2 - HttpMethod method, String host, int port, Boolean ssl, String relativeURI, MultiMap headers
+            if (args[2] instanceof String && args[3] instanceof Integer) {
+                final String host = (String) args[2];
+                final int port = (Integer) args[3];
                 return HostAndPort.toHostAndPortString(host, port);
             }
         }
