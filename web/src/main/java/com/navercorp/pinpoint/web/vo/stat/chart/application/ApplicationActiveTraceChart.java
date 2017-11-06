@@ -47,7 +47,7 @@ public class ApplicationActiveTraceChart implements StatChart {
 
     public static class ApplicationActiveTraceChartGroup implements StatChartGroup {
 
-        private static final ActiveTracePoint.UncollectedActiveTracePointCreater UNCOLLECTED_ACTIVE_TRACE_POINT = new ActiveTracePoint.UncollectedActiveTracePointCreater();
+        private static final ActiveTracePoint.UncollectedActiveTracePointCreator UNCOLLECTED_ACTIVE_TRACE_POINT = new ActiveTracePoint.UncollectedActiveTracePointCreator();
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> activeTraceChartMap;
 

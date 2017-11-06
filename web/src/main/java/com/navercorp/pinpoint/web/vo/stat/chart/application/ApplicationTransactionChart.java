@@ -49,7 +49,7 @@ public class ApplicationTransactionChart implements StatChart {
 
     public static class ApplicationTransactionChartGroup implements StatChartGroup {
 
-        private static final TransactionPoint.UncollectedTransactionPointCreater UNCOLLECTED_TRANSACTION_POINT = new TransactionPoint.UncollectedTransactionPointCreater();
+        private static final TransactionPoint.UncollectedTransactionPointCreator UNCOLLECTED_TRANSACTION_POINT = new TransactionPoint.UncollectedTransactionPointCreator();
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> transactionChartMap;

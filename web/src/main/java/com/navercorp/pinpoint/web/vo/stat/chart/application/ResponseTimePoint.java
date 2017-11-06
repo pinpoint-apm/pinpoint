@@ -68,7 +68,7 @@ public class ResponseTimePoint implements Point {
         return yValForAvg;
     }
 
-    public static class UncollectedResponseTimePointCreater implements UncollectedPointCreater<ResponseTimePoint> {
+    public static class UncollectedResponseTimePointCreator implements UncollectedPointCreator<ResponseTimePoint> {
         @Override
         public ResponseTimePoint createUnCollectedPoint(long xVal) {
             return new ResponseTimePoint(xVal, JoinResponseTimeBo.UNCOLLECTED_VALUE, JoinResponseTimeBo.UNKNOWN_AGENT, JoinResponseTimeBo.UNCOLLECTED_VALUE, JoinResponseTimeBo.UNKNOWN_AGENT, JoinResponseTimeBo.UNCOLLECTED_VALUE);
