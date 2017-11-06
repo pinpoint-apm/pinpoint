@@ -42,7 +42,7 @@ public class TimeSeriesChartBuilderTest {
     private static class TestPoint implements Point {
 
         private static final int UNCOLLECTED_VALUE = -1;
-        private static final Point.UncollectedPointCreater<TestPoint> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreater<TestPoint>() {
+        private static final UncollectedPointCreator<TestPoint> UNCOLLECTED_POINT_CREATER = new UncollectedPointCreator<TestPoint>() {
             @Override
             public TestPoint createUnCollectedPoint(long xVal) {
                 return new TestPoint(xVal, UNCOLLECTED_VALUE);

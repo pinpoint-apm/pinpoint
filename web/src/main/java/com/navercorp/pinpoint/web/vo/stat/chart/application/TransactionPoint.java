@@ -68,7 +68,7 @@ public class TransactionPoint implements Point {
         return xVal;
     }
 
-    public static class UncollectedTransactionPointCreater implements UncollectedPointCreater<TransactionPoint> {
+    public static class UncollectedTransactionPointCreator implements UncollectedPointCreator<TransactionPoint> {
         @Override
         public TransactionPoint createUnCollectedPoint(long xVal) {
             return new TransactionPoint(xVal, JoinTransactionBo.UNCOLLECTED_VALUE, JoinTransactionBo.UNKNOWN_AGENT, JoinTransactionBo.UNCOLLECTED_VALUE, JoinTransactionBo.UNKNOWN_AGENT, JoinTransactionBo.UNCOLLECTED_VALUE);

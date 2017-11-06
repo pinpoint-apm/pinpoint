@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 public class SampledDeadlock implements SampledAgentStatDataPoint {
 
     public static final int UNCOLLECTED_COUNT = -1;
-    public static final Point.UncollectedPointCreater<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreater<AgentStatPoint<Integer>>() {
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
         @Override
         public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
             return new AgentStatPoint<>(xVal, UNCOLLECTED_COUNT);

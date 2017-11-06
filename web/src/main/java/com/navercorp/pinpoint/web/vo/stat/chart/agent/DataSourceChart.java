@@ -130,7 +130,7 @@ public class DataSourceChart implements StatChart {
         }
 
         private Chart<AgentStatPoint<Integer>> buildChart(TimeWindow timeWindow, List<AgentStatPoint<Integer>> activeConnectionSizes) {
-            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledDataSource.UNCOLLECTED_POINT_CREATER);
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledDataSource.UNCOLLECTED_POINT_CREATOR);
             Chart<AgentStatPoint<Integer>> chart = builder.build(activeConnectionSizes);
             return chart;
         }

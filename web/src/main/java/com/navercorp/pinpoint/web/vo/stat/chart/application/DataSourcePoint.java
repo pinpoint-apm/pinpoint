@@ -69,7 +69,7 @@ public class DataSourcePoint implements Point {
         return yValForAvg;
     }
 
-    public static class UncollectedDataSourcePointCreater implements UncollectedPointCreater<DataSourcePoint> {
+    public static class UncollectedDataSourcePointCreator implements UncollectedPointCreator<DataSourcePoint> {
         @Override
         public DataSourcePoint createUnCollectedPoint(long xVal) {
             return new DataSourcePoint(xVal, JoinDataSourceBo.UNCOLLECTED_VALUE, JoinDataSourceListBo.UNKNOWN_AGENT, JoinDataSourceBo.UNCOLLECTED_VALUE, JoinDataSourceListBo.UNKNOWN_AGENT, JoinDataSourceBo.UNCOLLECTED_VALUE);

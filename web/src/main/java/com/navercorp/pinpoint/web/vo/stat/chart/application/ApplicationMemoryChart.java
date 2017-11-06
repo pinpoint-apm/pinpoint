@@ -47,7 +47,7 @@ public class ApplicationMemoryChart implements StatChart {
 
     public static class ApplicationMemoryChartGroup implements StatChartGroup {
 
-        private static final MemoryPoint.UncollectedMemoryPointCreater UNCOLLECTED_MEMORY_POINT = new MemoryPoint.UncollectedMemoryPointCreater();
+        private static final MemoryPoint.UncollectedMemoryPointCreator UNCOLLECTED_MEMORY_POINT = new MemoryPoint.UncollectedMemoryPointCreator();
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> memoryChartMap;
 

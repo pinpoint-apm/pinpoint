@@ -68,7 +68,7 @@ public class ActiveTracePoint implements Point {
         return xVal;
     }
 
-    public static class UncollectedActiveTracePointCreater implements UncollectedPointCreater<ActiveTracePoint> {
+    public static class UncollectedActiveTracePointCreator implements UncollectedPointCreator<ActiveTracePoint> {
         @Override
         public ActiveTracePoint createUnCollectedPoint(long xVal) {
             return new ActiveTracePoint(xVal, JoinActiveTraceBo.UNCOLLECTED_VALUE, JoinActiveTraceBo.UNKNOWN_AGENT, JoinActiveTraceBo.UNCOLLECTED_VALUE, JoinActiveTraceBo.UNKNOWN_AGENT, JoinActiveTraceBo.UNCOLLECTED_VALUE);

@@ -46,7 +46,7 @@ public class ApplicationCpuLoadChart implements StatChart {
 
     public static class ApplicationCpuLoadChartGroup implements StatChartGroup {
 
-        private static final CpuLoadPoint.UncollectedCpuLoadPointCreater UNCOLLECTED_CPULOAD_POINT = new CpuLoadPoint.UncollectedCpuLoadPointCreater();
+        private static final CpuLoadPoint.UncollectedCpuLoadPointCreator UNCOLLECTED_CPULOAD_POINT = new CpuLoadPoint.UncollectedCpuLoadPointCreator();
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> cpuLoadChartMap;

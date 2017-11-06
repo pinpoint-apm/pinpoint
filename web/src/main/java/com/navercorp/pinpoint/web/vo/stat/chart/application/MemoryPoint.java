@@ -68,7 +68,7 @@ public class MemoryPoint implements Point {
         return this.xVal;
     }
 
-    public static class UncollectedMemoryPointCreater implements UncollectedPointCreater<MemoryPoint> {
+    public static class UncollectedMemoryPointCreator implements UncollectedPointCreator<MemoryPoint> {
         @Override
         public MemoryPoint createUnCollectedPoint(long xVal) {
             return new MemoryPoint(xVal, JoinMemoryBo.UNCOLLECTED_VALUE, JoinMemoryBo.UNKNOWN_AGENT, JoinMemoryBo.UNCOLLECTED_VALUE, JoinMemoryBo.UNKNOWN_AGENT, JoinMemoryBo.UNCOLLECTED_VALUE);
