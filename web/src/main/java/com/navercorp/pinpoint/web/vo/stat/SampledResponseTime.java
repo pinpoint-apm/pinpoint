@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 public class SampledResponseTime implements SampledAgentStatDataPoint {
 
     public static final long UNCOLLECTED_RESPONSE_TIME = -1L;
-    public static final Point.UncollectedPointCreater<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreater<AgentStatPoint<Long>>() {
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreator<AgentStatPoint<Long>>() {
         @Override
         public AgentStatPoint<Long> createUnCollectedPoint(long xVal) {
             return new AgentStatPoint<>(xVal, UNCOLLECTED_RESPONSE_TIME);

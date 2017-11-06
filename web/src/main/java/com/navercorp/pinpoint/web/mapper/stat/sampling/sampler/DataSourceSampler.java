@@ -89,7 +89,7 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
 
     private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
         if (values.isEmpty()) {
-            return SampledDataSource.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp);
+            return SampledDataSource.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
             return new AgentStatPoint<>(
                     timestamp,

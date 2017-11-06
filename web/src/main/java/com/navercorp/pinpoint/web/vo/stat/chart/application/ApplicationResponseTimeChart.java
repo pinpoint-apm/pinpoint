@@ -47,7 +47,7 @@ public class ApplicationResponseTimeChart implements StatChart {
 
     public static class ApplicationResponseTimeChartGroup implements StatChartGroup {
 
-        private static final ResponseTimePoint.UncollectedResponseTimePointCreater UNCOLLECTED_RESPONSE_TIME_POINT = new ResponseTimePoint.UncollectedResponseTimePointCreater();
+        private static final ResponseTimePoint.UncollectedResponseTimePointCreator UNCOLLECTED_RESPONSE_TIME_POINT = new ResponseTimePoint.UncollectedResponseTimePointCreator();
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> responseTimeChartMap;

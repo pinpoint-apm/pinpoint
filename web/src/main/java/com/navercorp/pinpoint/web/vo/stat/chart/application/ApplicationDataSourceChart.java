@@ -54,7 +54,7 @@ public class ApplicationDataSourceChart implements StatChart {
 
     public static class ApplicationDataSourceChartGroup implements StatChartGroup {
 
-        private static final DataSourcePoint.UncollectedDataSourcePointCreater UNCOLLECTED_DATASOURCE_POINT = new DataSourcePoint.UncollectedDataSourcePointCreater();
+        private static final DataSourcePoint.UncollectedDataSourcePointCreator UNCOLLECTED_DATASOURCE_POINT = new DataSourcePoint.UncollectedDataSourcePointCreator();
 
         private final TimeWindow timeWindow;
         private final String url;

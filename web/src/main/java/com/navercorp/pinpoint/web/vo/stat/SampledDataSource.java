@@ -26,7 +26,7 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
 
     public static final Integer UNCOLLECTED_VALUE = -1;
     public static final String UNCOLLECTED_STRING = null;
-    public static final Point.UncollectedPointCreater<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreater<AgentStatPoint<Integer>>() {
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
         @Override
         public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
             return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);
