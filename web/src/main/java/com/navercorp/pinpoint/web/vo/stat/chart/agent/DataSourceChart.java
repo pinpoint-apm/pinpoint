@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
+import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -26,10 +26,10 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -104,35 +104,29 @@ public class DataSourceChart implements StatChart {
         }
 
         private Map<ChartType, Chart<? extends Point>> newDatasourceChart(TimeWindow timeWindow, List<SampledDataSource> sampledDataSourceList) {
-            List<AgentStatPoint<Integer>> activeConnectionSizes = filterDataSourceList(sampledDataSourceList, SampledDataSource::getActiveConnectionSize);
-            Chart<AgentStatPoint<Integer>> activeConnectionChart = buildChart(timeWindow, activeConnectionSizes);
+            Chart<AgentStatPoint<Integer>> activeConnectionChart = newChart(sampledDataSourceList, SampledDataSource::getActiveConnectionSize);
+            Chart<AgentStatPoint<Integer>> maxConnectionChart = newChart(sampledDataSourceList, SampledDataSource::getMaxConnectionSize);
 
-            List<AgentStatPoint<Integer>> maxConnectionSizes = filterDataSourceList(sampledDataSourceList, SampledDataSource::getMaxConnectionSize);
-            Chart<AgentStatPoint<Integer>> maxConnectionChart = buildChart(timeWindow, maxConnectionSizes);
-
-            Map<ChartType, Chart<? extends Point>> chart = new HashMap<>();
-            chart.put(DataSourceChartType.ACTIVE_CONNECTION_SIZE, activeConnectionChart);
-            chart.put(DataSourceChartType.MAX_CONNECTION_SIZE, maxConnectionChart);
-            return chart;
+            return ImmutableMap.of(DataSourceChartType.ACTIVE_CONNECTION_SIZE, activeConnectionChart, DataSourceChartType.MAX_CONNECTION_SIZE, maxConnectionChart);
         }
 
-        private List<AgentStatPoint<Integer>> filterDataSourceList(List<SampledDataSource> dataSourceList, Function<SampledDataSource, AgentStatPoint<Integer>> filter) {
+        private Chart<AgentStatPoint<Integer>> newChart(List<SampledDataSource> sampledDataSourceList, Function<SampledDataSource, AgentStatPoint<Integer>> filter) {
+            List<AgentStatPoint<Integer>> chartSource = filter(sampledDataSourceList, filter);
+
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledDataSource.UNCOLLECTED_POINT_CREATOR);
+            return builder.build(chartSource);
+        }
+
+        private List<AgentStatPoint<Integer>> filter(List<SampledDataSource> dataSourceList, Function<SampledDataSource, AgentStatPoint<Integer>> filter) {
             if (CollectionUtils.isEmpty(dataSourceList)) {
                 return Collections.emptyList();
             }
-
             final List<AgentStatPoint<Integer>> result = new ArrayList<>(dataSourceList.size());
             for (SampledDataSource sampledDataSource : dataSourceList) {
                 AgentStatPoint<Integer> apply = filter.apply(sampledDataSource);
                 result.add(apply);
             }
             return result;
-        }
-
-        private Chart<AgentStatPoint<Integer>> buildChart(TimeWindow timeWindow, List<AgentStatPoint<Integer>> activeConnectionSizes) {
-            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledDataSource.UNCOLLECTED_POINT_CREATOR);
-            Chart<AgentStatPoint<Integer>> chart = builder.build(activeConnectionSizes);
-            return chart;
         }
 
         @Override

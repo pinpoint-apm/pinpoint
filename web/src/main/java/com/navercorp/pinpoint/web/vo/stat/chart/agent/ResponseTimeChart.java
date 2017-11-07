@@ -23,11 +23,13 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author Taejin Koo
@@ -57,13 +59,28 @@ public class ResponseTimeChart implements StatChart {
 
         public ResponseTimeChartGroup(TimeWindow timeWindow, List<SampledResponseTime> sampledResponseTimes) {
             this.timeWindow = timeWindow;
-            this.responseTimeCharts = new HashMap<>();
-            List<AgentStatPoint<Long>> avg = new ArrayList<>(sampledResponseTimes.size());
-            for (SampledResponseTime sampledResponseTime : sampledResponseTimes) {
-                avg.add(sampledResponseTime.getAvg());
-            }
+            this.responseTimeCharts = newChart(sampledResponseTimes);
+        }
+
+        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledResponseTime> sampledResponseTimes) {
+            List<AgentStatPoint<Long>> chartSource = filter(sampledResponseTimes, SampledResponseTime::getAvg);
             TimeSeriesChartBuilder<AgentStatPoint<Long>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledResponseTime.UNCOLLECTED_POINT_CREATER);
-            responseTimeCharts.put(ResponseTimeChartType.AVG, chartBuilder.build(avg));
+            Chart<AgentStatPoint<Long>> chart = chartBuilder.build(chartSource);
+
+            return Collections.singletonMap(ResponseTimeChartType.AVG, chart);
+        }
+
+        private List<AgentStatPoint<Long>> filter(List<SampledResponseTime> sampledResponseTimes, Function<SampledResponseTime, AgentStatPoint<Long>> filter) {
+            if (CollectionUtils.isEmpty(sampledResponseTimes)) {
+                return Collections.emptyList();
+            }
+
+            List<AgentStatPoint<Long>> result = new ArrayList<>(sampledResponseTimes.size());
+            for (SampledResponseTime sampledResponseTime : sampledResponseTimes) {
+                AgentStatPoint<Long> apply = filter.apply(sampledResponseTime);
+                result.add(apply);
+            }
+            return result;
         }
 
         @Override

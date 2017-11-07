@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
+import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -23,11 +24,13 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author HyunGil Jeong
@@ -64,35 +67,70 @@ public class JvmGcDetailedChart implements StatChart {
 
         public JvmGcDetailedChartGroup(TimeWindow timeWindow, List<SampledJvmGcDetailed> sampledJvmGcDetailedList) {
             this.timeWindow = timeWindow;
-            this.jvmGcDetailedCharts = new HashMap<>();
-            List<AgentStatPoint<Long>> gcNewCounts = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<AgentStatPoint<Long>> gcNewTimes = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<AgentStatPoint<Double>> codeCacheUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<AgentStatPoint<Double>> newGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<AgentStatPoint<Double>> oldGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<AgentStatPoint<Double>> survivorSpaceUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<AgentStatPoint<Double>> permGenUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            List<AgentStatPoint<Double>> metaspaceUseds = new ArrayList<>(sampledJvmGcDetailedList.size());
-            for (SampledJvmGcDetailed sampledJvmGcDetailed : sampledJvmGcDetailedList) {
-                gcNewCounts.add(sampledJvmGcDetailed.getGcNewCount());
-                gcNewTimes.add(sampledJvmGcDetailed.getGcNewTime());
-                codeCacheUseds.add(sampledJvmGcDetailed.getCodeCacheUsed());
-                newGenUseds.add(sampledJvmGcDetailed.getNewGenUsed());
-                oldGenUseds.add(sampledJvmGcDetailed.getOldGenUsed());
-                survivorSpaceUseds.add(sampledJvmGcDetailed.getSurvivorSpaceUsed());
-                permGenUseds.add(sampledJvmGcDetailed.getPermGenUsed());
-                metaspaceUseds.add(sampledJvmGcDetailed.getMetaspaceUsed());
+            this.jvmGcDetailedCharts = newChart(sampledJvmGcDetailedList);
+        }
+
+        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledJvmGcDetailed> gcDetailedList) {
+            // TODO Refactor generic cast
+            Chart<AgentStatPoint<Long>> gcNewCounts = newLongChart(gcDetailedList, SampledJvmGcDetailed::getGcNewCount);
+            Chart<AgentStatPoint<Long>> gcNewTimes = newLongChart(gcDetailedList, SampledJvmGcDetailed::getGcNewTime);
+            Chart<AgentStatPoint<Double>> codeCacheUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getCodeCacheUsed);
+            Chart<AgentStatPoint<Double>> newGenUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getNewGenUsed);
+            Chart<AgentStatPoint<Double>> oldGenUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getOldGenUsed);
+            Chart<AgentStatPoint<Double>> survivorSpaceUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getSurvivorSpaceUsed);
+            Chart<AgentStatPoint<Double>> permGenUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getPermGenUsed);
+            Chart<AgentStatPoint<Double>> metaspaceUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getMetaspaceUsed);
+
+            ImmutableMap.Builder<ChartType, Chart<? extends Point>> builder = ImmutableMap.builder();
+            builder.put(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_COUNT, gcNewCounts);
+            builder.put(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_TIME, gcNewTimes);
+            builder.put(JvmGcDetailedChartType.JVM_DETAILED_CODE_CACHE_USED, codeCacheUseds);
+            builder.put(JvmGcDetailedChartType.JVM_DETAILED_NEW_GEN_USED, newGenUseds);
+            builder.put(JvmGcDetailedChartType.JVM_DETAILED_OLD_GEN_USED, oldGenUseds);
+            builder.put(JvmGcDetailedChartType.JVM_DETAILED_SURVIVOR_SPACE_USED, survivorSpaceUseds);
+            builder.put(JvmGcDetailedChartType.JVM_DETAILED_PERM_GEN_USED, permGenUseds);
+            builder.put(JvmGcDetailedChartType.JVM_DETAILED_METASPACE_USED, metaspaceUseds);
+            return builder.build();
+        }
+
+        private Chart<AgentStatPoint<Double>> newDoubleChart(List<SampledJvmGcDetailed> sampledDataSourceList, Function<SampledJvmGcDetailed, AgentStatPoint<Double>> filter) {
+            List<AgentStatPoint<Double>> chartSource = filter(sampledDataSourceList, filter);
+
+            TimeSeriesChartBuilder<AgentStatPoint<Double>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR);
+            return builder.build(chartSource);
+        }
+
+
+        private List<AgentStatPoint<Double>> filter(List<SampledJvmGcDetailed> gcDetailedList, Function<SampledJvmGcDetailed, AgentStatPoint<Double>> filter) {
+            if (CollectionUtils.isEmpty(gcDetailedList)) {
+                return Collections.emptyList();
             }
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> valueChartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATER);
-            TimeSeriesChartBuilder<AgentStatPoint<Double>> percentageChartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR);
-            this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_COUNT, valueChartBuilder.build(gcNewCounts));
-            this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_TIME, valueChartBuilder.build(gcNewTimes));
-            this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_CODE_CACHE_USED, percentageChartBuilder.build(codeCacheUseds));
-            this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_NEW_GEN_USED, percentageChartBuilder.build(newGenUseds));
-            this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_OLD_GEN_USED, percentageChartBuilder.build(oldGenUseds));
-            this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_SURVIVOR_SPACE_USED, percentageChartBuilder.build(survivorSpaceUseds));
-            this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_PERM_GEN_USED, percentageChartBuilder.build(permGenUseds));
-            this.jvmGcDetailedCharts.put(JvmGcDetailedChartType.JVM_DETAILED_METASPACE_USED, percentageChartBuilder.build(metaspaceUseds));
+            final List<AgentStatPoint<Double>> result = new ArrayList<>(gcDetailedList.size());
+            for (SampledJvmGcDetailed gcDetail : gcDetailedList) {
+                AgentStatPoint<Double> apply = filter.apply(gcDetail);
+                result.add(apply);
+            }
+            return result;
+        }
+
+
+        private Chart<AgentStatPoint<Long>> newLongChart(List<SampledJvmGcDetailed> sampledDataSourceList, Function<SampledJvmGcDetailed, AgentStatPoint<Long>> filter) {
+            List<AgentStatPoint<Long>> filterList = filterLongList(sampledDataSourceList, filter);
+            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATER);
+            return builder.build(filterList);
+        }
+
+
+        private List<AgentStatPoint<Long>> filterLongList(List<SampledJvmGcDetailed> gcDetailedList, Function<SampledJvmGcDetailed, AgentStatPoint<Long>> filter) {
+            if (CollectionUtils.isEmpty(gcDetailedList)) {
+                return Collections.emptyList();
+            }
+            final List<AgentStatPoint<Long>> result = new ArrayList<>(gcDetailedList.size());
+            for (SampledJvmGcDetailed gcDetail : gcDetailedList) {
+                AgentStatPoint<Long> apply = filter.apply(gcDetail);
+                result.add(apply);
+            }
+            return result;
         }
 
         @Override

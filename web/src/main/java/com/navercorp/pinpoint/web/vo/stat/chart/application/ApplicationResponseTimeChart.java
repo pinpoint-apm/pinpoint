@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -25,9 +26,10 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author minwoo.jung
@@ -58,14 +60,32 @@ public class ApplicationResponseTimeChart implements StatChart {
 
         public ApplicationResponseTimeChartGroup(TimeWindow timeWindow, List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList) {
             this.timeWindow = timeWindow;
-            responseTimeChartMap = new HashMap<>();
-            List<ResponseTimePoint> responseTimeList = new ArrayList<>(aggreJoinResponseTimeBoList.size());
+            this.responseTimeChartMap = newChart(aggreJoinResponseTimeBoList);
+        }
 
-            for (AggreJoinResponseTimeBo aggreJoinResponseTimeBo : aggreJoinResponseTimeBoList) {
-                responseTimeList.add(new ResponseTimePoint(aggreJoinResponseTimeBo.getTimestamp(), aggreJoinResponseTimeBo.getMinAvg(), aggreJoinResponseTimeBo.getMinAvgAgentId(), aggreJoinResponseTimeBo.getMaxAvg(), aggreJoinResponseTimeBo.getMaxAvgAgentId(), aggreJoinResponseTimeBo.getAvg()));
-            }
+        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinResponseTimeBo> responseTimeBoList) {
+
+            List<ResponseTimePoint> responseTimeList = filter(responseTimeBoList, this::newResponseTime);
             TimeSeriesChartBuilder<ResponseTimePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_RESPONSE_TIME_POINT);
-            responseTimeChartMap.put(ResponseTimeChartType.RESPONSE_TIME, chartBuilder.build(responseTimeList));
+            Chart<ResponseTimePoint> chart = chartBuilder.build(responseTimeList);
+
+            return Collections.singletonMap(ResponseTimeChartType.RESPONSE_TIME, chart);
+        }
+
+        private List<ResponseTimePoint> filter(List<AggreJoinResponseTimeBo> responseTimeBoList, Function<AggreJoinResponseTimeBo, ResponseTimePoint> filter) {
+            if (CollectionUtils.isEmpty(responseTimeBoList)) {
+                return Collections.emptyList();
+            }
+            List<ResponseTimePoint> result = new ArrayList<>(responseTimeBoList.size());
+            for (AggreJoinResponseTimeBo time : responseTimeBoList) {
+                ResponseTimePoint apply = filter.apply(time);
+                result.add(apply );
+            }
+            return result;
+        }
+
+        private ResponseTimePoint newResponseTime(AggreJoinResponseTimeBo time) {
+            return new ResponseTimePoint(time.getTimestamp(), time.getMinAvg(), time.getMinAvgAgentId(), time.getMaxAvg(), time.getMaxAvgAgentId(), time.getAvg());
         }
 
         @Override

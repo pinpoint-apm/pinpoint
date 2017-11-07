@@ -23,11 +23,13 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author minwoo.jung
@@ -57,14 +59,35 @@ public class ApplicationActiveTraceChart implements StatChart {
 
         public ApplicationActiveTraceChartGroup(TimeWindow timeWindow, List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList) {
             this.timeWindow = timeWindow;
-            activeTraceChartMap = new HashMap<>();
-            List<ActiveTracePoint> activeTraceList = new ArrayList<>(aggreJoinActiveTraceBoList.size());
+            this.activeTraceChartMap = newChart(aggreJoinActiveTraceBoList);
+        }
 
-            for (AggreJoinActiveTraceBo aggreJoinActiveTraceBo : aggreJoinActiveTraceBoList) {
-                activeTraceList.add(new ActiveTracePoint(aggreJoinActiveTraceBo.getTimestamp(), aggreJoinActiveTraceBo.getMinTotalCount(), aggreJoinActiveTraceBo.getMinTotalCountAgentId(), aggreJoinActiveTraceBo.getMaxTotalCount(), aggreJoinActiveTraceBo.getMaxTotalCountAgentId(), aggreJoinActiveTraceBo.getTotalCount()));
-            }
+        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList) {
+
+            List<ActiveTracePoint> chartSource = filter(aggreJoinActiveTraceBoList, this::newActiveTracePoint);
             TimeSeriesChartBuilder<ActiveTracePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_ACTIVE_TRACE_POINT);
-            activeTraceChartMap.put(ActiveTraceChartType.ACTIVE_TRACE_COUNT, chartBuilder.build(activeTraceList));
+            Chart<ActiveTracePoint> chart = chartBuilder.build(chartSource);
+
+
+            return Collections.singletonMap(ActiveTraceChartType.ACTIVE_TRACE_COUNT, chart);
+        }
+
+        private List<ActiveTracePoint> filter(List<AggreJoinActiveTraceBo> activeTraceBoList, Function<AggreJoinActiveTraceBo, ActiveTracePoint> filter) {
+            if (CollectionUtils.isEmpty(activeTraceBoList)) {
+                return Collections.emptyList();
+            }
+
+            List<ActiveTracePoint> result = new ArrayList<>(activeTraceBoList.size());
+            for (AggreJoinActiveTraceBo activeTrace : activeTraceBoList) {
+                ActiveTracePoint apply = filter.apply(activeTrace);
+                result.add(apply);
+            }
+            return result;
+        }
+
+        private ActiveTracePoint newActiveTracePoint(AggreJoinActiveTraceBo activeTrace) {
+            return new ActiveTracePoint(activeTrace.getTimestamp(), activeTrace.getMinTotalCount(),
+                                activeTrace.getMinTotalCountAgentId(), activeTrace.getMaxTotalCount(), activeTrace.getMaxTotalCountAgentId(), activeTrace.getTotalCount());
         }
 
         @Override

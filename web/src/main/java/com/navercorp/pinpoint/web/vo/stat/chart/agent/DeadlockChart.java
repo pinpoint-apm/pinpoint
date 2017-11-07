@@ -23,11 +23,13 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author Taejin Koo
@@ -57,14 +59,27 @@ public class DeadlockChart implements StatChart {
 
         public DeadlockChartGroup(TimeWindow timeWindow, List<SampledDeadlock> sampledDeadlockList) {
             this.timeWindow = timeWindow;
-            this.deadlockCharts = new HashMap<>();
+            this.deadlockCharts = newChart(sampledDeadlockList);
+        }
 
-            List<AgentStatPoint<Integer>> deadlockCountList = new ArrayList<>(sampledDeadlockList.size());
-            for (SampledDeadlock sampledDeadlock : sampledDeadlockList) {
-                deadlockCountList.add(sampledDeadlock.getDeadlockedThreadCount());
-            }
+        public Map<ChartType, Chart<? extends Point>> newChart(List<SampledDeadlock> deadlockList) {
+            List<AgentStatPoint<Integer>> chartSource = filter(deadlockList, SampledDeadlock::getDeadlockedThreadCount);
             TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledDeadlock.UNCOLLECTED_POINT_CREATER);
-            deadlockCharts.put(DeadlockChartType.DEADLOCK_COUNT, chartBuilder.build(deadlockCountList));
+            Chart<AgentStatPoint<Integer>> chart = chartBuilder.build(chartSource);
+
+            return Collections.singletonMap(DeadlockChartType.DEADLOCK_COUNT, chart);
+        }
+
+        public List<AgentStatPoint<Integer>> filter(List<SampledDeadlock> deadlockList, Function<SampledDeadlock, AgentStatPoint<Integer>> filter) {
+            if (CollectionUtils.isEmpty(deadlockList)) {
+                return Collections.emptyList();
+            }
+            List<AgentStatPoint<Integer>> result = new ArrayList<>(deadlockList.size());
+            for (SampledDeadlock sampledDeadlock : deadlockList) {
+                AgentStatPoint<Integer> apply = filter.apply(sampledDeadlock);
+                result.add(apply);
+            }
+            return result;
         }
 
         @Override

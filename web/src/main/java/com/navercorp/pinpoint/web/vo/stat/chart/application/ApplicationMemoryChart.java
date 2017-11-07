@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -23,11 +24,13 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author minwoo.jung
@@ -58,17 +61,45 @@ public class ApplicationMemoryChart implements StatChart {
 
         public ApplicationMemoryChartGroup(TimeWindow timeWindow, List<AggreJoinMemoryBo> aggreJoinMemoryBoList) {
             this.timeWindow = timeWindow;
-            memoryChartMap = new HashMap<>();
-            List<MemoryPoint> heapList = new ArrayList<>(aggreJoinMemoryBoList.size());
-            List<MemoryPoint> nonHeapList = new ArrayList<>(aggreJoinMemoryBoList.size());
+            this.memoryChartMap = newChart(aggreJoinMemoryBoList);
+        }
 
-            for (AggreJoinMemoryBo aggreJoinMemoryBo : aggreJoinMemoryBoList) {
-                heapList.add(new MemoryPoint(aggreJoinMemoryBo.getTimestamp(), aggreJoinMemoryBo.getMinHeapUsed(), aggreJoinMemoryBo.getMinHeapAgentId(), aggreJoinMemoryBo.getMaxHeapUsed(), aggreJoinMemoryBo.getMaxHeapAgentId(), aggreJoinMemoryBo.getHeapUsed()));
-                nonHeapList.add(new MemoryPoint(aggreJoinMemoryBo.getTimestamp(), aggreJoinMemoryBo.getMinNonHeapUsed(), aggreJoinMemoryBo.getMinNonHeapAgentId(), aggreJoinMemoryBo.getMaxNonHeapUsed(), aggreJoinMemoryBo.getMaxNonHeapAgentId(), aggreJoinMemoryBo.getNonHeapUsed()));
+        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinMemoryBo> aggreJoinMemoryBoList) {
+
+            Chart<MemoryPoint> heapChart = newChart(aggreJoinMemoryBoList, this::newHeap);
+            Chart<MemoryPoint> nonHeapChart = newChart(aggreJoinMemoryBoList, this::newNonHeap);
+
+            return ImmutableMap.of(MemoryChartType.MEMORY_HEAP, heapChart, MemoryChartType.MEMORY_NON_HEAP, nonHeapChart);
+        }
+
+        private MemoryPoint newHeap(AggreJoinMemoryBo memory) {
+            return new MemoryPoint(memory.getTimestamp(), memory.getMinHeapUsed(), memory.getMinHeapAgentId(),
+                    memory.getMaxHeapUsed(), memory.getMaxHeapAgentId(), memory.getHeapUsed());
+        }
+
+        private MemoryPoint newNonHeap(AggreJoinMemoryBo memory) {
+            return new MemoryPoint(memory.getTimestamp(), memory.getMinNonHeapUsed(), memory.getMinNonHeapAgentId(),
+                    memory.getMaxNonHeapUsed(), memory.getMaxNonHeapAgentId(), memory.getNonHeapUsed());
+        }
+
+        private Chart<MemoryPoint> newChart(List<AggreJoinMemoryBo> aggreJoinMemoryBoList, Function<AggreJoinMemoryBo, MemoryPoint> function) {
+            final List<MemoryPoint> nonHeapList = filterMemoryList(aggreJoinMemoryBoList, function);
+            TimeSeriesChartBuilder<MemoryPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_MEMORY_POINT);
+            return builder.build(nonHeapList);
+        }
+
+
+        private List<MemoryPoint> filterMemoryList(List<AggreJoinMemoryBo> memoryBoList, Function<AggreJoinMemoryBo, MemoryPoint> function) {
+            if (CollectionUtils.isEmpty(memoryBoList)) {
+                return Collections.emptyList();
             }
-            TimeSeriesChartBuilder<MemoryPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_MEMORY_POINT);
-            memoryChartMap.put(MemoryChartType.MEMORY_HEAP, chartBuilder.build(heapList));
-            memoryChartMap.put(MemoryChartType.MEMORY_NON_HEAP, chartBuilder.build(nonHeapList));
+
+            List<MemoryPoint> result = new ArrayList<>(memoryBoList.size());
+            for (AggreJoinMemoryBo aggreJoinMemoryBo : memoryBoList) {
+                final MemoryPoint apply = function.apply(aggreJoinMemoryBo);
+                result.add(apply);
+            }
+            return result;
         }
 
         @Override
