@@ -55,7 +55,7 @@ public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoa
 
     private AgentStatPoint<Double> createPoint(long timestamp, List<Double> values) {
         if (values.isEmpty()) {
-            return SampledCpuLoad.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp);
+            return SampledCpuLoad.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
             return new AgentStatPoint<>(
                     timestamp,

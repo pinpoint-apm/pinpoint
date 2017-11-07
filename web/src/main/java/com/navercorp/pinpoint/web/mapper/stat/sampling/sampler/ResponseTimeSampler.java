@@ -48,7 +48,7 @@ public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, Sam
 
     private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
-            return SampledResponseTime.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp);
+            return SampledResponseTime.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
             return new AgentStatPoint<>(
                     timestamp,

@@ -24,8 +24,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -57,15 +56,17 @@ public class DeadlockChart implements StatChart {
 
         public DeadlockChartGroup(TimeWindow timeWindow, List<SampledDeadlock> sampledDeadlockList) {
             this.timeWindow = timeWindow;
-            this.deadlockCharts = new HashMap<>();
-
-            List<AgentStatPoint<Integer>> deadlockCountList = new ArrayList<>(sampledDeadlockList.size());
-            for (SampledDeadlock sampledDeadlock : sampledDeadlockList) {
-                deadlockCountList.add(sampledDeadlock.getDeadlockedThreadCount());
-            }
-            TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledDeadlock.UNCOLLECTED_POINT_CREATER);
-            deadlockCharts.put(DeadlockChartType.DEADLOCK_COUNT, chartBuilder.build(deadlockCountList));
+            this.deadlockCharts = newChart(sampledDeadlockList);
         }
+
+        public Map<ChartType, Chart<? extends Point>> newChart(List<SampledDeadlock> deadlockList) {
+
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledDeadlock.UNCOLLECTED_POINT_CREATOR);
+            Chart<AgentStatPoint<Integer>> chart = chartBuilder.build(deadlockList, SampledDeadlock::getDeadlockedThreadCount);
+
+            return Collections.singletonMap(DeadlockChartType.DEADLOCK_COUNT, chart);
+        }
+
 
         @Override
         public TimeWindow getTimeWindow() {

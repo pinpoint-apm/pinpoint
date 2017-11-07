@@ -22,6 +22,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author HyunGil Jeong
@@ -56,6 +58,26 @@ public class TimeSeriesChartBuilder<P extends Point> {
             points.set(timeslotIndex, sampledPoint);
         }
         return new Chart<>(points);
+    }
+
+    public <S> Chart<P> build(List<S> sourceList, Function<S, P> function) {
+        Objects.requireNonNull(function, "function must not be null");
+
+        List<P> filter = applyFilter(sourceList, function);
+        return build(filter);
+    }
+
+    private <S> List<P> applyFilter(List<S> sourceList, Function<S, P> filter) {
+        if (CollectionUtils.isEmpty(sourceList)) {
+            return Collections.emptyList();
+        }
+
+        final List<P> result = new ArrayList<>(sourceList.size());
+        for (S source : sourceList) {
+            P apply = filter.apply(source);
+            result.add(apply);
+        }
+        return result;
     }
 
     private List<P> createInitialPoints() {

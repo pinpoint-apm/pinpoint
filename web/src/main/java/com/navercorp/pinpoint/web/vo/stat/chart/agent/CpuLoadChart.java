@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
+import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -24,10 +25,9 @@ import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author HyunGil Jeong
@@ -58,17 +58,22 @@ public class CpuLoadChart implements StatChart {
 
         private CpuLoadChartGroup(TimeWindow timeWindow, List<SampledCpuLoad> sampledCpuLoads) {
             this.timeWindow = timeWindow;
-            this.cpuLoadCharts = new HashMap<>();
-            List<AgentStatPoint<Double>> jvmCpuLoads = new ArrayList<>(sampledCpuLoads.size());
-            List<AgentStatPoint<Double>> systemCpuLoads = new ArrayList<>(sampledCpuLoads.size());
-            for (SampledCpuLoad sampledCpuLoad : sampledCpuLoads) {
-                jvmCpuLoads.add(sampledCpuLoad.getJvmCpuLoad());
-                systemCpuLoads.add(sampledCpuLoad.getSystemCpuLoad());
-            }
-            TimeSeriesChartBuilder<AgentStatPoint<Double>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledCpuLoad.UNCOLLECTED_POINT_CREATER);
-            this.cpuLoadCharts.put(CpuLoadChartType.CPU_LOAD_JVM, chartBuilder.build(jvmCpuLoads));
-            this.cpuLoadCharts.put(CpuLoadChartType.CPU_LOAD_SYSTEM, chartBuilder.build(systemCpuLoads));
+            this.cpuLoadCharts = newChart(sampledCpuLoads);
         }
+
+        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledCpuLoad> sampledCpuLoads) {
+            Chart<AgentStatPoint<Double>> jvmCpuLoadChart = newChart(sampledCpuLoads, SampledCpuLoad::getJvmCpuLoad);
+            Chart<AgentStatPoint<Double>> systemCpuLoadChart = newChart(sampledCpuLoads, SampledCpuLoad::getSystemCpuLoad);
+
+            return ImmutableMap.of(CpuLoadChartType.CPU_LOAD_JVM, jvmCpuLoadChart, CpuLoadChartType.CPU_LOAD_SYSTEM, systemCpuLoadChart);
+        }
+
+        private Chart<AgentStatPoint<Double>> newChart(List<SampledCpuLoad> sampledActiveTraces, Function<SampledCpuLoad, AgentStatPoint<Double>> function) {
+            TimeSeriesChartBuilder<AgentStatPoint<Double>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledCpuLoad.UNCOLLECTED_POINT_CREATOR);
+            return builder.build(sampledActiveTraces, function);
+        }
+
+
 
         @Override
         public TimeWindow getTimeWindow() {
