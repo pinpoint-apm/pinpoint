@@ -24,8 +24,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -57,14 +56,16 @@ public class ResponseTimeChart implements StatChart {
 
         public ResponseTimeChartGroup(TimeWindow timeWindow, List<SampledResponseTime> sampledResponseTimes) {
             this.timeWindow = timeWindow;
-            this.responseTimeCharts = new HashMap<>();
-            List<AgentStatPoint<Long>> avg = new ArrayList<>(sampledResponseTimes.size());
-            for (SampledResponseTime sampledResponseTime : sampledResponseTimes) {
-                avg.add(sampledResponseTime.getAvg());
-            }
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledResponseTime.UNCOLLECTED_POINT_CREATER);
-            responseTimeCharts.put(ResponseTimeChartType.AVG, chartBuilder.build(avg));
+            this.responseTimeCharts = newChart(sampledResponseTimes);
         }
+
+        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledResponseTime> sampledResponseTimes) {
+            TimeSeriesChartBuilder<AgentStatPoint<Long>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledResponseTime.UNCOLLECTED_POINT_CREATOR);
+            Chart<AgentStatPoint<Long>> chart = chartBuilder.build(sampledResponseTimes, SampledResponseTime::getAvg);
+
+            return Collections.singletonMap(ResponseTimeChartType.AVG, chart);
+        }
+
 
         @Override
         public TimeWindow getTimeWindow() {

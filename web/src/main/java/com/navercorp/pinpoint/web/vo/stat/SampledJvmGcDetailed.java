@@ -26,7 +26,7 @@ public class SampledJvmGcDetailed implements SampledAgentStatDataPoint {
 
     public static final Long UNCOLLECTED_VALUE = -1L;
     public static final Double UNCOLLECTED_PERCENTAGE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_VALUE_POINT_CREATER = new Point.UncollectedPointCreator<AgentStatPoint<Long>>() {
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_VALUE_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Long>>() {
         @Override
         public AgentStatPoint<Long> createUnCollectedPoint(long xVal) {
             return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);

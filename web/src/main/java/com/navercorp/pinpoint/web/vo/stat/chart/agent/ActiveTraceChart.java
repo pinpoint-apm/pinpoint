@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.apache.hadoop.hbase.shaded.com.google.common.collect.ImmutableMap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author HyunGil Jeong
@@ -45,7 +45,7 @@ public class ActiveTraceChart implements StatChart {
         return activeTraceChartGroup;
     }
 
-    public static class ActiveTraceChartGroup implements StatChartGroup{
+    public static class ActiveTraceChartGroup implements StatChartGroup {
 
         private final TimeWindow timeWindow;
 
@@ -67,23 +67,29 @@ public class ActiveTraceChart implements StatChart {
 
         public ActiveTraceChartGroup(TimeWindow timeWindow, List<SampledActiveTrace> sampledActiveTraces) {
             this.timeWindow = timeWindow;
-            this.activeTraceCharts = new HashMap<>();
-            List<AgentStatPoint<Integer>> fastCounts = new ArrayList<>(sampledActiveTraces.size());
-            List<AgentStatPoint<Integer>> normalCounts = new ArrayList<>(sampledActiveTraces.size());
-            List<AgentStatPoint<Integer>> slowCounts = new ArrayList<>(sampledActiveTraces.size());
-            List<AgentStatPoint<Integer>> verySlowCounts = new ArrayList<>(sampledActiveTraces.size());
-            for (SampledActiveTrace sampledActiveTrace : sampledActiveTraces) {
-                fastCounts.add(sampledActiveTrace.getFastCounts());
-                normalCounts.add(sampledActiveTrace.getNormalCounts());
-                slowCounts.add(sampledActiveTrace.getSlowCounts());
-                verySlowCounts.add(sampledActiveTrace.getVerySlowCounts());
-            }
-            TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledActiveTrace.UNCOLLECTED_POINT_CREATER);
-            activeTraceCharts.put(ActiveTraceChartType.ACTIVE_TRACE_FAST, chartBuilder.build(fastCounts));
-            activeTraceCharts.put(ActiveTraceChartType.ACTIVE_TRACE_NORMAL, chartBuilder.build(normalCounts));
-            activeTraceCharts.put(ActiveTraceChartType.ACTIVE_TRACE_SLOW, chartBuilder.build(slowCounts));
-            activeTraceCharts.put(ActiveTraceChartType.ACTIVE_TRACE_VERY_SLOW, chartBuilder.build(verySlowCounts));
+            this.activeTraceCharts = newChart(sampledActiveTraces);
         }
+
+        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledActiveTrace> sampledActiveTraces) {
+
+            Chart<AgentStatPoint<Integer>> fastChart = newChart(sampledActiveTraces, SampledActiveTrace::getFastCounts);
+            Chart<AgentStatPoint<Integer>> normalChart = newChart(sampledActiveTraces, SampledActiveTrace::getNormalCounts);
+            Chart<AgentStatPoint<Integer>> slowChart = newChart(sampledActiveTraces, SampledActiveTrace::getSlowCounts);
+            Chart<AgentStatPoint<Integer>> verySlowChart = newChart(sampledActiveTraces, SampledActiveTrace::getVerySlowCounts);
+
+
+            return ImmutableMap.of(ActiveTraceChartType.ACTIVE_TRACE_FAST, fastChart,
+                    ActiveTraceChartType.ACTIVE_TRACE_NORMAL, normalChart,
+                    ActiveTraceChartType.ACTIVE_TRACE_SLOW, slowChart,
+                    ActiveTraceChartType.ACTIVE_TRACE_VERY_SLOW, verySlowChart);
+        }
+
+        private Chart<AgentStatPoint<Integer>> newChart(List<SampledActiveTrace> activeTraceList, Function<SampledActiveTrace, AgentStatPoint<Integer>> filter) {
+
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledActiveTrace.UNCOLLECTED_POINT_CREATOR);
+            return builder.build(activeTraceList, filter);
+        }
+
 
         @Override
         public TimeWindow getTimeWindow() {

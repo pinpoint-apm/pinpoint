@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 public class SampledTransaction implements SampledAgentStatDataPoint {
 
     public static final double UNCOLLECTED_VALUE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATER = new Point.UncollectedPointCreator<AgentStatPoint<Double>>() {
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Double>>() {
         @Override
         public AgentStatPoint<Double> createUnCollectedPoint(long xVal) {
             return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);

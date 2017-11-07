@@ -50,7 +50,7 @@ public class DeadlockSampler implements AgentStatSampler<DeadlockBo, SampledDead
 
     private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
         if (values.isEmpty()) {
-            return SampledDeadlock.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp);
+            return SampledDeadlock.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
             return new AgentStatPoint<>(
                     timestamp,

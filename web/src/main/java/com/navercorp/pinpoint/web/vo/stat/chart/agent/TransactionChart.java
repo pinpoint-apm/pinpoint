@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
+import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -24,10 +25,9 @@ import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author HyunGil Jeong
@@ -61,26 +61,29 @@ public class TransactionChart implements StatChart {
 
         private TransactionChartGroup(TimeWindow timeWindow, List<SampledTransaction> sampledTransactions) {
             this.timeWindow = timeWindow;
-            this.transactionCharts = new HashMap<>();
-            List<AgentStatPoint<Double>> sampledNewTps = new ArrayList<>(sampledTransactions.size());
-            List<AgentStatPoint<Double>> sampledContinuationTps = new ArrayList<>(sampledTransactions.size());
-            List<AgentStatPoint<Double>> unsampledNewTps = new ArrayList<>(sampledTransactions.size());
-            List<AgentStatPoint<Double>> unsampledContinuationTps = new ArrayList<>(sampledTransactions.size());
-            List<AgentStatPoint<Double>> totalTps = new ArrayList<>();
-            for (SampledTransaction sampledTransaction : sampledTransactions) {
-                sampledNewTps.add(sampledTransaction.getSampledNew());
-                sampledContinuationTps.add(sampledTransaction.getSampledContinuation());
-                unsampledNewTps.add(sampledTransaction.getUnsampledNew());
-                unsampledContinuationTps.add(sampledTransaction.getUnsampledContinuation());
-                totalTps.add(sampledTransaction.getTotal());
-            }
-            TimeSeriesChartBuilder<AgentStatPoint<Double>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledTransaction.UNCOLLECTED_POINT_CREATER);
-            transactionCharts.put(TransactionChartType.TPS_SAMPLED_NEW, chartBuilder.build(sampledNewTps));
-            transactionCharts.put(TransactionChartType.TPS_SAMPLED_CONTINUATION, chartBuilder.build(sampledContinuationTps));
-            transactionCharts.put(TransactionChartType.TPS_UNSAMPLED_NEW, chartBuilder.build(unsampledNewTps));
-            transactionCharts.put(TransactionChartType.TPS_UNSAMPLED_CONTINUATION, chartBuilder.build(unsampledContinuationTps));
-            transactionCharts.put(TransactionChartType.TPS_TOTAL, chartBuilder.build(totalTps));
+            this.transactionCharts = newChart(sampledTransactions);
         }
+
+        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledTransaction> sampledTransactions) {
+            Chart<AgentStatPoint<Double>> sampledNewTps = newChart(sampledTransactions, SampledTransaction::getSampledNew);
+            Chart<AgentStatPoint<Double>> sampledContinuationTps = newChart(sampledTransactions, SampledTransaction::getSampledContinuation);
+            Chart<AgentStatPoint<Double>> unsampledNewTps = newChart(sampledTransactions, SampledTransaction::getUnsampledNew);
+            Chart<AgentStatPoint<Double>> unsampledContinuationTps = newChart(sampledTransactions, SampledTransaction::getUnsampledContinuation);
+            Chart<AgentStatPoint<Double>> totalTps = newChart(sampledTransactions, SampledTransaction::getTotal);
+
+
+            return ImmutableMap.of(TransactionChartType.TPS_SAMPLED_NEW, sampledNewTps,
+                    TransactionChartType.TPS_SAMPLED_CONTINUATION, sampledContinuationTps,
+                    TransactionChartType.TPS_UNSAMPLED_NEW, unsampledNewTps,
+                    TransactionChartType.TPS_UNSAMPLED_CONTINUATION, unsampledContinuationTps,
+                    TransactionChartType.TPS_TOTAL, totalTps);
+        }
+
+        private Chart<AgentStatPoint<Double>> newChart(List<SampledTransaction> transactionList, Function<SampledTransaction, AgentStatPoint<Double>> filter) {
+            TimeSeriesChartBuilder<AgentStatPoint<Double>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledTransaction.UNCOLLECTED_POINT_CREATOR);
+            return builder.build(transactionList, filter);
+        }
+
 
         @Override
         public TimeWindow getTimeWindow() {

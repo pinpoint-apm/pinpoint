@@ -23,8 +23,7 @@ import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -69,14 +68,21 @@ public class ApplicationDataSourceChart implements StatChart {
             this.timeWindow = timeWindow;
             this.url = url;
             this.serviceTypeCodeName = serviceTypeCodeName;
-            this.dataSourceChartMap = new HashMap<>();
-            List<DataSourcePoint> activeConnectionCountList = new ArrayList<>(aggreJoinDataSourceBoList.size());
 
-            for (AggreJoinDataSourceBo aggreJoinDataSourceBo : aggreJoinDataSourceBoList) {
-                activeConnectionCountList.add(new DataSourcePoint(aggreJoinDataSourceBo.getTimestamp(), aggreJoinDataSourceBo.getMinActiveConnectionSize(), aggreJoinDataSourceBo.getMinActiveConnectionAgentId(), aggreJoinDataSourceBo.getMaxActiveConnectionSize(), aggreJoinDataSourceBo.getMaxActiveConnectionAgentId(), aggreJoinDataSourceBo.getAvgActiveConnectionSize()));
-            }
+            this.dataSourceChartMap = newChart(aggreJoinDataSourceBoList);
+        }
+
+        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList) {
+
             TimeSeriesChartBuilder<DataSourcePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_DATASOURCE_POINT);
-            dataSourceChartMap.put(DataSourceChartType.ACTIVE_CONNECTION_SIZE, chartBuilder.build(activeConnectionCountList));
+            Chart<DataSourcePoint> chart = chartBuilder.build(aggreJoinDataSourceBoList, this::newDataSource);
+
+            return Collections.singletonMap(DataSourceChartType.ACTIVE_CONNECTION_SIZE, chart);
+        }
+
+
+        private DataSourcePoint newDataSource(AggreJoinDataSourceBo ds) {
+            return new DataSourcePoint(ds.getTimestamp(), ds.getMinActiveConnectionSize(), ds.getMinActiveConnectionAgentId(), ds.getMaxActiveConnectionSize(), ds.getMaxActiveConnectionAgentId(), ds.getAvgActiveConnectionSize());
         }
 
         public String getJdbcUrl() {
