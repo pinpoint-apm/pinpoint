@@ -86,7 +86,7 @@ public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, S
 
     private AgentStatPoint<Long> createLongPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
-            return SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATER.createUnCollectedPoint(timestamp);
+            return SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
             return new AgentStatPoint<>(
                     timestamp,

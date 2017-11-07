@@ -26,8 +26,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -60,17 +59,23 @@ public class ApplicationTransactionChart implements StatChart {
 
         public ApplicationTransactionChartGroup(TimeWindow timeWindow, List<AggreJoinTransactionBo> aggreJoinTransactionBoList) {
             this.timeWindow = timeWindow;
-            transactionChartMap = new HashMap<>();
-            List<TransactionPoint> transactionList = new ArrayList<>(aggreJoinTransactionBoList.size());
+            this.transactionChartMap = newChart(aggreJoinTransactionBoList);
+        }
 
-            for (AggreJoinTransactionBo aggreJoinTransactionBo : aggreJoinTransactionBoList) {
-                double minTotalCount = calculateTPS(aggreJoinTransactionBo.getMinTotalCount(), aggreJoinTransactionBo.getCollectInterval());
-                double maxTotalCount = calculateTPS(aggreJoinTransactionBo.getMaxTotalCount(), aggreJoinTransactionBo.getCollectInterval());
-                double totalCount = calculateTPS(aggreJoinTransactionBo.getTotalCount(), aggreJoinTransactionBo.getCollectInterval());
-                transactionList.add(new TransactionPoint(aggreJoinTransactionBo.getTimestamp(), minTotalCount, aggreJoinTransactionBo.getMinTotalCountAgentId(), maxTotalCount, aggreJoinTransactionBo.getMaxTotalCountAgentId(), totalCount));
-            }
+        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinTransactionBo> joinTransactionBoList) {
+
             TimeSeriesChartBuilder<TransactionPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_TRANSACTION_POINT);
-            transactionChartMap.put(TransactionChartType.TRANSACTION_COUNT, chartBuilder.build(transactionList));
+            Chart<TransactionPoint> chart = chartBuilder.build(joinTransactionBoList, this::newTransactionPoint);
+
+            return Collections.singletonMap(TransactionChartType.TRANSACTION_COUNT, chart);
+        }
+
+
+        private TransactionPoint newTransactionPoint(AggreJoinTransactionBo transaction) {
+            double minTotalCount = calculateTPS(transaction.getMinTotalCount(), transaction.getCollectInterval());
+            double maxTotalCount = calculateTPS(transaction.getMaxTotalCount(), transaction.getCollectInterval());
+            double totalCount = calculateTPS(transaction.getTotalCount(), transaction.getCollectInterval());
+            return new TransactionPoint(transaction.getTimestamp(), minTotalCount, transaction.getMinTotalCountAgentId(), maxTotalCount, transaction.getMaxTotalCountAgentId(), totalCount);
         }
 
         private double calculateTPS(double value, long timeMs) {

@@ -46,10 +46,10 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
         final HistogramSchema schema = BaseHistogramSchema.getDefaultHistogramSchemaByTypeCode(dataPoints.get(0).getHistogramSchemaType());
         if (schema == null) {
             SampledActiveTrace sampledActiveTrace = new SampledActiveTrace();
-            sampledActiveTrace.setFastCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp));
-            sampledActiveTrace.setNormalCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp));
-            sampledActiveTrace.setSlowCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp));
-            sampledActiveTrace.setVerySlowCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp));
+            sampledActiveTrace.setFastCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp));
+            sampledActiveTrace.setNormalCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp));
+            sampledActiveTrace.setSlowCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp));
+            sampledActiveTrace.setVerySlowCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp));
             return sampledActiveTrace;
         }
 
@@ -83,7 +83,7 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
 
     private AgentStatPoint<Integer> createSampledTitledPoint(String title, long timestamp, List<Integer> values) {
         if (CollectionUtils.isEmpty(values)) {
-            return SampledActiveTrace.UNCOLLECTED_POINT_CREATER.createUnCollectedPoint(timestamp);
+            return SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
 
         return new TitledAgentStatPoint<>(
