@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.activemq.client.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
@@ -49,25 +50,90 @@ import java.net.URI;
 /**
  * @author HyunGil Jeong
  */
-public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAroundInterceptor {
+public class ActiveMQMessageConsumerDispatchInterceptor implements AroundInterceptor {
+
+    private static final ActiveMQConsumerEntryMethodDescriptor CONSUMER_ENTRY_METHOD_DESCRIPTOR = new ActiveMQConsumerEntryMethodDescriptor();
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
     private final Filter<String> excludeDestinationFilter;
 
-    public ActiveMQMessageConsumerDispatchInterceptor(TraceContext traceContext, Filter<String> excludeDestinationFilter) {
-        this(traceContext, new ActiveMQConsumerEntryMethodDescriptor(), excludeDestinationFilter);
-    }
-
-    private ActiveMQMessageConsumerDispatchInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, Filter<String> excludeDestinationFilter) {
-        super(traceContext, methodDescriptor, ActiveMQMessageConsumerDispatchInterceptor.class);
+    public ActiveMQMessageConsumerDispatchInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, Filter<String> excludeDestinationFilter) {
+        this.traceContext = traceContext;
+        this.methodDescriptor = methodDescriptor;
         this.excludeDestinationFilter = excludeDestinationFilter;
-        traceContext.cacheApi(methodDescriptor);
+        traceContext.cacheApi(CONSUMER_ENTRY_METHOD_DESCRIPTOR);
     }
 
     @Override
-    protected Trace createTrace(Object target, Object[] args) {
+    public void before(Object target, Object[] args) {
+        if (!validate(target, args)) {
+            return;
+        }
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        try {
+            final Trace trace = createTrace(target, args);
+            if (trace == null) {
+                return;
+            }
+            if (!trace.canSampled()) {
+                return;
+            }
+            // ------------------------------------------------------
+            SpanEventRecorder recorder = trace.traceBlockBegin();
+            recorder.recordServiceType(ActiveMQClientConstants.ACTIVEMQ_CLIENT_INTERNAL);
+            if (args[0] instanceof AsyncContextAccessor) {
+                AsyncContext asyncContext = recorder.recordNextAsyncContext();
+                ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
+            }
+        }
+    }
+
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (!validate(target, args)) {
+            return;
+        }
+        if (isDebug) {
+            logger.afterInterceptor(target, args, result, throwable);
+        }
+
+        final Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return;
+        }
+        if (!trace.canSampled()) {
+            traceContext.removeTraceObject();
+            return;
+        }
+        try {
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordApi(methodDescriptor);
+            if (throwable != null) {
+                recorder.recordException(throwable);
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("after. Caused:{}", th.getMessage(), th);
+            }
+        } finally {
+            traceContext.removeTraceObject();
+            trace.traceBlockEnd();
+            trace.close();
+        }
+    }
+
+    private Trace createTrace(Object target, Object[] args) {
         if (!validate(target, args)) {
             return null;
         }
@@ -80,16 +146,25 @@ public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAround
         if (!ActiveMQClientHeader.getSampled(message, true)) {
             return traceContext.disableSampling();
         }
-        String transactionId = ActiveMQClientHeader.getTraceId(message, null);
-        if (transactionId != null) {
-            long parentSpanId = ActiveMQClientHeader.getParentSpanId(message, SpanId.NULL);
-            long spanId = ActiveMQClientHeader.getSpanId(message, SpanId.NULL);
-            short flags = ActiveMQClientHeader.getFlags(message, (short) 0);
-            final TraceId traceId = traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
-            return traceContext.continueTraceObject(traceId);
-        } else {
-            return traceContext.newTraceObject();
+
+        final TraceId traceId = populateTraceIdFromRequest(message);
+        final Trace trace = traceId == null ? traceContext.newTraceObject() : traceContext.continueTraceObject(traceId);
+        if (trace.canSampled()) {
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recordRootSpan(recorder, target, args);
         }
+        return trace;
+    }
+
+    private TraceId populateTraceIdFromRequest(ActiveMQMessage message) {
+        String transactionId = ActiveMQClientHeader.getTraceId(message, null);
+        if (transactionId == null) {
+            return null;
+        }
+        long parentSpanId = ActiveMQClientHeader.getParentSpanId(message, SpanId.NULL);
+        long spanId = ActiveMQClientHeader.getSpanId(message, SpanId.NULL);
+        short flags = ActiveMQClientHeader.getFlags(message, (short) 0);
+        return traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
     }
 
     private boolean filterDestination(ActiveMQDestination destination) {
@@ -97,9 +172,9 @@ public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAround
         return this.excludeDestinationFilter.filter(destinationName);
     }
 
-    @Override
-    protected void doInBeforeTrace(SpanRecorder recorder, Object target, Object[] args) {
+    private void recordRootSpan(SpanRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(ActiveMQClientConstants.ACTIVEMQ_CLIENT);
+        recorder.recordApi(CONSUMER_ENTRY_METHOD_DESCRIPTOR);
 
         ActiveMQSession session = ((ActiveMQSessionGetter) target)._$PINPOINT$_getActiveMQSession();
         ActiveMQConnection connection = session.getConnection();
@@ -139,14 +214,6 @@ public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAround
             return HostAndPort.toHostAndPortString(uri.getHost(), uri.getPort());
         }
         return null;
-    }
-
-    @Override
-    protected void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        if (throwable != null) {
-            recorder.recordException(throwable);
-        }
     }
 
     private boolean validate(Object target, Object[] args) {
