@@ -30,8 +30,11 @@ import javax.jms.JMSException;
  */
 public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    public ActiveMQMessageConsumerReceiveInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    private final boolean traceActiveMQTextMessage;
+
+    public ActiveMQMessageConsumerReceiveInterceptor(TraceContext traceContext, MethodDescriptor descriptor, boolean traceActiveMQTextMessage) {
         super(traceContext, descriptor);
+        this.traceActiveMQTextMessage = traceActiveMQTextMessage;
     }
 
     // These methods may be polled, producing a lot of garbage log.
@@ -65,7 +68,7 @@ public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAr
         if (throwable != null) {
             recorder.recordException(throwable);
         } else {
-            if (result != null) {
+            if (traceActiveMQTextMessage && result != null) {
                 final String message = getMessage(result);
                 recorder.recordAttribute(ActiveMQClientConstants.ACTIVEMQ_MESSAGE, message);
             }
