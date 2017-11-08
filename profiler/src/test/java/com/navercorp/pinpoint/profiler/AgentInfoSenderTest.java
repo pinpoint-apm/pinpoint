@@ -431,7 +431,7 @@ public class AgentInfoSenderTest {
         final int randomMaxTime = 3000;
         final long agentInfoSendRetryIntervalMs = 1000L;
         final int maxTryPerAttempt = Integer.MAX_VALUE;
-        final int expectedTriesUntilSuccess = (int) stressTestTime / (randomMaxTime * 2);
+        final int expectedTriesUntilSuccess = (int) stressTestTime / (randomMaxTime * 2) - 1;
 
         ResponseServerMessageListener serverListener = new ResponseServerMessageListener(requestCount, successCount, expectedTriesUntilSuccess);
 
@@ -486,12 +486,12 @@ public class AgentInfoSenderTest {
     }
 
     private void closeAll(PinpointServerAcceptor serverAcceptor, AgentInfoSender agentInfoSender, PinpointClientFactory factory) {
-        if (serverAcceptor != null) {
-            serverAcceptor.close();
-        }
-
         if (agentInfoSender != null) {
             agentInfoSender.stop();
+        }
+
+        if (serverAcceptor != null) {
+            serverAcceptor.close();
         }
 
         if (factory != null) {
@@ -579,14 +579,5 @@ public class AgentInfoSenderTest {
         });
 
         Assert.assertTrue(pass);
-    }
-
-    @Test
-    public void test() {
-        Integer a = new Integer(1);
-        Integer b = 2;
-
-        Integer integer = Integer.valueOf(1);
-        System.out.println("a=" + System.identityHashCode(a) + " valueOf:" + System.identityHashCode(integer));
     }
 }
