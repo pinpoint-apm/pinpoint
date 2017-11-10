@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class JoinActiveTraceSampler implements ApplicationStatSampler<JoinActive
 
     @Override
     public AggreJoinActiveTraceBo sampleDataPoints(int index, long timestamp, List<JoinActiveTraceBo> joinActiveTraceBoList, JoinActiveTraceBo previousDataPoint) {
-        if (joinActiveTraceBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(joinActiveTraceBoList)) {
             return AggreJoinActiveTraceBo.createUncollectedObject(timestamp);
         }
 

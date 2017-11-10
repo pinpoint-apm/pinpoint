@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.vo.stat;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -32,15 +34,16 @@ public class SampledResponseTime implements SampledAgentStatDataPoint {
         }
     };
 
-    private AgentStatPoint<Long> avg;
+    private final AgentStatPoint<Long> avg;
+
+    public SampledResponseTime(AgentStatPoint<Long> avg) {
+        this.avg = Objects.requireNonNull(avg, "avg must not be null");
+    }
 
     public AgentStatPoint<Long> getAvg() {
         return avg;
     }
 
-    public void setAvg(AgentStatPoint<Long> avg) {
-        this.avg = avg;
-    }
 
     @Override
     public boolean equals(Object o) {

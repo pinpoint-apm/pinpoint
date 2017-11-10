@@ -67,7 +67,7 @@ public class DataSourceChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = createSampledDataSourceList(timeWindow);
-        StatChartGroup dataSourceChartGroup = new DataSourceChart.DataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
+        StatChartGroup dataSourceChartGroup = DataSourceChart.newDataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
 
         assertEquals(sampledDataSourceList, dataSourceChartGroup);
     }

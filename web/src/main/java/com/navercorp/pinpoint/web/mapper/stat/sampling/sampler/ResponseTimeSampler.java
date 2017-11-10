@@ -36,27 +36,33 @@ public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, Sam
 
     @Override
     public SampledResponseTime sampleDataPoints(int timeWindowIndex, long timestamp, List<ResponseTimeBo> dataPoints, ResponseTimeBo previousDataPoint) {
+        List<Long> avgs = getAvg(dataPoints);
+        AgentStatPoint<Long> avg = createPoint(timestamp, avgs);
+
+        SampledResponseTime sampledResponseTime = new SampledResponseTime(avg);
+        return sampledResponseTime;
+    }
+
+    private List<Long> getAvg(List<ResponseTimeBo> dataPoints) {
         List<Long> avgs = new ArrayList<>(dataPoints.size());
         for (ResponseTimeBo responseTimeBo : dataPoints) {
             avgs.add(responseTimeBo.getAvg());
         }
-
-        SampledResponseTime sampledResponseTime = new SampledResponseTime();
-        sampledResponseTime.setAvg(createPoint(timestamp, avgs));
-        return sampledResponseTime;
+        return avgs;
     }
 
     private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
             return SampledResponseTime.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
-        } else {
-            return new AgentStatPoint<>(
-                    timestamp,
-                    LONG_DOWN_SAMPLER.sampleMin(values),
-                    LONG_DOWN_SAMPLER.sampleMax(values),
-                    LONG_DOWN_SAMPLER.sampleAvg(values),
-                    LONG_DOWN_SAMPLER.sampleSum(values));
         }
+
+        return new AgentStatPoint<>(
+                timestamp,
+                LONG_DOWN_SAMPLER.sampleMin(values),
+                LONG_DOWN_SAMPLER.sampleMax(values),
+                LONG_DOWN_SAMPLER.sampleAvg(values),
+                LONG_DOWN_SAMPLER.sampleSum(values));
+
     }
 
 }

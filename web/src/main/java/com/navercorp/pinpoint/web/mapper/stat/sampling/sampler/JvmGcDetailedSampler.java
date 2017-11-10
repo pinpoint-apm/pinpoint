@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToLongFunction;
 
 /**
  * @author HyunGil Jeong
@@ -38,75 +40,79 @@ public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, S
 
     @Override
     public SampledJvmGcDetailed sampleDataPoints(int timeWindowIndex, long timestamp, List<JvmGcDetailedBo> dataPoints, JvmGcDetailedBo previousDataPoint) {
-        List<Long> gcNewCounts = new ArrayList<>(dataPoints.size());
-        List<Long> gcNewTimes = new ArrayList<>(dataPoints.size());
-        List<Double> codeCacheUseds = new ArrayList<>(dataPoints.size());
-        List<Double> newGenUseds = new ArrayList<>(dataPoints.size());
-        List<Double> oldGenUseds = new ArrayList<>(dataPoints.size());
-        List<Double> survivorSpaceUseds = new ArrayList<>(dataPoints.size());
-        List<Double> permGenUseds = new ArrayList<>(dataPoints.size());
-        List<Double> metaspaceUseds = new ArrayList<>(dataPoints.size());
-        for (JvmGcDetailedBo jvmGcDetailedBo : dataPoints) {
-            if (jvmGcDetailedBo.getGcNewCount() != JvmGcDetailedBo.UNCOLLECTED_VALUE) {
-                gcNewCounts.add(jvmGcDetailedBo.getGcNewCount());
-            }
-            if (jvmGcDetailedBo.getGcNewTime() != JvmGcDetailedBo.UNCOLLECTED_VALUE) {
-                gcNewTimes.add(jvmGcDetailedBo.getGcNewTime());
-            }
-            if (jvmGcDetailedBo.getCodeCacheUsed() != JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE) {
-                codeCacheUseds.add(jvmGcDetailedBo.getCodeCacheUsed() * 100);
-            }
-            if (jvmGcDetailedBo.getNewGenUsed() != JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE) {
-                newGenUseds.add(jvmGcDetailedBo.getNewGenUsed() * 100);
-            }
-            if (jvmGcDetailedBo.getOldGenUsed() != JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE) {
-                oldGenUseds.add(jvmGcDetailedBo.getOldGenUsed() * 100);
-            }
-            if (jvmGcDetailedBo.getSurvivorSpaceUsed() != JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE) {
-                survivorSpaceUseds.add(jvmGcDetailedBo.getSurvivorSpaceUsed() * 100);
-            }
-            if (jvmGcDetailedBo.getPermGenUsed() != JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE) {
-                permGenUseds.add(jvmGcDetailedBo.getPermGenUsed() * 100);
-            }
-            if (jvmGcDetailedBo.getMetaspaceUsed() != JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE) {
-                metaspaceUseds.add(jvmGcDetailedBo.getMetaspaceUsed() * 100);
-            }
-        }
-        SampledJvmGcDetailed sampledJvmGcDetailed = new SampledJvmGcDetailed();
-        sampledJvmGcDetailed.setGcNewCount(createLongPoint(timestamp, gcNewCounts));
-        sampledJvmGcDetailed.setGcNewTime(createLongPoint(timestamp, gcNewTimes));
-        sampledJvmGcDetailed.setCodeCacheUsed(createDoublePoint(timestamp, codeCacheUseds));
-        sampledJvmGcDetailed.setNewGenUsed(createDoublePoint(timestamp, newGenUseds));
-        sampledJvmGcDetailed.setOldGenUsed(createDoublePoint(timestamp, oldGenUseds));
-        sampledJvmGcDetailed.setSurvivorSpaceUsed(createDoublePoint(timestamp, survivorSpaceUseds));
-        sampledJvmGcDetailed.setPermGenUsed(createDoublePoint(timestamp, permGenUseds));
-        sampledJvmGcDetailed.setMetaspaceUsed(createDoublePoint(timestamp, metaspaceUseds));
+        AgentStatPoint<Long> gcNewCounts = newLongPoint(timestamp, dataPoints, JvmGcDetailedBo::getGcNewCount);
+        AgentStatPoint<Long> gcNewTimes = newLongPoint(timestamp, dataPoints, JvmGcDetailedBo::getGcNewTime);
+        AgentStatPoint<Double> codeCacheUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getCodeCacheUsed);
+        AgentStatPoint<Double> newGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getNewGenUsed);
+        AgentStatPoint<Double> oldGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getOldGenUsed);
+        AgentStatPoint<Double> survivorSpaceUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getSurvivorSpaceUsed);
+        AgentStatPoint<Double> permGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getPermGenUsed);
+        AgentStatPoint<Double> metaspaceUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getMetaspaceUsed);
+
+        SampledJvmGcDetailed sampledJvmGcDetailed = new SampledJvmGcDetailed(gcNewCounts, gcNewTimes, codeCacheUseds, newGenUseds,
+                oldGenUseds, survivorSpaceUseds, permGenUseds, metaspaceUseds);
         return sampledJvmGcDetailed;
     }
+
+    private AgentStatPoint<Long> newLongPoint(long timestamp, List<JvmGcDetailedBo> dataPoints, ToLongFunction<JvmGcDetailedBo> filter) {
+        List<Long> filteredList = longFilter(dataPoints, filter);
+        return createLongPoint(timestamp, filteredList);
+    }
+
+    private List<Long> longFilter(List<JvmGcDetailedBo> dataPoints, ToLongFunction<JvmGcDetailedBo> filter) {
+        final List<Long> result = new ArrayList<>(dataPoints.size());
+        for (JvmGcDetailedBo jvmGcDetailedBo : dataPoints) {
+            final long apply = filter.applyAsLong(jvmGcDetailedBo);
+            if (apply != JvmGcDetailedBo.UNCOLLECTED_VALUE) {
+                result.add(apply);
+            }
+        }
+        return result;
+    }
+
+    private AgentStatPoint<Double> newDoublePoint(long timestamp, List<JvmGcDetailedBo> dataPoints, ToDoubleFunction<JvmGcDetailedBo> filter) {
+        List<Double> filteredList = doubleFilter(dataPoints, filter);
+        return createDoublePoint(timestamp, filteredList);
+    }
+
+    private List<Double> doubleFilter(List<JvmGcDetailedBo> dataPoints, ToDoubleFunction<JvmGcDetailedBo> filter) {
+        final List<Double> result = new ArrayList<>(dataPoints.size());
+        for (JvmGcDetailedBo jvmGcDetailedBo : dataPoints) {
+            final double apply = filter.applyAsDouble(jvmGcDetailedBo);
+            if (apply != JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE) {
+                final double percentage = apply * 100;
+                result.add(percentage);
+            }
+        }
+        return result;
+    }
+
 
     private AgentStatPoint<Long> createLongPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
             return SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATOR.createUnCollectedPoint(timestamp);
-        } else {
-            return new AgentStatPoint<>(
-                    timestamp,
-                    LONG_DOWN_SAMPLER.sampleMin(values),
-                    LONG_DOWN_SAMPLER.sampleMax(values),
-                    LONG_DOWN_SAMPLER.sampleAvg(values, 0),
-                    LONG_DOWN_SAMPLER.sampleSum(values));
         }
+
+        return new AgentStatPoint<>(
+                timestamp,
+                LONG_DOWN_SAMPLER.sampleMin(values),
+                LONG_DOWN_SAMPLER.sampleMax(values),
+                LONG_DOWN_SAMPLER.sampleAvg(values, 0),
+                LONG_DOWN_SAMPLER.sampleSum(values));
+
     }
 
     private AgentStatPoint<Double> createDoublePoint(long timestamp, List<Double> values) {
         if (values.isEmpty()) {
             return SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR.createUnCollectedPoint(timestamp);
-        } else {
-            return new AgentStatPoint<>(
-                    timestamp,
-                    DOUBLE_DOWN_SAMPLER.sampleMin(values),
-                    DOUBLE_DOWN_SAMPLER.sampleMax(values),
-                    DOUBLE_DOWN_SAMPLER.sampleAvg(values),
-                    DOUBLE_DOWN_SAMPLER.sampleSum(values));
         }
+
+        return new AgentStatPoint<>(
+                timestamp,
+                DOUBLE_DOWN_SAMPLER.sampleMin(values),
+                DOUBLE_DOWN_SAMPLER.sampleMax(values),
+                DOUBLE_DOWN_SAMPLER.sampleAvg(values),
+                DOUBLE_DOWN_SAMPLER.sampleSum(values));
+
     }
 }

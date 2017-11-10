@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransa
 
     @Override
     public AggreJoinTransactionBo sampleDataPoints(int index, long timestamp, List<JoinTransactionBo> joinTransactionBoList, JoinTransactionBo previousDataPoint) {
-        if (joinTransactionBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(joinTransactionBoList)) {
             return AggreJoinTransactionBo.createUncollectedObject(timestamp);
         }
 

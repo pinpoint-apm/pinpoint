@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -31,7 +32,7 @@ public class JoinCpuLoadSampler implements ApplicationStatSampler<JoinCpuLoadBo>
 
     @Override
     public AggreJoinCpuLoadBo sampleDataPoints(int timeWindowIndex, long timestamp, List<JoinCpuLoadBo> joinCpuLoadBoList, JoinCpuLoadBo previousDataPoint) {
-        if (joinCpuLoadBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(joinCpuLoadBoList)) {
             return AggreJoinCpuLoadBo.createUncollectedObject(timestamp);
         }
 
