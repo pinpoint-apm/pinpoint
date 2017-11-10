@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class JoinResponseTimeSampler implements ApplicationStatSampler<JoinRespo
 
     @Override
     public AggreJoinResponseTimeBo sampleDataPoints(int index, long timestamp, List<JoinResponseTimeBo> joinResponseTimeBoList, JoinResponseTimeBo previousDataPoint) {
-        if (joinResponseTimeBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(joinResponseTimeBoList)) {
             return AggreJoinResponseTimeBo.createUncollectedObject(timestamp);
         }
 

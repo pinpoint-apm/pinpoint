@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.ToLongFunction;
 
 /**
  * @author HyunGil Jeong
@@ -39,52 +40,80 @@ public class TransactionSampler implements AgentStatSampler<TransactionBo, Sampl
 
     @Override
     public SampledTransaction sampleDataPoints(int timeWindowIndex, long timestamp, List<TransactionBo> dataPoints, TransactionBo previousDataPoint) {
-        List<Double> sampledNews = new ArrayList<>(dataPoints.size());
-        List<Double> sampledContinuations = new ArrayList<>(dataPoints.size());
-        List<Double> unsampledNews = new ArrayList<>(dataPoints.size());
-        List<Double> unsampledContinuations = new ArrayList<>(dataPoints.size());
-        List<Double> totals = new ArrayList<>(dataPoints.size());
+
+        final AgentStatPoint<Double> sampledNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSampledNewCount);
+        final AgentStatPoint<Double> sampledContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSampledContinuationCount);
+        final AgentStatPoint<Double> unsampledNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getUnsampledNewCount);
+        final AgentStatPoint<Double> unsampledContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getUnsampledContinuationCount);
+
+        final List<Double> totals = calculateTotalTps(dataPoints);
+        AgentStatPoint<Double> total = createPoint(timestamp, totals);
+
+        SampledTransaction sampledTransaction = new SampledTransaction(sampledNew, sampledContinuation, unsampledNew, unsampledContinuation, total);
+        return sampledTransaction;
+    }
+
+    private AgentStatPoint<Double> newAgentStatPoint(long timestamp, List<TransactionBo> dataPoints, ToLongFunction<TransactionBo> function) {
+        final List<Double> sampledNews = calculateTps(dataPoints, function);
+        return createPoint(timestamp, sampledNews);
+    }
+
+    private List<Double> calculateTotalTps(List<TransactionBo> dataPoints) {
+        final List<Double> result = new ArrayList<>(dataPoints.size());
         for (TransactionBo transactionBo : dataPoints) {
-            long collectInterval = transactionBo.getCollectInterval();
+            final Double total = getTotalTps(transactionBo);
+            if (total != null) {
+                result.add(total);
+            }
+        }
+        return result;
+    }
+
+    private Double getTotalTps(TransactionBo transactionBo) {
+        final long collectInterval = transactionBo.getCollectInterval();
+        if (collectInterval > 0) {
+            boolean isTransactionCollected = false;
+            long totalCount = 0;
+            final long sampledNewCount = transactionBo.getSampledNewCount();
+            if (sampledNewCount != TransactionBo.UNCOLLECTED_VALUE) {
+                isTransactionCollected = true;
+                totalCount += sampledNewCount;
+            }
+            final long sampledContinuationCount = transactionBo.getSampledContinuationCount();
+            if (sampledContinuationCount != TransactionBo.UNCOLLECTED_VALUE) {
+                isTransactionCollected = true;
+                totalCount += sampledContinuationCount;
+            }
+            final long unsampledNewCount = transactionBo.getUnsampledNewCount();
+            if (unsampledNewCount != TransactionBo.UNCOLLECTED_VALUE) {
+                isTransactionCollected = true;
+                totalCount += unsampledNewCount;
+            }
+            final long unsampledContinuationCount = transactionBo.getUnsampledContinuationCount();
+            if (unsampledContinuationCount != TransactionBo.UNCOLLECTED_VALUE) {
+                isTransactionCollected = true;
+                totalCount += unsampledContinuationCount;
+            }
+            if (isTransactionCollected) {
+                return calculateTps(totalCount, collectInterval);
+            }
+        }
+        return null;
+    }
+
+    private List<Double> calculateTps(List<TransactionBo> dataPoints, ToLongFunction<TransactionBo> function) {
+        final List<Double> result = new ArrayList<>(dataPoints.size());
+        for (TransactionBo transactionBo : dataPoints) {
+            final long collectInterval = transactionBo.getCollectInterval();
             if (collectInterval > 0) {
-                boolean isTransactionCollected = false;
-                long totalCount = 0;
-                if (transactionBo.getSampledNewCount() != TransactionBo.UNCOLLECTED_VALUE) {
-                    isTransactionCollected = true;
-                    long sampledNewCount = transactionBo.getSampledNewCount();
-                    sampledNews.add(calculateTps(sampledNewCount, collectInterval));
-                    totalCount += sampledNewCount;
-                }
-                if (transactionBo.getSampledContinuationCount() != TransactionBo.UNCOLLECTED_VALUE) {
-                    isTransactionCollected = true;
-                    long sampledContinuationCount = transactionBo.getSampledContinuationCount();
-                    sampledContinuations.add(calculateTps(sampledContinuationCount, collectInterval));
-                    totalCount += sampledContinuationCount;
-                }
-                if (transactionBo.getUnsampledNewCount() != TransactionBo.UNCOLLECTED_VALUE) {
-                    isTransactionCollected = true;
-                    long unsampledNewCount = transactionBo.getUnsampledNewCount();
-                    unsampledNews.add(calculateTps(unsampledNewCount, collectInterval));
-                    totalCount += unsampledNewCount;
-                }
-                if (transactionBo.getUnsampledContinuationCount() != TransactionBo.UNCOLLECTED_VALUE) {
-                    isTransactionCollected = true;
-                    long unsampledContinuationCount = transactionBo.getUnsampledContinuationCount();
-                    unsampledContinuations.add(calculateTps(unsampledContinuationCount, collectInterval));
-                    totalCount += unsampledContinuationCount;
-                }
-                if (isTransactionCollected) {
-                    totals.add(calculateTps(totalCount, collectInterval));
+                final long count = function.applyAsLong(transactionBo);
+                if (count != TransactionBo.UNCOLLECTED_VALUE) {
+                    final double tps = calculateTps(count, collectInterval);
+                    result.add(tps);
                 }
             }
         }
-        SampledTransaction sampledTransaction = new SampledTransaction();
-        sampledTransaction.setSampledNew(createPoint(timestamp, sampledNews));
-        sampledTransaction.setSampledContinuation(createPoint(timestamp, sampledContinuations));
-        sampledTransaction.setUnsampledNew(createPoint(timestamp, unsampledNews));
-        sampledTransaction.setUnsampledContinuation(createPoint(timestamp, unsampledContinuations));
-        sampledTransaction.setTotal(createPoint(timestamp, totals));
-        return sampledTransaction;
+        return result;
     }
 
     private double calculateTps(long count, long intervalMs) {
@@ -94,13 +123,13 @@ public class TransactionSampler implements AgentStatSampler<TransactionBo, Sampl
     private AgentStatPoint<Double> createPoint(long timestamp, List<Double> values) {
         if (values.isEmpty()) {
             return SampledCpuLoad.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
-        } else {
-            return new AgentStatPoint<>(
+        }
+
+        return new AgentStatPoint<>(
                     timestamp,
                     DOUBLE_DOWN_SAMPLER.sampleMin(values),
                     DOUBLE_DOWN_SAMPLER.sampleMax(values),
                     DOUBLE_DOWN_SAMPLER.sampleAvg(values),
                     DOUBLE_DOWN_SAMPLER.sampleSum(values));
-        }
     }
 }

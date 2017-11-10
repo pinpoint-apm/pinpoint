@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author HyunGil Jeong
@@ -37,32 +38,40 @@ public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoa
 
     @Override
     public SampledCpuLoad sampleDataPoints(int timeWindowIndex, long timestamp, List<CpuLoadBo> dataPoints, CpuLoadBo previousDataPoint) {
-        List<Double> jvmCpuLoads = new ArrayList<>(dataPoints.size());
-        List<Double> systemCpuLoads = new ArrayList<>(dataPoints.size());
+        final AgentStatPoint<Double> jvmCpuLoad = newAgentStatPoint(timestamp, dataPoints, CpuLoadBo::getJvmCpuLoad);
+        final AgentStatPoint<Double> systemCpuLoad = newAgentStatPoint(timestamp, dataPoints, CpuLoadBo::getSystemCpuLoad);
+
+        SampledCpuLoad sampledCpuLoad = new SampledCpuLoad(jvmCpuLoad, systemCpuLoad);
+        return sampledCpuLoad;
+    }
+
+    private AgentStatPoint<Double> newAgentStatPoint(long timestamp, List<CpuLoadBo> dataPoints, ToDoubleFunction<CpuLoadBo> filter) {
+        List<Double> jvmCpuLoads = filter(dataPoints, filter);
+        return createPoint(timestamp, jvmCpuLoads);
+    }
+
+    private List<Double> filter(List<CpuLoadBo> dataPoints, ToDoubleFunction<CpuLoadBo> filter) {
+        final List<Double> result = new ArrayList<>(dataPoints.size());
         for (CpuLoadBo cpuLoadBo : dataPoints) {
-            if (cpuLoadBo.getJvmCpuLoad() != CpuLoadBo.UNCOLLECTED_VALUE) {
-                jvmCpuLoads.add(cpuLoadBo.getJvmCpuLoad() * 100);
-            }
-            if (cpuLoadBo.getSystemCpuLoad() != CpuLoadBo.UNCOLLECTED_VALUE) {
-                systemCpuLoads.add(cpuLoadBo.getSystemCpuLoad() * 100);
+            final double apply = filter.applyAsDouble(cpuLoadBo);
+            if (apply != CpuLoadBo.UNCOLLECTED_VALUE) {
+                result.add(apply * 100);
             }
         }
-        SampledCpuLoad sampledCpuLoad = new SampledCpuLoad();
-        sampledCpuLoad.setJvmCpuLoad(createPoint(timestamp, jvmCpuLoads));
-        sampledCpuLoad.setSystemCpuLoad(createPoint(timestamp, systemCpuLoads));
-        return sampledCpuLoad;
+        return result;
     }
 
     private AgentStatPoint<Double> createPoint(long timestamp, List<Double> values) {
         if (values.isEmpty()) {
             return SampledCpuLoad.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
-        } else {
-            return new AgentStatPoint<>(
-                    timestamp,
-                    DOUBLE_DOWN_SAMPLER.sampleMin(values),
-                    DOUBLE_DOWN_SAMPLER.sampleMax(values),
-                    DOUBLE_DOWN_SAMPLER.sampleAvg(values),
-                    DOUBLE_DOWN_SAMPLER.sampleSum(values));
         }
+
+        return new AgentStatPoint<>(
+                timestamp,
+                DOUBLE_DOWN_SAMPLER.sampleMin(values),
+                DOUBLE_DOWN_SAMPLER.sampleMax(values),
+                DOUBLE_DOWN_SAMPLER.sampleAvg(values),
+                DOUBLE_DOWN_SAMPLER.sampleSum(values));
+
     }
 }
