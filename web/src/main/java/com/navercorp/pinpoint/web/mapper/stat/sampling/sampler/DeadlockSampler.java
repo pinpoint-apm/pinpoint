@@ -36,29 +36,34 @@ public class DeadlockSampler implements AgentStatSampler<DeadlockBo, SampledDead
 
     @Override
     public SampledDeadlock sampleDataPoints(int index, long timestamp, List<DeadlockBo> deadlockBoList, DeadlockBo previousDataPoint) {
+        List<Integer> deadlockedThreadCountList = filter(deadlockBoList);
+
+        AgentStatPoint<Integer> point = createPoint(timestamp, deadlockedThreadCountList);
+        SampledDeadlock sampledDeadlock = new SampledDeadlock(point);
+
+        return sampledDeadlock;
+    }
+
+    public List<Integer> filter(List<DeadlockBo> deadlockBoList) {
         List<Integer> deadlockedThreadCountList = new ArrayList<>(deadlockBoList.size());
 
         for (DeadlockBo deadlockBo : deadlockBoList) {
             deadlockedThreadCountList.add(deadlockBo.getDeadlockedThreadCount());
         }
-
-        SampledDeadlock sampledDeadlock = new SampledDeadlock();
-        sampledDeadlock.setDeadlockedThreadCount(createPoint(timestamp, deadlockedThreadCountList));
-
-        return sampledDeadlock;
+        return deadlockedThreadCountList;
     }
 
     private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
         if (values.isEmpty()) {
             return SampledDeadlock.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
-        } else {
-            return new AgentStatPoint<>(
-                    timestamp,
-                    INTEGER_DOWN_SAMPLER.sampleMin(values),
-                    INTEGER_DOWN_SAMPLER.sampleMax(values),
-                    INTEGER_DOWN_SAMPLER.sampleAvg(values),
-                    INTEGER_DOWN_SAMPLER.sampleSum(values));
         }
+
+        return new AgentStatPoint<>(
+                timestamp,
+                INTEGER_DOWN_SAMPLER.sampleMin(values),
+                INTEGER_DOWN_SAMPLER.sampleMax(values),
+                INTEGER_DOWN_SAMPLER.sampleAvg(values),
+                INTEGER_DOWN_SAMPLER.sampleSum(values));
     }
 
 }

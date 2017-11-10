@@ -15,12 +15,11 @@
  */
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -34,20 +33,26 @@ public class JoinDataSourceSampler implements ApplicationStatSampler<JoinDataSou
 
     @Override
     public AggreJoinDataSourceListBo sampleDataPoints(int index, long timestamp, List<JoinDataSourceListBo> joinDataSourceListBoList, JoinDataSourceListBo previousJoinDataSourceListBo) {
-        if (joinDataSourceListBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(joinDataSourceListBoList)) {
             return AggreJoinDataSourceListBo.createUncollectedObject(timestamp);
         }
 
         JoinDataSourceListBo joinDataSourceListBo = JoinDataSourceListBo.joinDataSourceListBoList(joinDataSourceListBoList, timestamp);
         String id = joinDataSourceListBo.getId();
         List<JoinDataSourceBo> joinDataSourceBoList = joinDataSourceListBo.getJoinDataSourceBoList();
-        List<JoinDataSourceBo> aggreJoinDataSourceBoList = new ArrayList<>(joinDataSourceBoList.size());
-
-        for (JoinDataSourceBo joinDataSourceBo : joinDataSourceBoList) {
-            aggreJoinDataSourceBoList.add(new AggreJoinDataSourceBo(joinDataSourceBo.getServiceTypeCode(), joinDataSourceBo.getUrl(), joinDataSourceBo.getAvgActiveConnectionSize(), joinDataSourceBo.getMinActiveConnectionSize(), joinDataSourceBo.getMinActiveConnectionAgentId(), joinDataSourceBo.getMaxActiveConnectionSize(), joinDataSourceBo.getMaxActiveConnectionAgentId(), timestamp));
-        }
+        List<JoinDataSourceBo> aggreJoinDataSourceBoList = getJoinDataSourceBoList(timestamp, joinDataSourceBoList);
 
         AggreJoinDataSourceListBo aggreJoinDataSourceListBo = new AggreJoinDataSourceListBo(id, aggreJoinDataSourceBoList, timestamp);
         return aggreJoinDataSourceListBo;
+    }
+
+    public List<JoinDataSourceBo> getJoinDataSourceBoList(long timestamp, List<JoinDataSourceBo> joinDataSourceBoList) {
+        List<JoinDataSourceBo> aggreJoinDataSourceBoList = new ArrayList<>(joinDataSourceBoList.size());
+        for (JoinDataSourceBo ds : joinDataSourceBoList) {
+            AggreJoinDataSourceBo dataSourceBo = new AggreJoinDataSourceBo(ds.getServiceTypeCode(), ds.getUrl(), ds.getAvgActiveConnectionSize(),
+                    ds.getMinActiveConnectionSize(), ds.getMinActiveConnectionAgentId(), ds.getMaxActiveConnectionSize(), ds.getMaxActiveConnectionAgentId(), timestamp);
+            aggreJoinDataSourceBoList.add(dataSourceBo);
+        }
+        return aggreJoinDataSourceBoList;
     }
 }

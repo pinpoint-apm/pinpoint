@@ -20,7 +20,9 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
@@ -45,28 +47,30 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
 
         final HistogramSchema schema = BaseHistogramSchema.getDefaultHistogramSchemaByTypeCode(dataPoints.get(0).getHistogramSchemaType());
         if (schema == null) {
-            SampledActiveTrace sampledActiveTrace = new SampledActiveTrace();
-            sampledActiveTrace.setFastCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp));
-            sampledActiveTrace.setNormalCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp));
-            sampledActiveTrace.setSlowCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp));
-            sampledActiveTrace.setVerySlowCounts(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp));
-            return sampledActiveTrace;
+            return newUnSampledActiveTrace(timestamp);
         }
 
-        SampledActiveTrace sampledActiveTrace = new SampledActiveTrace();
-        List<Integer> fastCounts = filterActiveTraceBoList(dataPoints, ActiveTraceHistogram::getFastCount);
-        sampledActiveTrace.setFastCounts(createSampledTitledPoint(schema.getFastSlot().getSlotName(), timestamp, fastCounts));
-
-        List<Integer> normalCounts = filterActiveTraceBoList(dataPoints, ActiveTraceHistogram::getNormalCount);
-        sampledActiveTrace.setNormalCounts(createSampledTitledPoint(schema.getNormalSlot().getSlotName(), timestamp, normalCounts));
-
-        List<Integer> slowCounts = filterActiveTraceBoList(dataPoints, ActiveTraceHistogram::getSlowCount);
-        sampledActiveTrace.setSlowCounts(createSampledTitledPoint(schema.getSlowSlot().getSlotName(), timestamp, slowCounts));
-
-        List<Integer> verySlowCounts = filterActiveTraceBoList(dataPoints, ActiveTraceHistogram::getVerySlowCount);
-        sampledActiveTrace.setVerySlowCounts(createSampledTitledPoint(schema.getVerySlowSlot().getSlotName(), timestamp, verySlowCounts));
+        AgentStatPoint<Integer> fast = newAgentStatPoint(schema.getFastSlot(), timestamp, dataPoints, ActiveTraceHistogram::getFastCount);
+        AgentStatPoint<Integer> normal = newAgentStatPoint(schema.getNormalSlot(), timestamp, dataPoints, ActiveTraceHistogram::getNormalCount);
+        AgentStatPoint<Integer> slow = newAgentStatPoint(schema.getSlowSlot(), timestamp, dataPoints, ActiveTraceHistogram::getSlowCount);
+        AgentStatPoint<Integer> verySlow = newAgentStatPoint(schema.getVerySlowSlot(), timestamp, dataPoints, ActiveTraceHistogram::getVerySlowCount);
+        SampledActiveTrace sampledActiveTrace = new SampledActiveTrace(fast, normal, slow, verySlow);
 
         return sampledActiveTrace;
+    }
+
+    private SampledActiveTrace newUnSampledActiveTrace(long timestamp) {
+        Point.UncollectedPointCreator<AgentStatPoint<Integer>> uncollected = SampledActiveTrace.UNCOLLECTED_POINT_CREATOR;
+        AgentStatPoint<Integer> fast = uncollected.createUnCollectedPoint(timestamp);
+        AgentStatPoint<Integer> normal = uncollected.createUnCollectedPoint(timestamp);
+        AgentStatPoint<Integer> slow = uncollected.createUnCollectedPoint(timestamp);
+        AgentStatPoint<Integer> verySlow = uncollected.createUnCollectedPoint(timestamp);
+        return new SampledActiveTrace(fast, normal, slow, verySlow);
+    }
+
+    private AgentStatPoint<Integer> newAgentStatPoint(HistogramSlot slot, long timestamp, List<ActiveTraceBo> dataPoints, ToIntFunction<ActiveTraceHistogram> counter) {
+        List<Integer> fastCounts = filterActiveTraceBoList(dataPoints, counter);
+        return createSampledTitledPoint(slot.getSlotName(), timestamp, fastCounts);
     }
 
     private List<Integer> filterActiveTraceBoList(List<ActiveTraceBo> dataPoints, ToIntFunction<ActiveTraceHistogram> counter) {

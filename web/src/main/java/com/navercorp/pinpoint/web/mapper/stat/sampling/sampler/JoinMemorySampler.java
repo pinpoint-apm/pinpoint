@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class JoinMemorySampler implements ApplicationStatSampler<JoinMemoryBo> {
 
     @Override
     public AggreJoinMemoryBo sampleDataPoints(int index, long timestamp, List<JoinMemoryBo> joinMemoryBoList, JoinMemoryBo previousDataPoint) {
-        if (joinMemoryBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(joinMemoryBoList)) {
             return AggreJoinMemoryBo.createUncollectedObject(timestamp);
         }
 
