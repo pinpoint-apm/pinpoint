@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.bootstrap.context;
 
+import com.navercorp.pinpoint.common.annotations.InterfaceStability;
+
 /**
  * @since 1.7.0
  * @author Woonduk Kang(emeroad)
  */
+@InterfaceStability.Evolving
 public interface AsyncContext {
 
     String ASYNC_TRACE_SCOPE = "##ASYNC_TRACE_SCOPE";
