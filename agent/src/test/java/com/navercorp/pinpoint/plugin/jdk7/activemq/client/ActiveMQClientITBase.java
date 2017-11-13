@@ -213,7 +213,7 @@ public abstract class ActiveMQClientITBase {
 
         verifier.verifyTrace(event(ServiceType.ASYNC.getName(), "Asynchronous Invocation"));
         Method handleMessageMethod = MessageReceiveHandler.class.getDeclaredMethod("handleMessage", Message.class);
-        verifier.verifyTrace(event(ACTIVEMQ_CLIENT_INTERNAL, handleMessageMethod));
+        verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), handleMessageMethod));
         Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
         verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), printMessageMethod));
 
@@ -404,7 +404,7 @@ public abstract class ActiveMQClientITBase {
 
         ExpectedTrace asyncTrace = event(ServiceType.ASYNC.getName(), "Asynchronous Invocation");
         Method handleMessageMethod = MessageReceiveHandler.class.getDeclaredMethod("handleMessage", Message.class);
-        ExpectedTrace handleMessageTrace = event(ACTIVEMQ_CLIENT_INTERNAL, handleMessageMethod);
+        ExpectedTrace handleMessageTrace = event(ServiceType.INTERNAL_METHOD.getName(), handleMessageMethod);
         Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
         ExpectedTrace printMessageTrace = event(ServiceType.INTERNAL_METHOD.getName(), printMessageMethod);
         for (int i = 0; i < 2; ++i) {
@@ -426,9 +426,6 @@ public abstract class ActiveMQClientITBase {
     private void verifyProducerSendEvent(PluginTestVerifier verifier, ActiveMQDestination destination, ActiveMQSession session) throws Exception {
         Class<?> messageProducerClass = Class.forName("org.apache.activemq.ActiveMQMessageProducer");
         Method send = messageProducerClass.getDeclaredMethod("send", Destination.class, Message.class, int.class, int.class, long.class);
-//        URI producerBrokerUri = new URI(getProducerBrokerUrl());
-//        String expectedEndPoint = getProducerBrokerUri.getHost() + ":" + producerBrokerUri.getPort();
-//        String expectedEndPoint = producerBrokerUri.toString();
         String expectedEndPoint = session.getConnection().getTransport().getRemoteAddress();
         verifier.verifyDiscreteTrace(event(
                 ACTIVEMQ_CLIENT, // serviceType

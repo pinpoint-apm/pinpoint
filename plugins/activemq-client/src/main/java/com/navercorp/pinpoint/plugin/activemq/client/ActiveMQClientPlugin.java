@@ -22,19 +22,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -63,9 +56,7 @@ public class ActiveMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
             }
             if (config.isTraceActiveMQClientConsumer()) {
                 boolean traceActiveMQTextMessage = config.isTraceActiveMQTextMessage();
-                List<String> clientHandlerMethods = config.getClientHandlerMethods();
                 this.addConsumerEditor(traceActiveMQTextMessage, excludeDestinationFilter);
-                this.addExternalListenerEditor(clientHandlerMethods);
             }
         }
     }
@@ -192,66 +183,6 @@ public class ActiveMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
                 return target.toBytecode();
             }
         });
-    }
-
-    private void addExternalListenerEditor(List<String> clientHandlerMethods) {
-        Map<String, Set<String>> clientHandlers = parseClientHandlers(clientHandlerMethods);
-        for (Map.Entry<String, Set<String>> clientHandler : clientHandlers.entrySet()) {
-            final String className = clientHandler.getKey();
-            final Set<String> methodNames = clientHandler.getValue();
-            transformTemplate.transform(className, new TransformCallback() {
-                @Override
-                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                    final String[] names = methodNames.toArray(new String[methodNames.size()]);
-                    for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(names))) {
-                        try {
-                            method.addInterceptor("com.navercorp.pinpoint.plugin.activemq.client.interceptor.ActiveMQExternalListenerInvokeInterceptor");
-                        } catch (Exception e) {
-                            if (logger.isWarnEnabled()) {
-                                logger.warn("Unsupported method " + method, e);
-                            }
-                        }
-                    }
-                    return target.toBytecode();
-                }
-            });
-        }
-    }
-
-    private Map<String, Set<String>> parseClientHandlers(List<String> clientHandlerMethods) {
-        Map<String, Set<String>> clientHandlers = new HashMap<String, Set<String>>();
-        for (String clientHandlerMethod : clientHandlerMethods) {
-            try {
-                final String className = parseClassName(clientHandlerMethod);
-                final String methodName = parseMethodName(clientHandlerMethod);
-                Set<String> methodNames = clientHandlers.get(className);
-                if (methodNames == null) {
-                    methodNames = new HashSet<String>();
-                    clientHandlers.put(className, methodNames);
-                }
-                methodNames.add(methodName);
-            } catch (Exception e) {
-                logger.warn("Failed to parse client handler method(" + clientHandlerMethod + ").", e);
-            }
-        }
-        return clientHandlers;
-    }
-
-    private String parseClassName(String clientHandler) {
-        final int separatorIndex = clientHandler.lastIndexOf('.');
-        if (separatorIndex <= 0) {
-            throw new IllegalArgumentException("Cannot parse class name");
-        }
-        return clientHandler.substring(0, separatorIndex);
-    }
-
-    private String parseMethodName(String clientHandler) {
-        final int separatorIndex = clientHandler.lastIndexOf('.');
-        if (separatorIndex <= 0 || separatorIndex + 1 >= clientHandler.length()) {
-            throw new IllegalArgumentException("Cannot parse method name");
-        }
-        return clientHandler.substring(separatorIndex + 1);
     }
 
     @Override
