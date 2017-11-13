@@ -58,11 +58,11 @@ public class TimeSeriesChartBuilderTest {
         }
 
         @Override
-        public long getxVal() {
+        public long getXVal() {
             return xVal;
         }
 
-        public int getyVal() {
+        public int getYVal() {
             return yVal;
         }
     }
@@ -96,7 +96,7 @@ public class TimeSeriesChartBuilderTest {
         // Then
         List<TestPoint> sampledPoints = chart.getPoints();
         for (int i = 0; i < sampledPoints.size(); i++) {
-            Assert.assertEquals(i, sampledPoints.get(i).getyVal());
+            Assert.assertEquals(i, sampledPoints.get(i).getYVal());
         }
 
     }

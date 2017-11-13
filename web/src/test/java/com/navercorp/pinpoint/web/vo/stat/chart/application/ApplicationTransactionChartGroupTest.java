@@ -70,9 +70,9 @@ public class ApplicationTransactionChartGroupTest {
     }
 
     private void testTranCount(TransactionPoint transactionPoint, AggreJoinTransactionBo aggreJoinTransactionBo) {
-        assertEquals(transactionPoint.getyValForAvg(), calculateTPS(aggreJoinTransactionBo.getTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getyValForMin(), calculateTPS(aggreJoinTransactionBo.getMinTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getyValForMax(), calculateTPS(aggreJoinTransactionBo.getMaxTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getYValForAvg(), calculateTPS(aggreJoinTransactionBo.getTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getYValForMin(), calculateTPS(aggreJoinTransactionBo.getMinTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getYValForMax(), calculateTPS(aggreJoinTransactionBo.getMaxTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
         assertEquals(transactionPoint.getAgentIdForMin(), aggreJoinTransactionBo.getMinTotalCountAgentId());
         assertEquals(transactionPoint.getAgentIdForMax(), aggreJoinTransactionBo.getMaxTotalCountAgentId());
     }

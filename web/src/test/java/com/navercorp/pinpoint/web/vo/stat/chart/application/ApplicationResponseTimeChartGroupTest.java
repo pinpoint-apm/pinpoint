@@ -67,9 +67,9 @@ public class ApplicationResponseTimeChartGroupTest {
     }
 
     private void testResponseTimeCount(ResponseTimePoint responseTimePoint, AggreJoinResponseTimeBo aggreJoinResponseTimeBo) {
-        assertEquals(responseTimePoint.getyValForAvg(), aggreJoinResponseTimeBo.getAvg(), 0);
-        assertEquals(responseTimePoint.getyValForMin(), aggreJoinResponseTimeBo.getMinAvg(), 0);
-        assertEquals(responseTimePoint.getyValForMax(), aggreJoinResponseTimeBo.getMaxAvg(), 0);
+        assertEquals(responseTimePoint.getYValForAvg(), aggreJoinResponseTimeBo.getAvg(), 0);
+        assertEquals(responseTimePoint.getYValForMin(), aggreJoinResponseTimeBo.getMinAvg(), 0);
+        assertEquals(responseTimePoint.getYValForMax(), aggreJoinResponseTimeBo.getMaxAvg(), 0);
         assertEquals(responseTimePoint.getAgentIdForMax(), aggreJoinResponseTimeBo.getMaxAvgAgentId());
         assertEquals(responseTimePoint.getAgentIdForMin(), aggreJoinResponseTimeBo.getMinAvgAgentId());
     }

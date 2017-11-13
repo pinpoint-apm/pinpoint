@@ -32,11 +32,11 @@ public class MemoryPointSerializer extends JsonSerializer<MemoryPoint> {
     @Override
     public void serialize(MemoryPoint memoryPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartArray();
-        jgen.writeNumber(memoryPoint.getyValForMin());
+        jgen.writeNumber(memoryPoint.getYValForMin());
         jgen.writeString(memoryPoint.getAgentIdForMin());
-        jgen.writeNumber(memoryPoint.getyValForMax());
+        jgen.writeNumber(memoryPoint.getYValForMax());
         jgen.writeString(memoryPoint.getAgentIdForMax());
-        jgen.writeNumber(memoryPoint.getyValForAvg());
+        jgen.writeNumber(memoryPoint.getYValForAvg());
         jgen.writeEndArray();
     }
 }

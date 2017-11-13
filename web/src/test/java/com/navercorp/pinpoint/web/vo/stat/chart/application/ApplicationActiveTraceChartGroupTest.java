@@ -66,9 +66,9 @@ public class ApplicationActiveTraceChartGroupTest {
     }
 
     private void testActiveTraceCount(ActiveTracePoint activeTracePoint, AggreJoinActiveTraceBo aggreJoinActiveTraceBo) {
-        assertEquals(activeTracePoint.getyValForAvg(), aggreJoinActiveTraceBo.getTotalCount());
-        assertEquals(activeTracePoint.getyValForMin(), aggreJoinActiveTraceBo.getMinTotalCount());
-        assertEquals(activeTracePoint.getyValForMax(), aggreJoinActiveTraceBo.getMaxTotalCount());
+        assertEquals(activeTracePoint.getYValForAvg(), aggreJoinActiveTraceBo.getTotalCount());
+        assertEquals(activeTracePoint.getYValForMin(), aggreJoinActiveTraceBo.getMinTotalCount());
+        assertEquals(activeTracePoint.getYValForMax(), aggreJoinActiveTraceBo.getMaxTotalCount());
         assertEquals(activeTracePoint.getAgentIdForMin(), aggreJoinActiveTraceBo.getMinTotalCountAgentId());
         assertEquals(activeTracePoint.getAgentIdForMax(), aggreJoinActiveTraceBo.getMaxTotalCountAgentId());
     }

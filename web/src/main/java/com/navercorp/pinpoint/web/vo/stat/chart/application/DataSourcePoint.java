@@ -45,11 +45,11 @@ public class DataSourcePoint implements Point {
     }
 
     @Override
-    public long getxVal() {
+    public long getXVal() {
         return xVal;
     }
 
-    public int getyValForMin() {
+    public int getYValForMin() {
         return yValForMin;
     }
 
@@ -57,7 +57,7 @@ public class DataSourcePoint implements Point {
         return agentIdForMin;
     }
 
-    public int getyValForMax() {
+    public int getYValForMax() {
         return yValForMax;
     }
 
@@ -65,7 +65,7 @@ public class DataSourcePoint implements Point {
         return agentIdForMax;
     }
 
-    public double getyValForAvg() {
+    public double getYValForAvg() {
         return yValForAvg;
     }
 

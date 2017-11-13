@@ -32,11 +32,11 @@ public class DataSourcePointSerializer extends JsonSerializer<DataSourcePoint> {
     @Override
     public void serialize(DataSourcePoint dataSourcePoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartArray();
-        jgen.writeNumber(dataSourcePoint.getyValForMin());
+        jgen.writeNumber(dataSourcePoint.getYValForMin());
         jgen.writeString(dataSourcePoint.getAgentIdForMin());
-        jgen.writeNumber(dataSourcePoint.getyValForMax());
+        jgen.writeNumber(dataSourcePoint.getYValForMax());
         jgen.writeString(dataSourcePoint.getAgentIdForMax());
-        jgen.writeNumber(dataSourcePoint.getyValForAvg());
+        jgen.writeNumber(dataSourcePoint.getYValForAvg());
         jgen.writeEndArray();
     }
 }

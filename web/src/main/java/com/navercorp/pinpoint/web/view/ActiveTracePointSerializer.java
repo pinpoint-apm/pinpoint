@@ -32,11 +32,11 @@ public class ActiveTracePointSerializer extends JsonSerializer<ActiveTracePoint>
     @Override
     public void serialize(ActiveTracePoint activeTracePoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartArray();
-        jgen.writeNumber(activeTracePoint.getyValForMin());
+        jgen.writeNumber(activeTracePoint.getYValForMin());
         jgen.writeString(activeTracePoint.getAgentIdForMin());
-        jgen.writeNumber(activeTracePoint.getyValForMax());
+        jgen.writeNumber(activeTracePoint.getYValForMax());
         jgen.writeString(activeTracePoint.getAgentIdForMax());
-        jgen.writeNumber(activeTracePoint.getyValForAvg());
+        jgen.writeNumber(activeTracePoint.getYValForAvg());
         jgen.writeEndArray();
     }
 }
