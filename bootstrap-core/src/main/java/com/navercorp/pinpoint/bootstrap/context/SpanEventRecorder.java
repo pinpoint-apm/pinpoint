@@ -55,7 +55,7 @@ public interface SpanEventRecorder extends FrameAttachment {
     /**
      * @since 1.7.0
      */
-    @InterfaceStability.Unstable
+    @InterfaceStability.Evolving
     AsyncContext recordNextAsyncContext(boolean stateful);
 
     /**
