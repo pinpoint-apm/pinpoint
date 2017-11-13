@@ -184,6 +184,10 @@ public class AgentInfoSender {
                     return false;
                 }
                 ResponseMessage responseMessage = future.getResult();
+                if (responseMessage == null) {
+                    logger.warn("result not set.");
+                    return false;
+                }
                 return getResult(responseMessage);
             } catch (Exception e) {
                 logger.warn("failed to send agent info.", e);
@@ -194,6 +198,10 @@ public class AgentInfoSender {
         private boolean getResult(ResponseMessage responseMessage) {
             byte[] message = responseMessage.getMessage();
             TBase<?, ?> tbase = SerializationUtils.deserialize(message, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, null);
+            if (tbase == null) {
+                logger.warn("tbase is null");
+                return false;
+            }
             if (!(tbase instanceof TResult)) {
                 logger.warn("Invalid response : {}", tbase.getClass());
                 return false;
