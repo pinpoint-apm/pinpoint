@@ -42,7 +42,7 @@ public class CpuLoadPoint implements Point {
         this.yValForAvg = yValForAvg;
     }
 
-    public double getyValForMin() {
+    public double getYValForMin() {
         return yValForMin;
     }
 
@@ -50,7 +50,7 @@ public class CpuLoadPoint implements Point {
         return agentIdForMin;
     }
 
-    public double getyValForMax() {
+    public double getYValForMax() {
         return yValForMax;
     }
 
@@ -58,12 +58,12 @@ public class CpuLoadPoint implements Point {
         return agentIdForMax;
     }
 
-    public double getyValForAvg() {
+    public double getYValForAvg() {
         return yValForAvg;
     }
 
     @Override
-    public long getxVal() {
+    public long getXVal() {
         return this.xVal;
     }
 

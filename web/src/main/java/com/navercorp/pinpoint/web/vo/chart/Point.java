@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.vo.chart;
  * @author minwoo.jung
  */
 public interface Point {
-    long getxVal();
+    long getXVal();
 
     interface UncollectedPointCreator<P extends Point> {
         P createUnCollectedPoint(long xVal);

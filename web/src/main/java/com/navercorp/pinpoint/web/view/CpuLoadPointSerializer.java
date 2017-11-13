@@ -32,11 +32,11 @@ public class CpuLoadPointSerializer extends JsonSerializer<CpuLoadPoint> {
     @Override
     public void serialize(CpuLoadPoint cpuLoadPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartArray();
-        jgen.writeNumber(cpuLoadPoint.getyValForMin());
+        jgen.writeNumber(cpuLoadPoint.getYValForMin());
         jgen.writeString(cpuLoadPoint.getAgentIdForMin());
-        jgen.writeNumber(cpuLoadPoint.getyValForMax());
+        jgen.writeNumber(cpuLoadPoint.getYValForMax());
         jgen.writeString(cpuLoadPoint.getAgentIdForMax());
-        jgen.writeNumber(cpuLoadPoint.getyValForAvg());
+        jgen.writeNumber(cpuLoadPoint.getYValForAvg());
         jgen.writeEndArray();
     }
 }
