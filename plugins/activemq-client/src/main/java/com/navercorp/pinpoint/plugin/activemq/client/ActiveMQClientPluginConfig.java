@@ -22,9 +22,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.util.List;
-
-
 /**
  * @author HyunGil Jeong
  */
@@ -36,7 +33,6 @@ public class ActiveMQClientPluginConfig {
     private final boolean traceActiveMQClientProducer;
     private final boolean traceActiveMQClientConsumer;
     private final boolean traceActiveMQTextMessage;
-    private final List<String> clientHandlerMethods;
     private final Filter<String> excludeDestinationFilter;
 
     public ActiveMQClientPluginConfig(ProfilerConfig config) {
@@ -44,7 +40,6 @@ public class ActiveMQClientPluginConfig {
         this.traceActiveMQClientProducer = config.readBoolean("profiler.activemq.client.producer.enable", true);
         this.traceActiveMQClientConsumer = config.readBoolean("profiler.activemq.client.consumer.enable", true);
         this.traceActiveMQTextMessage = config.readBoolean("profiler.activemq.client.trace.message", false);
-        this.clientHandlerMethods = config.readList("profiler.activemq.client.handler.methods");
         String excludeDestinationPathSeparator = config.readString("profiler.activemq.client.destination.separator", DEFAULT_DESTINATION_PATH_SEPARATOR);
         if (StringUtils.isEmpty(excludeDestinationPathSeparator)) {
             excludeDestinationPathSeparator = DEFAULT_DESTINATION_PATH_SEPARATOR;
@@ -71,10 +66,6 @@ public class ActiveMQClientPluginConfig {
 
     public boolean isTraceActiveMQTextMessage() {
         return traceActiveMQTextMessage;
-    }
-
-    public List<String> getClientHandlerMethods() {
-        return clientHandlerMethods;
     }
 
     public Filter<String> getExcludeDestinationFilter() {

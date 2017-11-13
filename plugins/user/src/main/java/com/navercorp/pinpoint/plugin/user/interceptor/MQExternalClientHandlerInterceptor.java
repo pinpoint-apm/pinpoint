@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.activemq.client.interceptor;
+package com.navercorp.pinpoint.plugin.user.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
@@ -27,19 +27,19 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author HyunGil Jeong
  */
-public class ActiveMQExternalListenerInvokeInterceptor implements AroundInterceptor {
+public class MQExternalClientHandlerInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
     protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
 
     protected final MethodDescriptor methodDescriptor;
 
-    public ActiveMQExternalListenerInvokeInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public MQExternalClientHandlerInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
@@ -71,7 +71,7 @@ public class ActiveMQExternalListenerInvokeInterceptor implements AroundIntercep
         try {
             // trace event for default & async.
             final SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(ActiveMQClientConstants.ACTIVEMQ_CLIENT_INTERNAL);
+            recorder.recordServiceType(ServiceType.INTERNAL_METHOD);
             recorder.recordApi(methodDescriptor);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
