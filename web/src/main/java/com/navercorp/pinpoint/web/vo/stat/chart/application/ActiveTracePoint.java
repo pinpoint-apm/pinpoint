@@ -43,7 +43,7 @@ public class ActiveTracePoint implements Point {
         this.yValForAvg = yValForAvg;
     }
 
-    public int getyValForMin() {
+    public int getYValForMin() {
         return yValForMin;
     }
 
@@ -51,7 +51,7 @@ public class ActiveTracePoint implements Point {
         return agentIdForMin;
     }
 
-    public int getyValForMax() {
+    public int getYValForMax() {
         return yValForMax;
     }
 
@@ -59,12 +59,12 @@ public class ActiveTracePoint implements Point {
         return agentIdForMax;
     }
 
-    public int getyValForAvg() {
+    public int getYValForAvg() {
         return yValForAvg;
     }
 
     @Override
-    public long getxVal() {
+    public long getXVal() {
         return xVal;
     }
 

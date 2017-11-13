@@ -75,18 +75,18 @@ public class ApplicationCpuLoadChartGroupTest {
     }
 
     private void testSysCpuLoad(CpuLoadPoint cpuLoadPoint, AggreJoinCpuLoadBo aggreJoinCpuLoadBo) {
-        assertEquals(cpuLoadPoint.getxVal(), aggreJoinCpuLoadBo.getTimestamp());
-        assertEquals(cpuLoadPoint.getyValForAvg(), aggreJoinCpuLoadBo.getSystemCpuLoad(), 0);
-        assertEquals(cpuLoadPoint.getyValForMin(), aggreJoinCpuLoadBo.getMinSystemCpuLoad(), 0);
-        assertEquals(cpuLoadPoint.getyValForMax(), aggreJoinCpuLoadBo.getMaxSystemCpuLoad(), 0);
+        assertEquals(cpuLoadPoint.getXVal(), aggreJoinCpuLoadBo.getTimestamp());
+        assertEquals(cpuLoadPoint.getYValForAvg(), aggreJoinCpuLoadBo.getSystemCpuLoad(), 0);
+        assertEquals(cpuLoadPoint.getYValForMin(), aggreJoinCpuLoadBo.getMinSystemCpuLoad(), 0);
+        assertEquals(cpuLoadPoint.getYValForMax(), aggreJoinCpuLoadBo.getMaxSystemCpuLoad(), 0);
         assertEquals(cpuLoadPoint.getAgentIdForMin(), aggreJoinCpuLoadBo.getMinSysCpuAgentId());
         assertEquals(cpuLoadPoint.getAgentIdForMax(), aggreJoinCpuLoadBo.getMaxSysCpuAgentId());
     }
 
     private void testJvmCpuLoad(CpuLoadPoint cpuLoadPoint, AggreJoinCpuLoadBo aggreJoinCpuLoadBo) {
-        assertEquals(cpuLoadPoint.getyValForAvg(), aggreJoinCpuLoadBo.getJvmCpuLoad(), 0);
-        assertEquals(cpuLoadPoint.getyValForMin(), aggreJoinCpuLoadBo.getMinJvmCpuLoad(), 0);
-        assertEquals(cpuLoadPoint.getyValForMax(), aggreJoinCpuLoadBo.getMaxJvmCpuLoad(), 0);
+        assertEquals(cpuLoadPoint.getYValForAvg(), aggreJoinCpuLoadBo.getJvmCpuLoad(), 0);
+        assertEquals(cpuLoadPoint.getYValForMin(), aggreJoinCpuLoadBo.getMinJvmCpuLoad(), 0);
+        assertEquals(cpuLoadPoint.getYValForMax(), aggreJoinCpuLoadBo.getMaxJvmCpuLoad(), 0);
         assertEquals(cpuLoadPoint.getAgentIdForMin(), aggreJoinCpuLoadBo.getMinJvmCpuAgentId());
         assertEquals(cpuLoadPoint.getAgentIdForMax(), aggreJoinCpuLoadBo.getMaxJvmCpuAgentId());
     }

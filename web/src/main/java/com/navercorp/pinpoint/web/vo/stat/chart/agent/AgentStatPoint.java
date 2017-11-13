@@ -53,7 +53,7 @@ public class AgentStatPoint<Y extends Number> implements Point {
     }
 
     @Override
-    public long getxVal() {
+    public long getXVal() {
         return xVal;
     }
 

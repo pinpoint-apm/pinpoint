@@ -68,10 +68,10 @@ public class ApplicationDataSourceChartGroupTest {
     }
 
     private void testDataSource(DataSourcePoint dataSourcePoint, AggreJoinDataSourceBo aggreJoinDataSourceBo) {
-        assertEquals(dataSourcePoint.getxVal(), aggreJoinDataSourceBo.getTimestamp());
-        assertEquals(dataSourcePoint.getyValForAvg(), aggreJoinDataSourceBo.getAvgActiveConnectionSize(), 0);
-        assertEquals(dataSourcePoint.getyValForMin(), aggreJoinDataSourceBo.getMinActiveConnectionSize(), 0);
-        assertEquals(dataSourcePoint.getyValForMax(), aggreJoinDataSourceBo.getMaxActiveConnectionSize(), 0);
+        assertEquals(dataSourcePoint.getXVal(), aggreJoinDataSourceBo.getTimestamp());
+        assertEquals(dataSourcePoint.getYValForAvg(), aggreJoinDataSourceBo.getAvgActiveConnectionSize(), 0);
+        assertEquals(dataSourcePoint.getYValForMin(), aggreJoinDataSourceBo.getMinActiveConnectionSize(), 0);
+        assertEquals(dataSourcePoint.getYValForMax(), aggreJoinDataSourceBo.getMaxActiveConnectionSize(), 0);
         assertEquals(dataSourcePoint.getAgentIdForMin(), aggreJoinDataSourceBo.getMinActiveConnectionAgentId());
         assertEquals(dataSourcePoint.getAgentIdForMax(), aggreJoinDataSourceBo.getMaxActiveConnectionAgentId());
     }

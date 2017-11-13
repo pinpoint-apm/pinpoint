@@ -73,9 +73,9 @@ public class ApplicationMemoryChartGroupTest {
     }
 
     private void testHeap(MemoryPoint memoryPoint, AggreJoinMemoryBo aggreJoinMemoryBo) {
-        assertEquals(memoryPoint.getyValForAvg(), aggreJoinMemoryBo.getHeapUsed(), 0);
-        assertEquals(memoryPoint.getyValForMin(), aggreJoinMemoryBo.getMinHeapUsed(), 0);
-        assertEquals(memoryPoint.getyValForMax(), aggreJoinMemoryBo.getMaxHeapUsed(), 0);
+        assertEquals(memoryPoint.getYValForAvg(), aggreJoinMemoryBo.getHeapUsed(), 0);
+        assertEquals(memoryPoint.getYValForMin(), aggreJoinMemoryBo.getMinHeapUsed(), 0);
+        assertEquals(memoryPoint.getYValForMax(), aggreJoinMemoryBo.getMaxHeapUsed(), 0);
         assertEquals(memoryPoint.getAgentIdForMin(), aggreJoinMemoryBo.getMinHeapAgentId());
         assertEquals(memoryPoint.getAgentIdForMax(), aggreJoinMemoryBo.getMaxHeapAgentId());
     }

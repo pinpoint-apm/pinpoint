@@ -44,11 +44,11 @@ public class ResponseTimePoint implements Point {
     }
 
     @Override
-    public long getxVal() {
+    public long getXVal() {
         return xVal;
     }
 
-    public double getyValForMin() {
+    public double getYValForMin() {
         return yValForMin;
     }
 
@@ -56,7 +56,7 @@ public class ResponseTimePoint implements Point {
         return agentIdForMin;
     }
 
-    public double getyValForMax() {
+    public double getYValForMax() {
         return yValForMax;
     }
 
@@ -64,7 +64,7 @@ public class ResponseTimePoint implements Point {
         return agentIdForMax;
     }
 
-    public double getyValForAvg() {
+    public double getYValForAvg() {
         return yValForAvg;
     }
 

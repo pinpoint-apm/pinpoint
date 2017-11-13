@@ -32,11 +32,11 @@ public class ResponseTimePointSerializer extends JsonSerializer<ResponseTimePoin
     @Override
     public void serialize(ResponseTimePoint responseTimePoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartArray();
-        jgen.writeNumber(responseTimePoint.getyValForMin());
+        jgen.writeNumber(responseTimePoint.getYValForMin());
         jgen.writeString(responseTimePoint.getAgentIdForMin());
-        jgen.writeNumber(responseTimePoint.getyValForMax());
+        jgen.writeNumber(responseTimePoint.getYValForMax());
         jgen.writeString(responseTimePoint.getAgentIdForMax());
-        jgen.writeNumber(responseTimePoint.getyValForAvg());
+        jgen.writeNumber(responseTimePoint.getYValForAvg());
         jgen.writeEndArray();
     }
 }

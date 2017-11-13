@@ -32,11 +32,11 @@ public class TransactionPointSerializer extends JsonSerializer<TransactionPoint>
     @Override
     public void serialize(TransactionPoint transactionPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         jgen.writeStartArray();
-        jgen.writeNumber(transactionPoint.getyValForMin());
+        jgen.writeNumber(transactionPoint.getYValForMin());
         jgen.writeString(transactionPoint.getAgentIdForMin());
-        jgen.writeNumber(transactionPoint.getyValForMax());
+        jgen.writeNumber(transactionPoint.getYValForMax());
         jgen.writeString(transactionPoint.getAgentIdForMax());
-        jgen.writeNumber(transactionPoint.getyValForAvg());
+        jgen.writeNumber(transactionPoint.getYValForAvg());
         jgen.writeEndArray();
     }
 }
