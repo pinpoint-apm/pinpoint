@@ -28,14 +28,20 @@ import com.navercorp.pinpoint.common.util.StringUtils;
  */
 public class UserPluginConfig {
 
-    private List<String> includeList;
+    private final List<String> includeList;
+    private final List<String> mqClientHandlerMethods;
 
     public UserPluginConfig(ProfilerConfig src) {
         includeList = split(src.readString("profiler.entrypoint", ""));
+        mqClientHandlerMethods = src.readList("profiler.message.queue.client.handler.methods");
     }
 
     public List<String> getIncludeList() {
         return includeList;
+    }
+
+    public List<String> getMqClientHandlerMethods() {
+        return mqClientHandlerMethods;
     }
 
     private List<String> split(String values) {
