@@ -89,7 +89,7 @@
     background-color: #FFF;
 }
 .server-list-layer .server-name {
-    width: 90%;
+    width: 100%;
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
