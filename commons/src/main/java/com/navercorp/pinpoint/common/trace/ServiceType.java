@@ -55,6 +55,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1100</td><td>THRIFT_SERVER</td></tr>
  * <tr><td>1101</td><td>THRIFT_SERVER_INTERNAL</td></tr>
  * <tr><td>1110</td><td>DUBBO_PROVIDER</td></tr>
+ *
+ * <tr><td>1500</td><td>PHP</td></tr>
+ * <tr><td>1501</td><td>PHP_METHOD</td></tr>
+ *
  * </table>
  * 
  * <h3>Server Sandbox (1900 ~ 1999)</h3>
@@ -228,7 +232,13 @@ public interface ServiceType {
     ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
     ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
     ServiceType UNAUTHORIZED = of(1007, "UNAUTHORIZED", RECORD_STATISTICS);
-    
+
+    // Added for php agent.
+    @Deprecated
+    ServiceType PHP = ServiceTypeFactory.of(1500, "PHP", RECORD_STATISTICS);
+    // Added for php agent.
+    @Deprecated
+    ServiceType PHP_METHOD = ServiceTypeFactory.of(1501, "PHP_METHOD");
 
 
     /**
