@@ -7,8 +7,8 @@
 	 * @name sidebarTitleDirective
 	 * @class
 	 */
-	pinpointApp.directive("sidebarTitleDirective", [ "$timeout", "$rootScope", "AgentHistogramDaoService", "UrlVoService", "PreferenceService", "AnalyticsService",
-	    function ( $timeout, $rootScope, AgentHistogramDaoService, UrlVoService, PreferenceService, AnalyticsService ) {
+	pinpointApp.directive("sidebarTitleDirective", [ "$timeout", "$rootScope", "$window", "AgentHistogramDaoService", "UrlVoService", "PreferenceService", "AnalyticsService",
+	    function ( $timeout, $rootScope, $window, AgentHistogramDaoService, UrlVoService, PreferenceService, AnalyticsService ) {
 	        return {
 	            restrict: "E",
 	            replace: true,
@@ -129,6 +129,9 @@
 						loadAgentHistogram(function( histogramData ) {
 							$rootScope.$broadcast("serverListDirective.show", scope.isNode, htLastTarget, histogramData, oChartYMax, oNavbarVoService);
 						});
+					};
+					scope.openApplicationInspector = function() {
+						$window.open( "#/inspector/" + ( htLastTarget.applicationName || htLastTarget.filterApplicationName ) + "@" + htLastTarget.serviceType + "/" + oNavbarVoService.getReadablePeriod() + "/" + oNavbarVoService.getQueryEndDateTime() );
 					};
 	                scope.$on("sidebarTitleDirective.initialize." + scope.namespace, function (event, target, navbarVoService) {
 						initialize(target, navbarVoService);

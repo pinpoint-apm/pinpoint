@@ -18,14 +18,14 @@
     border-bottom: 1px solid #EAEAEA;
 }
 .server-list-title > span {
-    width: 33%;
+    width: 20%;
     display: inline-block;
     text-align: center;
     font-size: 12px;
 }
 .server-list-title > span:first-child {
-    width: 30%;
-    padding-left: 18px;
+    width: 50%;
+    padding-left: 8px;
     text-align: left;
 }
 .server-list-title > span > span {
