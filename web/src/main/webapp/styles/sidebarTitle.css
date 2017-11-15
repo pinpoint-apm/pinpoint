@@ -96,6 +96,9 @@
     text-overflow: ellipsis;
     margin-bottom: -5px;
 }
+.server-list-layer .server-name button {
+    font-size: 9px;
+}
 
 .server-list-layer .server-collection {
     color: #727272;
