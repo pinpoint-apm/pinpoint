@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.view.DotSerializer;
 
-
 @JsonSerialize(using = DotSerializer.class)
 public class Dot {
     public static final int EXCEPTION_NONE = 0;
@@ -35,8 +34,6 @@ public class Dot {
     private final int exceptionCode;
     private final String agentId;
 
-    private int hashCode = 0;
-
     /**
      * 
      * @param transactionId
@@ -44,7 +41,6 @@ public class Dot {
      * @param elapsedTime
      * @param exceptionCode 0 : success, 1 : error
      */
-
     public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
@@ -57,8 +53,6 @@ public class Dot {
         this.elapsedTime = elapsedTime;
         this.exceptionCode = exceptionCode;
         this.agentId = agentId;
-
-        hashCode();
     }
 
     public TransactionId getTransactionId() {
@@ -110,20 +104,6 @@ public class Dot {
         sb.append(", agentId='").append(agentId).append('\'');
         sb.append('}');
         return sb.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        if (hashCode == 0) {
-            int result = transactionId != null ? transactionId.hashCode() : 0;
-            result = 31 * result + (int) (acceptedTime ^ (acceptedTime >>> 32));
-            result = 31 * result + elapsedTime;
-            result = 31 * result + exceptionCode;
-            result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
-
-            hashCode = result;
-        }
-        return hashCode;
     }
 
 }
