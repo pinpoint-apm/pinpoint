@@ -12,7 +12,6 @@
 				link: function postLink(scope, element, attrs) {
 					cfg.ID += CommonUtilService.getRandomNum();
 					scope.agent = {};
-					scope.hasAgentData = false;
 					scope.showEventInfo = false;
 					scope.showDetail = false;
 					scope.selectTime = -1;
@@ -28,30 +27,28 @@
 							timeSlider.resetTimeSeriesAndSelectionZone( aSelectionFromTo, aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ), selectedTime );
 							getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 						} else {
-							$timeout(function() {
-								timeSlider = new TimeSlider("timeSlider-for-agent-info", {
-									"width": $("#timeSlider-for-agent-info").get(0).getBoundingClientRect().width,
-									"height": 90,
-									"handleSrc": "images/handle.png",
-									"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries(aSelectionFromTo),
-									"handleTimeSeries": aSelectionFromTo,
-									"selectTime": aSelectionFromTo[1],
-									"timelineData": {}
-								}).addEvent("clickEvent", function (aEvent) {// [x, y, obj]
-									loadEventInfo(aEvent[2]);
-								}).addEvent("selectTime", function (time) {
-									scope.selectTime = time;
-									loadAgentInfo(time);
-									initTime(time);
-									sendUpTimeSliderTimeInfo(timeSlider.getSliderTimeSeries(), timeSlider.getSelectionTimeSeries(), time);
-								}).addEvent("changeSelectionZone", function (aTime) {
-									loadChartData(scope.agent.agentId, aTime, getPeriod(aTime[0], aTime[1]), function () {
-									});
-									sendUpTimeSliderTimeInfo(timeSlider.getSliderTimeSeries(), aTime, timeSlider.getSelectTime());
-								}).addEvent("changeSliderTimeSeries", function (aEvents) {
+							timeSlider = new TimeSlider("timeSlider-for-agent-info", {
+								"width": $("#timeSlider-for-agent-info").get(0).getBoundingClientRect().width,
+								"height": 90,
+								"handleSrc": "images/handle.png",
+								"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries(aSelectionFromTo),
+								"handleTimeSeries": aSelectionFromTo,
+								"selectTime": aSelectionFromTo[1],
+								"timelineData": {}
+							}).addEvent("clickEvent", function (aEvent) {// [x, y, obj]
+								loadEventInfo(aEvent[2]);
+							}).addEvent("selectTime", function (time) {
+								scope.selectTime = time;
+								loadAgentInfo(time);
+								initTime(time);
+								sendUpTimeSliderTimeInfo(timeSlider.getSliderTimeSeries(), timeSlider.getSelectionTimeSeries(), time);
+							}).addEvent("changeSelectionZone", function (aTime) {
+								loadChartData(scope.agent.agentId, aTime, getPeriod(aTime[0], aTime[1]), function () {
 								});
-								getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
+								sendUpTimeSliderTimeInfo(timeSlider.getSliderTimeSeries(), aTime, timeSlider.getSelectTime());
+							}).addEvent("changeSliderTimeSeries", function (aEvents) {
 							});
+							getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 						}
 					}
 					function sendUpTimeSliderTimeInfo( sliderTimeSeries, sliderSelectionTimeSeries, sliderSelectedTime ) {
@@ -383,7 +380,6 @@
 					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop, sliderTimeSeriesOption ) {
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {
-							scope.hasAgentData = false;
 							return;
 						}
 						// init data-source data
@@ -394,7 +390,6 @@
 						element.find(".type-select-layer").hide();
 						element.find(".ds-detail").hide();
 						scope.showEventInfo = false;
-						scope.hasAgentData = true;
 						scope.agent = agent;
 						scope.chartGroup = null;
 						scope.currentServiceInfo = initServiceInfo(agent);
