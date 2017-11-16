@@ -96,15 +96,6 @@
 							"valueField": "systemCpuLoad",
 							"fillAlphas": 0.4,
 							"connect": false
-						},
-						{
-							"valueAxis": "v1",
-							"showBalloon": false,
-							"lineColor": "#FF6600",
-							"title": "Max",
-							"valueField": "maxCpuLoad",
-							"fillAlphas": 0,
-							"visibleInLegend": false
 						}
 					],
 					"categoryField": "time",
