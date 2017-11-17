@@ -76,7 +76,7 @@ public class DispatchWorker {
     }
 
     public void shutdown() {
-        logger.info("{] shutdown.", getName());
+        logger.info("{} shutdown.", getName());
         worker.shutdown();
         try {
             worker.awaitTermination(1000 * 10, TimeUnit.MILLISECONDS);
