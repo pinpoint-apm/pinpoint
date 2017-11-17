@@ -42,6 +42,8 @@
         <constructor-arg value="${hbase.client.threadPool.prestart}"/>
     </bean>
 
+    <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
+
     <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
         <constructor-arg value="#{connectionFactory.getConnection()}"/>
         <constructor-arg ref="hbaseConfiguration"/>
