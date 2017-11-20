@@ -268,7 +268,7 @@ public class TestUDPReceiver implements DataReceiver {
     }
 
     private void shutdownExecutor(ExecutorService executor, String executorName) {
-        logger.info("{] shutdown.", executorName);
+        logger.info("{} shutdown.", executorName);
         executor.shutdown();
         try {
             executor.awaitTermination(1000 * 10, TimeUnit.MILLISECONDS);
