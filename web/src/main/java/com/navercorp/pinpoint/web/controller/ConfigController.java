@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.vo.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -36,7 +38,8 @@ import java.util.Map;
  */
 @Controller
 public class ConfigController {
-    
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final static String SSO_USER = "SSO_USER";
 
     @Autowired
@@ -61,9 +64,14 @@ public class ConfigController {
 
         if (!StringUtils.isEmpty(userId)) {
             User user = userService.selectUserByUserId(userId);
-            result.put("userId", user.getUserId());
-            result.put("userName", user.getName());
-            result.put("userDepartment", user.getDepartment());
+
+            if (user == null) {
+                logger.info("User({}) info don't saved database.", userId);
+            } else  {
+                result.put("userId", user.getUserId());
+                result.put("userName", user.getName());
+                result.put("userDepartment", user.getDepartment());
+            }
         }
         
         if(!StringUtils.isEmpty(webProperties.getSecurityGuideUrl())) {
