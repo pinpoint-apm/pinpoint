@@ -4,10 +4,11 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:beans="http://www.springframework.org/schema/beans"
        xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
 <context:annotation-config/>
 
@@ -72,7 +73,7 @@
         </beans:property>
         <property name="flushPeriod" value="${statistics.flushPeriod}"/>
     </bean>
-    
+
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
     </bean>
 
@@ -123,13 +124,19 @@
     </bean>
 
     <!-- Agent Event/Lifecycle related Beans -->
-    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.util.ExecutorFactory" factory-method="newFixedThreadPool">
-        <constructor-arg index="0" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
-        <constructor-arg index="1" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
-        <constructor-arg index="2" value="Pinpoint-AgentEvent-Worker"/>
-        <constructor-arg index="3" value="true"/>
+    <task:annotation-driven />
+
+    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean" >
+        <property name="corePoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
+        <property name="maxPoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
+        <property name="queueCapacity" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AgentEvent-Worker-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
     </bean>
-    
+
     <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.thrift.io.SerializerFactory">
@@ -155,7 +162,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="responseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
@@ -164,7 +171,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="streamCreateFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
@@ -180,23 +187,23 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="streamCloseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
             </list>
         </constructor-arg>
     </bean>
-    
+
     <!-- Cluster-related Beans -->
     <bean id="targetClusterPointRepository" class="com.navercorp.pinpoint.collector.cluster.ClusterPointRepository"/>
-    
+
     <bean id="defaultRouteHandler" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler">
         <constructor-arg index="0" type="com.navercorp.pinpoint.collector.cluster.ClusterPointLocator" ref="targetClusterPointRepository"/>
         <constructor-arg index="1" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="requestFilterChain"/>
         <constructor-arg index="2" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="responseFilterChain"/>
     </bean>
-    
+
     <bean id="streamRouteHandler" class="com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler">
         <constructor-arg index="0" type="com.navercorp.pinpoint.collector.cluster.ClusterPointLocator" ref="targetClusterPointRepository"/>
         <constructor-arg index="1" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="streamCreateFilterChain"/>
@@ -216,7 +223,7 @@
     </bean>
 
     <util:list id="channelStateChangeEventHandlers" value-type="com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler">
-        <ref bean="agentLifeCycleChangeEventHandler"/> 
+        <ref bean="agentLifeCycleChangeEventHandler"/>
     </util:list>
 
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.AgentBaseDataReceiver" >
@@ -247,7 +254,7 @@
         <constructor-arg index="1" value="#{collectorConfiguration.l4IpList}"/>
         <constructor-arg index="2"  ref="statDispatchHandlerWrapper"/>
     </bean>
-    
+
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
@@ -280,11 +287,11 @@
         <constructor-arg ref="typeLoaderService"/>
         <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
-    
+
     <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
         <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
     </bean>
-    
+
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 
     <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
