@@ -53,8 +53,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -79,8 +77,6 @@ public class AgentBaseDataReceiver {
     private final SendPacketHandler sendPacketHandler;
     private final RequestPacketHandler requestPacketHandler;
 
-    @Resource(name = "agentEventWorker")
-    private ExecutorService agentEventWorker;
 
     @Resource(name = "agentEventService")
     private AgentEventService agentEventService;
@@ -246,7 +242,6 @@ public class AgentBaseDataReceiver {
         if (serverAcceptor != null) {
             serverAcceptor.close();
         }
-        shutdownExecutor(agentEventWorker);
 
         if (worker != null) {
             worker.shutdown();
@@ -257,16 +252,6 @@ public class AgentBaseDataReceiver {
         }
     }
 
-    private void shutdownExecutor(ExecutorService executor) {
-        if (executor == null) {
-            return;
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
+
 
 }
