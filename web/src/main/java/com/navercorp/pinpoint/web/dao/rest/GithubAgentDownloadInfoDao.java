@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.GithubAgentDownloadInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -36,7 +34,6 @@ import java.util.regex.Pattern;
 /**
  * @author Taejin Koo
  */
-@Repository
 public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -47,15 +44,14 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
     public List<AgentDownloadInfo> getDownloadInfoList() {
-        RestTemplate restTemplate = new RestTemplate();
-
-        String responseBody = restTemplate.getForObject(GITHUB_API_URL, String.class);
-        JavaType agentDownloadInfoListType = objectMapper.getTypeFactory().constructCollectionType(List.class, GithubAgentDownloadInfo.class);
-
         List<AgentDownloadInfo> result = new ArrayList<>();
         try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            String responseBody = restTemplate.getForObject(GITHUB_API_URL, String.class);
+            JavaType agentDownloadInfoListType = objectMapper.getTypeFactory().constructCollectionType(List.class, GithubAgentDownloadInfo.class);
+
             List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(responseBody, agentDownloadInfoListType);
 
             for (GithubAgentDownloadInfo agentDownloadInfo : agentDownloadInfoList) {
