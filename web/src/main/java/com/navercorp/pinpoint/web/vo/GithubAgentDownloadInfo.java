@@ -32,63 +32,14 @@ import java.io.IOException;
  * @author Taejin Koo
  */
 @JsonDeserialize(using = GithubAgentDownloadInfo.Deserializer.class)
-public class GithubAgentDownloadInfo implements AgentDownloadInfo {
-
-    private String version;
-    private String downloadUrl;
-
+public class GithubAgentDownloadInfo extends AgentDownloadInfo {
 
     public GithubAgentDownloadInfo() {
+        super();
     }
 
     public GithubAgentDownloadInfo(String version, String downloadUrl) {
-        this.version = version;
-        this.downloadUrl = downloadUrl;
-    }
-
-    @Override
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    @Override
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        GithubAgentDownloadInfo that = (GithubAgentDownloadInfo) o;
-
-        if (version != null ? !version.equals(that.version) : that.version != null) return false;
-        return downloadUrl != null ? downloadUrl.equals(that.downloadUrl) : that.downloadUrl == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = version != null ? version.hashCode() : 0;
-        result = 31 * result + (downloadUrl != null ? downloadUrl.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("GithubAgentDownloadInfo{");
-        sb.append("version='").append(version).append('\'');
-        sb.append(", downloadUrl='").append(downloadUrl).append('\'');
-        sb.append('}');
-        return sb.toString();
+        super(version, downloadUrl);
     }
 
     public static class Deserializer extends JsonDeserializer<GithubAgentDownloadInfo> {

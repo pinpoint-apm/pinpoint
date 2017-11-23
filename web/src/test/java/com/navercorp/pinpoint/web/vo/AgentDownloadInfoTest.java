@@ -18,6 +18,10 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
+import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory;
+import com.navercorp.pinpoint.web.dao.memory.MemoryAgentDownloadInfoDao;
+import com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +33,24 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class GithubAgentDownloadInfoTest {
+public class AgentDownloadInfoTest {
+
+    @Test
+    public void factoryTest() {
+        String version = "1.6.0";
+        String downloadUrl = "http://localhost:8080/pinpoint-agent-1.6.0.tar.gz";
+
+        AgentDownloadInfoDao agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create(version, downloadUrl);
+        Assert.assertTrue(agentDownloadInfoDao instanceof MemoryAgentDownloadInfoDao);
+        Assert.assertEquals(version, agentDownloadInfoDao.getDownloadInfoList().get(0).getVersion());
+        Assert.assertEquals(downloadUrl, agentDownloadInfoDao.getDownloadInfoList().get(0).getDownloadUrl());
+
+        agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create(version, "");
+        Assert.assertTrue(agentDownloadInfoDao instanceof GithubAgentDownloadInfoDao);
+
+        agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create("   ", downloadUrl);
+        Assert.assertTrue(agentDownloadInfoDao instanceof GithubAgentDownloadInfoDao);
+    }
 
     @Test
     public void defaultTest() throws Exception {
