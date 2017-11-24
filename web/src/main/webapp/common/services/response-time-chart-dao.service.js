@@ -48,7 +48,13 @@
 						"position": "top",
 						"valueWidth": 70,
 						"markerSize": 10,
-						"valueAlign": "left"
+						"valueAlign": "left",
+						"valueFunction": function(graphDataItem, valueText) {
+							if ( parseInt( valueText ) === -1 ) {
+								return "";
+							}
+							return valueText;
+						}
 					},
 					"usePrefixes": true,
 					"dataProvider": oChartData.data,
@@ -68,7 +74,7 @@
 					"graphs": [
 						{
 							"balloonText": "[[description]] : [[value]]",
-							"legendValueText": "([[description]]) [[value]]",
+							"legendValueText": "[[value]]",
 							"lineColor": "rgb(44, 160, 44)",
 							"fillColor": "rgb(44, 160, 44)",
 							"title": "AVG",

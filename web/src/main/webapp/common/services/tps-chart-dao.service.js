@@ -70,7 +70,13 @@
 						"position": "top",
 						"valueWidth": 70,
 						"markerSize": 10,
-						"valueAlign": "left"
+						"valueAlign": "left",
+						"valueFunction": function(graphDataItem, valueText) {
+							if ( parseInt( valueText ) === -1 ) {
+								return "";
+							}
+							return valueText;
+						}
 					},
 					"usePrefixes": true,
 					"dataProvider": oChartData.data,
