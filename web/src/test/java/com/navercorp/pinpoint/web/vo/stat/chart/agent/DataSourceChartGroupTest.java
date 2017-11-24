@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -84,6 +85,13 @@ public class DataSourceChartGroupTest {
         Assert.assertEquals(null, dataSourceChartGroup.getJdbcUrl());
         Assert.assertEquals(null, dataSourceChartGroup.getDatabaseName());
         Assert.assertEquals(null, dataSourceChartGroup.getServiceType());
+
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = dataSourceChartGroup.getCharts().getCharts();
+        Assert.assertEquals(2, charts.size());
+
+        for (Chart<? extends Point> chart : charts.values()) {
+            Assert.assertTrue(CollectionUtils.isEmpty(chart.getPoints()));
+        }
     }
 
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {
