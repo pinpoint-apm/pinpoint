@@ -76,7 +76,7 @@ public class DataSourceChartService implements AgentStatChartService {
 
         List<SampledDataSourceList> sampledAgentStatList = this.sampledDataSourceDao.getSampledAgentStatList(agentId, timeWindow);
         if (CollectionUtils.isEmpty(sampledAgentStatList)) {
-            List<StatChart> result = new ArrayList<>(sampledAgentStatList.size());
+            List<StatChart> result = new ArrayList<>(1);
             result.add(new DataSourceChart(timeWindow, Collections.<SampledDataSource>emptyList(), serviceTypeRegistryService));
             return result;
         } else {

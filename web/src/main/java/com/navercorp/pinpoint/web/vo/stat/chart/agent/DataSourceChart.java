@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,22 +49,22 @@ public class DataSourceChart implements StatChart {
     static DataSourceChartGroup newDataSourceChartGroup(TimeWindow timeWindow, List<SampledDataSource> sampledDataSources, ServiceTypeRegistryService serviceTypeRegistryService) {
         Objects.requireNonNull(timeWindow, "timeWindow must not be null");
 
-        if (CollectionUtils.isEmpty(sampledDataSources)) {
+        Map<StatChartGroup.ChartType, Chart<? extends Point>> chartTypeChartMap = newDatasourceChart(timeWindow, sampledDataSources);
+        if (CollectionUtils.isNotEmpty(sampledDataSources)) {
+            SampledDataSource latestSampledDataSource = ListUtils.getLast(sampledDataSources);
+
+            int id = latestSampledDataSource.getId();
+            String serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
+            String databaseName = latestSampledDataSource.getDatabaseName();
+            String jdbcUrl = latestSampledDataSource.getJdbcUrl();
+            return new DataSourceChartGroup(timeWindow, chartTypeChartMap, id, serviceTypeName, databaseName, jdbcUrl);
+        } else {
             final Integer uncollectedValue = SampledDataSource.UNCOLLECTED_VALUE;
             // TODO avoid null
             final String uncollectedString = SampledDataSource.UNCOLLECTED_STRING;
-            return new DataSourceChartGroup(timeWindow, Collections.emptyMap(), uncollectedValue, uncollectedString,
-                    uncollectedString, uncollectedString);
+
+            return new DataSourceChartGroup(timeWindow, chartTypeChartMap, uncollectedValue, uncollectedString, uncollectedString, uncollectedString);
         }
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> chartTypeChartMap = newDatasourceChart(timeWindow, sampledDataSources);
-        SampledDataSource latestSampledDataSource = ListUtils.getLast(sampledDataSources);
-
-        int id = latestSampledDataSource.getId();
-        String serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
-        String databaseName = latestSampledDataSource.getDatabaseName();
-        String jdbcUrl = latestSampledDataSource.getJdbcUrl();
-        return new DataSourceChartGroup(timeWindow, chartTypeChartMap, id, serviceTypeName, databaseName, jdbcUrl);
-
     }
 
     @Override
