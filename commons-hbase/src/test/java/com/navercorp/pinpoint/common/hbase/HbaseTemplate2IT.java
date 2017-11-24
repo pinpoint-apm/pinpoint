@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.hbase;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -38,6 +40,7 @@ import com.navercorp.pinpoint.common.util.PropertyUtils;
  * @author minwoo.jung
  */
 public class HbaseTemplate2IT {
+    private static ExecutorService executorService;
     private static HbaseTemplate2 hbaseTemplate2;
 
     @BeforeClass
@@ -47,10 +50,11 @@ public class HbaseTemplate2IT {
         Configuration cfg = HBaseConfiguration.create();
         cfg.set("hbase.zookeeper.quorum", properties.getProperty("hbase.client.host"));
         cfg.set("hbase.zookeeper.property.clientPort", properties.getProperty("hbase.client.port"));
-        
+
+        executorService = Executors.newFixedThreadPool(10);
         hbaseTemplate2 = new HbaseTemplate2();
         hbaseTemplate2.setConfiguration(cfg);
-        hbaseTemplate2.setTableFactory(new PooledHTableFactory(cfg));
+        hbaseTemplate2.setTableFactory(new PooledHTableFactory(cfg, executorService));
         hbaseTemplate2.afterPropertiesSet();
     }
 
@@ -58,6 +62,9 @@ public class HbaseTemplate2IT {
     public static void afterClass() throws Exception {
         if (hbaseTemplate2 != null) {
             hbaseTemplate2.destroy();
+        }
+        if (executorService != null) {
+            executorService.shutdown();
         }
     }
 
