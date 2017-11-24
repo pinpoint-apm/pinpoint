@@ -68,6 +68,7 @@ public class ScanTask implements Runnable {
     public void run() {
         Table table = null;
         try {
+            // TODO Avoid ThreadPool Deadlock : tableFactory.getTable(this.tableName, ParallelScannerThreadPool);
             table = tableFactory.getTable(this.tableName);
             ResultScanner scanner = createResultScanner(table);
             try {

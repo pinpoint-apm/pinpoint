@@ -33,11 +33,20 @@
         </property>
     </bean>
 
+    <bean id="hbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean">
+        <property name="corePoolSize" value="${hbase.client.thread.max}"/>
+        <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
+        <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-HConnectionExecutor-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
+    </bean>
+
     <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
         <constructor-arg ref="hbaseConfiguration"/>
-        <constructor-arg value="${hbase.client.thread.max}"/>
-        <constructor-arg value="${hbase.client.threadPool.queueSize}"/>
-        <constructor-arg value="${hbase.client.threadPool.prestart}"/>
+        <constructor-arg ref="hbaseThreadPool"/>
     </bean>
 
     <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
@@ -49,7 +58,7 @@
     </bean>
     
     <bean id="hBaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">
-        <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
+        <constructor-arg ref="hbaseConfiguration" index="0"/>
     </bean>
 
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
