@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.websocket.message;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -70,6 +69,9 @@ public class PinpointWebSocketMessageConverter {
     private PinpointWebSocketMessage parseMessage(String message) throws IOException {
         // TODO JacksonPolymorphicDeserialization
         // https://github.com/FasterXML/jackson-docs/wiki/JacksonPolymorphicDeserialization
+        // JacksonPolymorphicDeserialization has security vulnerability
+        // (CVE-2017-7525 jackson-databind: Deserialization vulnerability via readValue method of ObjectMapper)
+        // will not work until the issue is completely resolved.
         final JsonNode root = JSON_SERIALIZER.readTree(message);
         if (!root.isObject()) {
             return new UnknownMessage();
