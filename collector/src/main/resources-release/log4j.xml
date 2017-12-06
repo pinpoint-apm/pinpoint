@@ -10,7 +10,7 @@
     </appender>
 
     <appender name="stat-appender" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="file" value="${catalina.home}/logs/stat.log"/>
+        <param name="file" value="${catalina.base}/logs/stat.log"/>
         <param name="Append" value="true"/>
         <param name="DatePattern" value="'.'yyyy-MM-dd"/>
         <layout class="org.apache.log4j.EnhancedPatternLayout">
