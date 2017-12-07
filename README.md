@@ -44,9 +44,10 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
-* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL, MARIA
+* MySQL, Oracle, MSSQL, CUBRID,POSTGRESQL, MARIA
 * Arcus, Memcached, Redis, CASSANDRA
 * iBATIS, MyBatis
+* DBCP, DBCP2, HIKARICP
 * gson, Jackson, Json Lib
 * log4j, Logback
 
