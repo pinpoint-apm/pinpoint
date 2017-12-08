@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.config.DeprecatedConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
@@ -29,7 +30,6 @@ import org.springframework.util.SocketUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -40,7 +40,7 @@ public class TCPReceiverTest {
 
     @Test
     public void server() throws InterruptedException {
-        AgentBaseDataReceiver tcpReceiver = new AgentBaseDataReceiver(createConfiguration(), Collections.emptyList(), new DispatchHandler() {
+        AgentBaseDataReceiver tcpReceiver = new AgentBaseDataReceiver(createConfiguration(), AddressFilter.ALL, new DispatchHandler() {
 
             @Override
             public void dispatchSendMessage(TBase<?, ?> tBase) {

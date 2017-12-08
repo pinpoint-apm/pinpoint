@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -40,6 +42,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -61,7 +64,7 @@ public class UDPReceiver implements DataReceiver {
 
     // increasing ioThread size wasn't very effective
     private final int ioThreadSize = CpuUtils.cpuCount();
-    private ThreadPoolExecutor io;
+    private ExecutorService ioExecutor;
 
     // modify thread pool size appropriately when modifying queue capacity
     private DispatchWorker worker;
@@ -92,10 +95,14 @@ public class UDPReceiver implements DataReceiver {
     private void prepare() {
         Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
 
-        final int packetPoolSize = getPacketPoolSize();
-        this.datagramPacketPool = new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
+        this.datagramPacketPool = newDatagramPacketPool();
 
-        this.io = (ThreadPoolExecutor) Executors.newCachedThreadPool(new PinpointThreadFactory(name + "-Io", true));
+        this.ioExecutor = Executors.newCachedThreadPool(new PinpointThreadFactory(name + "-Io", true));
+    }
+
+    private ObjectPool<DatagramPacket> newDatagramPacketPool() {
+        final int packetPoolSize = getPacketPoolSize();
+        return new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
     }
 
     private void receive(final DatagramSocket socket) {
@@ -236,7 +243,7 @@ public class UDPReceiver implements DataReceiver {
 
         logger.info("UDP Packet reader:{} started.", ioThreadSize);
         for (int i = 0; i < ioThreadSize; i++) {
-            io.execute(new Runnable() {
+            ioExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     receive(socket);
@@ -261,8 +268,8 @@ public class UDPReceiver implements DataReceiver {
         if (socket != null) {
             socket.close();
         }
-        if (io != null) {
-            shutdownExecutor(io, "IoExecutor");
+        if (ioExecutor != null) {
+            shutdownExecutor(ioExecutor, "IoExecutor");
         }
 
         if (logger.isInfoEnabled()) {

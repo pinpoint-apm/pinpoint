@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
+import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
@@ -52,7 +53,7 @@ public class ClusterAcceptor implements ClusterConnectionProvider {
         this.bindPort = port;
 
         ClusterOption clusterOption = new ClusterOption(true, WebUtils.getServerIdentifier(), Role.CALLER);
-        this.serverAcceptor = new PinpointServerAcceptor(clusterOption);
+        this.serverAcceptor = new PinpointServerAcceptor(clusterOption, ChannelFilter.BYPASS);
     }
 
     @Override

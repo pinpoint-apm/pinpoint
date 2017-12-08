@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
+import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
@@ -58,7 +59,7 @@ public class DataReceiverGroupTest {
         PinpointClientFactory pinpointClientFactory = null;
 
         try {
-            receiver = new DataReceiverGroup("name", mockConfig, null, new TestDispatchHandler(sendLatch, requestLatch));
+            receiver = new DataReceiverGroup("name", mockConfig, AddressFilter.ALL, new TestDispatchHandler(sendLatch, requestLatch));
             receiver.start();
 
             udpDataSender = new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), "test", 10, 1000, 1024 * 64 * 100);
@@ -96,7 +97,7 @@ public class DataReceiverGroupTest {
         PinpointClientFactory pinpointClientFactory = null;
 
         try {
-            receiver = new DataReceiverGroup("name", mockConfig, null, new TestDispatchHandler(sendLatch, requestLatch));
+            receiver = new DataReceiverGroup("name", mockConfig, AddressFilter.ALL, new TestDispatchHandler(sendLatch, requestLatch));
             receiver.start();
 
             udpDataSender = new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), "test", 10, 1000, 1024 * 64 * 100);
@@ -134,7 +135,7 @@ public class DataReceiverGroupTest {
         PinpointClientFactory pinpointClientFactory = null;
 
         try {
-            receiver = new DataReceiverGroup("name", mockConfig, null, new TestDispatchHandler(sendLatch, new CountDownLatch(1)));
+            receiver = new DataReceiverGroup("name", mockConfig, AddressFilter.ALL, new TestDispatchHandler(sendLatch, new CountDownLatch(1)));
             receiver.start();
 
             udpDataSender = new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), "test", 10, 1000, 1024 * 64 * 100);
@@ -158,7 +159,7 @@ public class DataReceiverGroupTest {
     public void receiverGroupTest4() throws Exception {
         DataReceiverGroupConfiguration mockConfig = createMockConfig(false, false);
 
-        new DataReceiverGroup("name", mockConfig, null, new TestDispatchHandler(new CountDownLatch(1), new CountDownLatch(1)));
+        new DataReceiverGroup("name", mockConfig, AddressFilter.ALL, new TestDispatchHandler(new CountDownLatch(1), new CountDownLatch(1)));
     }
 
     private void closeReceiver(DataReceiver receiver) {
