@@ -19,12 +19,14 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 import com.navercorp.pinpoint.collector.receiver.DataReceiver;
 import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
 import com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption;
+import com.navercorp.pinpoint.collector.util.ObjectPool;
 import org.apache.hadoop.hbase.shaded.org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;

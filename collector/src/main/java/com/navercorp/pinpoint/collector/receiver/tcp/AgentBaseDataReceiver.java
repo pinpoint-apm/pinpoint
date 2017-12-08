@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguratio
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
 import com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption;
+import com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor;
+import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
@@ -34,12 +36,12 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +49,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -65,7 +65,7 @@ public class AgentBaseDataReceiver {
     private PinpointServerAcceptor serverAcceptor;
 
     private final AgentBaseDataReceiverConfiguration configuration;
-    private final List<String> l4IpList;
+    private final AddressFilter addressFilter;
 
     private final ZookeeperClusterService clusterService;
 
@@ -87,15 +87,15 @@ public class AgentBaseDataReceiver {
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, List<String> l4IpList, DispatchHandler dispatchHandler) {
-        this(configuration, l4IpList, dispatchHandler, null);
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, AddressFilter addressFilter, DispatchHandler dispatchHandler) {
+        this(configuration, addressFilter, dispatchHandler, null);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, List<String> l4IpList, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, AddressFilter addressFilter, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
         Assert.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
         this.configuration = Assert.requireNonNull(configuration, "config must not be null");
 
-        this.l4IpList = l4IpList;
+        this.addressFilter = Objects.requireNonNull(addressFilter, "addressFilter must not be null");
 
         DispatchWorkerOption dispatchWorkerOption = new DispatchWorkerOption("Pinpoint-AgentBaseDataReceiver-Worker", configuration.getWorkerThreadSize(), configuration.getWorkerQueueSize(), 1, configuration.isWorkerMonitorEnable());
         this.worker =  new DispatchWorker(dispatchWorkerOption);
@@ -111,8 +111,8 @@ public class AgentBaseDataReceiver {
         if (logger.isInfoEnabled()) {
             logger.info("start() started");
         }
-
-        PinpointServerAcceptor acceptor = new PinpointServerAcceptor();
+        ChannelFilter connectedFilter = new AddressFilterAdaptor(addressFilter);
+        PinpointServerAcceptor acceptor = new PinpointServerAcceptor(connectedFilter);
         prepare(acceptor);
 
         worker.setMetricRegistry(metricRegistry);
@@ -172,33 +172,6 @@ public class AgentBaseDataReceiver {
 
         for (ServerStateChangeEventHandler channelStateChangeEventHandler : this.channelStateChangeEventHandlers) {
             acceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
-        }
-
-        setL4TcpChannel(acceptor, l4IpList);
-    }
-
-    private void setL4TcpChannel(PinpointServerAcceptor acceptor, List<String> l4ipList) {
-        if (l4ipList == null) {
-            return;
-        }
-        try {
-            List<InetAddress> inetAddressList = new ArrayList<>();
-            for (int i = 0; i < l4ipList.size(); i++) {
-                String l4Ip = l4ipList.get(i);
-                if (StringUtils.isBlank(l4Ip)) {
-                    continue;
-                }
-
-                InetAddress address = InetAddress.getByName(l4Ip);
-                if (address != null) {
-                    inetAddressList.add(address);
-                }
-            }
-
-            InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
-            acceptor.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
-        } catch (UnknownHostException e) {
-            logger.warn("l4ipList error {}", l4ipList, e);
         }
     }
 

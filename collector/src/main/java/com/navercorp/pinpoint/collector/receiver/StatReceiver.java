@@ -17,16 +17,15 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
-
-import java.util.List;
+import com.navercorp.pinpoint.common.server.util.AddressFilter;
 
 /**
  * @author Taejin Koo
  */
 public class StatReceiver extends DataReceiverGroup {
 
-    public StatReceiver(DataReceiverGroupConfiguration config, List<String> l4IpList, DispatchHandler dispatchHandler) {
-        super("Stat", config, l4IpList, dispatchHandler);
+    public StatReceiver(DataReceiverGroupConfiguration config, AddressFilter filter, DispatchHandler dispatchHandler) {
+        super("Stat", config, filter, dispatchHandler);
     }
 
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
@@ -31,7 +32,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketAddress;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -50,20 +51,12 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
 
     private final PacketHandler<T> dispatchPacket = new DispatchPacket();
     
-    private final InetAddress[] ignoreAddresses;
+    private final AddressFilter ignoreAddressFilter;
 
-    public BaseUDPHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress> filter, List<InetAddress> ignoreAddressList) {
-        if (dispatchHandler == null) {
-            throw new NullPointerException("dispatchHandler must not be null");
-        }
-        if (filter == null) {
-            throw new NullPointerException("filter must not be null");
-        }
-        this.dispatchHandler = dispatchHandler;
-        this.filter = filter;
-
-        InetAddress[] inetAddressArray = new InetAddress[ignoreAddressList.size()];
-        this.ignoreAddresses = ignoreAddressList.toArray(inetAddressArray);
+    public BaseUDPHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress> filter, AddressFilter ignoreAddressFilter) {
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        this.filter = Objects.requireNonNull(filter, "filter must not be null");
+        this.ignoreAddressFilter = Objects.requireNonNull(ignoreAddressFilter, "ignoreAddressFilter must not be null");
     }
 
     @Override
@@ -113,19 +106,14 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
         }
         
         private boolean isIgnoreAddress(InetAddress remoteAddress) {
-            if (ignoreAddresses == null) {
-                return false;
-            }
             if (remoteAddress == null) {
                 return false;
             }
-            for (InetAddress ignore : ignoreAddresses) {
-                if (ignore.equals(remoteAddress)) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("UDP Connected ignore address. IP : " + remoteAddress.getHostAddress());
-                    }
-                    return true;
+            if (!ignoreAddressFilter.accept(remoteAddress)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("UDP Connected ignore address. IP : " + remoteAddress.getHostAddress());
                 }
+                return true;
             }
             return false;
         }

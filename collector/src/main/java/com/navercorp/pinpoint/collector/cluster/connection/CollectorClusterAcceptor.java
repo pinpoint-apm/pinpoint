@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
@@ -64,7 +65,7 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
 
         ClusterOption clusterOption = new ClusterOption(true, option.getClusterId(), Role.ROUTER);
 
-        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor(clusterOption);
+        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor(clusterOption, ChannelFilter.BYPASS);
         serverAcceptor.setMessageListener(new ClusterServerMessageListener(option.getClusterId(), option.getRouteMessageHandler()));
         serverAcceptor.setServerStreamChannelMessageListener(option.getRouteStreamMessageHandler());
         serverAcceptor.addStateChangeEventHandler(new WebClusterServerChannelStateChangeHandler());

@@ -19,21 +19,21 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 import com.navercorp.pinpoint.collector.receiver.DataReceiver;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor;
+import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -47,7 +47,7 @@ public class TCPReceiver implements DataReceiver {
     private final String name;
 
     private final InetSocketAddress bindAddress;
-    private final List<InetAddress> ignoreAddressList;
+    private final AddressFilter ignoreAddressFilter;
 
     private PinpointServerAcceptor serverAcceptor;
 
@@ -57,13 +57,13 @@ public class TCPReceiver implements DataReceiver {
     private final RequestPacketHandler requestPacketHandler;
 
 
-    public TCPReceiver(String name, DispatchHandler dispatchHandler, DispatchWorker worker, InetSocketAddress bindAddress, List<InetAddress> ignoreAddressList) {
+    public TCPReceiver(String name, DispatchHandler dispatchHandler, DispatchWorker worker, InetSocketAddress bindAddress, AddressFilter ignoreAddressFilter) {
         this.name = Objects.requireNonNull(name, "name must not be null");
         logger = LoggerFactory.getLogger(name);
 
         this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress must not be null");
-        this.ignoreAddressList = ignoreAddressList;
 
+        this.ignoreAddressFilter = Objects.requireNonNull(ignoreAddressFilter, "ignoreAddressFilter must not be null");
         this.worker = Objects.requireNonNull(worker, "worker must not be null");
 
         Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
@@ -77,11 +77,8 @@ public class TCPReceiver implements DataReceiver {
             logger.info("{} start() started", name);
         }
 
-        PinpointServerAcceptor acceptor = new PinpointServerAcceptor();
-        if (!CollectionUtils.isEmpty(ignoreAddressList)) {
-            InetAddress[] ignoreAddressArray = new InetAddress[ignoreAddressList.size()];
-            acceptor.setIgnoreAddressList(ignoreAddressList.toArray(ignoreAddressArray));
-        }
+        ChannelFilter connectedFilter = new AddressFilterAdaptor(ignoreAddressFilter);
+        PinpointServerAcceptor acceptor = new PinpointServerAcceptor(connectedFilter);
 
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
