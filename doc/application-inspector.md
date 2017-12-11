@@ -85,7 +85,7 @@ If you would like to send alarms in case of batch job failure, you must implemen
 
 ## 5. Others
 
-For more detailes on how to install and operate flink, please refer to the [flink website](https://flink.apache.org).
+For more details on how to install and operate flink, please refer to the [flink website](https://flink.apache.org).
 
 
 # Application Inspector
