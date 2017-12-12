@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.rest;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
@@ -26,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -53,13 +53,16 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
             JavaType agentDownloadInfoListType = objectMapper.getTypeFactory().constructCollectionType(List.class, GithubAgentDownloadInfo.class);
 
             List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(responseBody, agentDownloadInfoListType);
+            if (CollectionUtils.isEmpty(agentDownloadInfoList)) {
+                return result;
+            }
 
             for (GithubAgentDownloadInfo agentDownloadInfo : agentDownloadInfoList) {
                 if (STABLE_VERSION_PATTERN.matcher(agentDownloadInfo.getVersion()).matches()) {
                     result.add(agentDownloadInfo);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
 
