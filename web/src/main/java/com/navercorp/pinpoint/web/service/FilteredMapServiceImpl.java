@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
@@ -47,7 +46,6 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.LoadFactor;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
-import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -219,38 +217,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         ApplicationMap map = createMap(range, filteredMap);
         return map;
-    }
-
-    /**
-     * filtered application map
-     */
-    @Override
-    public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, Filter filter, int version) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
-        }
-        if (filter == null) {
-            throw new NullPointerException("filter must not be null");
-        }
-
-        StopWatch watch = new StopWatch();
-        watch.start();
-
-        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
-        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, originalRange, version);
-        filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
-        filteredMapBuilder.addTransactions(filterList);
-        FilteredMap filteredMap = filteredMapBuilder.build();
-
-        ApplicationMap map = createMap(originalRange, filteredMap);
-
-        List<ApplicationScatterScanResult> applicationScatterScanResult = filteredMap.getApplicationScatterScanResult(scanRange.getFrom(), scanRange.getTo());
-        ApplicationMapWithScatterScanResult applicationMapWithScatterScanResult = new ApplicationMapWithScatterScanResult(map, applicationScatterScanResult);
-
-        watch.stop();
-        logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
-
-        return applicationMapWithScatterScanResult;
     }
 
     @Override
