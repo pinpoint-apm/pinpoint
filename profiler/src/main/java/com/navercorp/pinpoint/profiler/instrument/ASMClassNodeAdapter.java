@@ -371,10 +371,11 @@ public class ASMClassNodeAdapter {
         }
 
         // change local call.
-        final ASMMethodInsnNodeRemapper remapper = new ASMMethodInsnNodeRemapper();
-        remapper.addFilter(methodNode.getDeclaringClassInternalName(), null, null);
-        remapper.setOwner(this.classNode.name);
+        final ASMMethodInsnNodeRemapper.Builder remapBuilder = new ASMMethodInsnNodeRemapper.Builder();
+        remapBuilder.addFilter(methodNode.getDeclaringClassInternalName(), null, null);
+        remapBuilder.setOwner(this.classNode.name);
         // remap method call.
+        final ASMMethodInsnNodeRemapper remapper = remapBuilder.build();
         methodNode.remapMethodInsnNode(remapper);
         // remap desc of this.
         methodNode.remapLocalVariables("this", Type.getObjectType(this.classNode.name).getDescriptor());
