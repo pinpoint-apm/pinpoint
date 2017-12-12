@@ -69,6 +69,10 @@ DATASOURCE CONNECTION USAGE RATE
 
 In order to use the alarm function, you must implement your own logic to send sms and email by implementing `com.navercorp.pinpoint.web.alarm.AlarmMessageSender` and registering it as a Spring managed bean. When an alarm is triggered, `AlarmMessageSender#sendEmail`, and `AlarmMessageSender#sendSms` methods are called.
 
+> If an email/sms is sent everytime when a threshold is exceeded, we felt that alarm message would be spammable.<br/>
+> Therefore we decided to gradually increase the transmission frequency for alarms.<br/>
+> ex) If an alarm occurs continuously, transmission frequency is increased by a factor of two. 3 min -> 6min -> 12min -> 24min
+
 ### 1) Implementing `AlarmMessageSender` and Spring bean registration
 ```
 public class AlarmMessageSenderImple implements AlarmMessageSender {
@@ -242,6 +246,10 @@ pipoint-web에서 제공하는 `com.navercorp.pinpoint.web.alarm.AlarmMessageSen
 사용자가 등록한 alarm rule 중 임계치를 초과한 rule이 발생하면 AlarmMessageSender의 sendEmail, sendSms 함수가 호출이 된다.
 구현 및 설정 방법은 아래와 같다.
 
+> 연속적으로 알람 조건이 임게치를 초과한 경우에 매번 sms/email를 전송하지 않습니다.<br/>
+> 알람 조건이 만족할때마다 매번 sms/email이 전송되는것은 오히려 방해가 된다고 생각하기 때문입니다. 그래서 연속해서 알람이 발생할 경우 sms/email 전송 주기가 점증적으로 증가됩니다.<br/>
+> 예) 알람이 연속해서 발생할 경우, 전송 주기는 3분 -> 6분 -> 12분 -> 24분 으로 증가합니다.
+
 ### 1) AlarmMessageSender 구현 및 bean 등록
 	
 ```
@@ -314,7 +322,6 @@ jdbc.password=admin
 ```
 필요한 table 생성 - *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, *[SpringBatchJobReositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*
 
-    
 ## 3. 기타
 **1) alarm batch를 별도 프로세스로 실행하는 것도 가능하다.**
 pinpoint-web 프로젝트의 *[applicationContext-alarmJob.xml](../web/src/main/resources/batch/applicationContext-alarmJob.xml)* 파일을 이용해서 spring batch job을 실행하면 된다.
