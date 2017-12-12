@@ -353,7 +353,7 @@ application 각각마다 등록된 alarm의 개수가 많다면 *[applicationCon
 <task:executor id="poolTaskExecutorForStep" pool-size="10" />
 ```
 
-**4) pinpoint web을 사용한다면.**
+**4) quickstart web을 사용한다면.**
 pinpoint web은 mockDAO를 사용하기 때문에 pinpont web의 설정들을 참고해서 기능을 사용해야한다.
 [applicationContext-dao-config.xml
 ](../web/src/main/resources/applicationContext-dao-config.xml
