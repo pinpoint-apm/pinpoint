@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramBuilderNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
+import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class ApplicationMapBuilderCompatibilityTest {
 
     private MapResponseNodeHistogramDataSource mapResponseNodeHistogramDataSource;
 
-    private ResponseHistogramBuilderNodeHistogramDataSource responseHistogramBuilderNodeHistogramDataSource;
+    private ResponseHistogramsNodeHistogramDataSource responseHistogramBuilderNodeHistogramDataSource;
 
     private AgentInfoServerInstanceListDataSource agentInfoServerInstanceListDataSource;
 
@@ -70,8 +70,8 @@ public class ApplicationMapBuilderCompatibilityTest {
         MapResponseDao mapResponseDao = mock(MapResponseDao.class);
         mapResponseNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
 
-        ResponseHistogramBuilder responseHistogramBuilder = mock(ResponseHistogramBuilder.class);
-        responseHistogramBuilderNodeHistogramDataSource = new ResponseHistogramBuilderNodeHistogramDataSource(responseHistogramBuilder);
+        ResponseHistograms responseHistograms = mock(ResponseHistograms.class);
+        responseHistogramBuilderNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(responseHistograms);
 
         AgentInfoService agentInfoService = mock(AgentInfoService.class);
         agentInfoServerInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
@@ -90,7 +90,7 @@ public class ApplicationMapBuilderCompatibilityTest {
             }
         };
         when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);
-        when(responseHistogramBuilder.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
+        when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
         when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
             @Override

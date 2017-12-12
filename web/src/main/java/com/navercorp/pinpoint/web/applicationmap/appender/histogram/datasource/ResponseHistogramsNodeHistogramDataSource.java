@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
+import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.List;
@@ -27,20 +27,20 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public class ResponseHistogramBuilderNodeHistogramDataSource implements WasNodeHistogramDataSource {
+public class ResponseHistogramsNodeHistogramDataSource implements WasNodeHistogramDataSource {
 
-    private final ResponseHistogramBuilder responseHistogramBuilder;
+    private final ResponseHistograms responseHistograms;
 
-    public ResponseHistogramBuilderNodeHistogramDataSource(ResponseHistogramBuilder responseHistogramBuilder) {
-        if (responseHistogramBuilder == null) {
-            throw new NullPointerException("responseHistogramBuilder must not be null");
+    public ResponseHistogramsNodeHistogramDataSource(ResponseHistograms responseHistograms) {
+        if (responseHistograms == null) {
+            throw new NullPointerException("responseHistograms must not be null");
         }
-        this.responseHistogramBuilder = responseHistogramBuilder;
+        this.responseHistograms = responseHistograms;
     }
 
     @Override
     public NodeHistogram createNodeHistogram(Application application, Range range) {
-        List<ResponseTime> responseTimes = responseHistogramBuilder.getResponseTimeList(application);
+        List<ResponseTime> responseTimes = responseHistograms.getResponseTimeList(application);
         final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseTimes);
         return nodeHistogram;
     }
