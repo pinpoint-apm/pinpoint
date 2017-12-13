@@ -167,7 +167,7 @@
 	     */
 	    this.findExistingNodeKeyFromLastMapData = function (applicationMapData, node) {
 	        for (var key in applicationMapData.nodeDataArray) {
-	            if (applicationMapData.nodeDataArray[key].applicationName === node.applicationName && applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
+				if (applicationMapData.nodeDataArray[key].key === node.key) {
 	                return key;
 	            }
 	        }
