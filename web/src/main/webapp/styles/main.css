@@ -424,7 +424,7 @@ canvas {outline:none}
 }
 .grouped-application-list span.count {
     float: right;
-    width: 100px;
+    width: 90px;
     overflow: hidden;
     text-align: right;
     white-space: nowrap;
