@@ -27,7 +27,7 @@
 				templateUrl: 'features/agentList/agentList.html?v=' + G_BUILD_TIME,
 				link: function postLink( scope ) {
 					cfg.ID += CommonUtilService.getRandomNum();
-
+					scope.showStatistic = SystemConfigService.get("showApplicationStat");
 					init();
 					function init() {
 						TooltipService.init( "agentList" );
@@ -76,7 +76,6 @@
 						scope.currentAgent = agent;
 						scope.$emit( "up.changed.agent", cfg.ID, agent, bInvokedByTop );
 					}
-					scope.showStatistic = SystemConfigService.get("showApplicationStat");
 					scope.getApplicationName = function() {
 						return UrlVoService.getApplicationName();
 					};
