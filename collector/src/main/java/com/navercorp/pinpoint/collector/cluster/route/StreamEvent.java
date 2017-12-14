@@ -57,12 +57,12 @@ public class StreamEvent extends DefaultRouteEvent {
         final StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getSimpleName());
         sb.append("{");
-        sb.append("{remoteAddress=").append(getRemoteAddress()).append(",");
-        sb.append("applicationName=").append(getDeliveryCommand().getApplicationName()).append(",");
-        sb.append("agentId=").append(getDeliveryCommand().getAgentId()).append(",");
-        sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime());
-        sb.append("streamChannelContext=").append(getStreamChannelContext());
-        sb.append("streamChannelId=").append(getStreamChannelId());
+        sb.append("{remoteAddress=").append(getRemoteAddress()).append(", ");
+        sb.append("applicationName=").append(getDeliveryCommand().getApplicationName()).append(", ");
+        sb.append("agentId=").append(getDeliveryCommand().getAgentId()).append(", ");
+        sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime()).append(", ");
+        sb.append("streamChannelContext=").append(getStreamChannelContext()).append(", ");
+        sb.append("streamChannelId=").append(getStreamChannelId()).append(", ");
         sb.append("requestObject=").append(requestObject);
         sb.append('}');
         return sb.toString();

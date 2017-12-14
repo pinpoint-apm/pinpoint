@@ -382,10 +382,11 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     private void handleHandshake(ControlHandshakePacket handshakePacket) {
-        logger.info("{} handleHandshake() started. Packet:{}", objectUniqName, handshakePacket);
-        
         int requestId = handshakePacket.getRequestId();
         Map<Object, Object> handshakeData = decodeHandshakePacket(handshakePacket);
+
+        logger.info("{} handleHandshake() started. requestId:{}, data:{}", objectUniqName, requestId, handshakeData);
+
         HandshakeResponseCode responseCode = messageListener.handleHandshake(handshakeData);
         boolean isFirst = setChannelProperties(handshakeData);
         if (isFirst) {
@@ -397,12 +398,10 @@ public class DefaultPinpointServer implements PinpointServer {
             }
         }
 
-        logger.info("{} handleHandshake(). ResponseCode:{}", objectUniqName, responseCode);
-
         Map<String, Object> responseData = createHandshakeResponse(responseCode, isFirst);
         sendHandshakeResponse0(requestId, responseData);
         
-        logger.info("{} handleHandshake() completed.", objectUniqName);
+        logger.info("{} handleHandshake() completed(isFirst:{}). requestId:{}, responseCode:{}", objectUniqName, isFirst, requestId, responseCode);
     }
 
     private ClusterOption getClusterOption(Map handshakeResponse) {
