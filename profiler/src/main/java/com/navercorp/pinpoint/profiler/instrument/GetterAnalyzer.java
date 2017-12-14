@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import java.lang.reflect.Method;
 
-import com.navercorp.pinpoint.common.util.Asserts;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author Jongho Moon
@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.util.Asserts;
  */
 public class GetterAnalyzer {
     public GetterDetails analyze(Class<?> getterType) {
-        Asserts.notNull(getterType, "getterType");
+        Assert.requireNonNull(getterType, "getterType must not be null");
         
         if (!getterType.isInterface()) {
             throw new IllegalArgumentException("getterType " + getterType + "is not an interface");

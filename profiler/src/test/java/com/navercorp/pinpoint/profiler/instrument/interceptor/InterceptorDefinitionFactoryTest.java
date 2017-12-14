@@ -59,11 +59,11 @@ public class InterceptorDefinitionFactoryTest {
     }
 
     @Test
-    public void testAA() {
+    public void testDeclaredMethods() {
+
         Class<String> stringClass = String.class;
         for (Method method : stringClass.getDeclaredMethods()) {
-            logger.debug(String.valueOf(method));
-            logger.debug(String.valueOf(method.getParameterTypes().length));
+            logger.debug("{}", method);
         }
 
     }
@@ -80,15 +80,35 @@ public class InterceptorDefinitionFactoryTest {
     public void testGetInterceptorCaptureType() throws Exception {
         InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
-        CaptureType before = interceptorDefinitionFactory.createInterceptorDefinition(TestBeforeInterceptor.class).getCaptureType();
-        Assert.assertSame(before, CaptureType.BEFORE);
+        final InterceptorDefinition before = interceptorDefinitionFactory.createInterceptorDefinition(TestBeforeInterceptor.class);
+        assertInterceptorType(before, CaptureType.BEFORE, "before", null);
 
-        CaptureType after = interceptorDefinitionFactory.createInterceptorDefinition(TestAfterInterceptor.class).getCaptureType();
-        Assert.assertSame(after, CaptureType.AFTER);
+        final InterceptorDefinition after = interceptorDefinitionFactory.createInterceptorDefinition(TestAfterInterceptor.class);
+        assertInterceptorType(after, CaptureType.AFTER, null, "after");
 
-        CaptureType around = interceptorDefinitionFactory.createInterceptorDefinition(TestAroundInterceptor.class).getCaptureType();
-        Assert.assertSame(around, CaptureType.AROUND);
+        final InterceptorDefinition around = interceptorDefinitionFactory.createInterceptorDefinition(TestAroundInterceptor.class);
+        assertInterceptorType(around, CaptureType.AROUND, "before", "after");
 
+        final InterceptorDefinition ignore = interceptorDefinitionFactory.createInterceptorDefinition(TestIgnoreInterceptor.class);
+        assertInterceptorType(ignore, CaptureType.NON, null, null);
+    }
+
+    private void assertInterceptorType(InterceptorDefinition interceptor, CaptureType aroundType, String beforeName, String afterName) {
+        Assert.assertSame("Type", aroundType, aroundType);
+
+        if (beforeName == null) {
+            Assert.assertNull("before is null", interceptor.getBeforeMethod());
+        } else {
+            Assert.assertNotNull("after is not null", interceptor.getBeforeMethod());
+            Assert.assertEquals("check beforeName", interceptor.getBeforeMethod().getName(), beforeName);
+        }
+
+        if (afterName == null) {
+            Assert.assertNull("after is null", interceptor.getAfterMethod());
+        } else {
+            Assert.assertNotNull("after is not null", interceptor.getAfterMethod());
+            Assert.assertEquals("check afterName", interceptor.getAfterMethod().getName(), afterName);
+        }
     }
 
 
@@ -124,6 +144,19 @@ public class InterceptorDefinitionFactoryTest {
 
         }
 
+        @Override
+        public void after(Object target, Object[] args, Object result, Throwable throwable) {
+
+        }
+    }
+
+    public static class TestIgnoreInterceptor implements AroundInterceptor {
+        @IgnoreMethod
+        @Override
+        public void before(Object target, Object[] args) {
+
+        }
+        @IgnoreMethod
         @Override
         public void after(Object target, Object[] args, Object result, Throwable throwable) {
 

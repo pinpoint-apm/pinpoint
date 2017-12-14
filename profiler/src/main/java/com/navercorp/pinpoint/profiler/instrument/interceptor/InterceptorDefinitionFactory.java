@@ -182,8 +182,8 @@ public class InterceptorDefinitionFactory {
             final boolean afterIgnoreMethod = afterMethod.isAnnotationPresent(IgnoreMethod.class);
 
 
-            if (beforeIgnoreMethod == false && afterIgnoreMethod == false) {
-                return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.AROUND, beforeMethod, afterMethod);
+            if (beforeIgnoreMethod == true && afterIgnoreMethod == true) {
+                return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.NON, null, null);
             }
             if (beforeIgnoreMethod == true) {
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.AFTER, null, afterMethod);
@@ -191,7 +191,7 @@ public class InterceptorDefinitionFactory {
             if (afterIgnoreMethod == true) {
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.BEFORE, beforeMethod, null);
             }
-            return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.NON, null, null);
+            return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.AROUND, beforeMethod, afterMethod);
         }
 
         private Method searchMethod(Class<?> interceptorClazz, String searchMethodName, Class<?>[] searchMethodParameter) {

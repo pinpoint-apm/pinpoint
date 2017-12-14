@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.web.vo.scatter;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.view.DotSerializer;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 
 @JsonSerialize(using = DotSerializer.class)
 public class Dot {
@@ -40,7 +41,6 @@ public class Dot {
      * @param elapsedTime
      * @param exceptionCode 0 : success, 1 : error
      */
-
     public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
@@ -60,7 +60,7 @@ public class Dot {
     }
 
     public String getTransactionIdAsString() {
-        return transactionId.getFormatString();
+        return TransactionIdUtils.formatString(transactionId);
     }
 
     public int getExceptionCode() {
@@ -105,4 +105,5 @@ public class Dot {
         sb.append('}');
         return sb.toString();
     }
+
 }

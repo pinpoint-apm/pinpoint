@@ -81,6 +81,19 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>82</td><td>thrift.result</td></tr>
  * <tr><td>90</td><td>dubbo.args</td></tr>
  * <tr><td>91</td><td>dubbo.result</td></tr>
+ * <tr><td>110</td><td></td>hystrix.command</tr>
+ * <tr><td>111</td><td></td>hystrix.command.execution</tr>
+ * <tr><td>112</td><td></td>hystrix.command.fallback.cause</tr>
+ * <tr><td>113</td><td></td>hystrix.command.exception</tr>
+ * <tr><td>115</td><td></td>hystrix.command.key</tr>
+ * <tr><td>116</td><td></td>hystrix.command.group.key</tr>
+ * <tr><td>117</td><td></td>hystrix.thread.pool.key</tr>
+ * <tr><td>118</td><td></td>hystrix.collapser.key</tr>
+ * <tr><td>120</td><td>netty.address</td></tr>
+ * <tr><td>200</td><td>cxf.operation</td></tr>
+ * <tr><td>201</td><td>cxf.args</td></tr>
+ * <tr><td>300</td><td>PROXY_HTTP_HEADER</td></tr>
+ * <tr><td>310</td><td>REDIS.IO</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
  * <tr><td>9001</td><td>jackson.json.length</td></tr>
  * <tr><td>9002</td><td>json-lib.json.length</td></tr>
@@ -119,7 +132,7 @@ public interface AnnotationKey {
 //    API_DID(10, "API-DID"),
 //    @Deprecated  // you should remove static API code. Use only API-DID. dump by int
 //    API_ID(11, "API-ID"),
-    // used for developing the annotation that dumps api by string. you also consider to remove it later.
+    // Dump api by string.
     AnnotationKey API = AnnotationKeyFactory.of(12, "API");
     AnnotationKey API_METADATA = AnnotationKeyFactory.of(13, "API-METADATA");
     AnnotationKey RETURN_DATA = AnnotationKeyFactory.of(14, "RETURN_DATA", VIEW_IN_RECORD_SET);
@@ -190,4 +203,6 @@ public interface AnnotationKey {
 
     AnnotationKey ASYNC = AnnotationKeyFactory.of(-100, "Asynchronous Invocation", VIEW_IN_RECORD_SET);
 
+    AnnotationKey PROXY_HTTP_HEADER = AnnotationKeyFactory.of(300, "PROXY_HTTP_HEADER", VIEW_IN_RECORD_SET);
+    AnnotationKey REDIS_IO = AnnotationKeyFactory.of(310, "redis.io");
 }

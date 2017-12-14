@@ -21,7 +21,6 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -32,6 +31,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -46,12 +47,17 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
     public static final ServiceType IBATIS_SPRING = ServiceTypeFactory.of(5501, "IBATIS_SPRING", "IBATIS");
 
     private static final String IBATIS_SCOPE = "IBATIS_SCOPE";
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        ProfilerConfig profilerConfig = context.getConfig();
-        if (profilerConfig.isIBatisEnabled()) {
+        IBatisPluginConfig iBatisPluginConfig = new IBatisPluginConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("IBatisPlugin config:{}", iBatisPluginConfig);
+        }
+        if (iBatisPluginConfig.isIBatisEnabled()) {
             addInterceptorsForSqlMapExecutors();
             addInterceptorsForSqlMapClientTemplate();
         }

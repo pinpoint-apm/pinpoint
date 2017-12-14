@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,24 @@ public class SpringBeansConfigTest {
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
         assertEquals(3, springBeansConfig.getTargets().size());
+
+        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, springBeansConfig.getTarget(1).getScope());
+        assertEquals(null, springBeansConfig.getTarget(1).getBasePackages());
+        assertEquals(1, springBeansConfig.getTarget(1).getNamePatterns().size());
+        assertEquals(1, springBeansConfig.getTarget(1).getAnnotations().size());
+        assertEquals(null, springBeansConfig.getTarget(1).getClassPatterns());
+
+        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, springBeansConfig.getTarget(2).getScope());
+        assertEquals(null, springBeansConfig.getTarget(2).getBasePackages());
+        assertEquals(null, springBeansConfig.getTarget(2).getNamePatterns());
+        assertEquals(1, springBeansConfig.getTarget(2).getAnnotations().size());
+        assertEquals(1, springBeansConfig.getTarget(2).getClassPatterns().size());
+
+        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, springBeansConfig.getTarget(3).getScope());
+        assertEquals(null, springBeansConfig.getTarget(3).getBasePackages());
+        assertEquals(null, springBeansConfig.getTarget(3).getNamePatterns());
+        assertEquals(1, springBeansConfig.getTarget(3).getAnnotations().size());
+        assertEquals(null, springBeansConfig.getTarget(3).getClassPatterns());
     }
 
     @Test
@@ -83,7 +101,7 @@ public class SpringBeansConfigTest {
         ProfilerConfig config = new DefaultProfilerConfig(properties);
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-        assertEquals(6, springBeansConfig.getTargets().size());
+        assertEquals(2, springBeansConfig.getTargets().size());
     }
 
     @Test
@@ -91,27 +109,17 @@ public class SpringBeansConfigTest {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target.*");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
-        // empty
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "");
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "");
 
+        // normal
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
 
         // old
         properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "com.navercorp.*");
 
-        // wrong number
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + "A" + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + "A" + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
-
-        // not found number
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
-
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-        assertEquals(4, springBeansConfig.getTargets().size());
+        assertEquals(3, springBeansConfig.getTargets().size());
     }
 
     @Test
@@ -123,11 +131,43 @@ public class SpringBeansConfigTest {
         properties.put("foo" + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "");
         properties.put("bar" + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "");
 
+        // wrong number 1.
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6.12 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6.12 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        // wrong number 2.
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + "A" + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + "A" + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        // not found number
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
         assertEquals(0, springBeansConfig.getTargets().size());
+    }
+
+    @Test
+    public void scope() {
+        Properties properties = new Properties();
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_SCOPE_POSTFIX, "component-scan");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_SCOPE_POSTFIX, "component-scan");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_BASE_PACKAGES_POSTFIX, "com.navercorp");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_SCOPE_POSTFIX, "post-processor");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_BASE_PACKAGES_POSTFIX, "com.navercorp");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 4 + SpringBeansConfig.SPRING_BEANS_SCOPE_POSTFIX, "post-processor");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 4 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
+        assertEquals(4, springBeansConfig.getTargets().size());
     }
 }

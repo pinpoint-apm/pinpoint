@@ -21,14 +21,14 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class TraceIndexScatterMapper3 implements RowMapper<ScatterData> {
 
@@ -64,23 +64,20 @@ public class TraceIndexScatterMapper3 implements RowMapper<ScatterData> {
     }
 
     private Dot createDot(Cell cell) {
-        final int valueOffset = cell.getValueOffset();
-        final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), valueOffset);
-        int elapsed = valueBuffer.readVarInt();
+        final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+        int elapsed = valueBuffer.readVInt();
 
-        int exceptionCode = valueBuffer.readSVarInt();
+        int exceptionCode = valueBuffer.readSVInt();
         String agentId = valueBuffer.readPrefixedString();
 
         long reverseAcceptedTime = BytesUtils.bytesToLong(cell.getRowArray(), cell.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
         long acceptedTime = TimeUtils.recoveryTimeMillis(reverseAcceptedTime);
 
-        final int qualifierOffset = cell.getQualifierOffset();
-
         // TransactionId transactionId = new TransactionId(buffer,
         // qualifierOffset);
 
         // for temporary, used TransactionIdMapper
-        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(cell.getQualifierArray(), qualifierOffset);
+        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
 
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }

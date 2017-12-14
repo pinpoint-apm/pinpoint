@@ -1,1 +1,2 @@
-com.navercorp.pinpoint.plugin.okhttp.OkHttpPlugin
+com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpPlugin
+com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpPlugin

@@ -1594,8 +1594,8 @@
 			if(!tp_inst.support.timezone && tp_inst._defaults.timezone === null){
 				tp_inst.timezone = tp_date.getTimezoneOffset()*-1;
 			}
-			date = $.timepicker.timezoneAdjust(date, tp_inst.timezone);
-			tp_date = $.timepicker.timezoneAdjust(tp_date, tp_inst.timezone);
+			date = $.timepicker.timezoneAdjust(date, tp_inst.timezone, "set");
+			tp_date = $.timepicker.timezoneAdjust(tp_date, tp_inst.timezone, "set");
 		}
 
 		this._updateDatepicker(inst);
@@ -1634,7 +1634,7 @@
 					if(!tp_inst.support.timezone && tp_inst._defaults.timezone === null){
 						tp_inst.timezone = date.getTimezoneOffset()*-1;
 					}
-					date = $.timepicker.timezoneAdjust(date, tp_inst.timezone);
+					date = $.timepicker.timezoneAdjust(date, tp_inst.timezone, "get");
 				}
 			}
 			return date;
@@ -1965,10 +1965,14 @@
 	 * @param  string formated like "+0500", "-1245"
 	 * @return date
 	 */
-	$.timepicker.timezoneAdjust = function(date, toTimezone) {
+	$.timepicker.timezoneAdjust = function(date, toTimezone, method) {
 		var toTz = $.timepicker.timezoneOffsetNumber(toTimezone);
 		if(!isNaN(toTz)){
-			date.setMinutes(date.getMinutes()*1 + (date.getTimezoneOffset()*-1 - toTz*1) );
+			if ( method === "set" ) {
+				date.setMinutes(date.getMinutes()*1 + (date.getTimezoneOffset()*1 + toTz*1) );
+			} else {
+				date.setMinutes(date.getMinutes()*1 + (date.getTimezoneOffset()*-1 - toTz*1) );
+			}
 		}
 		return date;
 	};

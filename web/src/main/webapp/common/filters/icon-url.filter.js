@@ -12,21 +12,18 @@
 	 * @method pinpointApp#iconUrl
 	 * @param {String} iconName
 	 * @return {String} icon Url
-	 * @example 
-	 * ```
-	 * expect( iconUrl("TOMCAT") ).toEqual( "/images/icons/TOMCAT.png" );
-	 * ```
 	 */
-	angular.module('pinpointApp').filter('iconUrl', function () {
-		return function(name) {
-			var imageUrl = "/images/icons/";
-			if (angular.isString(name)) {
+	angular.module( "pinpointApp" ).filter( "iconUrl", "PreferenceService", function ( PreferenceService ) {
+		return function( name ) {
+			var iconPath = PreferenceService.getIconPath();
+			var imageUrl = "";
+			if ( angular.isString( name ) ) {
 	            switch (name) {
-	                case 'UNKNOWN_GROUP' :
-	                    imageUrl += 'UNKNOWN.png';
+	                case "UNKNOWN_GROUP" :
+	                    imageUrl = iconPath + "UNKNOWN.png";
 	                    break;
 	                default :
-	                    imageUrl += name + '.png';
+	                    imageUrl = iconPath + name + ".png";
 	                    break;
 	            }
 	            return imageUrl;

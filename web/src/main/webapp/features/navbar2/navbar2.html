@@ -1,0 +1,26 @@
+<div class="navbar main-navbar bs-docs-nav">
+	<div class="nav-container">
+		<a href="/" class="navbar-brand"><img class="brand" src="images/logo2.png" width="116" height="18"></a>
+
+		<div class="nav-collapse">
+			<form class="navbar-form pull-left">
+				<ul class="nav navbar-nav">
+					<li style="margin-top:0px;">
+						<application-list-directive init-app-name="{{paramInitApplication}}" use-favorite="true" not-set-open="true"></application-list-directive>
+					</li>
+					<li class="divider-vertical"></li>
+					<li class="for-datetimepicker">
+						<period-selector-directive use-realtime="false" use-auto-update="false"></period-selector-directive>
+					</li>
+				</ul>
+			</form>
+		</div>
+	</div>
+	<div style="position:fixed;right:10px;top:10px;">
+		<span class="glyphicon glyphicon-question-sign navbarTooltip" style="cursor:pointer;font-size:17px;color:#FFF;top:0px;"></span>
+		<span class="glyphicon glyphicon-cog" ng-click="showConfig()" style="cursor:pointer;font-size:17px;color:#FFF;padding-left:8px;top:0px;"></span>
+		<a href="https://github.com/naver/pinpoint" target="_blank"><i class="xi-github" style="color:#FFF;padding-left:6px;font-size:22px;"></i></a>
+	</div>
+
+</div>
+

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public abstract  class AbstractNetworkChecker implements NetworkChecker {
+public abstract class AbstractNetworkChecker implements NetworkChecker {
 
     private static final String WHITE_SPACE = "    "; // 4space
     private static final String LINE_SEPARATOR = "\r\n";

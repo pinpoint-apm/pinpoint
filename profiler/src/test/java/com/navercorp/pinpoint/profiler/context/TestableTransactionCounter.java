@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
+
 /**
  * @author HyunGil Jeong
  */
@@ -32,36 +34,40 @@ public class TestableTransactionCounter implements TransactionCounter {
                 + this.sampledContinuationCount + this.unsampledContinuationCount;
     }
     
-    public void addTransactionCount(SamplingType samplingType, long count) {
-        switch (samplingType) {
-        case SAMPLED_NEW:
-            this.sampledTransactionCount += count;
-            break;
-        case UNSAMPLED_NEW:
-            this.unsampledTransactionCount += count;
-            break;
-        case SAMPLED_CONTINUATION:
-            this.sampledContinuationCount += count;
-            break;
-        case UNSAMPLED_CONTINUATION:
-            this.unsampledContinuationCount += count;
-            break;
-        }
+    public void addSampledNewCount(long count) {
+        this.sampledTransactionCount += count;
+    }
+
+    public void addSampledContinuationCount(long count) {
+        this.sampledContinuationCount += count;
+    }
+
+    public void addUnSampledNewCount(long count) {
+        this.unsampledTransactionCount += count;
+    }
+
+    public void addUnSampledContinuationCount(long count) {
+        this.unsampledContinuationCount += count;
     }
 
     @Override
-    public long getTransactionCount(SamplingType samplingType) {
-        switch (samplingType) {
-        case SAMPLED_NEW:
-            return this.sampledTransactionCount;
-        case UNSAMPLED_NEW:
-            return this.unsampledTransactionCount;
-        case SAMPLED_CONTINUATION:
-            return this.sampledContinuationCount;
-        case UNSAMPLED_CONTINUATION:
-            return this.unsampledContinuationCount;
-        default:
-            return 0L;
-        }
+    public long getSampledNewCount() {
+        return sampledTransactionCount;
     }
+
+    @Override
+    public long getSampledContinuationCount() {
+        return sampledContinuationCount;
+    }
+
+    @Override
+    public long getUnSampledNewCount() {
+        return unsampledTransactionCount;
+    }
+
+    @Override
+    public long getUnSampledContinuationCount() {
+        return unsampledContinuationCount;
+    }
+
 }

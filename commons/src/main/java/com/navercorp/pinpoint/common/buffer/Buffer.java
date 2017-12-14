@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
+import com.navercorp.pinpoint.common.Charsets;
+
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
@@ -28,9 +31,9 @@ public interface Buffer {
 
     byte[] EMPTY = new byte[0];
 
-    String UTF8 = "UTF-8";
+    String UTF8 = Charsets.UTF_8_NAME;
 
-    Charset UTF8_CHARSET = Charset.forName(UTF8);
+    Charset UTF8_CHARSET = Charsets.UTF_8;
 
     void putPadBytes(byte[] bytes, int totalLength);
 
@@ -48,11 +51,14 @@ public interface Buffer {
 
     void put4PrefixedString(String string);
 
-    void put(byte v);
+    void putByte(byte v);
 
-    void put(boolean v);
 
-    void put(int v);
+    void putBoolean(boolean v);
+
+
+    void putInt(int v);
+
 
     /**
      * put value using the variable-length encoding especially for constants
@@ -64,7 +70,8 @@ public interface Buffer {
      * consume 1~10 bytes ( integer's max value consumes 5 bytes, integer's min value consumes 10 bytes)
      * @param v
      */
-    void putVar(int v);
+    void putVInt(int v);
+
 
     /**
      * put value using variable-length encoding
@@ -73,29 +80,15 @@ public interface Buffer {
 
      * @param v
      */
-    void putSVar(int v);
+    void putSVInt(int v);
 
-    void put(short v);
 
-    void put(long v);
+    void putShort(short v);
 
-    /**
-     * put value using the variable-length encoding especially for constants
-     * the size using variable-length encoding is bigger than using fixed-length int when v is negative.
-     * if there are a lot of negative value in a buffer, it's very inefficient.
-     * instead use putSVar in that case.
-     * @param v
-     */
-    void putVar(long v);
 
-    /**
-     * put value using variable-length encoding
-     * useful for same distribution of constants and negatives value
-     * @param v
-     */
-    void putSVar(long v);
+    void putLong(long v);
 
-    void put(double v);
+
 
     /**
      * put value using the variable-length encoding especially for constants
@@ -104,16 +97,41 @@ public interface Buffer {
      * instead use putSVar in that case.
      * @param v
      */
-    void putVar(double v);
+    void putVLong(long v);
+
+
 
     /**
      * put value using variable-length encoding
      * useful for same distribution of constants and negatives value
      * @param v
      */
-    void putSVar(double v);
+    void putSVLong(long v);
 
-    void put(byte[] v);
+
+    void putDouble(double v);
+
+
+    /**
+     * put value using the variable-length encoding especially for constants
+     * the size using variable-length encoding is bigger than using fixed-length int when v is negative.
+     * if there are a lot of negative value in a buffer, it's very inefficient.
+     * instead use putSVar in that case.
+     * @param v
+     */
+    void putVDouble(double v);
+
+
+    /**
+     * put value using variable-length encoding
+     * useful for same distribution of constants and negatives value
+     * @param v
+     */
+    void putSVDouble(double v);
+
+    void putBytes(byte[] v);
+
+    byte getByte(int index);
 
     byte readByte();
 
@@ -123,24 +141,23 @@ public interface Buffer {
 
     int readInt();
 
-    int readVarInt();
+    int readVInt();
 
-    int readSVarInt();
-
+    int readSVInt();
 
     short readShort();
 
     long readLong();
 
-    long readVarLong();
+    long readVLong();
 
-    long readSVarLong();
+    long readSVLong();
 
     double readDouble();
 
-    double readVarDouble();
+    double readVDouble();
 
-    double readSVarDouble();
+    double readSVDouble();
 
     byte[] readPadBytes(int totalLength);
 
@@ -166,9 +183,14 @@ public interface Buffer {
 
     byte[] getInternalBuffer();
 
+    ByteBuffer wrapByteBuffer();
+
     void setOffset(int offset);
 
     int getOffset();
 
-    int limit();
+    int remaining();
+
+    boolean hasRemaining();
+
 }

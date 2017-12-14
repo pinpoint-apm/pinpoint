@@ -32,12 +32,12 @@ public class AgentLifeCycleValueMapper implements ValueMapper<AgentLifeCycleBo> 
     @Override
     public byte[] mapValue(AgentLifeCycleBo value) {
         final Buffer buffer = new AutomaticBuffer();
-        buffer.put(value.getVersion());
+        buffer.putInt(value.getVersion());
         buffer.putPrefixedString(value.getAgentId());
-        buffer.put(value.getStartTimestamp());
-        buffer.put(value.getEventTimestamp());
-        buffer.put(value.getEventIdentifier());
-        buffer.put(value.getAgentLifeCycleState().getCode());
+        buffer.putLong(value.getStartTimestamp());
+        buffer.putLong(value.getEventTimestamp());
+        buffer.putLong(value.getEventIdentifier());
+        buffer.putShort(value.getAgentLifeCycleState().getCode());
         return buffer.getBuffer();
     }
 

@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.profiler.interceptor.registry;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.DefaultInterceptorRegistryAdaptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -27,7 +31,10 @@ public class DefaultInterceptorRegistryBinder implements InterceptorRegistryBind
 
     public final static int DEFAULT_MAX = 8192;
 
-    private final Object lock = new Object();
+    private static final AtomicInteger LOCK_NUMBER = new AtomicInteger();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final String lock = "DefaultRegistry-" + LOCK_NUMBER.getAndIncrement();
     private final InterceptorRegistryAdaptor interceptorRegistryAdaptor;
 
     public DefaultInterceptorRegistryBinder() {
@@ -40,11 +47,13 @@ public class DefaultInterceptorRegistryBinder implements InterceptorRegistryBind
 
     @Override
     public void bind() {
+        logger.info("bind:{}", lock);
         InterceptorRegistry.bind(interceptorRegistryAdaptor, lock);
     }
 
     @Override
     public void unbind() {
+        logger.info("unbind:{}", lock);
         InterceptorRegistry.unbind(lock);
     }
 

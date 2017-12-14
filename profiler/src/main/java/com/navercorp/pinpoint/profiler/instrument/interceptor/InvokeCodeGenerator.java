@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 import java.lang.reflect.Modifier;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -28,26 +28,26 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  *
  */
 public class InvokeCodeGenerator {
-    private final TraceContext traceContext;
+    protected final ApiMetaDataService apiMetaDataService;
     protected final InterceptorDefinition interceptorDefinition;
     protected final InstrumentMethod targetMethod;
     protected final int interceptorId;
 
-    public InvokeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentMethod targetMethod, TraceContext traceContext) {
+    public InvokeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentMethod targetMethod, ApiMetaDataService apiMetaDataService) {
         if (interceptorDefinition == null) {
             throw new NullPointerException("interceptorDefinition must not be null");
         }
         if (targetMethod == null) {
             throw new NullPointerException("targetMethod must not be null");
         }
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
         }
 
         this.interceptorDefinition = interceptorDefinition;
         this.targetMethod = targetMethod;
         this.interceptorId = interceptorId;
-        this.traceContext = traceContext;
+        this.apiMetaDataService = apiMetaDataService;
 
     }
 
@@ -75,7 +75,7 @@ public class InvokeCodeGenerator {
     
     protected int getApiId() {
         final MethodDescriptor descriptor = targetMethod.getDescriptor();
-        final int apiId = traceContext.cacheApi(descriptor);
+        final int apiId = apiMetaDataService.cacheApi(descriptor);
         return apiId;
     }
     

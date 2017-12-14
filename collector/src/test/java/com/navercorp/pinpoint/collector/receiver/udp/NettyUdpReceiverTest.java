@@ -110,10 +110,10 @@ public class NettyUdpReceiverTest {
                     @Override
                     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
                         String name = Thread.currentThread().getName();
-                        logger.debug("sleep-------------------{}", name);
+                        logger.debug("sleep:{}", name);
                         Thread.sleep(10000);
 //                        if (!name.equals("New I/O worker #1")) {
-                            logger.info("messageReceived thread-{} message:", Thread.currentThread().getName());
+                            logger.debug("messageReceived thread-{} message:", Thread.currentThread().getName());
 //                        }
                     }
                 });

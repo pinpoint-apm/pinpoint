@@ -45,14 +45,14 @@ public class FilterHint {
     }
 
 
-    public List<RpcHint> getRpcHintList(String sourceApplicationName) {
-        if (sourceApplicationName == null) {
-            throw new NullPointerException("sourceApplicationName must not be null");
+    public List<RpcHint> getRpcHintList(String targetApplicationName) {
+        if (targetApplicationName == null) {
+            throw new NullPointerException("targetApplicationName must not be null");
         }
         final List<RpcHint> findRpcHintList = new ArrayList<>();
         for (RpcHint rpcHint : rpcHintList) {
             // TODO miss serviceType
-            if (rpcHint.getApplicationName().equals(sourceApplicationName)) {
+            if (rpcHint.getApplicationName().equals(targetApplicationName)) {
                 findRpcHintList.add(rpcHint);
             }
         }

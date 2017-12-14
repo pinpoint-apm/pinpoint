@@ -40,11 +40,12 @@ import com.navercorp.pinpoint.web.service.AlarmService;
  * @author minwoo.jung
  */
 @Controller
-@RequestMapping(value="/alarmRule")
+@RequestMapping(value={"/alarmRule", "/application/alarmRule"})
 public class AlarmController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     public final static String USER_GROUP_ID = "userGroupId";
+    public final static String APPLICATION_ID = "applicationId";
 
     @Autowired
     AlarmService alarmService;
@@ -86,15 +87,19 @@ public class AlarmController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Object getRule(@RequestParam(USER_GROUP_ID) String userGroupId) {
-        if (StringUtils.isEmpty(userGroupId)) {
+    public Object getRule(@RequestParam(value=USER_GROUP_ID, required=false) String userGroupId, @RequestParam(value=APPLICATION_ID, required=false) String applicationId) {
+        if (StringUtils.isEmpty(userGroupId) && StringUtils.isEmpty(applicationId)) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
-            result.put("errorMessage", "there is not userGroupId to get alarm rule");
+            result.put("errorMessage", "there is not userGroupId or applicationID to get alarm rule");
             return result;
         }
         
-        return alarmService.selectRuleByUserGroupId(userGroupId);
+        if (!StringUtils.isEmpty(userGroupId)) {
+            return alarmService.selectRuleByUserGroupId(userGroupId);
+        }
+        
+        return alarmService.selectRuleByApplicationId(applicationId);
     }
     
     @RequestMapping(method = RequestMethod.PUT)

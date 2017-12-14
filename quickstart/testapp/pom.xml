@@ -10,7 +10,7 @@
     <name>Pinpoint TestApp QuickStart</name>
     <version>${maven.pinpoint.version}</version>
     <packaging>war</packaging>
-    
+
     <properties>
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
@@ -18,7 +18,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <tomcat.version>7.0.47</tomcat.version>
     </properties>
-    
+
     <dependencies>
         <!-- Spring -->
         <dependency>
@@ -37,7 +37,7 @@
             <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
         </dependency>
-        
+
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -62,7 +62,7 @@
             <version>1.2.17</version>
             <scope>runtime</scope>
         </dependency>
-        
+
         <!-- Tomcat -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -105,29 +105,29 @@
             <artifactId>standard</artifactId>
             <version>1.1.2</version>
         </dependency>
-        
-	    <!-- Apache HTTP Client -->
+
+        <!-- Apache HTTP Client -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.3.6</version>
         </dependency>
-	    <dependency>
-	        <groupId>org.apache.httpcomponents</groupId>
-	        <artifactId>httpcore</artifactId>
-	        <version>4.3.3</version>
-	    </dependency>
-	    
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.3.3</version>
+        </dependency>
+
         <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.4.4</version>
         </dependency>
-        
+
         <dependency>
-        	<artifactId>commons-io</artifactId>
-          	<groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+              <groupId>commons-io</groupId>
             <version>2.4</version>
         </dependency>
     </dependencies>
@@ -198,5 +198,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

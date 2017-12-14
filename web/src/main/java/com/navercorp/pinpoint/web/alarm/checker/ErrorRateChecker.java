@@ -22,14 +22,15 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
-public class ErrorRateChecker extends AlarmChecker {
+public class ErrorRateChecker extends LongValueAlarmChecker {
     
     public ErrorRateChecker(ResponseTimeDataCollector dataCollector, Rule rule) {
         super(rule, "%", dataCollector);
     }
 
     @Override
-    protected long getDetectedValue() {
+    protected Long getDetectedValue() {
         return ((ResponseTimeDataCollector)dataCollector).getErrorRate();
     }
+
 }

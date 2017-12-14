@@ -18,27 +18,24 @@
             "changeSelectionZone": []
         };
         this.opt = {
-            "duration": 300,
+            "duration": 0,
             "xAxisTicks": 5,
             "eventZoneHeight": 30,        // 하단 이벤트 영역의 height
             "headerZoneHeight": 20,       // 상단 시간 표시영역의 height
             "stateLineThickness": 4,       // 상태선의 두께
-            "minSliderTimeSeries": 6000,             // 6sec
-            // "maxSliderTimeSeries": 172800000,         // 2day
-            "maxSelectionTimeSeries": 172800000,
+            "minSliderTimeSeries": 6000,   // 6sec
+			"maxSelectionTimeSeries": TimeSlider.MAX_TIME_RANGE,	// 7day
             "headerTextTopPadding": 10,   // 상단 상태선과 시간 text의 간격
-            "selectionPointRadius": 5
+            "selectionPointRadius": 4
         };
         this.opt.minSliderTimeSeries = ( this.opt.xAxisTicks + 1 ) * 1000;
-        var p;
-        for( p in options ) {
+        for( var p in options ) {
             this.opt[p] = options[p];
         }
-        this.oEventData = new TimeSlider.EventData( this.opt.eventData || [] );
+        this.oTimelineData = new TimeSlider.TimelineData( this.opt.timelineData || {} );
         this._checkOffset();
     };
-    TimeSlider.prototype._initControlClass = function( options ) {
-        var self = this;
+    TimeSlider.prototype._initControlClass = function() {
 
         this.oPositionManager = new TimeSlider.PositionManager( {
             "width": this.opt.width,
@@ -51,10 +48,6 @@
         });
         var contentZoneHeight = this.opt.height - this.opt.headerZoneHeight - this.opt.eventZoneHeight;
 
-        // this.oTimeSeriesSignboard = new TimeSlider.TimeSeriesSignboard( this, this.getGroup("time-series-signboard", TimeSlider.GROUP_TYPE.CONTENT_BASE, TimeSlider.oDrawOrder["time-series-signboard"]), {
-        //     "height": contentZoneHeight,
-        //     "duration": this.opt.duration
-        // });
         this.oLoading = new TimeSlider.LoadingIndicator( this, this.getGroup("loading", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["loading"]), {
             "width": this.opt.width,
             "height": this.opt.height,
@@ -67,6 +60,14 @@
             "height": contentZoneHeight,
             "duration": this.opt.duration
         });
+		this.oStateLine = new TimeSlider.StateLine( this, this.getGroup("state-line", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["state-line"]), {
+			"width": this.opt.width,
+			"duration": this.opt.duration,
+			"topLineY": this.opt.headerZoneHeight,
+			"thickness": this.opt.stateLineThickness,
+			"timeSeries": this.opt.timeSeries,
+			"bottomLineY": this.opt.height - this.opt.eventZoneHeight
+		} );
         this.oSelectionManager = new TimeSlider.SelectionManager( this, {
             "margin": this.opt.left,
             "height": this.opt.height,
@@ -84,14 +85,6 @@
             "startY": this.opt.headerZoneHeight,
             "duration": this.opt.duration
         });
-        this.oStateLine = new TimeSlider.StateLine( this, this.getGroup("state-line", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["state-line"]), {
-            "width": this.opt.width,
-            "duration": this.opt.duration,
-            "topLineY": this.opt.headerZoneHeight,
-            "thickness": this.opt.stateLineThickness,
-            "timeSeries": this.opt.timeSeries,
-            "bottomLineY": this.opt.height - this.opt.eventZoneHeight
-        } );
         this.oEvents = new TimeSlider.Events( this, this.getGroup("events", TimeSlider.GROUP_TYPE.BOTTOM_BASE, TimeSlider.oDrawOrder["events"]), {
             "duration": this.opt.duration
         } );
@@ -168,9 +161,9 @@
         this._aListener[eventType].push( listener );
         return this;
     };
-    TimeSlider.prototype.addEventData = function( aNewData ) {
+    TimeSlider.prototype.addData = function( oNewData ) {
         this.oLoading.show();
-        var aBoundary = this.oEventData.addData( aNewData );
+        this.oTimelineData.addData( oNewData );
         this.oEvents.changeData();
         this.oStateLine.changeData();
         this.oLoading.hide();
@@ -189,16 +182,35 @@
         // this.oTimeSeriesSignboard.resize();
         this.reset();
     };
-    TimeSlider.prototype.zoomIn = function( zoomLevel ) {
+    TimeSlider.prototype.zoomIn = function() {
         // 1/2배씩
         this.oPositionManager.zoomIn();
         this.reset();
     };
-    TimeSlider.prototype.zoomOut = function( zoomLevel ) {
+    TimeSlider.prototype.zoomOut = function() {
         // 2배씩
         this.oPositionManager.zoomOut();
         this.reset();
     };
+	TimeSlider.prototype.resetTimeSeriesAndSelectionZone = function( aSelectionFromTo, aFromTo, selectedTime ) {
+		this.oPositionManager.setSliderTimeSeries( aFromTo[0], aFromTo[1] );
+		this.oPositionManager.setSelectionStartTime( aSelectionFromTo[0] );
+		this.oPositionManager.setSelectionEndTime( aSelectionFromTo[1] );
+		this.oPositionManager.setSelectTime( selectedTime || aSelectionFromTo[1] );
+		this.emptyData();
+		this.reset();
+	};
+	TimeSlider.prototype.movePrev = function() {
+		var prevTime = this.oPositionManager.getPrevTime();
+		this.oSelectionManager.setSelectTime( prevTime );
+	};
+	TimeSlider.prototype.moveNext = function() {
+		var nextTime = this.oPositionManager.getNextTime();
+		this.oSelectionManager.setSelectTime( nextTime );
+	};
+	TimeSlider.prototype.moveHead = function() {
+		this.oSelectionManager.setSelectTime( Date.now(), true );
+	};
     TimeSlider.prototype.getSliderTimeSeries = function() {
         return this.oPositionManager.getSliderTimeSeries();
     };
@@ -210,7 +222,7 @@
     };
     TimeSlider.prototype.emptyData = function() {
         this.oLoading.show();
-        var aBoundary = this.oEventData.emptyData();
+        this.oTimelineData.emptyData();
         this.oEvents.emptyData();
         this.oStateLine.emptyData();
         this.oLoading.hide();
@@ -218,6 +230,9 @@
     TimeSlider.prototype.setSelectTime = function( time ) {
         this.oSelectionManager.setSelectTime( time );
     };
+    TimeSlider.prototype.getSelectTime = function() {
+    	return this.oPositionManager.getSelectTime();
+	}
 
     TimeSlider.GROUP_TYPE = {
         TOP_BASE: "top-base",
@@ -226,27 +241,26 @@
     };
     TimeSlider.oDrawOrder = {
         "background": 0,
+		"state-line": 3,
         "selection-zone": 5,
         "time-series-signboard": 7,
         "x-axis": 10,
         "events": 10,
         "time-signboard": 15,
         "selection-point": 15,
-        "state-line": 20,
         "left-handler": 25,
         "right-handler": 25,
         "guide": 30,
         "loading": 100
     };
-    TimeSlider.EventColor = {
-        "base": "rgba(187, 187, 187, .3)",
-        "10100": "#009E00",         //Agent connected
-        "10199": "#FAEBD7",            //Agent ping
-        "10200": "#D15260",            //Agent shutdown
-        "10201": "#E95C63",            //Agent unexpected shutdown
-        "10300": "#FF9D7B",            //Agent connection closed by server
-        "10301": "#F2F089",            //Agent connection unexpectedly closed by server
-        "20100": "#00F"             //thread dump
-    };
+    TimeSlider.StatusColor = {
+    	"BASE": "rgba(187, 187, 187, .3)",
+		"UNKNOWN": "rgba(220, 214, 214, .8)",
+    	"RUNNING": "rgba(0, 158, 0, .4 )",
+		"SHUTDOWN": "rgba(209, 82, 96, .7)",
+		"UNSTABLE_RUNNING": "rgba(255, 102, 0, .4)",
+		"EMPTY": "rgba(165, 219, 245, .7)"
+	};
+	TimeSlider.MAX_TIME_RANGE = 604800000;
     w.TimeSlider = TimeSlider;
 })(window, jQuery);

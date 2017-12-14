@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.web.dao.mysql.MysqlAgentStatisticsDao">
+
+    <insert id="insertAgentCount" parameterType="AgentCountStatistics">
+        INSERT INTO agent_statistics (date_val, agent_count)
+        VALUES
+        (#{dateVal}, #{agentCount})
+        ON DUPLICATE KEY UPDATE
+        <trim suffixOverrides=",">
+            <if test="dateVal != null">date_val = #{dateVal},</if>
+            <if test="agentCount != null">agent_count = #{agentCount},</if>
+        </trim>
+    </insert>
+
+    <select id="selectAgentCount" parameterType="Range" resultType="AgentCountStatistics">
+        SELECT *
+        FROM agent_statistics
+        WHERE date_val
+        BETWEEN #{fromDateTime} AND #{toDateTime}
+    </select>
+
+</mapper>

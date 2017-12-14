@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.vo;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
  * @author netspider
@@ -35,7 +37,7 @@ public class TransactionMetadataQuery {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        TransactionId traceId = new TransactionId(transactionId);
+        TransactionId traceId = TransactionIdUtils.parseTransactionId(transactionId);
         QueryCondition condition = new QueryCondition(traceId, collectorAcceptTime, responseTime);
         queryConditionList.add(condition);
     }
@@ -115,7 +117,12 @@ public class TransactionMetadataQuery {
 
         @Override
         public String toString() {
-            return "QueryCondition [transactionId=" + transactionId + ", collectorAcceptorTime=" + collectorAcceptorTime + ", responseTime=" + responseTime + "]";
+            final StringBuilder sb = new StringBuilder("QueryCondition{");
+            sb.append("transactionId=").append(transactionId);
+            sb.append(", collectorAcceptorTime=").append(collectorAcceptorTime);
+            sb.append(", responseTime=").append(responseTime);
+            sb.append('}');
+            return sb.toString();
         }
     }
 }

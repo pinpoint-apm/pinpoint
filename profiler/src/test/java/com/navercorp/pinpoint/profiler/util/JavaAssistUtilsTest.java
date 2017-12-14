@@ -24,15 +24,18 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.util.ApiUtils;
-import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
  */
 public class JavaAssistUtilsTest {
+
+    private static final String TEST_CLASS_NAME = "com.navercorp.pinpoint.profiler.util.JavaAssistUtilsTest";
+
     private final Logger logger = LoggerFactory.getLogger(JavaAssistUtilsTest.class.getName());
     private ClassPool pool;
 
@@ -48,10 +51,10 @@ public class JavaAssistUtilsTest {
         CtMethod substring = ctClass.getDeclaredMethod("substring", new CtClass[]{CtClass.intType});
 
         String ctDescription = JavaAssistUtils.getParameterDescription(substring.getParameterTypes());
-        logger.info(ctDescription);
+        logger.debug(ctDescription);
 
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{int.class});
-        logger.info(clsDescription);
+        logger.debug(clsDescription);
         Assert.assertEquals(ctDescription, clsDescription);
     }
 
@@ -69,6 +72,56 @@ public class JavaAssistUtilsTest {
 
         Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String"), 0);
         Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String[][]"), 2);
+    }
+
+    @Test
+    public void javaClassNameToObjectName() {
+        // primitives
+        Assert.assertEquals("boolean", JavaAssistUtils.javaClassNameToObjectName(boolean.class.getName()));
+        Assert.assertEquals("byte", JavaAssistUtils.javaClassNameToObjectName(byte.class.getName()));
+        Assert.assertEquals("char", JavaAssistUtils.javaClassNameToObjectName(char.class.getName()));
+        Assert.assertEquals("double", JavaAssistUtils.javaClassNameToObjectName(double.class.getName()));
+        Assert.assertEquals("float", JavaAssistUtils.javaClassNameToObjectName(float.class.getName()));
+        Assert.assertEquals("int", JavaAssistUtils.javaClassNameToObjectName(int.class.getName()));
+        Assert.assertEquals("short", JavaAssistUtils.javaClassNameToObjectName(short.class.getName()));
+
+        // wrappers
+        Assert.assertEquals("java.lang.Integer", JavaAssistUtils.javaClassNameToObjectName(Integer.class.getName()));
+        Assert.assertEquals("java.lang.String", JavaAssistUtils.javaClassNameToObjectName(String.class.getName()));
+
+        // classes
+        Assert.assertEquals("java.util.List", JavaAssistUtils.javaClassNameToObjectName(List.class.getName()));
+        Assert.assertEquals("java.util.ArrayList", JavaAssistUtils.javaClassNameToObjectName(new ArrayList<Integer>().getClass().getName()));
+
+        // arrays
+        Assert.assertEquals("boolean[]", JavaAssistUtils.javaClassNameToObjectName(boolean[].class.getName()));
+        Assert.assertEquals("byte[]", JavaAssistUtils.javaClassNameToObjectName(byte[].class.getName()));
+        Assert.assertEquals("java.lang.String[]", JavaAssistUtils.javaClassNameToObjectName(String[].class.getName()));
+
+        // inner/nested classes
+        Assert.assertEquals(
+                this.getClass().getName() + "$1",
+                JavaAssistUtils.javaClassNameToObjectName(new Comparable<Long>() {
+                    @Override
+                    public int compareTo(Long o) {
+                        return 0;
+                    }
+                }.getClass().getName()));
+        class SomeComparable implements Comparable<Long> {
+            @Override
+            public int compareTo(Long o) {
+                return 0;
+            }
+        }
+        SomeComparable inner = new SomeComparable();
+        Assert.assertEquals(
+                this.getClass().getName() + "$1SomeComparable",
+                JavaAssistUtils.javaClassNameToObjectName(inner.getClass().getName())); // assume nothing else is defined in this class
+        Assert.assertEquals(
+                this.getClass().getName() + "$1SomeComparable[]",
+                JavaAssistUtils.javaClassNameToObjectName(new SomeComparable[] {inner}.getClass().getName()));
+        Assert.assertEquals("java.util.Map$Entry", JavaAssistUtils.javaClassNameToObjectName(Map.Entry.class.getName()));
+        Assert.assertEquals("java.util.Map$Entry[]", JavaAssistUtils.javaClassNameToObjectName(Map.Entry[].class.getName()));
     }
 
 
@@ -163,12 +216,14 @@ public class JavaAssistUtilsTest {
         Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[I)"), new String[]{"int[][][]"});
     }
 
+    public void getLineNumber_testAPI(String params) {
+    }
 
     @Test
     public void testGetLineNumber() throws Exception {
 //        pool.appendClassPath(new ClassClassPath(AbstractHttpClient.class));
-        CtClass ctClass = pool.get("org.apache.http.impl.client.AbstractHttpClient");
-        CtClass params = pool.get("org.apache.http.params.HttpParams");
+        CtClass ctClass = pool.get("com.navercorp.pinpoint.profiler.util.JavaAssistUtilsTest");
+        CtClass params = pool.get("java.lang.String");
         // non-javadoc, see interface HttpClient
 //        public synchronized final HttpParams getParams() {
 //            if (defaultParams == null) {
@@ -177,80 +232,88 @@ public class JavaAssistUtilsTest {
 //            return defaultParams;
 //        }
 
-        CtMethod setParams = ctClass.getDeclaredMethod("setParams", new CtClass[]{params});
+        CtMethod setParams = ctClass.getDeclaredMethod("getLineNumber_testAPI", new CtClass[]{params});
         int lineNumber = JavaAssistUtils.getLineNumber(setParams);
-        logger.info("line:{}", lineNumber);
+        logger.debug("line:{}", lineNumber);
 
-        logger.info(setParams.getName());
-        logger.info(setParams.getLongName());
+        logger.debug(setParams.getName());
+        logger.debug(setParams.getLongName());
 
         String[] paramName = JavaAssistUtils.getParameterVariableName(setParams);
-        logger.info(Arrays.toString(paramName));
+        logger.debug(Arrays.toString(paramName));
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "params");
 
         String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
         String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
-        logger.info(Arrays.toString(parameterType));
+        logger.debug(Arrays.toString(parameterType));
         Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
-        logger.info(s);
+        logger.debug(s);
+    }
+
+    public void testVariableNameError1_testAPI(boolean autoCommitFlag) {
+        logger.debug("testVariableNameError1_testAPI test api");
     }
 
     @Test
     public void testVariableNameError1() throws Exception {
-        CtClass ctClass = pool.get("com.mysql.jdbc.ConnectionImpl");
-        CtMethod setParams = ctClass.getDeclaredMethod("setAutoCommit", new CtClass[]{CtClass.booleanType});
+        CtClass ctClass = pool.get(TEST_CLASS_NAME);
+        CtMethod setParams = ctClass.getDeclaredMethod("testVariableNameError1_testAPI", new CtClass[]{CtClass.booleanType});
         int lineNumber = JavaAssistUtils.getLineNumber(setParams);
-        logger.info("line:{}", lineNumber);
+        logger.debug("line:{}", lineNumber);
 
-        logger.info(setParams.getName());
-        logger.info(setParams.getLongName());
+        logger.debug(setParams.getName());
+        logger.debug(setParams.getLongName());
 
         String[] paramName = JavaAssistUtils.getParameterVariableName(setParams);
-        logger.info(Arrays.toString(paramName));
+        logger.debug(Arrays.toString(paramName));
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "autoCommitFlag");
 
         String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
         String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
-        logger.info(Arrays.toString(parameterType));
+        logger.debug(Arrays.toString(parameterType));
         Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
-        logger.info(s);
+        logger.debug(s);
+    }
+
+    public void testVariableNameError2_testAPI(String sql) {
+        logger.debug("testVariableNameError1_testAPI test api");
     }
 
     @Test
     public void testVariableNameError2() throws Exception {
-        CtClass ctClass = pool.get("com.mysql.jdbc.StatementImpl");
+        CtClass ctClass = pool.get(TEST_CLASS_NAME);
         CtClass params = pool.get("java.lang.String");
-        CtMethod setParams = ctClass.getDeclaredMethod("executeQuery", new CtClass[]{params});
+        CtMethod setParams = ctClass.getDeclaredMethod("testVariableNameError2_testAPI", new CtClass[]{params});
         int lineNumber = JavaAssistUtils.getLineNumber(setParams);
 
-        logger.info(setParams.getName());
-        logger.info(setParams.getLongName());
+        logger.debug(setParams.getName());
+        logger.debug(setParams.getLongName());
 
         String[] paramName = JavaAssistUtils.getParameterVariableName(setParams);
-        logger.info(Arrays.toString(paramName));
+        logger.debug(Arrays.toString(paramName));
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "sql");
 
         String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
         String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
-        logger.info(Arrays.toString(parameterType));
+        logger.debug(Arrays.toString(parameterType));
         Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
-        logger.info(s);
+        logger.debug(s);
     }
 
 
     @Test
     public void testGetParameterDescription2() throws Exception {
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{String.class, Integer.class});
-        logger.info(clsDescription);
+        logger.debug(clsDescription);
         Assert.assertEquals("(java.lang.String, java.lang.Integer)", clsDescription);
     }
 

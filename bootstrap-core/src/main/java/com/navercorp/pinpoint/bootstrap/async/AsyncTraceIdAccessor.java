@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
  * @author Jongho Moon
  *
  */
+@Deprecated
 public interface AsyncTraceIdAccessor {
     void _$PINPOINT$_setAsyncTraceId(AsyncTraceId id);
     AsyncTraceId _$PINPOINT$_getAsyncTraceId();

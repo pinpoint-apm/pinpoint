@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
+import org.apache.thrift.TBase;
+
 public interface TargetClusterPoint extends ClusterPoint {
 
     String getApplicationName();
@@ -25,5 +27,7 @@ public interface TargetClusterPoint extends ClusterPoint {
     long getStartTimeStamp();
 
     String gerVersion();
+
+    boolean isSupportCommand(TBase command);
 
 }

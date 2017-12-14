@@ -1,20 +1,17 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.web.cluster.connection;
@@ -23,21 +20,20 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.web.config.WebConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterConnectionManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final Charset charset = Charset.forName("UTF-8");
 
     private final WebConfig config;
 
@@ -57,10 +53,12 @@ public class ClusterConnectionManager {
             clusterAcceptor.start();
         }
 
-        String connectAddress = config.getClusterConnectAddress();
-        if (connectAddress != null && !connectAddress.trim().isEmpty()) {
-            clusterConnector = new ClusterConnector(config.getClusterConnectAddress());
+        final String clusterConnectAddress = config.getClusterConnectAddress();
+        if (StringUtils.isNotBlank(clusterConnectAddress)) {
+            clusterConnector = new ClusterConnector(clusterConnectAddress);
             clusterConnector.start();
+        } else {
+            logger.info("cluster.connect.address is empty");
         }
 
         logger.info("start() completed.");

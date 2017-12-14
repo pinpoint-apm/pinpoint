@@ -16,23 +16,23 @@
 
 package com.navercorp.pinpoint.collector.rpc.handler;
 
-import static org.mockito.Mockito.*;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.mockito.Mockito.*;
 
 /**
  * @author HyunGil Jeong
@@ -44,7 +44,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
     private AgentLifeCycleHandler lifeCycleHandler;
 
     @Mock
-    private AgentEventHandler eventHandler;
+    private AgentEventService eventService;
 
     @Mock
     private PinpointServer server;
@@ -106,7 +106,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
             this.lifeCycleChangeEventHandler.eventPerformed(this.server, unmanagedState);
             // then
             verify(this.lifeCycleHandler, never()).handleLifeCycleEvent(any(PinpointServer.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
-            verify(this.eventHandler, never()).handleEvent(any(PinpointServer.class), anyLong(), any(AgentEventType.class));
+            verify(this.eventService, never()).handleEvent(any(PinpointServer.class), anyLong(), any(AgentEventType.class));
         }
     }
 
@@ -117,7 +117,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
             testCount++;
             verify(this.lifeCycleHandler, times(testCount))
                     .handleLifeCycleEvent(any(PinpointServer.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
-            verify(this.eventHandler, times(testCount)).handleEvent(any(PinpointServer.class), anyLong(), any(AgentEventType.class));
+            verify(this.eventService, times(testCount)).handleEvent(any(PinpointServer.class), anyLong(), any(AgentEventType.class));
         }
     }
 

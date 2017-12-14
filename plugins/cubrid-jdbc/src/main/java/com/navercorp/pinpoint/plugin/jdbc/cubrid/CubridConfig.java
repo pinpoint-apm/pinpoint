@@ -26,7 +26,9 @@ public class CubridConfig extends JdbcConfig {
     private final boolean profileRollback;
 
     public CubridConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.cubrid.tracesqlbindvalue", config.isTraceSqlBindValue()), config.getMaxSqlBindValueSize());
+        super(config.readBoolean("profiler.jdbc.cubrid", false),
+                config.readBoolean("profiler.jdbc.cubrid.tracesqlbindvalue", config.isTraceSqlBindValue()),
+                config.getMaxSqlBindValueSize());
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.cubrid.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.cubrid.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.cubrid.rollback", false);

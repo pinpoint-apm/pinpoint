@@ -49,6 +49,14 @@ public final class ClassLoaderUtils {
     private ClassLoaderUtils() {
     }
 
+//    TODO check @CallerSensitive, Reflection.getCallerClass()
+//    private static ClassLoader getClassLoader(ClassLoader classLoader) {
+//        if (classLoader == null) {
+//            return ClassLoader.getSystemClassLoader();
+//        }
+//        return classLoader;
+//    }
+
     public static ClassLoader getDefaultClassLoader() {
         return getDefaultClassLoader(DEFAULT_CLASS_LOADER_CALLABLE);
     }

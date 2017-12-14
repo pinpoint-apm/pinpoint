@@ -17,94 +17,66 @@
 package com.navercorp.pinpoint.bootstrap.util;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils}
+ */
+@Deprecated
 public final class StringUtils {
 
-    private StringUtils() {
-    }
-
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#defaultString(String, String)}
+     */
     public static String defaultString(final String str, final String defaultStr) {
-        return str == null ? defaultStr : str;
+        return com.navercorp.pinpoint.common.util.StringUtils.defaultString(str, defaultStr);
     }
 
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#isEmpty(String)}
+     */
     public static boolean isEmpty(String string) {
-        return string == null || string.isEmpty();
+        return com.navercorp.pinpoint.common.util.StringUtils.isEmpty(string);
     }
 
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#toString(Object)}
+     */
     public static String toString(final Object object) {
-        if (object == null) {
-            return "null";
-        }
-        return object.toString();
+        return com.navercorp.pinpoint.common.util.StringUtils.toString(object);
     }
 
-    public static List<String> splitAndTrim(String value, String separator) {
-        if(isEmpty(value)) {
-            return Collections.emptyList();
-        }
-        if (separator == null) {
-            throw new NullPointerException("separator must not be null");
-        }
-        final List<String> result = new ArrayList<String>();
-        // TODO remove regex 'separator'
-        final String[] split = value.split(separator);
-        for (String method : split) {
-            if (isEmpty(method)) {
-                continue;
-            }
-            method = method.trim();
-            if (method.isEmpty()) {
-                continue;
-            }
-            result.add(method);
-        }
-        return result;
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#tokenizeToStringList(String, String)}
+     */
+    @Deprecated
+    public static List<String> splitAndTrim(final String value, final String separator) {
+        return com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(value, separator);
     }
 
-
-
+    /**
+     * @deprecated Since 1.6.1. Use {@link com.navercorp.pinpoint.common.util.StringUtils#abbreviate(String)}
+     */
+    @Deprecated
     public static String drop(final String str) {
-        return drop(str, 64);
+        return com.navercorp.pinpoint.common.util.StringUtils.abbreviate(str);
     }
 
-    public static String drop(final String str, final int length) {
-        if (str == null) {
-            return "null";
-        }
-        if (length < 0) {
-            throw new IllegalArgumentException("negative length:" + length);
-        }
-        if (str.length() > length) {
-            StringBuilder buffer = new StringBuilder(length + 10);
-            buffer.append(str, 0, length);
-            appendDropMessage(buffer, str.length());
-            return buffer.toString();
-        } else {
-            return str;
-        }
+    /**
+     * @deprecated Since 1.6.1. Use {@link com.navercorp.pinpoint.common.util.StringUtils#abbreviate(String, int)}
+     */
+    @Deprecated
+    public static String drop(final String str, final int maxWidth) {
+        return com.navercorp.pinpoint.common.util.StringUtils.abbreviate(str, maxWidth);
     }
 
-    public static void appendDrop(StringBuilder builder, final String str, final int length) {
-        if (str == null) {
-            return;
-        }
-        if (length < 0) {
-            return;
-        }
-        if (str.length() > length) {
-            builder.append(str, 0, length);
-            appendDropMessage(builder, str.length());
-        } else {
-            builder.append(str);
-        }
+
+    /**
+     * @deprecated Since 1.6.1. Use {@link com.navercorp.pinpoint.common.util.StringUtils#appendAbbreviate(StringBuilder, String, int)}
+     */
+    @Deprecated
+    public static void appendDrop(final StringBuilder builder, final String str, final int maxWidth) {
+        com.navercorp.pinpoint.common.util.StringUtils.appendAbbreviate(builder, str, maxWidth);
     }
 
-    private static void appendDropMessage(StringBuilder buffer, int length) {
-        buffer.append("...(");
-        buffer.append(length);
-        buffer.append(')');
-    }
 }

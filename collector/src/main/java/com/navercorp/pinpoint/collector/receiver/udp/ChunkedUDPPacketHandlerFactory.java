@@ -64,7 +64,7 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
         }
 
         @Override
-        public void receive(T packet) {
+        public void receive(DatagramSocket localSocket, T packet) {
             final ChunkHeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
             try {
                 List<TBase<?, ?>> list = deserializer.deserialize(packet.getData(), packet.getOffset(), packet.getLength());
@@ -73,7 +73,7 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
                 }
 
                 for (TBase<?, ?> tBase : list) {
-                    if (filter.filter(tBase, packet.getSocketAddress()) == TBaseFilter.BREAK) {
+                    if (filter.filter(localSocket, tBase, packet.getSocketAddress()) == TBaseFilter.BREAK) {
                         return;
                     }
                     // dispatch signifies business logic execution

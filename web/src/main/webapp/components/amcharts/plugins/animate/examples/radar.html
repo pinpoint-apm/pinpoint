@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+      }
+
+      #chartdiv {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+    <script src="http://www.amcharts.com/lib/3/radar.js"></script>
+    <script src="http://www.amcharts.com/lib/3/themes/light.js"></script>
+    <script src="../animate.min.js"></script>
+
+    <div id="chartdiv"></div>
+
+    <script>
+      var chart = AmCharts.makeChart("chartdiv", {
+        "type": "radar",
+        "theme": "light",
+        "dataProvider": generateChartData(),
+        "graphs": [{
+          "bullet": "round",
+          "bulletSizeField": "bullet1",
+          "lineThickness": 2,
+          "valueField": "value",
+          "type": "line",
+          "alphaField": "alpha1",
+          "dashLengthField": "dash1"
+        }, {
+          "bullet": "round",
+          "bulletSizeField": "bullet2",
+          "lineThickness": 2,
+          "valueField": "value2",
+          "type": "line",
+          "alphaField": "alpha2",
+          "dashLengthField": "dash2"
+        }],
+        "valueAxes": [{
+          "minimum": 0,
+          "maximum": 100
+        }],
+        "categoryField": "category"
+      });
+
+
+      function generateChartData() {
+        var chartData = [];
+
+        for ( var i = 0; i < 25; i++ ) {
+          var a = Math.floor( Math.random() * 100 );
+          var b = Math.floor( Math.random() * 100 );
+
+          chartData.push( {
+            category: "" + i,
+            value: a,
+            value2: b,
+            bullet1: Math.floor(Math.random() * 10),
+            bullet2: Math.floor(Math.random() * 10),
+            alpha1: (Math.random() < 0.5 ? 0 : 1),
+            alpha2: (Math.random() < 0.5 ? 0 : 1),
+            dash1: Math.floor(Math.random() * 20),
+            dash2: Math.floor(Math.random() * 20)
+          } );
+        }
+
+        return chartData;
+      }
+
+
+      function loop() {
+        var data = generateChartData();
+
+        chart.animateData(data, {
+          duration: 1000,
+          complete: function () {
+            setTimeout(loop, 2000);
+          }
+        });
+      }
+
+      chart.addListener("init", function () {
+        setTimeout(loop, 1000);
+      });
+    </script>
+  </body>
+</html>

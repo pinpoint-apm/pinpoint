@@ -42,11 +42,11 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!isActive) {
-            throwAuthException("not activing rest api for admin.");
+            throwAuthException("not activating rest api for admin.");
         }
 
         if (StringUtils.isEmpty(password)) {
-            throwAuthException("not activing rest api for admin.");
+            throwAuthException("not activating rest api for admin.");
         }
 
         String password = request.getParameter("password");
@@ -57,9 +57,9 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         return true;
     }
     
-    private void throwAuthException(String messsage) throws ModelAndViewDefiningException {
-        logger.warn(messsage);
-        throw new ModelAndViewDefiningException(ControllerUtils.createJsonView(false, messsage));
+    private void throwAuthException(String message) throws ModelAndViewDefiningException {
+        logger.warn(message);
+        throw new ModelAndViewDefiningException(ControllerUtils.createJsonView(false, message));
     }
 
 }

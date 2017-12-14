@@ -8,9 +8,8 @@
 	 * @class
 	 */
 	pinpointApp.constant( "CommonAjaxServiceConfig", {
-		"serverTimeUrl" : "/serverTime.pinpoint",
-		"applicationListUrl": "/applications.pinpoint",
-		"realtimeSummaryNLoadDataUrl": "/getResponseTimeHistogramData.pinpoint"
+		"serverTimeUrl" : "serverTime.pinpoint",
+		"applicationListUrl": "applications.pinpoint"
 	});
 	
 	pinpointApp.service( "CommonAjaxService", [ "CommonAjaxServiceConfig", "$http", function( cfg, $http ) {
@@ -54,29 +53,18 @@
 				cb( Date.now() );
 			});
 		};
+		var appList = null;
 		this.getApplicationList = function( cbSuccess, cbFail ) {
-			$http.get( cfg.applicationListUrl ).success(function ( data ) {
-				cbSuccess( data );
-			}).error(function () {
-				cbFail();
-			});
-		};
-		this.getResponseTimeHistogramData = function( oRequestData, cbSuccess, cbFail ) {
-			$http( {
-				"url": cfg.realtimeSummaryNLoadDataUrl + "?" + getParam( oRequestData ),
-				"method": "GET"
-			}).then(function ( oResult ) {
-				cbSuccess( oResult.data );
-			}, function () {
-				cbFail();
-			});
-		};
-		function getParam( obj ) {
-			var aParam = [];
-			for( var p in obj ) {
-				aParam.push( p + "=" + obj[p] );
+			if ( appList === null ) {
+				$http.get( cfg.applicationListUrl ).success(function ( data ) {
+					appList = data;
+					cbSuccess( data );
+				}).error(function () {
+					cbFail();
+				});
+			} else {
+				cbSuccess( appList );
 			}
-			return aParam.join("&");
-		}
+		};
 	}]);
 })();

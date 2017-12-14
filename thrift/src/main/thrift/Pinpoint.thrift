@@ -1,3 +1,5 @@
+include "Command.thrift"
+
 namespace java com.navercorp.pinpoint.thrift.dto
 
 enum TJvmGcType {
@@ -26,24 +28,24 @@ struct TJvmInfo {
 }
 
 struct TAgentInfo {
-	1: string	hostname
-	2: string	ip
-	3: string	ports
-	4: string	agentId
-	5: string	applicationName
-	6: i16	    serviceType
-	7: i32      pid
-	8: string   agentVersion;
-	9: string   vmVersion;
+    1: string	hostname
+    2: string	ip
+    3: string	ports
+    4: string	agentId
+    5: string	applicationName
+    6: i16	    serviceType
+    7: i32      pid
+    8: string   agentVersion;
+    9: string   vmVersion;
 
-	10: i64	    startTimestamp
+    10: i64	    startTimestamp
 
-	11: optional i64     endTimestamp
-	12: optional i32     endStatus
-	
-	20: optional TServerMetaData   serverMetaData
+    11: optional i64     endTimestamp
+    12: optional i32     endStatus
 
-	30: optional TJvmInfo   jvmInfo
+    20: optional TServerMetaData   serverMetaData
+
+    30: optional TJvmInfo   jvmInfo
 }
 
 struct TJvmGc {
@@ -55,7 +57,6 @@ struct TJvmGc {
     6: i64          jvmGcOldCount
     7: i64          jvmGcOldTime
     8: optional TJvmGcDetailed    jvmGcDetailed
-
 }
 
 struct TJvmGcDetailed {
@@ -83,12 +84,21 @@ struct TTransaction {
 
 struct TActiveTraceHistogram {
     1:          i16         version = 0
-	2: optional i32         histogramSchemaType
-	3: optional list<i32>   activeTraceCount
+    2: optional i32         histogramSchemaType
+    3: optional list<i32>   activeTraceCount
 }
 
 struct TActiveTrace {
-	1: optional TActiveTraceHistogram   histogram
+    1: optional TActiveTraceHistogram   histogram
+}
+
+struct TResponseTime {
+    1: optional i64         avg = 0
+}
+
+struct TDeadlock {
+    1: optional i32                         deadlockedThreadCount;
+    2: optional list<Command.TThreadDump>   deadlockedThreadList;
 }
 
 struct TAgentStat {
@@ -100,11 +110,27 @@ struct TAgentStat {
     20: optional TCpuLoad   cpuLoad
     30: optional TTransaction   transaction
     40: optional TActiveTrace   activeTrace
-    200: optional string    metadata    
+    50: optional TDataSourceList dataSourceList
+    60: optional TResponseTime responseTime
+    70: optional TDeadlock deadlock
+    200: optional string    metadata
 }
 
 struct TAgentStatBatch {
     1: string                   agentId
     2: i64                      startTimestamp
     10: list<TAgentStat>        agentStats
+}
+
+struct TDataSource {
+    1: i32                      id
+    2: optional i16             serviceTypeCode
+    3: optional string          databaseName
+    4: optional string          url
+    5: optional i32             activeConnectionSize = 0
+    6: optional i32             maxConnectionSize
+}
+
+struct TDataSourceList {
+    1: list<TDataSource> dataSourceList
 }

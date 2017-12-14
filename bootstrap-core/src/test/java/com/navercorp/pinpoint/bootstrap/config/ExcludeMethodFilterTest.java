@@ -6,25 +6,25 @@ import static org.junit.Assert.*;
 
 public class ExcludeMethodFilterTest {
 
-	@Test
-	public void testFilter() throws Exception {
-		Filter<String> filter = new ExcludeMethodFilter("get,post");
+    @Test
+    public void testFilter() throws Exception {
+        Filter<String> filter = new ExcludeMethodFilter("get,post");
 
-		boolean getResult = filter.filter("GET");
-		boolean postResult = filter.filter("POST");
+        boolean getResult = filter.filter("GET");
+        assertTrue(getResult);
 
-		assertTrue(getResult);
-		assertTrue(postResult);
-	}
+        boolean postResult = filter.filter("POST");
+        assertTrue(postResult);
+    }
 
-	@Test
-	public void testUnFilter() throws Exception {
-		Filter<String> filter = new ExcludeMethodFilter("get,post");
+    @Test
+    public void testUnFilter() throws Exception {
+        Filter<String> filter = new ExcludeMethodFilter("get,post");
 
-		boolean putResult = filter.filter("PUT");
-		boolean headResult = filter.filter("HEAD");
+        boolean putResult = filter.filter("PUT");
+        assertFalse(putResult);
 
-		assertFalse(putResult);
-		assertFalse(headResult);
-	}
+        boolean headResult = filter.filter("HEAD");
+        assertFalse(headResult);
+    }
 }

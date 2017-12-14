@@ -24,6 +24,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -36,11 +39,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  */
 public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware {
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("HttpClient3Plugin config:{}", config);
+        }
 
         // apache http client 3
         addHttpClient3Class();
@@ -70,7 +77,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
                 InstrumentMethod method = target.getDeclaredMethod("executeMethod", parameterTypeNames);
 
                 if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.ExecuteInterceptor");
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.ExecuteInterceptor", HttpClient3Constants.HTTP_CLIENT3_SCOPE);
                 }
             }
         });
@@ -128,20 +135,20 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
 
                 InstrumentMethod execute = target.getDeclaredMethod("execute", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
                 if (execute != null) {
-                    execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseExecuteMethodInterceptor");
+                    execute.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseExecuteMethodInterceptor", HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, ExecutionPolicy.ALWAYS);
                 }
 
                 if (config.isIo()) {
                     InstrumentMethod writeRequest = target.getDeclaredMethod("writeRequest", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
 
                     if (writeRequest != null) {
-                        writeRequest.addInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor");
+                        writeRequest.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor", HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, ExecutionPolicy.ALWAYS);
                     }
 
                     InstrumentMethod readResponse = target.getDeclaredMethod("readResponse", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
 
                     if (readResponse != null) {
-                        readResponse.addInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor");
+                        readResponse.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor", HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, ExecutionPolicy.ALWAYS);
                     }
                 }
 

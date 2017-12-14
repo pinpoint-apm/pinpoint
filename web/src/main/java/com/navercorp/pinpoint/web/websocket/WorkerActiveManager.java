@@ -34,7 +34,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class WorkerActiveManager {
 

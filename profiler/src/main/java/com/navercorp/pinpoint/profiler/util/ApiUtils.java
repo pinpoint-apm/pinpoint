@@ -20,6 +20,7 @@ import java.util.Arrays;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public final class ApiUtils {
 
@@ -59,7 +60,7 @@ public final class ApiUtils {
     public static String mergeApiDescriptor(String className, String methodName, String parameterDescriptor) {
         StringBuilder buffer = new StringBuilder(256);
         buffer.append(className);
-        buffer.append(".");
+        buffer.append('.');
         buffer.append(methodName);
         buffer.append(parameterDescriptor);
         return buffer.toString();

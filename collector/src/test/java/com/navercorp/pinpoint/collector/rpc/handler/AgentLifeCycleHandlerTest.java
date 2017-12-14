@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.collector.rpc.handler;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executor;
-
+import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
+import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,14 +29,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
-import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
-import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author HyunGil Jeong
@@ -156,8 +155,8 @@ public class AgentLifeCycleHandlerTest {
 
     private static Map<Object, Object> createChannelProperties(String agentId, long startTimestamp, int socketId) {
         Map<Object, Object> map = new HashMap<>();
-        map.put(AgentHandshakePropertyType.AGENT_ID.getName(), agentId);
-        map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
+        map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
+        map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
         map.put(AgentLifeCycleHandler.SOCKET_ID_KEY, socketId);
         return map;
     }

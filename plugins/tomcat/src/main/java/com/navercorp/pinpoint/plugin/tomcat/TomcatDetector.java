@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,10 @@ package com.navercorp.pinpoint.plugin.tomcat;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Jongho Moon
@@ -25,11 +29,21 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class TomcatDetector implements ApplicationTypeDetector {
     
-    private static final String REQUIRED_MAIN_CLASS = "org.apache.catalina.startup.Bootstrap";
+    private static final String DEFAULT_BOOTSTRAP_MAIN = "org.apache.catalina.startup.Bootstrap";
     
     private static final String REQUIRED_SYSTEM_PROPERTY = "catalina.home";
     
     private static final String REQUIRED_CLASS = "org.apache.catalina.startup.Bootstrap";
+
+    private final List<String> bootstrapMains;
+
+    public TomcatDetector(List<String> bootstrapMains) {
+        if (CollectionUtils.isEmpty(bootstrapMains)) {
+            this.bootstrapMains = Arrays.asList(DEFAULT_BOOTSTRAP_MAIN);
+        } else {
+            this.bootstrapMains = bootstrapMains;
+        }
+    }
     
     @Override
     public ServiceType getApplicationType() {
@@ -38,7 +52,7 @@ public class TomcatDetector implements ApplicationTypeDetector {
 
     @Override
     public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass(REQUIRED_MAIN_CLASS) &&
+        return provider.checkMainClass(bootstrapMains) &&
                provider.checkSystemProperty(REQUIRED_SYSTEM_PROPERTY) &&
                provider.checkForClass(REQUIRED_CLASS);
     }

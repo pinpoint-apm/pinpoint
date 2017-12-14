@@ -1,35 +1,33 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.web.websocket.message;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class PinpointWebSocketMessageConverter {
 
@@ -47,36 +45,20 @@ public class PinpointWebSocketMessageConverter {
     private final String pongMessage;
 
     public PinpointWebSocketMessageConverter() {
-        pingMessage = createPingMessage();
-        pongMessage = createPongMessage();
+        this(JSON_SERIALIZER);
+    }
+
+    private PinpointWebSocketMessageConverter(ObjectMapper objectMapper) {
+        pingMessage = createPingMessage(objectMapper);
+        pongMessage = createPongMessage(objectMapper);
     }
 
     public PinpointWebSocketMessage getWebSocketMessage(String message) throws IOException {
+        if (StringUtils.isEmpty(message)) {
+            return new UnknownMessage();
+        }
         try {
-            Map responseMessage = JSON_SERIALIZER.readValue(message, Map.class);
-            if (responseMessage == null) {
-                return new UnknownMessage();
-            }
-
-            PinpointWebSocketMessageType messageType = PinpointWebSocketMessageType.getType((String) responseMessage.get(TYPE));
-            switch (messageType) {
-                case PING:
-                    return new PingMessage();
-                case PONG:
-                    return new PongMessage();
-                case REQUEST:
-                    String command = (String) responseMessage.get(COMMAND);
-                    Map parameters = (Map) responseMessage.get(PARAMETERS);
-                    return new RequestMessage(command, parameters);
-                case RESPONSE:
-                    command = (String) responseMessage.get(COMMAND);
-                    Map result = (Map) responseMessage.get(RESULT);
-                    return new ResponseMessage(command, result);
-                case SEND:
-                    command = (String) responseMessage.get(COMMAND);
-                    parameters = (Map) responseMessage.get(PARAMETERS);
-                    return new SendMessage(command, parameters);
-            }
+            return parseMessage(message);
         } catch (Exception e) {
             LOGGER.warn("getWebSocketMessage failed. message:{}", e.getMessage(), e);
         }
@@ -84,31 +66,78 @@ public class PinpointWebSocketMessageConverter {
         return new UnknownMessage();
     }
 
+    private PinpointWebSocketMessage parseMessage(String message) throws IOException {
+        // TODO JacksonPolymorphicDeserialization
+        // https://github.com/FasterXML/jackson-docs/wiki/JacksonPolymorphicDeserialization
+        // JacksonPolymorphicDeserialization has security vulnerability
+        // (CVE-2017-7525 jackson-databind: Deserialization vulnerability via readValue method of ObjectMapper)
+        // will not work until the issue is completely resolved.
+        final JsonNode root = JSON_SERIALIZER.readTree(message);
+        if (!root.isObject()) {
+            return new UnknownMessage();
+        }
+
+        JsonNode type = root.path(TYPE);
+        PinpointWebSocketMessageType messageType = PinpointWebSocketMessageType.getType(type.asText());
+        switch (messageType) {
+            case PING:
+                return new PingMessage();
+            case PONG:
+                return new PongMessage();
+            case REQUEST:
+                return readRequest(root);
+            case RESPONSE:
+                return readResponse(root);
+            case SEND:
+                return readSend(root);
+        }
+        return new UnknownMessage();
+    }
+
+    private PinpointWebSocketMessage readSend(JsonNode root) throws JsonProcessingException {
+        String command = root.path(COMMAND).asText();
+        JsonNode resultNode = root.path(PARAMETERS);
+        Map parameterMap = readMap(resultNode);
+        return new SendMessage(command, parameterMap);
+    }
+
+    private PinpointWebSocketMessage readResponse(JsonNode root) throws JsonProcessingException {
+        String command = root.path(COMMAND).asText();
+
+        JsonNode resultNode = root.path(RESULT);
+        Map resultMap = readMap(resultNode);
+        return new ResponseMessage(command, resultMap);
+    }
+
+    private PinpointWebSocketMessage readRequest(JsonNode root) throws JsonProcessingException {
+        String command = root.path(COMMAND).asText();
+        JsonNode parameterNode = root.path(PARAMETERS);
+        Map parameterMap = readMap(parameterNode);
+
+        return new RequestMessage(command, parameterMap);
+    }
+
+    private Map readMap(JsonNode parameterNode) throws JsonProcessingException {
+        return JSON_SERIALIZER.treeToValue(parameterNode, Map.class);
+    }
+
     public String getRequestTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
-        Map<String, Object> request = new HashMap<>(3);
-        request.put(TYPE, PinpointWebSocketMessageType.REQUEST.name());
-        request.put(COMMAND, command);
-        request.put(PARAMETERS, params);
+        RequestMessage request = new RequestMessage(command, params);
 
         return JSON_SERIALIZER.writeValueAsString(request);
     }
 
     public String getResponseTextMessage(String command, Map<String, Object> result) throws JsonProcessingException {
-        Map<String, Object> request = new HashMap<>(3);
-        request.put(TYPE, PinpointWebSocketMessageType.RESPONSE.name());
-        request.put(COMMAND, command);
-        request.put(RESULT, result);
+        ResponseMessage response = new ResponseMessage(command, result);
 
-        return JSON_SERIALIZER.writeValueAsString(request);
+        return JSON_SERIALIZER.writeValueAsString(response);
     }
 
     public String getSendTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
-        Map<String, Object> request = new HashMap<>(3);
-        request.put(TYPE, PinpointWebSocketMessageType.SEND.name());
-        request.put(COMMAND, command);
-        request.put(PARAMETERS, params);
 
-        return JSON_SERIALIZER.writeValueAsString(request);
+        SendMessage message = new SendMessage(command, params);
+
+        return JSON_SERIALIZER.writeValueAsString(message);
     }
 
     public String getPingTextMessage() {
@@ -119,52 +148,25 @@ public class PinpointWebSocketMessageConverter {
         return pongMessage;
     }
 
-    private String createPingMessage() {
-        Map<String, Object> ping = new HashMap<>(1);
-        ping.put(TYPE, PinpointWebSocketMessageType.PING.name());
-
-        String pingTextMessage;
-
+    private String createPingMessage(ObjectMapper objectMapper) {
+        PingMessage ping = new PingMessage();
         try {
-            pingTextMessage = JSON_SERIALIZER.writeValueAsString(ping);
+            return objectMapper.writeValueAsString(ping);
         } catch (JsonProcessingException e) {
-            pingTextMessage = createRawPingMessage();
+            throw new RuntimeException("ping message create fail.", e);
+        }
+    }
+
+
+    private String createPongMessage(ObjectMapper objectMapper) {
+        PongMessage pong = new PongMessage();
+        try {
+            return objectMapper.writeValueAsString(pong);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("pong message create fail.", e);
         }
 
-        return pingTextMessage;
     }
 
-    private String createRawPingMessage() {
-        StringBuilder emptyJsonMessage = new StringBuilder();
-        emptyJsonMessage.append("{");
-        emptyJsonMessage.append("\"").append(TYPE).append("\"").append(":").append("\"").append(PinpointWebSocketMessageType.PING.name()).append("\"");
-        emptyJsonMessage.append("}");
-
-        return emptyJsonMessage.toString();
-    }
-
-    private String createPongMessage() {
-        Map<String, Object> ping = new HashMap<>(1);
-        ping.put(TYPE, PinpointWebSocketMessageType.PONG.name());
-
-        String pongTextMessage;
-
-        try {
-            pongTextMessage = JSON_SERIALIZER.writeValueAsString(ping);
-        } catch (JsonProcessingException e) {
-            pongTextMessage = createRawPongMessage();
-        }
-
-        return pongTextMessage;
-    }
-
-    private String createRawPongMessage() {
-        StringBuilder emptyJsonMessage = new StringBuilder();
-        emptyJsonMessage.append("{");
-        emptyJsonMessage.append("\"").append(TYPE).append("\"").append(":").append("\"").append(PinpointWebSocketMessageType.PONG.name()).append("\"");
-        emptyJsonMessage.append("}");
-
-        return emptyJsonMessage.toString();
-    }
 
 }

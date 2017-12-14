@@ -1,19 +1,17 @@
 /*
+ * Copyright 2016 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
@@ -25,7 +23,7 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -41,7 +39,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CollectorClusterAcceptor implements CollectorClusterConnectionProvider {
 
@@ -93,9 +91,9 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
         private final String clusterId;
         private final MessageListener routeMessageListener;
 
-        public ClusterServerMessageListener(String clusterId, MessageListener routeMessageListene) {
+        public ClusterServerMessageListener(String clusterId, MessageListener routeMessageListener) {
             this.clusterId = clusterId;
-            this.routeMessageListener = routeMessageListene;
+            this.routeMessageListener = routeMessageListener;
         }
 
         @Override
@@ -118,8 +116,8 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
         }
 
         @Override
-        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-            logger.info("handle ping {}", pingPacket);
+        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
+            logger.info("ping received packet:{}, remote:{}", pingPacket, pinpointServer);
         }
 
     }
@@ -141,8 +139,8 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
 
         @Override
         public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
-
         }
+
     }
 
 }

@@ -62,10 +62,10 @@ public class CalleeColumnName implements ColumnName {
 
     public byte[] getColumnName() {
         final Buffer buffer = new AutomaticBuffer(64);
-        buffer.put(calleeServiceType);
+        buffer.putShort(calleeServiceType);
         buffer.putPrefixedString(calleeApplicationName);
         buffer.putPrefixedString(callHost);
-        buffer.put(columnSlotNumber);
+        buffer.putShort(columnSlotNumber);
         buffer.putPrefixedString(callerAgentId);
         return buffer.getBuffer();
     }

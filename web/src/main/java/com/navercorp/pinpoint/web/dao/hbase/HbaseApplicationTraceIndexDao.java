@@ -25,9 +25,9 @@ import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.common.util.SpanUtils;
+import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper2;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper3;
@@ -37,9 +37,9 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTimeRange;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -193,7 +193,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             this.lastRowTimestamp = TimeUtils.recoveryTimeMillis(reverseStartTime);
             
             byte[] qualifier = CellUtil.cloneQualifier(last);
-            this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0);
+            this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0, qualifier.length);
             this.lastTransactionElapsed = BytesUtils.bytesToInt(qualifier, 0);
             
             if (logger.isDebugEnabled()) {
@@ -296,7 +296,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         TraceIndexScatterMapper3 mapper = new TraceIndexScatterMapper3(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         List<ScatterData> dotGroupList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
-        if (ListUtils.isEmpty(dotGroupList)) {
+        if (CollectionUtils.isEmpty(dotGroupList)) {
             return new ScatterData(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         } else {
             ScatterData firstScatterData = dotGroupList.get(0);
@@ -329,10 +329,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // add offset
         if (offsetTransactionId != null) {
             final Buffer buffer = new AutomaticBuffer(32);
-            buffer.put(offsetTransactionElapsed);
+            buffer.putInt(offsetTransactionElapsed);
             buffer.putPrefixedString(offsetTransactionId.getAgentId());
-            buffer.putSVar(offsetTransactionId.getAgentStartTime());
-            buffer.putVar(offsetTransactionId.getTransactionSequence());
+            buffer.putSVLong(offsetTransactionId.getAgentStartTime());
+            buffer.putVLong(offsetTransactionId.getTransactionSequence());
             byte[] qualifierOffset = buffer.getBuffer();
 
             filterList.addFilter(new QualifierFilter(CompareOp.GREATER, new BinaryPrefixComparator(qualifierOffset)));

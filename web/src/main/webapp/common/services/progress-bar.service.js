@@ -7,7 +7,7 @@
 	 * @name ProgressBarService
 	 * @class
 	 */
-	pinpointApp.factory('ProgressBarService', [ '$timeout', '$window', '$location', 'UserLocalesService', function ($timeout, $window, $location, UserLocalesService) {
+	pinpointApp.factory( "ProgressBarService", [ "$timeout", "$window", "$location", "CommonUtilService", "UserLocalesService", function ($timeout, $window, $location, CommonUtilService, UserLocalesService) {
 		var AVAILABLE_LOCALE = [ "ko", "en" ];
 		var TIP_MAX_COUNT = 5;
 		var STORAGE_NAME = "__HIDE_LOADING_TIP";
@@ -77,7 +77,7 @@
 	            if (this.bAutoIncrease === false) {
 	                return;
 	            }
-	            var nRandom = _.random(1, 4);
+	            var nRandom = CommonUtilService.random( 1, 4 );
 	            if (this.nPercentage + nRandom <= 99) {
 	                this.setLoading(this.nPercentage + nRandom);
 	

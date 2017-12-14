@@ -4,3 +4,5 @@ target
 .project
 /.settings/
 /.externalToolBuilders/
+/src/main/webapp/lib/js/**/*.js
+/src/main/webapp/lib/css/**/*.css

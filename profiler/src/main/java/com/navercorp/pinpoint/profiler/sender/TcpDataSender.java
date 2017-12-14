@@ -21,7 +21,9 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
@@ -37,6 +39,7 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -48,7 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TcpDataSender extends AbstractDataSender implements EnhancedDataSender {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger;
     static {
         // preClassLoad
         ChannelBuffers.buffer(2);
@@ -56,27 +59,65 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private final PinpointClient client;
     private final Timer timer;
-    
+
     private final AtomicBoolean fireState = new AtomicBoolean(false);
 
     private final WriteFailFutureListener writeFailFutureListener;
 
 
-    private final HeaderTBaseSerializer serializer = HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer();
+    private final HeaderTBaseSerializer serializer;
 
     private final RetryQueue retryQueue = new RetryQueue();
 
     private AsyncQueueingExecutor<Object> executor;
 
-    public TcpDataSender(PinpointClient client) {
-        this.client = client;
-        this.timer = createTimer();
-        writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
-        this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
+    public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory) {
+        this(null, address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
     }
-    
-    private Timer createTimer() {
-        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-DataSender-Timer", 100, TimeUnit.MILLISECONDS, 512);
+
+    public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
+        this(null, address, clientFactory, serializer);
+    }
+
+    public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory) {
+        this(name, address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+    }
+
+    public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
+        if (address == null) {
+            throw new NullPointerException("address must not be null");
+        }
+        if (clientFactory == null) {
+            throw new NullPointerException("clientFactory must not be null");
+        }
+        if (serializer == null) {
+            throw new NullPointerException("serializer must not be null");
+        }
+
+        String executorName = "Pinpoint-TcpDataSender-Executor";
+        if (name != null) {
+            logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + name);
+            executorName = String.format("Pinpoint-TcpDataSender(%s)-Executor", name);
+        } else {
+            logger = LoggerFactory.getLogger(this.getClass());
+        }
+
+        PinpointClient client = ClientFactoryUtils.createPinpointClient(address, clientFactory);
+
+        this.client = client;
+        this.serializer = serializer;
+        this.timer = createTimer(name);
+        writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
+        this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
+    }
+
+    private Timer createTimer(String name) {
+        String timerName = "Pinpoint-TcpDataSender-Timer";
+        if (name != null) {
+            timerName = String.format("Pinpoint-TcpDataSender(%s)-Timer", name);
+        }
+
+        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer(timerName, 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         return timer;
     }
@@ -103,6 +144,10 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         return executor.execute(message);
     }
 
+    public boolean isConnected() {
+        return client.isConnected();
+    }
+
     @Override
     public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
         return this.client.addPinpointClientReconnectEventListener(eventListener);
@@ -120,6 +165,10 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         Set<Timeout> stop = timer.stop();
         if (!stop.isEmpty()) {
             logger.info("stop Timeout:{}", stop.size());
+        }
+
+        if (client != null) {
+            client.close();
         }
     }
 
@@ -142,7 +191,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                 if (copy == null) {
                     return;
                 }
-                
+
                 if (futureListener != null) {
                     doRequest(copy, futureListener);
                 } else {
@@ -162,7 +211,8 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         write.setListener(writeFailFutureListener);
     }
 
-    private void doRequest(final byte[] requestPacket, final int retryCount, final Object targetClass) {
+    // Separate doRequest method to avoid creating unnecessary objects. (Generally, sending message is successed when firt attempt.)
+    private void doRequest(final byte[] requestPacket, final int maxRetryCount, final Object targetClass) {
         FutureListener futureListener = (new FutureListener<ResponseMessage>() {
             @Override
             public void onComplete(Future<ResponseMessage> future) {
@@ -175,18 +225,20 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                         if (result.isSuccess()) {
                             logger.debug("result success");
                         } else {
-                            logger.warn("request fail. clazz:{} Caused:{}", targetClass, result.getMessage());
-                            retryRequest(requestPacket, retryCount, targetClass.getClass().getSimpleName());
+                            logger.info("request fail. request:{} Caused:{}", targetClass, result.getMessage());
+                            RetryMessage retryMessage = new RetryMessage(1, maxRetryCount, requestPacket, targetClass.getClass().getSimpleName());
+                            retryRequest(retryMessage);
                         }
                     } else {
-                        logger.warn("Invalid ResponseMessage. {}", response);
+                        logger.warn("Invalid respose:{}", response);
                         // This is not retransmission. need to log for debugging
                         // it could be null
 //                        retryRequest(requestPacket);
                     }
                 } else {
-                    logger.warn("request fail. clazz:{} Caused:{}", targetClass, future.getCause().getMessage(), future.getCause());
-                    retryRequest(requestPacket, retryCount, targetClass.getClass().getSimpleName());
+                    logger.info("request fail. request:{} Caused:{}", targetClass, future.getCause().getMessage(), future.getCause());
+                    RetryMessage retryMessage = new RetryMessage(1, maxRetryCount, requestPacket, targetClass.getClass().getSimpleName());
+                    retryRequest(retryMessage);
                 }
             }
         });
@@ -194,8 +246,40 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         doRequest(requestPacket, futureListener);
     }
 
-    private void retryRequest(byte[] requestPacket, int retryCount, final String className) {
-        RetryMessage retryMessage = new RetryMessage(retryCount, requestPacket);
+    // Separate doRequest method to avoid creating unnecessary objects. (Generally, sending message is successed when firt attempt.)
+    private void doRequest(final RetryMessage retryMessage) {
+        FutureListener futureListener = (new FutureListener<ResponseMessage>() {
+            @Override
+            public void onComplete(Future<ResponseMessage> future) {
+                if (future.isSuccess()) {
+                    // Should cache?
+                    HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
+                    TBase<?, ?> response = deserialize(deserializer, future.getResult());
+                    if (response instanceof TResult) {
+                        TResult result = (TResult) response;
+                        if (result.isSuccess()) {
+                            logger.debug("result success");
+                        } else {
+                            logger.info("request fail. request:{}, Caused:{}", retryMessage, result.getMessage());
+                            retryRequest(retryMessage);
+                        }
+                    } else {
+                        logger.warn("Invalid response:{}", response);
+                        // This is not retransmission. need to log for debugging
+                        // it could be null
+//                        retryRequest(requestPacket);
+                    }
+                } else {
+                    logger.info("request fail. request:{}, caused:{}", retryMessage, future.getCause().getMessage(), future.getCause());
+                    retryRequest(retryMessage);
+                }
+            }
+        });
+
+        doRequest(retryMessage.getBytes(), futureListener);
+    }
+
+    private void retryRequest(RetryMessage retryMessage) {
         retryQueue.add(retryMessage);
         if (fireTimeout()) {
             timer.newTimeout(new TimerTask() {
@@ -209,7 +293,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                             return;
                         }
                         int fail = retryMessage.fail();
-                        doRequest(retryMessage.getBytes(), fail, className);
+                        doRequest(retryMessage);
                     }
                 }
             }, 1000 * 10, TimeUnit.MILLISECONDS);

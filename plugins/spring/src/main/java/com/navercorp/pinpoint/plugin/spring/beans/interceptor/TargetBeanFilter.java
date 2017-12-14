@@ -20,11 +20,15 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTarget;
+import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTargetScope;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -32,70 +36,166 @@ import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTarget;
  */
 public class TargetBeanFilter {
     private final List<SpringBeansTarget> targets;
-
-    private final Cache transformed = new Cache();
-    private final Cache rejected = new Cache();
+    private static Cache cache = new Cache();
 
     public static TargetBeanFilter of(ProfilerConfig profilerConfig) {
         SpringBeansConfig config = new SpringBeansConfig(profilerConfig);
         return new TargetBeanFilter(config.getTargets());
     }
 
-    private TargetBeanFilter(Collection<SpringBeansTarget> targets) {
+    public TargetBeanFilter(Collection<SpringBeansTarget> targets) {
         this.targets = new ArrayList<SpringBeansTarget>(targets);
     }
 
-    public boolean isTarget(String beanName, Class<?> clazz) {
-        if (transformed.contains(clazz)) {
+    public void clear() {
+        cache.clear();
+    }
+
+    public boolean isTarget(final SpringBeansTargetScope scope, final String beanName, final BeanDefinition beanDefinition) {
+        if (scope == null || beanName == null || beanDefinition == null) {
+            return false;
+        }
+
+        final String className = beanDefinition.getBeanClassName();
+        if (className == null) {
+            return false;
+        }
+
+        if (cache.contains(className)) {
             return false;
         }
 
         for (SpringBeansTarget target : targets) {
-            boolean find = false;
-            if (target.getNamePatterns() != null && !target.getNamePatterns().isEmpty()) {
-                if (isBeanNameTarget(target, beanName)) {
-                    find = true;
-                } else {
-                    continue;
-                }
-            }
-
-            if (!find && rejected.contains(clazz)) {
-                // not found bean names and class contains rejected.
+            // check scope.
+            if (target.getScope() != scope) {
                 continue;
             }
 
-            if (target.getClassPatterns() != null && !target.getClassPatterns().isEmpty()) {
-                if (isClassNameTarget(target, clazz)) {
-                    find = true;
-                } else {
+            boolean condition = false;
+            // check base packages.
+            final List<String> basePackages = target.getBasePackages();
+            if (CollectionUtils.hasLength(basePackages)) {
+                if (!isBasePackage(target, className)) {
                     continue;
                 }
+                condition = true;
             }
 
-            if (target.getAnnotations() != null && !target.getAnnotations().isEmpty()) {
-                if (isAnnotationTarget(target, clazz)) {
-                    find = true;
-                } else {
+            // check bean name pattern.
+            final List<PathMatcher> namePatterns = target.getNamePatterns();
+            if (CollectionUtils.hasLength(namePatterns)) {
+                if (!isBeanNameTarget(target, beanName)) {
                     continue;
                 }
+                condition = true;
             }
 
-            if(find) {
+            // check class name pattern.
+            final List<PathMatcher> classPatterns = target.getClassPatterns();
+            if (CollectionUtils.hasLength(classPatterns)) {
+                if (!isClassNameTarget(target, className)) {
+                    continue;
+                }
+                condition = true;
+            }
+
+            // check class annotation.
+            final List<String> annotations = target.getAnnotations();
+            if (CollectionUtils.hasLength(annotations)) {
+                if (!(beanDefinition instanceof AnnotatedBeanDefinition) || !isAnnotationTarget(target, (AnnotatedBeanDefinition) beanDefinition)) {
+                    continue;
+                }
+                condition = true;
+            }
+
+            if (condition) {
+                // AND condition.
                 return true;
             }
         }
 
-        if (!rejected.contains(clazz)) {
-            this.rejected.put(clazz);
+        return false;
+    }
+
+    public boolean isTarget(final SpringBeansTargetScope scope, final String beanName, final Class<?> clazz) {
+        if (scope == null || beanName == null || clazz == null) {
+            return false;
+        }
+
+        final String className = clazz.getName();
+        if (className == null) {
+            return false;
+        }
+
+        if (cache.contains(className)) {
+            return false;
+        }
+
+        for (SpringBeansTarget target : targets) {
+            // check scope.
+            if (target.getScope() != scope) {
+                continue;
+            }
+
+            boolean condition = false;
+            // check base packages.
+            final List<String> basePackages = target.getBasePackages();
+            if (CollectionUtils.hasLength(basePackages)) {
+                if (!isBasePackage(target, className)) {
+                    continue;
+                }
+                condition = true;
+            }
+
+            // check bean name pattern.
+            final List<PathMatcher> namePatterns = target.getNamePatterns();
+            if (CollectionUtils.hasLength(namePatterns)) {
+                if (!isBeanNameTarget(target, beanName)) {
+                    continue;
+                }
+                condition = true;
+            }
+
+            // check class name pattern.
+            final List<PathMatcher> classPatterns = target.getClassPatterns();
+            if (CollectionUtils.hasLength(classPatterns)) {
+                if (!isClassNameTarget(target, className)) {
+                    continue;
+                }
+                condition = true;
+            }
+
+            // check class annotation.
+            final List<String> annotations = target.getAnnotations();
+            if (CollectionUtils.hasLength(annotations)) {
+                if (!isAnnotationTarget(target, clazz)) {
+                    continue;
+                }
+                condition = true;
+            }
+
+            if (condition) {
+                // AND condition.
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isBasePackage(final SpringBeansTarget target, final String className) {
+        for (String basePackage : target.getBasePackages()) {
+            if (className.startsWith(basePackage)) {
+                return true;
+            }
         }
 
         return false;
     }
 
     private boolean isBeanNameTarget(final SpringBeansTarget target, final String beanName) {
-        for(Pattern pattern : target.getNamePatterns()) {
-            if(pattern.matcher(beanName).matches()) {
+        for (PathMatcher pathMatcher : target.getNamePatterns()) {
+            if (pathMatcher.isMatched(beanName)) {
                 return true;
             }
         }
@@ -103,10 +203,25 @@ public class TargetBeanFilter {
         return false;
     }
 
-    private boolean isClassNameTarget(final SpringBeansTarget target, final Class<?> clazz) {
-        final String className = clazz.getName();
-        for(Pattern pattern : target.getClassPatterns()) {
-            if(pattern.matcher(className).matches()) {
+    private boolean isClassNameTarget(final SpringBeansTarget target, final String className) {
+        for (PathMatcher pathMatcher : target.getClassPatterns()) {
+            if (pathMatcher.isMatched(className)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isAnnotationTarget(final SpringBeansTarget target, final AnnotatedBeanDefinition annotatedBeanDefinition) {
+        for (String annotationName : target.getAnnotations()) {
+            if (annotatedBeanDefinition.getMetadata().hasAnnotation(annotationName)) {
+                // annotation.
+                return true;
+            }
+
+            if (annotatedBeanDefinition.getMetadata().hasMetaAnnotation(annotationName)) {
+                // meta annotation.
                 return true;
             }
         }
@@ -132,7 +247,7 @@ public class TargetBeanFilter {
         return false;
     }
 
-    public void addTransformed(Class<?> clazz) {
-        transformed.put(clazz);
+    public void addTransformed(final String className) {
+        cache.put(className);
     }
 }

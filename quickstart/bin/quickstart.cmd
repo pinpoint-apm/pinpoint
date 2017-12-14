@@ -66,7 +66,7 @@ if "%COMMAND%" == "start" (
 )
 
 :start_component
-  set MAVEN=mvn
+  set MAVEN=..\..\mvnw.cmd
   call %MAVEN% --version 1> nul 2>&1
   if not "%errorlevel%" == "0" (
     echo "Apache Maven (mvn) required."
@@ -100,6 +100,7 @@ if "%COMMAND%" == "start" (
   set /a CLOSE_WAIT_TIME=UNIT_TIME*END_COUNT
 
   start "%COMPONENT_IDENTIFIER%" cmd /c %MAVEN% -f %COMPONENT_DIR%/pom.xml clean package tomcat7:run -D%IDENTIFIER% -Dmaven.pinpoint.version=%VERSION% ^> %LOG_FILE%
+  timeout /NOBREAK 1
 
   for /f "tokens=3 delims=," %%i in ('wmic process where Name^="java.exe" get ProcessId^,CommandLine /Format:csv ^| findstr "%IDENTIFIER%"') do set PID=%%i
 

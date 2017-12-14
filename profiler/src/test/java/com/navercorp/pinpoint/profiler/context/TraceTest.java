@@ -16,32 +16,73 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
+import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
-import com.navercorp.pinpoint.rpc.FutureListener;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import com.navercorp.pinpoint.test.TestAgentInformation;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
-import org.apache.thrift.TBase;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.mockito.Mockito.*;
 
 /**
  * @author emeroad
  */
+@RunWith(MockitoJUnitRunner.class)
 public class TraceTest {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final String agentId = "agent";
+    private final long agentStartTime = System.currentTimeMillis();
+    private final long traceStartTime = agentStartTime + 100;
+
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+
+    @Mock
+    private AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
+    @Mock
+    private StringMetaDataService stringMetaDataService;
+    @Mock
+    private SqlMetaDataService sqlMetaDataService;
+
+
 
     @Test
     public void trace() {
-        DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
-        DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
-        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
+
+        final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
+        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, traceStartTime, 0);
+
+        final CallStack callStack = newCallStack(traceRoot);
+        final Span span = newSpan(traceRoot);
+
+        boolean root = span.getTraceRoot().getTraceId().isRoot();
+        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+
+        AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
+
+        SpanStorage storage = mock(SpanStorage.class);
+
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
         trace.traceBlockBegin();
 
         // get data form db
@@ -50,64 +91,37 @@ public class TraceTest {
         // response to client
 
         trace.traceBlockEnd();
+
+        verify(storage, times(2)).store(Mockito.any(SpanEvent.class));
+        verify(storage, never()).store(Mockito.any(Span.class));
     }
 
 
     @Test
     public void popEventTest() {
-        DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
-        DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
-        TestDataSender dataSender = new TestDataSender();
-        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
+
+        final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
+        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, traceStartTime, 0);
+
+        final CallStack callStack = newCallStack(traceRoot);
+
+        final Span span = newSpan(traceRoot);
+
+        final boolean root = span.getTraceRoot().getTraceId().isRoot();
+        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+
+
+        AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
+
+        SpanStorage storage = mock(SpanStorage.class);
+
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
+
         trace.close();
 
-        logger.info(String.valueOf(dataSender.event));
-    }
-
-    private DefaultTraceContext getDefaultTraceContext() {
-        DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
-        return defaultTraceContext;
-    }
-
-    public class TestDataSender implements EnhancedDataSender {
-        public boolean event;
-
-        @Override
-        public boolean send(TBase<?, ?> data) {
-            event = true;
-            return false;
-        }
-
-        @Override
-        public void stop() {
-        }
-
-        @Override
-        public boolean request(TBase<?, ?> data) {
-            return send(data);
-        }
-
-        @Override
-        public boolean request(TBase<?, ?> data, int retry) {
-            return send(data);
-        }
-
-        @Override
-        public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
-            return send(data);
-        }
-
-        @Override
-        public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-            return false;
-        }
-
-        @Override
-        public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-            return false;
-        }
-
+        verify(storage, never()).store(Mockito.any(SpanEvent.class));
+        verify(storage).store(Mockito.any(Span.class));
     }
 
     private void getDataFromDB(Trace trace) {
@@ -117,4 +131,16 @@ public class TraceTest {
         // get a db response
         trace.traceBlockEnd();
     }
+
+
+    private CallStack newCallStack(TraceRoot traceRoot) {
+        final CallStackFactory callStackFactory = new CallStackFactoryV1(64);
+        return callStackFactory.newCallStack(traceRoot);
+    }
+
+    private Span newSpan(TraceRoot traceRoot) {
+        final SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
+        return spanFactory.newSpan(traceRoot);
+    }
+
 }

@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
@@ -33,10 +31,6 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 /**
  * @author dawidmalina
  */
-@TargetMethods({
-    @TargetMethod(name = "prepare", paramTypes = { "java.lang.String" }),
-    @TargetMethod(name = "prepare", paramTypes = { "com.datastax.driver.core.RegularStatement" })
-})
 public class CassandraPreparedStatementCreateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public CassandraPreparedStatementCreateInterceptor(TraceContext context, MethodDescriptor descriptor) {

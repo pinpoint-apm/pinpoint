@@ -1,45 +1,45 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.web.websocket.message;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
-public class RequestMessage extends AbstractPinpointWebSocketMessage {
+@JsonPropertyOrder({"type", "command", "parameters"})
+public class RequestMessage implements PinpointWebSocketMessage {
 
     private final String command;
-    private final Map params;
+    private final Map parameters;
 
-    public RequestMessage(String command, Map params) {
+    public RequestMessage(String command, Map parameters) {
         this.command = command;
-        this.params = params;
+        this.parameters = parameters;
     }
 
     public String getCommand() {
         return command;
     }
 
-    public Map getParams() {
-        return params;
+    public Map getParameters() {
+        return parameters;
     }
 
     @Override

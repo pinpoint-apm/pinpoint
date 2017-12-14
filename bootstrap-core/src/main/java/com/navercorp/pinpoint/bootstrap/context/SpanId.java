@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.bootstrap.context;
 
 import java.util.Random;
 
-import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
+import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandomUtils;
 
 /**
  * @author emeroad
@@ -38,7 +38,7 @@ public class SpanId {
     // Changed to ThreadLocalRandom because unique value per thread will be enough.
     // If you need to change Random implementation, modify this method.
     private static Random getRandom() {
-        return ThreadLocalRandom.current();
+        return ThreadLocalRandomUtils.current();
     }
 
     private static long createSpanId(Random seed) {

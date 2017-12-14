@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.DeserializerProvider;
@@ -42,6 +43,9 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({"org.codehaus.jackson:jackson-mapper-asl:[1.0.1],[1.1.2],[1.2.1],[1.3.5],[1.4.5],[1.5.8],[1.6.9],[1.7.9],[1.8.11],[1.9.13]"})
 public class ObjectMapper_1_x_IT {
+
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
+
     /**
      * 
      */
@@ -146,7 +150,7 @@ public class ObjectMapper_1_x_IT {
     @Test
     public void testReadValue() throws Exception {
         String jsonString = "{\"name\" : \"Jackson\"}";
-        byte[] jsonBytes = jsonString.getBytes("UTF-8");
+        byte[] jsonBytes = jsonString.getBytes(UTF_8);
         
         Method mapperReadValueString = getMethod(ObjectMapper.class, "readValue", String.class, Class.class);
         Method mapperReadValueBytes = getMethod(ObjectMapper.class, "readValue", byte[].class, Class.class);

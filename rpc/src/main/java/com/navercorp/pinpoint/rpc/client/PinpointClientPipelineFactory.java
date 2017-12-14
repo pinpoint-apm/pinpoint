@@ -33,9 +33,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class PinpointClientPipelineFactory implements ChannelPipelineFactory {
 
-    private final PinpointClientFactory pinpointClientFactory;
+    private final DefaultPinpointClientFactory pinpointClientFactory;
 
-    public PinpointClientPipelineFactory(PinpointClientFactory pinpointClientFactory) {
+    public PinpointClientPipelineFactory(DefaultPinpointClientFactory pinpointClientFactory) {
         if (pinpointClientFactory == null) {
             throw new NullPointerException("pinpointClientFactory must not be null");
         }

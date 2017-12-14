@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ScatterDataSerializer extends JsonSerializer<ScatterData> {
 
@@ -39,7 +39,7 @@ public class ScatterDataSerializer extends JsonSerializer<ScatterData> {
 
         ScatterAgentMetaData metadata = value.getScatterAgentMetadata();
         writeScatterAgentMetaData(metadata, jgen);
-        wrtieScatterData(value, metadata, jgen);
+        writeScatterData(value, metadata, jgen);
 
         jgen.writeEndObject();
     }
@@ -48,7 +48,7 @@ public class ScatterDataSerializer extends JsonSerializer<ScatterData> {
         jgen.writeObjectField("metadata", metaData);
     }
 
-    private void wrtieScatterData(ScatterData scatterData, ScatterAgentMetaData metaData, JsonGenerator jgen) throws IOException {
+    private void writeScatterData(ScatterData scatterData, ScatterAgentMetaData metaData, JsonGenerator jgen) throws IOException {
         jgen.writeArrayFieldStart("dotList");
 
         Map<Long, DotGroups> sortedScatterDataMap = scatterData.getSortedScatterDataMap();

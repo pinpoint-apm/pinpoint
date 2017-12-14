@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
@@ -33,7 +32,13 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
  * 
  * @author emeroad
  */
-@TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
+/**
+ * @deprecated Since 1.6.1. Use {@link DriverConnectInterceptorV2 )}
+ */
+@Deprecated
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
 public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     
     private final JdbcUrlParser jdbcUrlParser;

@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
@@ -33,8 +34,5 @@ public interface MapService {
      * @param range
      * @return
      */
-    ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption);
-
-    ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range);
-
+    ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType);
 }

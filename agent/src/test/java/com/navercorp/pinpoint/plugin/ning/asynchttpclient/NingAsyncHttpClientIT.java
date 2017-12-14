@@ -4,6 +4,9 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.util.concurrent.Future;
 
+import com.navercorp.pinpoint.plugin.WebServer;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -21,16 +24,32 @@ import com.ning.http.client.Response;
  * @author netspider
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({ "com.ning:async-http-client:[1.7.24],[1.8.16,1.8.999)" })
+@Dependency({ "com.ning:async-http-client:[1.7.24],[1.8.16,1.8.999)", "org.nanohttpd:nanohttpd:2.3.1"})
 @JvmVersion(7)
 public class NingAsyncHttpClientIT {
-    
+
+    private static WebServer webServer;
+
+    @BeforeClass
+    public static void BeforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
+    }
+
+    @AfterClass
+    public static void AfterClass() throws Exception {
+        final WebServer copy = webServer;
+        if (copy != null) {
+            copy.stop();
+            webServer = null;
+        }
+    }
+
     @Test
     public void test() throws Exception {
         AsyncHttpClient client = new AsyncHttpClient();
         
         try {
-            Future<Response> f = client.preparePost("http://www.naver.com/").addParameter("param1", "value1").execute();
+            Future<Response> f = client.preparePost(webServer.getCallHttpUrl()).addParameter("param1", "value1").execute();
             Response response = f.get();
         } finally {
             client.close();
@@ -38,8 +57,11 @@ public class NingAsyncHttpClientIT {
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
-        
-        verifier.verifyTrace(event("ASYNC_HTTP_CLIENT", AsyncHttpClient.class.getMethod("executeRequest", Request.class, AsyncHandler.class), null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"), annotation("http.param", "param1=value1")));
+
+        String destinationId = webServer.getHostAndPort();
+        String httpUrl = webServer.getCallHttpUrl();
+        verifier.verifyTrace(event("ASYNC_HTTP_CLIENT", AsyncHttpClient.class.getMethod("executeRequest", Request.class, AsyncHandler.class), null, null, destinationId,
+                annotation("http.url", httpUrl)));
         verifier.verifyTraceCount(0);
    }
 }

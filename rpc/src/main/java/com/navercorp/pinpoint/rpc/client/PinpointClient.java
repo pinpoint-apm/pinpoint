@@ -17,200 +17,41 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.*;
-import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.stream.*;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 
 /**
  * @author emeroad
  * @author koo.taejin
  * @author netspider
  */
-public class PinpointClient implements PinpointSocket {
+public interface PinpointClient extends PinpointSocket {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private volatile PinpointClientHandler pinpointClientHandler;
-
-    private volatile boolean closed;
-    
-    private List<PinpointClientReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointClientReconnectEventListener>();
-    
-    public PinpointClient() {
-        this(new ReconnectStateClientHandler());
-    }
-
-    public PinpointClient(PinpointClientHandler pinpointClientHandler) {
-        AssertUtils.assertNotNull(pinpointClientHandler, "pinpointClientHandler");
-
-        this.pinpointClientHandler = pinpointClientHandler;
-        pinpointClientHandler.setPinpointClient(this);
-    }
-
-    void reconnectSocketHandler(PinpointClientHandler pinpointClientHandler) {
-        AssertUtils.assertNotNull(pinpointClientHandler, "pinpointClientHandler");
-
-        if (closed) {
-            logger.warn("reconnectClientHandler(). pinpointClientHandler force close.");
-            pinpointClientHandler.close();
-            return;
-        }
-        logger.warn("reconnectClientHandler:{}", pinpointClientHandler);
-        
-        this.pinpointClientHandler = pinpointClientHandler;
-        
-        notifyReconnectEvent();
-    }
-    
 
     /*
         because reconnectEventListener's constructor contains Dummy and can't be access through setter,
         guarantee it is not null.
     */
-    public boolean addPinpointClientReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        if (eventListener == null) {
-            return false;
-        }
+    boolean addPinpointClientReconnectEventListener(PinpointClientReconnectEventListener eventListener);
 
-        return this.reconnectEventListeners.add(eventListener);
-    }
+    boolean removePinpointClientReconnectEventListener(PinpointClientReconnectEventListener eventListener);
 
-    public boolean removePinpointClientReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        if (eventListener == null) {
-            return false;
-        }
+    void reconnectSocketHandler(PinpointClientHandler pinpointClientHandler);
 
-        return this.reconnectEventListeners.remove(eventListener);
-    }
+    void sendSync(byte[] bytes) ;
 
-    private void notifyReconnectEvent() {
-        for (PinpointClientReconnectEventListener eachListener : this.reconnectEventListeners) {
-            eachListener.reconnectPerformed(this);
-        }
-    }
+    Future sendAsync(byte[] bytes);
 
-    public void sendSync(byte[] bytes) {
-        ensureOpen();
-        pinpointClientHandler.sendSync(bytes);
-    }
-
-    public Future sendAsync(byte[] bytes) {
-        ensureOpen();
-        return pinpointClientHandler.sendAsync(bytes);
-    }
-
-    @Override
-    public void send(byte[] bytes) {
-        ensureOpen();
-        pinpointClientHandler.send(bytes);
-    }
-
-    @Override
-    public Future<ResponseMessage> request(byte[] bytes) {
-        if (pinpointClientHandler == null) {
-            return returnFailureFuture();
-        }
-        return pinpointClientHandler.request(bytes);
-    }
-
-    @Override
-    public void response(RequestPacket requestPacket, byte[] payload) {
-        response(requestPacket.getRequestId(), payload);
-    }
-
-    @Override
-    public void response(int requestId, byte[] payload) {
-        ensureOpen();
-        pinpointClientHandler.response(requestId, payload);
-    }
-
-    @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
-        return openStream(payload, messageListener, null);
-    }
-
-    @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
-        // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
-        // fow now throw just exception
-        ensureOpen();
-        return pinpointClientHandler.openStream(payload, messageListener, stateChangeListener);
-    }
-
-    @Override
-    public SocketAddress getRemoteAddress() {
-        return pinpointClientHandler.getRemoteAddress();
-    }
-
-    @Override
-    public ClusterOption getLocalClusterOption() {
-        return pinpointClientHandler.getLocalClusterOption();
-    }
-
-    @Override
-    public ClusterOption getRemoteClusterOption() {
-        return pinpointClientHandler.getRemoteClusterOption();
-    }
-
-    public StreamChannelContext findStreamChannel(int streamChannelId) {
-
-        ensureOpen();
-        return pinpointClientHandler.findStreamChannel(streamChannelId);
-    }
-
-    private Future<ResponseMessage> returnFailureFuture() {
-        DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
-        future.setFailure(new PinpointSocketException("pinpointClientHandler is null"));
-        return future;
-    }
-
-    private void ensureOpen() {
-        if (pinpointClientHandler == null) {
-            throw new PinpointSocketException("pinpointClientHandler is null");
-        }
-    }
+    StreamChannelContext findStreamChannel(int streamChannelId);
 
     /**
      * write ping packet on tcp channel
      * PinpointSocketException throws when writing fails.
      *
      */
-    public void sendPing() {
-        PinpointClientHandler pinpointClientHandler = this.pinpointClientHandler;
-        if (pinpointClientHandler == null) {
-            return;
-        }
-        pinpointClientHandler.sendPing();
-    }
+    void sendPing();
 
-    @Override
-    public void close() {
-        synchronized (this) {
-            if (closed) {
-                return;
-            }
-            closed = true;
-        }
-        PinpointClientHandler pinpointClientHandler = this.pinpointClientHandler;
-        if (pinpointClientHandler == null) {
-            return;
-        }
-        pinpointClientHandler.close();
-    }
 
-    public boolean isClosed() {
-        return closed;
-    }
+    boolean isClosed();
 
-    public boolean isConnected() {
-        return this.pinpointClientHandler.isConnected();
-    }
+    boolean isConnected();
 }

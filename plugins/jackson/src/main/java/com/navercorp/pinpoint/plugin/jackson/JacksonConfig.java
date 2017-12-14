@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.jackson;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class JacksonConfig {
 

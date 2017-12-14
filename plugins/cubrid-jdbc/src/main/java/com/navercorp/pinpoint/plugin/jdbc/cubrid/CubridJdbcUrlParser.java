@@ -16,39 +16,65 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-
 /**
  * @author emeroad
  */
-public class CubridJdbcUrlParser extends JdbcUrlParser {
+public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
+
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final int DEFAULT_PORT = 30000;
     public static final String DEFAULT_USER = "public";
     public static final String DEFAULT_PASSWORD = "";
 
-    private static final String URL_PATTERN = "jdbc:cubrid(-oracle|-mysql)?:([a-zA-Z_0-9\\.-]*):([0-9]*):([^:]+):([^:]*):([^:]*):(\\?[a-zA-Z_0-9]+=[^&=?]+(&[a-zA-Z_0-9]+=[^&=?]+)*)?";
+    private static final String URL_PREFIX_PATTERN = "jdbc:cubrid(-oracle|-mysql)?:";
+    private static final Pattern PREFIX_PATTERN = Pattern.compile(URL_PREFIX_PATTERN, Pattern.CASE_INSENSITIVE);
+
+    private static final String URL_PATTERN = URL_PREFIX_PATTERN + "([a-zA-Z_0-9\\.-]*):([0-9]*):([^:]+):([^:]*):([^:]*):(\\?[a-zA-Z_0-9]+=[^&=?]+(&[a-zA-Z_0-9]+=[^&=?]+)*)?";
     private static final Pattern PATTERN = Pattern.compile(URL_PATTERN, Pattern.CASE_INSENSITIVE);
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     @Override
-    public DatabaseInfo doParse(String url) {
-        if (url == null) {
-            return UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, null);
+    public DatabaseInfo parse(String jdbcUrl) {
+        if (jdbcUrl == null) {
+            logger.info("jdbcUrl must not be null");
+            return UnKnownDatabaseInfo.INSTANCE;
+        }
+        final Matcher matcher = PREFIX_PATTERN.matcher(jdbcUrl);
+        if (!matcher.find()) {
+            logger.info("jdbcUrl has invalid prefix.(url:{}, prefix-pattern:{})", jdbcUrl, URL_PREFIX_PATTERN);
+            return UnKnownDatabaseInfo.INSTANCE;
         }
 
-        final Matcher matcher = PATTERN.matcher(url);
+        DatabaseInfo result = null;
+        try {
+            result = parse0(jdbcUrl);
+        } catch (Exception e) {
+            logger.info("CubridJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
+            result = UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, jdbcUrl);
+        }
+        return result;
+    }
+
+    private DatabaseInfo parse0(String jdbcUrl) {
+        final Matcher matcher = PATTERN.matcher(jdbcUrl);
         if (!matcher.find()) {
-            logger.info("Cubrid connectionString parse fail. url:{}", url);
-            return UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url);
+            throw new IllegalArgumentException();
         }
 
         String host = matcher.group(2);
@@ -58,23 +84,23 @@ public class CubridJdbcUrlParser extends JdbcUrlParser {
 //        String pass = matcher.group(6);
 //        String prop = matcher.group(7);
 
-        int port = DEFAULT_PORT;
+//        int port = DEFAULT_PORT;
 
 //        String resolvedUrl;
 
-        if (host == null || host.length() == 0) {
+        if (StringUtils.isEmpty(host)) {
             host = DEFAULT_HOSTNAME;
         }
 
-        if (portString == null || portString.length() == 0) {
-            port = DEFAULT_PORT;
-        } else {
-            try {
-                port = Integer.parseInt(portString);
-            } catch (NumberFormatException e) {
-                logger.warn("cubrid portString parsing fail. portString:{}, url:{}", portString, url);
-            }
-        }
+//        if (portString == null || portString.length() == 0) {
+//            port = DEFAULT_PORT;
+//        } else {
+//            try {
+//                port = Integer.parseInt(portString);
+//            } catch (NumberFormatException e) {
+//                logger.info("cubrid portString parsing fail. portString:{}, url:{}", portString, jdbcUrl);
+//            }
+//        }
 
         if (user == null) {
             user = DEFAULT_USER;
@@ -86,7 +112,7 @@ public class CubridJdbcUrlParser extends JdbcUrlParser {
 
 //        resolvedUrl = "jdbc:cubrid:" + host + ":" + port + ":" + db + ":" + user + ":********:";
 
-        StringMaker maker = new StringMaker(url);
+        StringMaker maker = new StringMaker(jdbcUrl);
         String normalizedUrl = maker.clear().before('?').value();
 
         List<String> hostList = new ArrayList<String>(1);
@@ -95,9 +121,8 @@ public class CubridJdbcUrlParser extends JdbcUrlParser {
 
         // skip alt host
 
-        return new DefaultDatabaseInfo(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
+        return new DefaultDatabaseInfo(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, jdbcUrl, normalizedUrl, hostList, db);
     }
-
 
     /*
     private DatabaseInfo parseCubrid(String url) {
@@ -117,5 +142,11 @@ public class CubridJdbcUrlParser extends JdbcUrlParser {
         return new DatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
     */
+
+
+    @Override
+    public ServiceType getServiceType() {
+        return CubridConstants.CUBRID;
+    }
 
 }

@@ -18,7 +18,10 @@ package com.navercorp.pinpoint.bootstrap.resolver;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -61,7 +64,7 @@ public class ConditionProviderTest {
     }
 
     @Test
-    public void checkMainClassShouldReturnTrueForMatchingMainClasses() {
+    public void checkMainClassShouldReturnTrueForMatchingMainClass() {
         // Given
         final String matchingMainClass = TEST_MAIN_CLASS;
         // When
@@ -71,7 +74,22 @@ public class ConditionProviderTest {
     }
 
     @Test
-    public void checkMainClassShouldReturnFalseForNonMatchingMainClasses() {
+    public void checkMainClassShouldReturnTrueForMatchingMainClasses() {
+        // Given
+        final String matchingMainClass = TEST_MAIN_CLASS;
+        final String someOtherMainClass = "some.other.main.class";
+        final List<String> mainClassCandidates = Arrays.asList(
+                matchingMainClass,
+                someOtherMainClass
+        );
+        // When
+        boolean matches = this.conditionProvider.checkMainClass(mainClassCandidates);
+        // Then
+        assertTrue(matches);
+    }
+
+    @Test
+    public void checkMainClassShouldReturnFalseForNonMatchingMainClass() {
         // Given
         final String someOtherMainClass = "some.other.main.class";
         // When
@@ -81,19 +99,34 @@ public class ConditionProviderTest {
     }
 
     @Test
-    public void checkMainClassShouldReturnForNullParameter() {
+    public void checkMainClassShouldReturnFalseForNonMatchingMainClasses() {
         // Given
+        final String someOtherMainClass = "some.other.main.class";
+        final String someOtherMainClass2 = "some.other.main.class2";
+        final List<String> mainClassCandidates = Arrays.asList(
+                someOtherMainClass,
+                someOtherMainClass2
+        );
         // When
-        boolean matches = this.conditionProvider.checkMainClass(null);
+        boolean matches = this.conditionProvider.checkMainClass(mainClassCandidates);
         // Then
         assertFalse(matches);
     }
 
     @Test
-    public void checkMainClassShouldReturnForEmptyParameter() {
+    public void checkMainClassShouldReturnFalseForEmptyString() {
         // Given
         // When
         boolean matches = this.conditionProvider.checkMainClass("");
+        // Then
+        assertFalse(matches);
+    }
+
+    @Test
+    public void checkMainClassShouldReturnFalseForEmptyList() {
+        // Given
+        // When
+        boolean matches = this.conditionProvider.checkMainClass(Collections.<String>emptyList());
         // Then
         assertFalse(matches);
     }

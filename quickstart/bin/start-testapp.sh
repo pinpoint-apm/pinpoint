@@ -131,7 +131,7 @@ function func_init_agent
                 exit 1
         fi
 
-        `mvn -f $AGENT_DIR/pom.xml clean package -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>/dev/null`
+        `${bin}/../../mvnw -f $AGENT_DIR/pom.xml clean package -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1`
 
         if [ ! -f $AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar ]; then
                 echo "can't find agent file($AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar)."
@@ -150,7 +150,7 @@ function func_start_pinpoint_testapp
         port=$( func_read_properties "$KEY_PORT" )
         check_url="http://localhost:"$port"/getCurrentTimestamp.pinpoint"
 
-        pid=`nohup mvn -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version >> $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+        pid=`nohup ${bin}/../../mvnw -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version >> $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
         echo $pid > $PID_DIR/$PID_FILE
         export MAVEN_OPTS=$maven_opt
 

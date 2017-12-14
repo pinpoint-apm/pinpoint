@@ -32,20 +32,20 @@ public class ActiveMQClientITHelper {
 
     private ActiveMQClientITHelper() {}
 
-    public static final void startBrokers(List<TestBroker> brokers) throws Exception {
+    public static void startBrokers(List<TestBroker> brokers) throws Exception {
         BROKER_SERVICE = new TestBrokerService(brokers);
         BROKER_SERVICE.start();
     }
 
-    public static final void stopBrokers() throws Exception {
+    public static void stopBrokers() throws Exception {
         BROKER_SERVICE.stop();
     }
 
-    public static final ActiveMQSession createSession(String brokerName, String brokerUrl) throws JMSException {
+    public static ActiveMQSession createSession(String brokerName, String brokerUrl) throws JMSException {
         return createSession(brokerName, brokerUrl, false, Session.AUTO_ACKNOWLEDGE);
     }
 
-    public static final ActiveMQSession createSession(String brokerName, String brokerUrl, boolean transacted, int acknowledgeMode) throws JMSException {
+    public static ActiveMQSession createSession(String brokerName, String brokerUrl, boolean transacted, int acknowledgeMode) throws JMSException {
         ActiveMQConnection connection = BROKER_SERVICE.getConnection(brokerName, brokerUrl);
         return (ActiveMQSession) connection.createSession(transacted, acknowledgeMode);
     }

@@ -110,7 +110,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         Buffer buffer = new AutomaticBuffer();
         buffer.putPrefixedString(host);
         buffer.putPrefixedString(bindApplicationName);
-        buffer.put(bindServiceType);
+        buffer.putShort(bindServiceType);
         return buffer.getBuffer();
     }
 
@@ -127,8 +127,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         final int SIZE = HBaseTables.APPLICATION_NAME_MAX_LEN + 2 + 8;
         final Buffer rowKeyBuffer = new AutomaticBuffer(SIZE);
         rowKeyBuffer.putPadString(parentApplicationName, HBaseTables.APPLICATION_NAME_MAX_LEN);
-        rowKeyBuffer.put(parentServiceType);
-        rowKeyBuffer.put(TimeUtils.reverseTimeMillis(statisticsRowSlot));
+        rowKeyBuffer.putShort(parentServiceType);
+        rowKeyBuffer.putLong(TimeUtils.reverseTimeMillis(statisticsRowSlot));
         // there is no parentAgentId for now.  if it added later, need to comment out below code for compatibility.
 //        rowKeyBuffer.putPadString(parentAgentId, HBaseTables.AGENT_NAME_MAX_LEN);
         return rowKeyBuffer.getBuffer();

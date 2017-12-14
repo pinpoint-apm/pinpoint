@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.plugin.thrift;
 
 import org.apache.thrift.protocol.TType;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public enum ThriftHeader {
     THRIFT_TRACE_ID                (TType.STRING,  (short) Short.MIN_VALUE),
     THRIFT_SPAN_ID                 (TType.I64,     (short)(Short.MIN_VALUE+1)),
@@ -31,10 +34,12 @@ public enum ThriftHeader {
     private final short id;
     
     private final byte type;
+
+    private static final Set<ThriftHeader> HEADERS = EnumSet.allOf(ThriftHeader.class);
     
     ThriftHeader(byte type, short id) {
         this.type = type;
-        this.id = (short)id;
+        this.id = id;
     }
     
     public short getId() {
@@ -54,7 +59,7 @@ public enum ThriftHeader {
      *     <tt>null</tt> if there is none
      */
     public static ThriftHeader findThriftHeaderKeyById(short id) {
-        for (ThriftHeader headerKey : ThriftHeader.values()) {
+        for (ThriftHeader headerKey : HEADERS) {
             if (headerKey.id == id) {
                 return headerKey;
             }

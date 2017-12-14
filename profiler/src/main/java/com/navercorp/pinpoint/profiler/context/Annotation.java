@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.thrift.dto.TLongIntIntByteByteStringValue;
 
 /**
  * @author netspider
@@ -55,6 +56,11 @@ public class Annotation extends TAnnotation {
     public Annotation(int key, int value) {
         super(key);
         this.setValue(TAnnotationValue.intValue(value));
+    }
+
+    public Annotation(int key, TLongIntIntByteByteStringValue value) {
+        super(key);
+        this.setValue(TAnnotationValue.longIntIntByteByteStringValue(value));
     }
 
     public int getAnnotationKey() {

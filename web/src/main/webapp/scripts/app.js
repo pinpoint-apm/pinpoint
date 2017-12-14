@@ -41,18 +41,24 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     }).when('/transactionDetail', {
         templateUrl: 'pages/transactionDetail/readyForTransactionDetail.html',
         controller: 'TransactionDetailCtrl'
-    }).when('/transactionDetail/:traceId/:focusTimestamp', {
+    }).when('/transactionDetail/:traceId/:focusTimestamp/:agentId/:spanId', {
         templateUrl: 'pages/transactionDetail/transactionDetail.html',
         controller: 'TransactionDetailCtrl'
-    }).when('/transactionView/:agentId/:traceId/:focusTimestamp', {
+    }).when('/transactionView/:agentId/:traceId/:focusTimestamp/:spanId', {
         templateUrl: 'pages/transactionView/transactionView.html',
         controller: 'TransactionViewCtrl'
     }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime/:agentList', {
         templateUrl: 'pages/scatterFullScreenMode/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
     }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime/:filter', {
-        templateUrl: 'pages/scatterFullScrrenMode/scatterFullScreenMode.html',
+        templateUrl: 'pages/scatterFullScreenMode/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
+	}).when('/threadDump/:application/:agentId', {
+		templateUrl: 'pages/threadDump/threadDump.html',
+		controller: 'ThreadDumpCtrl'
+	}).when('/realtime/:application/:page', {
+		templateUrl: 'pages/realtime/realtime.html',
+		controller: 'RealtimeCtrl'
     }).otherwise({
         redirectTo: '/main'
     });
@@ -65,9 +71,8 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 //    $sceProvider.enabled(false);
 }]);
 
-pinpointApp.value("globalConfig", {});
-pinpointApp.run([ '$rootScope', '$window', '$timeout', '$modal', '$location', '$route', '$cookies', '$interval', '$http', 'globalConfig',
-    function ($rootScope, $window, $timeout, $modal, $location, $route, $cookies, $interval, $http, globalConfig) {
+pinpointApp.run([ "$rootScope", "$window", "$timeout", "$location", "$route", "SystemConfigurationService", "UserConfigurationService",
+    function ($rootScope, $window, $timeout, $location, $route, SystemConfigService, UserConfigService ) {
         var original = $location.path;
         $location.path = function (path, reload) {
             if (reload === false) {
@@ -79,21 +84,21 @@ pinpointApp.run([ '$rootScope', '$window', '$timeout', '$modal', '$location', '$
             }
             return original.apply($location, [path]);
         };
-		$http.get('/configuration.pinpoint').then(function(result) {
-			if ( result.data.errorCode == 302 ) {
-				$window.location = result.data.redirect;
+
+		SystemConfigService.getConfig().then(function(oSystemConfig) {
+
+			if ( oSystemConfig.errorCode == 302 ) {
+				$window.location = oSystemConfig.redirect;
 				return;
 			}
+		});
 
-			for( var p in result.data ) {
-				globalConfig[p] = result.data[p];
-			}
-		}, function(error) {});
         if (!isCanvasSupported()) {
             $timeout(function () {
                 $('#supported-browsers').modal();
             }, 500);
         }
+        moment.tz.setDefault( UserConfigService.getTimezone() );
     }
 ]);
 

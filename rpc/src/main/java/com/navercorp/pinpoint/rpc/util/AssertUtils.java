@@ -18,14 +18,20 @@ package com.navercorp.pinpoint.rpc.util;
 
 /**
  * @author koo.taejin
+ *
+ * @deprecated Since 1.7.0 Use {@link com.navercorp.pinpoint.common.util.Assert}
  */
 public final class AssertUtils {
 
     private AssertUtils() {
     }
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link AssertUtils#assertNotNull(Object, String)}
+     */
+    @Deprecated
     public static void assertNotNull(Object object) {
-        assertNotNull(object, "Object may not be null.");
+        assertNotNull(object, "Object must not be null.");
     }
 
     public static void assertNotNull(Object object, String message) {
@@ -34,6 +40,9 @@ public final class AssertUtils {
         }
     }
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link AssertUtils#assertTrue(boolean, String)}
+     */
     public static void assertTrue(boolean value) {
         assertTrue(value, "value must be true.");
     }

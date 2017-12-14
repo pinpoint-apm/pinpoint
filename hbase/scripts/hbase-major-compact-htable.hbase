@@ -1,6 +1,7 @@
 major_compact 'AgentInfo'
-major_compact 'AgentStat'
-major_compact 'AgentStatAggr'
+major_compact 'AgentStatV2'
+major_compact 'ApplicationStatAggre'
+
 major_compact 'AgentLifeCycle'
 major_compact 'AgentEvent'
 major_compact 'ApplicationIndex'
@@ -11,7 +12,7 @@ major_compact 'ApiMetaData'
 major_compact 'SqlMetaData_Ver2'
 
 major_compact 'ApplicationTraceIndex'
-major_compact 'Traces'
+major_compact 'TraceV2'
 
 major_compact 'ApplicationMapStatisticsCaller_Ver2'
 major_compact 'ApplicationMapStatisticsCallee_Ver2'

@@ -45,10 +45,10 @@ public class ApplicationMapStatisticsUtils {
         }
         // approximate size of destHost
         final Buffer buffer = new AutomaticBuffer(BytesUtils.SHORT_BYTE_LENGTH + PinpointConstants.APPLICATION_NAME_MAX_LEN + destHost.length() + BytesUtils.SHORT_BYTE_LENGTH);
-        buffer.put(serviceType);
-        buffer.put(slotNumber);
+        buffer.putShort(serviceType);
+        buffer.putShort(slotNumber);
         buffer.put2PrefixedString(applicationName);
-        buffer.put(BytesUtils.toBytes(destHost));
+        buffer.putBytes(BytesUtils.toBytes(destHost));
         return buffer.getBuffer();
     }
 
@@ -63,10 +63,10 @@ public class ApplicationMapStatisticsUtils {
             agentId = "";
         }
         final Buffer buffer = new AutomaticBuffer(agentId.length() + BytesUtils.SHORT_BYTE_LENGTH);
-        buffer.put(columnSlotNumber);
+        buffer.putShort(columnSlotNumber);
 
         final byte[] agentIdBytes = BytesUtils.toBytes(agentId);
-        buffer.put(agentIdBytes);
+        buffer.putBytes(agentIdBytes);
 
         return buffer.getBuffer();
     }
@@ -134,11 +134,11 @@ public class ApplicationMapStatisticsUtils {
 
         final Buffer buffer = new AutomaticBuffer(2 + applicationNameBytes.length + 2 + 8);
 //        buffer.put2PrefixedString(applicationName);
-        buffer.put((short)applicationNameBytes.length);
-        buffer.put(applicationNameBytes);
-        buffer.put(applicationType);
+        buffer.putShort((short)applicationNameBytes.length);
+        buffer.putBytes(applicationNameBytes);
+        buffer.putShort(applicationType);
         long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
-        buffer.put(reverseTimeMillis);
+        buffer.putLong(reverseTimeMillis);
         return buffer.getBuffer();
     }
 

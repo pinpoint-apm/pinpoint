@@ -21,9 +21,8 @@ package com.navercorp.pinpoint.profiler.context;
  */
 public interface Binder<T> {
 
-    T get();
+    Reference<T> get();
 
-    void set(T value);
 
-    T remove();
+    void remove();
 }

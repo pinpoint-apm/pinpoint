@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2015 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.profiler.context.scope;
 
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author jaehong.kim
@@ -24,7 +25,7 @@ public class DefaultTraceScope implements TraceScope {
     private int depth = 0;
 
     public DefaultTraceScope(String name) {
-        this.name = name;
+        this.name = Assert.requireNonNull(name, "name must not be null");
     }
 
     @Override
@@ -39,7 +40,7 @@ public class DefaultTraceScope implements TraceScope {
     }
 
     public boolean canLeave() {
-        if(!isActive()) {
+        if (!isActive()) {
             return false;
         }
 
@@ -47,7 +48,7 @@ public class DefaultTraceScope implements TraceScope {
     }
 
     public void leave() {
-        if(!isActive()) {
+        if (!isActive()) {
             throw new IllegalStateException("Cannot leave with scope. depth: " + depth);
         }
 

@@ -15,26 +15,32 @@
  */
 package com.navercorp.pinpoint.web.view;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.web.applicationmap.Link;
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-import org.json.simple.JSONObject;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author jaehong.kim
+ * @author minwoo.jung
  */
 public class TransactionInfoViewModel {
 
-    private TransactionId traceId;
+    private TransactionId transactionId;
     private Collection<Node> nodes;
     private Collection<Link> links;
     private RecordSet recordSet;
@@ -44,8 +50,8 @@ public class TransactionInfoViewModel {
     private String logPageUrl;
     private String disableButtonMessage;
 
-    public TransactionInfoViewModel(TransactionId traceId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
-        this.traceId = traceId;
+    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
+        this.transactionId = transactionId;
         this.nodes = nodes;
         this.links = links;
         this.recordSet = recordSet;
@@ -63,7 +69,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("transactionId")
     public String getTransactionId() {
-        return traceId.getFormatString();
+        return TransactionIdUtils.formatString(transactionId);
     }
 
     @JsonProperty("agentId")
@@ -108,9 +114,9 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("logPageUrl")
     public String getLogPageUrl() {
-        if (logPageUrl != null && logPageUrl.length() > 0) {
+        if (StringUtils.isNotEmpty(logPageUrl)) {
             StringBuilder sb = new StringBuilder();
-            sb.append("transactionId=").append(traceId.getFormatString());
+            sb.append("transactionId=").append(getTransactionId());
             sb.append("&time=").append(recordSet.getStartTime());
             return logPageUrl + "?" + sb.toString();
         }
@@ -198,8 +204,7 @@ public class TransactionInfoViewModel {
                 "agent",
                 "isFocused",
                 "hasException",
-                "logButtonName",
-                "logPageUrl"
+                "isAuthorized"
         };
 
         private String depth = "";
@@ -225,8 +230,7 @@ public class TransactionInfoViewModel {
         private String agent = "";
         private boolean isFocused;
         private boolean hasException;
-        private String logButtonName = "";
-        private String logPageUrl = "";
+        private boolean isAuthorized;
 
         public CallStack(final Record record, long barRatio) {
             begin = record.getBegin();
@@ -240,8 +244,8 @@ public class TransactionInfoViewModel {
             }
             isMethod = record.isMethod();
             hasChild = record.getHasChild();
-            title = JSONObject.escape(record.getTitle());
-            //arguments = JSONObject.escape(StringEscapeUtils.escapeHtml4(record.getArguments()));
+            title = StringEscapeUtils.escapeJson(record.getTitle());
+            //arguments = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeHtml4(record.getArguments()));
             arguments = record.getArguments();
             if (record.isMethod()) {
                 executeTime = DateUtils.longToDateStr(record.getBegin(), "HH:mm:ss SSS"); // time format
@@ -251,28 +255,12 @@ public class TransactionInfoViewModel {
                 executionMilliseconds = String.valueOf(record.getExecutionMilliseconds());
             }
             simpleClassName = record.getSimpleClassName();
-            methodType = String.valueOf(record.getMethodType());
+            methodType = String.valueOf(record.getMethodTypeEnum().getCode());
             apiType = record.getApiType();
             agent = record.getAgent();
             isFocused = record.isFocused();
             hasException = record.getHasException();
-            logButtonName = record.getLogButtonName();
-
-            if (record.getLogPageUrl() != null && record.getLogPageUrl().length() > 0) {
-                try {
-                    URL url = new URL(record.getLogPageUrl());
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("transactionId=").append(record.getTransactionId());
-                    sb.append("&spanId=").append(record.getSpanId());
-                    sb.append("&time=").append(record.getBegin());
-                    if (url.getQuery() != null) {
-                        logPageUrl = record.getLogPageUrl() + "&" + sb.toString();
-                    } else {
-                        logPageUrl = record.getLogPageUrl() + "?" + sb.toString();
-                    }
-                } catch (MalformedURLException ignored) {
-                }
-            }
+            isAuthorized = record.isAuthorized();
         }
 
         public String getDepth() {
@@ -366,13 +354,9 @@ public class TransactionInfoViewModel {
         public boolean isHasException() {
             return hasException;
         }
-
-        public String getLogButtonName() {
-            return logButtonName;
-        }
-
-        public String getLogPageUrl() {
-            return logPageUrl;
+        
+        public boolean isAuthorized() {
+            return isAuthorized;
         }
     }
 }

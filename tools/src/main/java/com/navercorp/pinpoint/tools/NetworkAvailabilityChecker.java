@@ -36,7 +36,7 @@ import java.util.Arrays;
  * @author netspider
  * 
  */
-public class NetworkAvailabilityChecker implements PinpointTools {
+public class NetworkAvailabilityChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkAvailabilityChecker.class);
 

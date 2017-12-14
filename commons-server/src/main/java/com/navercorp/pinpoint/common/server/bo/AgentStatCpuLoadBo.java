@@ -64,10 +64,10 @@ public class AgentStatCpuLoadBo {
     public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer();
         buffer.putPrefixedString(this.agentId);
-        buffer.put(this.startTimestamp);
-        buffer.put(this.timestamp);
-        buffer.put(this.jvmCpuLoad);
-        buffer.put(this.systemCpuLoad);
+        buffer.putLong(this.startTimestamp);
+        buffer.putLong(this.timestamp);
+        buffer.putDouble(this.jvmCpuLoad);
+        buffer.putDouble(this.systemCpuLoad);
         return buffer.getBuffer();
     }
 

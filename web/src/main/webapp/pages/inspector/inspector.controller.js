@@ -7,107 +7,88 @@
 	 * @name InspectorCtrl
 	 * @class
 	 */
-	pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService', 'AnalyticsService',
-	    function ($scope, $timeout, $routeParams, locationService, NavbarVoService, analyticsService) {
-			analyticsService.send(analyticsService.CONST.INSPECTOR_PAGE);
-	        // define private variables
-	        var oNavbarVoService, oAgent;
-	
-	        // define private variables of methods
-	        var getFirstPathOfLocation, changeLocation, getLocation, isLocationChanged;
-	
-	        /**
-	         * initialize
-	         */
-	        $timeout(function () {
-	            oNavbarVoService = new NavbarVoService();
-	            if ($routeParams.application) {
-	                oNavbarVoService.setApplication($routeParams.application);
-	            }
-	            if ($routeParams.readablePeriod) {
-	                oNavbarVoService.setReadablePeriod($routeParams.readablePeriod);
-	            }
-	            if ($routeParams.queryEndDateTime) {
-	                oNavbarVoService.setQueryEndDateTime($routeParams.queryEndDateTime);
-	            }
-	            if ($routeParams.agentId) {
-	                oNavbarVoService.setAgentId($routeParams.agentId);
-	            }
-	            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-	            $scope.$emit('navbarDirective.initializeWithStaticApplication', oNavbarVoService);
-	            $scope.$emit('agentListDirective.initialize', oNavbarVoService);
-	        }, 500);
-	
-	        /**
-	         * scope event on navbarDirective.changed
-	         */
-	        $scope.$on('navbarDirective.changed', function (event, navbarVoService) {
-	            oNavbarVoService = navbarVoService;
-	            changeLocation();
-	        });
-	
-	        /**
-	         * scope event of agentListDirective.agentChanged
-	         */
-	        $scope.$on('agentListDirective.agentChanged', function (event, agent) {
-	            oAgent = agent;
-	            oNavbarVoService.setAgentId(agent.agentId);
-	
-	            if (isLocationChanged()) {
-	                changeLocation();
-	            }
-	            if (oAgent) {
-	                $scope.$emit('agentInfoDirective.initialize', oNavbarVoService, oAgent);
-	            }
-	        });
-	
-	        /**
-	         * get first path of loction
-	         * @returns {*|string}
-	         */
-	        getFirstPathOfLocation = function () {
-	            var splitedPath = locationService.path().split('/');
-	            return splitedPath[1] || 'inspector';
+	pinpointApp.constant( "InspectorCtrlConfig", {
+		ID: "INSPECTOR_CTRL_",
+		PAGE_NAME: "inspector",
+		SLASH: "/"
+	});
+	pinpointApp.controller("InspectorCtrl", [ "InspectorCtrlConfig", "$scope", "$routeParams", "$timeout", "SystemConfigurationService", "locationService", "CommonUtilService", "UrlVoService", "AnalyticsService",
+	    function ( cfg, $scope, $routeParams, $timeout, SystemConfigService, locationService, CommonUtilService, UrlVoService, AnalyticsService) {
+			$scope.selectedAgent = false;
+			$scope.timeSliderOption = null;
+			$scope.showStatistic = SystemConfigService.get("showApplicationStat");
+			cfg.ID +=  CommonUtilService.getRandomNum();
+			AnalyticsService.send(AnalyticsService.CONST.INSPECTOR_PAGE);
+
+			UrlVoService.initUrlVo( "inspector", $routeParams );
+			$scope.$on( "up.changed.application", function ( event, invokerId, newAppName ) {
+				$scope.selectedAgent = false;
+				UrlVoService.setApplication( newAppName );
+				UrlVoService.setAgentId( "" );
+				$timeout(function() {
+					changeLocation(function () {
+						$scope.timeSliderOption = null;
+						$scope.$broadcast("down.changed.application", invokerId);
+					});
+				});
+			});
+			$scope.$on( "up.changed.period", function ( event, invokerId ) {
+				changeLocation(function() {
+					$scope.timeSliderOption = null;
+					$scope.$broadcast( "down.changed.period", true, invokerId );
+				});
+			});
+			$scope.$on( "up.changed.agent", function ( event, invokerId, agent, bInvokedByTop ) {
+				$scope.selectedAgent = true;
+				$timeout(function() {
+					if (agent && ( agent.agentId === UrlVoService.getAgentId() )) { 	// when open page or change period
+						$scope.$broadcast("down.changed.agent", invokerId, agent, bInvokedByTop);
+					} else {												// when select other agent
+						if (CommonUtilService.isEmpty(agent.agentId) === false) {
+							UrlVoService.setAgentId(agent.agentId);
+						}
+						changeLocation(function () {
+							$scope.$broadcast("down.changed.agent", invokerId, agent, bInvokedByTop, $scope.timeSliderOption);
+						});
+					}
+				});
+			});
+			$scope.$on( "up.select.application", function ( event, invokerId ) {
+				$scope.selectedAgent = false;
+				UrlVoService.setAgentId("");
+				$timeout(function() {
+					changeLocation(function () {
+						$scope.$broadcast("down.select.application", invokerId, $scope.timeSliderOption);
+					});
+				});
+			});
+			$scope.$on( "up.changed.timeSliderOption", function( event, sliderTimeSeries, sliderSelectionTimeSeries, sliderSelectedTime ) {
+				$scope.timeSliderOption = {
+					timeSeries: sliderTimeSeries,
+					selectionTimeSeries: sliderSelectionTimeSeries,
+					selectedTime: sliderSelectedTime
+				};
+			});
+	        var changeLocation = function ( callback ) {
+				var newPath = getLocation();
+	            if ( locationService.path() !== newPath ) {
+                	locationService.skipReload().path( newPath ).replace();
+				}
+				callback();
 	        };
-	
-	        /**
-	         * change location
-	         */
-	        changeLocation = function () {
-	            var url = getLocation();
-	            if (isLocationChanged()) {
-	                if (locationService.path() === '/inspector') {
-	
-	                } else {
-	                	locationService.skipReload().path(url).replace();
-	                }
-	                $scope.$emit('navbarDirective.initializeWithStaticApplication', oNavbarVoService);
-	                $scope.$emit('agentListDirective.initialize', oNavbarVoService);
-	            }
-	        };
-	
-	        /**
-	         * get location
-	         * @returns {string}
-	         */
-	        getLocation = function () {
-	            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVoService.getApplication() + '/' + oNavbarVoService.getReadablePeriod() + '/' + oNavbarVoService.getQueryEndDateTime();
-	            if (oNavbarVoService.getAgentId()) {
-	                url += '/' + oNavbarVoService.getAgentId();
+	        var getLocation = function () {
+				var url = [
+					"",
+					cfg.PAGE_NAME,
+					UrlVoService.getApplication(),
+					UrlVoService.getReadablePeriod(),
+					UrlVoService.getQueryEndDateTime()
+				].join( cfg.SLASH );
+
+	            if ( UrlVoService.getAgentId() !== "" ) {
+	                url += cfg.SLASH + UrlVoService.getAgentId();
 	            }
 	            return url;
-	        };
-	
-	        /**
-	         * is location changed
-	         * @returns {boolean}
-	         */
-	        isLocationChanged = function () {
-	            var url = getLocation();
-	            if (locationService.path() !== url) {
-	                return true;
-	            }
-	            return false;
 	        };
 	    }
 	]);

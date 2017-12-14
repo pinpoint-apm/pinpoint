@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.packet.PacketType;
 import com.navercorp.pinpoint.rpc.packet.stream.*;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -52,9 +52,9 @@ public class StreamChannelManager {
     }
 
     public StreamChannelManager(Channel channel, IDGenerator idGenerator, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        AssertUtils.assertNotNull(channel, "Channel may not be null.");
-        AssertUtils.assertNotNull(idGenerator, "IDGenerator may not be null.");
-        AssertUtils.assertNotNull(serverStreamChannelMessageListener, "ServerStreamChannelMessageListener may not be null.");
+        Assert.requireNonNull(channel, "Channel must not be null.");
+        Assert.requireNonNull(idGenerator, "IDGenerator must not be null.");
+        Assert.requireNonNull(serverStreamChannelMessageListener, "ServerStreamChannelMessageListener must not be null.");
 
         this.channel = channel;
         this.idGenerator = idGenerator;
@@ -196,7 +196,7 @@ public class StreamChannelManager {
         code = registerStreamChannel(streamChannelContext);
 
         if (code == StreamCode.OK) {
-            code = streamChannelMessageListener.handleStreamCreate(streamChannelContext, (StreamCreatePacket) packet);
+            code = streamChannelMessageListener.handleStreamCreate(streamChannelContext, packet);
 
             if (code == StreamCode.OK) {
                 streamChannel.changeStateConnected();
@@ -256,7 +256,7 @@ public class StreamChannelManager {
     }
 
     private void handleStreamClose(ClientStreamChannelContext context, StreamClosePacket packet) {
-        context.getClientStreamChannelMessageListener().handleStreamClose(context, (StreamClosePacket) packet);
+        context.getClientStreamChannelMessageListener().handleStreamClose(context, packet);
         clearStreamChannelResource(context.getStreamId());
     }
 

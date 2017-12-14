@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DotGroups {
 
@@ -88,7 +88,7 @@ public class DotGroups {
 
         List<Dot> dotList = new ArrayList<>(size);
         for (DotGroup dotGroup : dotGroupList) {
-            dotList.addAll(dotGroup.getDotSet());
+            dotList.addAll(dotGroup.getDotList());
         }
 
         Set<Dot> sortedSet = new TreeSet<>(DOT_COMPARATOR);
@@ -146,14 +146,18 @@ public class DotGroups {
         }
     }
 
-    class Key {
+    static class Key {
 
         private final Coordinates coordinates;
         private final int code;
 
+        private int hashCode = 0;
+
         public Key(Coordinates coordinates, int code) {
             this.coordinates = coordinates;
             this.code = code;
+
+            hashCode();
         }
 
 
@@ -181,9 +185,13 @@ public class DotGroups {
 
         @Override
         public int hashCode() {
-            int result = coordinates != null ? coordinates.hashCode() : 0;
-            result = 31 * result + code;
-            return result;
+            if (hashCode == 0) {
+                int result = coordinates != null ? coordinates.hashCode() : 0;
+                result = 31 * result + code;
+
+                this.hashCode = result;
+            }
+            return hashCode;
         }
 
         @Override

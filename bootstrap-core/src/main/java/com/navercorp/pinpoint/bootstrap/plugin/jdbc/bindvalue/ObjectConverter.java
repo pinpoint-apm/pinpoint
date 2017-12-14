@@ -22,8 +22,8 @@ import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ArrayUtils;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author emeroad
@@ -35,48 +35,48 @@ public class ObjectConverter implements Converter {
             return "null";
         }
         if (args.length == 2) {
-            Object param = args[1];
+            final Object param = args[1];
             return getParameter(param);
 
         } else if (args.length == 3) {
-            Object param = args[1];
+            final Object param = args[1];
             return getParameter(param);
         }
         return "error";
     }
 
     private String getParameter(Object param) {
-        if(param == null) {
+        if (param == null) {
             return "null";
         } else {
             if (param instanceof Byte) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof String) {
-                return StringUtils.drop((String) param);
+                return abbreviate(param);
             } else if (param instanceof BigDecimal) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof Short) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof Integer) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof Long) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof Float) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof Double) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof BigInteger) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof java.sql.Date) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof Time) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof Timestamp) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof Boolean) {
-                return dropToString(param);
+                return abbreviate(param);
             } else if (param instanceof byte[]) {
-                return ArrayUtils.dropToString((byte[]) param);
+                return ArrayUtils.abbreviate((byte[]) param);
             } else if (param instanceof InputStream) {
                 return getClassName(param);
             } else if (param instanceof java.sql.Blob) {
@@ -89,8 +89,8 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    private String dropToString(Object param) {
-        return StringUtils.drop(param.toString());
+    private String abbreviate(Object param) {
+        return StringUtils.abbreviate(param.toString());
     }
 
     private String getClassName(Object param) {

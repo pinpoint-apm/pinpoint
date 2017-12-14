@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @JsonSerialize(using = ApplicationTimeHistogramViewModelSerializer.class)
 public class ApplicationTimeHistogramViewModel {
@@ -42,7 +42,7 @@ public class ApplicationTimeHistogramViewModel {
         this.agentHistogramList = agentHistogramList;
     }
 
-    public List<AgentTimeHistogramSummary> getSummuryList() {
+    public List<AgentTimeHistogramSummary> getSummaryList() {
         List<AgentTimeHistogramSummary> agentTimeHistogramSummaryList = new ArrayList<>(agentHistogramList.size());
 
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {

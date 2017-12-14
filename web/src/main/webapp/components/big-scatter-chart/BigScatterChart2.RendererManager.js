@@ -368,10 +368,10 @@
 			});
 		});
 	};
-	RendererManager.prototype.toggle = function( type ) {
+	RendererManager.prototype.toggle = function( bIsAll, agentName, type ) {
 		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
 			$.each( aCanvas, function( i, $elCanvas ) {
-				if (BigScatterChart2.Util.endsWith(key, type)) {
+				if ( ( bIsAll || BigScatterChart2.Util.startsWith(key, agentName) ) && BigScatterChart2.Util.endsWith(key, type)) {
 					$elCanvas.toggle();
 				}
 			});

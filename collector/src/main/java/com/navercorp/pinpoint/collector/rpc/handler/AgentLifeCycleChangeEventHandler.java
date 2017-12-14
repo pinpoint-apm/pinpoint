@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.rpc.handler;
 
+import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -39,7 +40,7 @@ public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventH
     private AgentLifeCycleHandler agentLifeCycleHandler;
 
     @Autowired
-    private AgentEventHandler agentEventHandler;
+    private AgentEventService agentEventService;
 
     @Override
     public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception {
@@ -55,7 +56,7 @@ public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventH
             this.agentLifeCycleHandler.handleLifeCycleEvent(pinpointServer, eventTimestamp, agentLifeCycleState, managedAgentLifeCycle.getEventCounter());
 
             AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();
-            this.agentEventHandler.handleEvent(pinpointServer, eventTimestamp, agentEventType);
+            this.agentEventService.handleEvent(pinpointServer, eventTimestamp, agentEventType);
         }
     }
 

@@ -19,34 +19,33 @@ package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor2;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
- * 
  * @author Jongho Moon <jongho.moon@navercorp.com>
- *
  */
 public class PostProcessorInterceptor extends AbstractSpringBeanCreationInterceptor implements AroundInterceptor2 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    
+
     public PostProcessorInterceptor(Instrumentor instrumentor, TransformCallback transformer, TargetBeanFilter filter) {
         super(instrumentor, transformer, filter);
     }
 
-    //
-    @IgnoreMethod
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//    @IgnoreMethod
     @Override
     public void before(Object target, Object arg0, Object arg1) {
-
     }
 
     @Override
     public void after(Object target, Object arg0, Object beanNameObject, Object result, Throwable throwable) {
         try {
             if (!(beanNameObject instanceof String)) {
-                logger.warn("invalid type:{}", beanNameObject);
+                if (logger.isWarnEnabled()) {
+                    logger.warn("invalid type:{}", beanNameObject);
+                }
                 return;
             }
             final String beanName = (String) beanNameObject;

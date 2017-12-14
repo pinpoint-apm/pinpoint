@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -30,13 +32,20 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addApplicationTypeDetector(new JettyDetector());
         JettyConfiguration config = new JettyConfiguration(context.getConfig());
-        
+        if (!config.isJettyEnabled()) {
+            logger.info("JettyPlugin disabled");
+            return;
+        }
+
+        context.addApplicationTypeDetector(new JettyDetector(config.getJettyBootstrapMains()));
+
         addServerInterceptor(config);
     }
 

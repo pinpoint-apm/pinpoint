@@ -49,7 +49,7 @@ public class ContextClassLoaderExecuteTemplate<V> {
         } catch (BootStrapException ex){
             throw ex;
         } catch (Exception ex) {
-            throw new BootStrapException("execute fail. Caused:" + ex.getMessage(), ex);
+            throw new BootStrapException("execute fail. Error:" + ex.getMessage(), ex);
         }
     }
 }

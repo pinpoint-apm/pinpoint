@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.common.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * @author emeroad
@@ -50,4 +52,16 @@ public final class DateUtils {
         final SimpleDateFormat format = new SimpleDateFormat(pattern);
         return format.format(new Date(date));
     }
+
+    public static long timestampToMidNight(long timestamp) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(new Date(timestamp));
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTime().getTime();
+    }
+
 }

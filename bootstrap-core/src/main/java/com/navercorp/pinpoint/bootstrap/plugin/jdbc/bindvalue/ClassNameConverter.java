@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author emeroad
@@ -28,10 +28,10 @@ public class ClassNameConverter implements Converter {
             return "null";
         }
         if (args.length == 2) {
-            return StringUtils.drop(getClassName(args[1]));
+            return StringUtils.abbreviate(getClassName(args[1]));
         } else if(args.length == 3) {
            // need to handle 3rd arg?
-            return StringUtils.drop(getClassName(args[1]));
+            return StringUtils.abbreviate(getClassName(args[1]));
         }
         return "error";
     }

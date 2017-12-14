@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context;
 
 import static org.junit.Assert.*;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import org.slf4j.Logger;
@@ -29,43 +29,47 @@ import org.slf4j.LoggerFactory;
  * @author emeroad
  * @author jaehong.kim
  */
-public class CallStackTest {
+public abstract class CallStackTest {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private Span span;
-    private SpanEvent spanEvent;
 
-    @Before
-    public void before() {
-        span = new Span();
-        spanEvent = new SpanEvent(span);
-    }
+    abstract CallStack newCallStack();
+    abstract CallStack newCallStack(int depth);
 
-    private SpanEvent createSpanEventStackFrame(Span span) {
-        SpanEvent spanEvent = new SpanEvent(span);
+
+    abstract TraceRoot getLocalTraceId();
+    abstract SpanEvent getSpanEvent();
+
+
+    private SpanEvent createSpanEventStackFrame(TraceRoot traceRoot) {
+        SpanEvent spanEvent = new SpanEvent(traceRoot);
         return spanEvent;
     }
 
     @Test
     public void testPush() throws Exception {
-        CallStack callStack = new CallStack(span);
+        CallStack callStack = newCallStack();
         int initialIndex = callStack.getIndex();
         assertEquals("initial index", initialIndex, 0);
-        SpanEvent spanEvent = createSpanEventStackFrame(span);
+        SpanEvent spanEvent = createSpanEventStackFrame(getLocalTraceId());
         int index = callStack.push(spanEvent);
         assertEquals("initial index", index, 1);
         callStack.pop();
     }
 
+
+
+
     @Test
     public void testLargePush() {
-        CallStack callStack = new CallStack(span);
+        CallStack callStack = newCallStack();
         int initialIndex = callStack.getIndex();
         Assert.assertEquals("initial index", initialIndex, 0);
 
         final int pushCount = 32;
         for (int i = 0; i < pushCount; i++) {
-            int push = callStack.push(spanEvent);
+            int push = callStack.push(getSpanEvent());
             Assert.assertEquals("push index", i + 1, push);
             int index = callStack.getIndex();
             Assert.assertEquals("index", i + 1, index);
@@ -78,18 +82,18 @@ public class CallStackTest {
 
     @Test
     public void testPushPop1() {
-        CallStack callStack = new CallStack(span);
+        CallStack callStack = newCallStack();
 
-        callStack.push(spanEvent);
+        callStack.push(getSpanEvent());
         callStack.pop();
     }
 
     @Test
     public void testPushPop2() {
-        CallStack callStack = new CallStack(span);
+        CallStack callStack = newCallStack();
 
-        callStack.push(spanEvent);
-        callStack.push(spanEvent);
+        callStack.push(getSpanEvent());
+        callStack.push(getSpanEvent());
 
         callStack.pop();
         callStack.pop();
@@ -97,10 +101,10 @@ public class CallStackTest {
 
     @Test
     public void testPop_Fail() {
-        CallStack callStack = new CallStack(span);
+        CallStack callStack = newCallStack();
 
-        callStack.push(spanEvent);
-        callStack.push(spanEvent);
+        callStack.push(getSpanEvent());
+        callStack.push(getSpanEvent());
 
         callStack.pop();
         callStack.pop();
@@ -110,17 +114,18 @@ public class CallStackTest {
     @Test
     public void overflow() {
         final int maxDepth = 3;
-        
-        CallStack callStack = new CallStack(span, maxDepth);
+
+        DefaultCallStack callStack = (DefaultCallStack) newCallStack(maxDepth);
         assertEquals(maxDepth, callStack.getMaxDepth());
-        
+
         for(int i = 0; i < maxDepth; i++) {
-            assertEquals(i + 1, callStack.push(spanEvent));
+            assertEquals(i + 1, callStack.push(getSpanEvent()));
         }
         // overflow
-        int overflowIndex = callStack.push(spanEvent);
+        int overflowIndex = callStack.push(getSpanEvent());
         assertEquals(maxDepth + 1, overflowIndex);
         assertEquals(maxDepth + 1, callStack.getIndex());
+
         assertTrue(callStack.isOverflow());
         assertNotNull(callStack.peek());
         // check inner index value.
@@ -128,14 +133,14 @@ public class CallStackTest {
 
         assertNotNull(callStack.pop());
         assertEquals(maxDepth, callStack.getIndex());
-        
+
         // normal
         for(int i = maxDepth; i > 0; i--) {
             assertNotNull(callStack.peek());
             assertNotNull(callStack.pop());
             assertEquals(i - 1, callStack.getIndex());
         }
-        
+
         // low overflow
         assertNull(callStack.pop());
         assertNull(callStack.peek());

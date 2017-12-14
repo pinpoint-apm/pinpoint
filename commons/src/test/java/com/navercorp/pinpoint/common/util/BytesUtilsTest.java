@@ -375,7 +375,7 @@ public class BytesUtilsTest {
         BytesUtils.writeVar32(value, bytes, 0);
 
         final Buffer buffer = new FixedBuffer(bytes);
-        final int varInt = buffer.readVarInt();
+        final int varInt = buffer.readVInt();
         Assert.assertEquals("check value", value, varInt);
         Assert.assertEquals("check buffer size", buffer.getOffset(), computeBufferSize);
 
@@ -428,7 +428,7 @@ public class BytesUtilsTest {
         BytesUtils.writeVar64(value, bytes, 0);
 
         final Buffer buffer = new FixedBuffer(bytes);
-        final long varLong = buffer.readVarLong();
+        final long varLong = buffer.readVLong();
         Assert.assertEquals("check value", value, varLong);
         Assert.assertEquals("check buffer size", buffer.getOffset(), computeBufferSize);
 

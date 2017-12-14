@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
@@ -49,18 +50,22 @@ public final class HeaderTBaseSerializerFactory implements SerializerFactory<Hea
         this(safetyGuaranteed, DEFAULT_STREAM_SIZE);
     }
 
+    public HeaderTBaseSerializerFactory(TBaseLocator locator) {
+        this(DEFAULT_SAFE_GUARANTEED, DEFAULT_STREAM_SIZE, DEFAULT_AUTO_EXPAND, DEFAULT_PROTOCOL_FACTORY, locator);
+    }
+
     public HeaderTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize) {
         this(safetyGuaranteed, outputStreamSize, DEFAULT_AUTO_EXPAND);
     }
-    
+
     public HeaderTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, boolean autoExpand) {
         this(safetyGuaranteed, outputStreamSize, autoExpand, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
     }
-    
+
     public HeaderTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, TProtocolFactory protocolFactory, TBaseLocator locator) {
         this(safetyGuaranteed, outputStreamSize, DEFAULT_AUTO_EXPAND, protocolFactory, locator);
     }
-    
+
     public HeaderTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, boolean autoExpand, TProtocolFactory protocolFactory, TBaseLocator locator) {
         this.safetyGuaranteed = safetyGuaranteed;
         this.outputStreamSize = outputStreamSize;
@@ -95,6 +100,15 @@ public final class HeaderTBaseSerializerFactory implements SerializerFactory<Hea
         }
 
         return new HeaderTBaseSerializer(baos, protocolFactory, locator);
+    }
+
+    @Override
+    public boolean isSupport(Object target) {
+        if (target instanceof TBase) {
+            return locator.isSupport((Class<? extends TBase>) target.getClass());
+        }
+
+        return false;
     }
 
 }

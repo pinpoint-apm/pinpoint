@@ -14,31 +14,51 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.mariadb;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+
+import java.security.ProtectionDomain;
+import java.util.List;
+
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author dawidmalina
  */
 public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    private static final String MARIADB_SCOPE = MariaDBConstants.MARIADB_SCOPE;
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
+    private final JdbcUrlParserV2 jdbcUrlParser = new MariaDBJdbcUrlParser();
+
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         MariaDBConfig config = new MariaDBConfig(context.getConfig());
+
+        if (!config.isPluginEnable()) {
+            logger.info("MariaDB plugin is not executed because plugin enable value is false.");
+            return;
+        }
+
+        context.addJdbcUrlParser(jdbcUrlParser);
 
         addConnectionTransformer(config);
         addDriverTransformer();
@@ -57,8 +77,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                            throws InstrumentException {
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (!target.isInterceptable()) {
@@ -67,32 +87,55 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor",
-                        MariaDBConstants.MARIADB_SCOPE);
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor",
-                        MariaDBConstants.MARIADB_SCOPE);
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor",
-                        MariaDBConstants.MARIADB_SCOPE);
+                // close
+                InstrumentUtils.findMethod(target, "close")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", MARIADB_SCOPE);
+
+                // createStatement
+                final String statementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "createStatement")
+                        .addScopedInterceptor(statementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int")
+                        .addScopedInterceptor(statementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
+                        .addScopedInterceptor(statementCreate, MARIADB_SCOPE);
+
+                // preparedStatement
+                final String preparedStatementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+
+                // preparecall
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addScopedInterceptor(
-                            "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor",
-                            MariaDBConstants.MARIADB_SCOPE);
+                    InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", MARIADB_SCOPE);
                 }
 
                 if (config.isProfileCommit()) {
-                    target.addScopedInterceptor(
-                            "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor",
-                            MariaDBConstants.MARIADB_SCOPE);
+                    InstrumentUtils.findMethod(target, "commit")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", MARIADB_SCOPE);
                 }
 
                 if (config.isProfileRollback()) {
-                    target.addScopedInterceptor(
-                            "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor",
-                            MariaDBConstants.MARIADB_SCOPE);
+                    InstrumentUtils.findMethod(target, "rollback")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", MARIADB_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -107,15 +150,15 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                            throws InstrumentException {
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor",
-                        va(new MariaDBJdbcUrlParser(), true), MariaDBConstants.MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
+                InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2",
+                                va(MariaDBConstants.MARIADB, true), MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }
@@ -128,8 +171,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                            throws InstrumentException {
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
@@ -138,9 +181,13 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor",
-                        va(maxBindValueSize), MariaDBConstants.MARIADB_SCOPE);
+                final String preparedStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "execute")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "executeQuery")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
 
                 return target.toBytecode();
             }
@@ -148,6 +195,9 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         transformTemplate.transform("org.mariadb.jdbc.MariaDbServerPreparedStatement", transformer);
         transformTemplate.transform("org.mariadb.jdbc.MariaDbClientPreparedStatement", transformer);
+        // 1.6.x
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementServer", transformer);
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementClient", transformer);
 
     }
 
@@ -157,8 +207,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                            throws InstrumentException {
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
@@ -168,9 +218,11 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (config.isTraceSqlBindValue()) {
                     final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter
                             .excludes("setRowId", "setNClob", "setSQLXML");
-                    target.addScopedInterceptor(excludes,
-                            "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor",
-                            MariaDBConstants.MARIADB_SCOPE, ExecutionPolicy.BOUNDARY);
+
+                    final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(excludes);
+                    for (InstrumentMethod method : declaredMethods) {
+                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", MARIADB_SCOPE, ExecutionPolicy.BOUNDARY);
+                    }
                 }
 
                 return target.toBytecode();
@@ -178,7 +230,10 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         };
 
         transformTemplate.transform("org.mariadb.jdbc.AbstractMariaDbPrepareStatement", transformer);
-
+        // Class renamed in 1.5.6 - https://github.com/MariaDB/mariadb-connector-j/commit/16c8313960cf4fbc6b2b83136504d1ba9e662919
+        transformTemplate.transform("org.mariadb.jdbc.AbstractPrepareStatement", transformer);
+        // 1.6.x
+        transformTemplate.transform("org.mariadb.jdbc.BasePrepareStatement", transformer);
     }
 
     private void addStatementTransformer() {
@@ -186,8 +241,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                            throws InstrumentException {
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (!target.isInterceptable()) {
@@ -196,12 +251,19 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor",
-                        MariaDBConstants.MARIADB_SCOPE);
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor",
-                        MariaDBConstants.MARIADB_SCOPE);
+                final String executeQueryInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
+                        .addScopedInterceptor(executeQueryInterceptor, MARIADB_SCOPE);
+
+                final String executeUpdateInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor";
+                InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
 
                 return target.toBytecode();
             }
@@ -223,7 +285,13 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", MariaDBConstants.MARIADB_SCOPE);
+                final String registerOutParameterInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor";
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
+                        .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
+                        .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
+                        .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
 
                 return target.toBytecode();
             }
@@ -231,6 +299,9 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         transformTemplate.transform("org.mariadb.jdbc.AbstractCallableProcedureStatement", transformer);
         transformTemplate.transform("org.mariadb.jdbc.AbstractCallableFunctionStatement", transformer);
+        // 1.6.x
+        transformTemplate.transform("org.mariadb.jdbc.CallableProcedureStatement", transformer);
+        transformTemplate.transform("org.mariadb.jdbc.CallableFunctionStatement", transformer);
     }
 
     private void add_1_3_x_CallableStatementTransformer(final MariaDBConfig config) {
@@ -247,11 +318,29 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementExecuteQueryInterceptor", va(maxBindValueSize), MariaDBConstants.MARIADB_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", MariaDBConstants.MARIADB_SCOPE);
+                final String callableStatementExecuteQuery = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target,"execute")
+                        .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "executeQuery")
+                        .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate")
+                        .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
+
+                final String registerOutParameterInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor";
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
+                        .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
+                        .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
+                        .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+
 
                 if (config.isTraceSqlBindValue()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementBindVariableInterceptor", MariaDBConstants.MARIADB_SCOPE);
+                    final MethodFilter filter = new PreparedStatementBindingMethodFilter();
+                    final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(filter);
+                    for (InstrumentMethod method : declaredMethods) {
+                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementBindVariableInterceptor", MARIADB_SCOPE);
+                    }
                 }
 
                 return target.toBytecode();

@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.common.trace;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
 public enum LoggingInfo {
 
@@ -63,17 +62,18 @@ public enum LoggingInfo {
         return desc;
     }
     
-    private final static Map<Byte, LoggingInfo> loggingInfoByCode = new HashMap<Byte, LoggingInfo>();
+    private final static IntHashMap<LoggingInfo> LOGGING_INFO_MAP = toLoggingInfoByCodeMap();
     
-    static {
-        for(LoggingInfo loggingInfo : LoggingInfo.values()) {
-            loggingInfoByCode.put(loggingInfo.getCode(), loggingInfo);
+    private static IntHashMap<LoggingInfo> toLoggingInfoByCodeMap() {
+        final IntHashMap<LoggingInfo> loggingInfoMap = new IntHashMap<LoggingInfo>();
+        for (LoggingInfo loggingInfo : LoggingInfo.values()) {
+            loggingInfoMap.put(loggingInfo.getCode(), loggingInfo);
         }
-        
+        return loggingInfoMap;
     }
-    
+
     public static LoggingInfo searchByCode(byte code) {
-        return loggingInfoByCode.get(code);
+        return LOGGING_INFO_MAP.get(code);
         
     }
     

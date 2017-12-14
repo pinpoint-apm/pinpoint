@@ -18,14 +18,14 @@
     border-bottom: 1px solid #EAEAEA;
 }
 .server-list-title > span {
-    width: 33%;
+    width: 20%;
     display: inline-block;
     text-align: center;
     font-size: 12px;
 }
 .server-list-title > span:first-child {
-    width: 30%;
-    padding-left: 18px;
+    width: 50%;
+    padding-left: 8px;
     text-align: left;
 }
 .server-list-title > span > span {
@@ -40,7 +40,6 @@
     border: 1px solid #E9E9E9;
     z-index: 99;
     position: absolute;
-    box-shadow: -8px 0px 5px 0px rgba(171,169,171,1);
 }
 .server-list-wrapper {
     width: 100%;
@@ -90,12 +89,15 @@
     background-color: #FFF;
 }
 .server-list-layer .server-name {
-    width: 90%;
+    width: 100%;
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     margin-bottom: -5px;
+}
+.server-list-layer .server-name button {
+    font-size: 9px;
 }
 
 .server-list-layer .server-collection {
@@ -115,6 +117,7 @@
     float: left;
     width: 422px;
     height: 100%;
+    border-left: 1px solid #EAEAEA;
     padding-left: 8px;
     padding-right: 8px;
     background-color: #FFF;
@@ -122,16 +125,30 @@
 
 .server-list-chart .chart-header {
     height: 80px;
-    margin-left: -7px;
+    margin-left: -8px;
     margin-right: -8px;
+    border-bottom: 1px solid #EAEAEA;
     background-color: #f2f2f2;
 }
-.server-list-chart button {
+.server-list-chart .chart-header > span {
+    color: #67BB67;
+    display: inline-block;
+    overflow: hidden;
+    font-size: 12px;
+    margin-top: 12px;
+    font-family: sans-serif;
+}
+.server-list-chart .chart-header .title {
+    padding-left: 12px;
+}
+.server-list-chart .chart-header .selected-agent {
+    width: 270px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.server-list-chart .chart-header button {
     float: right;
-    margin: 4px;
+    margin: 12px;
     padding: 0px 3px;
     border-radius: 14px;
-}
-.server-list-chart .chart-list {
-    border-top: 1px solid #DDD;
 }

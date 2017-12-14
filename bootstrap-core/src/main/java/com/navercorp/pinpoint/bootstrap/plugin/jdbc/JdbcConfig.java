@@ -20,12 +20,19 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
  * @author HyunGil Jeong
  */
 public class JdbcConfig {
+    private final boolean pluginEnable;
     private final boolean traceSqlBindValue;
     private final int maxSqlBindValueSize;
 
-    protected JdbcConfig(boolean traceSqlBindValue, int maxSqlBindValue) {
+
+    protected JdbcConfig( boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
+        this.pluginEnable = pluginEnable;
         this.traceSqlBindValue = traceSqlBindValue;
         this.maxSqlBindValueSize = maxSqlBindValue;
+    }
+
+    public boolean isPluginEnable() {
+        return pluginEnable;
     }
 
     public boolean isTraceSqlBindValue() {
@@ -38,6 +45,6 @@ public class JdbcConfig {
 
     @Override
     public String toString() {
-        return "traceSqlBindValue=" + this.traceSqlBindValue + ", maxSqlBindValueSize=" + this.maxSqlBindValueSize;
+        return "pluginEnable=" + pluginEnable +", traceSqlBindValue=" + this.traceSqlBindValue + ", maxSqlBindValueSize=" + this.maxSqlBindValueSize;
     }
 }
