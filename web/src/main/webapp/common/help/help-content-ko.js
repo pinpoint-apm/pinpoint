@@ -868,7 +868,9 @@
 				noParent: "부모 윈도우의 scatter chart 정보가 변경되어 더 이상 transaction 정보를 표시할 수 없습니다.",
 				noData: "부모 윈도우에 {{application}} scatter chart 정보가 없습니다."
 			}
-		}
+		},
+		applicationInspectorGuideMessage: "Application Inspector 기능이 활성화 되어 있지 않습니다.<br>" +
+		"Application Inspector 기능을 사용하려면 <a href='https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md' target='blank'>링크 <span class='glyphicon glyphicon-new-window'></span></a>를 참고하세요."
 	};
 	pinpointApp.constant('helpContent-ko', oHelp );
 })();

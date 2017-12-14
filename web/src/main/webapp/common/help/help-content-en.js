@@ -848,7 +848,9 @@
 				noParent: "Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.",
 				noData: "There is no {{application}} scatter data in parent window."
 			}
-		}
+		},
+		applicationInspectorGuideMessage: "Application Inspector is not enabled.<br>" +
+			"To enable Application Inspector, please refer to <a href='https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md'>this link <span class='glyphicon glyphicon-new-window'></span></a>."
 	};
 	pinpointApp.constant('helpContent-en', oHelp );
 })();
