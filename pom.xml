@@ -944,6 +944,9 @@
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <version>3.0.2</version>
+                <configuration>
+                    <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
