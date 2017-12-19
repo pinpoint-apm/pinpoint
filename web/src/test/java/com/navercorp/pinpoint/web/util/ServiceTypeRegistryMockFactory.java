@@ -44,6 +44,8 @@ public class ServiceTypeRegistryMockFactory {
         ServiceType mockServiceType = mock(ServiceType.class);
         when(mockServiceType.getCode()).thenReturn(typeCode);
         when(mockServiceType.getName()).thenReturn(typeName);
+        when(mockServiceType.getDesc()).thenReturn(typeName);
+        when(mockServiceType.getHistogramSchema()).thenReturn(ServiceTypeCategory.findCategory(typeCode).getHistogramSchema());
 
         if (ServiceType.USER.getName().equals(typeName)) {
             when(mockServiceType.isUser()).thenReturn(true);
