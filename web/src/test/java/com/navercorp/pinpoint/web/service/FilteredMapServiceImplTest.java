@@ -131,16 +131,23 @@ public class FilteredMapServiceImplTest {
         long rootSpanStartTime = 1000L;
         long rootSpanCollectorAcceptTime = 1210L;
         int rootSpanElapsed = 200;
-        SpanBo rootSpan = new TestTraceUtils.SpanBuilder("ROOT_APP", "root-agent", rootSpanId)
-                .startTime(rootSpanStartTime).collectorAcceptTime(rootSpanCollectorAcceptTime).elapsed(rootSpanElapsed)
+        SpanBo rootSpan = new TestTraceUtils.SpanBuilder("ROOT_APP", "root-agent")
+                .spanId(rootSpanId)
+                .startTime(rootSpanStartTime)
+                .collectorAcceptTime(rootSpanCollectorAcceptTime)
+                .elapsed(rootSpanElapsed)
                 .build();
         // app A span
         long appASpanId = RANDOM.nextLong();
         long appASpanStartTime = 1020L;
         long appASpanCollectorAcceptTime = 1090L;
         int appASpanElapsed = 160;
-        SpanBo appASpan = new TestTraceUtils.SpanBuilder("APP_A", "app-a", appASpanId)
-                .parentSpan(rootSpan).startTime(appASpanStartTime).collectorAcceptTime(appASpanCollectorAcceptTime).elapsed(appASpanElapsed)
+        SpanBo appASpan = new TestTraceUtils.SpanBuilder("APP_A", "app-a")
+                .spanId(appASpanId)
+                .parentSpan(rootSpan)
+                .startTime(appASpanStartTime)
+                .collectorAcceptTime(appASpanCollectorAcceptTime)
+                .elapsed(appASpanElapsed)
                 .build();
         // root app -> app A rpc span event
         SpanEventBo rootRpcSpanEvent = new TestTraceUtils.RpcSpanEventBuilder("www.foo.com/bar", 10, 190)

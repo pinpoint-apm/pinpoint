@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
@@ -24,6 +25,7 @@ import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -93,27 +95,37 @@ public class TestTraceUtils {
 
     public static class SpanBuilder {
 
-        private static TransactionIdGenerator transactionIdGenerator = new TransactionIdGenerator();
+        private static final Random random = new Random();
+
+        private static final TransactionIdGenerator transactionIdGenerator = new TransactionIdGenerator();
 
         private final int version;
         private final String applicationName;
         private final String agentId;
-        private final long spanId;
 
+        private long spanId = SpanId.NULL;
         private long startTime;
         private long collectorAcceptTime;
         private int elapsed;
+        private int errorCode;
         private SpanBo parentSpan;
 
-        public SpanBuilder(String applicationName, String agentId, long spanId) {
-            this(0, applicationName, agentId, spanId);
+        public SpanBuilder(String applicationName, String agentId) {
+            this(0, applicationName, agentId);
         }
 
-        public SpanBuilder(int version, String applicationName, String agentId, long spanId) {
+        public SpanBuilder(int version, String applicationName, String agentId) {
             this.version = version;
             this.applicationName = applicationName;
             this.agentId = agentId;
+        }
+
+        public SpanBuilder spanId(long spanId) {
+            if (spanId == SpanId.NULL) {
+                throw new IllegalArgumentException("Invalid spanId : " + spanId);
+            }
             this.spanId = spanId;
+            return this;
         }
 
         public SpanBuilder startTime(long startTime) {
@@ -131,6 +143,11 @@ public class TestTraceUtils {
             return this;
         }
 
+        public SpanBuilder errorCode(int errorCode) {
+            this.errorCode = errorCode;
+            return this;
+        }
+
         public SpanBuilder parentSpan(SpanBo parentSpan) {
             this.parentSpan = parentSpan;
             return this;
@@ -141,12 +158,17 @@ public class TestTraceUtils {
             spanBo.setVersion(version);
             spanBo.setApplicationId(applicationName);
             spanBo.setAgentId(agentId);
+            long spanId = this.spanId;
+            if (spanId == SpanId.NULL) {
+                spanId = random.nextLong();
+            }
             spanBo.setSpanId(spanId);
             spanBo.setServiceType(TEST_STAND_ALONE_TYPE_CODE);
             spanBo.setApplicationServiceType(TEST_STAND_ALONE_TYPE_CODE);
             spanBo.setStartTime(startTime);
             spanBo.setCollectorAcceptTime(collectorAcceptTime);
             spanBo.setElapsed(elapsed);
+            spanBo.setErrCode(errorCode);
             if (parentSpan != null) {
                 spanBo.setTransactionId(parentSpan.getTransactionId());
                 spanBo.setParentSpanId(parentSpan.getSpanId());
