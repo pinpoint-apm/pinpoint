@@ -122,7 +122,7 @@ public class FilteredMapBuilder {
             // we need to convert to time window's timestamp. If not, it may lead to OOM due to mismatch in timeslots.
             long timestamp = timeWindow.refineTimestamp(span.getCollectorAcceptTime());
 
-            if (parentApplication.getServiceType() == ServiceType.USER) {
+            if (parentApplication.getServiceType().isUser()) {
                 // Outbound data
                 if (logger.isTraceEnabled()) {
                     logger.trace("span user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
@@ -184,7 +184,7 @@ public class FilteredMapBuilder {
                 } else {
                     applicationName = span.getApplicationId();
                 }
-                ServiceType serviceType = ServiceType.USER;
+                ServiceType serviceType = this.registry.findServiceType(ServiceType.USER.getCode());
                 return this.applicationFactory.createApplication(applicationName, serviceType);
             }
         } else {

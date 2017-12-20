@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -55,6 +56,11 @@ public class ResponseHistograms {
             }
             // don't sample for now
             this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
+        }
+
+        @VisibleForTesting
+        TimeWindow getWindow() {
+            return window;
         }
 
         public Builder addHistogram(Application application, SpanBo span, long timestamp) {
