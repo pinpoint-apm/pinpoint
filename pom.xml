@@ -946,6 +946,7 @@
                 <version>3.0.2</version>
                 <configuration>
                     <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
+                    <format>xml</format>
                 </configuration>
             </plugin>
             <plugin>
