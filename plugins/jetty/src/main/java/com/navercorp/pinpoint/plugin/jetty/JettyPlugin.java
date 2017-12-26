@@ -61,9 +61,15 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
                     return target.toBytecode();
                 }
 
-                InstrumentMethod jetty8HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.AbstractHttpConnection");
-                if (jetty8HandleMethodEditorBuilder != null) {
-                    jetty8HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
+                InstrumentMethod jetty80HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpConnection");
+                if (jetty80HandleMethodEditorBuilder != null) {
+                    jetty80HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
+                    return target.toBytecode();
+                }
+
+                InstrumentMethod jetty82HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.AbstractHttpConnection");
+                if (jetty82HandleMethodEditorBuilder != null) {
+                    jetty82HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
                     return target.toBytecode();
                 }
 
