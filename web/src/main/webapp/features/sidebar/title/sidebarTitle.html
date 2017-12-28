@@ -17,7 +17,7 @@
 	<div class="server-list-title" ng-show="hasServerList">
 		<span>
 			<button type="button" class="btn btn-success btn-xs" ng-click="showServerList()"><span class="glyphicon glyphicon-th-list"></span>&nbsp;&nbsp;View Servers</button>
-			<button type="button" class="btn btn-success btn-xs" ng-click="openApplicationInspector()"><i class="xi-chart-line"></i>&nbsp;&nbsp;Inspector</button>
+			<button type="button" class="btn btn-success btn-xs" ng-click="openApplicationInspector()" ng-if="isWasNode()"><i class="xi-chart-line"></i>&nbsp;&nbsp;Inspector</button>
 		</span>
 		<span style="border-right: 1px solid #EAEAEA;">Total <span>{{serverCount}}</span></span>
 		<span>Error <span style="color:red;">{{errorServerCount}}</span></span>
