@@ -8,11 +8,11 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2017/12/07)
-We're happy to announce the release of Pinpoint v1.7.0-RC2.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.7.0-RC2).
+## Latest Release (2017/12/29)
+We're happy to announce the release of Pinpoint v1.7.0.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.7.0).
 
-The current stable version is [**v1.6.2**](https://github.com/naver/pinpoint/releases/tag/1.6.2).
+The current stable version is [**v1.7.0**](https://github.com/naver/pinpoint/releases/tag/1.7.0).
 
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
