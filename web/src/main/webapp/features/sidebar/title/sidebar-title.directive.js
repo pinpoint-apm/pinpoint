@@ -120,6 +120,9 @@
 							);
 						}
 					}
+					scope.isWasNode = function() {
+						return scope.isNode && scope.isWas;
+					};
 					scope.changeAgent = function() {
 						AnalyticsService.send( AnalyticsService.CONST.INSPECTOR, AnalyticsService.CONST.CLK_CHANGE_AGENT_MAIN );
 						$rootScope.$broadcast("changedCurrentAgent." + scope.namespace, scope.currentAgent, oChartYMax);

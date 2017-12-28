@@ -15,7 +15,7 @@
 									<span class="glyphicon glyphicon-hdd" style="color:{{hasError(instance.name)}}"></span>
 									<span>{{instance.name}}</span>
 								</label>
-								<button style="float:right" type="button" class="btn btn-success btn-xs" ng-click="openInspector($event, instance.name)"><i class="xi-chart-line"></i></button>
+								<button style="float:right" type="button" class="btn btn-success btn-xs" ng-click="openInspector($event, instance.name)" ng-if="isWasNode()"><i class="xi-chart-line"></i></button>
 							</li>
 						</ul>
 					</li>
