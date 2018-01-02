@@ -14,6 +14,9 @@
 					scope.isWas = false;
 					scope.isGroup = false;
 					scope.isAuthorized = true;
+					SystemConfigService.getConfig().then(function(config) {
+						scope.securyGuideUrl = config["securityGuideUrl"];
+					});
 					var currentAgentName = PreferenceService.getAgentAllStr();
 					var oChartYMax = {};
 					var bRequesting = false;
@@ -106,9 +109,6 @@
 					}
 					scope.isNotAuthorized = function() {
 						return scope.isAuthorized === false;
-					};
-					scope.getAuthGuideUrl = function() {
-						return SystemConfigService.get("securityGuideUrl");
 					};
                     scope.$on("nodeInfoDetailsDirective.initialize", function (event, target, oNavBarVoServiceArgu, bSendChartRequest) {
 						identifyTarget(target);

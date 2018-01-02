@@ -19,8 +19,8 @@
 			}
 		}
 	});
-	pinpointApp.directive( "agentListDirective", [ "agentListDirectiveConfig", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AgentAjaxService", "PreferenceService", "TooltipService", "AnalyticsService",
-		function ( cfg, SystemConfigService, CommonUtilService, UrlVoService, AgentAjaxService, PreferenceService, TooltipService, AnalyticsService ) {
+	pinpointApp.directive( "agentListDirective", [ "agentListDirectiveConfig", "CommonUtilService", "UrlVoService", "AgentAjaxService", "PreferenceService", "TooltipService", "AnalyticsService",
+		function ( cfg, CommonUtilService, UrlVoService, AgentAjaxService, PreferenceService, TooltipService, AnalyticsService ) {
 			return {
 				restrict: 'EA',
 				replace: true,

@@ -108,14 +108,16 @@
 						applyAddUserGroup();
 					};
 					function applyAddUserGroup() {
-						AddUserGroup.applyAction( AlarmUtilService, $elNewGroup, $elLoading, SystemConfigService.get("userId"), function( oServerData, groupId ) {
-							oUserGroupList.push({
-								id: groupId,
-								number: oServerData.number
-							});
-							scope.userGroupList = oUserGroupList;
-							AlarmUtilService.setTotal( $elTotal, oUserGroupList.length );
-						}, showAlert );
+						SystemConfigService.getConfig().then(function(config) {
+							AddUserGroup.applyAction( AlarmUtilService, $elNewGroup, $elLoading, config["userId"], function( oServerData, groupId ) {
+								oUserGroupList.push({
+									id: groupId,
+									number: oServerData.number
+								});
+								scope.userGroupList = oUserGroupList;
+								AlarmUtilService.setTotal( $elTotal, oUserGroupList.length );
+							}, showAlert );
+						});
 					}
 
 					// remove process
@@ -131,18 +133,20 @@
 						RemoveUserGroup.cancelAction( AlarmUtilService, $workingNode );
 					};
 					scope.onApplyRemoveUserGroup = function() {
-						RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, SystemConfigService.get("userId"), function( groupId ) {
-							for (var i = 0; i < oUserGroupList.length; i++) {
-								if ( oUserGroupList[i].id == groupId ) {
-									oUserGroupList.splice(i, 1);
-									break;
+						SystemConfigService.getConfig().then(function(config) {
+							RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, config["userId"], function( groupId ) {
+								for (var i = 0; i < oUserGroupList.length; i++) {
+									if ( oUserGroupList[i].id == groupId ) {
+										oUserGroupList.splice(i, 1);
+										break;
+									}
 								}
-							}
-							scope.$apply(function () {
-								scope.userGroupList = oUserGroupList;
-							});
-							AlarmUtilService.setTotal($elTotal, oUserGroupList.length);
-						}, showAlert );
+								scope.$apply(function () {
+									scope.userGroupList = oUserGroupList;
+								});
+								AlarmUtilService.setTotal($elTotal, oUserGroupList.length);
+							}, showAlert );
+						});
 					};
 
 					// key down

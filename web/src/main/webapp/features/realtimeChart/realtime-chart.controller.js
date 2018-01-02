@@ -415,26 +415,29 @@
 					initElements();
 					bIsFirstInit = false;
 				}
-	        	if ( SystemConfigService.get("showActiveThread") === false ) return;
-	        	if ( bShowRealtimeChart === false ) return;
-	        	if ( bIsWas === false ) {
-	        		hidePopup();
-	        		return;
-	        	}
-	        	initNamespaceToIndexMap();
-				initChartDirective();
-	        	adjustWidth();
-	        	$scope.bInitialized = true;
+				SystemConfigService.getConfig().then(function(config) {
+					if ( config["showActiveThread"] === false ) return;
 
-				// resetStatus();
-				currentApplicationName = applicationName;
-				currentServiceType = serviceType;
-				$elTitle.html( currentApplicationName );
-	        	showPopup();
-        		showWaitingConnectionPopup();
-        		
-        		initReceive();
-        		setPinColor();
+					if ( bShowRealtimeChart === false ) return;
+					if ( bIsWas === false ) {
+						hidePopup();
+						return;
+					}
+					initNamespaceToIndexMap();
+					initChartDirective();
+					adjustWidth();
+					$scope.bInitialized = true;
+
+					// resetStatus();
+					currentApplicationName = applicationName;
+					currentServiceType = serviceType;
+					$elTitle.html( currentApplicationName );
+					showPopup();
+					showWaitingConnectionPopup();
+
+					initReceive();
+					setPinColor();
+				});
 	        });
 	        $scope.retryConnection = function() {
 	        	showWaitingConnectionPopup();
@@ -449,25 +452,27 @@
 	        	if ( $( $event.target ).hasClass("paging") || $( $event.target ).parent().hasClass("paging") ) {
 	        		return;
 				}
-				if ( SystemConfigService.get("showActiveThreadDump") === true ) {
-					var $target = $( $event.target );
-					if ($target.hasClass("agent-chart-list")) {
-						return;
+				SystemConfigService.getConfig().then(function(config) {
+					if ( config["showActiveThreadDump"] === true ) {
+						var $target = $( $event.target );
+						if ($target.hasClass("agent-chart-list")) {
+							return;
+						}
+						var agentId = $target.parents(".agent-chart").find("div").attr("data-name");
+						var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
+						if (openType === null || openType === "window") {
+							$window.open(
+								getOpenUrl() +
+								"/threadDump/" + currentApplicationName + "@" + currentServiceType + "/" + agentId + "?" + Date.now().valueOf() ,
+								"Thread Dump Info",
+								"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
+							);
+						} else {
+							$rootScope.$broadcast("thread-dump-info-layer.open", currentApplicationName, agentId);
+						}
+						AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER);
 					}
-					var agentId = $target.parents(".agent-chart").find("div").attr("data-name");
-					var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
-					if (openType === null || openType === "window") {
-						$window.open(
-							getOpenUrl() +
-							"/threadDump/" + currentApplicationName + "@" + currentServiceType + "/" + agentId + "?" + Date.now().valueOf() ,
-							"Thread Dump Info",
-							"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
-						);
-					} else {
-						$rootScope.$broadcast("thread-dump-info-layer.open", currentApplicationName, agentId);
-					}
-					AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER);
-				}
+				});
 			};
 	        function getOpenUrl() {
 	        	var url = $location.absUrl();

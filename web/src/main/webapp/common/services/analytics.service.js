@@ -13,12 +13,17 @@
 
 		this.send = function( category, name, label, count, options ) {
 			if ( typeof ga !== "undefined" ) {
-				if (SystemConfigService.get("sendUsage") !== true) return;
-				if (arguments.length == 1) {
-					ga("send", "pageview", arguments[0]);
-				} else {
-					ga("send", "event", category, name, label, count, options);
-				}
+				SystemConfigService.getConfig().then(function(config) {
+					console.log( "analytics - sendUsage : ", config["sendUsage"] );
+					if ( config["sendUsage"] !== true ) {
+						return;
+					}
+					if (arguments.length == 1) {
+						ga("send", "pageview", arguments[0]);
+					} else {
+						ga("send", "event", category, name, label, count, options);
+					}
+				});
 			}
 		};
 		this.sendMain = function( name, label, count, options ) {
