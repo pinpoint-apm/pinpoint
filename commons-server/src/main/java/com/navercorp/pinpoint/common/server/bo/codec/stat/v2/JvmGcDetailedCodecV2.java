@@ -42,15 +42,15 @@ public class JvmGcDetailedCodecV2 extends AgentStatCodecV2<JvmGcDetailedBo> {
 
     @Autowired
     public JvmGcDetailedCodecV2(AgentStatDataPointCodec codec) {
-        super(new DeadlockCodecFactory(codec));
+        super(new JvmGcDetailedCodecFactory(codec));
     }
 
 
-    private static class DeadlockCodecFactory implements CodecFactory<JvmGcDetailedBo> {
+    private static class JvmGcDetailedCodecFactory implements CodecFactory<JvmGcDetailedBo> {
 
         private final AgentStatDataPointCodec codec;
 
-        private DeadlockCodecFactory(AgentStatDataPointCodec codec) {
+        private JvmGcDetailedCodecFactory(AgentStatDataPointCodec codec) {
             Assert.notNull(codec, "codec must not be null");
             this.codec = codec;
         }
