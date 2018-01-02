@@ -104,12 +104,14 @@
 				$elWarningMessage.hide();
 			}
 			function startConnection() {
-				if ( SystemConfigService.get("showActiveThread") === false ) return;
+				SystemConfigService.getConfig().then(function(config) {
+					if ( config["showActiveThread"] === false ) return;
 
-				initNamespaceToIndexMap();
-				initChartDirective();
-				showWaitingConnectionPopup();
-				initReceive();
+					initNamespaceToIndexMap();
+					initChartDirective();
+					showWaitingConnectionPopup();
+					initReceive();
+				});
 			}
 			function initNamespaceToIndexMap() {
 				oNamespaceToIndexMap = {};
@@ -296,23 +298,25 @@
 				if ( $( $event.target ).hasClass("page") ) {
 					return;
 				}
-				if ( SystemConfigService.get("showActiveThreadDump") === true ) {
-					var $target = $( $event.target );
-					if ($target.hasClass("agent-chart-list")) {
-						return;
+				SystemConfigService.getConfig().then(function(config) {
+					if ( config["showActiveThreadDump"] === true ) {
+						var $target = $( $event.target );
+						if ($target.hasClass("agent-chart-list")) {
+							return;
+						}
+						var agentId = $target.parents(".agent-chart").find("div").attr("data-name");
+						var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
+						if (openType === null || openType === "window") {
+							$window.open(
+								getOpenUrl() +
+								"/threadDump/" + $scope.applicationName + "@" + $scope.serviceType + "/" + agentId + "?" + Date.now().valueOf() ,
+								"Thread Dump Info",
+								"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
+							);
+						}
+						AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER);
 					}
-					var agentId = $target.parents(".agent-chart").find("div").attr("data-name");
-					var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
-					if (openType === null || openType === "window") {
-						$window.open(
-							getOpenUrl() +
-							"/threadDump/" + $scope.applicationName + "@" + $scope.serviceType + "/" + agentId + "?" + Date.now().valueOf() ,
-							"Thread Dump Info",
-							"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
-						);
-					}
-					AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER);
-				}
+				});
 			};
 			function getOpenUrl() {
 				var url = $location.absUrl();

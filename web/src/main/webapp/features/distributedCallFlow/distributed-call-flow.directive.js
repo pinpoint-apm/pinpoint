@@ -18,11 +18,15 @@
 	            },
 	            link: function postLink(scope, element, attrs) {
 	                // initialize variables
-	            	var grid, dataView, lastAgent, startRow;
+	            	var grid, dataView, lastAgent, startRow, securityGuideUrl = "";
 	
 	                // initialize variables of methods
 	                var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
 	                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode, searchRowByTime, searchRowByWord, selectRow;
+
+	                SystemConfigService.getConfig().then(function(config) {
+						securityGuideUrl = config["securityGuideUrl"];
+					});
 	
 	                // bootstrap
 	                window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
@@ -39,7 +43,7 @@
 						if ( bIsAuthorized ) {
 							return removeTag( text );
 						} else {
-							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + SystemConfigService.get("securityGuideUrl") + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
+							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + securityGuideUrl + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
 						}
 					};
 	                /**

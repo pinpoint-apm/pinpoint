@@ -1,12 +1,5 @@
 (function($) {
 	'use strict';
-	/**
-	 * (en)alarmPinpointUserDirective 
-	 * @ko alarmPinpointUserDirective
-	 * @group Directive
-	 * @name alarmPinpointUserDirective
-	 * @class
-	 */	
 	
 	pinpointApp.directive( "pinpointUserDirective", [ "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService", "SystemConfigurationService",
 	    function ( helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService, SystemConfigService) {
@@ -18,6 +11,9 @@
             link: function (scope, element) {
 
 				scope.prefix = "pinpointUser_";
+				SystemConfigService.getConfig().then(function(config) {
+					scope.canEditUserInfo = config["editUserInfo"];
+				});
             	var $element = $(element);
     			var $elWrapper = $element.find(".wrapper");
     			var $elTotal = $element.find(".total");
@@ -34,9 +30,6 @@
 				var oGroupMemberList = [];
 				scope.pinpointUserList = [];
 				
-				scope.getCreateAllow = function() {
-					return SystemConfigService.get("editUserInfo");
-				};
 				function cancelPreviousWork() {
 					AddPinpointUser.cancelAction( aEditNode, hideEditArea );
 					RemovePinpointUser.cancelAction( AlarmUtilService, $workingNode );

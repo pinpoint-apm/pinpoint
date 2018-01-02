@@ -16,7 +16,10 @@
 	    function ( cfg, $scope, $routeParams, $timeout, SystemConfigService, locationService, CommonUtilService, UrlVoService, AnalyticsService, helpContentService) {
 			$scope.selectedAgent = false;
 			$scope.timeSliderOption = null;
-			$scope.showStatistic = SystemConfigService.get("showApplicationStat");
+			$scope.showStatistic = true;
+			SystemConfigService.getConfig().then(function(config) {
+				$scope.showStatistic = config["showApplicationStat"];
+			});
 			$scope.guideMessage = helpContentService.applicationInspectorGuideMessage;
 			cfg.ID +=  CommonUtilService.getRandomNum();
 			AnalyticsService.send(AnalyticsService.CONST.INSPECTOR_PAGE);

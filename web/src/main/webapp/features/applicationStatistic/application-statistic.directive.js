@@ -3,8 +3,8 @@
 		ID: "APPLICATION_STATISTIC_DRTV_"
 	});
 
-	pinpointApp.directive( "applicationStatisticDirective", [ "applicationStatisticDirectiveConfig", "$sce", "$http", "$timeout", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
-		function ( cfg, $sce, $http, $timeout, SystemConfigService, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
+	pinpointApp.directive( "applicationStatisticDirective", [ "applicationStatisticDirectiveConfig", "$sce", "$http", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
+		function ( cfg, $sce, $http, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
