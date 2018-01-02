@@ -14,7 +14,6 @@
 		this.send = function( category, name, label, count, options ) {
 			if ( typeof ga !== "undefined" ) {
 				SystemConfigService.getConfig().then(function(config) {
-					console.log( "analytics - sendUsage : ", config["sendUsage"] );
 					if ( config["sendUsage"] !== true ) {
 						return;
 					}
