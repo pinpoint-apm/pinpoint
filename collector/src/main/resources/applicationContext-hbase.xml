@@ -82,16 +82,6 @@
         </constructor-arg>
     </bean>
 
-    <bean id="traceDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="traceHasher"/>
-    </bean>
-
-    <bean id="traceHasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
-        <constructor-arg>
-            <value type="int">64</value>
-        </constructor-arg>
-    </bean>
-
     <bean id="traceV2Distributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg ref="traceV2Hasher"/>
     </bean>
