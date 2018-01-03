@@ -59,12 +59,6 @@ public final class HBaseTables {
     public static final TableName AGENT_EVENT = TableName.valueOf("AgentEvent");
     public static final byte[] AGENT_EVENT_CF_EVENTS = Bytes.toBytes("E"); // agent events column family
 
-    @Deprecated
-    public static final TableName AGENTID_APPLICATION_INDEX = TableName.valueOf("AgentIdApplicationIndex");
-    @Deprecated
-    public static final byte[] AGENTID_APPLICATION_INDEX_CF_APPLICATION = Bytes.toBytes("Application");
-
-
     public static final TableName SQL_METADATA_VER2 = TableName.valueOf("SqlMetaData_Ver2");
     public static final byte[] SQL_METADATA_VER2_CF_SQL = Bytes.toBytes("Sql");
     public static final byte[] SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
