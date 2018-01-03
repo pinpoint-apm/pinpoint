@@ -36,40 +36,9 @@ public final class HBaseTables {
     public static final byte[] APPLICATION_TRACE_INDEX_CF_TRACE = Bytes.toBytes("I"); // applicationIndex
     public static final int APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 
-    @Deprecated public static final TableName AGENT_STAT = TableName.valueOf("AgentStat");
     public static final TableName AGENT_STAT_VER2 = TableName.valueOf("AgentStatV2");
 
     public static final byte[] AGENT_STAT_CF_STATISTICS = Bytes.toBytes("S"); // agent statistics column family
-    // FIXME (2014.08) Legacy column for storing serialzied TAgentStat Thrift DTO.
-    @Deprecated public static final byte[] AGENT_STAT_CF_STATISTICS_V1 = Bytes.toBytes("V1"); // qualifier
-    // FIXME (2015.10) Legacy column for storing serialzied Bos separately.
-    @Deprecated public static final byte[] AGENT_STAT_CF_STATISTICS_MEMORY_GC = Bytes.toBytes("Gc"); // qualifier for Heap Memory/Gc statistics
-    @Deprecated public static final byte[] AGENT_STAT_CF_STATISTICS_CPU_LOAD = Bytes.toBytes("Cpu"); // qualifier for CPU load statistics
-    // FIXME (2016.06) Legacy column for storing stat data directly to columns
-    @Deprecated public static final byte[] AGENT_STAT_COL_INTERVAL = Bytes.toBytes("int"); // qualifier for collection interval
-    @Deprecated public static final byte[] AGENT_STAT_COL_GC_TYPE = Bytes.toBytes("gcT"); // qualifier for GC type
-    @Deprecated public static final byte[] AGENT_STAT_COL_GC_OLD_COUNT = Bytes.toBytes("gcOldC"); // qualifier for GC old count
-    @Deprecated public static final byte[] AGENT_STAT_COL_GC_OLD_TIME = Bytes.toBytes("gcOldT"); // qualifier for GC old time
-    @Deprecated public static final byte[] AGENT_STAT_COL_HEAP_USED = Bytes.toBytes("hpU"); // gualifier for heap used
-    @Deprecated public static final byte[] AGENT_STAT_COL_HEAP_MAX = Bytes.toBytes("hpM"); // qualifier for heap max
-    @Deprecated public static final byte[] AGENT_STAT_COL_NON_HEAP_USED = Bytes.toBytes("nHpU"); // qualifier for non-heap used
-    @Deprecated public static final byte[] AGENT_STAT_COL_NON_HEAP_MAX = Bytes.toBytes("nHpM"); // qualifier for non-heap max
-    @Deprecated public static final byte[] AGENT_STAT_COL_JVM_CPU = Bytes.toBytes("jvmCpu"); // qualifier for JVM CPU usage
-    @Deprecated public static final byte[] AGENT_STAT_COL_SYS_CPU = Bytes.toBytes("sysCpu"); // qualifier for system CPU usage
-    @Deprecated public static final byte[] AGENT_STAT_COL_TRANSACTION_SAMPLED_NEW = Bytes.toBytes("tSN"); // qualifier for sampled new count
-    @Deprecated public static final byte[] AGENT_STAT_COL_TRANSACTION_SAMPLED_CONTINUATION = Bytes.toBytes("tSC"); // qualifier for sampled continuation count
-    @Deprecated public static final byte[] AGENT_STAT_COL_TRANSACTION_UNSAMPLED_NEW = Bytes.toBytes("tUnSN"); // qualifier for unsampled new count
-    @Deprecated public static final byte[] AGENT_STAT_COL_TRANSACTION_UNSAMPLED_CONTINUATION = Bytes.toBytes("tUnSC"); // qualifier for unsampled continuation count
-    @Deprecated public static final byte[] AGENT_STAT_COL_ACTIVE_TRACE_HISTOGRAM = Bytes.toBytes("aH"); // qualifier for active trace histogram
-
-    @Deprecated
-    public static final TableName TRACES = TableName.valueOf("Traces");
-    @Deprecated
-    public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("S");  //Span
-    @Deprecated
-    public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("A");  //Annotation
-    @Deprecated
-    public static final byte[] TRACES_CF_TERMINALSPAN = Bytes.toBytes("T"); //SpanEvent
 
     public static final TableName TRACE_V2 = TableName.valueOf("TraceV2");
     public static final byte[] TRACE_V2_CF_SPAN = Bytes.toBytes("S");  //Span
