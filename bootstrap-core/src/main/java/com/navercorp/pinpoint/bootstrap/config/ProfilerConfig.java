@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.common.util.ClassLoaderType;
+
 import java.util.List;
 import java.util.Map;
 
@@ -132,6 +134,8 @@ public interface ProfilerConfig {
     boolean isProxyHttpHeaderEnable();
 
     List<String> getHttpStatusCodeErrors();
+
+    ClassLoaderType getProfilerParentClassLoaderType();
 
     String readString(String propertyName, String defaultValue);
 

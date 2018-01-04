@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.ClassLoaderType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
@@ -46,6 +47,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Deprecated
     public static final String INSTRUMENT_ENGINE_JAVASSIST = "JAVASSIST";
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
+
+    public static final String DEFAULT_PARENT_CLASSLOADER = "SYSTEM";
 
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
     public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
@@ -95,6 +98,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
     private boolean instrumentMatcherEnable = true;
     private InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
+
+    private String profilerParentClassLoader = DEFAULT_PARENT_CLASSLOADER;
 
     private int interceptorRegistrySize = 1024 * 8;
 
@@ -462,6 +467,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return httpStatusCodeErrors;
     }
 
+    @Override
+    public ClassLoaderType getProfilerParentClassLoaderType() {
+        return ClassLoaderType.getType(profilerParentClassLoader);
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
@@ -470,6 +480,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.profileEnable = readBoolean("profiler.enable", true);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
         this.instrumentMatcherEnable = readBoolean("profiler.instrument.matcher.enable", true);
+
+        this.profilerParentClassLoader = readString("profiler.classloader.parent", DEFAULT_PARENT_CLASSLOADER);
 
         this.instrumentMatcherCacheConfig.setInterfaceCacheSize(readInt("profiler.instrument.matcher.interface.cache.size", 4));
         this.instrumentMatcherCacheConfig.setInterfaceCacheEntrySize(readInt("profiler.instrument.matcher.interface.cache.entry.size", 16));
@@ -730,6 +742,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
+        sb.append(", profilerParentClassLoader").append(profilerParentClassLoader);
         sb.append('}');
         return sb.toString();
     }

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Module;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
 /**

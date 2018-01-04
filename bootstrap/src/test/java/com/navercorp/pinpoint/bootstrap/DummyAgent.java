@@ -22,8 +22,11 @@ package com.navercorp.pinpoint.bootstrap;
  */
 public class DummyAgent implements Agent {
 
-    public DummyAgent(AgentOption option) {
+//    public DummyAgent(AgentOption option) {
+//
+//    }
 
+    public DummyAgent() {
     }
 
     @Override

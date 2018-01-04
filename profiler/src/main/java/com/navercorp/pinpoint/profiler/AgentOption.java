@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
-
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.util.List;
+package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 
+import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.util.List;
+
 /**
- * @author emeroad
+ * @author Taejin Koo
  */
 public interface AgentOption {
 
@@ -42,6 +42,7 @@ public interface AgentOption {
     List<String> getBootstrapJarPaths();
 
     ServiceTypeRegistryService getServiceTypeRegistryService();
-    
+
     AnnotationKeyRegistryService getAnnotationKeyRegistryService();
+
 }
