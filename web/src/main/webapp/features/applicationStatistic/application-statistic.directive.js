@@ -17,6 +17,7 @@
 					var bEmptyDataSource = false;
 
 					scope.$on( "down.select.application", function (event, invokeId, sliderTimeSeriesOption) {
+						removePopover();
 						initTimeSliderUI(sliderTimeSeriesOption);
 						if ( sliderTimeSeriesOption === undefined || sliderTimeSeriesOption === null ) {
 							loadStatChart(UrlVoService.getQueryStartTime(), UrlVoService.getQueryEndTime());
@@ -25,13 +26,18 @@
 						}
 					});
 					scope.$on( "down.changed.application", function () {
+						removePopover();
 						initTimeSliderUI();
 						loadStatChart( UrlVoService.getQueryStartTime(), UrlVoService.getQueryEndTime() );
 					});
 					scope.$on( "down.changed.period", function () {
+						removePopover();
 						initTimeSliderUI();
 						loadStatChart( UrlVoService.getQueryStartTime(), UrlVoService.getQueryEndTime() );
 					});
+					function removePopover() {
+						$("._wrongApp").popover("destroy");
+					}
 
 					function initTooltip() {
 						TooltipService.init( "statHeap" );
@@ -172,7 +178,7 @@
 					function convertWithUnits(value, units) {
 						var result = value;
 						var index = 0;
-						while ( result > 1000 ) {
+						while ( result >= 1000 ) {
 							index++;
 							result /= 1000;
 						}
@@ -198,9 +204,9 @@
 								"time": moment(aX[i]).format("YYYY-MM-DD HH:mm:ss")
 							};
 							if ( yLen > i ) {
-								thisData["avg"] = aY[i][4].toFixed(2);
-								thisData["min"] = aY[i][0].toFixed(2);
-								thisData["max"] = aY[i][2].toFixed(2);
+								thisData["avg"] = aY[i][4] === -1 ? null : aY[i][4].toFixed(2);
+								thisData["min"] = aY[i][0] === -1 ? null : aY[i][0].toFixed(2);
+								thisData["max"] = aY[i][2] === -1 ? null : aY[i][2].toFixed(2);
 								thisData["minAgent"] = aY[i][1];
 								thisData["maxAgent"] = aY[i][3];
 							}
@@ -318,6 +324,11 @@
 						getTimelineList( timeSlider.getSliderTimeSeries() );
 					};
 					scope.$on("statisticChartDirective.cursorChanged", function (e, event, namespace) {
+						if ( typeof event.index === "undefined" ) {
+							timeSlider.hideFocus();
+						} else {
+							timeSlider.showFocus( moment(event.target.chart.dataProvider[event.index].time).valueOf() );
+						}
 						scope.$broadcast("statisticChartDirective.showCursorAt", event["index"], namespace);
 					});
 					scope.emptyDataSource = function() {
