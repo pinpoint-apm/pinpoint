@@ -296,6 +296,9 @@
 							}
 						});
 					}
+					function removePopover() {
+						$("._wrongApp").popover("destroy");
+					}
 					scope.toggleSourceSelectLayer = function() {
 						element.find("#data-source-chart .type-select-layer").toggle();
 					};
@@ -378,6 +381,7 @@
 						}
 					};
 					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop, sliderTimeSeriesOption ) {
+						removePopover();
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {
 							return;
@@ -427,6 +431,11 @@
 						// getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
 					scope.$on("agentInspectorChartDirective.cursorChanged", function (e, sourceTarget, event) {
+						if ( typeof event.index === "undefined" ) {
+							timeSlider.hideFocus();
+						} else {
+							timeSlider.showFocus( moment(event.target.chart.dataProvider[event.index].time).valueOf() );
+						}
 						scope.$broadcast( "agentInspectorChartDirective.showCursorAt", sourceTarget, event.index );
 						scope.$broadcast( "dsChartDirective.showCursorAt.agent-data-source", event.index);
 					});

@@ -149,7 +149,7 @@
 				};
 			};
 			function getFloatValue( val ) {
-				return angular.isNumber( val ) ? val.toFixed(2) : 0.00;
+				return angular.isNumber( val ) ? ( val === -1 ? null : val.toFixed(2) ) : 0.00;
 			}
 		}
 	]);

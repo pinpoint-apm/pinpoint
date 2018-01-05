@@ -101,13 +101,13 @@
 				}
 			};
 			function getFloatValue( val ) {
-				return angular.isNumber( val ) ? val.toFixed(2) : 0.00;
+				return angular.isNumber( val ) ? ( val === -1 ? null : val.toFixed(2) ) : 0.00;
 			}
 			function convertWithUnits(value) {
 				var units = [ "ms", "sec", "min" ];
 				var result = value;
 				var index = 0;
-				while ( result > 1000 ) {
+				while ( result >= 1000 ) {
 					index++;
 					result /= 1000;
 				}
