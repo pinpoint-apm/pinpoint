@@ -41,6 +41,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
+@Deprecated
 @Repository
 public class HbaseTraceDao implements TraceDao {
 
