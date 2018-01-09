@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,12 +40,12 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         JettyConfiguration config = new JettyConfiguration(context.getConfig());
         if (!config.isJettyEnabled()) {
-            logger.info("JettyPlugin disabled");
+            logger.info("Disabled JettyPlugin.");
             return;
         }
-
+        // 8.0 <= x <= 9.4
+        logger.info("Enable JettyPlugin. version range=[8.0, 9.4]");
         context.addApplicationTypeDetector(new JettyDetector(config.getJettyBootstrapMains()));
-
         addServerInterceptor(config);
     }
 
@@ -53,23 +53,23 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.eclipse.jetty.server.Server",  new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpChannel");
+                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                // 9.x
+                final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpChannel");
                 if (handleMethodEditorBuilder != null) {
                     handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
                     return target.toBytecode();
                 }
-
-                InstrumentMethod jetty80HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpConnection");
+                // 8.0
+                final InstrumentMethod jetty80HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpConnection");
                 if (jetty80HandleMethodEditorBuilder != null) {
                     jetty80HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
                     return target.toBytecode();
                 }
-
-                InstrumentMethod jetty82HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.AbstractHttpConnection");
+                // 8.1, 8.2
+                final InstrumentMethod jetty82HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.AbstractHttpConnection");
                 if (jetty82HandleMethodEditorBuilder != null) {
-                    jetty82HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
+                    jetty82HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8xServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
                     return target.toBytecode();
                 }
 

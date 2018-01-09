@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.jetty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import org.eclipse.jetty.server.HttpChannel;
+import org.eclipse.jetty.server.AbstractHttpConnection;
 import org.eclipse.jetty.server.Request;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Taejin Koo
  * @author jaehong.kim
  *
- * jetty-9.x
+ * jetty-8.1, jetty-8.2
  */
-public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
+public class Jetty8xServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
-    public ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
+    private volatile Method getRequestMethod;
+
+    public Jetty8xServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         super(traceContext, descriptor, excludeFilter);
     }
 
@@ -39,9 +44,12 @@ public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
             return null;
         }
 
-        if (args[0] instanceof HttpChannel) {
-            final HttpChannel<?> channel = (HttpChannel<?>) args[0];
-            return channel.getRequest();
+        if (args[0] instanceof AbstractHttpConnection) {
+            try {
+                AbstractHttpConnection connection = (AbstractHttpConnection) args[0];
+                return connection.getRequest();
+            } catch (Throwable ignored) {
+            }
         }
         return null;
     }
