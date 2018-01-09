@@ -11,6 +11,7 @@
 			this.parseData = function( aChartData ) {
 				var aX = aChartData.charts.x;
 				var aAVGData = aChartData.charts.y[ "AVG" ];
+				var aMaxData = aChartData.charts.y[ "MAX" ];
 				var xLen = aX.length;
 				var avgLen = aAVGData.length;
 				var refinedChartData = {
@@ -26,6 +27,7 @@
 					};
 					if ( avgLen > i ) {
 						thisData["avg"] = getFloatValue( aAVGData[i][2] );
+						thisData["max"] = getFloatValue( aMaxData[i][1] );
 						thisData["title"] = "AVG";
 					}
 					refinedChartData.data.push( thisData );
@@ -60,7 +62,6 @@
 					"dataProvider": oChartData.data,
 					"valueAxes": [
 						{
-							"stackType": "regular",
 							"gridAlpha": 0,
 							"axisAlpha": 1,
 							"position": "left",
@@ -73,14 +74,23 @@
 					],
 					"graphs": [
 						{
-							"balloonText": "[[description]] : [[value]]",
+							"balloonText": "AVG : [[value]]",
 							"legendValueText": "[[value]]",
 							"lineColor": "rgb(44, 160, 44)",
 							"fillColor": "rgb(44, 160, 44)",
 							"title": "AVG",
-							"descriptionField": "title",
 							"valueField": "avg",
 							"fillAlphas": 0.4,
+							"connect": false
+						},
+						{
+							"valueAxis": "v1",
+							"balloonText": "MAX : [[value]]",
+							"legendValueText": "[[value]]",
+							"lineColor": "rgb(246, 145, 36)",
+							"title": "MAX",
+							"valueField": "max",
+							"fillAlphas": 0,
 							"connect": false
 						}
 					],
