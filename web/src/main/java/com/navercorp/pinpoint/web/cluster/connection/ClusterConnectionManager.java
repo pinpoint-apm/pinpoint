@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.web.config.WebConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterConnectionManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -52,10 +53,12 @@ public class ClusterConnectionManager {
             clusterAcceptor.start();
         }
 
-        String connectAddress = config.getClusterConnectAddress();
-        if (connectAddress != null && !connectAddress.trim().isEmpty()) {
-            clusterConnector = new ClusterConnector(config.getClusterConnectAddress());
+        final String clusterConnectAddress = config.getClusterConnectAddress();
+        if (StringUtils.isNotBlank(clusterConnectAddress)) {
+            clusterConnector = new ClusterConnector(clusterConnectAddress);
             clusterConnector.start();
+        } else {
+            logger.info("cluster.connect.address is empty");
         }
 
         logger.info("start() completed.");

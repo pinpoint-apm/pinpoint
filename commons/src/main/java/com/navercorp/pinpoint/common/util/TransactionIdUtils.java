@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 
@@ -29,6 +28,7 @@ public final class TransactionIdUtils {
     // value is displayed as html - should not use html syntax
     public static final String TRANSACTION_ID_DELIMITER = "^";
     public static final byte VERSION = 0;
+    private static final byte VERSION_SIZE = 1;
 
     private TransactionIdUtils() {
     }
@@ -51,24 +51,45 @@ public final class TransactionIdUtils {
     }
 
     public static byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
-        final Buffer buffer = writeTransactionId(agentId, agentStartTime, transactionSequence);
-        return buffer.getBuffer();
+        final byte[] buffer = writeTransactionId(agentId, agentStartTime, transactionSequence);
+        return buffer;
     }
 
     public static ByteBuffer formatByteBuffer(String agentId, long agentStartTime, long transactionSequence) {
-        final Buffer buffer = writeTransactionId(agentId, agentStartTime, transactionSequence);
-        return buffer.wrapByteBuffer();
+        final byte[] buffer = writeTransactionId(agentId, agentStartTime, transactionSequence);
+        return ByteBuffer.wrap(buffer);
     }
 
-    private static Buffer writeTransactionId(String agentId, long agentStartTime, long transactionSequence) {
+    private static byte[] writeTransactionId(String agentId, long agentStartTime, long transactionSequence) {
         // agentId may be null
         // version + prefixed size + string + long + long
-        final Buffer buffer = new AutomaticBuffer(1 + 5 + 24 + 10 + 10);
-        buffer.putByte(VERSION);
-        buffer.putPrefixedString(agentId);
-        buffer.putVLong(agentStartTime);
-        buffer.putVLong(transactionSequence);
+        final byte[] agentIdBytes = BytesUtils.toBytes(agentId);
+        final int agentIdLength = getLength(agentIdBytes);
+        final int zigZagAgentIdLength = BytesUtils.intToZigZag(agentIdLength);
+        final int agentIdPrefixSize = BytesUtils.computeVar32Size(zigZagAgentIdLength);
+        final int agentStartTimeSize = BytesUtils.computeVar64Size(agentStartTime);
+        final int transactionIdSequenceSize = BytesUtils.computeVar64Size(transactionSequence);
+
+        final int bufferSize = VERSION_SIZE + agentIdPrefixSize + ArrayUtils.getLength(agentIdBytes) +  agentStartTimeSize + transactionIdSequenceSize;
+
+        final byte[] buffer = new byte[bufferSize];
+        buffer[0] = VERSION;
+        int offset = VERSION_SIZE;
+        // write prefix String
+        offset = BytesUtils.writeVar32(zigZagAgentIdLength, buffer, offset);
+        if (agentIdBytes != null) {
+            offset = BytesUtils.writeBytes(buffer, offset, agentIdBytes);
+        }
+        offset = BytesUtils.writeVar64(agentStartTime, buffer, offset);
+        BytesUtils.writeVar64(transactionSequence, buffer, offset);
         return buffer;
+    }
+
+    private static int getLength(byte[] bytes) {
+        if (bytes == null) {
+            return -1;
+        }
+        return bytes.length;
     }
 
     public static TransactionId parseTransactionId(final byte[] transactionId) {

@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,31 +32,48 @@ import java.util.List;
 @Component
 public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, SampledResponseTime> {
 
-    public static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(ResponseTimeBo.UNCOLLECTED_VALUE);
+    private static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(SampledResponseTime.UNCOLLECTED_RESPONSE_TIME);
 
     @Override
     public SampledResponseTime sampleDataPoints(int timeWindowIndex, long timestamp, List<ResponseTimeBo> dataPoints, ResponseTimeBo previousDataPoint) {
+        List<Long> avgs = getAvg(dataPoints);
+        AgentStatPoint<Long> avg = createPoint(timestamp, avgs);
+
+        List<Long> maxs = getMax(dataPoints);
+        AgentStatPoint<Long> max = createPoint(timestamp, maxs);
+
+        SampledResponseTime sampledResponseTime = new SampledResponseTime(avg, max);
+        return sampledResponseTime;
+    }
+
+    private List<Long> getAvg(List<ResponseTimeBo> dataPoints) {
         List<Long> avgs = new ArrayList<>(dataPoints.size());
         for (ResponseTimeBo responseTimeBo : dataPoints) {
             avgs.add(responseTimeBo.getAvg());
         }
-
-        SampledResponseTime sampledResponseTime = new SampledResponseTime();
-        sampledResponseTime.setAvg(createPoint(timestamp, avgs));
-        return sampledResponseTime;
+        return avgs;
     }
 
-    private Point<Long, Long> createPoint(long timestamp, List<Long> values) {
-        if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, ResponseTimeBo.UNCOLLECTED_VALUE);
-        } else {
-            return new Point<>(
-                    timestamp,
-                    LONG_DOWN_SAMPLER.sampleMin(values),
-                    LONG_DOWN_SAMPLER.sampleMax(values),
-                    LONG_DOWN_SAMPLER.sampleAvg(values),
-                    LONG_DOWN_SAMPLER.sampleSum(values));
+    private List<Long> getMax(List<ResponseTimeBo> dataPoints) {
+        List<Long> maxs = new ArrayList<>(dataPoints.size());
+        for (ResponseTimeBo responseTimeBo : dataPoints) {
+            maxs.add(responseTimeBo.getMax());
         }
+        return maxs;
+    }
+
+    private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
+        if (values.isEmpty()) {
+            return SampledResponseTime.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
+        }
+
+        return new AgentStatPoint<>(
+                timestamp,
+                LONG_DOWN_SAMPLER.sampleMin(values),
+                LONG_DOWN_SAMPLER.sampleMax(values),
+                LONG_DOWN_SAMPLER.sampleAvg(values),
+                LONG_DOWN_SAMPLER.sampleSum(values));
+
     }
 
 }

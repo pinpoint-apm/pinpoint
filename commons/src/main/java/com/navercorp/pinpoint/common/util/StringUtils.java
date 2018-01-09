@@ -22,14 +22,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class StringUtils {
+public final class StringUtils {
 
     private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 64;
 
     private static final String NULL_STRING = "null";
 
-    public StringUtils() {
-        throw new AssertionError();
+    private StringUtils() {
     }
 
     public static String defaultString(final String str, final String defaultStr) {
@@ -40,8 +39,33 @@ public class StringUtils {
         return string == null || string.isEmpty();
     }
 
-    public static boolean isNotEmpty(final String string) {
+    public static boolean hasLength(final String string) {
         return string != null && string.length() > 0;
+    }
+
+    public static boolean hasText(String string) {
+        if (isEmpty(string)) {
+            return false;
+        }
+
+        final int length = string.length();
+        for (int i = 0; i < length; i++) {
+            if (!Character.isWhitespace(string.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static <T> int getLength(final String string) {
+        return getLength(string, 0);
+    }
+
+    public static <T> int getLength(final String string, final int nullValue) {
+        if (string == null) {
+            return nullValue;
+        }
+        return string.length();
     }
 
     public static String toString(final Object object) {

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -28,7 +30,7 @@ public class CallStackFactoryV2 implements CallStackFactory {
     }
 
     @Override
-    public CallStack newCallStack(Span span) {
-        return new DefaultCallStack(span, maxDepth);
+    public CallStack newCallStack(TraceRoot traceRoot) {
+        return new DefaultCallStack(traceRoot, maxDepth);
     }
 }

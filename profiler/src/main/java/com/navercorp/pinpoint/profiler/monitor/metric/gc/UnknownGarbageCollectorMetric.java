@@ -25,35 +25,20 @@ import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
  */
 public class UnknownGarbageCollectorMetric implements GarbageCollectorMetric {
 
-    private static final TJvmGcType GC_TYPE = TJvmGcType.UNKNOWN;
+    private static final GarbageCollectorMetricSnapshot UNSUPPORTED_SNAPSHOT = new GarbageCollectorMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
 
     @Override
-    public TJvmGcType gcType() {
-        return GC_TYPE;
+    public TJvmGcType getGcType() {
+        return TJvmGcType.UNKNOWN;
     }
 
     @Override
-    public Long gcOldCount() {
-        return EMPTY_LONG_GAUGE.getValue();
-    }
-
-    @Override
-    public Long gcOldTime() {
-        return EMPTY_LONG_GAUGE.getValue();
-    }
-
-    @Override
-    public Long gcNewCount() {
-        return EMPTY_LONG_GAUGE.getValue();
-    }
-
-    @Override
-    public Long gcNewTime() {
-        return EMPTY_LONG_GAUGE.getValue();
+    public GarbageCollectorMetricSnapshot getSnapshot() {
+        return UNSUPPORTED_SNAPSHOT;
     }
 
     @Override
     public String toString() {
-        return "Unknown garbage collector metrics";
+        return "Unknown garbage collector metric";
     }
 }

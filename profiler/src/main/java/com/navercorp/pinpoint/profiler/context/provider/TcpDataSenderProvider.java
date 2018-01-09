@@ -18,28 +18,39 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.module.DefaultClientFactory;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+
+import java.net.InetSocketAddress;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class TcpDataSenderProvider implements Provider<EnhancedDataSender> {
-    private final Provider<PinpointClient> client;
+    private final ProfilerConfig profilerConfig;
+    private final Provider<PinpointClientFactory> clientFactoryProvider;
 
     @Inject
-    public TcpDataSenderProvider(Provider<PinpointClient> client) {
-        if (client == null) {
-            throw new NullPointerException("client must not be null");
+    public TcpDataSenderProvider(ProfilerConfig profilerConfig, @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (clientFactoryProvider == null) {
+            throw new NullPointerException("clientFactoryProvider must not be null");
         }
 
-        this.client = client;
+        this.profilerConfig = profilerConfig;
+        this.clientFactoryProvider = clientFactoryProvider;
+
     }
 
     @Override
     public EnhancedDataSender get() {
-        PinpointClient pinpointClient = client.get();
-        return new TcpDataSender(pinpointClient);
+        PinpointClientFactory clientFactory = clientFactoryProvider.get();
+        InetSocketAddress address = new InetSocketAddress(profilerConfig.getCollectorTcpServerIp(), profilerConfig.getCollectorTcpServerPort());
+        return new TcpDataSender("Default", address, clientFactory);
     }
 }

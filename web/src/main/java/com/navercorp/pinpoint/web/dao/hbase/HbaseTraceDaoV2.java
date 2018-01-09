@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
@@ -31,7 +30,6 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@Beta
 @Repository
 public class HbaseTraceDaoV2 implements TraceDao {
 
@@ -118,7 +116,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
             return Collections.emptyList();
         }
         if (columnFamily == null) {
-            throw new NullPointerException("columnFamily may not be null.");
+            throw new NullPointerException("columnFamily must not be null.");
         }
 
         List<List<SpanBo>> spanBoList = new ArrayList<>();

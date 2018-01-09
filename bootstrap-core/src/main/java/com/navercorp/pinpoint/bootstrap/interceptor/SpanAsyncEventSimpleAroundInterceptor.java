@@ -16,8 +16,7 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncState;
-import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -32,7 +31,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
-    protected static final String ASYNC_TRACE_SCOPE = "##ASYNC_TRACE_SCOPE";
+    protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
 
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;
@@ -45,7 +44,6 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
         if (methodDescriptor == null) {
             throw new NullPointerException("methodDescriptor must not be null");
         }
-
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
 
@@ -74,7 +72,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
         } else {
             // check sampled.
             if (!trace.canSampled()) {
-                // sckip.
+                // skip.
                 return;
             }
         }
@@ -107,7 +105,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             return;
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -134,14 +132,16 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             if (isAsyncTraceDestination(trace)) {
                 deleteAsyncTrace(trace);
             }
-            finishAsyncState(asyncTraceId);
         }
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
 
     protected AsyncTraceId getAsyncTraceId(Object target) {
-        return target != null && target instanceof AsyncTraceIdAccessor ? ((AsyncTraceIdAccessor) target)._$PINPOINT$_getAsyncTraceId() : null;
+        if (target instanceof AsyncTraceIdAccessor) {
+            return ((AsyncTraceIdAccessor) target)._$PINPOINT$_getAsyncTraceId();
+        }
+        return null;
     }
 
     private Trace createAsyncTrace(AsyncTraceId asyncTraceId) {
@@ -153,11 +153,11 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             return null;
         }
         if (isDebug) {
-            logger.debug("Continue async trace {}, id={}", trace, asyncTraceId);
+            logger.debug("createAsyncTrace() trace={}, asyncTraceId={}", trace, asyncTraceId);
         }
 
         // add async scope.
-        TraceScope oldScope = trace.addScope(ASYNC_TRACE_SCOPE);
+        final TraceScope oldScope = trace.addScope(ASYNC_TRACE_SCOPE);
         if (oldScope != null) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Duplicated async trace scope={}.", oldScope.getName());
@@ -211,18 +211,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
         return scope != null && !scope.isActive();
     }
 
-    private void finishAsyncState(final AsyncTraceId asyncTraceId) {
-        if (asyncTraceId instanceof AsyncStateSupport) {
-            final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncTraceId;
-            AsyncState asyncState = asyncStateSupport.getAsyncState();
-            asyncState.finish();
-            if (isDebug) {
-                logger.debug("finished asyncState. asyncTraceId={}", asyncTraceId);
-            }
-        }
-    }
-
-    public class AsyncMethodDescriptor implements MethodDescriptor {
+    public static class AsyncMethodDescriptor implements MethodDescriptor {
 
         private int apiId = 0;
 

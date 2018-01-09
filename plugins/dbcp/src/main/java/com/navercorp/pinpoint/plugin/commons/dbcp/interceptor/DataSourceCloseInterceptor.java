@@ -16,40 +16,31 @@
 
 package com.navercorp.pinpoint.plugin.commons.dbcp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
-import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpConstants;
 import com.navercorp.pinpoint.plugin.commons.dbcp.DataSourceMonitorAccessor;
 import com.navercorp.pinpoint.plugin.commons.dbcp.DbcpDataSourceMonitor;
 
 /**
  * @author Taejin Koo
  */
-@Scope(CommonsDbcpConstants.SCOPE)
-@TargetMethod(name="close")
 public class DataSourceCloseInterceptor implements AroundInterceptor {
 
-    private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
-    private final MethodDescriptor methodDescriptor;
 
-    public DataSourceCloseInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
+    public DataSourceCloseInterceptor(DataSourceMonitorRegistry dataSourceMonitorRegistry) {
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
-        this.methodDescriptor = methodDescriptor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        if ((target instanceof DataSourceMonitorAccessor)) {
-            DbcpDataSourceMonitor dataSourceMonitor = ((DataSourceMonitorAccessor) target)._$PINPOINT$_getDataSourceMonitor();
+        if (target instanceof DataSourceMonitorAccessor) {
+            final DataSourceMonitorAccessor dataSourceMonitorAccessor = (DataSourceMonitorAccessor) target;
+
+            final DbcpDataSourceMonitor dataSourceMonitor = dataSourceMonitorAccessor._$PINPOINT$_getDataSourceMonitor();
 
             if (dataSourceMonitor != null) {
-                ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(null);
+                dataSourceMonitorAccessor._$PINPOINT$_setDataSourceMonitor(null);
                 dataSourceMonitor.close();
                 dataSourceMonitorRegistry.unregister(dataSourceMonitor);
             }

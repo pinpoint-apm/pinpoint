@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.bootstrap.LibClass;
-import com.navercorp.pinpoint.bootstrap.PinpointURLClassLoader;
+import com.navercorp.pinpoint.bootstrap.classloader.LibClass;
+import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
@@ -31,9 +31,9 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -83,8 +83,8 @@ public class JarProfilerPluginClassInjectorTest {
                 return DELEGATE_PARENT;
             }
         };
-        PinpointURLClassLoader testClassLoader = new PinpointURLClassLoader(urlArray, ClassLoader.getSystemClassLoader(), libClassFilter);
 
+        URLClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(urlArray, ClassLoader.getSystemClassLoader(), libClassFilter);
         final ClassLoader contextTypeMatchClassLoader = constructor.newInstance(testClassLoader);
 
         logger.debug("cl:{}",contextTypeMatchClassLoader);

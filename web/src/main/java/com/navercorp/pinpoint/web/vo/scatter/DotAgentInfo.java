@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.vo.scatter;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DotAgentInfo {
 

@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -37,15 +36,14 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public abstract class AbstractHttpClientExecuteMethodInterceptor implements AroundInterceptor {
     protected final PLogger logger;
     protected final boolean isDebug;
 
     private boolean isHasCallbackParam;
-    protected TraceContext traceContext;
-    protected MethodDescriptor descriptor;
-    protected InterceptorScope interceptorScope;
+    protected final TraceContext traceContext;
+    protected final MethodDescriptor descriptor;
+    protected final InterceptorScope interceptorScope;
 
     public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz, boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.logger = PLoggerFactory.getLogger(childClazz);

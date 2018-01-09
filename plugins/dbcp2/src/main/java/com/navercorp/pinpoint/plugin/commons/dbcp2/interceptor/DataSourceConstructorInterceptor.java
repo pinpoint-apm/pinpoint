@@ -17,11 +17,8 @@
 package com.navercorp.pinpoint.plugin.commons.dbcp2.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.plugin.commons.dbcp2.CommonsDbcp2Constants;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.DataSourceMonitorAccessor;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.Dbcp2DataSourceMonitor;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -29,8 +26,6 @@ import org.apache.commons.dbcp2.BasicDataSource;
 /**
  * @author Taejin Koo
  */
-@Scope(CommonsDbcp2Constants.SCOPE)
-@TargetConstructor
 public class DataSourceConstructorInterceptor implements AroundInterceptor {
 
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
@@ -49,12 +44,19 @@ public class DataSourceConstructorInterceptor implements AroundInterceptor {
             return;
         }
 
-        if ((target instanceof DataSourceMonitorAccessor) && (target instanceof BasicDataSource)) {
-            Dbcp2DataSourceMonitor dbcpDataSourceMonitor = new Dbcp2DataSourceMonitor((BasicDataSource)target);
-            dataSourceMonitorRegistry.register(dbcpDataSourceMonitor);
-
-            ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(dbcpDataSourceMonitor);
+        final BasicDataSource basicDataSource = getBasicDataSource(target);
+        if (basicDataSource instanceof DataSourceMonitorAccessor) {
+            final Dbcp2DataSourceMonitor dbcpDataSourceMonitor = new Dbcp2DataSourceMonitor(basicDataSource);
+            this.dataSourceMonitorRegistry.register(dbcpDataSourceMonitor);
+            ((DataSourceMonitorAccessor) basicDataSource)._$PINPOINT$_setDataSourceMonitor(dbcpDataSourceMonitor);
         }
+    }
+
+    private BasicDataSource getBasicDataSource(Object target) {
+        if (target instanceof BasicDataSource) {
+            return (BasicDataSource)target;
+        }
+        return null;
     }
 
 }

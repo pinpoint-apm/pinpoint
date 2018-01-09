@@ -24,6 +24,9 @@ import java.util.List;
 public class AgentStatBo {
 
     private String agentId;
+
+    private long startTimestamp;
+
     private List<JvmGcBo> jvmGcBos;
     private List<JvmGcDetailedBo> jvmGcDetailedBos;
     private List<CpuLoadBo> cpuLoadBos;
@@ -31,6 +34,15 @@ public class AgentStatBo {
     private List<ActiveTraceBo> activeTraceBos;
     private List<DataSourceListBo> dataSourceListBos;
     private List<ResponseTimeBo> responseTimeBos;
+    private List<DeadlockBo> deadlockBos;
+
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
+    }
 
     public String getAgentId() {
         return agentId;
@@ -96,6 +108,14 @@ public class AgentStatBo {
         this.responseTimeBos = responseTimeBos;
     }
 
+    public List<DeadlockBo> getDeadlockBos() {
+        return deadlockBos;
+    }
+
+    public void setDeadlockBos(List<DeadlockBo> deadlockBos) {
+        this.deadlockBos = deadlockBos;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentStatBo{");
@@ -107,6 +127,7 @@ public class AgentStatBo {
         sb.append(", activeTraceBos=").append(activeTraceBos);
         sb.append(", dataSourceListBos=").append(dataSourceListBos);
         sb.append(", responseTimeBos=").append(responseTimeBos);
+        sb.append(", deadlockBos=").append(deadlockBos);
         sb.append('}');
         return sb.toString();
     }

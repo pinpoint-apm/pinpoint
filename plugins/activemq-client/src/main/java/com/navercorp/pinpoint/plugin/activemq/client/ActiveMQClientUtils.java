@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.activemq.client;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -29,14 +31,13 @@ public class ActiveMQClientUtils {
     }
 
     public static String getEndPoint(SocketAddress socketAddress) {
-        String endPoint = ActiveMQClientConstants.UNKNOWN_ADDRESS;
         if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-            InetAddress remoteAddress = inetSocketAddress.getAddress();
+            final InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            final InetAddress remoteAddress = inetSocketAddress.getAddress();
             if (remoteAddress != null) {
-                endPoint = remoteAddress.getHostAddress() + ":" + inetSocketAddress.getPort();
+                return HostAndPort.toHostAndPortString(remoteAddress.getHostAddress(), inetSocketAddress.getPort());
             }
         }
-        return endPoint;
+        return ActiveMQClientConstants.UNKNOWN_ADDRESS;
     }
 }

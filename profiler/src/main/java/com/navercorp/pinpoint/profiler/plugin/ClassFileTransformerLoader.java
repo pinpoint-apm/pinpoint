@@ -20,9 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
@@ -49,15 +47,14 @@ public class ClassFileTransformerLoader {
         this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
-    public void addClassFileTransformer(InstrumentContext instrumentContext, final String targetClassName, final TransformCallback transformCallback) {
-        if (targetClassName == null) {
-            throw new NullPointerException("targetClassName must not be null");
+    public void addClassFileTransformer(InstrumentContext instrumentContext, final Matcher matcher, final TransformCallback transformCallback) {
+        if (matcher == null) {
+            throw new NullPointerException("matcher must not be null");
         }
         if (transformCallback == null) {
             throw new NullPointerException("transformCallback must not be null");
         }
 
-        final Matcher matcher = Matchers.newClassNameMatcher(JavaAssistUtils.javaNameToJvmName(targetClassName));
         final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(profilerConfig, instrumentContext, matcher, transformCallback);
         classTransformers.add(guard);
     }

@@ -8,12 +8,11 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2017/04/12)
-We're happy to announce the release of Pinpoint v1.6.1.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.6.1)
-We're now focusing on developing v1.7.0.
+## Latest Release (2018/01/04)
+We're happy to announce the release of Pinpoint v1.7.1.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.7.1).
 
-The current stable version is [**v1.6.1**](https://github.com/naver/pinpoint/releases/tag/1.6.1).
+The current stable version is [**v1.7.1**](https://github.com/naver/pinpoint/releases/tag/1.7.1).
 
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
@@ -41,13 +40,14 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 3/4](https://github.com/naver/pinpoint/tree/master/plugins/resin)
-* Spring, Spring Boot
+* Tomcat 6/7/8, [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere)
+* Spring, Spring Boot (Embedded Tomcat, Jetty)
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
-* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL, MARIA
+* MySQL, Oracle, MSSQL, CUBRID,POSTGRESQL, MARIA
 * Arcus, Memcached, Redis, CASSANDRA
 * iBATIS, MyBatis
+* DBCP, DBCP2, HIKARICP
 * gson, Jackson, Json Lib
 * log4j, Logback
 

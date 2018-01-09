@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
@@ -61,7 +61,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
     private final List<ServerStreamChannel> streamChannelRepository = new CopyOnWriteArrayList<ServerStreamChannel>();
 
-    private final ActiveTraceHistogramFactory activeTraceHistogramFactory;
+    private final ActiveTraceRepository activeTraceRepository;
 
     public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
         this(activeTraceRepository, DEFAULT_FLUSH_DELAY);
@@ -71,7 +71,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         if (activeTraceRepository == null) {
             throw new NullPointerException("activeTraceRepository");
         }
-        this.activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceRepository);
+        this.activeTraceRepository = activeTraceRepository;
         this.flushDelay = flushDelay;
     }
 
@@ -83,7 +83,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     @Override
     public TBase<?, ?> requestCommandService(TBase activeThreadCountObject) {
         if (activeThreadCountObject == null) {
-            throw new NullPointerException("activeThreadCountObject may not be null.");
+            throw new NullPointerException("activeThreadCountObject must not be null.");
         }
 
         return getActiveThreadCountResponse();
@@ -97,12 +97,17 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     }
 
     private TCmdActiveThreadCountRes getActiveThreadCountResponse() {
-        ActiveTraceHistogram activeTraceHistogram = this.activeTraceHistogramFactory.createHistogram();
+
+        final long currentTime = System.currentTimeMillis();
+        final ActiveTraceHistogram histogram = this.activeTraceRepository.getActiveTraceHistogram(currentTime);
+
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
-        response.setHistogramSchemaType(activeTraceHistogram.getHistogramSchema().getTypeCode());
-        response.setActiveThreadCount(activeTraceHistogram.getActiveTraceCounts());
-        response.setTimeStamp(System.currentTimeMillis());
+        response.setHistogramSchemaType(histogram.getHistogramSchema().getTypeCode());
+
+        final List<Integer> activeTraceCounts = ActiveTraceHistogramUtils.asList(histogram);
+        response.setActiveThreadCount(activeTraceCounts);
+        response.setTimeStamp(currentTime);
 
         return response;
     }

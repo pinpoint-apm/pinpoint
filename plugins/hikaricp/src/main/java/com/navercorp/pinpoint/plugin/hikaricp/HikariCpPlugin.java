@@ -23,12 +23,16 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
+
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author Taejin Koo
@@ -62,7 +66,24 @@ public class HikariCpPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor(HikariCpConstants.INTERCEPTOR_GET_CONNECTION);
+
+                // constructor
+                InstrumentMethod constructor = target.getConstructor();
+                if (constructor != null) {
+                    constructor.addScopedInterceptor(HikariCpConstants.INTERCEPTOR_BASIC, va(HikariCpConstants.SERVICE_TYPE), HikariCpConstants.SCOPE);
+                }
+                constructor = target.getConstructor("com.zaxxer.hikari.HikariConfig");
+                if (constructor != null) {
+                    constructor.addScopedInterceptor(HikariCpConstants.INTERCEPTOR_BASIC, va(HikariCpConstants.SERVICE_TYPE), HikariCpConstants.SCOPE);
+                }
+
+                // getConnection method
+                InstrumentMethod getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection");
+                getConnectionMethod.addScopedInterceptor(HikariCpConstants.INTERCEPTOR_GET_CONNECTION, HikariCpConstants.SCOPE);
+
+                getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection", new String[]{"java.lang.String", "java.lang.String"});
+                getConnectionMethod.addScopedInterceptor(HikariCpConstants.INTERCEPTOR_GET_CONNECTION, HikariCpConstants.SCOPE_DEPRECATED);
+
                 return target.toBytecode();
             }
 
@@ -95,7 +116,11 @@ public class HikariCpPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            target.addInterceptor(HikariCpConstants.INTERCEPTOR_CLOSE_CONNECTION);
+
+            // close method
+            InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+            closeMethod.addScopedInterceptor(HikariCpConstants.INTERCEPTOR_CLOSE_CONNECTION, HikariCpConstants.SCOPE);
+
             return target.toBytecode();
         }
 
@@ -140,8 +165,13 @@ public class HikariCpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         private void addDataSourceMonitorInterceptor(InstrumentClass target, InstrumentMethod constructor) throws InstrumentException {
             target.addField(HikariCpConstants.ACCESSOR_DATASOURCE_MONITOR);
-            constructor.addInterceptor(HikariCpConstants.INTERCEPTOR_CONSTRUCTOR);
-            constructor.addInterceptor(HikariCpConstants.INTERCEPTOR_CLOSE);
+
+            // constructor
+            constructor.addScopedInterceptor(HikariCpConstants.INTERCEPTOR_CONSTRUCTOR, HikariCpConstants.SCOPE, ExecutionPolicy.INTERNAL);
+
+            // shutdown method
+            InstrumentMethod shutdownMethod = InstrumentUtils.findMethod(target, "shutdown");
+            shutdownMethod.addScopedInterceptor(HikariCpConstants.INTERCEPTOR_CLOSE, HikariCpConstants.SCOPE, ExecutionPolicy.ALWAYS);
         }
 
     }

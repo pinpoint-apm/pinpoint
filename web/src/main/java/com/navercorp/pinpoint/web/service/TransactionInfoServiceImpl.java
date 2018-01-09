@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter;
@@ -159,8 +160,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         final SpanAlignPopulate spanAlignPopulate = new SpanAlignPopulate();
         List<Record> recordList = spanAlignPopulate.populateSpanRecord(callTreeIterator);
-        logger.debug("RecordList:{}", recordList);
-
         if (viewPointSpanAlign != null) {
             // mark the record to be used as focus
             long beginTimeStamp = viewPointSpanAlign.getStartTime();
@@ -293,14 +292,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return true;
     }
 
-    private String getArgument(final SpanAlign spanAlign) {
-        if (spanAlign.isSpan()) {
-            return getRpcArgument(spanAlign);
-        }
-
-        return getDisplayArgument(spanAlign.getSpanEventBo());
-    }
-
     private String getRpcArgument(SpanAlign spanAlign) {
         SpanBo spanBo = spanAlign.getSpanBo();
         String rpc = spanBo.getRpc();
@@ -347,7 +338,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
 
             final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);
-            final RecordFactory factory = new RecordFactory(registry, annotationKeyRegistryService);
+            final RecordFactory factory = new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService);
 
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.
             while (callTreeIterator.hasNext()) {
@@ -370,8 +361,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     metaDataFilter.replaceAnnotationBo(align, MetaData.PARAM);
                 }
 
-                final String argument = getArgument(align);
-                final Record record = factory.get(node, argument);
+                final Record record = factory.get(node);
                 recordList.add(record);
 
                 // add exception record.
@@ -381,7 +371,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         recordList.add(exceptionRecord);
                     }
                 }
-
 
                 // add annotation record.
                 if (!align.getAnnotationBoList().isEmpty()) {

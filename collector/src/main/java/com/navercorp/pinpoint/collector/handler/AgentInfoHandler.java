@@ -67,9 +67,6 @@ public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
             applicationIndexDao.insert(agentInfo);
 
             return new TResult(true);
-
-            // for querying applicationname using agentid
-//            agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
         } catch (Exception e) {
             logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
             TResult result = new TResult(false);

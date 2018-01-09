@@ -17,8 +17,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ import java.net.SocketAddress;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CollectorClusterConnectionManager implements  ClusterConnectionManager {
 
@@ -45,7 +45,7 @@ public class CollectorClusterConnectionManager implements  ClusterConnectionMana
     }
 
     public CollectorClusterConnectionManager(String clusterId, CollectorClusterConnectionRepository socketRepository, CollectorClusterConnector client, CollectorClusterAcceptor acceptor) {
-        AssertUtils.assertNotNull(client, "clusterConnector may not be null.");
+        Assert.requireNonNull(client, "clusterConnector must not be null.");
 
         this.clusterId = clusterId;
         this.socketRepository = socketRepository;

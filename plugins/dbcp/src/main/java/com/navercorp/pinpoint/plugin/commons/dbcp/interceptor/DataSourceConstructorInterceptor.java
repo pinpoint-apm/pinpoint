@@ -17,11 +17,8 @@
 package com.navercorp.pinpoint.plugin.commons.dbcp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpConstants;
 import com.navercorp.pinpoint.plugin.commons.dbcp.DataSourceMonitorAccessor;
 import com.navercorp.pinpoint.plugin.commons.dbcp.DbcpDataSourceMonitor;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -29,8 +26,6 @@ import org.apache.commons.dbcp.BasicDataSource;
 /**
  * @author Taejin Koo
  */
-@Scope(CommonsDbcpConstants.SCOPE)
-@TargetConstructor
 public class DataSourceConstructorInterceptor implements AroundInterceptor {
 
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
@@ -49,12 +44,20 @@ public class DataSourceConstructorInterceptor implements AroundInterceptor {
             return;
         }
 
-        if ((target instanceof DataSourceMonitorAccessor) && (target instanceof BasicDataSource)) {
-            DbcpDataSourceMonitor dataSourceMonitor = new DbcpDataSourceMonitor((BasicDataSource)target);
+        final BasicDataSource basicDataSource = getBasicDatasource(target);
+        if (basicDataSource instanceof DataSourceMonitorAccessor) {
+            DbcpDataSourceMonitor dataSourceMonitor = new DbcpDataSourceMonitor(basicDataSource);
             dataSourceMonitorRegistry.register(dataSourceMonitor);
 
-            ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(dataSourceMonitor);
+            ((DataSourceMonitorAccessor) basicDataSource)._$PINPOINT$_setDataSourceMonitor(dataSourceMonitor);
         }
+    }
+
+    private BasicDataSource getBasicDatasource(Object target) {
+        if (target instanceof BasicDataSource) {
+            return (BasicDataSource) target;
+        }
+        return null;
     }
 
 }

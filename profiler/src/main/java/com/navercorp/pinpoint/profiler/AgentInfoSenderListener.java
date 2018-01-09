@@ -16,58 +16,36 @@
 
 package com.navercorp.pinpoint.profiler;
 
+import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.util.SerializationUtils;
-import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AgentInfoSenderListener implements FutureListener<ResponseMessage> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final AtomicBoolean isSuccessful;
+    private final DefaultFuture<ResponseMessage> future;
 
-    public AgentInfoSenderListener(AtomicBoolean isSuccessful) {
-        this.isSuccessful = isSuccessful;
+    public AgentInfoSenderListener(DefaultFuture<ResponseMessage> future) {
+        this.future = future;
     }
 
     @Override
     public void onComplete(Future<ResponseMessage> future) {
-        try {
-            if (future != null && future.isSuccess()) {
-                TBase<?, ?> tbase = deserialize(future);
-                if (tbase instanceof TResult) {
-                    TResult result = (TResult) tbase;
-                    if (result.isSuccess()) {
-                        logger.debug("result success");
-                        this.isSuccessful.set(true);
-                        return;
-                    } else {
-                        logger.warn("request fail. Caused:{}", result.getMessage());
-                    }
-                } else {
-                    logger.warn("Invalid Class. {}", tbase);
-                }
-            }
-        } catch(Exception e) {
-            logger.warn("request fail. caused:{}", e.getMessage());
+        if (future == null) {
+            this.future.setFailure(new IllegalStateException("ResponseMessage future is null"));
+            return;
+        }
+        if (!future.isReady()) {
+            this.future.setFailure(new IllegalStateException("ResponseMessage future is not complete"));
+            return;
+        }
+
+        if (future.isSuccess()) {
+            ResponseMessage responseMessage = future.getResult();
+            this.future.setResult(responseMessage);
+        } else {
+            Throwable cause = future.getCause();
+            this.future.setFailure(cause);
         }
     }
-
-    private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
-        final ResponseMessage responseMessage = future.getResult();
-
-        // TODO Should we change this to thread local cache? This object's life cycle is different because it could be created many times.
-        // Should we cache this?
-        byte[] message = responseMessage.getMessage();
-        return SerializationUtils.deserialize(message, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, null);
-        
-    }
-
 }

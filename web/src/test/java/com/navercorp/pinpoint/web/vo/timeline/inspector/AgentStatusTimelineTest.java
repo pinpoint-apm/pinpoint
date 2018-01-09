@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
@@ -54,7 +54,7 @@ public class AgentStatusTimelineTest {
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(0, 100, AgentState.UNKNOWN));
         // When
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, null).from(null).build();
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, null).build();
         // Then
         Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
         Assert.assertFalse(timeline.isIncludeWarning());
@@ -84,7 +84,7 @@ public class AgentStatusTimelineTest {
                 createSegment(100, 200, AgentState.fromAgentLifeCycleState(expectedState)));
         // When
         AgentStatus initialStatus = createAgentStatus(50, expectedState);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus).from(null).build();
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus, null).build();
         // Then
         Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
         Assert.assertFalse(timeline.isIncludeWarning());
@@ -99,8 +99,8 @@ public class AgentStatusTimelineTest {
         // When
         long agentA = 0;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 140, AgentEventType.AGENT_PING),
                         createAgentEvent(agentA, 190, AgentEventType.AGENT_PING)
                 )).build();
@@ -119,8 +119,8 @@ public class AgentStatusTimelineTest {
         // When
         long agentA = 150;
         AgentStatus initialStatus = createAgentStatus(50, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
                 )).build();
@@ -139,8 +139,8 @@ public class AgentStatusTimelineTest {
         // When
         long agentA = 150;
         AgentStatus initialStatus = createAgentStatus(50, AgentLifeCycleState.SHUTDOWN);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
                 )).build();
@@ -159,8 +159,8 @@ public class AgentStatusTimelineTest {
         // When
         long agentA = 0;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_PING),
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_PING),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_SHUTDOWN)
@@ -179,8 +179,8 @@ public class AgentStatusTimelineTest {
         // When
         long agentA = 0;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_CLOSED_BY_SERVER),
                         createAgentEvent(agentA, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
@@ -202,8 +202,8 @@ public class AgentStatusTimelineTest {
         long agentA = 0;
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_CLOSED_BY_SERVER),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
@@ -225,8 +225,8 @@ public class AgentStatusTimelineTest {
         long agentA = 0;
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 140, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
@@ -248,8 +248,8 @@ public class AgentStatusTimelineTest {
         long agentA = 0;
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 159, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
@@ -273,8 +273,8 @@ public class AgentStatusTimelineTest {
         long agentA = 120;
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.SHUTDOWN);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 140, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
@@ -296,8 +296,8 @@ public class AgentStatusTimelineTest {
         long agentA = 0;
         long agentB = 120;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentB, 120, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 140, AgentEventType.AGENT_PING),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
@@ -318,8 +318,8 @@ public class AgentStatusTimelineTest {
         long agentA = 0;
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 160, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
@@ -340,8 +340,8 @@ public class AgentStatusTimelineTest {
         long agentB = 90;
         long agentC = 110;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_PING),
                         createAgentEvent(agentB, 130, AgentEventType.AGENT_PING),
                         createAgentEvent(agentC, 140, AgentEventType.AGENT_PING),
@@ -367,8 +367,8 @@ public class AgentStatusTimelineTest {
         long agentC = 160;
         long agentD = 180;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_PING),
                         createAgentEvent(agentB, 130, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_SHUTDOWN),
@@ -399,8 +399,8 @@ public class AgentStatusTimelineTest {
         long agentC = 220;
         long agentD = 260;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus)
-                .from(Arrays.asList(
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
+                Arrays.asList(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_PING),
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),

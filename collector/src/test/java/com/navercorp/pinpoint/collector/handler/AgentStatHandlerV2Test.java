@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
+import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 import org.junit.Before;
@@ -81,6 +83,9 @@ public class AgentStatHandlerV2Test {
     @Mock
     private AgentStatDaoV2<ResponseTimeBo> responseTimeDao;
 
+    @Mock
+    private AgentStatDaoV2<DeadlockBo> deadlockDao;
+
     @InjectMocks
     private HBaseAgentStatService hBaseAgentStatService = new HBaseAgentStatService();
 
@@ -105,7 +110,7 @@ public class AgentStatHandlerV2Test {
         final AgentStatBo mappedAgentStat = new AgentStatBo();
         when(this.agentStatMapper.map(agentStat)).thenReturn(mappedAgentStat);
         // When
-        agentStatHandler.handle(agentStat);
+        agentStatHandler.handleSimple(agentStat);
         // Then
         verify(jvmGcDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcBos());
         verify(jvmGcDetailedDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcDetailedBos());
@@ -114,6 +119,8 @@ public class AgentStatHandlerV2Test {
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
+        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
+
     }
 
     @Test
@@ -126,7 +133,7 @@ public class AgentStatHandlerV2Test {
         final AgentStatBo mappedAgentStat = new AgentStatBo();
         when(this.agentStatBatchMapper.map(agentStatBatch)).thenReturn(mappedAgentStat);
         // When
-        agentStatHandler.handle(agentStatBatch);
+        agentStatHandler.handleSimple(agentStatBatch);
         // Then
         verify(jvmGcDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcBos());
         verify(jvmGcDetailedDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcDetailedBos());
@@ -135,6 +142,7 @@ public class AgentStatHandlerV2Test {
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
+        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
     }
 
     @Test
@@ -146,7 +154,7 @@ public class AgentStatHandlerV2Test {
         final AgentStatBo mappedAgentStat = null;
         when(this.agentStatMapper.map(agentStat)).thenReturn(mappedAgentStat);
         // When
-        agentStatHandler.handle(agentStat);
+        agentStatHandler.handleSimple(agentStat);
         // Then
         verifyZeroInteractions(jvmGcDao);
         verifyZeroInteractions(jvmGcDetailedDao);
@@ -167,7 +175,7 @@ public class AgentStatHandlerV2Test {
         final AgentStatBo mappedAgentStat = null;
         when(this.agentStatBatchMapper.map(agentStatBatch)).thenReturn(mappedAgentStat);
         // When
-        agentStatHandler.handle(agentStatBatch);
+        agentStatHandler.handleSimple(agentStatBatch);
         // Then
         verifyZeroInteractions(jvmGcDao);
         verifyZeroInteractions(jvmGcDetailedDao);
@@ -183,7 +191,7 @@ public class AgentStatHandlerV2Test {
         // Given
         final TAgentInfo wrongTBaseObject = new TAgentInfo();
         // When
-        agentStatHandler.handle(wrongTBaseObject);
+        agentStatHandler.handleSimple(wrongTBaseObject);
         // Then
         fail();
     }
@@ -193,7 +201,7 @@ public class AgentStatHandlerV2Test {
         agentStatBatch.setAgentId(agentId);
         agentStatBatch.setStartTimestamp(startTimestamp);
         final List<TAgentStat> agentStats = new ArrayList<>(numBatches);
-        for (int i = 0; i < numBatches; ++i) {
+        for (int i = 0; i < numBatches; i++) {
             agentStats.add(createAgentStat(agentId, startTimestamp));
         }
         agentStatBatch.setAgentStats(agentStats);
@@ -208,6 +216,7 @@ public class AgentStatHandlerV2Test {
         agentStat.setCpuLoad(new TCpuLoad());
         agentStat.setDataSourceList(new TDataSourceList());
         agentStat.setResponseTime(new TResponseTime());
+        agentStat.setDeadlock(new TDeadlock());
         return agentStat;
     }
 

@@ -1,5 +1,10 @@
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private String number;
     private String userId;
@@ -67,9 +72,19 @@ public class User {
         this.email = email;
     }
     
-    public void removeHyphenForPhoneNumber() {
-        if (phoneNumber != null && phoneNumber.contains("-")) {
-            phoneNumber = phoneNumber.replace("-", "");
+    public static List<String> removeHyphenForPhoneNumberList(List<String> phoneNumberList) {
+        if (CollectionUtils.isEmpty(phoneNumberList)) {
+            return phoneNumberList;
         }
+
+        List<String> editedPhoneNumberList = new ArrayList<>(phoneNumberList.size());
+
+        for (String phoneNumber : phoneNumberList) {
+            if (phoneNumber != null && phoneNumber.contains("-")) {
+                editedPhoneNumberList.add(phoneNumber.replace("-", ""));
+            }
+        }
+
+        return editedPhoneNumberList;
     }
 }

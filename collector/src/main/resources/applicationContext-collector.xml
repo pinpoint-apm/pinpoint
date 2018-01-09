@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang"
-       xmlns:beans="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
 <context:annotation-config/>
 
@@ -44,6 +42,25 @@
         <property name="properties" ref="pinpoint_collector_properties"/>
     </bean>
 
+    <bean id="deprecatedConfig" class="com.navercorp.pinpoint.collector.config.DeprecatedConfiguration">
+        <constructor-arg ref="pinpoint_collector_properties"/>
+    </bean>
+
+    <bean id="baseDataReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
+        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="deprecatedConfig"/>
+    </bean>
+
+    <bean id="statReceiverConfig" class="com.navercorp.pinpoint.collector.config.StatReceiverConfiguration">
+        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="deprecatedConfig"/>
+    </bean>
+
+    <bean id="spanReceiverConfig" class="com.navercorp.pinpoint.collector.config.SpanReceiverConfiguration">
+        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="deprecatedConfig"/>
+    </bean>
+
     <import resource="classpath:applicationContext-hbase.xml"/>
 
     <bean id="daoAutoFlusher" class="com.navercorp.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
@@ -56,7 +73,7 @@
         </beans:property>
         <property name="flushPeriod" value="${statistics.flushPeriod}"/>
     </bean>
-    
+
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
     </bean>
 
@@ -86,37 +103,50 @@
     <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
         <constructor-arg ref="tcpDispatchHandler"/>
     </bean>
-    
-    <bean id="udpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler"/>
-    <bean id="udpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-        <constructor-arg ref="udpDispatchHandler"/>
+
+    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler"/>
+    <bean id="statDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+        <constructor-arg ref="statDispatchHandler"/>
     </bean>
 
-    <bean id="udpSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpSpanDispatchHandler"/>
-    <bean id="udpSpanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-        <constructor-arg ref="udpSpanDispatchHandler"/>
+    <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler"/>
+    <bean id="spanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+        <constructor-arg ref="spanDispatchHandler"/>
     </bean>
 
     <!-- Serializer Factory Beans -->
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
+    </bean>
+    <bean id="agentEventHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseSerializerFactory">
     </bean>
 
     <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
     </bean>
 
     <!-- Agent Event/Lifecycle related Beans -->
-    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.util.ExecutorFactory" factory-method="newFixedThreadPool">
-        <constructor-arg index="0" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
-        <constructor-arg index="1" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
-        <constructor-arg index="2" value="Pinpoint-AgentEvent-Worker"/>
-        <constructor-arg index="3" value="true"/>
-    </bean>
-    
-    <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer">
-        <constructor-arg ref="commandHeaderTBaseSerializerFactory"/>
+    <task:annotation-driven />
+
+    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean" >
+        <property name="corePoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
+        <property name="maxPoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
+        <property name="queueCapacity" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AgentEvent-Worker-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
     </bean>
 
-    <bean id="agentEventHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler"/>
+    <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer">
+        <constructor-arg>
+            <list value-type="com.navercorp.pinpoint.thrift.io.SerializerFactory">
+                <ref bean="commandHeaderTBaseSerializerFactory"/>
+                <ref bean="agentEventHeaderTBaseSerializerFactory"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="agentEventService" class="com.navercorp.pinpoint.collector.service.AgentEventService"/>
     <bean id="agentLifeCycleHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler"/>
     <bean id="agentLifeCycleChangeEventHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleChangeEventHandler"/>
 
@@ -132,7 +162,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="responseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
@@ -141,7 +171,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="streamCreateFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
@@ -157,23 +187,23 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="streamCloseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
             </list>
         </constructor-arg>
     </bean>
-    
+
     <!-- Cluster-related Beans -->
     <bean id="targetClusterPointRepository" class="com.navercorp.pinpoint.collector.cluster.ClusterPointRepository"/>
-    
+
     <bean id="defaultRouteHandler" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler">
         <constructor-arg index="0" type="com.navercorp.pinpoint.collector.cluster.ClusterPointLocator" ref="targetClusterPointRepository"/>
         <constructor-arg index="1" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="requestFilterChain"/>
         <constructor-arg index="2" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="responseFilterChain"/>
     </bean>
-    
+
     <bean id="streamRouteHandler" class="com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler">
         <constructor-arg index="0" type="com.navercorp.pinpoint.collector.cluster.ClusterPointLocator" ref="targetClusterPointRepository"/>
         <constructor-arg index="1" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="streamCreateFilterChain"/>
@@ -192,25 +222,15 @@
         <constructor-arg ref="clusterPointRouter"/>
     </bean>
 
-    <!-- TCPReceiver related Beans -->
-    <bean id="serverAcceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor"/>
-
     <util:list id="channelStateChangeEventHandlers" value-type="com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler">
-        <ref bean="agentLifeCycleChangeEventHandler"/> 
+        <ref bean="agentLifeCycleChangeEventHandler"/>
     </util:list>
 
-    <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver">
-        <constructor-arg type="com.navercorp.pinpoint.collector.config.CollectorConfiguration" ref="collectorConfiguration"/>
+    <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.AgentBaseDataReceiver" >
+        <constructor-arg type="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration" ref="baseDataReceiverConfig"/>
+        <constructor-arg value="#{collectorConfiguration.l4IpList}"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandlerWrapper"/>
-        <constructor-arg type="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor" ref="serverAcceptor"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
-    </bean>
-
-    <!-- UDPSpanReceiver related Beans -->
-    <bean id="udpSpanBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
-        <constructor-arg index="0" ref="udpSpanDispatchHandlerWrapper"/>
-        <constructor-arg index="1" ref="tBaseFilterChain"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.l4IpList}"/>
     </bean>
 
     <bean id="tBaseFilterChain" class="com.navercorp.pinpoint.collector.receiver.udp.TBaseFilterChain">
@@ -223,43 +243,18 @@
 
     <bean id="networkAvailabilityCheckPacketFilter" class="com.navercorp.pinpoint.collector.receiver.udp.NetworkAvailabilityCheckPacketFilter"/>
 
-    <bean id="udpSpanWorkerOption" class="com.navercorp.pinpoint.collector.receiver.WorkerOption">
-        <constructor-arg index="0" value="#{collectorConfiguration.udpSpanWorkerThread}"/>
-        <constructor-arg index="1" value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.udpSpanWorkerMonitor}"/>
+    <bean id="spanReceiver" class="com.navercorp.pinpoint.collector.receiver.SpanReceiver">
+        <constructor-arg index="0" ref="spanReceiverConfig" />
+        <constructor-arg index="1" value="#{collectorConfiguration.l4IpList}"/>
+        <constructor-arg index="2" ref="spanDispatchHandlerWrapper"/>
     </bean>
 
-    <bean id="udpSpanReceiver" class="com.navercorp.pinpoint.collector.receiver.udp.UDPReceiver">
-        <constructor-arg index="0" value="Pinpoint-UDP-Span"/>
-        <constructor-arg index="1" ref="udpSpanBasePacketHandler"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.udpSpanListenIp}"/>
-        <constructor-arg index="3" value="#{collectorConfiguration.udpSpanListenPort}"/>
-        <constructor-arg index="4" value="#{collectorConfiguration.udpSpanSocketReceiveBufferSize}"/>
-        <constructor-arg index="5" ref="udpSpanWorkerOption"/>
+    <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.StatReceiver" >
+        <constructor-arg index="0" ref="statReceiverConfig" />
+        <constructor-arg index="1" value="#{collectorConfiguration.l4IpList}"/>
+        <constructor-arg index="2"  ref="statDispatchHandlerWrapper"/>
     </bean>
 
-    <!-- UDPStatReceiver related Beans -->
-    <bean id="udpStatBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
-        <constructor-arg index="0" ref="udpDispatchHandlerWrapper"/>
-        <constructor-arg index="1" ref="tBaseFilterChain"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.l4IpList}"/>
-    </bean>
-
-    <bean id="udpStatWorkerOption" class="com.navercorp.pinpoint.collector.receiver.WorkerOption">
-        <constructor-arg index="0" value="#{collectorConfiguration.udpStatWorkerThread}"/>
-        <constructor-arg index="1" value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.udpStatWorkerMonitor}"/>
-    </bean>
-
-    <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.udp.UDPReceiver">
-        <constructor-arg index="0" value="Pinpoint-UDP-Stat"/>
-        <constructor-arg index="1"  ref="udpStatBasePacketHandler"/>
-        <constructor-arg index="2" value="#{collectorConfiguration.udpStatListenIp}"/>
-        <constructor-arg index="3" value="#{collectorConfiguration.udpStatListenPort}"/>
-        <constructor-arg index="4" value="#{collectorConfiguration.udpStatSocketReceiveBufferSize}"/>
-        <constructor-arg index="5" ref="udpStatWorkerOption"/>
-    </bean>
-    
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
@@ -292,14 +287,31 @@
         <constructor-arg ref="typeLoaderService"/>
         <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
-    
+
     <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
         <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
     </bean>
-    
+
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 
     <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
         <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:10000}"/>
+    </bean>
+
+    <bean id ="sendAgentStatService" class="com.navercorp.pinpoint.collector.service.SendAgentStatService">
+        <constructor-arg index="0" ref="collectorConfiguration"/>
+    </bean>
+
+    <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.cluster.flink.TcpDataSenderRepository">
+        <constructor-arg index="0" ref="sendAgentStatService"/>
+    </bean>
+
+    <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterConnectionManager">
+        <constructor-arg index="0" ref="tcpDataSenderRepository"/>
+    </bean>
+
+    <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterService">
+        <constructor-arg index="0" ref="collectorConfiguration"/>
+        <constructor-arg index="1" ref="flinkClusterConnectionManager"/>
     </bean>
 </beans>

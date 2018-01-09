@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
@@ -20,14 +21,19 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.resin.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.resin.HttpServletRequestGetter;
@@ -39,9 +45,7 @@ import com.navercorp.pinpoint.plugin.resin.TraceAccessor;
 import com.navercorp.pinpoint.plugin.resin.VersionAccessor;
 
 /**
- * 
  * @author huangpengjie@fang.com
- *
  */
 public class ServletInvocationInterceptor implements AroundInterceptor {
 
@@ -58,7 +62,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
     private final Filter<String> excludeProfileMethodFilter;
     private final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
 
-    private MethodDescriptor methodDescriptor;
+    private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
 
     private final boolean isTraceCookies;
@@ -66,9 +70,9 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
     private final SimpleSampler cookieSampler;
 
     private final DumpType cookieDumpType;
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
 
     public ServletInvocationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super();
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
 
@@ -86,6 +90,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         this.isTraceCookies = resinConfig.isTraceCookies();
         this.cookieSampler = SimpleSamplerFactory.createSampler(isTraceCookies, resinConfig.getCookieSamplingRate());
         this.cookieDumpType = resinConfig.getCookieDumpType();
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -137,7 +142,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
                 final HttpServletRequest request = (HttpServletRequest) args[0];
                 if (!excludeProfileMethodFilter.filter(request.getMethod())) {
                     final String parameters = getRequestParameter(request, 64, 512);
-                    if (StringUtils.isNotEmpty(parameters)) {
+                    if (StringUtils.hasLength(parameters)) {
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
                     }
                 }
@@ -179,7 +184,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
             }
             String key = attrs.nextElement().toString();
             params.append(StringUtils.abbreviate(key, eachLimit));
-            params.append("=");
+            params.append('=');
             Object value = request.getParameter(key);
             if (value != null) {
                 params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
@@ -317,7 +322,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         recorder.recordRpcName(requestURL);
 
         final int port = request.getServerPort();
-        final String endPoint = request.getServerName() + ":" + port;
+        final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
         recorder.recordEndPoint(endPoint);
 
         final String remoteAddr = remoteAddressResolver.resolve(request);
@@ -327,6 +332,14 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
             recordParentInfo(recorder, request);
         }
         recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+
+        // record proxy HTTP headers.
+        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
+            @Override
+            public String read(String name) {
+                return request.getHeader(name);
+            }
+        });
     }
 
     private void recordParentInfo(SpanRecorder recorder, HttpServletRequest request) {
@@ -386,7 +399,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         }
     }
 
-    private class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+    private static class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
         public static final String X_FORWARDED_FOR = "x-forwarded-for";
         @SuppressWarnings("unused")
@@ -455,17 +468,16 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
     private void recordCookie(HttpServletRequest request, Trace trace) {
         if (cookieSampler.isSampling()) {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            Map<String, Object> cookies = ReadCookieMap(request);
+            Map<String, Object> cookies = readCookieMap(request);
             recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, cookies);
         }
-        return;
     }
 
-    public Map<String, Object> ReadCookieMap(HttpServletRequest request) {
+    public Map<String, Object> readCookieMap(HttpServletRequest request) {
         Map<String, Object> params = new HashMap<String, Object>();
         try {
             Cookie[] cookies = request.getCookies();
-            if (null != cookies && cookies.length > 0) {
+            if (ArrayUtils.hasLength(cookies)) {
                 for (Cookie cookie : cookies) {
                     params.put(cookie.getName(), cookie.getValue());
                 }

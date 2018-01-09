@@ -37,9 +37,6 @@ public class ConfigProperties {
     @Value("#{pinpointWebProps['config.show.activeThreadDump'] ?: false}")
     private boolean showActiveThreadDump;
 
-    @Value("#{pinpointWebProps['config.show.inspector.dataSource'] ?: false}")
-    private boolean showInspectorDataSource;
-
     @Value("#{pinpointWebProps['config.enable.activeThreadDump'] ?: false}")
     private boolean enableActiveThreadDump;
 
@@ -51,6 +48,12 @@ public class ConfigProperties {
     
     @Value("#{pinpointWebProps['security.guide.url']}")
     private String securityGuideUrl;
+
+    @Value("#{pinpointWebProps['config.show.applicationStat'] ?: false}")
+    private boolean showApplicationStat;
+
+    @Value("#{pinpointWebProps['websocket.allowedOrigins']}")
+    private String webSocketAllowedOrigins;
 
     public String getSecurityGuideUrl() {
         return securityGuideUrl;
@@ -72,10 +75,6 @@ public class ConfigProperties {
         return showActiveThreadDump;
     }
 
-    public boolean isShowInspectorDataSource() {
-        return showInspectorDataSource;
-    }
-
     public boolean isEnableActiveThreadDump() {
         return enableActiveThreadDump;
     }
@@ -88,6 +87,14 @@ public class ConfigProperties {
         return this.openSource;
     }
 
+    public boolean isShowApplicationStat() {
+        return this.showApplicationStat;
+    }
+
+    public String getWebSocketAllowedOrigins() {
+        return webSocketAllowedOrigins;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ConfigProperties{");
@@ -95,11 +102,12 @@ public class ConfigProperties {
         sb.append(", editUserInfo=").append(editUserInfo);
         sb.append(", showActiveThread=").append(showActiveThread);
         sb.append(", showActiveThreadDump=").append(showActiveThreadDump);
-        sb.append(", showInspectorDataSource=").append(showInspectorDataSource);
         sb.append(", enableActiveThreadDump=").append(enableActiveThreadDump);
         sb.append(", enableServerMapRealTime=").append(enableServerMapRealTime);
         sb.append(", openSource=").append(openSource);
         sb.append(", securityGuideUrl='").append(securityGuideUrl).append('\'');
+        sb.append(", showApplicationStat=").append(showApplicationStat);
+        sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
         sb.append('}');
         return sb.toString();
     }

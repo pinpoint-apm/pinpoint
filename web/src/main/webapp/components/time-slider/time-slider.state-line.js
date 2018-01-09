@@ -19,9 +19,8 @@
         this._aLineElement = [];
     };
     ts.StateLine.prototype._addBaseLine = function() {
-        this._defaultBaseColor = TimeSlider.StatusColor["BASE"];
         this._aBaseLine = [
-			this._makeRect( 0, this.opt.width, this.opt.topLineY, this.opt.bottomLineY - this.opt.topLineY, "base", "base-" + Date.now() )
+			this._makeRect( 0, this.opt.width, this.opt.topLineY, this.opt.bottomLineY - this.opt.topLineY, TimeSlider.StatusColor["BASE"], "base-" + Date.now() )
 		];
 		this.group.add( this._aBaseLine[0] );
     };
@@ -38,9 +37,9 @@
 			this._getX2( oEvent ),
 			oEvent
 		);
-		if ( index === 0 ) {
-			this._resetBaseLineColor( TimeSlider.StatusColor["BASE"] );
-		}
+		// if ( index === 0 ) {
+		// 	this._resetBaseLineColor( TimeSlider.StatusColor["BASE"] );
+		// }
     };
     ts.StateLine.prototype._makeID = function( oEvent ) {
         return this._oTimelineData.makeID( oEvent ) + ID_POSTFIX;
@@ -89,11 +88,12 @@
 		});
     };
     ts.StateLine.prototype.setDefaultStateLineColor = function( color ) {
-        this._defaultBaseColor = color;
+        this._defaultBaseColor = color ;
         // if ( this._hasDurationData === true ) return;
-		this._resetBaseLineColor(color);
+		this._resetBaseLineColor(this._defaultBaseColor);
     };
     ts.StateLine.prototype._resetBaseLineColor = function( baseColor ) {
+    	baseColor = baseColor ||  ts.StatusColor.BASE;
         // var self = this;
         this._aBaseLine.forEach(function( elLine ) {
 			// elLine.attr("fill", self._hasDurationData === true ? baseColor : self._defaultBaseColor );
@@ -110,6 +110,7 @@
 				this.show(elLine);
 				elLine.animate({
 					"x": oPM.getPositionFromTime(oEvent.startTimestamp),
+					"fill": TimeSlider.StatusColor[oEvent.value],
 					"width": this._getX2(oEvent) - oPM.getPositionFromTime(oEvent.startTimestamp)
 				}, this.opt.duration);
 			} else {

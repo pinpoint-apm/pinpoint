@@ -50,7 +50,7 @@ public class DefaultAgent implements Agent {
 
     private final ProfilerConfig profilerConfig;
 
-    private final  ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
 
     private final Object agentStatusLock = new Object();

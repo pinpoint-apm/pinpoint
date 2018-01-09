@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.hikaricp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
@@ -27,27 +29,30 @@ import com.navercorp.pinpoint.plugin.hikaricp.HikariCpConstants;
 import com.navercorp.pinpoint.plugin.hikaricp.HikariCpDataSourceMonitor;
 
 import java.lang.reflect.Method;
+import java.util.Properties;
 
 /**
  * @author Taejin Koo
  */
-@Scope(HikariCpConstants.SCOPE)
-public class DataSourceConstructorInterceptor implements AroundInterceptor {
+public class DataSourceConstructorInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
 
-    public DataSourceConstructorInterceptor(DataSourceMonitorRegistry dataSourceMonitorRegistry) {
+    public DataSourceConstructorInterceptor(TraceContext traceContext, MethodDescriptor descriptor, DataSourceMonitorRegistry dataSourceMonitorRegistry) {
+        super(traceContext, descriptor);
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
+        // create DataSourceMonitor object even if it is not being traced
         if (!InterceptorUtils.isSuccess(throwable)) {
             return;
         }
@@ -55,11 +60,21 @@ public class DataSourceConstructorInterceptor implements AroundInterceptor {
         if (args.length >= 1) {
             try {
                 String jdbcUrl = getJdbcUrl(args[0]);
-                HikariCpDataSourceMonitor dataSourceMonitor = new HikariCpDataSourceMonitor(target, jdbcUrl);
-                dataSourceMonitorRegistry.register(dataSourceMonitor);
+                if (jdbcUrl == null) {
+                    jdbcUrl = findJdbcUrl(args[0]);
+                }
 
-                if (target instanceof DataSourceMonitorAccessor) {
-                    ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(dataSourceMonitor);
+                if (jdbcUrl != null) {
+                    HikariCpDataSourceMonitor dataSourceMonitor = new HikariCpDataSourceMonitor(target, jdbcUrl);
+                    dataSourceMonitorRegistry.register(dataSourceMonitor);
+
+                    if (target instanceof DataSourceMonitorAccessor) {
+                        ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(dataSourceMonitor);
+                    }
+
+                    logger.debug("create HikariCpDataSourceMonitor success. jdbcUrl:{}", jdbcUrl);
+                } else {
+                    logger.info("failed while creating HikariCpDataSourceMonitor. can't find jdbclUrl");
                 }
             } catch (Exception e) {
                 logger.info("failed while creating HikariCpDataSourceMonitor. message:{}", e.getMessage(), e);
@@ -68,21 +83,52 @@ public class DataSourceConstructorInterceptor implements AroundInterceptor {
     }
 
     private String getJdbcUrl(Object object) {
+        // get JdbcUrl using getJdbcUrl method
+        if (object == null) {
+            return null;
+        }
+
         try {
-            if (object == null) {
-                return null;
-            }
-
             Method getJdbcUrl = object.getClass().getMethod("getJdbcUrl");
-            if (getJdbcUrl == null) {
+            if (getJdbcUrl != null) {
+                Object result = getJdbcUrl.invoke(object);
+                if (result instanceof String) {
+                    return (String) result;
+                }
                 return null;
             }
-
-            return String.valueOf(getJdbcUrl.invoke(object));
         } catch (Exception e) {
             logger.info("failed while executing getJdbcUrl(). message:{}", e.getMessage(), e);
         }
         return null;
+    }
+
+    private String findJdbcUrl(Object object) {
+        // find jdbcUrl in dataSourceProperties
+        if (object == null) {
+            return null;
+        }
+
+        try {
+            Method getDataSourceProperties = object.getClass().getMethod("getDataSourceProperties");
+            if (getDataSourceProperties != null) {
+                Object result = getDataSourceProperties.invoke(object);
+                if (result instanceof Properties) {
+                    return ((Properties) result).getProperty("url");
+                }
+                return null;
+            }
+        } catch (Exception e) {
+            logger.info("failed while executing getJdbcUrl(). message:{}", e.getMessage(), e);
+        }
+        return null;
+    }
+
+    @Override
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(HikariCpConstants.SERVICE_TYPE);
+        recorder.recordApi(getMethodDescriptor());
+        recorder.recordException(throwable);
     }
 
 }

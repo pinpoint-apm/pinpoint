@@ -31,7 +31,7 @@ public class PooledPacketWrap implements Runnable {
 
     public PooledPacketWrap(DatagramSocket localSocket, PacketHandler<DatagramPacket> packetHandler, PooledObject<DatagramPacket> pooledObject) {
         if (localSocket == null) {
-            throw new NullPointerException("localSocket may not be null");
+            throw new NullPointerException("localSocket must not be null");
         }
         if (packetHandler == null) {
             throw new NullPointerException("packetReceiveHandler must not be null");

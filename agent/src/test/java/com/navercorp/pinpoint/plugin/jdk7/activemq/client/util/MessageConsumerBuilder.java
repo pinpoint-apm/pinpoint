@@ -22,7 +22,6 @@ import org.apache.activemq.advisory.ConsumerEventSource;
 import org.apache.activemq.advisory.ConsumerListener;
 
 import javax.jms.Destination;
-import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import java.util.concurrent.CountDownLatch;
@@ -81,17 +80,5 @@ public class MessageConsumerBuilder {
             consumer.setMessageListener(this.messageListener);
         }
         return consumer;
-    }
-
-    public static class ForQueue extends MessageConsumerBuilder {
-        public ForQueue(ActiveMQSession session, String queueName) throws JMSException {
-            super(session, session.createQueue(queueName));
-        }
-    }
-
-    public static class ForTopic extends MessageConsumerBuilder {
-        public ForTopic(ActiveMQSession session, String topicName) throws JMSException {
-            super(session, session.createQueue(topicName));
-        }
     }
 }

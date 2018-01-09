@@ -46,6 +46,8 @@ public interface ProfilerConfig {
 
     String getStatDataSenderSocketType();
 
+    String getStatDataSenderTransportType();
+
     int getSpanDataSenderWriteQueueSize();
 
     int getSpanDataSenderSocketSendBufferSize();
@@ -66,9 +68,15 @@ public interface ProfilerConfig {
 
     int getDataSourceTraceLimitSize();
 
+    boolean isDeadlockMonitorEnable();
+
+    long getDeadlockMonitorInterval();
+
     int getSpanDataSenderSocketTimeout();
 
     String getSpanDataSenderSocketType();
+
+    String getSpanDataSenderTransportType();
 
     int getSpanDataSenderChunkSize();
 
@@ -90,11 +98,13 @@ public interface ProfilerConfig {
 
     int getIoBufferingBufferSize();
 
-    int getProfileJvmCollectInterval();
-
     String getProfilerJvmVendorName();
 
-    boolean isProfilerJvmCollectDetailedMetrics();
+    int getProfileJvmStatCollectIntervalMs();
+
+    int getProfileJvmStatBatchSendCount();
+
+    boolean isProfilerJvmStatCollectDetailedMetrics();
 
     long getAgentInfoSendRetryInterval();
 
@@ -112,6 +122,16 @@ public interface ProfilerConfig {
     boolean isPropagateInterceptorException();
 
     String getProfileInstrumentEngine();
+
+    boolean isSupportLambdaExpressions();
+
+    boolean isInstrumentMatcherEnable();
+
+    InstrumentMatcherCacheConfig getInstrumentMatcherCacheConfig();
+
+    boolean isProxyHttpHeaderEnable();
+
+    List<String> getHttpStatusCodeErrors();
 
     String readString(String propertyName, String defaultValue);
 

@@ -7,8 +7,8 @@
 	 * @name serverListDirective
 	 * @class
 	 */
-	pinpointApp.directive( "serverListDirective", [ "$timeout", "$window", "AnalyticsService", "TooltipService",
-		function ( $timeout, $window, analyticsService, tooltipService ) {
+	pinpointApp.directive( "serverListDirective", [ "$timeout", "$window", "AnalyticsService",
+		function ( $timeout, $window, analyticsService ) {
             return {
                 restrict: "EA",
 				replace: true,
@@ -20,13 +20,9 @@
 					var bVisible = false;
 					var bInitialized = false;
 					var $element = $(element);
-					scope.bIsNode = true;
+					var oChartYMax;
 					scope.hasScatter = false;
 					scope.selectedAgent = "";
-					/*
-
-					tooltipService.init( "serverList" );
-					*/
 					function showLayer() {
 						$element.animate({
 							"right": 421
@@ -36,43 +32,57 @@
 						scope.selectedAgent = instanceName;
 						scope.$broadcast('changedCurrentAgent.forServerList', instanceName );
 						if ( bInitialized ) {
-							scope.$broadcast('responseTimeSummaryChartDirective.updateData.forServerList', histogram);
-							scope.$broadcast('loadChartDirective.updateData.forServerList', timeSeriesHistogram);
+							scope.$broadcast('responseTimeSummaryChartDirective.updateData.forServerList', histogram, oChartYMax["responseSummaryChart"]);
+							scope.$broadcast('loadChartDirective.updateData.forServerList', timeSeriesHistogram, oChartYMax["loadChart"]);
 						} else {
-							scope.$broadcast('responseTimeSummaryChartDirective.initAndRenderWithData.forServerList', histogram, '100%', '150px', false, true);
-							scope.$broadcast('loadChartDirective.initAndRenderWithData.forServerList', timeSeriesHistogram, '100%', '220px', false, true);
+							scope.$broadcast('responseTimeSummaryChartDirective.initAndRenderWithData.forServerList', histogram, oChartYMax["responseSummaryChart"], '100%', '150px', false, true);
+							scope.$broadcast('loadChartDirective.initAndRenderWithData.forServerList', timeSeriesHistogram, oChartYMax["loadChart"], '100%', '220px', false, true);
 							bInitialized = true;
 						}
 					}
-					function setData(bIsNodeServer, node, oNavbarVoService) {
-						scope.bIsNode = bIsNodeServer;
+					function setData(bIsNodeServer, node, serverHistogramData, oNavbarVoService) {
 						scope.node = node;
+						scope.serverHistogramData = serverHistogramData;
 						scope.oNavbarVoService = oNavbarVoService;
 						scope.hasScatter = false;
-						if ( bIsNodeServer ) {
-							if ( node.isWas ) {
+						if ( serverHistogramData ) {
+							scope.serverList = serverHistogramData.serverList;
+							if (node.isWas) {
 								scope.hasScatter = true;
+								if (scope.namespace === "forMain") {
+									scope.$broadcast('scatterDirective.initializeWithNode.forServerList', node);
+								} else {
+									scope.$broadcast('scatterDirective.showByNode.forServerList', node);
+								}
 							}
-							scope.serverList = node.serverList;
-							scope.bIsNode = true;
-							scope.$broadcast('scatterDirective.initializeWithNode.forServerList', node);
-
-							$timeout(function() {
-								var instanceName = $element.find( "._node input[type=radio][checked]" ).val();
+							$timeout(function () {
+								var instanceName = $element.find("._node input[type=radio][checked]").val();
 								try {
-									showChart(instanceName, scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName]);
-								}catch(e) {}
+									showChart(instanceName, serverHistogramData.agentHistogram[instanceName], serverHistogramData.agentTimeSeriesHistogram[instanceName]);
+								} catch (e) {}
 							});
 						} else {
-							scope.linkList = scope.node.sourceHistogram;
-							scope.bIsNode = false;
-
+							// 일단 이전 버젼용
+							scope.serverList = node.serverList;
+							if (node.isWas) {
+								scope.hasScatter = true;
+								if (scope.namespace === "forMain") {
+									scope.$broadcast('scatterDirective.initializeWithNode.forServerList', node);
+								} else {
+									scope.$broadcast('scatterDirective.showByNode.forServerList', node);
+								}
+							}
 							$timeout(function () {
-								var instanceName = $element.find("._link input[type=radio][checked]").val();
-								showChart( instanceName, scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName]);
+								var instanceName = $element.find("._node input[type=radio][checked]").val();
+								try {
+									showChart(instanceName, scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName]);
+								} catch (e) {}
 							});
 						}
 					}
+					scope.isWasNode = function() {
+						return scope.node && scope.node.isWas;
+					};
 					scope.hideLayer = function( delay ) {
 						delay = delay || 100;
 						$element.animate({
@@ -81,7 +91,8 @@
 							bVisible = false;
 						});
 					};
-					scope.hasError = function( instance ) {
+					scope.hasError = function( instanceName ) {
+						var instance = scope.serverHistogramData.agentHistogram[instanceName];
 						return (instance && instance.Error && instance.Error > 0 ) ? "red": "";
 					};
 					scope.openInspector = function( $event, instanceName ) {
@@ -90,10 +101,10 @@
 						$window.open( "#/inspector/" + ( scope.node.applicationName || scope.node.filterApplicationName ) + "@" + ( scope.node.serviceType || "" ) + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + instanceName );
 					};
 					scope.selectServer = function( instanceName ) {
-						if ( scope.bIsNode ) {
-							showChart( instanceName, scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
+						if ( scope.serverHistogramData ) {
+							showChart( instanceName, scope.serverHistogramData.agentHistogram[instanceName], scope.serverHistogramData.agentTimeSeriesHistogram[instanceName] );
 						} else {
-							showChart( instanceName, scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName] );
+							showChart( instanceName, scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
 						}
 					};
 					scope.$on('serverListDirective.initialize', function ( event, oNavbarVoService ) {
@@ -104,20 +115,21 @@
 						scope.$broadcast('scatterDirective.initialize.forServerList', oNavbarVoService);
 						scope.hideLayer( 0 );
 					});
-					scope.$on('serverListDirective.show', function ( event, bIsNodeServer, node, oNavbarVoService ) {
+					scope.$on('serverListDirective.show', function ( event, bIsNodeServer, node, serverHistogramData, chartMax, oNavbarVoService ) {
 						if ( bVisible === true ) {
 							scope.hideLayer();
 							return;
 						}
 						bVisible = true;
+						oChartYMax = chartMax;
 						if ( angular.isUndefined( scope.node ) || scope.node === null || ( scope.node.key !== node.key ) ) {
-							setData(bIsNodeServer, node, oNavbarVoService);
+							setData(bIsNodeServer, node, serverHistogramData, oNavbarVoService);
 						}
 						showLayer();
 					});
-					scope.$on('serverListDirective.setData', function ( event, bIsNodeServer, node, oNavbarVoService ) {
+					scope.$on('serverListDirective.setData', function ( event, bIsNodeServer, node, serverHistogramData, oNavbarVoService ) {
 						if ( angular.isUndefined( scope.node ) || scope.node === null || ( scope.node.key !== node.key ) ) {
-							setData(bIsNodeServer, node, oNavbarVoService);
+							setData(bIsNodeServer, node, serverHistogramData, oNavbarVoService);
 						}
 					});
                 }

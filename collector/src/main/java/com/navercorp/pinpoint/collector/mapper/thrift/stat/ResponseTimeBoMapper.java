@@ -31,6 +31,7 @@ public class ResponseTimeBoMapper implements ThriftBoMapper<ResponseTimeBo, TRes
     public ResponseTimeBo map(TResponseTime tResponseTime) {
         ResponseTimeBo responseTimeBo = new ResponseTimeBo();
         responseTimeBo.setAvg(tResponseTime.getAvg());
+        responseTimeBo.setMax(tResponseTime.getMax());
         return responseTimeBo;
     }
 

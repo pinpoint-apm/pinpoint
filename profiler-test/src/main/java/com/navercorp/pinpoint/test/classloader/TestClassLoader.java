@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.inject.Injector;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
@@ -38,7 +39,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.common.util.Asserts;
+import com.navercorp.pinpoint.common.util.Assert;
 
 
 /**
@@ -56,10 +57,9 @@ public class TestClassLoader extends TransformClassLoader {
     private final InstrumentContext instrumentContext;
 
     public TestClassLoader(MockApplicationContext applicationContext) {
-        Asserts.notNull(applicationContext, "applicationContext");
+        Assert.requireNonNull(applicationContext, "applicationContext must not be null");
 
         this.applicationContext = applicationContext;
-
         this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
 
 //        ClassInjector classInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());

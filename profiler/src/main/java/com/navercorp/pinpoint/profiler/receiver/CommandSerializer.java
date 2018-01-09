@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CommandSerializer {
 

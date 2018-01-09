@@ -17,10 +17,19 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.FutureListener;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TBase;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.util.HashedWheelTimer;
@@ -30,17 +39,10 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.FutureListener;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import java.net.InetSocketAddress;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author emeroad
@@ -49,7 +51,7 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
  */
 public class TcpDataSender extends AbstractDataSender implements EnhancedDataSender {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger;
     static {
         // preClassLoad
         ChannelBuffers.buffer(2);
@@ -69,20 +71,53 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private AsyncQueueingExecutor<Object> executor;
 
-    public TcpDataSender(PinpointClient client) {
-        this(client, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+    public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory) {
+        this(null, address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
     }
 
-    public TcpDataSender(PinpointClient client, HeaderTBaseSerializer serializer) {
+    public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
+        this(null, address, clientFactory, serializer);
+    }
+
+    public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory) {
+        this(name, address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+    }
+
+    public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
+        if (address == null) {
+            throw new NullPointerException("address must not be null");
+        }
+        if (clientFactory == null) {
+            throw new NullPointerException("clientFactory must not be null");
+        }
+        if (serializer == null) {
+            throw new NullPointerException("serializer must not be null");
+        }
+
+        String executorName = "Pinpoint-TcpDataSender-Executor";
+        if (name != null) {
+            logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + name);
+            executorName = String.format("Pinpoint-TcpDataSender(%s)-Executor", name);
+        } else {
+            logger = LoggerFactory.getLogger(this.getClass());
+        }
+
+        PinpointClient client = ClientFactoryUtils.createPinpointClient(address, clientFactory);
+
         this.client = client;
         this.serializer = serializer;
-        this.timer = createTimer();
+        this.timer = createTimer(name);
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
-        this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
+        this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
     }
-    
-    private Timer createTimer() {
-        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-DataSender-Timer", 100, TimeUnit.MILLISECONDS, 512);
+
+    private Timer createTimer(String name) {
+        String timerName = "Pinpoint-TcpDataSender-Timer";
+        if (name != null) {
+            timerName = String.format("Pinpoint-TcpDataSender(%s)-Timer", name);
+        }
+
+        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer(timerName, 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         return timer;
     }
@@ -109,6 +144,10 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         return executor.execute(message);
     }
 
+    public boolean isConnected() {
+        return client.isConnected();
+    }
+
     @Override
     public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
         return this.client.addPinpointClientReconnectEventListener(eventListener);
@@ -126,6 +165,10 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         Set<Timeout> stop = timer.stop();
         if (!stop.isEmpty()) {
             logger.info("stop Timeout:{}", stop.size());
+        }
+
+        if (client != null) {
+            client.close();
         }
     }
 

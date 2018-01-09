@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
@@ -27,10 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * HTableInterfaceFactory based on HTablePool.
@@ -41,20 +38,13 @@ public class PooledHTableFactory implements TableFactory, DisposableBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final int DEFAULT_POOL_SIZE = 256;
-    public static final int DEFAULT_WORKER_QUEUE_SIZE = 1024*5;
-    public static final boolean DEFAULT_PRESTART_THREAD_POOL = false;
-
     private final ExecutorService executor;
     private final Connection connection;
 
+    public PooledHTableFactory(Configuration config, ExecutorService executor) {
+        Objects.requireNonNull(config, "config must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
 
-    public PooledHTableFactory(Configuration config) {
-        this(config, DEFAULT_POOL_SIZE, DEFAULT_WORKER_QUEUE_SIZE, DEFAULT_PRESTART_THREAD_POOL);
-    }
-
-    public PooledHTableFactory(Configuration config, int poolSize, int workerQueueSize, boolean prestartThreadPool) {
-        this.executor = createExecutorService(poolSize, workerQueueSize, prestartThreadPool);
         try {
             this.connection = ConnectionFactory.createConnection(config, executor);
         } catch (IOException e) {
@@ -66,24 +56,20 @@ public class PooledHTableFactory implements TableFactory, DisposableBean {
         return connection;
     }
 
-    private ExecutorService createExecutorService(int poolSize, int workQueueMaxSize, boolean prestartThreadPool) {
-
-        logger.info("create HConnectionThreadPoolExecutor poolSize:{}, workerQueueMaxSize:{}", poolSize, workQueueMaxSize);
-
-        ThreadPoolExecutor threadPoolExecutor = ExecutorFactory.newFixedThreadPool(poolSize, workQueueMaxSize, "Pinpoint-HConnectionExecutor", true);
-        if (prestartThreadPool) {
-            logger.info("prestartAllCoreThreads");
-            threadPoolExecutor.prestartAllCoreThreads();
-        }
-
-        return threadPoolExecutor;
-    }
-
 
     @Override
     public Table getTable(TableName tableName) {
         try {
             return connection.getTable(tableName, executor);
+        } catch (IOException e) {
+            throw new HbaseSystemException(e);
+        }
+    }
+
+    @Override
+    public Table getTable(TableName tableName, ExecutorService executorService) {
+        try {
+            return connection.getTable(tableName, executorService);
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }
@@ -112,19 +98,6 @@ public class PooledHTableFactory implements TableFactory, DisposableBean {
                 this.connection.close();
             } catch (IOException ex) {
                 logger.warn("Connection.close() error:" + ex.getMessage(), ex);
-            }
-        }
-
-        if (this.executor != null) {
-            this.executor.shutdown();
-            try {
-                final boolean shutdown = executor.awaitTermination(1000 * 5, TimeUnit.MILLISECONDS);
-                if (!shutdown) {
-                    final List<Runnable> discardTask = this.executor.shutdownNow();
-                    logger.warn("discard task size:{}", discardTask.size());
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
             }
         }
     }

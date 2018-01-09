@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;

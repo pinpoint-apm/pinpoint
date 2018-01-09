@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
@@ -30,12 +31,17 @@ import java.util.List;
 public class SpanStorage implements Storage {
 
     protected List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(10);
+    private final TraceRoot traceRoot;
     private final DataSender dataSender;
 
-    public SpanStorage(DataSender dataSender) {
+    public SpanStorage(TraceRoot traceRoot, DataSender dataSender) {
+        if (traceRoot == null) {
+            throw new NullPointerException("traceRoot must not be null");
+        }
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
+        this.traceRoot = traceRoot;
         this.dataSender = dataSender;
     }
 

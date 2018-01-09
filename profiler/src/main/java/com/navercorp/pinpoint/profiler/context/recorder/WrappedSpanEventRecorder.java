@@ -16,11 +16,16 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
+import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
-import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
@@ -38,13 +43,20 @@ import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
  *
  */
 public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder {
-    private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private static final boolean isDebug = logger.isDebugEnabled();
+
+    private final AsyncContextFactory asyncContextFactory;
+    private final AsyncState asyncState;
 
     private SpanEvent spanEvent;
 
-    public WrappedSpanEventRecorder(final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService) {
+    public WrappedSpanEventRecorder(AsyncContextFactory asyncContextFactory, final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService, AsyncState asyncState) {
         super(stringMetaDataService, sqlMetaCacheService);
+        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
+
+        // @Nullable
+        this.asyncState = asyncState;
     }
 
     public void setWrapped(final SpanEvent spanEvent) {
@@ -82,10 +94,10 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
         final TIntStringStringValue tSqlValue = new TIntStringStringValue(parsingResult.getId());
         final String output = parsingResult.getOutput();
-        if (StringUtils.isNotEmpty(output)) {
+        if (StringUtils.hasLength(output)) {
             tSqlValue.setStringValue1(output);
         }
-        if (StringUtils.isNotEmpty(bindValue)) {
+        if (StringUtils.hasLength(bindValue)) {
             tSqlValue.setStringValue2(bindValue);
         }
         recordSqlParam(tSqlValue);
@@ -114,6 +126,36 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         spanEvent.setAsyncId(asyncId);
     }
 
+
+    @Override
+    public AsyncContext recordNextAsyncContext() {
+        final SpanEvent spanEvent = this.spanEvent;
+        final TraceRoot traceRoot = spanEvent.getTraceRoot();
+
+        final AsyncId asyncIdObject = getAsyncIdObject();
+        final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject);
+        return asyncContext;
+    }
+
+    @Override
+    public AsyncContext recordNextAsyncContext(boolean asyncStateSupport) {
+        final SpanEvent spanEvent = this.spanEvent;
+        final TraceRoot traceRoot = spanEvent.getTraceRoot();
+        final AsyncId asyncIdObject = getAsyncIdObject();
+
+        final AsyncState asyncState = this.asyncState;
+        if (asyncStateSupport && asyncState != null) {
+            asyncState.setup();
+            final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject, asyncState);
+            return asyncContext;
+        }
+
+        final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject);
+        return asyncContext;
+    }
+
+
+    @Deprecated
     @Override
     public void recordNextAsyncId(int nextAsyncId) {
         spanEvent.setNextAsyncId(nextAsyncId);
@@ -125,13 +167,13 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     @Override
-    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
-        this.setExceptionInfo(true, exceptionClassId, exceptionMessage);
+    void maskErrorCode(int errorCode) {
+        this.spanEvent.getTraceRoot().getShared().maskErrorCode(errorCode);
     }
 
     @Override
-    void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
-        this.spanEvent.setExceptionInfo(markError, exceptionClassId, exceptionMessage);
+    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+        this.spanEvent.setExceptionInfo(exceptionClassId, exceptionMessage);
     }
 
     @Override
@@ -190,5 +232,15 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     @Override
     public Object attachFrameObject(Object frameObject) {
         return spanEvent.attachFrameObject(frameObject);
+    }
+
+    public AsyncId getAsyncIdObject() {
+        AsyncId asyncIdObject = spanEvent.getAsyncIdObject();
+        if (asyncIdObject == null) {
+            asyncIdObject = asyncContextFactory.newAsyncId();
+            spanEvent.setAsyncIdObject(asyncIdObject);
+            spanEvent.setNextAsyncId(asyncIdObject.getAsyncId());
+        }
+        return asyncIdObject;
     }
 }

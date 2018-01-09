@@ -17,17 +17,32 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface TraceFactory extends BaseTraceFactory {
+public interface TraceFactory {
 
     Trace currentTraceObject();
-
-    Trace currentRpcTraceObject();
 
     Trace currentRawTraceObject();
 
     Trace removeTraceObject();
+
+    Trace disableSampling();
+
+    // picked as sampling target at remote
+    Trace continueTraceObject(TraceId traceId);
+
+    Trace continueTraceObject(Trace trace);
+
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    Trace continueAsyncTraceObject(TraceId traceId);
+
+    Trace newTraceObject();
+
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    Trace newAsyncTraceObject();
 }

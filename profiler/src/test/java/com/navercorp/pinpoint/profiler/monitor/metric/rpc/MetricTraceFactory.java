@@ -48,11 +48,6 @@ public class MetricTraceFactory implements TraceFactory {
     }
 
     @Override
-    public Trace currentRpcTraceObject() {
-        return delegate.currentRpcTraceObject();
-    }
-
-    @Override
     public Trace currentRawTraceObject() {
         return delegate.currentRawTraceObject();
     }
@@ -82,10 +77,6 @@ public class MetricTraceFactory implements TraceFactory {
         return delegate.continueAsyncTraceObject(traceId);
     }
 
-    @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
-        return delegate.continueAsyncTraceObject(traceId, asyncId, startTime);
-    }
 
     @Override
     public Trace newTraceObject() {

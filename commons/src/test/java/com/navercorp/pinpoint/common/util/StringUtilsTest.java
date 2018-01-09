@@ -172,6 +172,14 @@ public class StringUtilsTest {
 
     }
 
+    @Test
+    public void testTokenizeToStringList_nullValue() throws Exception {
+
+        List<String> tokenList = StringUtils.tokenizeToStringList(null, ",");
+        Assert.assertEquals(tokenList.size(), 0);
+
+    }
+
 
     private static List<String> backup_splitAndTrim(String value, String separator) {
         if (StringUtils.isEmpty(value)) {
@@ -193,6 +201,46 @@ public class StringUtilsTest {
             result.add(method);
         }
         return result;
+    }
+
+    @Test
+    public void testGetLength() {
+        Assert.assertEquals(StringUtils.getLength(null), 0);
+
+        Assert.assertEquals(StringUtils.getLength(""), 0);
+        Assert.assertEquals(StringUtils.getLength("abc"), 3);
+    }
+
+    @Test
+    public void testGetLength_defaultNull() {
+        Assert.assertEquals(StringUtils.getLength(null, -1), -1);
+
+        Assert.assertEquals(StringUtils.getLength("", -1), 0);
+        Assert.assertEquals(StringUtils.getLength("abc"), 3);
+    }
+
+
+    @Test
+    public void testHasLength() {
+
+        Assert.assertTrue(StringUtils.hasLength("1"));
+        Assert.assertTrue(StringUtils.hasLength(" "));
+
+
+        Assert.assertFalse(StringUtils.hasLength(null));
+        Assert.assertFalse(StringUtils.hasLength(""));
+    }
+
+    @Test
+    public void testHasText() {
+
+        Assert.assertTrue(StringUtils.hasText("1"));
+        Assert.assertTrue(StringUtils.hasText("  1"));
+
+        Assert.assertFalse(StringUtils.hasText(null));
+        Assert.assertFalse(StringUtils.hasText(""));
+        Assert.assertFalse(StringUtils.hasText("  "));
+
     }
 
 }

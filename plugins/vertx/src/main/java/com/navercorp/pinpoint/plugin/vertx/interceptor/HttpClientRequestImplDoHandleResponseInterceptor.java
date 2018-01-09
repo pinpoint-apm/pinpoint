@@ -15,12 +15,12 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
@@ -29,7 +29,7 @@ import io.vertx.core.http.impl.HttpClientResponseImpl;
 /**
  * @author jaehong.kim
  */
-public class HttpClientRequestImplDoHandleResponseInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
+public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
     private boolean statusCode;
 
@@ -41,7 +41,7 @@ public class HttpClientRequestImplDoHandleResponseInterceptor extends SpanAsyncE
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         if (!validate(args)) {
             return;
         }
@@ -51,7 +51,7 @@ public class HttpClientRequestImplDoHandleResponseInterceptor extends SpanAsyncE
             recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.statusCode());
         }
 
-        ((AsyncTraceIdAccessor) response)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+        ((AsyncContextAccessor) response)._$PINPOINT$_setAsyncContext(asyncContext);
     }
 
     private boolean validate(final Object[] args) {
@@ -62,9 +62,9 @@ public class HttpClientRequestImplDoHandleResponseInterceptor extends SpanAsyncE
             return false;
         }
 
-        if (!(args[0] instanceof AsyncTraceIdAccessor)) {
+        if (!(args[0] instanceof AsyncContextAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
+                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             }
             return false;
         }

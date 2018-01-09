@@ -1,9 +1,14 @@
 package com.navercorp.pinpoint.web.batch;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -34,10 +39,53 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 @Configuration
 @Conditional(BatchConfiguration.Condition.class)
 @ImportResource("classpath:/batch/applicationContext-batch-schedule.xml")
-public class BatchConfiguration{
+public class BatchConfiguration implements InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
-    
+    private Properties properties;
+
+    private List<String> flinkServerList;
+    private String batchServerIp;
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        readPropertyValues(this.properties);
+    }
+
+    private void readPropertyValues(Properties properties) {
+        logger.info("pinpoint-batch.properties read.");
+
+        batchServerIp = readString(properties, "batch.server.ip", null);
+        String[] flinkServers = StringUtils.split(readString(properties, "batch.flink.server", null), ",");
+        if (flinkServers == null) {
+            this.flinkServerList = Collections.emptyList();
+        } else {
+            this.flinkServerList = new ArrayList<>(flinkServers.length);
+            for (String flinkServer : flinkServers) {
+                if (!StringUtils.isEmpty(flinkServer)) {
+                    this.flinkServerList.add(StringUtils.trim(flinkServer));
+                }
+            }
+        }
+    }
+
+    private String readString(Properties properties, String propertyName, String defaultValue) {
+        final String result = properties.getProperty(propertyName, defaultValue);
+        if (logger.isInfoEnabled()) {
+            logger.info("{}={}", propertyName, result);
+        }
+        return result ;
+    }
+
+    public String getBatchServerIp() {
+        return batchServerIp;
+    }
+
     static class Condition implements ConfigurationCondition {
+
         @Override
         public ConfigurationPhase getConfigurationPhase() {
             return ConfigurationPhase.PARSE_CONFIGURATION;
@@ -57,9 +105,12 @@ public class BatchConfiguration{
             } catch (Exception e) {
                 logger.error("Exception occurred while batch configuration" , e);
             }
-            
+
             return false;
-            
         }
-   }
+    }
+
+    public List<String> getFlinkServerList() {
+        return flinkServerList;
+    }
 }

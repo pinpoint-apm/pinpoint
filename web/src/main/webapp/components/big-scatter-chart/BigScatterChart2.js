@@ -111,6 +111,7 @@
 				break;
 		}
 		this._$elContainer = $( this._$elContainer );
+		this._$elContainer.attr( "id", this.option("sPrefix") );
 		this._$elContainer.css({
 			"width": this._oSCManager.getWidth(),
 			"height": this._oSCManager.getHeight(),
@@ -216,20 +217,17 @@
 		var oTypeInfo = this.option("typeInfo");
 		var oPropertyIndex = this.option( "propertyIndex" );
 		var sPrefix = this.option("sPrefix");
-
-		setTimeout(function () {
-			$.each(self._aAgentList, function (index, agentName) {
-				for (var i = 0, nLen = oDataBlock.countByAgent( agentName ); i < nLen && !self._bDestroied; i++) {
-					var aAgentBubbleData = oDataBlock.getDataByAgent(agentName, i);
-					var groupCount = aAgentBubbleData[oPropertyIndex.groupCount];
-					if ( groupCount !== 0 ) {
-						var aBubbleType = oTypeInfo[aAgentBubbleData[oPropertyIndex.type]];
-						self._oRendererManager.drawBubble( BigScatterChart2.Util.makeKey( agentName, sPrefix, aBubbleType[0] ), aBubbleType[1], aAgentBubbleData );
-					}
+		$.each(self._aAgentList, function (index, agentName) {
+			for (var i = 0, nLen = oDataBlock.countByAgent( agentName ); i < nLen && !self._bDestroied; i++) {
+				var aAgentBubbleData = oDataBlock.getDataByAgent(agentName, i);
+				var groupCount = aAgentBubbleData[oPropertyIndex.groupCount];
+				if ( groupCount !== 0 ) {
+					var aBubbleType = oTypeInfo[aAgentBubbleData[oPropertyIndex.type]];
+					self._oRendererManager.drawBubble( BigScatterChart2.Util.makeKey( agentName, sPrefix, aBubbleType[0] ), aBubbleType[1], aAgentBubbleData );
 				}
+			}
 
-			});
-		}, 0);
+		});
 	};
 	BigScatterChart2.prototype.addBubbleAndMoveAndDraw = function( oDataBlock, bRealtime, nextRequestTime ) {
 		if ( bRealtime === false ) {

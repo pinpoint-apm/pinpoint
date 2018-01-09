@@ -16,33 +16,50 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.response;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Taejin Koo
  */
-public class ReuseResponseTimeCollector {
+public class ReuseResponseTimeCollector implements ResponseTimeCollector {
 
     private volatile ResponseTimeCollector currentResponseTimeCollector;
 
+    @Inject
     public ReuseResponseTimeCollector() {
         this.currentResponseTimeCollector = new ResponseTimeCollector();
     }
 
+    @Override
     public void add(long value) {
         this.currentResponseTimeCollector.add(value);
     }
 
+    @Override
     public ResponseTimeValue resetAndGetValue() {
-        ResponseTimeValue result = new ResponseTimeValue0(currentResponseTimeCollector.getTotalValue(), currentResponseTimeCollector.getTransactionCount());
-        this.currentResponseTimeCollector = new ResponseTimeCollector();
+        final ResponseTimeCollector reset = reset();
 
+        final long totalValue = reset.getTotalValue();
+        final long maxValue = reset.getMaxValue();
+        final long transactionCount = reset.getTransactionCount();
+        ResponseTimeValue result = new ResponseTimeValue0(totalValue, maxValue, transactionCount);
         return result;
+    }
+
+    private ResponseTimeCollector reset() {
+        final ResponseTimeCollector newValue = new ResponseTimeCollector();
+        final ResponseTimeCollector copy = this.currentResponseTimeCollector;
+        this.currentResponseTimeCollector = newValue;
+        return copy;
     }
 
     private static class ResponseTimeCollector {
         private final LongAdder totalValue;
         private final LongAdder transactionCount;
+        private final AtomicLong maxValue = new AtomicLong(0);
 
         private ResponseTimeCollector() {
             this.totalValue = new LongAdder();
@@ -52,10 +69,27 @@ public class ReuseResponseTimeCollector {
         void add(long value) {
             transactionCount.increment();
             totalValue.add(value);
+
+            boolean success = setMaxValue(value);
+            while (!success) {
+                success = setMaxValue(value);
+            }
+        }
+
+        private boolean setMaxValue(long value) {
+            long currentMaxValue = maxValue.get();
+            if (currentMaxValue < value) {
+                return maxValue.compareAndSet(currentMaxValue, value);
+            }
+            return true;
         }
 
         public long getTotalValue() {
             return totalValue.longValue();
+        }
+
+        public long getMaxValue() {
+            return maxValue.get();
         }
 
         public long getTransactionCount() {
@@ -66,15 +100,13 @@ public class ReuseResponseTimeCollector {
 
     private static class ResponseTimeValue0 implements ResponseTimeValue {
 
-        public long getTotalResponseTime() {
-            return totalResponseTime;
-        }
-
         private final long totalResponseTime;
+        private final long maxResponseTime;
         private final long transactionCount;
 
-        private ResponseTimeValue0(long totalResponseTime, long transactionCount) {
+        private ResponseTimeValue0(long totalResponseTime, long maxResponseTime, long transactionCount) {
             this.totalResponseTime = totalResponseTime;
+            this.maxResponseTime = maxResponseTime;
             this.transactionCount = transactionCount;
         }
 
@@ -85,6 +117,11 @@ public class ReuseResponseTimeCollector {
             }
 
             return totalResponseTime / transactionCount;
+        }
+
+        @Override
+        public long getMax() {
+            return maxResponseTime;
         }
 
         @Override
@@ -102,6 +139,7 @@ public class ReuseResponseTimeCollector {
             final StringBuilder sb = new StringBuilder("ResponseTimeValue0{");
             sb.append("totalResponseTime=").append(totalResponseTime);
             sb.append(", transactionCount=").append(transactionCount);
+            sb.append(", maxResponseTime=").append(maxResponseTime);
             sb.append('}');
             return sb.toString();
         }

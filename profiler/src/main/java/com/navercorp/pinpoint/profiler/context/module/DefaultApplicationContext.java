@@ -25,18 +25,20 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,20 +55,22 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final ProfilerConfig profilerConfig;
 
+    private final DeadlockMonitor deadlockMonitor;
     private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
 
     private final TraceContext traceContext;
 
     private final PinpointClientFactory clientFactory;
-    private final PinpointClient client;
     private final EnhancedDataSender tcpDataSender;
 
-    private final DataSender statDataSender;
+    private final PinpointClientFactory spanStatClientFactory;
     private final DataSender spanDataSender;
+    private final DataSender statDataSender;
 
     private final AgentInformation agentInformation;
     private final AgentOption agentOption;
+    private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
@@ -78,17 +82,15 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final Injector injector;
 
-
     public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {
-        if (agentOption == null) {
-            throw new NullPointerException("agentOption must not be null");
-        }
-        if (interceptorRegistryBinder == null) {
-            throw new NullPointerException("interceptorRegistryBinder must not be null");
-        }
+        this(agentOption, interceptorRegistryBinder, new ApplicationContextModuleFactory());
+    }
 
-        this.agentOption = agentOption;
-        this.profilerConfig = agentOption.getProfilerConfig();
+    public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder, ModuleFactory moduleFactory) {
+        this.agentOption = Assert.requireNonNull(agentOption, "agentOption must not be null");
+        this.profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
+        Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
+
         this.instrumentation = agentOption.getInstrumentation();
         this.serviceTypeRegistryService = agentOption.getServiceTypeRegistryService();
 
@@ -96,7 +98,7 @@ public class DefaultApplicationContext implements ApplicationContext {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
 
-        final Module applicationContextModule = newApplicationContextModule(agentOption, interceptorRegistryBinder);
+        final Module applicationContextModule = moduleFactory.newModule(agentOption, interceptorRegistryBinder);
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
         this.instrumentEngine = injector.getInstance(InstrumentEngine.class);
@@ -107,17 +109,17 @@ public class DefaultApplicationContext implements ApplicationContext {
         ClassFileTransformer classFileTransformer = wrap(classFileDispatcher);
         instrumentation.addTransformer(classFileTransformer, true);
 
+        this.spanStatClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanStatClientFactory.class));
+        logger.info("spanStatClientFactory:{}", spanStatClientFactory);
+
         this.spanDataSender = newUdpSpanDataSender();
         logger.info("spanDataSender:{}", spanDataSender);
 
         this.statDataSender = newUdpStatDataSender();
         logger.info("statDataSender:{}", statDataSender);
 
-        this.clientFactory = injector.getInstance(PinpointClientFactory.class);
+        this.clientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, DefaultClientFactory.class));
         logger.info("clientFactory:{}", clientFactory);
-
-        this.client = injector.getInstance(PinpointClient.class);
-        logger.info("client:{}", client);
 
         this.tcpDataSender = injector.getInstance(EnhancedDataSender.class);
         logger.info("tcpDataSender:{}", tcpDataSender);
@@ -126,13 +128,14 @@ public class DefaultApplicationContext implements ApplicationContext {
 
         this.agentInformation = injector.getInstance(AgentInformation.class);
         logger.info("agentInformation:{}", agentInformation);
+        this.serverMetaDataRegistryService = injector.getInstance(ServerMetaDataRegistryService.class);
 
+        this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
     }
 
     public ClassFileTransformer wrap(ClassFileTransformerDispatcher classFileTransformerDispatcher) {
-
         final boolean enableBytecodeDump = profilerConfig.readBoolean(ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP, ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP_DEFAULT_VALUE);
         if (enableBytecodeDump) {
             logger.info("wrapBytecodeDumpTransformer");
@@ -142,11 +145,10 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-        return new ApplicationContextModule(agentOption, profilerConfig, serviceTypeRegistryService, interceptorRegistryBinder);
+        return new ApplicationContextModule(agentOption, interceptorRegistryBinder);
     }
 
     private DataSender newUdpStatDataSender() {
-
         Key<DataSender> statDataSenderKey = Key.get(DataSender.class, StatDataSender.class);
         return injector.getInstance(statDataSenderKey);
     }
@@ -195,10 +197,13 @@ public class DefaultApplicationContext implements ApplicationContext {
         return this.agentInformation;
     }
 
-
+    public ServerMetaDataRegistryService getServerMetaDataRegistryService() {
+        return this.serverMetaDataRegistryService;
+    }
 
     @Override
     public void start() {
+        this.deadlockMonitor.start();
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
     }
@@ -207,10 +212,14 @@ public class DefaultApplicationContext implements ApplicationContext {
     public void close() {
         this.agentInfoSender.stop();
         this.agentStatMonitor.stop();
+        this.deadlockMonitor.stop();
 
         // Need to process stop
         this.spanDataSender.stop();
         this.statDataSender.stop();
+        if (spanStatClientFactory != null) {
+            spanStatClientFactory.release();
+        }
 
         closeTcpDataSender();
     }
@@ -219,10 +228,6 @@ public class DefaultApplicationContext implements ApplicationContext {
         final EnhancedDataSender tcpDataSender = this.tcpDataSender;
         if (tcpDataSender != null) {
             tcpDataSender.stop();
-        }
-        final PinpointClient client = this.client;
-        if (client != null) {
-            client.close();
         }
         final PinpointClientFactory clientFactory = this.clientFactory;
         if (clientFactory != null) {

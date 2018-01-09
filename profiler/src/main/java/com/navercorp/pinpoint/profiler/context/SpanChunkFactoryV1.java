@@ -16,15 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressorV1;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
@@ -38,31 +39,23 @@ public class SpanChunkFactoryV1 implements SpanChunkFactory {
     private final String agentId;
     private final long agentStartTime;
     private final ServiceType applicationServiceType;
+    private final TransactionIdEncoder transactionIdEncoder;
 
     private final SpanEventCompressor<Long> spanEventCompressor = new SpanEventCompressorV1();
 
 
-    public SpanChunkFactoryV1(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
-                              @ApplicationServerType ServiceType applicationServiceType) {
+    public SpanChunkFactoryV1(String applicationName, String agentId, long agentStartTime, ServiceType applicationServiceType, TransactionIdEncoder transactionIdEncoder) {
 
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (applicationServiceType == null) {
-            throw new NullPointerException("applicationServiceType must not be null");
-        }
-
-        this.applicationName = applicationName;
-        this.agentId = agentId;
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.agentStartTime = agentStartTime;
-        this.applicationServiceType = applicationServiceType;
+        this.applicationServiceType = Assert.requireNonNull(applicationServiceType, "applicationServiceType must not be null");
+        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder must not be null");
+
     }
 
     @Override
-    public SpanChunk create(final List<SpanEvent> spanEventList) {
+    public SpanChunk create(TraceRoot traceRoot, final List<SpanEvent> spanEventList) {
         if (CollectionUtils.isEmpty(spanEventList)) {
             throw new IllegalArgumentException("spanEventList is empty.");
         }
@@ -72,7 +65,6 @@ public class SpanChunkFactoryV1 implements SpanChunkFactory {
         if (first == null) {
             throw new IllegalStateException("first SpanEvent is null");
         }
-        final Span parentSpan = first.getSpan();
 
         final SpanChunk spanChunk = new SpanChunk(spanEventList);
 //        skip default version
@@ -84,15 +76,15 @@ public class SpanChunkFactoryV1 implements SpanChunkFactory {
         spanChunk.setApplicationServiceType(applicationServiceType.getCode());
 
 
-        spanEventCompressor.compress(spanEventList, parentSpan.getStartTime());
+        spanEventCompressor.compress(spanEventList, traceRoot.getTraceStartTime());
 
-        final byte[] transactionId = parentSpan.getTransactionId();
+        final TraceId traceId = traceRoot.getTraceId();
+        final ByteBuffer transactionId = transactionIdEncoder.encodeTransactionId(traceId);
         spanChunk.setTransactionId(transactionId);
 
+        spanChunk.setSpanId(traceId.getSpanId());
 
-        spanChunk.setSpanId(parentSpan.getSpanId());
-
-        spanChunk.setEndPoint(parentSpan.getEndPoint());
+        spanChunk.setEndPoint(traceRoot.getShared().getEndPoint());
         return spanChunk;
     }
 }

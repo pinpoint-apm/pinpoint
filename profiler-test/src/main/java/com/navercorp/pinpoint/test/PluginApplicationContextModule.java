@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Providers;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressorV1;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
@@ -27,7 +29,6 @@ import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -42,10 +43,9 @@ public class PluginApplicationContextModule extends AbstractModule {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private TestableServerMetaDataListener serverMetaDataListener;
     private TestTcpDataSender tcpDataSender;
     private OrderedSpanRecorder orderedSpanRecorder;
-    private ServerMetaDataHolder serverMetaDataHolder;
+    private ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     public PluginApplicationContextModule() {
     }
@@ -65,18 +65,14 @@ public class PluginApplicationContextModule extends AbstractModule {
         logger.debug("spanFactory:{}", spanDataSender);
         bind(StorageFactory.class).toInstance(storageFactory);
 
-
         bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
-        bind(PinpointClient.class).toProvider(Providers.of((PinpointClient)null));
 
         EnhancedDataSender enhancedDataSender = newTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
         bind(EnhancedDataSender.class).toInstance(enhancedDataSender);
 
-        ServerMetaDataHolder serverMetaDataHolder = newServerMetaDataHolder();
-        logger.debug("serverMetaDataHolder:{}", serverMetaDataHolder);
-        bind(ServerMetaDataHolder.class).toInstance(serverMetaDataHolder);
-
+        ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
+        bind(ServerMetaDataRegistryService.class).toInstance(serverMetaDataRegistryService);
     }
 
 
@@ -99,14 +95,11 @@ public class PluginApplicationContextModule extends AbstractModule {
         return tcpDataSender;
     }
 
-
-    private ServerMetaDataHolder newServerMetaDataHolder() {
+    private ServerMetaDataRegistryService newServerMetaDataRegistryService() {
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        ServerMetaDataHolder serverMetaDataHolder = new ResettableServerMetaDataHolder(vmArgs);
-        this.serverMetaDataListener = new TestableServerMetaDataListener();
-        this.serverMetaDataHolder = serverMetaDataHolder;
-        serverMetaDataHolder.addListener(this.serverMetaDataListener);
-        return serverMetaDataHolder;
+        ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(vmArgs);
+        this.serverMetaDataRegistryService = serverMetaDataRegistryService;
+        return serverMetaDataRegistryService;
     }
 
     protected StorageFactory newStorageFactory(DataSender spanDataSender) {
@@ -116,8 +109,8 @@ public class PluginApplicationContextModule extends AbstractModule {
         return storageFactory;
     }
 
-    public TestableServerMetaDataListener getServerMetaDataListener() {
-        return serverMetaDataListener;
+    public ServerMetaData getServerMetaData() {
+        return serverMetaDataRegistryService.getServerMetaData();
     }
 
     public TestTcpDataSender getTcpDataSender() {

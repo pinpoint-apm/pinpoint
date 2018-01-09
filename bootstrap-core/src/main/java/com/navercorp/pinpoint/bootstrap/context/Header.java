@@ -17,11 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.common.util.DelegateEnumeration;
-import com.navercorp.pinpoint.common.util.EmptyEnumeration;
-
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author emeroad
@@ -35,7 +30,13 @@ public enum Header {
     HTTP_FLAGS("Pinpoint-Flags"),
     HTTP_PARENT_APPLICATION_NAME("Pinpoint-pAppName"),
     HTTP_PARENT_APPLICATION_TYPE("Pinpoint-pAppType"),
-    HTTP_HOST("Pinpoint-Host");
+    HTTP_HOST("Pinpoint-Host"),
+    HTTP_PROXY_NGINX("Pinpoint-ProxyNginx"),
+    HTTP_PROXY_APACHE("Pinpoint-ProxyApache"),
+    HTTP_PROXY_APP("Pinpoint-ProxyApp");
+
+    public static final String FILTER_PATTERN_PREFIX = "Pinpoint-";
+    private static final int FILTER_PATTERN_PREFIX_LENGTH = FILTER_PATTERN_PREFIX.length();
 
     private String name;
 
@@ -47,60 +48,20 @@ public enum Header {
         return name;
     }
 
-    private static final Map<String, Header> NAME_SET = createMap();
-
-    private static Map<String, Header> createMap() {
-        Header[] headerList = values();
-        Map<String, Header> map = new HashMap<String, Header>();
-        for (Header header : headerList) {
-            map.put(header.name, header);
-        }
-        return map;
-    }
-
-    public static Header getHeader(String name) {
+    public static boolean startWithPinpointHeader(final String name) {
         if (name == null) {
-            return null;
+            return false;
         }
-        if (!startWithPinpointHeader(name)) {
-            return null;
-        }
-        return NAME_SET.get(name);
+        return name.regionMatches(true, 0, FILTER_PATTERN_PREFIX, 0, FILTER_PATTERN_PREFIX_LENGTH);
     }
 
-
-
-    public static boolean hasHeader(String name) {
-        return getHeader(name) != null;
-    }
-
-    public static Enumeration getHeaders(String name) {
-        if (name == null) {
-            return null;
-        }
-        final Header header = getHeader(name);
-        if (header == null) {
-            return null;
-        }
-        // if pinpoint header
-        return new EmptyEnumeration();
-    }
-
-    public static Enumeration filteredHeaderNames(final Enumeration enumeration) {
-        return new DelegateEnumeration(enumeration, FILTER);
-    }
-
-    private static DelegateEnumeration.Filter FILTER = new DelegateEnumeration.Filter() {
+    public static DelegateEnumeration.Filter FILTER = new DelegateEnumeration.Filter() {
         @Override
         public boolean filter(Object o) {
             if (o instanceof String) {
-                return hasHeader((String )o);
+                return startWithPinpointHeader((String) o);
             }
             return false;
         }
     };
-
-    private static boolean startWithPinpointHeader(String name) {
-        return name.startsWith("Pinpoint-");
-    }
 }

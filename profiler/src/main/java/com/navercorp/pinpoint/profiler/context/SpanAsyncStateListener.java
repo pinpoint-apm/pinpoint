@@ -17,8 +17,11 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -28,7 +31,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 @InterfaceAudience.LimitedPrivate("vert.x")
 public class SpanAsyncStateListener implements ListenableAsyncState.AsyncStateListener {
 
-    private final AtomicIntegerFieldUpdater<SpanAsyncStateListener> CLOSED_UPDATER
+    private static final AtomicIntegerFieldUpdater<SpanAsyncStateListener> CLOSED_UPDATER
             = AtomicIntegerFieldUpdater.newUpdater(SpanAsyncStateListener.class, "closed");
     private static final int OPEN = 0;
     private static final int CLOSED = 1;
@@ -37,17 +40,11 @@ public class SpanAsyncStateListener implements ListenableAsyncState.AsyncStateLi
     private volatile int closed = OPEN;
 
     private final Span span;
-    private final Storage storage;
+    private final StorageFactory storageFactory;
 
-    SpanAsyncStateListener(Span span, Storage storage) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
-        }
-        if (storage == null) {
-            throw new NullPointerException("storage must not be null");
-        }
-        this.span = span;
-        this.storage = storage;
+    SpanAsyncStateListener(Span span, StorageFactory storageFactory) {
+        this.span = Assert.requireNonNull(span, "span must not be null");
+        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
     }
 
     @Override
@@ -56,8 +53,10 @@ public class SpanAsyncStateListener implements ListenableAsyncState.AsyncStateLi
             if (span.isTimeRecording()) {
                 span.markAfterTime();
             }
-            this.storage.store(this.span);
-            this.storage.close();
+            final TraceRoot traceRoot = span.getTraceRoot();
+            final Storage storage = storageFactory.createStorage(traceRoot);
+            storage.store(this.span);
+            storage.close();
         }
     }
 }

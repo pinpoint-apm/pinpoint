@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -36,8 +36,6 @@ import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,21 +120,6 @@ public final class PinpointRPCTestUtils {
         }
     }
     
-    public static void close(Socket socket, Socket... sockets) throws IOException {
-        if (socket != null) {
-            socket.close();
-        }
-        
-        if (sockets != null) {
-            for (Socket eachSocket : sockets) {
-                if (eachSocket != null) {
-                    eachSocket.close();
-                }
-            }
-        }
-    }
-
-    
     public static EchoServerListener createEchoServerListener() {
         return new EchoServerListener();
     }
@@ -184,9 +167,9 @@ public final class PinpointRPCTestUtils {
         }
 
         @Override
-        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-            
+        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
         }
+
     }
     
     public static class EchoClientListener implements MessageListener {

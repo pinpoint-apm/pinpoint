@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.profiler.instrument.mock.accessor;
  * @author jaehong.kim
  */
 public interface PublicStrAccessor {
-    public void _$PINPOINT$_setTracePublicStr(String publicStr);
-    public String _$PINPOINT$_getTracePublicStr();
+    void _$PINPOINT$_setTracePublicStr(String publicStr);
+    String _$PINPOINT$_getTracePublicStr();
 }

@@ -18,6 +18,8 @@
 
 		 var callee = UserConfigService.getCallee();
 		 var caller = UserConfigService.getCaller();
+		 var bidirectional = UserConfigService.getBidirectional();
+		 var wasOnly = UserConfigService.getWasOnly();
 		 var oPeriodType = PreferenceService.getPeriodType();
 		 var aPeriodTime = PreferenceService.getPeriodTime();
 
@@ -32,7 +34,8 @@
 							 .setReadablePeriod( $routeParams.readablePeriod )
 							 .setQueryEndDateTime( $routeParams.queryEndDateTime )
 							 .setCallee( PreferenceService.getCalleeByApp($routeParams.application) )
-							 .setCaller( PreferenceService.getCallerByApp($routeParams.application) );
+							 .setCaller( PreferenceService.getCallerByApp($routeParams.application) )
+					   		 .setBidirectional( PreferenceService.getBidirectionalByApp($routeParams.application) );
 					 }
 					 break;
 				 case "filteredMap":
@@ -91,6 +94,17 @@
 			 caller = c;
 			 return this;
 		 };
+		 this.getBidirectional = function() {
+		 	return bidirectional;
+		 };
+		 this.setBidirectional = function( c ) {
+		 	bidirectional = c;
+		 	return this;
+		 };
+		 this.setWasOnly = function( c ) {
+		 	wasOnly = c;
+		 	return this;
+		 }
 		 // 검색 시간 범위
 		 this.getPeriod = function() {
 			 return minutePeriod;
@@ -166,9 +180,9 @@
 		 this.setReadablePeriod = function( periodStr ) {
 			 if ( periodStr === oPeriodType.REALTIME ) {
 				 periodType = oPeriodType.REALTIME;
-				 readablePeriod = "1m";
-				 minutePeriod = 1;
-				 millisecondPeriod = 1 * 60 * 1000;
+				 readablePeriod = "5m";
+				 minutePeriod = 5;
+				 millisecondPeriod = 5 * 60 * 1000;
 			 } else {
 				 var regex = /^(\d)+(s|m|h|d|w|M|y)$/;
 				 var match = regex.exec(periodStr);

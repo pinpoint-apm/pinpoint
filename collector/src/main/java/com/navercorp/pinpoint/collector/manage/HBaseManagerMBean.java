@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.collector.manage;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface HBaseManagerMBean {
 

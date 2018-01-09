@@ -7,7 +7,7 @@
     </organization>
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.7.2-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
@@ -66,6 +66,7 @@
         <module>test</module>
         <module>web</module>
         <module>hbase</module>
+        <module>flink</module>
     </modules>
 
     <properties>
@@ -80,9 +81,9 @@
         <httpcomponents.version>4.3</httpcomponents.version>
         <jedis.version>2.4.2</jedis.version>
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
-        <spring.version>4.1.9.RELEASE</spring.version>
-        <spring.batch.version>2.2.7.RELEASE</spring.batch.version>
-        <spring.security.version>4.0.4.RELEASE</spring.security.version>
+        <spring.version>4.3.8.RELEASE</spring.version>
+        <spring.batch.version>3.0.7.RELEASE</spring.batch.version>
+        <spring.security.version>4.2.2.RELEASE</spring.security.version>
         <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <sniffer.artifactid>java16</sniffer.artifactid>
@@ -101,7 +102,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -213,6 +214,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-flink</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -396,9 +402,9 @@
                 <version>5.1.20</version>
             </dependency>
             <dependency>
-                <groupId>postgresql</groupId>
+                <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>9.1-901-1.jdbc4</version>
+                <version>9.4.1207</version>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
@@ -410,6 +416,12 @@
                 <groupId>com.ning</groupId>
                 <artifactId>async-http-client</artifactId>
                 <version>1.8.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.asynchttpclient</groupId>
+                <artifactId>async-http-client</artifactId>
+                <version>2.0.32</version>
             </dependency>
 
             <dependency>
@@ -496,6 +508,11 @@
                 <artifactId>okhttp</artifactId>
                 <version>2.5.0</version>
             </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>3.8.1</version>
+            </dependency>
 
             <dependency>
                 <groupId>redis.clients</groupId>
@@ -538,7 +555,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.8.3</version>
+                <version>1.9.3</version>
             </dependency>
 
             <dependency>
@@ -569,13 +586,13 @@
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-debug-all</artifactId>
-                <version>5.1</version>
+                <version>5.2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.8.9</version>
+                <version>1.8.10</version>
             </dependency>
 
 
@@ -621,8 +638,8 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>1.10.19</version>
+                <artifactId>mockito-core</artifactId>
+                <version>2.7.22</version>
             </dependency>
             <dependency>
                 <groupId>org.dbunit</groupId>
@@ -679,7 +696,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>19.0</version>
+                <version>20.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
@@ -714,7 +731,7 @@
             <dependency>
                 <groupId>com.netflix.hystrix</groupId>
                 <artifactId>hystrix-core</artifactId>
-                <version>1.3.20</version>
+                <version>1.5.12</version>
             </dependency>
 
             <dependency>
@@ -722,6 +739,13 @@
                 <artifactId>vertx-core</artifactId>
                 <version>3.3.3</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.reactivex</groupId>
+                <artifactId>rxjava</artifactId>
+                <version>1.2.0</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -914,6 +938,15 @@
                     <reporter>checkstyle</reporter>
                     <reportFile>${project.build.directory}/jshint.xml</reportFile>
                     <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
+                    <format>xml</format>
                 </configuration>
             </plugin>
             <plugin>

@@ -73,7 +73,8 @@
                 	"borderColor": "#53069B",
                     "backgroundColor": "#289E1D",
                     //"fontColor": "#5cb85c"
-                    "fontColor": "#53069B"
+                    "fontColor": "#53069B",
+					"textBackgroundColor": "#D9EDF7"
                 },
                 "htHighlightLink": {
                 	"fontFamily": "bold 12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
@@ -529,8 +530,7 @@
                                     name: "NODE_TEXT",
                                     visible: true
                                 },
-                                new go.Binding("itemArray", "listTopX"),
-                                new go.Binding("visible", "isCollapse")
+                                new go.Binding("itemArray", "listTopX")
                             )
                         )
                     ),
@@ -870,7 +870,6 @@
             // links
             while (allLinks.next()) {
                 this._highlightLink(allLinks.value.findObject("LINK"), allLinks.value.highlight);
-//                this._highlightLink(allLinks.value.findObject("LINK2"), allLinks.value.highlight);
                 this._highlightLink(allLinks.value.findObject("ARROW"), allLinks.value.highlight, true);
                 this._highlightLinkText(allLinks.value.findObject("LINK_TEXT"), allLinks.value.highlight);
             }
@@ -952,26 +951,27 @@
             	var reg = new RegExp( this._query, "i" );
             	var highlightFont = this.option("htHighlightNode").fontColor;
             	var defaultFont = this.option("htNodeTheme")["default"].fontColor;
+            	var highlightBackgroundColor = this.option("htHighlightNode").textBackgroundColor;
+				var defaultBackgroundColor = this.option("htNodeTheme")["default"].backgroundColor;
                 if ( this._query !== "" ) {
 	                if ( angular.isDefined( textNode.rowCount ) ) {
 	                	for( i = 0 ; i < textNode.rowCount ; i++ ) {
-	                		var innerTextNode = textNode.elt(i).elt(2);
-	                		innerTextNode.stroke = reg.test( innerTextNode.text ) ? highlightFont : defaultFont;
-	                	}
-
-	                	var nodeSubTextNode = textNode.panel.findObject("NODE_SUB_TEXT");
-	                	var length = nodeSubTextNode.elements.count;
-	                	for( i = 0 ; i < length ; i++ ) {
-	                		var innerTableNode = nodeSubTextNode.elt(i).elt(1);
-                			for( var j = 0 ; j < innerTableNode.elements.count ; j++ ) {
-                				var innerSubTextNode = innerTableNode.elt(j).elt(2);
-                				innerSubTextNode.stroke = reg.test( innerSubTextNode.text ) ? highlightFont : defaultFont;
-                			}
+	                		var innerTextNode = textNode.elt(i).elt(1);
+							innerTextNode.background = reg.test( innerTextNode.text ) ? highlightBackgroundColor : defaultBackgroundColor;
 	                	}
 	                } else {
 	                	textNode.stroke = reg.test( textNode.text ) ? highlightFont : defaultFont;
 	                }
-                }
+                } else {
+					if ( angular.isDefined( textNode.rowCount ) ) {
+						for( i = 0 ; i < textNode.rowCount ; i++ ) {
+							var innerTextNode = textNode.elt(i).elt(1);
+							innerTextNode.background = defaultBackgroundColor;
+						}
+					} else {
+						textNode.stroke = defaultFont;
+					}
+				}
             } else {
                 var type = (shapeNode.key === this.option("sBoldKey")) ? "bold" : "default";
                 shapeNode.stroke = this.option("htNodeTheme")[type].borderColor;
@@ -1217,6 +1217,7 @@
         },
         clearQuery: function() {
         	this._query = "";
+
         },
         searchNode: function( query, nodeServiceType ) {
         	this._query = query;
@@ -1243,7 +1244,10 @@
 	                }
                 }
             }
-           	this._selectAndHighlight( similarNodeList[selectedIndex] );
+            if ( similarNodeList.length === 0 ) {
+            	return;
+			}
+			this._selectAndHighlight(similarNodeList[selectedIndex]);
             if ( angular.isUndefined ( nodeServiceType ) ) {
             	return returnNodeDataList;
             }

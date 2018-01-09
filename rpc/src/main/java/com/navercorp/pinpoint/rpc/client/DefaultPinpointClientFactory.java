@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -64,7 +64,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     public static final String CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
-    private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+    private static final long DEFAULT_TIMEOUT_MILLIS = 3 * 1000;
     private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
     private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
 
@@ -82,7 +82,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     // rather keeping it from server to client short help detect disconnection as soon as possible.
     private long pingDelay = DEFAULT_PING_DELAY;
     private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
-    private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
+    private long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
 
     private ClusterOption clusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
 
@@ -218,16 +218,6 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     public PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException {
         ChannelFuture connectFuture = bootstrap.connect(connectAddress);
         PinpointClientHandler pinpointClientHandler = getSocketHandler(connectFuture, connectAddress);
-
-        PinpointClient pinpointClient = new DefaultPinpointClient(pinpointClientHandler);
-        traceSocket(pinpointClient);
-        return pinpointClient;
-    }
-
-    public PinpointClient reconnect(String host, int port) throws PinpointSocketException {
-        SocketAddress address = new InetSocketAddress(host, port);
-        ChannelFuture connectFuture = bootstrap.connect(address);
-        PinpointClientHandler pinpointClientHandler = getSocketHandler(connectFuture, address);
 
         PinpointClient pinpointClient = new DefaultPinpointClient(pinpointClientHandler);
         traceSocket(pinpointClient);
@@ -406,7 +396,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setProperties(Map<String, Object> agentProperties) {
-        AssertUtils.assertNotNull(properties, "agentProperties must not be null");
+        Assert.requireNonNull(properties, "agentProperties must not be null");
 
         this.properties = Collections.unmodifiableMap(agentProperties);
     }
@@ -436,7 +426,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setMessageListener(MessageListener messageListener) {
-        AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
+        Assert.requireNonNull(messageListener, "messageListener must not be null");
 
         this.messageListener = messageListener;
     }
@@ -454,7 +444,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
+        Assert.requireNonNull(messageListener, "messageListener must not be null");
 
         this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
     }

@@ -27,9 +27,13 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -39,6 +43,7 @@ import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConfig;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
+import org.apache.catalina.connector.Response;
 
 /**
  * @author emeroad
@@ -56,6 +61,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final Filter<String> excludeUrlFilter;
     private final Filter<String> excludeProfileMethodFilter;
     private final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
+    private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
@@ -76,6 +83,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         }
         this.isTraceRequestParam = tomcatConfig.isTomcatTraceRequestParam();
         this.excludeProfileMethodFilter = tomcatConfig.getTomcatExcludeProfileMethodFilter();
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -166,6 +175,9 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 // change api
                 SpanRecorder recorder = trace.getSpanRecorder();
                 recorder.recordApi(SERVLET_ASYNCHRONOUS_API_TAG);
+                // unmarked async flag.
+                setAsyncMetadata(request, false);
+
                 // attach current thread local.
                 traceContext.continueTraceObject(trace);
 
@@ -242,6 +254,12 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         return ((TraceAccessor) request)._$PINPOINT$_getTrace();
     }
 
+    private void setAsyncMetadata(final HttpServletRequest request, final boolean async) {
+        if (request instanceof AsyncAccessor) {
+            ((AsyncAccessor) request)._$PINPOINT$_setAsync(async);
+        }
+    }
+
     private boolean getAsyncMetadata(final HttpServletRequest request) {
         if (!(request instanceof AsyncAccessor)) {
             return false;
@@ -266,7 +284,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         recorder.recordRpcName(requestURL);
 
         final int port = request.getServerPort();
-        final String endPoint = request.getServerName() + ":" + port;
+        final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
         recorder.recordEndPoint(endPoint);
 
         final String remoteAddr = remoteAddressResolver.resolve(request);
@@ -276,6 +294,14 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             recordParentInfo(recorder, request);
         }
         recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+
+        // record proxy HTTP header.
+        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
+            @Override
+            public String read(String name) {
+                return request.getHeader(name);
+            }
+        });
     }
 
     private void recordParentInfo(SpanRecorder recorder, HttpServletRequest request) {
@@ -317,12 +343,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 final HttpServletRequest request = (HttpServletRequest) args[0];
                 if (!excludeProfileMethodFilter.filter(request.getMethod())) {
                     final String parameters = getRequestParameter(request, 64, 512);
-                    if (StringUtils.isNotEmpty(parameters)) {
+                    if (StringUtils.hasLength(parameters)) {
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
                     }
                 }
             }
-
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
         } catch (Throwable th) {
@@ -384,7 +409,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             }
             String key = attrs.nextElement().toString();
             params.append(StringUtils.abbreviate(key, eachLimit));
-            params.append("=");
+            params.append('=');
             Object value = request.getParameter(key);
             if (value != null) {
                 params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
@@ -398,6 +423,12 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
         final HttpServletRequest request = (HttpServletRequest) args[0];
         if (!isAsynchronousProcess(request)) {
+            if (args[1] instanceof Response) {
+                // record response status.
+                final Response response = (Response) args[1];
+                final SpanRecorder spanRecorder = trace.getSpanRecorder();
+                this.httpStatusCodeRecorder.record(spanRecorder, response.getStatus());
+            }
             trace.close();
             // reset
             setTraceMetadata(request, null);

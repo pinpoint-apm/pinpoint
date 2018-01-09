@@ -54,13 +54,24 @@
 					},{
 						name: "JVM CPU USAGE RATE",
 						desc: "Sends an alarm when the application's CPU usage(%) exceeds the configured threshold."
+					},{
+						name: "DATASOURCE CONNECTION USAGE RATE",
+						desc: "Sends an alarm when the application's DataSource connection usage(%) exceeds the configured threshold."
+					}, {
+						name: "DEADLOCK OCCURRENCE",
+						desc: "Sends an alarm when deadlock condition is detected in application."
 					}]
 				}]
+			},
+			installation: {
+				desc: "* You can check whether the Application Name and Agent Id are duplicated.",
+				lengthGuide: "You can enter up to {{MAX_CHAR}} characters."
 			}
 		},	
 		navbar : {
 			searchPeriod : {
-				guide: "Search duration may not be greater than {{day}} days."
+				guideDateMax: "Search duration may not be greater than {{day}} days.",
+				guideDateOrder: "Date or time set incorrectly"
 			},
 			applicationSelector: {
 				mainStyle: "",
@@ -89,6 +100,18 @@
 					}, {
 						name: "Outbound",
 						desc: "Number of depth to render for requests going out from the selected node"
+					}]
+				}]
+			},
+			bidirectional : {
+				mainStyle: "",
+				title: '<img src="images/bidirect_on.png" width="22px" height="22px" style="margin-top:-4px;"> Bidirectional Search',
+				desc: "Search-method of server map.",
+				category : [{
+					title: "[Legend]",
+					items: [{
+						name: "Bidirectional",
+						desc: " Renders inbound/outbound nodes for each and every node (within limit) even if they are not directly related to the selected node.<br>Note that checking this option may lead to overly complex server maps."
 					}]
 				}]
 			},
@@ -470,6 +493,7 @@
 			}
 		},
 		inspector: {
+			noDataCollected: "No data collected",
 			list: {
 				mainStyle: "",
 				title: "Agent list",
@@ -632,7 +656,160 @@
 				"2. A different agent with the same agent id has been registered to {{application2}}<hr>",
 				"For the former case, you should delete the mapping between {{application1}} and {{agentId}}.<br>",
 				"For the latter case, the agent id of the duplicate agent must be changed.</div>"
-			].join("")
+			].join(""),
+			statHeap: {
+				mainStyle: "",
+				title: "Heap",
+				desc: "Heap size used by agent JVMs",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Largest heap size used by agent JVMs"
+					},{
+						name: "AVG",
+						desc: "Average heap size used by agent JVMs"
+					},{
+						name: "MIN",
+						desc: "Smallest heap size used by agent JVMs"
+					}]
+				}]
+			},
+			statPermGen: {
+				mainStyle: "",
+				title: "PermGen",
+				desc: "Permgen size used by the agent JVMs",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Largest permgen size used by agent JVMs"
+					},{
+						name: "AVG",
+						desc: "Average permgen size used by agent JVMs"
+					},{
+						name: "MIN",
+						desc: "Smallest permgen size used by agent JVMs"
+					}]
+				}]
+			},
+			statJVMCpu: {
+				mainStyle: "",
+				title: "JVM Cpu Usage",
+				desc: "CPU used by agent JVM processes - For multi-core CPUs, displays the average CPU usage of all the cores.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Largest CPU usage of agent JVM processes"
+					},{
+						name: "AVG",
+						desc: "Average CPU usage of agent JVM processes"
+					},{
+						name: "MIN",
+						desc: "Smallest CPU usage of agent JVM processes"
+					}]
+				}]
+			},
+			statSystemCpu: {
+				mainStyle: "",
+				title: "System pu Usage",
+				desc: "CPU usage of agents' whole system - For multi-core CPUs, displays the average CPU usage of all the cores.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Largest system CPU usage of agents"
+					},{
+						name: "AVG",
+						desc: "Average system CPU usage of agents"
+					},{
+						name: "MIN",
+						desc: "Smallest system CPU usage of agents"
+					}]
+				},{
+					title: "[Reference]",
+					items: [{
+						name: "Java 1.6",
+						desc: "Only the JVM's CPU usage is collected"
+					},{
+						name: "Java 1.7+",
+						desc: "Both the JVM's and the system's CPU usage are collected"
+					}]
+				}]
+			},
+			statTPS: {
+				mainStyle: "",
+				title: "TPS",
+				desc: "Number of transactions received by the agents per second",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Highest TPS of the agents"
+					},{
+						name: "AVG",
+						desc: "Average TPS of the agents"
+					},{
+						name: "MIN",
+						desc: "Lowest TPS of the agents"
+					}]
+				}]
+			},
+			statActiveThread: {
+				mainStyle: "",
+				title: "Active Thread",
+				desc: "Number of active threads serving user requests",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Highest active thread count of the agents serving user requests"
+					},{
+						name: "AVG",
+						desc: "Average active thread count of the agents serving user requests"
+					},{
+						name: "MIN",
+						desc: "Lowest active thread count of the agents serving user requests"
+					}]
+				}]
+			},
+			statResponseTime: {
+				mainStyle: "",
+				title: "Response Time",
+				desc: "Average response times served by the agents",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Highest average response time of requests served by an agent"
+					},{
+						name: "AVG",
+						desc: "Average response time of requests served by all agents"
+					},{
+						name: "MIN",
+						desc: "Lowest average response time of requests served by an agent"
+					}]
+				}]
+			},
+			statDataSource: {
+				mainStyle: "",
+				title: "Data Source",
+				desc: "Status of the agents' data source",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Largest data source connection count of the agents"
+					},{
+						name: "AVG",
+						desc: "Average data source connection count of the agents"
+					},{
+						name: "MIN",
+						desc: "Smallest data source connection count of the agents"
+					}]
+				}]
+			}
 		},
 		callTree: {
 			column: {
@@ -671,7 +848,9 @@
 				noParent: "Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.",
 				noData: "There is no {{application}} scatter data in parent window."
 			}
-		}
+		},
+		applicationInspectorGuideMessage: "Application Inspector is not enabled.<br>" +
+			"To enable Application Inspector, please refer to <a href='https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md'>this link <span class='glyphicon glyphicon-new-window'></span></a>."
 	};
 	pinpointApp.constant('helpContent-en', oHelp );
 })();

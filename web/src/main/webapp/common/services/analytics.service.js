@@ -13,12 +13,16 @@
 
 		this.send = function( category, name, label, count, options ) {
 			if ( typeof ga !== "undefined" ) {
-				if (SystemConfigService.get("sendUsage") !== true) return;
-				if (arguments.length == 1) {
-					ga("send", "pageview", arguments[0]);
-				} else {
-					ga("send", "event", category, name, label, count, options);
-				}
+				SystemConfigService.getConfig().then(function(config) {
+					if ( config["sendUsage"] !== true ) {
+						return;
+					}
+					if (arguments.length == 1) {
+						ga("send", "pageview", arguments[0]);
+					} else {
+						ga("send", "event", category, name, label, count, options);
+					}
+				});
 			}
 		};
 		this.sendMain = function( name, label, count, options ) {
@@ -31,6 +35,7 @@
 		this.CONST.CALLSTACK = "CallStack";
 		this.CONST.MIXEDVIEW = "MixedView";
 		this.CONST.INSPECTOR = "Inspector";
+		this.CONST.REALTIME = "RealTime";
 
 		this.CONST.VERSION = "Version";
 		this.CONST.CLK_APPLICATION = "ClickApplication";
@@ -39,6 +44,10 @@
 		this.CONST.CLK_CLEAR_SEARCH = "ClickClearSearch";
 		this.CONST.CLK_NODE = "ClickNode";
 		this.CONST.CLK_LINK = "ClickLink";
+		this.CONST.CLK_NODE_IN_GROUPED_VIEW = "ClickNodeInGroupedView";
+		this.CONST.CLK_LINK_IN_GROUPED_VIEW = "ClickLinkInGroupedView";
+		this.CONST.CLK_SHOW_GROUPED_NODE_VIEW = "ClickShowGroupedNodeView";
+		this.CONST.CLK_SHOW_GROUPED_LINK_VIEW = "ClickShowGroupedLinkView";
 		this.CONST.CLK_UPDATE_TIME = "ClickUpdateTime";
 		this.CONST.CLK_HELP = "ClickHelp";
 		this.CONST.CLK_SCATTER_SETTING = "ClickScatterSetting";

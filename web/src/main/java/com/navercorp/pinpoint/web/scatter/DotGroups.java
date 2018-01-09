@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DotGroups {
 
@@ -88,7 +88,7 @@ public class DotGroups {
 
         List<Dot> dotList = new ArrayList<>(size);
         for (DotGroup dotGroup : dotGroupList) {
-            dotList.addAll(dotGroup.getDotSet());
+            dotList.addAll(dotGroup.getDotList());
         }
 
         Set<Dot> sortedSet = new TreeSet<>(DOT_COMPARATOR);

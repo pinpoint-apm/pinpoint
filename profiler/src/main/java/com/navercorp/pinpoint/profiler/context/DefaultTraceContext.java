@@ -26,14 +26,16 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
+
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * @author emeroad
@@ -47,6 +49,8 @@ public class DefaultTraceContext implements TraceContext {
     private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
 
+    private final AsyncTraceContext asyncTraceContext;
+
     private final AgentInformation agentInformation;
 
     private final ApiMetaDataService apiMetaDataService;
@@ -59,55 +63,30 @@ public class DefaultTraceContext implements TraceContext {
 
     private final JdbcContext jdbcContext;
 
-    private final AsyncIdGenerator asyncIdGenerator;
-
-    public DefaultTraceContext(ProfilerConfig profilerConfig, final AgentInformation agentInformation,
-                               TraceIdFactory traceIdFactory,
-                               TraceFactory traceFactory,
-                               AsyncIdGenerator asyncIdGenerator,
-                               ServerMetaDataHolder serverMetaDataHolder,
-                               ApiMetaDataService apiMetaDataService,
-                               StringMetaDataService stringMetaDataService,
-                               SqlMetaDataService sqlMetaDataService,
-                               JdbcContext jdbcContext
+    public DefaultTraceContext(final ProfilerConfig profilerConfig,
+                               final AgentInformation agentInformation,
+                               final TraceIdFactory traceIdFactory,
+                               final TraceFactory traceFactory,
+                               final AsyncTraceContext asyncTraceContext,
+                               final ServerMetaDataHolder serverMetaDataHolder,
+                               final ApiMetaDataService apiMetaDataService,
+                               final StringMetaDataService stringMetaDataService,
+                               final SqlMetaDataService sqlMetaDataService,
+                               final JdbcContext jdbcContext
     ) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
-        }
-        if (traceIdFactory == null) {
-            throw new NullPointerException("traceIdFactory must not be null");
-        }
-        if (traceFactory == null) {
-            throw new NullPointerException("traceFactory must not be null");
-        }
-        if (asyncIdGenerator == null) {
-            throw new NullPointerException("asyncIdGenerator must not be null");
-        }
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
+        this.serverMetaDataHolder = Assert.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder must not be null");
 
-        if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService must not be null");
-        }
-        if (stringMetaDataService == null) {
-            throw new NullPointerException("stringMetaDataService must not be null");
-        }
-        if (sqlMetaDataService == null) {
-            throw new NullPointerException("sqlMetaDataService must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-        this.agentInformation = agentInformation;
-        this.serverMetaDataHolder = serverMetaDataHolder;
+        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory must not be null");
+        this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory must not be null");
+        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContextProvider must not be null");
 
-        this.traceIdFactory = traceIdFactory;
-        this.traceFactory = traceFactory;
-        this.asyncIdGenerator = asyncIdGenerator;
-        this.jdbcContext = jdbcContext;
+        this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext must not be null");
 
-        this.apiMetaDataService = apiMetaDataService;
-        this.stringMetaDataService = stringMetaDataService;
-        this.sqlMetaDataService = sqlMetaDataService;
+        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
+        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
+        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
     }
 
     /**
@@ -116,10 +95,6 @@ public class DefaultTraceContext implements TraceContext {
      * @return
      */
     public Trace currentTraceObject() {
-        return traceFactory.currentTraceObject();
-    }
-
-    public Trace currentRpcTraceObject() {
         return traceFactory.currentTraceObject();
     }
 
@@ -175,17 +150,37 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
-        return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
+    public Trace continueAsyncTraceObject(AsyncTraceId asyncTraceId, int asyncId, long startTime) {
+        return asyncTraceContext.continueAsyncTraceObject(asyncTraceId, asyncId, startTime).get();
     }
+
 
     @Override
     public Trace removeTraceObject() {
-        return traceFactory.removeTraceObject();
+        return removeTraceObject(true);
     }
 
-    public AgentInformation getAgentInformation() {
-        return agentInformation;
+    @Override
+    public Trace removeTraceObject(boolean closeUnsampledTrace) {
+        final Trace trace = traceFactory.removeTraceObject();
+        if (closeUnsampledTrace) {
+            return closeUnsampledTrace(trace);
+        } else {
+            return trace;
+        }
+    }
+
+    private Trace closeUnsampledTrace(Trace trace) {
+        if (trace == null) {
+            return null;
+        }
+        // work around : unsampled trace must be closed.
+        if (!trace.canSampled()) {
+            if (!trace.isClosed()) {
+                trace.close();
+            }
+        }
+        return trace;
     }
 
     @Override
@@ -229,7 +224,7 @@ public class DefaultTraceContext implements TraceContext {
             throw new NullPointerException("transactionId must not be null");
         }
         // TODO Should handle exception when parsing failed.
-        return traceIdFactory.parse(transactionId, parentSpanId, spanId, flags);
+        return traceIdFactory.continueTraceId(transactionId, parentSpanId, spanId, flags);
     }
 
     @Override
@@ -249,7 +244,7 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public int getAsyncId() {
-        return this.asyncIdGenerator.nextAsyncId();
+        return this.asyncTraceContext.nextAsyncId();
     }
 
     @Override

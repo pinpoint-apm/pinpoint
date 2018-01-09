@@ -19,4 +19,14 @@
         <constructor-arg type="int" value="33"/>
         <constructor-arg type="int" value="64"/>
     </bean>
+
+    <bean id="applicationStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg ref="applicationStatRangeHasher"/>
+    </bean>
+
+    <bean id="applicationStatRangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+        <constructor-arg type="int" value="0"/>
+        <constructor-arg type="int" value="33"/>
+        <constructor-arg type="int" value="64"/>
+    </bean>
 </beans>

@@ -78,6 +78,11 @@
             "contentZoneHeight": contentZoneHeight,
             "selectionPointRadius": this.opt.selectionPointRadius
         });
+		this.oFocus = new TimeSlider.Focus( this, this.getGroup("focus", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["focus"]), {
+			"y": this.opt.headerZoneHeight,
+			"height": contentZoneHeight,
+			"duration": this.opt.duration
+		});
         this.oXAxis = new TimeSlider.XAxis( this, this.getGroup("x-axis", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["x-axis"]), {
             "endY": this.opt.height - this.opt.eventZoneHeight,
             "width": this.opt.width,
@@ -192,11 +197,11 @@
         this.oPositionManager.zoomOut();
         this.reset();
     };
-	TimeSlider.prototype.resetTimeSeriesAndSelectionZone = function( aSelectionFromTo, aFromTo ) {
+	TimeSlider.prototype.resetTimeSeriesAndSelectionZone = function( aSelectionFromTo, aFromTo, selectedTime ) {
 		this.oPositionManager.setSliderTimeSeries( aFromTo[0], aFromTo[1] );
 		this.oPositionManager.setSelectionStartTime( aSelectionFromTo[0] );
 		this.oPositionManager.setSelectionEndTime( aSelectionFromTo[1] );
-		this.oPositionManager.setSelectTime( aSelectionFromTo[1] );
+		this.oPositionManager.setSelectTime( selectedTime || aSelectionFromTo[1] );
 		this.emptyData();
 		this.reset();
 	};
@@ -230,6 +235,15 @@
     TimeSlider.prototype.setSelectTime = function( time ) {
         this.oSelectionManager.setSelectTime( time );
     };
+    TimeSlider.prototype.getSelectTime = function() {
+    	return this.oPositionManager.getSelectTime();
+	};
+	TimeSlider.prototype.showFocus = function( time ) {
+		return this.oFocus.show( this.oPositionManager.getPositionFromTime(time) );
+	};
+	TimeSlider.prototype.hideFocus = function() {
+		return this.oFocus.hide();
+	};
 
     TimeSlider.GROUP_TYPE = {
         TOP_BASE: "top-base",
@@ -248,13 +262,16 @@
         "left-handler": 25,
         "right-handler": 25,
         "guide": 30,
+		"focus": 50,
         "loading": 100
     };
     TimeSlider.StatusColor = {
     	"BASE": "rgba(187, 187, 187, .3)",
 		"UNKNOWN": "rgba(220, 214, 214, .8)",
     	"RUNNING": "rgba(0, 158, 0, .4 )",
-		"SHUTDOWN": "rgba(209, 82, 96, .7)"
+		"SHUTDOWN": "rgba(209, 82, 96, .7)",
+		"UNSTABLE_RUNNING": "rgba(255, 102, 0, .4)",
+		"EMPTY": "rgba(165, 219, 245, .7)"
 	};
 	TimeSlider.MAX_TIME_RANGE = 604800000;
     w.TimeSlider = TimeSlider;

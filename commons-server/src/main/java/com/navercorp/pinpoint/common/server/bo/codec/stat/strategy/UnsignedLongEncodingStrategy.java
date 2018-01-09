@@ -29,7 +29,9 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -41,6 +43,8 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
     DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS));
 
     private final EncodingStrategy<Long> delegate;
+
+    private static final Set<UnsignedLongEncodingStrategy> UNSIGNED_LONG_ENCODING_STRATEGY = EnumSet.allOf(UnsignedLongEncodingStrategy.class);
 
     UnsignedLongEncodingStrategy(EncodingStrategy<Long> delegate) {
         this.delegate = delegate;
@@ -62,7 +66,8 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
     }
 
     public static UnsignedLongEncodingStrategy getFromCode(int code) {
-        for (UnsignedLongEncodingStrategy encodingStrategy : UnsignedLongEncodingStrategy.values()) {
+
+        for (UnsignedLongEncodingStrategy encodingStrategy : UNSIGNED_LONG_ENCODING_STRATEGY) {
             if (encodingStrategy.getCode() == (code & 0xFF)) {
                 return encodingStrategy;
             }

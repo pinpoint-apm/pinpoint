@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @JsonSerialize(using = ScatterDataSerializer.class)
 public class ScatterData {

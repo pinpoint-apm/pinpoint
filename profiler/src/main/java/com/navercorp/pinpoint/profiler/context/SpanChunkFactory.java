@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
 import java.util.List;
 
 /**
@@ -23,5 +25,5 @@ import java.util.List;
  */
 public interface SpanChunkFactory {
 
-    SpanChunk create(final List<SpanEvent> flushData);
+    SpanChunk create(TraceRoot traceRoot, final List<SpanEvent> flushData);
 }

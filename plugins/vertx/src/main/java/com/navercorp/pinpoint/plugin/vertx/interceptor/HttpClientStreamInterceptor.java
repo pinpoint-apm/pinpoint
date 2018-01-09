@@ -93,15 +93,15 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
 
-            headers.add(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            headers.add(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            headers.add(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            headers.add(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            headers.add(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            headers.add(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            headers.set(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            headers.set(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+            headers.set(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+            headers.set(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            headers.set(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            headers.set(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
 
             if (host != null) {
-                headers.add(Header.HTTP_HOST.toString(), host);
+                headers.set(Header.HTTP_HOST.toString(), host);
                 recorder.recordDestinationId(host);
             } else {
                 recorder.recordDestinationId("unknown");

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.collector.TestAwaitUtils;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.junit.Assert;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ZookeeperJobWorkerTest {
 
@@ -73,7 +75,7 @@ public class ZookeeperJobWorkerTest {
             }
 
             waitZookeeperServerData(random, zookeeperClient);
-            Assert.assertEquals(random, decodeServerData(zookeeperWorker.getClusterData()).size());
+            Assert.assertEquals(random, zookeeperWorker.getClusterList().size());
         } finally {
             zookeeperWorker.stop();
         }
@@ -92,11 +94,11 @@ public class ZookeeperJobWorkerTest {
             zookeeperWorker.addPinpointServer(mockServer);
             zookeeperWorker.addPinpointServer(mockServer);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, decodeServerData(zookeeperWorker.getClusterData()).size());
+            Assert.assertEquals(1, zookeeperWorker.getClusterList().size());
 
             zookeeperWorker.removePinpointServer(mockServer);
             waitZookeeperServerData(0, zookeeperClient);
-            Assert.assertEquals(0, decodeServerData(zookeeperWorker.getClusterData()).size());
+            Assert.assertEquals(0, zookeeperWorker.getClusterList().size());
         } finally {
             zookeeperWorker.stop();
         }
@@ -114,15 +116,15 @@ public class ZookeeperJobWorkerTest {
             PinpointServer mockServer = createMockPinpointServer("app", "agent", System.currentTimeMillis());
             zookeeperWorker.addPinpointServer(mockServer);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, decodeServerData(zookeeperWorker.getClusterData()).size());
+            Assert.assertEquals(1, zookeeperWorker.getClusterList().size());
 
             zookeeperWorker.clear();
             waitZookeeperServerData(0, zookeeperClient);
-            Assert.assertEquals(0, decodeServerData(zookeeperWorker.getClusterData()).size());
+            Assert.assertEquals(0, zookeeperWorker.getClusterList().size());
 
             zookeeperWorker.addPinpointServer(mockServer);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, decodeServerData(zookeeperWorker.getClusterData()).size());
+            Assert.assertEquals(1, zookeeperWorker.getClusterList().size());
         } finally {
             zookeeperWorker.stop();
         }
@@ -144,11 +146,11 @@ public class ZookeeperJobWorkerTest {
             zookeeperWorker.addPinpointServer(mockServer2);
 
             waitZookeeperServerData(2, zookeeperClient);
-            Assert.assertEquals(2, decodeServerData(zookeeperWorker.getClusterData()).size());
+            Assert.assertEquals(2, zookeeperWorker.getClusterList().size());
 
             zookeeperWorker.removePinpointServer(mockServer1);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, decodeServerData(zookeeperWorker.getClusterData()).size());
+            Assert.assertEquals(1, zookeeperWorker.getClusterList().size());
         } finally {
             zookeeperWorker.stop();
         }
@@ -167,24 +169,17 @@ public class ZookeeperJobWorkerTest {
     }
 
     private List<String> getServerData(ZookeeperClient zookeeperClient) throws PinpointZookeeperException, InterruptedException {
-        return decodeServerData(zookeeperClient.getData(PATH));
+        final String clusterString = BytesUtils.toString(zookeeperClient.getData(PATH));
+        return decodeServerData(clusterString);
     }
 
-    private List<String> decodeServerData(byte[] serverData) throws PinpointZookeeperException, InterruptedException {
+    private List<String> decodeServerData(String serverData) throws PinpointZookeeperException, InterruptedException {
         if (serverData == null) {
             return Collections.emptyList();
         }
 
-        List<String> servers = new ArrayList<>();
-
-        String[] allData = new String(serverData).split("\r\n");
-        for (String data : allData) {
-            if (!EMPTY_STRING.equals(data.trim())) {
-                servers.add(data);
-            }
-        }
-
-        return servers;
+        final String[] tokenArray = org.springframework.util.StringUtils.tokenizeToStringArray(serverData, "\r\n");
+        return Arrays.asList(tokenArray);
     }
 
     private void waitZookeeperServerData(final int expectedServerDataCount, final MockZookeeperClient zookeeperClient) {

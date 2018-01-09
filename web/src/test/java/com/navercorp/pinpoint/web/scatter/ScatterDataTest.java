@@ -29,7 +29,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ScatterDataTest {
 
@@ -91,6 +91,33 @@ public class ScatterDataTest {
         }
     }
 
+    @Test
+    public void addDotTest3() throws Exception {
+        long from = 1000;
+        long to = 10000;
+        int xGroupUnit = 100;
+        int yGroupUnit = 100;
+
+        ScatterData scatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
+
+        long currentTime = System.currentTimeMillis();
+
+        TransactionId transactionId = new TransactionId(transactionAgentId, currentTime, 1);
+
+        long acceptedTime = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);
+        int executionTime = (int) Math.abs(ThreadLocalRandom.current().nextLong(60 * 1000));
+
+        long acceptedTime2 = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);
+
+        Dot dot1 = new Dot(transactionId, acceptedTime2, executionTime, 0, agentId);
+        Dot dot2 = new Dot(transactionId, acceptedTime2, executionTime, 0, agentId);
+
+        scatterData.addDot(dot1);
+        scatterData.addDot(dot2);
+
+        List<Dot> dots = extractDotList(scatterData);
+        Assert.assertEquals(2, dots.size());
+    }
 
     @Test
     public void mergeTest() throws Exception {

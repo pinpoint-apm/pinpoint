@@ -34,8 +34,8 @@
 		}
 	});
 	
-	pinpointApp.directive("serverMapDirective", [ "serverMapDirectiveConfig", "$rootScope", "SystemConfigurationService", "ServerMapDaoService", "AlertsService", "ProgressBarService", "SidebarTitleVoService", "$filter", "ServerMapFilterVoService", "filteredMapUtilService", "$base64", "ServerMapHintVoService", "$timeout", "$location", "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "TooltipService",
-	    function (cfg, $rootScope, SystemConfigService, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService, AnalyticsService, TooltipService) {
+	pinpointApp.directive("serverMapDirective", [ "serverMapDirectiveConfig", "$rootScope", "SystemConfigurationService", "ServerMapDaoService", "AlertsService", "ProgressBarService", "$filter", "ServerMapFilterVoService", "filteredMapUtilService", "$base64", "ServerMapHintVoService", "$timeout", "$location", "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "TooltipService",
+	    function (cfg, $rootScope, SystemConfigService, ServerMapDaoService, AlertsService, ProgressBarService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService, AnalyticsService, TooltipService) {
 	        return {
 				replace: true,
 	            restrict: "EA",
@@ -122,7 +122,7 @@
 	                        oServerMap.clear();
 	                    }
 	                    oProgressBarService.setLoading(10);
-	
+
 	                    htLastQuery = {
 	                        applicationName: applicationName,
 	                        serviceTypeName: serviceTypeName,
@@ -131,6 +131,8 @@
 	                        originTo: scope.oNavbarVoService.getQueryEndTime(),
 	                        callerRange: scope.oNavbarVoService.getCallerRange(),
 	                        calleeRange: scope.oNavbarVoService.getCalleeRange(),
+							bidirectional: scope.oNavbarVoService.getBidirectional(),
+							wasOnly: scope.oNavbarVoService.getWasOnly(),
 	                        period: period,
 	                        filter: $window.encodeURIComponent(filterText),
 	                        hint: hintText ? $window.encodeURIComponent(hintText) : false
@@ -290,9 +292,6 @@
 	                        htLastNode = node;
 	                        if ( typeof retry === "undefined" ) {
 								scope.$emit("serverMapDirective.nodeClicked", htLastQuery, node, htLastMergedMapData, searchQuery);
-								if (scope.oNavbarVoService && scope.oNavbarVoService.isRealtime()) {
-									$rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, node.serviceType, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange());
-								}
 							}
 	                        reset();
 	                    };
@@ -404,25 +403,26 @@
 						reloadRealtimeServerMap( query );
 	                }
 	                function reloadRealtimeServerMap() {
-
-	                	var reloadRequestRepeatingTime = 5000;
-	                	var reloadRequestTimeRange = 300000;
-						if ( SystemConfigService.get("enableServerMapRealTime") === true && scope.oNavbarVoService.isRealtime() ) {
-							$timeout(function() {
-								if ( scope.oNavbarVoService.isRealtime() ) {
-									htLastQuery.to = htLastQuery.to + reloadRequestRepeatingTime;
-									htLastQuery.from = htLastQuery.from - reloadRequestTimeRange;
-									ServerMapDaoService.getServerMapData(htLastQuery, function (err, query, mapData) {
-										if ( scope.oNavbarVoService.isRealtime() ) {
-											htLastMapData = mapData;
-											var serverMapData = ServerMapDaoService.extractDataFromApplicationMapData(mapData.applicationMapData);
-											extractMergeTypeList(serverMapData);
-											serverMapCallback(query, serverMapData, scope.linkRouting, scope.linkCurve, true);
-										}
-									});
-								}
-							}, reloadRequestRepeatingTime);
-						}
+						var reloadRequestRepeatingTime = 5000;
+						var reloadRequestTimeRange = 300000;
+	                	SystemConfigService.getConfig().then(function(config) {
+							if ( config["enableServerMapRealTime"] === true && scope.oNavbarVoService.isRealtime() ) {
+								$timeout(function() {
+									if ( scope.oNavbarVoService.isRealtime() ) {
+										htLastQuery.to = htLastQuery.to + reloadRequestRepeatingTime;
+										htLastQuery.from = htLastQuery.from - reloadRequestTimeRange;
+										ServerMapDaoService.getServerMapData(htLastQuery, function (err, query, mapData) {
+											if ( scope.oNavbarVoService.isRealtime() ) {
+												htLastMapData = mapData;
+												var serverMapData = ServerMapDaoService.extractDataFromApplicationMapData(mapData.applicationMapData);
+												extractMergeTypeList(serverMapData);
+												serverMapCallback(query, serverMapData, scope.linkRouting, scope.linkCurve, true);
+											}
+										});
+									}
+								}, reloadRequestRepeatingTime);
+							}
+						});
 					}
 	                function showOverview() {
 	                	return /^\/main/.test( $location.path() );
@@ -441,15 +441,6 @@
 	                }
 	                function openFilterWizard() {
 	                    reset();
-	                    var oSidebarTitleVoService = new SidebarTitleVoService();
-	
-	                    // if (htLastLink.fromNode.serviceType === "USER") {
-	                    //     oSidebarTitleVoService.setImageType("USER").setTitle("USER");
-	                    // } else {
-	                        oSidebarTitleVoService.setImageType(htLastLink.fromNode.serviceType).setTitle(htLastLink.fromNode.applicationName);
-	                    // }
-	                    oSidebarTitleVoService.setImageType2(htLastLink.toNode.serviceType).setTitle2(htLastLink.toNode.applicationName);
-
 						scope.fromAgent = htLastLink.fromAgent || [];
 	                    scope.toAgent = htLastLink.toAgent || [];
 	                    scope.sourceInfo = htLastLink.sourceInfo;
@@ -457,7 +448,7 @@
 	                    scope.fromApplicationName = htLastLink.fromNode.applicationName;
 	                    scope.toApplicationName = htLastLink.toNode.applicationName;
 
-	                    scope.$broadcast('sidebarTitleDirective.initialize.forServerMap', oSidebarTitleVoService, htLastLink);
+	                    scope.$broadcast('sidebarTitleDirective.initialize.forServerMap', htLastLink);
 
 	                    $("#filterWizard").modal('show');
 	                    if (!bIsFilterWizardLoaded) {
@@ -656,7 +647,9 @@
 	                    zoomToFit();
 	                });
 	                scope.$on("serverMapDirective.openFilterWizard", function (event, link) {
-	                    htLastLink = link;
+	                	if ( link ) {
+							htLastLink = link;
+						}
 	                    openFilterWizard();
 	                });
 	                scope.searchNodeByEnter = function( $event ) {

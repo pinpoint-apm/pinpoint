@@ -38,9 +38,15 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
 
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
-    private ServiceType serviceType = HttpClient4Constants.HTTP_CLIENT_4_INTERNAL;
+    private final ServiceType serviceType = HttpClient4Constants.HTTP_CLIENT_4_INTERNAL;
 
     public DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
+        if (context == null) {
+            throw new NullPointerException("context must not be null");
+        }
+        if (methodDescriptor == null) {
+            throw new NullPointerException("methodDescriptor must not be null");
+        }
         this.traceContext = context;
         this.descriptor = methodDescriptor;
     }
@@ -51,8 +57,7 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
-
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -76,15 +81,9 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            // arguments(final IOException exception, final int executionCount, final HttpContext context)
-            final StringBuilder sb = new StringBuilder();
-            if (args != null && args.length >= 1 && args[0] != null && args[0] instanceof Exception) {
-                sb.append(args[0].getClass().getName()).append(", ");
-            }
-            if (args != null && args.length >= 2 && args[1] != null && args[1] instanceof Integer) {
-                sb.append(args[1]);
-            }
-            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());
+
+            final String retryMessage = getRetryMessage(args);
+            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, retryMessage);
 
             if (result != null) {
                 recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
@@ -92,5 +91,20 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private String getRetryMessage(Object[] args) {
+        if (args == null) {
+            return "";
+        }
+        // arguments(final IOException exception, final int executionCount, final HttpContext context)
+        final StringBuilder sb = new StringBuilder();
+        if (args.length >= 1 && args[0] instanceof Exception) {
+            sb.append(args[0].getClass().getName()).append(", ");
+        }
+        if (args.length >= 2 && args[1] instanceof Integer) {
+            sb.append(args[1]);
+        }
+        return sb.toString();
     }
 }

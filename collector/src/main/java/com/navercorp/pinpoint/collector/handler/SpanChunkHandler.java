@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -44,7 +43,6 @@ public class SpanChunkHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
     @Autowired

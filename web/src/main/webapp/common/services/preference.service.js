@@ -85,6 +85,20 @@
 				return webStorage.get(app + "+caller") || UserConfigService.getCaller();
 			}
 		};
+		this.getBidirectionalByApp = function(app) {
+			if ( angular.isUndefined( app ) ) {
+				return UserConfigService.getBidirectional();
+			} else {
+				return webStorage.get(app + "+bidirectional") || UserConfigService.getBidirectional();
+			}
+		};
+		this.getWasOnlyByApp = function(app) {
+			if ( angular.isUndefined( app ) ) {
+				return UserConfigService.getWasOnly();
+			} else {
+				return webStorage.get(app + "+wasOnly") || UserConfigService.getWasOnly();
+			}
+		};
 		this.setDepthByApp = function( app, depth ) {
 			if (angular.isUndefined(app) || app === null || angular.isUndefined(depth) || depth === null) {
 				return;

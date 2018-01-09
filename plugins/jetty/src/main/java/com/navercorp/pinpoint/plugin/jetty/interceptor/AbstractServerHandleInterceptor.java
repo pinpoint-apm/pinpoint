@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,9 +19,12 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -31,6 +34,9 @@ import org.eclipse.jetty.server.Request;
 
 import java.util.Enumeration;
 
+/**
+ * @author Chaein Jung
+ */
 public abstract class AbstractServerHandleInterceptor implements AroundInterceptor {
 
     public static final JettySyncMethodDescriptor JETTY_SYNC_API_TAG = new JettySyncMethodDescriptor();
@@ -42,12 +48,14 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
     private final Filter<String> excludeUrlFilter;
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
 
     public AbstractServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
 
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
 
         traceContext.cacheApi(JETTY_SYNC_API_TAG);
     }
@@ -154,7 +162,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final Request request = getRequest(args);
             final String parameters = getRequestParameter(request, 64, 512);
-            if (StringUtils.isNotEmpty(parameters)) {
+            if (StringUtils.hasLength(parameters)) {
                 recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
 
@@ -193,7 +201,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             }
             String key = attrs.nextElement().toString();
             params.append(StringUtils.abbreviate(key, eachLimit));
-            params.append("=");
+            params.append('=');
             Object value = request.getParameter(key);
             if (value != null) {
                 params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
@@ -225,7 +233,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         recorder.recordRpcName(requestURL);
 
         final int port = request.getServerPort();
-        final String endPoint = request.getServerName() + ":" + port;
+        final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
         recorder.recordEndPoint(endPoint);
 
         final String remoteAddr = request.getRemoteAddr();
@@ -235,6 +243,14 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             recordParentInfo(recorder, request);
         }
         recorder.recordApi(JETTY_SYNC_API_TAG);
+
+        // record proxy HTTP headers.
+        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
+            @Override
+            public String read(String name) {
+                return request.getHeader(name);
+            }
+        });
     }
 
     /**

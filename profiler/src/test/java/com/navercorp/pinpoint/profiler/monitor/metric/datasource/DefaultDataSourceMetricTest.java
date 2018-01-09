@@ -23,11 +23,12 @@ import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorR
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,9 +117,9 @@ public class DefaultDataSourceMetricTest {
 
         public MockDataSourceMonitor(int index) {
             this.id = index;
-            this.serviceType = SERVICE_TYPE_LIST[RANDOM.nextInt(SERVICE_TYPE_LIST.length)];
-            this.maxConnectionSize = MIN_VALUE_OF_MAX_CONNECTION_SIZE + RANDOM.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE);
-            this.activeConnectionSize = RANDOM.nextInt(maxConnectionSize);
+            this.serviceType = SERVICE_TYPE_LIST[RandomUtils.nextInt(0, SERVICE_TYPE_LIST.length)];
+            this.maxConnectionSize = RandomUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
+            this.activeConnectionSize = RandomUtils.nextInt(0, maxConnectionSize + 1);
         }
 
         @Override

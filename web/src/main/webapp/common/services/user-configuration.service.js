@@ -10,7 +10,11 @@
 		"CALLER_LOCAL_KEY": "caller",
 		"CALLER_DEFAULT": 1,
 		"CALLEE_LOCAL_KEY": "callee",
-		"CALLEE_DEFAULT": 1
+		"CALLEE_DEFAULT": 1,
+		"BIDIRECTIONAL_LOCAL_KEY": "bidirectional",
+		"BIDIRECTIONAL_DEFAULT": false,
+		"WAS_ONLY_LOCAL_KEY": "wasOnly",
+		"WAS_ONLY_DEFAULT": false
 	});
 
 	pinpointApp.service( "UserConfigurationService", [ "UserConfigurationServiceConfig", "$http", "webStorage", function( cfg, $http, webStorage ) {
@@ -80,6 +84,18 @@
 		};
 		this.setCallee = function( c ) {
 			webStorage.add( cfg.CALLEE_LOCAL_KEY, c );
+		};
+		this.getBidirectional = function() {
+			return webStorage.get( cfg.BIDIRECTIONAL_LOCAL_KEY ) || cfg.BIDIRECTIONAL_DEFAULT;
+		};
+		this.setBidirectional = function( c ) {
+			webStorage.add( cfg.BIDIRECTIONAL_LOCAL_KEY, c );
+		};
+		this.getWasOnly = function() {
+			return webStorage.get( cfg.WAS_ONLY_LOCAL_KEY ) || cfg.WAS_ONLY_DEFAULT;
+		};
+		this.setWasOnly = function( c ) {
+			webStorage.add( cfg.WAS_ONLY_LOCAL_KEY, c );
 		};
 		this.getTimezone = function() {
 			return webStorage.get( cfg.TIME_ZONE_LOCAL_KEY ) || moment.tz.guess();

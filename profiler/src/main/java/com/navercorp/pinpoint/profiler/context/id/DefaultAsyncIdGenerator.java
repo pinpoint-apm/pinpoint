@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
+import com.navercorp.pinpoint.profiler.context.AsyncId;
+import com.navercorp.pinpoint.profiler.context.DefaultAsyncId;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,6 +39,14 @@ public class DefaultAsyncIdGenerator implements AsyncIdGenerator {
         if (id == -1) {
             return asyncId.incrementAndGet();
         }
-        else return id;
+        else {
+            return id;
+        }
+    }
+
+    @Override
+    public AsyncId newAsyncId() {
+        final int asyncId = nextAsyncId();
+        return new DefaultAsyncId(asyncId);
     }
 }

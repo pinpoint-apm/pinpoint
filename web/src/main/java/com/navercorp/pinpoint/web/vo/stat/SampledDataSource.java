@@ -17,18 +17,28 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 /**
  * @author Taejin Koo
  */
 public class SampledDataSource implements SampledAgentStatDataPoint {
 
+    public static final Integer UNCOLLECTED_VALUE = -1;
+    public static final String UNCOLLECTED_STRING = null;
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
+        @Override
+        public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
+            return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);
+        }
+    };
+
     private int id;
     private short serviceTypeCode;
     private String databaseName;
     private String jdbcUrl;
-    private Point<Long, Integer> activeConnectionSize;
-    private Point<Long, Integer> maxConnectionSize;
+    private AgentStatPoint<Integer> activeConnectionSize;
+    private AgentStatPoint<Integer> maxConnectionSize;
 
     public int getId() {
         return id;
@@ -62,19 +72,19 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
         this.jdbcUrl = jdbcUrl;
     }
 
-    public Point<Long, Integer> getActiveConnectionSize() {
+    public AgentStatPoint<Integer> getActiveConnectionSize() {
         return activeConnectionSize;
     }
 
-    public void setActiveConnectionSize(Point<Long, Integer> activeConnectionSize) {
+    public void setActiveConnectionSize(AgentStatPoint<Integer> activeConnectionSize) {
         this.activeConnectionSize = activeConnectionSize;
     }
 
-    public Point<Long, Integer> getMaxConnectionSize() {
+    public AgentStatPoint<Integer> getMaxConnectionSize() {
         return maxConnectionSize;
     }
 
-    public void setMaxConnectionSize(Point<Long, Integer> maxConnectionSize) {
+    public void setMaxConnectionSize(AgentStatPoint<Integer> maxConnectionSize) {
         this.maxConnectionSize = maxConnectionSize;
     }
 
@@ -89,9 +99,9 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
         if (serviceTypeCode != that.serviceTypeCode) return false;
         if (databaseName != null ? !databaseName.equals(that.databaseName) : that.databaseName != null) return false;
         if (jdbcUrl != null ? !jdbcUrl.equals(that.jdbcUrl) : that.jdbcUrl != null) return false;
-        if (activeConnectionSize != null ? !activeConnectionSize.equals(that.activeConnectionSize) : that.activeConnectionSize != null) return false;
+        if (activeConnectionSize != null ? !activeConnectionSize.equals(that.activeConnectionSize) : that.activeConnectionSize != null)
+            return false;
         return maxConnectionSize != null ? maxConnectionSize.equals(that.maxConnectionSize) : that.maxConnectionSize == null;
-
     }
 
     @Override
@@ -117,5 +127,4 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
         sb.append('}');
         return sb.toString();
     }
-
 }

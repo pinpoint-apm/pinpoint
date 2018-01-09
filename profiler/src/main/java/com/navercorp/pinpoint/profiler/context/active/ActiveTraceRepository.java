@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.List;
 
@@ -25,12 +25,14 @@ import java.util.List;
  */
 public interface ActiveTraceRepository {
 
-    void put(ActiveTrace activeTrace);
+    ActiveTraceHistogram getActiveTraceHistogram(long timeStamp);
 
-    ActiveTrace remove(Long key);
+    List<ActiveTraceSnapshot> snapshot();
 
-    List<ActiveTraceInfo> collect();
+    List<Long> getThreadIdList();
 
-    ResponseTimeValue getLatestCompletedActiveTraceResponseTimeValue();
+    ActiveTraceHandle register(TraceRoot traceRoot);
+
+    ActiveTraceHandle register(long localTransactionId, long startTime, long threadId);
 
 }

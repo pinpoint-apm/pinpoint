@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
@@ -44,6 +43,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author HyunGil Jeong
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @Service
 public class AgentServiceImpl implements AgentService {
@@ -75,7 +75,8 @@ public class AgentServiceImpl implements AgentService {
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     @Autowired
-    private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
+    @Qualifier("commandHeaderTBaseDeserializerFactory")
+    private DeserializerFactory commandDeserializerFactory;
 
     @Value("#{pinpointWebProps['web.activethread.activeAgent.duration.days'] ?: 7}")
     private void setTimeDiffMs(int durationDays) {

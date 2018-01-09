@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface CallStackFactory {
-    CallStack newCallStack(Span span);
+    CallStack newCallStack(TraceRoot traceRoot);
 }

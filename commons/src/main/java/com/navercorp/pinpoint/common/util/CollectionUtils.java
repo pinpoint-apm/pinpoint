@@ -42,7 +42,16 @@ public final class CollectionUtils {
         return collection == null || collection.isEmpty();
     }
 
+    /**
+     * @deprecated Since 1.7.0. Use {@link CollectionUtils#hasLength(Collection)}
+     */
     public static <T> boolean isNotEmpty(final Collection<T> collection) {
+        return hasLength(collection);
+    }
+
+    public static <T> boolean hasLength(final Collection<T> collection) {
         return collection != null && !collection.isEmpty();
     }
+
+
 }

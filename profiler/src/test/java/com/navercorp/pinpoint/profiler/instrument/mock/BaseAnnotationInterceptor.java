@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.instrument.mock;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 
-import java.util.Arrays;
 
 /**
  * @author jaehong.kim

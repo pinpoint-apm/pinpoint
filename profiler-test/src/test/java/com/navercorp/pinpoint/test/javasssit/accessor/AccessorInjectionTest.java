@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockApplicationContext;
+import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.javasssit.JavassistClassTest;
 import org.junit.Assert;
@@ -51,7 +52,9 @@ public class AccessorInjectionTest {
 
         DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
-        MockApplicationContext applicationContext = MockApplicationContext.of(profilerConfig);
+
+        MockApplicationContextFactory factory = new MockApplicationContextFactory();
+        MockApplicationContext applicationContext = factory.of(profilerConfig);
 
         TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         testClassLoader.initialize();

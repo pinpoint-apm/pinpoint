@@ -16,168 +16,49 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
-import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.JvmGcDetailedCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
 @Component("jvmGcDetailedCodecV1")
-public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
-
-    private static final byte VERSION = 1;
-
-    private final AgentStatDataPointCodec codec;
+public class JvmGcDetailedCodecV1 extends AgentStatCodecV1<JvmGcDetailedBo> {
 
     @Autowired
     public JvmGcDetailedCodecV1(AgentStatDataPointCodec codec) {
-        Assert.notNull(codec, "agentStatDataPointCodec must not be null");
-        this.codec = codec;
+        super(new JvmGcDetailedCodecFactory(codec));
     }
 
-    @Override
-    public byte getVersion() {
-        return VERSION;
-    }
 
-    @Override
-    public void encodeValues(Buffer valueBuffer, List<JvmGcDetailedBo> jvmGcDetailedBos) {
-        if (CollectionUtils.isEmpty(jvmGcDetailedBos)) {
-            throw new IllegalArgumentException("jvmGcDetailedBos must not be empty");
+    private static class JvmGcDetailedCodecFactory implements CodecFactory<JvmGcDetailedBo> {
+
+        private final AgentStatDataPointCodec codec;
+
+        private JvmGcDetailedCodecFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
         }
-        final int numValues = jvmGcDetailedBos.size();
-        valueBuffer.putVInt(numValues);
 
-        List<Long> timestamps = new ArrayList<Long>(numValues);
-        UnsignedLongEncodingStrategy.Analyzer.Builder gcNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder gcNewTimeAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder codeCacheUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder newGenUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder oldGenUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder survivorSpaceUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder permGenUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder metaspaceUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        for (JvmGcDetailedBo jvmGcDetailedBo : jvmGcDetailedBos) {
-            timestamps.add(jvmGcDetailedBo.getTimestamp());
-            gcNewCountAnalyzerBuilder.addValue(jvmGcDetailedBo.getGcNewCount());
-            gcNewTimeAnalyzerBuilder.addValue(jvmGcDetailedBo.getGcNewTime());
-            codeCacheUsedStrategyAnalyzer.addValue(AgentStatUtils.convertDoubleToLong(jvmGcDetailedBo.getCodeCacheUsed()));
-            newGenUsedStrategyAnalyzer.addValue(AgentStatUtils.convertDoubleToLong(jvmGcDetailedBo.getNewGenUsed()));
-            oldGenUsedStrategyAnalyzer.addValue(AgentStatUtils.convertDoubleToLong(jvmGcDetailedBo.getOldGenUsed()));
-            survivorSpaceUsedStrategyAnalyzer.addValue(AgentStatUtils.convertDoubleToLong(jvmGcDetailedBo.getSurvivorSpaceUsed()));
-            permGenUsedStrategyAnalyzer.addValue(AgentStatUtils.convertDoubleToLong(jvmGcDetailedBo.getPermGenUsed()));
-            metaspaceUsedStrategyAnalyzer.addValue(AgentStatUtils.convertDoubleToLong(jvmGcDetailedBo.getMetaspaceUsed()));
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
         }
-        this.codec.encodeTimestamps(valueBuffer, timestamps);
-        this.encodeDataPoints(
-                valueBuffer,
-                gcNewCountAnalyzerBuilder.build(),
-                gcNewTimeAnalyzerBuilder.build(),
-                codeCacheUsedStrategyAnalyzer.build(),
-                newGenUsedStrategyAnalyzer.build(),
-                oldGenUsedStrategyAnalyzer.build(),
-                survivorSpaceUsedStrategyAnalyzer.build(),
-                permGenUsedStrategyAnalyzer.build(),
-                metaspaceUsedStrategyAnalyzer.build());
-    }
 
-    private void encodeDataPoints(
-            Buffer valueBuffer,
-            StrategyAnalyzer<Long> gcNewCountStrategyAnalyzer,
-            StrategyAnalyzer<Long> gcNewTimeStrategyAnalyzer,
-            StrategyAnalyzer<Long> codeCacheUsedStrategyAnalyzer,
-            StrategyAnalyzer<Long> newGenUsedStrategyAnalyzer,
-            StrategyAnalyzer<Long> oldGenUsedStrategyAnalyzer,
-            StrategyAnalyzer<Long> survivorSpaceUsedStrategyAnalyzer,
-            StrategyAnalyzer<Long> permGenUsedStrategyAnalyzer,
-            StrategyAnalyzer<Long> metaspaceUsedStrategyAnalyzer) {
-        // encode header
-        AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
-        headerEncoder.addCode(gcNewCountStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(gcNewTimeStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(codeCacheUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(newGenUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(oldGenUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(survivorSpaceUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(permGenUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(metaspaceUsedStrategyAnalyzer.getBestStrategy().getCode());
-        final byte[] header = headerEncoder.getHeader();
-        valueBuffer.putPrefixedBytes(header);
-        // encode values
-        this.codec.encodeValues(valueBuffer, gcNewCountStrategyAnalyzer.getBestStrategy(), gcNewCountStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, gcNewTimeStrategyAnalyzer.getBestStrategy(), gcNewTimeStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, codeCacheUsedStrategyAnalyzer.getBestStrategy(), codeCacheUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, newGenUsedStrategyAnalyzer.getBestStrategy(), newGenUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, oldGenUsedStrategyAnalyzer.getBestStrategy(), oldGenUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, survivorSpaceUsedStrategyAnalyzer.getBestStrategy(), survivorSpaceUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, permGenUsedStrategyAnalyzer.getBestStrategy(), permGenUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, metaspaceUsedStrategyAnalyzer.getBestStrategy(), metaspaceUsedStrategyAnalyzer.getValues());
-    }
-
-    @Override
-    public List<JvmGcDetailedBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
-        final String agentId = decodingContext.getAgentId();
-        final long baseTimestamp = decodingContext.getBaseTimestamp();
-        final long timestampDelta = decodingContext.getTimestampDelta();
-        final long initialTimestamp = baseTimestamp + timestampDelta;
-
-        int numValues = valueBuffer.readVInt();
-        List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
-
-        // decode headers
-        final byte[] header = valueBuffer.readPrefixedBytes();
-        AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
-        EncodingStrategy<Long> gcNewCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> gcNewTimeEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> codeCacheUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> newGenUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> oldGenUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> survivorSpaceUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> permGenUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> metaspaceUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        // decode values
-        List<Long> gcNewCounts = this.codec.decodeValues(valueBuffer, gcNewCountEncodingStrategy, numValues);
-        List<Long> gcNewTimes = this.codec.decodeValues(valueBuffer, gcNewTimeEncodingStrategy, numValues);
-        List<Long> codeCacheUseds = this.codec.decodeValues(valueBuffer, codeCacheUsedEncodingStrategy, numValues);
-        List<Long> newGenUseds = this.codec.decodeValues(valueBuffer, newGenUsedEncodingStrategy, numValues);
-        List<Long> oldGenUseds = this.codec.decodeValues(valueBuffer, oldGenUsedEncodingStrategy, numValues);
-        List<Long> survivorSpaceUseds = this.codec.decodeValues(valueBuffer, survivorSpaceUsedEncodingStrategy, numValues);
-        List<Long> permGenUseds = this.codec.decodeValues(valueBuffer, permGenUsedEncodingStrategy, numValues);
-        List<Long> metaspaceUseds = this.codec.decodeValues(valueBuffer, metaspaceUsedEncodingStrategy, numValues);
-
-        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<JvmGcDetailedBo>(numValues);
-        for (int i = 0; i < numValues; ++i) {
-            JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
-            jvmGcDetailedBo.setAgentId(agentId);
-            jvmGcDetailedBo.setTimestamp(timestamps.get(i));
-            jvmGcDetailedBo.setGcNewCount(gcNewCounts.get(i));
-            jvmGcDetailedBo.setGcNewTime(gcNewTimes.get(i));
-            jvmGcDetailedBo.setCodeCacheUsed(AgentStatUtils.convertLongToDouble(codeCacheUseds.get(i)));
-            jvmGcDetailedBo.setNewGenUsed(AgentStatUtils.convertLongToDouble(newGenUseds.get(i)));
-            jvmGcDetailedBo.setOldGenUsed(AgentStatUtils.convertLongToDouble(oldGenUseds.get(i)));
-            jvmGcDetailedBo.setSurvivorSpaceUsed(AgentStatUtils.convertLongToDouble(survivorSpaceUseds.get(i)));
-            jvmGcDetailedBo.setPermGenUsed(AgentStatUtils.convertLongToDouble(permGenUseds.get(i)));
-            jvmGcDetailedBo.setMetaspaceUsed(AgentStatUtils.convertLongToDouble(metaspaceUseds.get(i)));
-            jvmGcDetailedBos.add(jvmGcDetailedBo);
+        @Override
+        public CodecEncoder<JvmGcDetailedBo> createCodecEncoder() {
+            return new JvmGcDetailedCodecV2.JvmGcDetailedCodecEncoder(codec);
         }
-        return jvmGcDetailedBos;
+
+        @Override
+        public CodecDecoder<JvmGcDetailedBo> createCodecDecoder() {
+            return new JvmGcDetailedCodecV2.JvmGcDetailedCodecDecoder(codec);
+        }
     }
+
 }

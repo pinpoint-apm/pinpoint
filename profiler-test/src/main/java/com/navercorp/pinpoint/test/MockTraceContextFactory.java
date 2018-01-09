@@ -16,44 +16,22 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.google.inject.util.Providers;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
+import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
-import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
-import com.navercorp.pinpoint.profiler.context.CallStackFactory;
-import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
-import com.navercorp.pinpoint.profiler.context.CallStackFactoryV1;
-import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
-import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceIdFactory;
-import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
-import com.navercorp.pinpoint.profiler.context.SpanFactory;
-import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
-import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.monitor.DisabledJdbcContext;
-import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
-import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.DefaultApiMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+
 
 
 /**
@@ -61,137 +39,51 @@ import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
  */
 public class MockTraceContextFactory {
 
-    private static final boolean TRACE_ACTIVE_THREAD = true;
-    private static final boolean TRACE_DATASOURCE = false;
 
-    private final AgentInformation agentInformation;
+    public static MockApplicationContext newMockApplicationContext(ProfilerConfig profilerConfig) {
 
-    private final StorageFactory storageFactory;
+        ModuleFactory moduleFactory = new ModuleFactory() {
+            @Override
+            public Module newModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+                Module module = new ApplicationContextModule(agentOption, interceptorRegistryBinder);
 
-    private final AtomicIdGenerator idGenerator;
-    private final Sampler sampler;
-    private final ActiveTraceRepository activeTraceRepository;
+                LoggingModule loggingModule = new LoggingModule();
+                return Modules.override(module).with(loggingModule);
+            }
+        };
 
-    private final ServerMetaDataHolder serverMetaDataHolder;
+        MockApplicationContextFactory factory = new MockApplicationContextFactory();
+        InterceptorRegistryBinder binder = new InterceptorRegistryBinder() {
+            @Override
+            public void bind() {
 
-    private final EnhancedDataSender enhancedDataSender;
+            }
 
-    private final ApiMetaDataService apiMetaDataService;
-    private final StringMetaDataService stringMetaDataService;
-    private final SqlMetaDataService sqlMetaDataService;
+            @Override
+            public void unbind() {
 
-    private final TraceContext traceContext;
+            }
 
-    public static TraceContext newTestTraceContext(ProfilerConfig profilerConfig) {
-        MockTraceContextFactory mockTraceContextFactory = newTestTraceContextFactory(profilerConfig);
-        return mockTraceContextFactory.getTraceContext();
+            @Override
+            public InterceptorRegistryAdaptor getInterceptorRegistryAdaptor() {
+                return null;
+            }
+
+            @Override
+            public String getInterceptorRegistryClassName() {
+                return null;
+            }
+        };
+        return factory.of(profilerConfig, binder, moduleFactory);
     }
 
-    public static MockTraceContextFactory newTestTraceContextFactory(ProfilerConfig profilerConfig) {
-
-        return new MockTraceContextFactory(profilerConfig);
-    }
-
-
-    public MockTraceContextFactory(ProfilerConfig profilerConfig) {
-        this.agentInformation = new TestAgentInformation();
-
-        this.storageFactory = new LogStorageFactory();
-
-        final SamplerFactory samplerFactory = new SamplerFactory();
-        this.sampler = createSampler(profilerConfig, samplerFactory);
-
-        this.idGenerator = new AtomicIdGenerator();
-        this.activeTraceRepository = newActiveTraceRepository();
-
-        final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
-        this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
-
-        final String applicationName = agentInformation.getAgentId();
-        final String agentId = agentInformation.getAgentId();
-        final long agentStartTime = agentInformation.getStartTime();
-        final ServiceType agentServiceType = agentInformation.getServerType();
-        this.enhancedDataSender = new LoggingDataSender();
-
-        this.apiMetaDataService = new DefaultApiMetaDataService(agentId, agentStartTime, enhancedDataSender);
-        this.stringMetaDataService = new DefaultStringMetaDataService(agentId, agentStartTime, enhancedDataSender);
-
-        final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        this.sqlMetaDataService = new DefaultSqlMetaDataService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
-
-
-        CallStackFactory callStackFactory = new CallStackFactoryV1(64);
-        TraceIdFactory traceIdFactory = new DefaultTraceIdFactory(agentId, agentStartTime, idGenerator);
-        SpanFactory spanFactory = new DefaultSpanFactory(applicationName, agentId, agentStartTime, agentServiceType);
-
-        RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
-
-        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(callStackFactory, storageFactory, sampler, idGenerator, traceIdFactory, asyncIdGenerator,
-                Providers.of(activeTraceRepository), spanFactory, recorderFactory);
-        TraceFactory traceFactory = traceFactoryBuilder.get();
-        this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
-                traceIdFactory, traceFactory, asyncIdGenerator, serverMetaDataHolder,
-                apiMetaDataService, stringMetaDataService, sqlMetaDataService,
-                DisabledJdbcContext.INSTANCE
-        );
-    }
-
-    private Sampler createSampler(ProfilerConfig profilerConfig, SamplerFactory samplerFactory) {
-        boolean samplingEnable = profilerConfig.isSamplingEnable();
-        int samplingRate = profilerConfig.getSamplingRate();
-        return samplerFactory.createSampler(samplingEnable, samplingRate);
-    }
-
-
-    private static ActiveTraceRepository newActiveTraceRepository() {
-        if (TRACE_ACTIVE_THREAD) {
-            return new DefaultActiveTraceRepository();
+    public static class LoggingModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(AgentInformation.class).toInstance(new TestAgentInformation());
+            bind(StorageFactory.class).toInstance(new LogStorageFactory());
+            bind(EnhancedDataSender.class).toInstance(new LoggingDataSender());
         }
-        return null;
     }
 
-    public AgentInformation getAgentInformation() {
-        return agentInformation;
-    }
-
-    public StorageFactory getStorageFactory() {
-        return storageFactory;
-    }
-
-    public IdGenerator getIdGenerator() {
-        return idGenerator;
-    }
-
-    public Sampler getSampler() {
-        return sampler;
-    }
-
-    public ActiveTraceRepository getActiveTraceRepository() {
-        return activeTraceRepository;
-    }
-
-
-    public ServerMetaDataHolder getServerMetaDataHolder() {
-        return serverMetaDataHolder;
-    }
-
-    public EnhancedDataSender getEnhancedDataSender() {
-        return enhancedDataSender;
-    }
-
-    public ApiMetaDataService getApiMetaDataCacheService() {
-        return apiMetaDataService;
-    }
-
-    public StringMetaDataService getStringMetaDataCacheService() {
-        return stringMetaDataService;
-    }
-
-    public SqlMetaDataService getSqlMetaDataCacheService() {
-        return sqlMetaDataService;
-    }
-
-    public TraceContext getTraceContext() {
-        return traceContext;
-    }
 }

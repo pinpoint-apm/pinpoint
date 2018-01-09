@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.web.alarm.collector;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
@@ -29,6 +25,10 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author minwoo.jung
@@ -129,14 +129,6 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
         }
 
         return 0;
-    }
-
-    private long calculatePercent(long count, long totalCount) {
-        if (totalCount == 0 || count == 0) {
-            return 0;
-        } else {
-            return (count * 100L) / totalCount;
-        }
     }
 
     public enum DataCategory {

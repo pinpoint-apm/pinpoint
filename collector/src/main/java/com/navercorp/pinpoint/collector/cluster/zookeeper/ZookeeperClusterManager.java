@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionManager;
-import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;

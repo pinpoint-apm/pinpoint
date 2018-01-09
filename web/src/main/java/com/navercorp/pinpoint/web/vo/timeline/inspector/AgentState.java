@@ -28,10 +28,11 @@ import java.util.Set;
  */
 public enum AgentState {
     RUNNING,
+    UNSTABLE_RUNNING,
     SHUTDOWN,
     UNKNOWN;
 
-    private static final Set<AgentEventType> VALID_EVENT_TYPES = AgentEventType.getTypesByCatgory(AgentEventTypeCategory.AGENT_LIFECYCLE);
+    private static final Set<AgentEventType> AGENT_EVENT_TYPE_SET = AgentEventType.getTypesByCategory(AgentEventTypeCategory.AGENT_LIFECYCLE);
 
     public static AgentState fromAgentLifeCycleState(AgentLifeCycleState state) {
         switch (state) {
@@ -49,7 +50,7 @@ public enum AgentState {
 
     public static AgentState fromAgentEvent(AgentEvent agentEvent) {
         AgentEventType eventType = AgentEventType.getTypeByCode(agentEvent.getEventTypeCode());
-        if (eventType != null && VALID_EVENT_TYPES.contains(eventType)) {
+        if (eventType != null && AGENT_EVENT_TYPE_SET.contains(eventType)) {
             switch (eventType) {
                 case AGENT_CONNECTED:
                 case AGENT_PING:

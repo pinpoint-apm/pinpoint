@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 
@@ -33,7 +31,7 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
     private final long agentStartTime;
     private final EnhancedDataSender enhancedDataSender;
 
-    public DefaultApiMetaDataService(@AgentId String agentId, @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
+    public DefaultApiMetaDataService(String agentId, long agentStartTime, EnhancedDataSender enhancedDataSender) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

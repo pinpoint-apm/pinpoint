@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.cassandra.interceptor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -27,17 +28,16 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.cassandra.CassandraConstants;
 
 /**
  * @author dawidmalina
  */
-@TargetMethod(name = "connect", paramTypes = { "java.lang.String" })
 public class CassandraDriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final boolean recordConnection;
@@ -71,16 +71,8 @@ public class CassandraDriverConnectInterceptor extends SpanEventSimpleAroundInte
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
         final boolean success = InterceptorUtils.isSuccess(throwable);
         // Must not check if current transaction is trace target or not. Connection can be made by other thread.
-        List<String> hostList = new ArrayList<String>();
-        if (target instanceof Cluster) {
-            Cluster cluster = (Cluster) target;
-            final Set<Host> hosts = cluster.getMetadata().getAllHosts();
-            final int port = cluster.getConfiguration().getProtocolOptions().getPort();
-            for (Host host : hosts) {
-                final String hostAddress = host.getAddress().getHostAddress() + ":" + port;
-                hostList.add(hostAddress);
-            }
-        }
+        final List<String> hostList = getHostList(target);
+
         if (args == null) {
             return;
         }
@@ -93,6 +85,22 @@ public class CassandraDriverConnectInterceptor extends SpanEventSimpleAroundInte
                 }
             }
         }
+    }
+
+    private List<String> getHostList(Object target) {
+        if (!(target instanceof Cluster)) {
+            return Collections.emptyList();
+        }
+
+        final Cluster cluster = (Cluster) target;
+        final Set<Host> hosts = cluster.getMetadata().getAllHosts();
+        final int port = cluster.getConfiguration().getProtocolOptions().getPort();
+        final List<String> hostList = new ArrayList<String>();
+        for (Host host : hosts) {
+            final String hostAddress = HostAndPort.toHostAndPortString(host.getAddress().getHostAddress(), port);
+            hostList.add(hostAddress);
+        }
+        return hostList;
     }
 
     @Override

@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,30 +33,32 @@ import java.util.List;
 @Component
 public class DataSourceSampler implements AgentStatSampler<DataSourceBo, SampledDataSource> {
 
-    public static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(DataSourceBo.UNCOLLECTED_INT_VALUE);
+    private static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(SampledDataSource.UNCOLLECTED_VALUE);
 
     @Override
     public SampledDataSource sampleDataPoints(int timeWindowIndex, long timestamp, List<DataSourceBo> dataSourceBoList, DataSourceBo previousDataSourceBo) {
-        if (dataSourceBoList == null || dataSourceBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(dataSourceBoList)) {
             return null;
         }
 
-        List<Integer> activeConnectionSizes = new ArrayList<>(dataSourceBoList.size());
-        List<Integer> maxConnectionSizes = new ArrayList<>(dataSourceBoList.size());
+        final List<Integer> activeConnectionSizes = new ArrayList<>(dataSourceBoList.size());
+        final List<Integer> maxConnectionSizes = new ArrayList<>(dataSourceBoList.size());
 
-        DataSourceBo defaultDataSourceBo = dataSourceBoList.get(0);
-        int id = defaultDataSourceBo.getId();
-        short serviceTypeCode = defaultDataSourceBo.getServiceTypeCode();
+        final DataSourceBo defaultDataSourceBo = dataSourceBoList.get(0);
+        final int id = defaultDataSourceBo.getId();
+        final short serviceTypeCode = defaultDataSourceBo.getServiceTypeCode();
         String databaseName = defaultDataSourceBo.getDatabaseName();
         String jdbcUrl = defaultDataSourceBo.getJdbcUrl();
         for (DataSourceBo dataSourceBo : dataSourceBoList) {
-            int activeConnectionSize = dataSourceBo.getActiveConnectionSize();
+
+            final int activeConnectionSize = dataSourceBo.getActiveConnectionSize();
             if (activeConnectionSize >= 0) {
-                activeConnectionSizes.add(dataSourceBo.getActiveConnectionSize());
+                activeConnectionSizes.add(activeConnectionSize);
             }
-            int maxConnectionSize = dataSourceBo.getMaxConnectionSize();
+
+            final int maxConnectionSize = dataSourceBo.getMaxConnectionSize();
             if (maxConnectionSize >= 0) {
-                maxConnectionSizes.add(dataSourceBo.getMaxConnectionSize());
+                maxConnectionSizes.add(maxConnectionSize);
             }
 
             if (dataSourceBo.getId() != id) {
@@ -85,11 +87,11 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
         return sampledDataSource;
     }
 
-    private Point<Long, Integer> createPoint(long timestamp, List<Integer> values) {
+    private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
         if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, DataSourceBo.UNCOLLECTED_INT_VALUE);
+            return SampledDataSource.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
-            return new Point<>(
+            return new AgentStatPoint<>(
                     timestamp,
                     INTEGER_DOWN_SAMPLER.sampleMin(values),
                     INTEGER_DOWN_SAMPLER.sampleMax(values),

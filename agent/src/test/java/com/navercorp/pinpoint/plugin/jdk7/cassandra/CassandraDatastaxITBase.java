@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.jdk7.cassandra;
 
+import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PreparedStatement;
@@ -23,6 +24,7 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.StatementWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
@@ -94,7 +96,7 @@ public abstract class CassandraDatastaxITBase {
     }
 
     @Test
-    public void test() throws Exception {
+    public void testBoundStatement() throws Exception {
         final int testId = 99;
         final String testValue = "testValue";
 
@@ -152,6 +154,70 @@ public abstract class CassandraDatastaxITBase {
             execute = sessionClass.getDeclaredMethod("execute", String.class, Object[].class);
             String normalizedDeleteSql = SQL_PARSER.normalizedSql(cqlDelete).getNormalizedSql();
             verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(normalizedDeleteSql, null)));
+        } finally {
+            closeSession(myKeyspaceSession);
+        }
+    }
+
+    @Test
+    public void testBatchStatement_and_StatementWrapper() throws Exception {
+        final int testId1 = 998;
+        final String testValue1 = "testValue998";
+        final int testId2 = 999;
+        final String testValue2 = "testValue999";
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+
+        Session myKeyspaceSession = null;
+
+        try {
+            myKeyspaceSession = cluster.connect(TEST_KEYSPACE);
+
+            // ===============================================
+            // Insert Data 2 x (PreparedStatement, BoundStatement)
+            PreparedStatement preparedStatement = myKeyspaceSession.prepare(CQL_INSERT);
+            BoundStatement boundStatement1 = new BoundStatement(preparedStatement);
+            boundStatement1.bind(testId1, testValue1);
+            BoundStatement boundStatement2 = new BoundStatement(preparedStatement);
+            boundStatement2.bind(testId2, testValue2);
+
+            BatchStatement batchStatement = new BatchStatement();
+            batchStatement.add(boundStatement1);
+            batchStatement.add(boundStatement2);
+
+            myKeyspaceSession.execute(batchStatement);
+
+            verifier.printCache();
+            // Cluster#connect(String)
+            Class<?> clusterClass = Class.forName("com.datastax.driver.core.Cluster");
+            Method connect = clusterClass.getDeclaredMethod("connect", String.class);
+            verifier.verifyTrace(event(CASSANDRA, connect, null, CASSANDRA_ADDRESS, TEST_KEYSPACE));
+            // SessionManager#prepare(String) OR AbstractSession#prepare(String)
+            Class<?> sessionClass;
+            try {
+                sessionClass = Class.forName("com.datastax.driver.core.AbstractSession");
+            } catch (ClassNotFoundException e) {
+                sessionClass = Class.forName("com.datastax.driver.core.SessionManager");
+            }
+            Method prepare = sessionClass.getDeclaredMethod("prepare", String.class);
+            verifier.verifyTrace(event(CASSANDRA, prepare, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(CQL_INSERT, null)));
+            // SessionManager#execute(Statement) OR AbstractSession#execute(Statement)
+            Method execute = sessionClass.getDeclaredMethod("execute", Statement.class);
+            verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE));
+
+            // ====================
+            final String cqlDelete = String.format("DELETE FROM %s.%s WHERE %s IN (? , ?)", TEST_KEYSPACE, TEST_TABLE, TEST_COL_ID);
+            PreparedStatement deletePreparedStatement = myKeyspaceSession.prepare(cqlDelete);
+            BoundStatement deleteBoundStatement = new BoundStatement(deletePreparedStatement);
+            deleteBoundStatement.bind(testId1, testId2);
+            Statement wrappedDeleteStatement = new StatementWrapper(deleteBoundStatement) {};
+            myKeyspaceSession.execute(wrappedDeleteStatement);
+
+            verifier.printCache();
+            // SessionManager#prepare(String) OR AbstractSession#prepare(String)
+            verifier.verifyTrace(event(CASSANDRA, prepare, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(cqlDelete, null)));
+            // SessionManager#execute(String, Object[]) OR AbstractSession#execute(String, Object[])
+            verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE));
         } finally {
             closeSession(myKeyspaceSession);
         }

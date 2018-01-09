@@ -5,14 +5,13 @@
 	});
 
 	pinpointApp.service( "SystemConfigurationService", [ "SystemConfigurationServiceConfig", "$http", function( cfg, $http ) {
-		var oConfig = {};
 		this.getConfig = function() {
 			return $http.get( cfg.URL ).then(function(result) {
-				return oConfig = result.data;
+				if ( result.data.showApplicationStat !== true ) {
+					result.data.showApplicationStat = false;
+				}
+				return result.data;
 			});
-		};
-		this.get = function( type ) {
-			return oConfig[type];
 		};
 	}]);
 })( jQuery );

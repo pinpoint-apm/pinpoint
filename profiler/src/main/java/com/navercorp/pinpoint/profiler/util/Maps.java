@@ -25,8 +25,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class Maps {
 
-    private static final MapMaker DEFAULT_WEAK_MAP_MAKER = createWeakMapMaker();
-
     private static MapMaker createWeakMapMaker() {
         final MapMaker mapMaker = new MapMaker();
         mapMaker.weakKeys();
@@ -34,7 +32,8 @@ public final class Maps {
     }
 
     public static <K, V> ConcurrentMap<K, V> newWeakConcurrentMap() {
-        return DEFAULT_WEAK_MAP_MAKER.makeMap();
+        MapMaker weakMapMaker = createWeakMapMaker();
+        return weakMapMaker.makeMap();
     }
 
     public static <K, V> ConcurrentMap<K, V> newWeakConcurrentMap(int initialCapacity) {

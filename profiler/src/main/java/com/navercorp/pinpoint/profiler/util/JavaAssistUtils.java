@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
+
 import javassist.CtBehavior;
 import javassist.CtClass;
 import javassist.Modifier;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author emeroad
  */
 public final class JavaAssistUtils {
-    private final static String EMTPY_ARRAY = "()";
+    private static final String EMPTY_ARRAY = "()";
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String ARRAY = "[]";
 
@@ -75,7 +76,7 @@ public final class JavaAssistUtils {
      */
     public static String getParameterDescription(CtClass[] params) {
         if (params == null) {
-            return EMTPY_ARRAY;
+            return EMPTY_ARRAY;
         }
         StringBuilder sb = new StringBuilder(64);
         sb.append('(');
@@ -419,7 +420,7 @@ public final class JavaAssistUtils {
     @Deprecated
     public static String getParameterDescription(Class[] params) {
         if (params == null) {
-            return EMTPY_ARRAY;
+            return EMPTY_ARRAY;
         }
         StringBuilder sb = new StringBuilder(64);
         sb.append('(');
@@ -437,7 +438,7 @@ public final class JavaAssistUtils {
 
     public static String getParameterDescription(String[] params) {
         if (params == null) {
-            return EMTPY_ARRAY;
+            return EMPTY_ARRAY;
         }
         StringBuilder sb = new StringBuilder(64);
         sb.append('(');

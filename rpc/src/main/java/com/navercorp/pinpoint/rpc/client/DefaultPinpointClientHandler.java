@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultPinpointClientHandler extends SimpleChannelHandler implements PinpointClientHandler {
 
     private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
-    private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+    private static final long DEFAULT_TIMEOUT_MILLIS = 3 * 1000;
 
     private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
     private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = Integer.MAX_VALUE;
@@ -62,7 +62,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private volatile Channel channel;
     
-    private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
+    private long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
     
     private int maxHandshakeCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
@@ -93,7 +93,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
     
     public DefaultPinpointClientHandler(DefaultPinpointClientFactory clientFactory) {
-        this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
+        this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUT_MILLIS);
     }
 
     public DefaultPinpointClientHandler(DefaultPinpointClientFactory clientFactory, long pingDelay, long handshakeRetryInterval, long timeoutMillis) {
@@ -148,7 +148,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        Channel channel = ctx.getChannel();
+        Channel channel = e.getChannel();
         if ((null == channel) || (this.channel != channel)) {
             throw new IllegalArgumentException("Invalid channel variable. this.channel:" + this.channel + ", channel:" + channel + ".");
         }
@@ -234,8 +234,8 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             return;
         }
         logger.debug("{} writePing() started. channel:{}", objectUniqName, channel);
-        
-        PingPacket pingPacket = new PingPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
+
+        PingPayloadPacket pingPacket = new PingPayloadPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
         write0(pingPacket, pingWriteFailFutureListener);
     }
 
@@ -245,14 +245,14 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         }
         logger.debug("{} sendPing() started.", objectUniqName);
 
-        PingPacket pingPacket = new PingPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
+        PingPayloadPacket pingPacket = new PingPayloadPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
         ChannelFuture future = write0(pingPacket);
         future.awaitUninterruptibly();
         if (!future.isSuccess()) {
             Throwable cause = future.getCause();
             throw new PinpointSocketException("send ping failed. Error:" + cause.getMessage(), cause);
         }
-        
+
         logger.debug("{} sendPing() completed.", objectUniqName);
     }
 

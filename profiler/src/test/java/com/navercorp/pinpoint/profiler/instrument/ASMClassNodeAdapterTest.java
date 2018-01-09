@@ -216,7 +216,7 @@ public class ASMClassNodeAdapterTest {
 
     @Test
     public void hasAnnotation() throws Exception {
-        ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(pluginContext, null, "com/navercorp/pinpoint/profiler/instrument/mock/AnnotationClass");
+        ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(pluginContext, ASMClassNodeLoader.getClassLoader(), "com/navercorp/pinpoint/profiler/instrument/mock/AnnotationClass");
         Assert.assertTrue(classNodeAdapter.hasAnnotation(Aspect.class));
         Assert.assertFalse(classNodeAdapter.hasAnnotation(Override.class));
     }
@@ -243,7 +243,7 @@ public class ASMClassNodeAdapterTest {
 
     @Test
     public void subclassOf() {
-        ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginContext, null, "com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass");
+        ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginContext, ASMClassNodeLoader.getClassLoader(), "com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass");
         // self
         assertEquals(true, adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass"));
 

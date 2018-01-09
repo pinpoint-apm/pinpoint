@@ -31,10 +31,12 @@ public class WorkerOptionTest {
         int workerThreadSize = 1;
         int workerThreadQueueSize = 10;
 
-        WorkerOption workerOption = new WorkerOption(workerThreadSize, workerThreadQueueSize);
+        DispatchWorkerOption workerOption = new DispatchWorkerOption("testWorker", workerThreadSize, workerThreadQueueSize);
 
-        Assert.assertEquals(workerThreadSize, workerOption.getWorkerThreadSize());
-        Assert.assertEquals(workerThreadQueueSize, workerOption.getWorkerThreadQueueSize());
+        Assert.assertEquals("testWorker", workerOption.getName());
+
+        Assert.assertEquals(workerThreadSize, workerOption.getThreadSize());
+        Assert.assertEquals(workerThreadQueueSize, workerOption.getQueueSize());
 
         Assert.assertEquals(DEFAULT_COLLECT_METRIC_ENABLE, workerOption.isEnableCollectMetric());
     }
@@ -43,24 +45,31 @@ public class WorkerOptionTest {
     public void getTest2() throws Exception {
         int workerThreadSize = 1;
         int workerThreadQueueSize = 10;
+        int recordLogRate = 100;
         boolean collectMetric = true;
 
-        WorkerOption workerOption = new WorkerOption(workerThreadSize, workerThreadQueueSize, collectMetric);
+        DispatchWorkerOption workerOption = new DispatchWorkerOption("testWorker", workerThreadSize, workerThreadQueueSize, recordLogRate, collectMetric);
 
-        Assert.assertEquals(workerThreadSize, workerOption.getWorkerThreadSize());
-        Assert.assertEquals(workerThreadQueueSize, workerOption.getWorkerThreadQueueSize());
+        Assert.assertEquals(workerThreadSize, workerOption.getThreadSize());
+        Assert.assertEquals(workerThreadQueueSize, workerOption.getQueueSize());
+        Assert.assertEquals(recordLogRate, workerOption.getRecordLogRate());
 
         Assert.assertEquals(collectMetric, workerOption.isEnableCollectMetric());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwExceptionTest1() {
-        WorkerOption workerOption = new WorkerOption(0, 100);
+        new DispatchWorkerOption("testWorker", 0, 100);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwExceptionTest2() {
-        WorkerOption workerOption = new WorkerOption(100, 0);
+        new DispatchWorkerOption ("testWorker", 100, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwExceptionTest3() {
+        new DispatchWorkerOption ("testWorker", 1, 1, 0);
     }
 
 }

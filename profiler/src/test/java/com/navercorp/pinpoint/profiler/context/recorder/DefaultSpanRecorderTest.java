@@ -17,25 +17,47 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
+@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
 public class DefaultSpanRecorderTest {
+
+    @Mock
+    private TraceRoot traceRoot;
+    @Mock
+    private Shared shared;
+    @Mock
+    private TraceId traceId;
+    @Mock
+    private StringMetaDataService stringMetaDataService;
+    @Mock
+    private SqlMetaDataService sqlMetaDataService;
+
+    @Before
+    public void setUp() throws Exception {
+        Mockito.when(traceRoot.getTraceId()).thenReturn(traceId);
+    }
 
     @Test
     public void testRecordApiId() throws Exception {
-        Span span = new Span();
-
-        StringMetaDataService stringMetaDataService = Mockito.mock(StringMetaDataService.class);
-        SqlMetaDataService sqlMetaDataService = Mockito.mock(SqlMetaDataService.class);
-
+        Span span = new Span(traceRoot);
 
         SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
 
@@ -44,4 +66,21 @@ public class DefaultSpanRecorderTest {
 
         Assert.assertEquals("API ID", span.getApiId(), API_ID);
     }
+
+    @Test
+    public void testRecordEndPoint() throws Exception {
+
+        when(traceRoot.getShared()).thenReturn(shared);
+
+        Span span = new Span(traceRoot);
+
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
+
+        final String endPoint = "endPoint";
+        recorder.recordEndPoint(endPoint);
+
+        Assert.assertEquals(span.getEndPoint(), endPoint);
+        verify(traceRoot.getShared()).setEndPoint(endPoint);
+    }
+
 }

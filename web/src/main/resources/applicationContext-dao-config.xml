@@ -39,7 +39,7 @@
         <property name="configLocation" value="classpath:/mybatis-config.xml"/>
 
         <!-- typeAliases -->
-        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.vo,com.navercorp.pinpoint.web.alarm.vo" />
+        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.alarm.vo" />
 
         <!-- setting the location of mapper -->
         <property name="mapperLocations" value="classpath*:mapper/*Mapper.xml"/>
@@ -74,5 +74,9 @@
         <property name="transactionManager" ref="transactionManager"/>
     </bean>
 
+    <bean id="agentDownloadInfoDao" class="com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory" factory-method="create">
+        <constructor-arg index="0" value="#{pinpointWebProps['web.installation.pinpointVersion'] ?: ''}"/>
+        <constructor-arg index="1" value="#{pinpointWebProps['web.installation.downloadUrl'] ?: ''}"/>
+    </bean>
 
 </beans>

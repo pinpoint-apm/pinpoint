@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.collector.util.PooledObject;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.util.CpuUtils;
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -268,7 +268,7 @@ public class TestUDPReceiver implements DataReceiver {
     }
 
     private void shutdownExecutor(ExecutorService executor, String executorName) {
-        logger.info("{] shutdown.", executorName);
+        logger.info("{} shutdown.", executorName);
         executor.shutdown();
         try {
             executor.awaitTermination(1000 * 10, TimeUnit.MILLISECONDS);

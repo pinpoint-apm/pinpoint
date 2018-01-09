@@ -16,22 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.navercorp.pinpoint.profiler.monitor.metric.gc.CmsGcGarbageCollectorMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.gc.G1GcGarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.DefaultGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.gc.ParallelGcGarbageCollectorMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.gc.SerialGcGarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.UnknownGarbageCollectorMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author dawidmalina
@@ -41,30 +39,34 @@ public class GarbageCollectorMetricProvider implements Provider<GarbageCollector
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final GarbageCollectorMetricSet garbageCollectorMetricSet = new GarbageCollectorMetricSet();
-
     @Inject
     public GarbageCollectorMetricProvider() {
     }
 
     @Override
     public GarbageCollectorMetric get() {
-        Map<String, Metric> garbageCollectorMetrics = garbageCollectorMetricSet.getMetrics();
-        Set<String> metricNames = garbageCollectorMetrics.keySet();
-
-        GarbageCollectorMetric garbageCollectorMetric;
-        if (metricNames.contains(MetricMonitorValues.METRIC_GC_SERIAL_OLDGEN_COUNT)) {
-            garbageCollectorMetric = new SerialGcGarbageCollectorMetric(garbageCollectorMetrics);
-        } else if (metricNames.contains(MetricMonitorValues.METRIC_GC_PS_OLDGEN_COUNT)) {
-            garbageCollectorMetric = new ParallelGcGarbageCollectorMetric(garbageCollectorMetrics);
-        } else if (metricNames.contains(MetricMonitorValues.METRIC_GC_CMS_OLDGEN_COUNT)) {
-            garbageCollectorMetric = new CmsGcGarbageCollectorMetric(garbageCollectorMetrics);
-        } else if (metricNames.contains(MetricMonitorValues.METRIC_GC_G1_OLDGEN_COUNT)) {
-            garbageCollectorMetric = new G1GcGarbageCollectorMetric(garbageCollectorMetrics);
-        } else {
+        GarbageCollectorMetric garbageCollectorMetric = null;
+        Map<String, GarbageCollectorMXBean> garbageCollectorMap = createGarbageCollectorMap();
+        for (GarbageCollectorType garbageCollectorType : GarbageCollectorType.values()) {
+            if (garbageCollectorMap.containsKey(garbageCollectorType.oldGenName())) {
+                GarbageCollectorMXBean garbageCollectorMXBean = garbageCollectorMap.get(garbageCollectorType.oldGenName());
+                garbageCollectorMetric = new DefaultGarbageCollectorMetric(garbageCollectorType, garbageCollectorMXBean);
+                break;
+            }
+        }
+        if (garbageCollectorMetric == null) {
             garbageCollectorMetric = new UnknownGarbageCollectorMetric();
         }
         logger.info("loaded : {}", garbageCollectorMetric);
         return garbageCollectorMetric;
+    }
+
+    private Map<String, GarbageCollectorMXBean> createGarbageCollectorMap() {
+        Map<String, GarbageCollectorMXBean> garbageCollectorMap = new HashMap<String, GarbageCollectorMXBean>();
+        List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
+        for (GarbageCollectorMXBean garbageCollectorMXBean : garbageCollectorMXBeans) {
+            garbageCollectorMap.put(garbageCollectorMXBean.getName(), garbageCollectorMXBean);
+        }
+        return garbageCollectorMap;
     }
 }

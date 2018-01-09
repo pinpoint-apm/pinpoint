@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.rpc.server;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +56,8 @@ public class SimpleServerMessageListener extends SimpleMessageListener implement
     }
 
     @Override
-    public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-        logger.info("handlePing packet:{}, remote:{} ", pingPacket, pinpointServer.getRemoteAddress());
+    public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
+        logger.info("handlePing packet:{}, remote:{}", pingPacket, pinpointServer.getRemoteAddress());
     }
 
 }

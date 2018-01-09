@@ -17,8 +17,13 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -29,17 +34,13 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
+    private final Provider<AsyncContextFactory> asyncContextFactoryProvider;
 
     @Inject
-    public DefaultRecorderFactory(StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
-        if (stringMetaDataService == null) {
-            throw new NullPointerException("stringMetaDataService must not be null");
-        }
-        if (sqlMetaDataService == null) {
-            throw new NullPointerException("sqlMetaDataService must not be null");
-        }
-        this.stringMetaDataService = stringMetaDataService;
-        this.sqlMetaDataService = sqlMetaDataService;
+    public DefaultRecorderFactory(Provider<AsyncContextFactory> asyncContextFactoryProvider, StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
+        this.asyncContextFactoryProvider = Assert.requireNonNull(asyncContextFactoryProvider, "asyncContextFactoryProvider must not be null");
+        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
+        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
     }
 
     @Override
@@ -48,7 +49,21 @@ public class DefaultRecorderFactory implements RecorderFactory {
     }
 
     @Override
+    public SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling) {
+        return new TraceRootSpanRecorder(traceRoot, sampling);
+    }
+
+    @Override
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder() {
-        return new WrappedSpanEventRecorder(stringMetaDataService, sqlMetaDataService);
+        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        return new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+    }
+
+    @Override
+    public WrappedSpanEventRecorder newWrappedSpanEventRecorder(AsyncState asyncState) {
+        Assert.requireNonNull(asyncState, "asyncState must not be null");
+
+        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        return new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, asyncState);
     }
 }

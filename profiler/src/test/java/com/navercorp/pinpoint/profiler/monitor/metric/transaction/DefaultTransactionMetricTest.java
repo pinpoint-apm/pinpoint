@@ -21,9 +21,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.codahale.metrics.Gauge;
 import com.navercorp.pinpoint.profiler.context.TestableTransactionCounter;
-import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 /**
  * @author HyunGil Jeong
@@ -44,10 +42,11 @@ public class DefaultTransactionMetricTest {
     @Test
     public void initialTransactionCountsShouldBeZero() {
         final long expectedInitialTransactionCount = 0L;
-        final long initialSampledNewCount = transactionMetric.sampledNew();
-        final long initialSampledContinuationCount = transactionMetric.sampledContinuation();
-        final long initialUnsampledNewCount = transactionMetric.unsampledNew();
-        final long initialUnsampledContinuationCount = transactionMetric.unsampledContinuation();
+        final TransactionMetricSnapshot snapshot = transactionMetric.getSnapshot();
+        final long initialSampledNewCount = snapshot.getSampledNewCount();
+        final long initialSampledContinuationCount = snapshot.getSampledContinuationCount();
+        final long initialUnsampledNewCount = snapshot.getUnsampledNewCount();
+        final long initialUnsampledContinuationCount = snapshot.getUnsampledContinuationCount();
         assertEquals(expectedInitialTransactionCount, initialSampledNewCount);
         assertEquals(expectedInitialTransactionCount, initialSampledContinuationCount);
         assertEquals(expectedInitialTransactionCount, initialUnsampledNewCount);
@@ -57,7 +56,7 @@ public class DefaultTransactionMetricTest {
     @Test
     public void checkCalculationFor_0_Transaction() throws Exception {
         // Given
-        final Long expectedNumberOfTransactions = 0L;
+        final long expectedNumberOfTransactions = 0L;
         initTransactionMetric();
         // When
         this.transactionCounter.addSampledNewCount(expectedNumberOfTransactions);
@@ -65,16 +64,17 @@ public class DefaultTransactionMetricTest {
         this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactions);
         this.transactionCounter.addUnSampledContinuationCount(expectedNumberOfTransactions);
         // Then
-        assertEquals(expectedNumberOfTransactions, transactionMetric.sampledNew());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.sampledContinuation());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.unsampledNew());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.unsampledContinuation());
+        final TransactionMetricSnapshot snapshot = transactionMetric.getSnapshot();
+        assertEquals(expectedNumberOfTransactions, snapshot.getSampledNewCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getSampledContinuationCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledNewCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledContinuationCount());
     }
 
     @Test
     public void checkCalculationFor_1_Transaction() throws Exception {
         // Given
-        final Long expectedNumberOfTransactions = 1L;
+        final long expectedNumberOfTransactions = 1L;
         initTransactionMetric();
         // When
         this.transactionCounter.addSampledNewCount(expectedNumberOfTransactions);
@@ -82,16 +82,17 @@ public class DefaultTransactionMetricTest {
         this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactions);
         this.transactionCounter.addUnSampledContinuationCount(expectedNumberOfTransactions);
         // Then
-        assertEquals(expectedNumberOfTransactions, transactionMetric.sampledNew());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.sampledContinuation());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.unsampledNew());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.unsampledContinuation());
+        final TransactionMetricSnapshot snapshot = transactionMetric.getSnapshot();
+        assertEquals(expectedNumberOfTransactions, snapshot.getSampledNewCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getSampledContinuationCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledNewCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledContinuationCount());
     }
 
     @Test
     public void checkCalculationFor_100_Transaction() throws Exception {
         // Given
-        final Long expectedNumberOfTransactions = 100L;
+        final long expectedNumberOfTransactions = 100L;
         initTransactionMetric();
         // When
         this.transactionCounter.addSampledNewCount(expectedNumberOfTransactions);
@@ -99,16 +100,17 @@ public class DefaultTransactionMetricTest {
         this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactions);
         this.transactionCounter.addUnSampledContinuationCount(expectedNumberOfTransactions);
         // Then
-        assertEquals(expectedNumberOfTransactions, transactionMetric.sampledNew());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.sampledContinuation());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.unsampledNew());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.unsampledContinuation());
+        final TransactionMetricSnapshot snapshot = transactionMetric.getSnapshot();
+        assertEquals(expectedNumberOfTransactions, snapshot.getSampledNewCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getSampledContinuationCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledNewCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledContinuationCount());
     }
 
     @Test
-    public void negative_Transaction_should_return_0() throws Exception {
+    public void negative_Transaction_should_return_UNCOLLECTED() throws Exception {
         // Given
-        final Long expectedNumberOfTransactions = 0L;
+        final long expectedNumberOfTransactions = TransactionMetric.UNCOLLECTED;
         initTransactionMetric();
         // When
         this.transactionCounter.addSampledNewCount(-1000L);
@@ -116,36 +118,35 @@ public class DefaultTransactionMetricTest {
         this.transactionCounter.addUnSampledNewCount(-1000L);
         this.transactionCounter.addUnSampledContinuationCount(-1000L);
         // Then
-        assertEquals(expectedNumberOfTransactions, transactionMetric.sampledNew());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.sampledContinuation());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.unsampledNew());
-        assertEquals(expectedNumberOfTransactions, transactionMetric.unsampledContinuation());
+        final TransactionMetricSnapshot snapshot = transactionMetric.getSnapshot();
+        assertEquals(expectedNumberOfTransactions, snapshot.getSampledNewCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getSampledContinuationCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledNewCount());
+        assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledContinuationCount());
     }
     
     @Test
     public void checkContinuousTransactions() throws Exception {
         // Given
         final int testCnt = 10;
-        final Long expectedNumberOfTransactionsPerCollection = 100L;
+        final long expectedNumberOfTransactionsPerCollection = 100L;
         initTransactionMetric();
         // When
-        for (int i = 0; i < testCnt; ++i) {
+        for (int i = 0; i < testCnt; i++) {
             this.transactionCounter.addSampledNewCount(expectedNumberOfTransactionsPerCollection);
             this.transactionCounter.addSampledContinuationCount(expectedNumberOfTransactionsPerCollection);
             this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactionsPerCollection);
             this.transactionCounter.addUnSampledContinuationCount(expectedNumberOfTransactionsPerCollection);
             // Then
-            assertEquals(expectedNumberOfTransactionsPerCollection, transactionMetric.sampledNew());
-            assertEquals(expectedNumberOfTransactionsPerCollection, transactionMetric.sampledContinuation());
-            assertEquals(expectedNumberOfTransactionsPerCollection, transactionMetric.unsampledNew());
-            assertEquals(expectedNumberOfTransactionsPerCollection, transactionMetric.unsampledContinuation());
+            final TransactionMetricSnapshot snapshot = transactionMetric.getSnapshot();
+            assertEquals(expectedNumberOfTransactionsPerCollection, snapshot.getSampledNewCount());
+            assertEquals(expectedNumberOfTransactionsPerCollection, snapshot.getSampledContinuationCount());
+            assertEquals(expectedNumberOfTransactionsPerCollection, snapshot.getUnsampledNewCount());
+            assertEquals(expectedNumberOfTransactionsPerCollection, snapshot.getUnsampledContinuationCount());
         }
     }
 
     private void initTransactionMetric() {
-        transactionMetric.sampledNew();
-        transactionMetric.sampledContinuation();
-        transactionMetric.unsampledNew();
-        transactionMetric.unsampledContinuation();
+        transactionMetric.getSnapshot();
     }
 }

@@ -14,9 +14,11 @@
 
 					scope.$on( "configuration.selectMenu", function( event, selectedName ) {
 						if ( myName === selectedName ) {
-							scope.$broadcast( "configuration.userGroup.show" );
-							scope.$broadcast( "pinpointUser.load", SystemConfigService.get("userDepartment") );
-							$element.show();
+							SystemConfigService.getConfig().then(function(config) {
+								scope.$broadcast( "configuration.userGroup.show" );
+								scope.$broadcast( "pinpointUser.load", config["userDepartment"] );
+								$element.show();
+							});
 						} else {
 							$element.hide();
 						}

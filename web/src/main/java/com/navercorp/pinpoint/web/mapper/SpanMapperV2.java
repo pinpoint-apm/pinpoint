@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -52,7 +51,6 @@ import java.util.List;
 /**
  * @author emeroad
  */
-@Beta
 @Component
 public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 

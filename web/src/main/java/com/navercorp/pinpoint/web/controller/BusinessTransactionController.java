@@ -99,7 +99,7 @@ public class BusinessTransactionController {
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         // application map
-        ApplicationMap map = filteredMapService.selectApplicationMap(transactionId);
+        ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion);
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
         TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, map.getNodes(), map.getLinks(), recordSet, spanResult.getCompleteTypeString(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);

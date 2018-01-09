@@ -9,7 +9,7 @@
 	 */
 	pinpointApp.constant("scatterDirectiveConfig", {
 		"scatterDataUrl": "getScatterData.pinpoint",
-		template: "<div id='scatter' style='padding-top:10px;padding-bottom:20px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;'></div>",
+		template: "<div id='scatter' style='padding-top:10px;padding-bottom:20px;user-select:none;'></div>",
 		images: {
 			"config": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QTI2NzMzRDI2QTlGMTFFM0E1RENBRjZGODkwRDBCMEIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QTI2NzMzRDM2QTlGMTFFM0E1RENBRjZGODkwRDBCMEIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBMjY3MzNEMDZBOUYxMUUzQTVEQ0FGNkY4OTBEMEIwQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpBMjY3MzNEMTZBOUYxMUUzQTVEQ0FGNkY4OTBEMEIwQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pn/ejkcAAAFwSURBVHjanFKxSsNQFE2CFEtaTNsMCbSQ4lA6GSghi2igo/o/GVz6AfmD/EFGJ7cKDiVLO0hFEByzpG1EA5LUxntC80jFKhi4LzfnnnPfzXmPz7KM+9ezT6iq6gnF+T4Nny88/110VK1WbwRB4OM4vgyC4PVXIQlW9JqRwGo2mzm2XC65zWYzplSnBo1CeFDu1Ov1XhaLhVWpVBimKAqXJInVarWmJGQ42xHjybIcQSSK4rNt29cgOI5jR1Gkk5gLw1DC2LkvWGBCu90eDwaDDOF53hXhhwjf908LHByYBo2ArqZpfnY6HbEYw3XdJ5riAzEajR4LHJxut6syhyhq5c6apt1hdER5EnCIKzFzqPM7fUwkSZrhf+r1+lmaphFqjUZuJIeaYRgT4q7ZqFvxmn7+GAQYBDcRyIGhBs6PN4dyjKLP5/OL4XA4RSAHhlpZs3OO1PF+W3ggwxQ6u7d+v3+7s9Nfd3VrQm3fXf0SYADyptv3yy4A0QAAAABJRU5ErkJggg==",
 			"download": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RUU3MjQyMUQ2QTlGMTFFM0IxRTY4MjI3MUU5MUUyMzMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RUU3MjQyMUU2QTlGMTFFM0IxRTY4MjI3MUU5MUUyMzMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpFRTcyNDIxQjZBOUYxMUUzQjFFNjgyMjcxRTkxRTIzMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpFRTcyNDIxQzZBOUYxMUUzQjFFNjgyMjcxRTkxRTIzMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PlnySxAAAADPSURBVHjaxFLBDYMwDLQjMgEf4M8E4Y0YgzHaTTpGFuDfARAdoH3DiwmQSLmqRIZSpPLpSTH4krOjc9g5R0cQIDDzgozj2Ffrum6xOTcKtqolSUJCuNlR0UH8WTiZcpPGzEaB3xVWVXVO0/QhOeTgP1rKOU7/QdM0RZ7nd2OMwxc5eHkeixEm+71aKUVhGJLWmoZhoL7vaRxHX7xtW/ZzlHOTgDiKIirL8oTcWnuZ914dsyzbfXfoCuAmdV3z15ezBgRr8Nuc4ocRXhGeAgwAFHJVgfQ6KdUAAAAASUVORK5CYII=",
@@ -146,17 +146,19 @@
 								}, function( oChartXRange, nextFrom, nextTo ) {
 									// oNavbarVoService.setQueryEndDateTime( nextFrom );
 									UrlVoService.setQueryEndDateTime( nextFrom );
-									$rootScope.$broadcast( "responseTimeSummaryChartDirective.loadRealtime", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
+									$rootScope.$broadcast( "nodeInfoDetailsDirective.loadRealTimeChartData", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
 								}));
 							} else {
 								oScatterChart.addBubbleAndMoveAndDraw( oScatterChart.createDataBlock( scatterData ) );
 							}
-							$window.htoScatter[application] = oScatterChart;
+							if ( attrs["namespace"] === "forMain" || attrs["namespace"] === "forFilteredMap" ) {
+								$window.htoScatter[application] = oScatterChart;
+							}
 						}, 100);
 
 						return oScatterChart;
 					}
-					function showScatter (application, w, h) {
+					function showScatter(application, w, h) {
 						element.children().hide();
 						pauseScatterAll();
 						if ( angular.isDefined(htScatterSet[application]) ) {
@@ -215,7 +217,7 @@
 					}
 					function getAgentList( scatterData ) {
 						var oDupCheck = {};
-						var aAgentList = [], server;
+						var aAgentList = [];
 						if ( typeof scatterData !== "undefined" ) {
 							$.each( scatterData.scatter.metadata, function( key, oInfo ) {
 								if ( typeof oDupCheck[ oInfo[0] ] === "undefined" ) {
@@ -225,24 +227,10 @@
 							});
 							return aAgentList;
 						}
-						if ( htLastNode.agentList ) {
-							return htLastNode.agentList;
+						if ( htLastNode && htLastNode.agentIds ) {
+							return htLastNode.agentIds;
 						}
-
-						if ( htLastNode.serverList ) {
-							for ( server in htLastNode.serverList ) {
-								var oInstanceList = htLastNode.serverList[server].instanceList;
-								for (var agentName in oInstanceList) {
-									aAgentList.push(oInstanceList[agentName].name);
-								}
-							}
-						}
-						return aAgentList;
 					}
-					// function isRealtime() {
-					// 	return oNavbarVoService.getPeriodType() === "realtime";
-					// }
-
 					scope.$on("scatterDirective.initialize." + scope.namespace, function (event, navbarVoService) {
 						// oNavbarVoService = navbarVoService;
 						initScatterHash();
@@ -282,7 +270,12 @@
 						});
 					});
 					scope.$on("changedCurrentAgent." + scope.namespace, function( event, selectedAgentName ) {
-						htScatterSet[htLastNode.key].scatter.selectAgent( selectedAgentName );
+						if ( htLastNode && htLastNode.key ) {
+							htScatterSet[htLastNode.key].scatter.selectAgent(selectedAgentName);
+						}
+					});
+					scope.$on("scatterDirective.stopRequest." + scope.namespace, function( event ) {
+						pauseScatterAll();
 					});
 				}
 			};

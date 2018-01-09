@@ -177,19 +177,26 @@
         <li class="divider"></li>
         <li><a href ng-click="refresh()"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
     </ul>
-    <div ng-controller="RealtimeChartCtrl" class="realtime" style="bottom:-180px;" ng-show="bInitialized">
+    <div ng-controller="RealtimeChartCtrl" class="realtime" style="bottom:-200px;" ng-show="bInitialized">
 		<div class="chart-title" style="height:24px;font-size:14px;top:0px;">
 			<span>Realtime Active Thread Chart</span>
-			<span class="chart-expand glyphicon glyphicon-pushpin" aria-hidden="true" ng-click="pin()"></span>
+			<span class="chart-expand glyphicon glyphicon-pushpin" ng-click="pin()"></span>
 			<span class="glyphicon glyphicon-question-sign realtimeTooltip tooltipstered" style="float:right;cursor:pointer;color:#FFF;font-size:17px;padding-right:6px;"></span>
 		</div>
 		<div class="agent-sum-chart">
 			<div><span></span> (<span></span>)</div>
 		</div>
-		<div class="agent-chart-list" ng-click="showAgentInfo($event)"></div>
+		<div class="agent-chart-list" ng-click="showAgentInfo($event)">
+			<div ng-show="showServerPaging" class="paging">
+				<span style="font-weight:lighter">Total Servers : </span><span style="font-weight:bolder;font-size:18px;">{{serverTotalCount}}</span> <span>[ 1 ~ {{maxPageSize}} ]</span>
+				<span class="page" style="text-decoration:initial;cursor:initial;color:#000;background-color:#FFF;">1</span>
+				<span class="page" ng-repeat="page in pagingValue" ng-click="openRATChart(page)">{{page}}</span>
+			</div>
+		</div>
 		<div class="connection-message">
 			<h4></h4>
 			<button type="button" class="btn btn-warning" style="display:none" ng-click="retryConnection()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Retry</button>
 		</div>
+
 	</div>
 </div>

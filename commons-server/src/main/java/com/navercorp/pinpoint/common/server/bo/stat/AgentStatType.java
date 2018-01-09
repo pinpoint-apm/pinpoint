@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * @author HyunGil Jeong
  */
@@ -27,12 +30,15 @@ public enum AgentStatType {
     TRANSACTION((byte) 4, "Transaction"),
     ACTIVE_TRACE((byte) 5, "Active Trace"),
     DATASOURCE((byte) 6, "DataSource"),
-    RESPONSE_TIME((byte) 7, "Response Time");
+    RESPONSE_TIME((byte) 7, "Response Time"),
+    DEADLOCK((byte) 8, "Deadlock");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 
     private final byte typeCode;
     private final String name;
+
+    private static final Set<AgentStatType> AGENT_STAT_TYPES = EnumSet.allOf(AgentStatType.class);
 
     AgentStatType(int typeCode, String name) {
         if (typeCode < 0 || typeCode > 255) {
@@ -60,7 +66,8 @@ public enum AgentStatType {
     }
 
     public static AgentStatType fromTypeCode(byte typeCode) {
-        for (AgentStatType agentStatType : AgentStatType.values()) {
+
+        for (AgentStatType agentStatType : AGENT_STAT_TYPES) {
             if (agentStatType.typeCode == typeCode) {
                 return agentStatType;
             }

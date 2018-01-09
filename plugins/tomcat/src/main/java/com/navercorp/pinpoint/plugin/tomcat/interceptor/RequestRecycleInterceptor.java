@@ -14,8 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -31,15 +31,17 @@ public class RequestRecycleInterceptor implements AroundInterceptor {
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private InstrumentMethod targetMethod;
+    private final MethodDescriptor methodDescriptor;
 
-    public RequestRecycleInterceptor(InstrumentMethod targetMethod) {
-        this.targetMethod = targetMethod;
+    public RequestRecycleInterceptor(MethodDescriptor methodDescriptor) {
+        this.methodDescriptor = methodDescriptor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        logger.beforeInterceptor(target, target.getClass().getName(), targetMethod.getName(), "", args);
+        if (logger.isDebugEnabled()) {
+            logger.beforeInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args);
+        }
         try {
             if (target instanceof AsyncAccessor) {
                 // reset

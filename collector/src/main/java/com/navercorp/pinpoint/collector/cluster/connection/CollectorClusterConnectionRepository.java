@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CollectorClusterConnectionRepository {
 

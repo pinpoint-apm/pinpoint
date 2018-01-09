@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
@@ -30,45 +31,37 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
  */
 public class SpanEvent extends TSpanEvent implements FrameAttachment {
 
-    private final Span span;
+    private final TraceRoot traceRoot;
     private int stackId;
     private boolean timeRecording = true;
     private Object frameObject;
     private long startTime;
     private long afterTime;
 
-    public SpanEvent(Span span) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
+    private AsyncId asyncIdObject;
+
+    public SpanEvent(TraceRoot traceRoot) {
+        if (traceRoot == null) {
+            throw new NullPointerException("traceRoot must not be null");
         }
-        this.span = span;
+        this.traceRoot = traceRoot;
     }
 
-    public Span getSpan() {
-        return span;
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
     }
 
     public void addAnnotation(Annotation annotation) {
         this.addToAnnotations(annotation);
     }
 
-    public void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
-        setExceptionInfo(exceptionClassId, exceptionMessage);
-        if (markError) {
-            if (!span.isSetErrCode()) {
-                span.setErrCode(1);
-            }
-        }
-    }
-
-    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+    public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
-        if (StringUtils.isNotEmpty(exceptionMessage)) {
+        if (StringUtils.hasLength(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);
         }
         super.setExceptionInfo(exceptionInfo);
     }
-
 
     public void markStartTime() {
         this.startTime = System.currentTimeMillis();
@@ -80,7 +73,6 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
 
     public void markAfterTime() {
         this.afterTime = System.currentTimeMillis();
-
     }
 
     public long getAfterTime() {
@@ -120,5 +112,13 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         final Object delete = this.frameObject;
         this.frameObject = null;
         return delete;
+    }
+
+    public void setAsyncIdObject(AsyncId asyncIdObject) {
+        this.asyncIdObject = asyncIdObject;
+    }
+
+    public AsyncId getAsyncIdObject() {
+        return asyncIdObject;
     }
 }

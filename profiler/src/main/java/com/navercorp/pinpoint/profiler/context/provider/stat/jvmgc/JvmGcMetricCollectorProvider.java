@@ -19,10 +19,12 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcDetailedMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcCommonMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.DetailedJvmGcMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.BasicJvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 
 
@@ -32,33 +34,49 @@ import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 public class JvmGcMetricCollectorProvider implements Provider<JvmGcMetricCollector> {
 
     private final boolean collectDetailedMetrics;
-    private final MemoryMetric memoryMetric;
-    private final GarbageCollectorMetric garbageCollectorMetric;
+    private final Provider<MemoryMetric> memoryMetricProivider;
+    private final Provider<DetailedMemoryMetric> detailedMemoryMetricProvider;
+    private final Provider<GarbageCollectorMetric> garbageCollectorMetricProvider;
+    private final Provider<DetailedGarbageCollectorMetric> detailedGarbageCollectorMetricProvider;
 
     @Inject
-    public JvmGcMetricCollectorProvider(ProfilerConfig profilerConfig, MemoryMetric memoryMetric, GarbageCollectorMetric garbageCollectorMetric) {
+    public JvmGcMetricCollectorProvider(
+            ProfilerConfig profilerConfig,
+            Provider<MemoryMetric> memoryMetricProivider,
+            Provider<DetailedMemoryMetric> detailedMemoryMetricProvider,
+            Provider<GarbageCollectorMetric> garbageCollectorMetricProvider,
+            Provider<DetailedGarbageCollectorMetric> detailedGarbageCollectorMetricProvider) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        if (memoryMetric == null) {
-            throw new NullPointerException("memoryMetric must not be null");
+        if (memoryMetricProivider == null) {
+            throw new NullPointerException("memoryMetricProivider must not be null");
         }
-        if (garbageCollectorMetric == null) {
-            throw new NullPointerException("garbageCollectorMetric must not be null");
+        if (detailedMemoryMetricProvider == null) {
+            throw new NullPointerException("detailedMemoryMetricProvider must not be null");
         }
-        this.collectDetailedMetrics = profilerConfig.isProfilerJvmCollectDetailedMetrics();
-        this.memoryMetric = memoryMetric;
-        this.garbageCollectorMetric = garbageCollectorMetric;
+        if (garbageCollectorMetricProvider == null) {
+            throw new NullPointerException("garbageCollectorMetricProvider must not be null");
+        }
+        if (detailedGarbageCollectorMetricProvider == null) {
+            throw new NullPointerException("detailedGarbageCollectorMetricProvider must not be null");
+        }
+        this.collectDetailedMetrics = profilerConfig.isProfilerJvmStatCollectDetailedMetrics();
+        this.memoryMetricProivider = memoryMetricProivider;
+        this.detailedMemoryMetricProvider = detailedMemoryMetricProvider;
+        this.garbageCollectorMetricProvider = garbageCollectorMetricProvider;
+        this.detailedGarbageCollectorMetricProvider = detailedGarbageCollectorMetricProvider;
     }
 
     @Override
     public JvmGcMetricCollector get() {
-        JvmGcMetricCollector jvmGcMetricCollector;
-        JvmGcCommonMetricCollector jvmGcCommonMetricCollector = new JvmGcCommonMetricCollector(memoryMetric, garbageCollectorMetric);
+        MemoryMetric memoryMetric = memoryMetricProivider.get();
+        GarbageCollectorMetric garbageCollectorMetric = garbageCollectorMetricProvider.get();
+        JvmGcMetricCollector jvmGcMetricCollector = new BasicJvmGcMetricCollector(memoryMetric, garbageCollectorMetric);
         if (collectDetailedMetrics) {
-            jvmGcMetricCollector = new JvmGcDetailedMetricCollector(jvmGcCommonMetricCollector, memoryMetric, garbageCollectorMetric);
-        } else {
-            jvmGcMetricCollector = jvmGcCommonMetricCollector;
+            DetailedMemoryMetric detailedMemoryMetric = detailedMemoryMetricProvider.get();
+            DetailedGarbageCollectorMetric detailedGarbageCollectorMetric = detailedGarbageCollectorMetricProvider.get();
+            return new DetailedJvmGcMetricCollector(jvmGcMetricCollector, detailedMemoryMetric, detailedGarbageCollectorMetric);
         }
         return jvmGcMetricCollector;
     }

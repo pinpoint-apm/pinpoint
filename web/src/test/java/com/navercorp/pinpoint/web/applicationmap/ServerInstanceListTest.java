@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import org.junit.Assert;

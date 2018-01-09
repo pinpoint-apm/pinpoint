@@ -38,10 +38,14 @@ public class DefaultResponseTimeMetricCollector implements ResponseTimeMetricCol
     public TResponseTime collect() {
         ResponseTimeValue responseTimeValue = responseTimeMetric.responseTimeValue();
         long avg = responseTimeValue.getAvg();
+        long max = responseTimeValue.getMax();
 
         TResponseTime tResponseTime = new TResponseTime();
         if (avg != 0) {
             tResponseTime.setAvg(avg);
+        }
+        if (max != 0) {
+            tResponseTime.setMax(max);
         }
         return tResponseTime;
     }

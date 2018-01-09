@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Test;
 
 import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.lang.annotation.Target;
 
 import static org.junit.Assert.*;
 
@@ -42,15 +40,29 @@ public class ClassReaderWrapperTest {
 
     @Test
     public void annotation() throws Exception {
-        ClassReaderWrapper classReader = new ClassReaderWrapper(ClassLoaderUtils.getDefaultClassLoader(), JavaAssistUtils.javaNameToJvmName(AnnotationMock.class.getName()));
-        classReader.getAnnotationInternalNames().contains("java/lang/Deprecated");
-        classReader.getAnnotationInternalNames().contains("javax/annotation/Resource");
+        ClassReaderWrapper classReader = new ClassReaderWrapper(ClassLoaderUtils.getDefaultClassLoader(), JavaAssistUtils.javaNameToJvmName(AnnotationMock.class.getName()), true);
+        assertTrue(classReader.getAnnotationInternalNames().contains("java/lang/Deprecated"));
+        assertTrue(classReader.getAnnotationInternalNames().contains("javax/annotation/Resource"));
+    }
+
+    @Test
+    public void outerClass() throws Exception {
+        ClassReaderWrapper classReader = new ClassReaderWrapper(ClassLoaderUtils.getDefaultClassLoader(), JavaAssistUtils.javaNameToJvmName(InnterClassMock.class.getName()), true);
+        assertFalse(classReader.isInnerClass());
+
+        classReader = new ClassReaderWrapper(ClassLoaderUtils.getDefaultClassLoader(), JavaAssistUtils.javaNameToJvmName(InnterClassMock.class.getName() + "$1"), true);
+        assertTrue(classReader.isInnerClass());
+
+        classReader = new ClassReaderWrapper(ClassLoaderUtils.getDefaultClassLoader(), JavaAssistUtils.javaNameToJvmName(InnterClassMock.class.getName() + "$2"), true);
+        assertTrue(classReader.isInnerClass());
+
+        classReader = new ClassReaderWrapper(ClassLoaderUtils.getDefaultClassLoader(), JavaAssistUtils.javaNameToJvmName(InnterClassMock.class.getName() + "$3"), true);
+        assertTrue(classReader.isInnerClass());
     }
 
     private void assertClassReader(ClassReaderWrapper classReader) {
         assertEquals("java/lang/String", classReader.getClassInternalName());
         assertEquals("java/lang/Object", classReader.getSuperClassInternalName());
-        System.out.println(classReader.getInterfaceInternalNames());
         assertTrue(classReader.getInterfaceInternalNames().contains("java/lang/Comparable"));
         assertTrue(classReader.getInterfaceInternalNames().contains("java/io/Serializable"));
         classReader.getVersion();
@@ -63,4 +75,30 @@ public class ClassReaderWrapperTest {
     @Resource
     class AnnotationMock {
     }
+
+    class InnterClassMock {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+            }
+        };
+
+        public InnterClassMock() {
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                }
+            };
+        }
+
+        public void foo() {
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                }
+            };
+        }
+    }
+
+
 }

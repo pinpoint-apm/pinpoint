@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
@@ -33,40 +35,39 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 public class Span extends TSpan implements FrameAttachment {
     private boolean timeRecording = true;
     private Object frameObject;
-    
-    public Span() {
-    }
 
-    public void recordTraceId(final TraceId traceId) {
-        if (traceId == null) {
-            throw new NullPointerException("traceId must not be null");
-        }
-        final String agentId = this.getAgentId();
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
+    private final TraceRoot traceRoot;
 
-        final String transactionAgentId = traceId.getAgentId();
-        if (!agentId.equals(transactionAgentId)) {
-            this.setTransactionId(TransactionIdUtils.formatByteBuffer(transactionAgentId, traceId.getAgentStartTime(), traceId.getTransactionSequence()));
-        } else {
-            this.setTransactionId(TransactionIdUtils.formatByteBuffer(null, traceId.getAgentStartTime(), traceId.getTransactionSequence()));
+    public Span(final TraceRoot traceRoot) {
+        if (traceRoot == null) {
+            throw new NullPointerException("traceRoot must not be null");
         }
+        this.traceRoot = traceRoot;
 
+        final TraceId traceId = traceRoot.getTraceId();
         this.setSpanId(traceId.getSpanId());
         final long parentSpanId = traceId.getParentSpanId();
-        if (traceId.getParentSpanId() != SpanId.NULL) {
+        if (parentSpanId != SpanId.NULL) {
             this.setParentSpanId(parentSpanId);
         }
         this.setFlag(traceId.getFlags());
     }
 
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
+    }
+
     public void markBeforeTime() {
-        this.setStartTime(System.currentTimeMillis());
+        final long spanStartTime = traceRoot.getTraceStartTime();
+        this.setStartTime(spanStartTime);
     }
 
     public void markAfterTime() {
-        final int after = (int)(System.currentTimeMillis() - this.getStartTime());
+        markAfterTime(System.currentTimeMillis());
+    }
+
+    public void markAfterTime(long currentTime) {
+        final int after = (int)(currentTime - this.getStartTime());
 
         // TODO  have to change int to long
         if (after != 0) {
@@ -85,7 +86,7 @@ public class Span extends TSpan implements FrameAttachment {
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
-        if (StringUtils.isNotEmpty(exceptionMessage)) {
+        if (StringUtils.hasLength(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);
         }
         super.setExceptionInfo(exceptionInfo);
@@ -128,5 +129,18 @@ public class Span extends TSpan implements FrameAttachment {
         final Object delete = this.frameObject;
         this.frameObject = null;
         return delete;
+    }
+
+    public void finish() {
+        // snapshot last image
+        final Shared shared = traceRoot.getShared();
+        final int errorCode = shared.getErrorCode();
+        this.setErrCode(errorCode);
+        if (shared.getStatusCode() != 0) {
+            this.addAnnotation(new Annotation(AnnotationKey.HTTP_STATUS_CODE.getCode(), shared.getStatusCode()));
+        }
+
+        final byte loggingInfo = shared.getLoggingInfo();
+        this.setLoggingTransactionInfo(loggingInfo);
     }
 }

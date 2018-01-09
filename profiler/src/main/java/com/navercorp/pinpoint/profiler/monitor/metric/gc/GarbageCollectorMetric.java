@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.gc;
 
-import com.codahale.metrics.Gauge;
-import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 
 /**
@@ -25,15 +23,9 @@ import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
  */
 public interface GarbageCollectorMetric {
 
-    Gauge<Long> EMPTY_LONG_GAUGE = new MetricMonitorValues.EmptyGauge<Long>(-1L);
+    long UNCOLLECTED_VALUE = -1L;
 
-    TJvmGcType gcType();
+    TJvmGcType getGcType();
 
-    Long gcOldCount();
-
-    Long gcOldTime();
-
-    Long gcNewCount();
-
-    Long gcNewTime();
+    GarbageCollectorMetricSnapshot getSnapshot();
 }

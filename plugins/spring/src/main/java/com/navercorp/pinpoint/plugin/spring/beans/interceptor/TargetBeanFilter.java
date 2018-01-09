@@ -74,7 +74,7 @@ public class TargetBeanFilter {
             boolean condition = false;
             // check base packages.
             final List<String> basePackages = target.getBasePackages();
-            if (CollectionUtils.isNotEmpty(basePackages)) {
+            if (CollectionUtils.hasLength(basePackages)) {
                 if (!isBasePackage(target, className)) {
                     continue;
                 }
@@ -83,7 +83,7 @@ public class TargetBeanFilter {
 
             // check bean name pattern.
             final List<PathMatcher> namePatterns = target.getNamePatterns();
-            if (CollectionUtils.isNotEmpty(namePatterns)) {
+            if (CollectionUtils.hasLength(namePatterns)) {
                 if (!isBeanNameTarget(target, beanName)) {
                     continue;
                 }
@@ -92,7 +92,7 @@ public class TargetBeanFilter {
 
             // check class name pattern.
             final List<PathMatcher> classPatterns = target.getClassPatterns();
-            if (CollectionUtils.isNotEmpty(classPatterns)) {
+            if (CollectionUtils.hasLength(classPatterns)) {
                 if (!isClassNameTarget(target, className)) {
                     continue;
                 }
@@ -101,7 +101,7 @@ public class TargetBeanFilter {
 
             // check class annotation.
             final List<String> annotations = target.getAnnotations();
-            if (CollectionUtils.isNotEmpty(annotations)) {
+            if (CollectionUtils.hasLength(annotations)) {
                 if (!(beanDefinition instanceof AnnotatedBeanDefinition) || !isAnnotationTarget(target, (AnnotatedBeanDefinition) beanDefinition)) {
                     continue;
                 }
@@ -140,7 +140,7 @@ public class TargetBeanFilter {
             boolean condition = false;
             // check base packages.
             final List<String> basePackages = target.getBasePackages();
-            if (CollectionUtils.isNotEmpty(basePackages)) {
+            if (CollectionUtils.hasLength(basePackages)) {
                 if (!isBasePackage(target, className)) {
                     continue;
                 }
@@ -149,7 +149,7 @@ public class TargetBeanFilter {
 
             // check bean name pattern.
             final List<PathMatcher> namePatterns = target.getNamePatterns();
-            if (CollectionUtils.isNotEmpty(namePatterns)) {
+            if (CollectionUtils.hasLength(namePatterns)) {
                 if (!isBeanNameTarget(target, beanName)) {
                     continue;
                 }
@@ -158,7 +158,7 @@ public class TargetBeanFilter {
 
             // check class name pattern.
             final List<PathMatcher> classPatterns = target.getClassPatterns();
-            if (CollectionUtils.isNotEmpty(classPatterns)) {
+            if (CollectionUtils.hasLength(classPatterns)) {
                 if (!isClassNameTarget(target, className)) {
                     continue;
                 }
@@ -167,7 +167,7 @@ public class TargetBeanFilter {
 
             // check class annotation.
             final List<String> annotations = target.getAnnotations();
-            if (CollectionUtils.isNotEmpty(annotations)) {
+            if (CollectionUtils.hasLength(annotations)) {
                 if (!isAnnotationTarget(target, clazz)) {
                     continue;
                 }

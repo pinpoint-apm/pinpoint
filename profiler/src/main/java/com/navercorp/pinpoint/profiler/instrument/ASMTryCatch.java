@@ -68,7 +68,7 @@ public class ASMTryCatch {
         });
 
         // Updates the 'target' of each try catch block annotation.
-        for (int i = 0; i < this.methodNode.tryCatchBlocks.size(); ++i) {
+        for (int i = 0; i < this.methodNode.tryCatchBlocks.size(); i++) {
             this.methodNode.tryCatchBlocks.get(i).updateIndex(i);
         }
     }

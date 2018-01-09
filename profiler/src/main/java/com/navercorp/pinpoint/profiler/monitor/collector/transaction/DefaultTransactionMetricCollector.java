@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.monitor.collector.transaction;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 import com.navercorp.pinpoint.thrift.dto.TTransaction;
 
 /**
@@ -35,10 +36,11 @@ public class DefaultTransactionMetricCollector implements TransactionMetricColle
     @Override
     public TTransaction collect() {
         TTransaction transaction = new TTransaction();
-        transaction.setSampledNewCount(transactionMetric.sampledNew());
-        transaction.setSampledContinuationCount(transactionMetric.sampledContinuation());
-        transaction.setUnsampledNewCount(transactionMetric.unsampledNew());
-        transaction.setUnsampledContinuationCount(transactionMetric.unsampledContinuation());
+        TransactionMetricSnapshot transactionMetricSnapshot = transactionMetric.getSnapshot();
+        transaction.setSampledNewCount(transactionMetricSnapshot.getSampledNewCount());
+        transaction.setSampledContinuationCount(transactionMetricSnapshot.getSampledContinuationCount());
+        transaction.setUnsampledNewCount(transactionMetricSnapshot.getUnsampledNewCount());
+        transaction.setUnsampledContinuationCount(transactionMetricSnapshot.getUnsampledContinuationCount());
         return transaction;
     }
 

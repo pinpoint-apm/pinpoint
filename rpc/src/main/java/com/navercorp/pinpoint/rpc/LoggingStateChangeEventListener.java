@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class LoggingStateChangeEventListener implements StateChangeEventListener<PinpointSocket> {
 

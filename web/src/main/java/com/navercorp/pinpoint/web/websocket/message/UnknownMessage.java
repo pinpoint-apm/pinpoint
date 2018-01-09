@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.web.websocket.message;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
-public class UnknownMessage extends AbstractPinpointWebSocketMessage {
+public class UnknownMessage implements PinpointWebSocketMessage {
 
     public UnknownMessage() {
     }

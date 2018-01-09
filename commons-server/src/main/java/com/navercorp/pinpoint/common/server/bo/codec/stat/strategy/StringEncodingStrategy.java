@@ -28,7 +28,9 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -39,6 +41,8 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
     ALWAYS_SAME_VALUE(new StringAlwaysSameValueEncodingStrategy(StringTypedBufferHandler.VARIABLE_HANDLER));
 
     private final EncodingStrategy<String> delegate;
+
+    private static final Set<StringEncodingStrategy> STRING_ENCODING_STRATEGY = EnumSet.allOf(StringEncodingStrategy.class);
 
     StringEncodingStrategy(EncodingStrategy<String> delegate) {
         this.delegate = delegate;
@@ -60,7 +64,7 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
     }
 
     public static StringEncodingStrategy getFromCode(int code) {
-        for (StringEncodingStrategy encodingStrategy : StringEncodingStrategy.values()) {
+        for (StringEncodingStrategy encodingStrategy : STRING_ENCODING_STRATEGY) {
             if (encodingStrategy.getCode() == (code & 0xFF)) {
                 return encodingStrategy;
             }
