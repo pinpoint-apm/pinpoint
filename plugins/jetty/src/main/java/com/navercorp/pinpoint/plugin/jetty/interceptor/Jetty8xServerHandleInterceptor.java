@@ -39,7 +39,7 @@ public class Jetty8xServerHandleInterceptor extends AbstractServerHandleIntercep
     }
 
     @Override
-    protected Request getRequest(Object[] args) {
+    protected Request getRequest(final Object[] args) {
         if (args == null || args.length < 1) {
             return null;
         }
@@ -52,5 +52,13 @@ public class Jetty8xServerHandleInterceptor extends AbstractServerHandleIntercep
             }
         }
         return null;
+    }
+
+    @Override
+    String getHeader(final Request request, final String name) {
+        if (request == null) {
+            return null;
+        }
+        return request.getHeader(name);
     }
 }

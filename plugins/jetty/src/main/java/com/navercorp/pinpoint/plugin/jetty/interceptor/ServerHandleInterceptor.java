@@ -34,7 +34,7 @@ public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
     }
 
     @Override
-    protected Request getRequest(Object[] args) {
+    protected Request getRequest(final Object[] args) {
         if (args == null || args.length < 1) {
             return null;
         }
@@ -44,5 +44,13 @@ public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
             return channel.getRequest();
         }
         return null;
+    }
+
+    @Override
+    String getHeader(final Request request, final String name) {
+        if (request == null || request.getHttpFields() == null) {
+            return null;
+        }
+        return request.getHttpFields().get(name);
     }
 }
