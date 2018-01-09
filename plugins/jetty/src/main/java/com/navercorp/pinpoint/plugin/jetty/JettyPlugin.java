@@ -46,11 +46,29 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         // 8.0 <= x <= 9.4
         logger.info("Enable JettyPlugin. version range=[8.0, 9.4]");
         context.addApplicationTypeDetector(new JettyDetector(config.getJettyBootstrapMains()));
+        if (config.isHidePinpointHeader()) {
+            requestAspect();
+        }
         addServerInterceptor(config);
     }
 
-    private void addServerInterceptor(final JettyConfiguration config){
-        transformTemplate.transform("org.eclipse.jetty.server.Server",  new TransformCallback() {
+    private void requestAspect() {
+        transformTemplate.transform("org.eclipse.jetty.server.Request", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                if (target != null && target.getDeclaredMethod("getHttpFields") != null) {
+                    // 9.x
+                    target.weave("com.navercorp.pinpoint.plugin.jetty.aspect.RequestAspect");
+                    return target.toBytecode();
+                }
+                return null;
+            }
+        });
+    }
+
+    private void addServerInterceptor(final JettyConfiguration config) {
+        transformTemplate.transform("org.eclipse.jetty.server.Server", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);

@@ -26,6 +26,7 @@ public class JettyConfiguration {
     private final boolean jettyEnabled;
     private final List<String> jettyBootstrapMains;
     private final Filter<String> jettyExcludeUrlFilter;
+    private final boolean hidePinpointHeader;
 
     public JettyConfiguration(ProfilerConfig config) {
         this.jettyEnabled = config.readBoolean("profiler.jetty.enable", true);
@@ -34,9 +35,14 @@ public class JettyConfiguration {
 
         if (!jettyExcludeURL.isEmpty()) {
             this.jettyExcludeUrlFilter = new ExcludePathFilter(jettyExcludeURL);
-        } else{
-            this.jettyExcludeUrlFilter = new  SkipFilter<String>();
+        } else {
+            this.jettyExcludeUrlFilter = new SkipFilter<String>();
         }
+        boolean hidePinpointHeader = config.readBoolean("profiler.jetty.hide-pinpoint-header", true);
+        if (hidePinpointHeader) {
+            hidePinpointHeader = config.readBoolean("profiler.jetty.hidepinpointheader", true);
+        }
+        this.hidePinpointHeader = hidePinpointHeader;
     }
 
     public boolean isJettyEnabled() {
@@ -49,5 +55,9 @@ public class JettyConfiguration {
 
     public Filter<String> getJettyExcludeUrlFilter() {
         return jettyExcludeUrlFilter;
+    }
+
+    public boolean isHidePinpointHeader() {
+        return hidePinpointHeader;
     }
 }
