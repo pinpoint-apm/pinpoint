@@ -27,6 +27,7 @@ public class ResponseTimeBo implements AgentStatDataPoint {
     private long startTimestamp;
     private long timestamp;
     private long avg = 0;
+    private long max = 0;
 
     @Override
     public String getAgentId() {
@@ -71,6 +72,14 @@ public class ResponseTimeBo implements AgentStatDataPoint {
         this.avg = avg;
     }
 
+    public long getMax() {
+        return max;
+    }
+
+    public void setMax(long max) {
+        this.max = max;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -81,6 +90,7 @@ public class ResponseTimeBo implements AgentStatDataPoint {
         if (startTimestamp != that.startTimestamp) return false;
         if (timestamp != that.timestamp) return false;
         if (avg != that.avg) return false;
+        if (max != that.max) return false;
         return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
 
     }
@@ -91,6 +101,7 @@ public class ResponseTimeBo implements AgentStatDataPoint {
         result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + (int) (avg ^ (avg >>> 32));
+        result = 31 * result + (int) (max ^ (max >>> 32));
         return result;
     }
 

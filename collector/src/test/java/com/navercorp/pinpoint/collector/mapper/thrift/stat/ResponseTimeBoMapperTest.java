@@ -25,12 +25,16 @@ import org.junit.Assert;
  */
 public class ResponseTimeBoMapperTest extends ThriftBoMapperTestBase<TResponseTime, ResponseTimeBo> {
 
-    private static final long MAX_AVG = Long.MAX_VALUE;
+    private static final long MAX_AVG = Long.MAX_VALUE - 100;
 
     @Override
     protected TResponseTime create() {
         TResponseTime responseTime = new TResponseTime();
-        responseTime.setAvg(getRandomLong(0, MAX_AVG));
+        long randomAvg = getRandomLong(0, MAX_AVG);
+        responseTime.setAvg(randomAvg);
+
+        long randomAdditionalMax = getRandomLong(0, 100);
+        responseTime.setMax(randomAvg + randomAdditionalMax);
         return responseTime;
     }
 
@@ -43,6 +47,7 @@ public class ResponseTimeBoMapperTest extends ThriftBoMapperTestBase<TResponseTi
     @Override
     protected void verify(TResponseTime original, ResponseTimeBo mappedStatDataPoint) {
         Assert.assertEquals("avg", original.getAvg(), mappedStatDataPoint.getAvg());
+        Assert.assertEquals("max", original.getMax(), mappedStatDataPoint.getMax());
     }
 
 }

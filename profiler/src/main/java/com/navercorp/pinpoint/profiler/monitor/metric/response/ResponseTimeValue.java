@@ -23,6 +23,8 @@ public interface ResponseTimeValue {
 
     long getAvg();
 
+    long getMax();
+
     long getTotal();
 
     long getTransactionCount();
