@@ -33,6 +33,7 @@ public class SpanAlign {
     private final SpanEventBo spanEventBo;
     private final boolean span;
     private final boolean hasChild;
+    private final boolean meta;
 
     private int id;
     private long gap;
@@ -40,6 +41,10 @@ public class SpanAlign {
     private long executionMilliseconds;
 
     public SpanAlign(SpanBo spanBo) {
+        this(spanBo, false);
+    }
+
+    public SpanAlign(SpanBo spanBo, boolean meta) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
@@ -52,6 +57,7 @@ public class SpanAlign {
         } else {
             this.hasChild = true;
         }
+        this.meta = meta;
     }
 
     public SpanAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
@@ -65,6 +71,11 @@ public class SpanAlign {
         this.spanEventBo = spanEventBo;
         this.span = false;
         this.hasChild = false;
+        this.meta = false;
+    }
+
+    public boolean isMeta() {
+        return meta;
     }
 
     public boolean isSpan() {
@@ -164,10 +175,17 @@ public class SpanAlign {
     }
 
     public String getAgentId() {
+        if(isMeta()) {
+            return " ";
+        }
+
         return spanBo.getAgentId();
     }
 
     public String getApplicationId() {
+        if(isMeta()) {
+            return " ";
+        }
         return spanBo.getApplicationId();
     }
 
@@ -185,11 +203,11 @@ public class SpanAlign {
     public String getTransactionId() {
         return TransactionIdUtils.formatString(spanBo.getTransactionId());
     }
-    
+
     public long getSpanId() {
         return spanBo.getSpanId();
     }
-    
+
     public boolean hasException() {
         if (isSpan()) {
             return spanBo.hasException();
@@ -218,20 +236,20 @@ public class SpanAlign {
             spanEventBo.setExceptionClass(exceptionClass);
         }
     }
-    
+
     public String getExceptionMessage() {
         if (isSpan()) {
             return spanBo.getExceptionMessage();
         }
-        
+
         return spanEventBo.getExceptionMessage();
     }
-    
+
     public String getRemoteAddr() {
         if (isSpan()) {
             return spanBo.getRemoteAddr();
         }
-        
+
         return null;
     }
 
@@ -257,15 +275,15 @@ public class SpanAlign {
             spanEventBo.setAnnotationBoList(annotationBoList);
         }
     }
-    
+
     public String getDestinationId() {
         if (isSpan()) {
             return null;
         }
-        
+
         return spanEventBo.getDestinationId();
     }
-    
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

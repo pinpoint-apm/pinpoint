@@ -81,11 +81,17 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         index++;
 
         final SpanAlign align = node.getValue();
-        align.setGap(getGap());
-        align.setDepth(node.getDepth());
-        align.setExecutionMilliseconds(getExecutionTime());
-    }
+        if(align.isMeta()) {
+            align.setGap(0);
+            align.setDepth(node.getDepth());
+            align.setExecutionMilliseconds(0);
+        } else {
+            align.setGap(getGap());
+            align.setDepth(node.getDepth());
+            align.setExecutionMilliseconds(getExecutionTime());
+        }
 
+    }
 
     public long getGap() {
         final CallTreeNode current = getCurrent();
