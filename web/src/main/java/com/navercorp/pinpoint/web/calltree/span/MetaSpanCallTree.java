@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,36 +17,24 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 /**
- *
  * @author jaehong.kim
- *
  */
-public class SpanAsyncCallTree extends SpanCallTree {
+public class MetaSpanCallTree extends SpanCallTree {
 
-    public SpanAsyncCallTree(final SpanAlign spanAlign) {
+    public MetaSpanCallTree(SpanAlign spanAlign) {
         super(spanAlign);
     }
 
     @Override
-    public CallTreeNode getRoot() {
-        if (!super.getRoot().hasChild()) {
-            return null;
+    public void add(final CallTree tree) {
+        final CallTreeNode node = tree.getRoot();
+        if (node == null) {
+            // skip
+            return;
         }
-
-        return super.getRoot().getChild();
-    }
-
-    @Override
-    public CallTreeIterator iterator() {
-        return new CallTreeIterator(getRoot());
-    }
-
-    @Override
-    public boolean isEmpty() {
-        CallTreeNode root = getRoot();
-        if (root == null) {
-            return true;
-        }
-        return root.getValue() == null;
+        // increase elapsed time
+        final int elapsedTime = getRoot().getValue().getSpanBo().getElapsed() + node.getValue().getSpanBo().getElapsed();
+        getRoot().getValue().getSpanBo().setElapsed(elapsedTime);
+        super.add(tree);
     }
 }

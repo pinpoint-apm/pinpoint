@@ -13,6 +13,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 public class SpanAsyncEventMap {
 
     final Map<Integer, Map<Short, List<SpanEventBo>>> map = new HashMap<>();
+    int size = 0;
 
     public boolean add(final SpanEventBo spanEvent) {
         if (!spanEvent.isAsync()) {
@@ -36,6 +37,7 @@ public class SpanAsyncEventMap {
             list.add(spanEvent);
         }
 
+        this.size++;
         return true;
     }
 
@@ -58,5 +60,9 @@ public class SpanAsyncEventMap {
         }
 
         return Collections.emptyList();
+    }
+
+    public int size() {
+        return size;
     }
 }
