@@ -240,7 +240,7 @@
 
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.AgentBaseDataReceiver" >
         <constructor-arg type="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration" ref="baseDataReceiverConfig"/>
-        <constructor-arg value="ignoreIpFilter"/>
+        <constructor-arg ref="ignoreIpFilter"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandlerWrapper"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
     </bean>
@@ -257,13 +257,13 @@
 
     <bean id="spanReceiver" class="com.navercorp.pinpoint.collector.receiver.SpanReceiver">
         <constructor-arg index="0" ref="spanReceiverConfig" />
-        <constructor-arg index="1" value="ignoreIpFilter"/>
+        <constructor-arg index="1" ref="ignoreIpFilter"/>
         <constructor-arg index="2" ref="spanDispatchHandlerWrapper"/>
     </bean>
 
     <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.StatReceiver" >
         <constructor-arg index="0" ref="statReceiverConfig" />
-        <constructor-arg index="1" value="ignoreIpFilter"/>
+        <constructor-arg index="1" ref="ignoreIpFilter"/>
         <constructor-arg index="2"  ref="statDispatchHandlerWrapper"/>
     </bean>
 
