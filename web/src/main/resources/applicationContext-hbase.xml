@@ -63,6 +63,10 @@
 
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
 
+    <bean id="tableNameProvider" class="com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider">
+        <constructor-arg index="0" value="${hbase.namespace:}"/>
+    </bean>
+
     <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg ref="applicationTraceIndex"/>
     </bean>
