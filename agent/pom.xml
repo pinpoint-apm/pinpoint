@@ -179,6 +179,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbo</artifactId>
+            <version>${dubbo.version}</version>
             <scope>test</scope>
         </dependency>
 
