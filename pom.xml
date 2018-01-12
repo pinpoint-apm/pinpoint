@@ -87,6 +87,7 @@
         <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <sniffer.artifactid>java16</sniffer.artifactid>
+        <dubbo.version>2.5.3</dubbo.version>
     </properties>
 
     <dependencies>
@@ -702,13 +703,6 @@
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
                 <version>4.1.0</version>
-            </dependency>
-
-
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>dubbo</artifactId>
-                <version>2.5.3</version>
             </dependency>
 
             <dependency>
