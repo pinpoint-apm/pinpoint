@@ -55,16 +55,25 @@
         </property>
     </bean>
 
+    <bean id="hbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean">
+        <property name="corePoolSize" value="${hbase.client.thread.max}"/>
+        <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
+        <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-HConnectionExecutor-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
+    </bean>
+
     <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
         <constructor-arg ref="hbaseConfiguration"/>
-        <constructor-arg value="${hbase.client.thread.max}"/>
-        <constructor-arg value="${hbase.client.threadPool.queueSize}"/>
-        <constructor-arg value="${hbase.client.threadPool.prestart}"/>
+        <constructor-arg ref="hbaseThreadPool"/>
     </bean>
 
     <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
-        <constructor-arg value="#{connectionFactory.getConnection()}"/>
-        <constructor-arg ref="hbaseConfiguration"/>
+        <constructor-arg type="org.apache.hadoop.hbase.client.Connection" value="#{connectionFactory.getConnection()}"/>
+        <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
     </bean>
 
     <bean id="asyncOperationMetrics" class="com.navercorp.pinpoint.collector.monitor.HBaseAsyncOperationMetrics">
