@@ -22,7 +22,6 @@ import java.util.Map;
  * @author Jinkai.Ma
  * @author Jiaqi Feng
  */
-@Scope(value = RabbitMQConstants.RABBITMQ_SCOPE)
 public class RabbitMQPublishInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
