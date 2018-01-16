@@ -8,18 +8,19 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
 
 /**
  * @author Jinkai.Ma
  */
 public interface RabbitMQConstants {
-    ServiceType RABBITMQ_SERVICE_TYPE = ServiceTypeFactory.of(8300, "RABBITMQ", TERMINAL, RECORD_STATISTICS);
+    ServiceType RABBITMQ_SERVICE_TYPE = ServiceTypeFactory.of(8300, "RABBITMQ", QUEUE, RECORD_STATISTICS);
     String RABBITMQ_SCOPE = "rabbitmqScope";
 
-    AnnotationKey RABBITMQ_EXCHANGE_ANNOTATION_KEY = AnnotationKeyFactory.of(100, "rabbitmq.exchange", VIEW_IN_RECORD_SET);
-    AnnotationKey RABBITMQ_ROUTINGKEY_ANNOTATION_KEY = AnnotationKeyFactory.of(101, "rabbitmq.routingkey", VIEW_IN_RECORD_SET);
-    AnnotationKey RABBITMQ_PROPERTIES_ANNOTATION_KEY = AnnotationKeyFactory.of(102, "rabbitmq.properties");
-    AnnotationKey RABBITMQ_BODY_ANNOTATION_KEY = AnnotationKeyFactory.of(103, "rabbitmq.body");
+    AnnotationKey RABBITMQ_EXCHANGE_ANNOTATION_KEY = AnnotationKeyFactory.of(130, "rabbitmq.exchange", VIEW_IN_RECORD_SET);
+    AnnotationKey RABBITMQ_ROUTINGKEY_ANNOTATION_KEY = AnnotationKeyFactory.of(131, "rabbitmq.routingkey", VIEW_IN_RECORD_SET);
+    AnnotationKey RABBITMQ_PROPERTIES_ANNOTATION_KEY = AnnotationKeyFactory.of(132, "rabbitmq.properties");
+    AnnotationKey RABBITMQ_BODY_ANNOTATION_KEY = AnnotationKeyFactory.of(133, "rabbitmq.body");
 
     String META_DO_NOT_TRACE = "_RABBITMQ_DO_NOT_TRACE";
     String META_TRANSACTION_ID = "_RABBITMQ_TRASACTION_ID";
