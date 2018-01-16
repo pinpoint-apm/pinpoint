@@ -14,6 +14,7 @@ import java.security.ProtectionDomain;
 
 /**
  * @author Jinkai.Ma
+ * @author Jiaqi Feng
  */
 public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -24,8 +25,18 @@ public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        this.addPublisher();
-//        this.addConsumer();
+        RabbitMQClientPluginConfig config = new RabbitMQClientPluginConfig(context.getConfig());
+        if (!config.isTraceRabbitMQClient()) {
+            return;
+        }
+        if (config.isTraceRabbitMQClientConsumer() || config.isTraceRabbitMQClientProducer()) {
+            if (config.isTraceRabbitMQClientProducer()) {
+                addPublisher();
+            }
+            if (config.isTraceRabbitMQClientConsumer()) {
+                addConsumer();
+            }
+        }
     }
 
     private void addPublisher() {
