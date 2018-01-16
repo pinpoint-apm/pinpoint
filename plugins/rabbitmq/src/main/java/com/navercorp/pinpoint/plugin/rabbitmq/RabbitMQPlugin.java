@@ -47,7 +47,7 @@ public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 final InstrumentMethod method = target.getDeclaredMethod("basicPublish", "java.lang.String", "java.lang.String", "boolean", "boolean", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
                 if (method != null) {
-                    method.addInterceptor(PUBLISHER_INTERCEPTOR_FQCN);
+                    method.addScopedInterceptor(PUBLISHER_INTERCEPTOR_FQCN, RabbitMQConstants.RABBITMQ_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -60,7 +60,7 @@ public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 final InstrumentMethod method = target.getDeclaredMethod("basicPublish", "java.lang.String", "java.lang.String", "boolean", "boolean", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
                 if (method != null) {
-                    method.addInterceptor(PUBLISHER_INTERCEPTOR_FQCN);
+                    method.addScopedInterceptor(PUBLISHER_INTERCEPTOR_FQCN, RabbitMQConstants.RABBITMQ_SCOPE);
                 }
 
                 return target.toBytecode();
