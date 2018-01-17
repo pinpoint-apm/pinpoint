@@ -88,6 +88,7 @@
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <sniffer.artifactid>java16</sniffer.artifactid>
         <dubbo.version>2.5.3</dubbo.version>
+        <asm.version>6.0</asm.version>
     </properties>
 
     <dependencies>
@@ -586,8 +587,28 @@
 
             <dependency>
                 <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-debug-all</artifactId>
-                <version>5.2</version>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-commons</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-util</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-tree</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-analysis</artifactId>
+                <version>${asm.version}</version>
             </dependency>
 
             <dependency>
@@ -952,7 +973,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.15</version>
+                <version>1.16</version>
                 <configuration>
                     <signature>
                         <groupId>org.codehaus.mojo.signature</groupId>
