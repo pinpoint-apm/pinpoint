@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.config.DeprecatedConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
@@ -31,6 +32,7 @@ import org.springframework.util.SocketUtils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 /**
  * @author emeroad
@@ -40,7 +42,8 @@ public class TCPReceiverTest {
 
     @Test
     public void server() throws InterruptedException {
-        AgentBaseDataReceiver tcpReceiver = new AgentBaseDataReceiver(createConfiguration(), AddressFilter.ALL, new DispatchHandler() {
+        Executor executor = MoreExecutors.directExecutor();
+        AgentBaseDataReceiver tcpReceiver = new AgentBaseDataReceiver(createConfiguration(), executor, AddressFilter.ALL, new DispatchHandler() {
 
             @Override
             public void dispatchSendMessage(TBase<?, ?> tBase) {
@@ -61,17 +64,17 @@ public class TCPReceiverTest {
 
     @Test
     public void l4ip() throws UnknownHostException {
-        InetAddress byName = InetAddress.getByName("10.118.202.30");
+        InetAddress byName = InetAddress.getByName("10.12.13.10");
         logger.debug("byName:{}", byName);
     }
 
     @Test
     public void l4ipList() throws UnknownHostException {
-        String two = "10.118.202.30,10.118.202.31";
+        String two = "10.12.13.10,10.12.13.20";
         String[] split = two.split(",");
         Assert.assertEquals(split.length, 2);
 
-        String twoEmpty = "10.118.202.30,";
+        String twoEmpty = "10.12.13.10,";
         String[] splitEmpty = twoEmpty.split(",");
         Assert.assertEquals(splitEmpty.length, 1);
 

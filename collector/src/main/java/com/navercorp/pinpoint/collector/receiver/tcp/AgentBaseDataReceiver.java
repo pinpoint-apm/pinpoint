@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
-import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
-import com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption;
 import com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler;
@@ -44,7 +41,6 @@ import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -53,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * @author emeroad
@@ -69,10 +66,7 @@ public class AgentBaseDataReceiver {
 
     private final ZookeeperClusterService clusterService;
 
-    @Autowired
-    private MetricRegistry metricRegistry;
-
-    private DispatchWorker worker;
+    private final Executor executor;
 
     private final SendPacketHandler sendPacketHandler;
     private final RequestPacketHandler requestPacketHandler;
@@ -87,19 +81,16 @@ public class AgentBaseDataReceiver {
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, AddressFilter addressFilter, DispatchHandler dispatchHandler) {
-        this(configuration, addressFilter, dispatchHandler, null);
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, AddressFilter addressFilter, DispatchHandler dispatchHandler) {
+        this(configuration, executor, addressFilter, dispatchHandler, null);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, AddressFilter addressFilter, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
-        Assert.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, AddressFilter addressFilter, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
         this.configuration = Assert.requireNonNull(configuration, "config must not be null");
-
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
         this.addressFilter = Objects.requireNonNull(addressFilter, "addressFilter must not be null");
 
-        DispatchWorkerOption dispatchWorkerOption = new DispatchWorkerOption("Pinpoint-AgentBaseDataReceiver-Worker", configuration.getWorkerThreadSize(), configuration.getWorkerQueueSize(), 1, configuration.isWorkerMonitorEnable());
-        this.worker =  new DispatchWorker(dispatchWorkerOption);
-
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
         this.sendPacketHandler = new SendPacketHandler(dispatchHandler);
         this.requestPacketHandler = new RequestPacketHandler(dispatchHandler);
 
@@ -114,9 +105,6 @@ public class AgentBaseDataReceiver {
         ChannelFilter connectedFilter = new AddressFilterAdaptor(addressFilter);
         PinpointServerAcceptor acceptor = new PinpointServerAcceptor(connectedFilter);
         prepare(acceptor);
-
-        worker.setMetricRegistry(metricRegistry);
-        worker.start();
 
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
@@ -176,7 +164,7 @@ public class AgentBaseDataReceiver {
     }
 
     private void receive(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-        worker.execute(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 sendPacketHandler.handle(sendPacket, pinpointSocket);
@@ -185,7 +173,7 @@ public class AgentBaseDataReceiver {
     }
 
     private void requestResponse(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-        worker.execute(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 requestPacketHandler.handle(requestPacket, pinpointSocket);
@@ -216,9 +204,6 @@ public class AgentBaseDataReceiver {
             serverAcceptor.close();
         }
 
-        if (worker != null) {
-            worker.shutdown();
-        }
 
         if (logger.isInfoEnabled()) {
             logger.info("stop() completed");

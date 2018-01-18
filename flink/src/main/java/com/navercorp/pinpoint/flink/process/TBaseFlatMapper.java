@@ -34,16 +34,16 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class TbaseFlatMapper extends RichFlatMapFunction<TBase, Tuple3<String, JoinStatBo, Long>> {
+public class TBaseFlatMapper extends RichFlatMapFunction<TBase, Tuple3<String, JoinStatBo, Long>> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private transient JoinAgentStatBoMapper joinAgentStatBoMapper;
     private transient ApplicationCache applicationCache;
 
-    public TbaseFlatMapper() {
+    public TBaseFlatMapper() {
     }
 
-    public TbaseFlatMapper(JoinAgentStatBoMapper joinAgentStatBoMapper, ApplicationCache applicationCache) {
+    public TBaseFlatMapper(JoinAgentStatBoMapper joinAgentStatBoMapper, ApplicationCache applicationCache) {
         this.joinAgentStatBoMapper = joinAgentStatBoMapper;
         this.applicationCache = applicationCache;
     }

@@ -19,10 +19,11 @@ package com.navercorp.pinpoint.collector.receiver;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
 import com.navercorp.pinpoint.thrift.dto.TResult;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -33,14 +34,11 @@ public class DispatchHandlerWrapper implements DispatchHandler {
     
     private final DispatchHandler delegate;
 
-    @Autowired
-    private HandlerManager handlerManager;
+    private final HandlerManager handlerManager;
 
-    public DispatchHandlerWrapper(DispatchHandler dispatchHandler) {
-        if (dispatchHandler == null) {
-            throw new NullPointerException("dispatchHandler may note be null.");
-        }
-        this.delegate = dispatchHandler;
+    public DispatchHandlerWrapper(DispatchHandler delegate, HandlerManager handlerManager) {
+        this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
+        this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager must not be null");
     }
 
     @Override
@@ -51,7 +49,6 @@ public class DispatchHandlerWrapper implements DispatchHandler {
         }
 
         logger.debug("Handler is disabled. Skipping send message {}.", tBase);
-        return;
     }
 
     @Override
@@ -68,10 +65,6 @@ public class DispatchHandlerWrapper implements DispatchHandler {
     }
     
     private boolean checkAvailable() {
-        if (handlerManager == null) {
-            return true;
-        }
-        
         if (handlerManager.isEnable()) {
             return true;
         }

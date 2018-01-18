@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:beans="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
@@ -47,8 +46,8 @@
     </bean>
 
     <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
-        <constructor-arg ref="hbaseConfiguration"/>
-        <constructor-arg ref="hbaseThreadPool"/>
+        <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
+        <constructor-arg type="java.util.concurrent.ExecutorService" ref="hbaseThreadPool"/>
     </bean>
 
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
@@ -69,7 +68,7 @@
     </bean>
 
     <bean id="hBaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">
-        <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
+        <constructor-arg ref="hbaseConfiguration" index="0"/>
     </bean>
 
     <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
@@ -77,9 +76,7 @@
     </bean>
 
     <bean id="applicationTraceIndex" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
-        <constructor-arg>
-            <value type="int">32</value>
-        </constructor-arg>
+        <constructor-arg type="int" value="32"/>
     </bean>
 
     <bean id="traceV2Distributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">

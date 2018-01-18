@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.collector.TestAwaitUtils;
 import com.navercorp.pinpoint.collector.receiver.AbstractDispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DataReceiver;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -46,9 +46,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import static org.mockito.Mockito.mock;
 
@@ -58,7 +61,7 @@ import static org.mockito.Mockito.mock;
 public class SpanStreamUDPSenderTest {
 
     private static MessageHolderDispatchHandler messageHolder;
-    private static DataReceiver receiver = null;
+    private static UDPReceiver receiver = null;
 
     private static int port;
 
@@ -68,13 +71,13 @@ public class SpanStreamUDPSenderTest {
     public static void setUp() throws IOException {
         port = SocketUtils.findAvailableUdpPort(21111);
 
-        try {
-            messageHolder = new MessageHolderDispatchHandler();
-            receiver = new TestUDPReceiver("test", new SpanStreamUDPPacketHandlerFactory<>(messageHolder, new TestTBaseFilter()), "127.0.0.1",
-                    port, 1024, 1, 10);
-            receiver.start();
-        } catch (Exception ignored) {
-        }
+        messageHolder = new MessageHolderDispatchHandler();
+
+        Executor executor = MoreExecutors.directExecutor();
+        InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", port);
+        PacketHandlerFactory<DatagramPacket> packetHandlerFactory = new SpanStreamUDPPacketHandlerFactory<>(messageHolder, new TestTBaseFilter());
+        receiver = new UDPReceiver("test", packetHandlerFactory, executor, 1024, inetSocketAddress);
+        receiver.start();
     }
 
     @AfterClass

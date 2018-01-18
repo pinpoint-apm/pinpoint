@@ -19,7 +19,7 @@ package flink.process;
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.flink.process.ApplicationCache;
-import com.navercorp.pinpoint.flink.process.TbaseFlatMapper;
+import com.navercorp.pinpoint.flink.process.TBaseFlatMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.*;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author minwoo.jung
  */
-public class TbaseFlatMapperTest {
+public class TBaseFlatMapperTest {
     final static String AGENT_ID = "testAgent";
     final static String APPLICATION_ID = "testApplication";
     
@@ -45,7 +45,7 @@ public class TbaseFlatMapperTest {
     public void flatMapTest() throws Exception {
 
         ApplicationCache applicationCache = newMockApplicationCache();
-        TbaseFlatMapper mapper = new TbaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
 
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch();
@@ -139,7 +139,7 @@ public class TbaseFlatMapperTest {
     @Test
     public void flatMap2Test() throws Exception {
         ApplicationCache applicationCache = newMockApplicationCache();
-        TbaseFlatMapper mapper = new TbaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch2();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
@@ -217,7 +217,7 @@ public class TbaseFlatMapperTest {
     @Test
     public void flatMap3Test() throws Exception {
         ApplicationCache applicationCache = newMockApplicationCache();
-        TbaseFlatMapper mapper = new TbaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch3();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
