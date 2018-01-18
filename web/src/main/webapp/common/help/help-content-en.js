@@ -541,16 +541,16 @@
 			},
 			permGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "JVM's PermGen information and full garbage collection times(if any)",
+				title: "Non-Heap",
+				desc: "JVM's non-heap information and full garbage collection times(if any)",
 				category: [{
 					title: "[Legend]",
 					items: [{
 						name: "Max",
-						desc: "Maximum heap size"
+						desc: "Maximum non-heap size"
 					},{
 						name: "Used",
-						desc: "Heap currently in use"
+						desc: "Non-heap currently in use"
 					},{
 						name: "FGC",
 						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
@@ -677,19 +677,19 @@
 			},
 			statPermGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "Permgen size used by the agent JVMs",
+				title: "Non-Heap",
+				desc: "Non-heap size used by the agent JVMs",
 				category: [{
 					title: "[Legend]",
 					items: [{
 						name: "MAX",
-						desc: "Largest permgen size used by agent JVMs"
+						desc: "Largest non-heap size used by agent JVMs"
 					},{
 						name: "AVG",
-						desc: "Average permgen size used by agent JVMs"
+						desc: "Average non-heap size used by agent JVMs"
 					},{
 						name: "MIN",
-						desc: "Smallest permgen size used by agent JVMs"
+						desc: "Smallest non-heap size used by agent JVMs"
 					}]
 				}]
 			},

@@ -560,16 +560,16 @@
 			},
 			permGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "JVM의 PermGen 정보와 full garbage collection 소요 시간",
+				title: "Non-Heap",
+				desc: "JVM의 non-heap 정보와 full garbage collection 소요 시간",
 				category: [{
 					title: "[범례]",
 					items: [{
 						name: "Max",
-						desc: "최대 heap 사이즈"
+						desc: "최대 non-heap 사이즈"
 					},{
 						name: "Used",
-						desc: "현재 사용 중인 heap 사이즈"
+						desc: "현재 사용 중인 non-heap 사이즈"
 					},{
 						name: "FGC",
 						desc: "Full garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
@@ -697,19 +697,19 @@
 			},
 			statPermGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "Agent들이 사용하는 JVM Permgen 사이즈 정보",
+				title: "Non-Heap",
+				desc: "Agent들이 사용하는 JVM non-heap 사이즈 정보",
 				category: [{
 					title: "[범례]",
 					items: [{
 						name: "MAX",
-						desc: "Agent들이 사용하는 perm 중 가장 큰 값"
+						desc: "Agent들이 사용하는 non-heap 중 가장 큰 값"
 					},{
 						name: "AVG",
-						desc: "Agent들이 사용하는 perm의 평균값"
+						desc: "Agent들이 사용하는 non-heap의 평균값"
 					},{
 						name: "MIN",
-						desc: "Agent들이 사용하는 perm 중 가장 작은 값"
+						desc: "Agent들이 사용하는 non-heap 중 가장 작은 값"
 					}]
 				}]
 			},
