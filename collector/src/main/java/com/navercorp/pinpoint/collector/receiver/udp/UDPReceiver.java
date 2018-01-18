@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
-import com.navercorp.pinpoint.collector.receiver.DataReceiver;
-import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
 import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
 import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
@@ -30,7 +28,6 @@ import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.task.TaskExecutor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -45,7 +42,6 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -54,7 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author netspider
  * @author jaehong.kim
  */
-public class UDPReceiver implements DataReceiver {
+public class UDPReceiver {
 
     private final Logger logger;
 
@@ -67,7 +63,7 @@ public class UDPReceiver implements DataReceiver {
     private ExecutorService ioExecutor;
 
     // modify thread pool size appropriately when modifying queue capacity
-    private DispatchWorker worker;
+    private Executor worker;
 
     // can't really allocate memory as max udp packet sizes are unknown.
     // not allocating memory in advance as I am unsure of the max udp packet size.
@@ -80,7 +76,8 @@ public class UDPReceiver implements DataReceiver {
 
     private final AtomicBoolean state = new AtomicBoolean(true);
 
-    public UDPReceiver(String name, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, DispatchWorker worker, int receiverBufferSize, InetSocketAddress bindAddress) {
+    public UDPReceiver(String name, PacketHandlerFactory<DatagramPacket> packetHandlerFactory,
+                       @Qualifier("udpWorker") Executor worker, int receiverBufferSize, InetSocketAddress bindAddress) {
         this.name = Objects.requireNonNull(name);
         this.logger = LoggerFactory.getLogger(name);
 
@@ -90,6 +87,13 @@ public class UDPReceiver implements DataReceiver {
 
         Assert.isTrue(receiverBufferSize > 0, "receiverBufferSize must be greater than 0");
         this.socket = createSocket(receiverBufferSize);
+
+        this.datagramPacketPool = createDatagramPacketPool();
+    }
+
+    private ObjectPool<DatagramPacket> createDatagramPacketPool() {
+        final int packetPoolSize = getPacketPoolSize();
+        return new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
     }
 
     private void prepare() {
@@ -116,8 +120,8 @@ public class UDPReceiver implements DataReceiver {
             if (pooledPacket == null) {
                 continue;
             }
-            Runnable dispatchTask = wrapDispatchTask(pooledPacket);
-            worker.execute(dispatchTask);
+            Runnable task = wrapTask(pooledPacket);
+            worker.execute(task);
         }
 
         if (logger.isInfoEnabled()) {
@@ -126,17 +130,8 @@ public class UDPReceiver implements DataReceiver {
         }
     }
 
-    private Runnable wrapDispatchTask(final PooledObject<DatagramPacket> pooledPacket) {
-        final Runnable lazyExecution = new Runnable() {
-            @Override
-            public void run() {
-                PacketHandler<DatagramPacket> dispatchPacket = packetHandlerFactory.createPacketHandler();
-                PooledPacketWrap pooledPacketWrap = new PooledPacketWrap(socket, dispatchPacket, pooledPacket);
-                Runnable execution = pooledPacketWrap;
-                execution.run();
-            }
-        };
-        return lazyExecution;
+    private Runnable wrapTask(final PooledObject<DatagramPacket> pooledPacket) {
+        return new Task(socket, packetHandlerFactory, pooledPacket);
     }
 
 
@@ -221,14 +216,9 @@ public class UDPReceiver implements DataReceiver {
     }
 
     private int getPacketPoolSize() {
-        int threadSize = worker.getThreadSize();
-        int queueSize = worker.getQueueSize();
-
-        return threadSize + queueSize + ioThreadSize;
+        return 1024*5;
     }
 
-    @PostConstruct
-    @Override
     public void start() {
         if (logger.isInfoEnabled()) {
             logger.info("{} start() started", name);
@@ -256,8 +246,6 @@ public class UDPReceiver implements DataReceiver {
         }
     }
 
-    @PreDestroy
-    @Override
     public void shutdown() {
         if (logger.isInfoEnabled()) {
             logger.info("{} shutdown() started", this.name);
@@ -269,7 +257,7 @@ public class UDPReceiver implements DataReceiver {
             socket.close();
         }
         if (ioExecutor != null) {
-            shutdownExecutor(ioExecutor, "IoExecutor");
+            shutdownExecutor(ioExecutor, name);
         }
 
         if (logger.isInfoEnabled()) {

@@ -20,32 +20,25 @@ import com.navercorp.pinpoint.collector.util.PooledObject;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
-public class PooledPacketWrap implements Runnable {
+public class Task implements Runnable {
     private final DatagramSocket localSocket;
-    private final PacketHandler<DatagramPacket> packetHandler;
+    private final PacketHandlerFactory<DatagramPacket> packetHandlerFactory;
     private final PooledObject<DatagramPacket> pooledObject;
 
-    public PooledPacketWrap(DatagramSocket localSocket, PacketHandler<DatagramPacket> packetHandler, PooledObject<DatagramPacket> pooledObject) {
-        if (localSocket == null) {
-            throw new NullPointerException("localSocket must not be null");
-        }
-        if (packetHandler == null) {
-            throw new NullPointerException("packetReceiveHandler must not be null");
-        }
-        if (pooledObject == null) {
-            throw new NullPointerException("pooledObject must not be null");
-        }
-        this.localSocket = localSocket;
-        this.packetHandler = packetHandler;
-        this.pooledObject = pooledObject;
+    public Task(DatagramSocket localSocket, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, PooledObject<DatagramPacket> pooledObject) {
+        this.localSocket = Objects.requireNonNull(localSocket, "localSocket must not be null");
+        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
+        this.pooledObject = Objects.requireNonNull(pooledObject, "pooledObject must not be null");
     }
 
     @Override
     public void run() {
+        PacketHandler<DatagramPacket> packetHandler = packetHandlerFactory.createPacketHandler();
         final DatagramPacket packet = pooledObject.getObject();
         try {
             packetHandler.receive(localSocket, packet);

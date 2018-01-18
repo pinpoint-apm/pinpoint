@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Arrays;
 
@@ -37,7 +38,7 @@ import java.util.Arrays;
 public class NetworkAvailabilityCheckPacketFilterTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private NetworkAvailabilityCheckPacketFilter filter;
+    private TBaseFilter<? super SocketAddress> filter;
     private DatagramSocket senderSocket;
     private DatagramSocket receiverSocket;
 
@@ -50,7 +51,6 @@ public class NetworkAvailabilityCheckPacketFilterTest {
 
     @After
     public void tearDown() throws Exception {
-        filter.destroy();
         try {
             senderSocket.close();
         } catch (Exception e) {
@@ -68,7 +68,8 @@ public class NetworkAvailabilityCheckPacketFilterTest {
         logger.debug("localSocket:{}", localSocketAddress);
 
         NetworkAvailabilityCheckPacket  packet = new NetworkAvailabilityCheckPacket();
-        boolean skipResult = filter.filter(receiverSocket, packet, new InetSocketAddress("localhost", senderSocket.getLocalPort()));
+        SocketAddress inetSocketAddress = new InetSocketAddress("localhost", senderSocket.getLocalPort());
+        boolean skipResult = filter.filter(receiverSocket, packet, inetSocketAddress);
 
         Assert.assertEquals(skipResult, TBaseFilter.BREAK);
 

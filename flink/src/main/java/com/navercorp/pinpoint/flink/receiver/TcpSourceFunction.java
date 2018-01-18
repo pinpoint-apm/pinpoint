@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.flink.receiver;
 
 import com.navercorp.pinpoint.flink.Bootstrap;
-import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import org.apache.flink.streaming.api.functions.source.ParallelSourceFunction;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -30,15 +29,13 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class TcpSourceFunction implements ParallelSourceFunction<TBase> {
 
     private final Logger logger = LoggerFactory.getLogger(TcpSourceFunction.class);
-    private FlinkServerRegister flinkServerRegister;
-    private TCPReceiver tcpReceiver;
 
     @Override
     public void run(SourceContext<TBase> ctx) throws Exception {
         final Bootstrap bootstrap = Bootstrap.getInstance();
         bootstrap.setStatHandlerTcpDispatchHandler(ctx);
         bootstrap.initFlinkServerRegister();
-        tcpReceiver = bootstrap.initTcpReceiver();
+        bootstrap.initTcpReceiver();
 
         Thread.sleep(Long.MAX_VALUE);
     }
@@ -46,13 +43,6 @@ public class TcpSourceFunction implements ParallelSourceFunction<TBase> {
     @Override
     public void cancel() {
         logger.info("cancel TcpSourceFunction.");
-
-        if (flinkServerRegister != null) {
-            flinkServerRegister.stop();
-        }
-        if (tcpReceiver != null) {
-            tcpReceiver.stop();
-        }
 
         ApplicationContext applicationContext = Bootstrap.getInstance().getApplicationContext();
         if (applicationContext != null) {

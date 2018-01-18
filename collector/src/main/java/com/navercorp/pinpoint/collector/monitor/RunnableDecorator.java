@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver;
+package com.navercorp.pinpoint.collector.monitor;
 
-import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
-import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import java.util.Collection;
+import java.util.concurrent.Callable;
 
 /**
- * @author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public class SpanReceiver extends DataReceiverGroup {
+public interface RunnableDecorator {
+    Runnable decorate(Runnable runnable);
 
-    public SpanReceiver(DataReceiverGroupConfiguration config, AddressFilter filter, DispatchHandler dispatchHandler) {
-        super("Span", config, filter, dispatchHandler);
-    }
+    <T> Callable<T> decorate(Callable<T> task);
 
+    <T> Collection<? extends Callable<T>> decorate(Collection<? extends Callable<T>> tasks);
 }
