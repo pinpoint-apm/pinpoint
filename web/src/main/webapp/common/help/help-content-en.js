@@ -1,11 +1,5 @@
 (function() {
 	'use strict';
-	/**
-	 * (en)Tooltip for english 
-	 * @ko 영문 Tooltip
-	 * @group Config
-	 * @name pinpointApp#helpContent-en
-	 */
 	var oHelp = {
 		configuration: {
 			general: {
@@ -111,7 +105,7 @@
 					title: "[Legend]",
 					items: [{
 						name: "Bidirectional",
-						desc: " Renders inbound/outbound nodes for each and every node (within limit) even if they are not directly related to the selected node.<br>Note that checking this option may lead to overly complex server maps."
+						desc: "Renders inbound/outbound nodes for each and every node (within limit) even if they are not directly related to the selected node.<br>Note that checking this option may lead to overly complex server maps."
 					}]
 				}]
 			},
@@ -153,6 +147,19 @@
 						"Clicking an arrow shows information on all transactions passing through the selected section on the right-hand side of the screen."
 				    ]
 				},{
+					title: "[Function of the box]",
+					list: [
+						"When the box is selected, the transaction information flowing into the application is displayed on the right side of the screen."
+					]
+				},{
+					title: "[Function of the arrow]",
+					list: [
+						"Select the arrow to show the transaction information that passes through the selected section on the right side of the screen.",
+						"The Filter in the Context menu shows only the transactions that pass through the selected section.",
+						"Filter wizard allows you to configure more detailed filters.",
+						"When the filter is applied, <span class = 'glyphicon glyphicon-filter' style = 'color: green;'> </span> icon will be displayed on the arrow."
+					]
+				},{
 					title: "[Applying Filter]",
 					list: [
 				        "Right-clicking on an arrow displays a filter menu.",
@@ -168,6 +175,45 @@
 					]
 				}]
 			} 
+		},
+		scatter : {
+			"default": {
+				mainStyle: "",
+				title: "Response Time Scatter Chart",
+				desc: "",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "<span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span>",
+						desc: "Successful Transaction"
+					},{
+						name: "<span class='glyphicon glyphicon-stop' style='color:#f53034'></span>",
+						desc: "Failed Transaction"
+					},{
+						name: "X-axis",
+						desc: "Transaction Timestamp (hh:mm)"
+					},{
+						name: "Y-axis",
+						desc: "Response Time (ms)"
+					}]
+				},{
+					title: "[Usage]",
+					image: "<img src='images/help/scatter_01.png' width='200px' height='125px'>",
+					items: [{
+						name: "<span class='glyphicon glyphicon-plus'></span>",
+						desc: "Drag on the scatter chart to show detailed information on selected transactions."
+					},{
+						name: "<span class='glyphicon glyphicon-cog'></span>",
+						desc: "Set the min/max value of the Y-axis (Response Time)."
+					},{
+						name: "<span class='glyphicon glyphicon-download-alt'></span>",
+						desc: "Download the chart as an image file."
+					},{
+						name: "<span class='glyphicon glyphicon-fullscreen'></span>",
+						desc: "Open the chart in a new window."
+					}]
+				}]
+			}
 		},
 		realtime: {
 			"default": {
@@ -216,45 +262,6 @@
 						desc: "No response from Pinpoint Web. Please contact the administrator.",
 						nameStyle: "width:120px;border-bottom:1px solid gray",
 						descStyle: "border-bottom:1px solid gray"
-					}]
-				}]
-			}
-		},	
-		scatter : {
-			"default": {
-				mainStyle: "",
-				title: "Response Time Scatter Chart",
-				desc: "",
-				category: [{
-					title: "[Legend]",
-					items: [{
-						name: "<span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span>",
-						desc: "Successful Transaction"
-					},{
-						name: "<span class='glyphicon glyphicon-stop' style='color:#f53034'></span>",
-						desc: "Failed Transaction"
-					},{
-						name: "X-axis",
-						desc: "Transaction Timestamp (hh:mm)"
-					},{
-						name: "Y-axis",
-						desc: "Response Time (ms)"
-					}]
-				},{
-					title: "[Usage]",
-					image: "<img src='images/help/scatter_01.png' width='200px' height='125px'>",
-					items: [{
-						name: "<span class='glyphicon glyphicon-plus'></span>",
-						desc: "Drag on the scatter chart to show detailed information on selected transactions."
-					},{
-						name: "<span class='glyphicon glyphicon-cog'></span>",
-						desc: "Set the min/max value of the Y-axis (Response Time)."
-					},{
-						name: "<span class='glyphicon glyphicon-download-alt'></span>",
-						desc: "Download the chart as an image file."
-					},{
-						name: "<span class='glyphicon glyphicon-fullscreen'></span>",
-						desc: "Open the chart in a new window."
 					}]
 				}]
 			}
@@ -370,9 +377,19 @@
 			},
 			searchAndOrder: {
 				mainStyle: "",
-				title: "Search and Fliter",
-				desc: "Filter by server name or total count.Clicking Name or Count sorts the list in ascending/descending order."
-			}			
+				title: "Search and Filter",
+				desc: "You can search with server name and Counts.",
+				category: [{
+					title: "[Usage]",
+					items: [{
+						name: "Name",
+						desc: "Sort names in ascending / descending order."
+					},{
+						name: "Count",
+						desc: "Sort counts in ascending / descending order."
+					}]
+				}]
+			}
 		},
 		linkInfoDetails: {
 			responseSummary: {
@@ -489,7 +506,17 @@
 			searchAndOrder: {
 				mainStyle: "",
 				title: "Search and Filter",
-				desc: "Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order."
+				desc: "You can search with server name and Counts.",
+				category: [{
+					title: "[Usage]",
+					items: [{
+						name: "Name",
+						desc: "Sort names in ascending / descending order."
+					},{
+						name: "Count",
+						desc: "Sort counts in ascending / descending order."
+					}]
+				}]
 			}
 		},
 		inspector: {
