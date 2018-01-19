@@ -1,11 +1,5 @@
 (function(){ 
 	'use strict';
-	/**
-	 * (en)한국어 Tooltip 
-	 * @ko 한국어 Tooltip
-	 * @group Config
-	 * @name pinpointApp#helpContent-ko
-	 */
 	var oHelp = {
 		configuration: {
 			general: {
@@ -463,6 +457,9 @@
 				category: [{
 					title: "[범례]",
 					items: [{
+						name: "<span class='glyphicon glyphicon-home'></span>",
+						desc: "물리서버 호스트 이름"
+					},{
 						name: "<span class='glyphicon glyphicon-hdd'></span>",
 						desc: "물리서버에 설치된 서버 인스턴스에서 동작중인 Pinpoint의 agentId입니다."
 					}]
