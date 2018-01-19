@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +54,9 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
+
+    @Autowired
+    private TableNameProvider tableNameProvider;
 
     @Autowired
     @Qualifier("mapStatisticsCallerMapper")
@@ -78,7 +83,9 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         // find distributed key.
         final Scan scan = createScan(callerApplication, range, HBaseTables.MAP_STATISTICS_CALLEE_VER2_CF_COUNTER);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
-        LinkDataMap linkDataMap = hbaseOperations2.findParallel(HBaseTables.MAP_STATISTICS_CALLEE_VER2, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
+
+        TableName mapStatisticsCalleeTableName = tableNameProvider.getTableName(HBaseTables.MAP_STATISTICS_CALLEE_VER2_STR);
+        LinkDataMap linkDataMap = hbaseOperations2.findParallel(mapStatisticsCalleeTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
         logger.debug("Caller data. {}, {}", linkDataMap, range);
         if (linkDataMap != null && linkDataMap.size() > 0) {
             return linkDataMap;

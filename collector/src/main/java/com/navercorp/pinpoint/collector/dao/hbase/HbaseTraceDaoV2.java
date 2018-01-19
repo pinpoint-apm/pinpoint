@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -10,6 +11,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanChunkSeri
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerializerV2;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.TRACE_V2;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.TRACE_V2_STR;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,6 +34,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
+    @Autowired
+    private TableNameProvider tableNameProvider;
 
     @Autowired
     private SpanSerializerV2 spanSerializer;
@@ -59,10 +63,10 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         this.spanSerializer.serialize(spanBo, put, null);
 
-
-        boolean success = hbaseTemplate.asyncPut(TRACE_V2, put);
+        TableName traceTableName = tableNameProvider.getTableName(TRACE_V2_STR);
+        boolean success = hbaseTemplate.asyncPut(traceTableName, put);
         if (!success) {
-            hbaseTemplate.put(TRACE_V2, put);
+            hbaseTemplate.put(traceTableName, put);
         }
 
     }
@@ -86,9 +90,10 @@ public class HbaseTraceDaoV2 implements TraceDao {
         this.spanChunkSerializer.serialize(spanChunkBo, put, null);
 
         if (!put.isEmpty()) {
-            boolean success = hbaseTemplate.asyncPut(TRACE_V2, put);
+            TableName traceTableName = tableNameProvider.getTableName(TRACE_V2_STR);
+            boolean success = hbaseTemplate.asyncPut(traceTableName, put);
             if (!success) {
-                hbaseTemplate.put(TRACE_V2, put);
+                hbaseTemplate.put(traceTableName, put);
             }
         }
     }
