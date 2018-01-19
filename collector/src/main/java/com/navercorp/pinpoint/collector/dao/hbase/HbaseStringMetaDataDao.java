@@ -17,12 +17,14 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.StringMetaDataDao;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -42,6 +44,9 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
+
+    @Autowired
+    private TableNameProvider tableNameProvider;
 
     @Autowired
     @Qualifier("metadataRowKeyDistributor")
@@ -65,7 +70,8 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         byte[] sqlBytes = Bytes.toBytes(stringValue);
         put.addColumn(HBaseTables.STRING_METADATA_CF_STR, HBaseTables.STRING_METADATA_CF_STR_QUALI_STRING, sqlBytes);
 
-        hbaseTemplate.put(HBaseTables.STRING_METADATA, put);
+        TableName stringMetaDataTableName = tableNameProvider.getTableName(HBaseTables.STRING_METADATA_STR);
+        hbaseTemplate.put(stringMetaDataTableName, put);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {

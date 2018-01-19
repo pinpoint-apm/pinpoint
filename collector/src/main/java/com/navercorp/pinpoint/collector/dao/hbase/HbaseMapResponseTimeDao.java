@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.google.common.util.concurrent.AtomicLongMap;
 import com.navercorp.pinpoint.collector.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.*;
-import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.util.TimeSlot;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +56,9 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
+    private TableNameProvider tableNameProvider;
+
+    @Autowired
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
@@ -70,7 +74,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
     private final boolean useBulk;
 
-    private final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
+    private final BulkCounter bulkCounter = new BulkCounter();
 
     public HbaseMapResponseTimeDao() {
         this(true);
@@ -101,8 +105,9 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
         if (useBulk) {
+            TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(MAP_STATISTICS_SELF_VER2_STR);
             RowInfo rowInfo = new DefaultRowInfo(selfRowKey, selfColumnName);
-            this.counter.incrementAndGet(rowInfo);
+            bulkCounter.increment(mapStatisticsSelfTableName, rowInfo);
         } else {
             final byte[] rowKey = getDistributedKey(selfRowKey.getRowKey());
             // column name is the name of caller app.
@@ -118,7 +123,8 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_SELF_VER2, rowKey, MAP_STATISTICS_SELF_VER2_CF_COUNTER, columnName, increment);
+        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(MAP_STATISTICS_SELF_VER2_STR);
+        hbaseTemplate.incrementColumnValue(mapStatisticsSelfTableName, rowKey, MAP_STATISTICS_SELF_VER2_CF_COUNTER, columnName, increment);
     }
 
 
@@ -129,17 +135,27 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         }
 
         // update statistics by rowkey and column for now. need to update it by rowkey later.
-        final Map<RowInfo, Long> remove = AtomicLongMapUtils.remove(this.counter);
+        Map<TableName, List<Increment>> incrementMap = new HashMap<>();
 
-        final List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
-        if (merge.isEmpty()) {
-            return;
+        Map<TableName, Map<RowInfo, Long>> tableCounterMap = bulkCounter.getAndReset();
+        for (Map.Entry<TableName, Map<RowInfo, Long>> e : tableCounterMap.entrySet()) {
+            final Map<RowInfo, Long> counters = e.getValue();
+
+            final List<Increment> mergedIncrements = rowKeyMerge.createBulkIncrement(counters, rowKeyDistributorByHashPrefix);
+            if (!mergedIncrements.isEmpty()) {
+                final TableName tableName = e.getKey();
+                incrementMap.put(tableName, mergedIncrements);
+            }
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+        for (Map.Entry<TableName, List<Increment>> e : incrementMap.entrySet()) {
+            TableName tableName = e.getKey();
+            List<Increment> increments = e.getValue();
+            if (logger.isDebugEnabled()) {
+                logger.debug("flush {} to [{}] Increment:{}", this.getClass().getSimpleName(), tableName.getNameAsString(), increments.size());
+            }
+            hbaseTemplate.increment(tableName, increments);
         }
-        hbaseTemplate.increment(MAP_STATISTICS_SELF_VER2, merge);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {

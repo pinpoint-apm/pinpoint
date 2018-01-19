@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +54,9 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
+
+    @Autowired
+    private TableNameProvider tableNameProvider;
 
     @Autowired
     @Qualifier("mapStatisticsCalleeMapper")
@@ -78,7 +83,9 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         // find distributed key - ver2.
         final Scan scan = createScan(calleeApplication, range, HBaseTables.MAP_STATISTICS_CALLER_VER2_CF_COUNTER);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
-        LinkDataMap linkDataMap = hbaseOperations2.findParallel(HBaseTables.MAP_STATISTICS_CALLER_VER2, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
+
+        TableName mapStatisticsCallerTableName = tableNameProvider.getTableName(HBaseTables.MAP_STATISTICS_CALLER_VER2_STR);
+        LinkDataMap linkDataMap = hbaseOperations2.findParallel(mapStatisticsCallerTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
         logger.debug("Callee data. {}, {}", linkDataMap, range);
         if (linkDataMap != null && linkDataMap.size() > 0) {
             return linkDataMap;

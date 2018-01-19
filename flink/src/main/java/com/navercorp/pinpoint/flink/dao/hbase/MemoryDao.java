@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.flink.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
@@ -40,12 +41,13 @@ public class MemoryDao {
     private final HbaseTemplate2 hbaseTemplate2;
     private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
     private final MemorySerializer memorySerializer;
-    private final TableName APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
+    private final TableNameProvider tableNameProvider;
 
-    public MemoryDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, MemorySerializer memorySerializer) {
+    public MemoryDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, MemorySerializer memorySerializer, TableNameProvider tableNameProvider) {
         this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2 must not be null");
         this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory must not be null");
         this.memorySerializer = Objects.requireNonNull(memorySerializer, "memorySerializer must not be null");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider must not be null");
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinMemoryBoList, StatType statType) {
@@ -54,9 +56,10 @@ public class MemoryDao {
         }
         List<Put> memoryPuts = applicationStatHbaseOperationFactory.createPuts(id, joinMemoryBoList, statType, memorySerializer);
         if (!memoryPuts.isEmpty()) {
-            List<Put> rejectedPuts = hbaseTemplate2.asyncPut(APPLICATION_STAT_AGGRE, memoryPuts);
+            TableName applicationStatAggreTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_STAT_AGGRE_STR);
+            List<Put> rejectedPuts = hbaseTemplate2.asyncPut(applicationStatAggreTableName, memoryPuts);
             if (CollectionUtils.isNotEmpty(rejectedPuts)) {
-                hbaseTemplate2.put(APPLICATION_STAT_AGGRE, rejectedPuts);
+                hbaseTemplate2.put(applicationStatAggreTableName, rejectedPuts);
             }
         }
     }
