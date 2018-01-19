@@ -320,7 +320,7 @@
     </bean>
     <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
         <property name="bindIp" value="#{statReceiverConfig.udpBindIp}"/>
-        <property name="bindPort" ref="#{statReceiverConfig.udpBindPort}"/>
+        <property name="bindPort" value="#{statReceiverConfig.udpBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="dispatchHandler" ref="statDispatchHandlerWrapper"/>
         <property name="udpBufferSize" value="#{statReceiverConfig.udpReceiveBufferSize}"/>
