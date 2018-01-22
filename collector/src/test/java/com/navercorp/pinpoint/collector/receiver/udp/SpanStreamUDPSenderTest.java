@@ -21,6 +21,10 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.collector.TestAwaitUtils;
 import com.navercorp.pinpoint.collector.receiver.AbstractDispatchHandler;
+import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
+import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
+import com.navercorp.pinpoint.collector.util.ObjectPool;
+import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -76,7 +80,10 @@ public class SpanStreamUDPSenderTest {
         Executor executor = MoreExecutors.directExecutor();
         InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", port);
         PacketHandlerFactory<DatagramPacket> packetHandlerFactory = new SpanStreamUDPPacketHandlerFactory<>(messageHolder, new TestTBaseFilter());
-        receiver = new UDPReceiver("test", packetHandlerFactory, executor, 1024, inetSocketAddress);
+
+        ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
+        ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, 10);
+        receiver = new UDPReceiver("test", packetHandlerFactory, executor, 1024, inetSocketAddress, pool);
         receiver.start();
     }
 
