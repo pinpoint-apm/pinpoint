@@ -35,6 +35,7 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
+            <version>3.5.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.plugin.vertx;
 
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import io.vertx.core.http.impl.HttpServerRequestImpl;
+import io.vertx.core.http.HttpServerRequest;
 
 /**
  * @author jaehong.kim
@@ -29,7 +29,7 @@ public class VertxHttpHeaderFilter {
         this.enable = enable;
     }
 
-    public void filter(final HttpServerRequestImpl request) {
+    public void filter(final HttpServerRequest request) {
         if (!enable || request == null || request.headers() == null) {
             return;
         }
