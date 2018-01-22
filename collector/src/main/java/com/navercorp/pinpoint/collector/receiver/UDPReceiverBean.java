@@ -24,6 +24,10 @@ import com.navercorp.pinpoint.collector.receiver.udp.PacketHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.udp.TBaseFilter;
 import com.navercorp.pinpoint.collector.receiver.udp.TBaseFilterChain;
 import com.navercorp.pinpoint.collector.receiver.udp.UDPReceiver;
+import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
+import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
+import com.navercorp.pinpoint.collector.util.ObjectPool;
+import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -54,7 +58,7 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
 
     private DispatchHandler dispatchHandler;
     private AddressFilter addressFilter;
-
+    private int datagramPoolSize = 1024*4;
 
 
     @Override
@@ -79,7 +83,10 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
         PacketHandlerFactory<DatagramPacket> packetHandlerFactory = new BaseUDPHandlerFactory<DatagramPacket>(dispatchHandler, filterChain, ignoreAddressFilter);
 
         InetSocketAddress bindAddress = new InetSocketAddress(bindIp, port);
-        return new UDPReceiver(name, packetHandlerFactory, executor, udpBufferSize, bindAddress);
+
+        ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
+        ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, datagramPoolSize);
+        return new UDPReceiver(name, packetHandlerFactory, executor, udpBufferSize, bindAddress, pool);
     }
 
 
@@ -122,6 +129,10 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
 
     public void setUdpBufferSize(int udpBufferSize) {
         this.udpBufferSize = udpBufferSize;
+    }
+
+    public void setDatagramPoolSize(int datagramPoolSize) {
+        this.datagramPoolSize = datagramPoolSize;
     }
 
     @Override
