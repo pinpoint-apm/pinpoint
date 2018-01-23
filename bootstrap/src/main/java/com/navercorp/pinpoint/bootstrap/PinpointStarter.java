@@ -48,6 +48,7 @@ class PinpointStarter {
 
     public static final String DEFAULT_AGENT = "DEFAULT_AGENT";
     public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
+    public static final String BOOT_CLASS_PARAM_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgentOption";
 
     public static final String PLUGIN_TEST_AGENT = "PLUGIN_TEST";
     public static final String PLUGIN_TEST_BOOT_CLASS = "com.navercorp.pinpoint.test.PluginTestAgent";
@@ -115,14 +116,15 @@ class PinpointStarter {
 
             // this is the library list that must be loaded
             List<URL> libUrlList = resolveLib(classPathResolver);
-            AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
+            AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]), profilerConfig.getProfilerParentClassLoaderType());
             final String bootClass = getBootClass();
             agentClassLoader.setBootClass(bootClass);
+
+            final String bootClassParamClass = getBootClassParamClass();
+            agentClassLoader.setBootClassParamClass(bootClassParamClass);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
 
-
-            AgentOption option = createAgentOption(agentId, applicationName, profilerConfig, instrumentation, pluginJars, bootstrapJarFile, serviceTypeRegistryService, annotationKeyRegistryService);
-            Agent pinpointAgent = agentClassLoader.boot(option);
+            Agent pinpointAgent = agentClassLoader.boot(agentId, applicationName, profilerConfig, instrumentation, pluginJars, bootstrapJarFile, serviceTypeRegistryService, annotationKeyRegistryService);
             pinpointAgent.start();
             registerShutdownHook(pinpointAgent);
             logger.info("pinpoint agent started normally.");
@@ -142,6 +144,10 @@ class PinpointStarter {
         return BOOT_CLASS;
     }
 
+    private String getBootClassParamClass() {
+        return BOOT_CLASS_PARAM_CLASS;
+    }
+
     private String getAgentType() {
         String agentType = agentArgs.get(AGENT_TYPE);
         if (agentType == null) {
@@ -149,16 +155,6 @@ class PinpointStarter {
         }
         return agentType;
 
-    }
-
-    private AgentOption createAgentOption(String agentId, String applicationName, ProfilerConfig profilerConfig,
-                                          Instrumentation instrumentation,
-                                          URL[] pluginJars,
-                                          BootstrapJarFile bootstrapJarFile,
-                                          ServiceTypeRegistryService serviceTypeRegistryService,
-                                          AnnotationKeyRegistryService annotationKeyRegistryService) {
-        List<String> bootstrapJarPaths = bootstrapJarFile.getJarNameList();
-        return new DefaultAgentOption(instrumentation, agentId, applicationName, profilerConfig, pluginJars, bootstrapJarPaths, serviceTypeRegistryService, annotationKeyRegistryService);
     }
 
     // for test

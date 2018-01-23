@@ -14,6 +14,17 @@
  */
 package com.navercorp.pinpoint.profiler.plugin;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.common.util.ClassLoaderType;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.JarProfilerPluginClassInjector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -25,17 +36,6 @@ import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
-import com.navercorp.pinpoint.profiler.instrument.classloading.JarProfilerPluginClassInjector;
 
 /**
  * @author Jongho Moon
@@ -70,17 +70,25 @@ public class ProfilerPluginLoader {
     }
 
     public List<SetupResult> load(URL[] pluginJars) {
+        ClassLoaderType profilerParentClassLoaderType = profilerConfig.getProfilerParentClassLoaderType();
+        ClassLoader parentClassLoader = profilerParentClassLoaderType.getClassLoader();
+        if (parentClassLoader == null) {
+            parentClassLoader = ProfilerPluginLoader.class.getClassLoader();
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("load plugin. parent classLoader:" + parentClassLoader.toString());
+        }
 
         List<SetupResult> pluginContexts = new ArrayList<SetupResult>(pluginJars.length);
 
         for (URL pluginJar : pluginJars) {
-
             final JarFile pluginJarFile = createJarFile(pluginJar);
             final List<String> pluginPackageList = getPluginPackage(pluginJarFile);
 
             final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
 
-            final List<ProfilerPlugin> original = PluginLoader.load(ProfilerPlugin.class, new URL[] { pluginJar });
+            final List<ProfilerPlugin> original = PluginLoader.load(ProfilerPlugin.class, new URL[] { pluginJar }, parentClassLoader);
 
             List<ProfilerPlugin> plugins = filterDisablePlugin(original);
 
@@ -97,7 +105,6 @@ public class ProfilerPluginLoader {
                 pluginContexts.add(result);
             }
         }
-        
 
         return pluginContexts;
     }

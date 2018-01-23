@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.ProductInfo;
+
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
-
-import com.navercorp.pinpoint.ProductInfo;
 
 /**
  * @author emeroad

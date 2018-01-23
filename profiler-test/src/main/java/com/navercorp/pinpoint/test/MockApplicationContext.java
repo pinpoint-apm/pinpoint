@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.test;
 
 
+import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-
-import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 

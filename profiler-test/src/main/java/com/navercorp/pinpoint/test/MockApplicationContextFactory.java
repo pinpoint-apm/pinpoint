@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
@@ -27,6 +25,8 @@ import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.AgentOption;
+import com.navercorp.pinpoint.profiler.DefaultAgentOption;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;

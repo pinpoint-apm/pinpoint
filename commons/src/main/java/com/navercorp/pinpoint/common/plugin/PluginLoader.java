@@ -43,7 +43,11 @@ public class PluginLoader {
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
     public static <T> List<T> load(Class<T> serviceType, URL[] urls) {
-        URLClassLoader classLoader = createPluginClassLoader(urls, ClassLoader.getSystemClassLoader());
+        return load(serviceType, urls, ClassLoader.getSystemClassLoader());
+    }
+
+    public static <T> List<T> load(Class<T> serviceType, URL[] urls, ClassLoader parentClassLoader) {
+        URLClassLoader classLoader = createPluginClassLoader(urls, parentClassLoader);
         return load(serviceType, classLoader);
     }
 

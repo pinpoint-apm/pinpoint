@@ -16,35 +16,12 @@
 
 package com.navercorp.pinpoint.test;
 
-import java.io.PrintStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
+import com.google.common.base.Objects;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.profiler.context.id.Shared;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
-import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-
-import com.google.common.base.Objects;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedSql;
@@ -56,16 +33,38 @@ import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+
+import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * @author emeroad

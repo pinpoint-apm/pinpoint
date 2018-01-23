@@ -21,16 +21,9 @@ package com.navercorp.pinpoint.common.util;
  */
 public final class ClassLoaderUtils {
 
-    public static final ClassLoaderCallable DEFAULT_CLASS_LOADER_CALLABLE = new ClassLoaderCallable() {
-        @Override
-        public ClassLoader getClassLoader() {
-            return ClassLoaderUtils.class.getClassLoader();
-        }
-    };
-
-    private static final ClassLoader SYSTEM_CLASS_LOADER;
-    private static final ClassLoader EXT_CLASS_LOADER;
-    private static final ClassLoader BOOT_CLASS_LOADER;
+    static final ClassLoader SYSTEM_CLASS_LOADER;
+    static final ClassLoader EXT_CLASS_LOADER;
+    static final ClassLoader BOOT_CLASS_LOADER;
 
     static {
         SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
@@ -45,6 +38,13 @@ public final class ClassLoaderUtils {
             BOOT_CLASS_LOADER = null;
         }
     }
+
+    public static final ClassLoaderCallable DEFAULT_CLASS_LOADER_CALLABLE = new ClassLoaderCallable() {
+        @Override
+        public ClassLoader getClassLoader() {
+            return ClassLoaderUtils.class.getClassLoader();
+        }
+    };
 
     private ClassLoaderUtils() {
     }
@@ -82,7 +82,6 @@ public final class ClassLoaderUtils {
     public interface ClassLoaderCallable {
         ClassLoader getClassLoader();
     }
-
 
     public static boolean isJvmClassLoader(ClassLoader classLoader) {
         if (BOOT_CLASS_LOADER == classLoader || SYSTEM_CLASS_LOADER == classLoader || EXT_CLASS_LOADER == classLoader) {
