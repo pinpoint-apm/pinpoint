@@ -128,6 +128,8 @@
         <constructor-arg ref="handlerManager"/>
     </bean>
 
+    <bean id="flinkPacketHandlerFactory" class="com.navercorp.pinpoint.flink.receiver.FlinkPacketHandlerFactory"/>
+
     <bean id="flinkServerRegister" class="com.navercorp.pinpoint.flink.cluster.FlinkServerRegister" lazy-init="true">
         <constructor-arg ref="flinkConfiguration"/>
     </bean>
@@ -163,6 +165,7 @@
         <property name="addressFilter" ref="addressFilter"/>
         <property name="dispatchHandler" ref="tcpDispatchHandlerWrapper"/>
         <property name="executor" ref="flinkWorker"/>
+        <property name="tcpPacketHandlerFactory" ref="flinkPacketHandlerFactory"/>
     </bean>
 
 
