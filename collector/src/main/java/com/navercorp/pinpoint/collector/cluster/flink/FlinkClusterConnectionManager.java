@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +36,7 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PinpointClientFactory pinpointClientFactory;
     private final TcpDataSenderRepository tcpDataSenderRepository;
-    private final FlinkHeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory;
+    private final SerializerFactory<HeaderTBaseSerializer> flinkHeaderTBaseSerializerFactory;
 
     public FlinkClusterConnectionManager(TcpDataSenderRepository tcpDataSenderRepository) {
         this.tcpDataSenderRepository = tcpDataSenderRepository;
