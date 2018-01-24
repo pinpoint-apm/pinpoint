@@ -143,10 +143,8 @@
 							scope.$emit( "groupMember.sendCallbackAddedUser", true, oUser.userId );
 							AlarmUtilService.setTotal( $elTotal, oGroupMemberList.length );
 							AlarmUtilService.hide( $elLoading );
-						}, function() {
-							showAlert({
-								message: CONSTS.EXIST_A_SAME
-							});
+						}, function(oServerError) {
+							showAlert(oServerError);
 							scope.$emit( "groupMember.sendCallbackAddedUser", false, oUser.userId );
 						});
 	    			});
