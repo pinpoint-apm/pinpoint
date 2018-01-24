@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryProvider;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -69,7 +70,7 @@ public class CollectJobTest {
         AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
 
-        return new DefaultApplicationContext(agentOption, binder);
+        return new DefaultApplicationContext(agentOption, binder, new DefaultModuleFactoryProvider(""));
     }
 
 
