@@ -89,7 +89,7 @@ public class DefaultApplicationContextTest {
         AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
 
-        return new DefaultApplicationContext(agentOption, binder);
+        return new DefaultApplicationContext(agentOption, binder, new DefaultModuleFactoryProvider(""));
     }
 
 }
