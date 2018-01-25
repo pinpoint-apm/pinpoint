@@ -37,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +45,7 @@ import java.util.Map;
  * 
  * @author netspider
  * @author emeroad
+ * @author HyunGil Jeong
  */
 @Repository
 public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
@@ -62,19 +62,17 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
-    @Qualifier("callerMerge")
-    private RowKeyMerge rowKeyMerge;
+    private TimeSlot timeSlot;
+
+    @Autowired
+    @Qualifier("callerBulkIncrementer")
+    private BulkIncrementer bulkIncrementer;
 
     @Autowired
     @Qualifier("statisticsCallerRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    @Autowired
-    private TimeSlot timeSlot;
-
     private final boolean useBulk;
-
-    private final BulkCounter bulkCounter = new BulkCounter();
 
     public HbaseMapStatisticsCallerDao() {
         this(true);
@@ -110,8 +108,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
         if (useBulk) {
             TableName mapStatisticsCalleeTableName = tableNameProvider.getTableName(MAP_STATISTICS_CALLEE_VER2_STR);
-            RowInfo rowInfo = new DefaultRowInfo(callerRowKey, calleeColumnName);
-            bulkCounter.increment(mapStatisticsCalleeTableName, rowInfo);
+            bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, calleeColumnName);
         } else {
             final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
             // column name is the name of caller app.
@@ -137,18 +134,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             throw new IllegalStateException();
         }
         // update statistics by rowkey and column for now. need to update it by rowkey later.
-        Map<TableName, List<Increment>> incrementMap = new HashMap<>();
-
-        Map<TableName, Map<RowInfo, Long>> tableCounterMap = bulkCounter.getAndReset();
-        for (Map.Entry<TableName, Map<RowInfo, Long>> e : tableCounterMap.entrySet()) {
-            final Map<RowInfo, Long> counters = e.getValue();
-
-            final List<Increment> mergedIncrements = rowKeyMerge.createBulkIncrement(counters, rowKeyDistributorByHashPrefix);
-            if (!mergedIncrements.isEmpty()) {
-                final TableName tableName = e.getKey();
-                incrementMap.put(tableName, mergedIncrements);
-            }
-        }
+        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
 
         for (Map.Entry<TableName, List<Increment>> e : incrementMap.entrySet()) {
             TableName tableName = e.getKey();

@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +45,7 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
  * @author netspider
  * @author emeroad
  * @author jaehong.kim
+ * @author HyunGil Jeong
  */
 @Repository
 public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
@@ -65,16 +65,14 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     private TimeSlot timeSlot;
 
     @Autowired
-    @Qualifier("selfMerge")
-    private RowKeyMerge rowKeyMerge;
+    @Qualifier("selfBulkIncrementer")
+    private BulkIncrementer bulkIncrementer;
 
     @Autowired
     @Qualifier("statisticsSelfRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final boolean useBulk;
-
-    private final BulkCounter bulkCounter = new BulkCounter();
 
     public HbaseMapResponseTimeDao() {
         this(true);
@@ -106,8 +104,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
         if (useBulk) {
             TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(MAP_STATISTICS_SELF_VER2_STR);
-            RowInfo rowInfo = new DefaultRowInfo(selfRowKey, selfColumnName);
-            bulkCounter.increment(mapStatisticsSelfTableName, rowInfo);
+            bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, selfColumnName);
         } else {
             final byte[] rowKey = getDistributedKey(selfRowKey.getRowKey());
             // column name is the name of caller app.
@@ -134,20 +131,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
             throw new IllegalStateException("useBulk is " + useBulk);
         }
 
-        // update statistics by rowkey and column for now. need to update it by rowkey later.
-        Map<TableName, List<Increment>> incrementMap = new HashMap<>();
-
-        Map<TableName, Map<RowInfo, Long>> tableCounterMap = bulkCounter.getAndReset();
-        for (Map.Entry<TableName, Map<RowInfo, Long>> e : tableCounterMap.entrySet()) {
-            final Map<RowInfo, Long> counters = e.getValue();
-
-            final List<Increment> mergedIncrements = rowKeyMerge.createBulkIncrement(counters, rowKeyDistributorByHashPrefix);
-            if (!mergedIncrements.isEmpty()) {
-                final TableName tableName = e.getKey();
-                incrementMap.put(tableName, mergedIncrements);
-            }
-        }
-
+        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
         for (Map.Entry<TableName, List<Increment>> e : incrementMap.entrySet()) {
             TableName tableName = e.getKey();
             List<Increment> increments = e.getValue();
