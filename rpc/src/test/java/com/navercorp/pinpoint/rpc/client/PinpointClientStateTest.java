@@ -174,7 +174,6 @@ public class PinpointClientStateTest {
 
         Channel channel = channelConnectFuture.getChannel();
         PinpointClientHandler pinpointClientHandler = (PinpointClientHandler) channel.getPipeline().getLast();
-        pinpointClientHandler.setConnectSocketAddress(address);
 
         return pinpointClientHandler;
     }
