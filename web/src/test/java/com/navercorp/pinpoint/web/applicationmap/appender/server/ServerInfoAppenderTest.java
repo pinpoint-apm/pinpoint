@@ -26,9 +26,14 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
@@ -39,20 +44,34 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-public abstract class ServerInfoAppenderTestBase {
+public class ServerInfoAppenderTest {
+
+    private final ExecutorService executor = Executors.newFixedThreadPool(4);
+
+    private final ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory(executor);
 
     private ServerInstanceListDataSource serverInstanceListDataSource;
 
     private ServerInfoAppender serverInfoAppender;
 
-    protected abstract ServerInfoAppenderFactory createServerInfoAppenderFactory();
-
     @Before
     public void setUp() {
         serverInstanceListDataSource = mock(ServerInstanceListDataSource.class);
         ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
-        ServerInfoAppenderFactory serverInfoAppenderFactory = createServerInfoAppenderFactory();
         serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
+    }
+
+    @After
+    public void cleanUp() {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Test

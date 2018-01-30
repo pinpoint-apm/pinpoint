@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,43 +17,34 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
  * @author HyunGil Jeong
  */
-public class ParallelNodeHistogramAppender implements NodeHistogramAppender {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
 
     private final NodeHistogramFactory nodeHistogramFactory;
 
-    private final ExecutorService executorService;
+    private final Executor executor;
 
-    public ParallelNodeHistogramAppender(NodeHistogramFactory nodeHistogramFactory, ExecutorService executorService) {
-        if (nodeHistogramFactory == null) {
-            throw new NullPointerException("nodeHistogramFactory must not be null");
-        }
-        if (executorService == null) {
-            throw new NullPointerException("executorService must not be null");
-        }
-        this.nodeHistogramFactory = nodeHistogramFactory;
-        this.executorService = executorService;
+    public DefaultNodeHistogramAppender(NodeHistogramFactory nodeHistogramFactory, Executor executor) {
+        this.nodeHistogramFactory = Objects.requireNonNull(nodeHistogramFactory, "nodeHistogramFactory must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
     }
 
     @Override
@@ -66,11 +57,7 @@ public class ParallelNodeHistogramAppender implements NodeHistogramAppender {
             return;
         }
         CompletableFuture[] futures = getNodeHistogramFutures(range, nodes, linkList);
-        try {
-            CompletableFuture.allOf(futures).join();
-        } catch (Exception e) {
-            logger.error("Error appending node histograms", e);
-        }
+        CompletableFuture.allOf(futures).join();
     }
 
     private CompletableFuture[] getNodeHistogramFutures(Range range, Collection<Node> nodes, LinkList linkList) {
@@ -95,7 +82,7 @@ public class ParallelNodeHistogramAppender implements NodeHistogramAppender {
                 public NodeHistogram get() {
                     return nodeHistogramFactory.createWasNodeHistogram(wasNode, range);
                 }
-            }, executorService);
+            }, executor);
         } else if (serviceType.isTerminal() || serviceType.isUnknown()) {
             nodeHistogramFuture = CompletableFuture.completedFuture(nodeHistogramFactory.createTerminalNodeHistogram(application, range, linkList));
         } else if (serviceType.isQueue()) {

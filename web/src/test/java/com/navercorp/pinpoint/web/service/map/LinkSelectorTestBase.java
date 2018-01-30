@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -53,6 +57,10 @@ public abstract class LinkSelectorTestBase {
 
     private static final Random RANDOM = new Random();
 
+    private final ExecutorService executor = Executors.newFixedThreadPool(4);
+
+    private final ApplicationsMapCreatorFactory applicationsMapCreatorFactory = new ApplicationsMapCreatorFactory(executor);
+
     protected final ServiceType testRpcServiceType = ServiceTypeFactory.of(9000, "TEST_RPC_CLIENT", ServiceTypeProperty.RECORD_STATISTICS);
 
     protected final Range range = new Range(0, 100);
@@ -61,16 +69,26 @@ public abstract class LinkSelectorTestBase {
     protected HostApplicationMapDao hostApplicationMapDao;
     protected LinkSelectorFactory linkSelectorFactory;
 
-    protected abstract ApplicationsMapCreatorFactory createApplicationsMapCreatorFactory();
-
     protected abstract LinkSelectorType getLinkSelectorType();
 
     @Before
     public void setUp() throws Exception {
         this.linkDataMapService = mock(LinkDataMapService.class);
         this.hostApplicationMapDao = mock(HostApplicationMapDao.class);
-        ApplicationsMapCreatorFactory applicationsMapCreatorFactory = createApplicationsMapCreatorFactory();
         this.linkSelectorFactory = new LinkSelectorFactory(linkDataMapService, applicationsMapCreatorFactory, hostApplicationMapDao);
+    }
+
+    @After
+    public void cleanUp() {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     final LinkDataMap newEmptyLinkDataMap() {

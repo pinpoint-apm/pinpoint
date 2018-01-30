@@ -40,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.Objects;
+
 /**
  * @author netspider
  * @author emeroad
@@ -48,27 +50,33 @@ import org.springframework.stereotype.Repository;
 public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private static final int MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS = 32;
+    private static final int SCAN_CACHE_SIZE = 40;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private int scanCacheSize = 40;
+
+    private final HbaseOperations2 hbaseTemplate;
+
+    private final TableNameProvider tableNameProvider;
+
+    private final RowMapper<LinkDataMap> mapStatisticsCalleeMapper;
+
+    private final RangeFactory rangeFactory;
+
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Autowired
-    private HbaseOperations2 hbaseOperations2;
-
-    @Autowired
-    private TableNameProvider tableNameProvider;
-
-    @Autowired
-    @Qualifier("mapStatisticsCalleeMapper")
-    private RowMapper<LinkDataMap> mapStatisticsCalleeMapper;
-
-    @Autowired
-    private RangeFactory rangeFactory;
-
-    @Autowired
-    @Qualifier("statisticsCalleeRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
+    public HbaseMapStatisticsCalleeDao(
+            HbaseOperations2 hbaseTemplate,
+            TableNameProvider tableNameProvider,
+            @Qualifier("mapStatisticsCalleeMapper") RowMapper<LinkDataMap> mapStatisticsCalleeMapper,
+            RangeFactory rangeFactory,
+            @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix)  {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate must not be null");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider must not be null");
+        this.mapStatisticsCalleeMapper = Objects.requireNonNull(mapStatisticsCalleeMapper, "mapStatisticsCalleeMapper must not be null");
+        this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory must not be null");
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix must not be null");
+    }
 
     @Override
     public LinkDataMap selectCallee(Application calleeApplication, Range range) {
@@ -85,7 +93,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
 
         TableName mapStatisticsCallerTableName = tableNameProvider.getTableName(HBaseTables.MAP_STATISTICS_CALLER_VER2_STR);
-        LinkDataMap linkDataMap = hbaseOperations2.findParallel(mapStatisticsCallerTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
+        LinkDataMap linkDataMap = hbaseTemplate.findParallel(mapStatisticsCallerTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
         logger.debug("Callee data. {}, {}", linkDataMap, range);
         if (linkDataMap != null && linkDataMap.size() > 0) {
             return linkDataMap;
@@ -107,7 +115,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
 
         Scan scan = new Scan();
-        scan.setCaching(this.scanCacheSize);
+        scan.setCaching(SCAN_CACHE_SIZE);
         scan.setStartRow(startKey);
         scan.setStopRow(endKey);
         scan.addFamily(family);
