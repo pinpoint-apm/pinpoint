@@ -2,14 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:lang="http://www.springframework.org/schema/lang"
-       xmlns:beans="http://www.springframework.org/schema/beans"
        xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <context:annotation-config/>
 
@@ -163,5 +162,34 @@
                 </bean>
             </list>
         </property>
+    </bean>
+
+    <bean id="callerRunsPolicy" class="java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy"/>
+    <bean id="baseTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" abstract="true">
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="allowCoreThreadTimeOut" value="false"/>
+    </bean>
+
+    <bean id="applicationsMapCreateExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="rejectedExecutionHandler" ref="callerRunsPolicy"/>
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.creator.parallel.maxthreads'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.creator.parallel.maxthreads'] ?: 16}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Link-Selector-"/>
+    </bean>
+
+    <bean id="nodeHistogramAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="rejectedExecutionHandler" ref="callerRunsPolicy"/>
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Node-Histogram-Appender-"/>
+    </bean>
+
+    <bean id="serverInfoAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="rejectedExecutionHandler" ref="callerRunsPolicy"/>
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
     </bean>
 </beans>

@@ -31,11 +31,15 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -44,20 +48,34 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-public abstract class NodeHistogramAppenderTestBase {
+public class NodeHistogramAppenderTest {
+
+    private final ExecutorService executor = Executors.newFixedThreadPool(4);
+
+    private final NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory(executor);
 
     private WasNodeHistogramDataSource wasNodeHistogramDataSource;
 
     private NodeHistogramAppender nodeHistogramAppender;
 
-    protected abstract NodeHistogramAppenderFactory createNodeHistogramAppenderFactory();
-
     @Before
     public void setUp() {
         wasNodeHistogramDataSource = mock(WasNodeHistogramDataSource.class);
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
-        NodeHistogramAppenderFactory nodeHistogramAppenderFactory = createNodeHistogramAppenderFactory();
         nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
+    }
+
+    @After
+    public void cleanUp() {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Test

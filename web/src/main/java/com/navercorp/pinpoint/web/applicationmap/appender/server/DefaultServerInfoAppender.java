@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,30 +29,25 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
  * @author HyunGil Jeong
  */
-public class ParallelServerInfoAppender implements ServerInfoAppender {
+public class DefaultServerInfoAppender implements ServerInfoAppender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ServerInstanceListFactory serverInstanceListFactory;
 
-    private final ExecutorService executorService;
+    private final Executor executor;
 
-    public ParallelServerInfoAppender(ServerInstanceListFactory serverInstanceListFactory, ExecutorService executorService) {
-        if (serverInstanceListFactory == null) {
-            throw new NullPointerException("serverInstanceListFactory must not be null");
-        }
-        if (executorService == null) {
-            throw new NullPointerException("executorService must not be null");
-        }
-        this.serverInstanceListFactory = serverInstanceListFactory;
-        this.executorService = executorService;
+    public DefaultServerInfoAppender(ServerInstanceListFactory serverInstanceListFactory, Executor executor) {
+        this.serverInstanceListFactory = Objects.requireNonNull(serverInstanceListFactory, "serverInstanceListFactory must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
     }
 
     @Override
@@ -65,11 +60,7 @@ public class ParallelServerInfoAppender implements ServerInfoAppender {
             return;
         }
         CompletableFuture[] futures = getServerInstanceListFutures(range, nodes, linkDataDuplexMap);
-        try {
-            CompletableFuture.allOf(futures).join();
-        } catch (Exception e) {
-            logger.error("Error appending node histograms", e);
-        }
+        CompletableFuture.allOf(futures).join();
     }
 
     private CompletableFuture[] getServerInstanceListFutures(Range range, Collection<Node> nodes, LinkDataDuplexMap linkDataDuplexMap) {
@@ -95,7 +86,7 @@ public class ParallelServerInfoAppender implements ServerInfoAppender {
                 public ServerInstanceList get() {
                     return serverInstanceListFactory.createWasNodeInstanceList(node, to);
                 }
-            }, executorService);
+            }, executor);
         } else if (nodeServiceType.isTerminal()) {
             // extract information about the terminal node
             serverInstanceListFuture = CompletableFuture.completedFuture(serverInstanceListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap));
