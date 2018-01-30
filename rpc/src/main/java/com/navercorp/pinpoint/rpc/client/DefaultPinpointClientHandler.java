@@ -130,16 +130,9 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         this.pinpointClient = pinpointClient;
     }
 
-    public void setConnectSocketAddress(SocketAddress connectSocketAddress) {
-        if (connectSocketAddress == null) {
-            throw new NullPointerException("connectSocketAddress must not be null");
-        }
-        this.connectSocketAddress = connectSocketAddress;
-    }
-
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        Channel channel = e.getChannel();
+        final Channel channel = e.getChannel();
         
         logger.debug("{} channelOpen() started. channel:{}", objectUniqName, channel);
 
@@ -148,13 +141,15 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        Channel channel = e.getChannel();
+        final Channel channel = e.getChannel();
         if ((null == channel) || (this.channel != channel)) {
             throw new IllegalArgumentException("Invalid channel variable. this.channel:" + this.channel + ", channel:" + channel + ".");
         }
 
         logger.info("{} channelConnected() started. channel:{}", objectUniqName, channel);
-        
+        this.connectSocketAddress = channel.getRemoteAddress();
+        logger.debug("{} connectedSocketAddress:() channel:{}", channel, connectSocketAddress);
+
         SocketStateChangeResult stateChangeResult = state.toConnected();
         if (!stateChangeResult.isChange()) {
             throw new IllegalStateException("Invalid state:" + stateChangeResult.getCurrentState());

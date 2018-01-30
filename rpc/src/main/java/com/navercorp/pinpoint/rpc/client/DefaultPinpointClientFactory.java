@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -197,11 +198,11 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     private ClientBootstrap createBootStrap(int bossCount, int workerCount, Timer timer) {
         // profiler, collector,
         logger.debug("createBootStrap boss:{}, worker:{}", bossCount, workerCount);
-        NioClientSocketChannelFactory nioClientSocketChannelFactory = createChannelFactory(bossCount, workerCount, timer);
-        return new ClientBootstrap(nioClientSocketChannelFactory);
+        ChannelFactory channelFactory = createChannelFactory(bossCount, workerCount, timer);
+        return new ClientBootstrap(channelFactory);
     }
 
-    private NioClientSocketChannelFactory createChannelFactory(int bossCount, int workerCount, Timer timer) {
+    private ChannelFactory createChannelFactory(int bossCount, int workerCount, Timer timer) {
         ExecutorService boss = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Client-Boss", true));
         NioClientBossPool bossPool = new NioClientBossPool(boss, bossCount, timer, ThreadNameDeterminer.CURRENT);
 
@@ -249,7 +250,6 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         }
 
         PinpointClientHandler pinpointClientHandler = getSocketHandler(channelConnectFuture.getChannel());
-        pinpointClientHandler.setConnectSocketAddress(address);
 
         ConnectFuture handlerConnectFuture = pinpointClientHandler.getConnectFuture();
         handlerConnectFuture.awaitUninterruptibly();
@@ -341,7 +341,6 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
             final ChannelFuture channelFuture = reconnect(socketAddress);
             Channel channel = channelFuture.getChannel();
             final PinpointClientHandler pinpointClientHandler = getSocketHandler(channel);
-            pinpointClientHandler.setConnectSocketAddress(socketAddress);
             pinpointClientHandler.setPinpointClient(pinpointClient);
 
             channelFuture.addListener(new ChannelFutureListener() {
