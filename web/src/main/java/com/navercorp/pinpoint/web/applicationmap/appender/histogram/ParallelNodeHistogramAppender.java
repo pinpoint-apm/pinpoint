@@ -86,6 +86,7 @@ public class ParallelNodeHistogramAppender implements NodeHistogramAppender {
         CompletableFuture<NodeHistogram> nodeHistogramFuture;
         final Application application = node.getApplication();
         final ServiceType serviceType = application.getServiceType();
+
         if (serviceType.isWas()) {
             // for WAS nodes, set their own response time histogram
             final Application wasNode = node.getApplication();
