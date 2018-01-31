@@ -7,7 +7,7 @@ sidebar: mydoc_sidebar
 permalink: contribution.html
 ---
 
-Thank you very much for choosing to share your contribution with us. Please read this page to help us better realize your goals.
+Thank you very much for choosing to share your contribution with us. Please read this page to help yourself to the contribution.
 
 Before making first pull-request, please make sure you've signed the [Contributor License Agreement](http://goo.gl/forms/A6Bp2LRoG3). This isn't a copyright - it gives us (Naver) permission to use and redistribute your code as part of the project.
 
