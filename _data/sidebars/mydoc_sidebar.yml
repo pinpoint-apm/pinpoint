@@ -48,6 +48,11 @@ entries:
       url: /additionalplugins.html
       output: web, pdf
 
+    - title: How to use Application Inspector
+      url: /applicationinspector.html
+      output: web, pdf
+
+
   - title: Getting Started
     output: web, pdf
     folderitems:
@@ -59,6 +64,11 @@ entries:
     - title: Installation
       url: /installation.html
       output: web, pdf
+
+    - title: Setting Alarms
+      url: /alarm.html
+      output: web, pdf
+
 
   - title: Contribution
     output: web, pdf
