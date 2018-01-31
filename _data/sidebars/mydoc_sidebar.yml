@@ -1,0 +1,101 @@
+# This is your sidebar TOC. The sidebar code loops through sections here and provides the appropriate formatting.
+
+entries:
+- title: sidebar
+  product: Pinpoint
+  version: 1.7.1
+  folders:
+
+  - title:
+    output: pdf
+    type: frontmatter
+    folderitems:
+    - title:
+      url: /titlepage.html
+      output: pdf
+      type: frontmatter
+    - title:
+      url: /tocpage.html
+      output: pdf
+      type: frontmatter
+
+  - title: Home
+    url: /index.html
+    output: link
+    type: homepage
+
+  - title: Pinpoint
+    output: web, pdf
+    folderitems:
+
+    - title: Overview
+      url: /overview.html
+      output: web, pdf
+
+    - title: History
+      url: /history.html
+      output: web, pdf
+
+    - title: 2018 Roadmap
+      url: /roadmap.html
+      output: web, pdf
+
+    - title: Technical Details
+      url: /techdetail.html
+      output: web, pdf
+
+    - title: Additional Plugins
+      url: /additionalplugins.html
+      output: web, pdf
+
+  - title: Getting Started
+    output: web, pdf
+    folderitems:
+
+    - title: QuickStart
+      url: /quickstart.html
+      output: web, pdf
+
+    - title: Installation
+      url: /installation.html
+      output: web, pdf
+
+  - title: Contribution
+    output: web, pdf
+
+    folderitems:
+    - title: Readme
+      url: /contribution.html
+      output: web, pdf
+
+    - title: Plugin Developer Guide
+      url: /plugindevguide.html
+      output: web, pdf
+
+    - title: Help Wanted
+      external_url: https://github.com/naver/pinpoint/labels/Contribution
+      output: web, pdf
+
+  - title: Twitter
+    external_url: https://twitter.com/Pinpoint_APM
+    output: link
+
+  - title: Release Notes
+    external_url: https://github.com/naver/pinpoint/releases
+    output: link
+
+  - title: FAQ
+    url: /faq.html
+    output: link
+
+  - title: Sites Using Pinpoint
+    url: /pinpointinaction.html
+    output: link
+
+  - title: Questions and answers
+    external_url: https://github.com/naver/pinpoint/issues
+    output: link
+
+  - title: Fork me at Github
+    external_url: https://github.com/naver/pinpoint
+    output: link

@@ -1,0 +1,25 @@
+## Topnav single links
+## if you want to list an external url, use external_url instead of url. the theme will apply a different link base.
+topnav:
+- title: Topnav
+  items:
+    - title: GitHub
+      external_url: https://github.com/naver/pinpoint
+    - title: News
+      url: /news
+    - title: Pinpoint Blogs
+      url: /resources
+
+
+#Topnav dropdowns
+#topnav_dropdowns:
+#- title: Topnav dropdowns
+#  folders:
+#    - title: Pinpoint Help
+##      folderitems:
+#        - title: Jekyll Talk
+#          external_url: https://talk.jekyllrb.com
+#        - title: Jekyll documentation
+#          external_url: http://jekyllrb.com/docs/home/
+#        - title: Jekyll on Stack Overflow
+#          external_url: http://stackoverflow.com/questions/tagged/jekyll
