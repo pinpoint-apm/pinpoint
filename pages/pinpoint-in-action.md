@@ -7,7 +7,7 @@ sidebar: mydoc_sidebar
 permalink: pinpointinaction.html
 ---
 
-Pinpoint is used globally. Currently top 3 countries using pinpoint are China, Korea, USA.
+Pinpoint is used globally. Currently top 3 countries using Pinpoint are China, Korea, USA.
 
 ## Sites using Pinpoint
 
