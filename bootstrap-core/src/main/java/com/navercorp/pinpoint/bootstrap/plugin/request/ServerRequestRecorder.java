@@ -30,13 +30,29 @@ public class ServerRequestRecorder {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    // Records the server's request information.
     public void record(final SpanRecorder recorder, final ServerRequestTrace serverRequestTrace) {
         if (recorder == null || serverRequestTrace == null) {
             return;
         }
-        recorder.recordRpcName(serverRequestTrace.getRpcName());
-        recorder.recordEndPoint(serverRequestTrace.getEndPoint());
-        recorder.recordRemoteAddress(serverRequestTrace.getRemoteAddress());
+        final String rpcName = serverRequestTrace.getRpcName();
+        recorder.recordRpcName(rpcName);
+        if (isDebug) {
+            logger.debug("Record rpcName={}", rpcName);
+        }
+
+        final String endPoint = serverRequestTrace.getEndPoint();
+        recorder.recordEndPoint(endPoint);
+        if (isDebug) {
+            logger.debug("Record endPoint={}", endPoint);
+        }
+
+        final String remoteAddress = serverRequestTrace.getRemoteAddress();
+        recorder.recordRemoteAddress(remoteAddress);
+        if (isDebug) {
+            logger.debug("Record remoteAddress={}", remoteAddress);
+        }
+
         if (!recorder.isRoot()) {
             recordParentInfo(recorder, serverRequestTrace);
         }
@@ -50,15 +66,19 @@ public class ServerRequestRecorder {
                 host = serverRequestTrace.getAcceptorHost();
             }
             recorder.recordAcceptorHost(host);
+            if (isDebug) {
+                logger.debug("Record acceptorHost={}", host);
+            }
+
             final String type = serverRequestTrace.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
             final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
             recorder.recordParentApplication(parentApplicationName, parentApplicationType);
             if (isDebug) {
-                logger.debug("Record parentApplicationName={}, parentApplicationType={}, host={}", parentApplicationName, parentApplicationType, host);
+                logger.debug("Record parentApplicationName={}, parentApplicationType={}", parentApplicationName, parentApplicationType);
             }
         } else {
             if (isDebug) {
-                logger.debug("Not found parentApplicationName");
+                logger.debug("Not found parentApplication");
             }
         }
     }

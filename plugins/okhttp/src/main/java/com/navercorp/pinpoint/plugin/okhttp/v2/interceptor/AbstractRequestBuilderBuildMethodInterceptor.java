@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.okhttp.v2.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -26,14 +25,14 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpClientRequestBuilderTrace;
 import com.squareup.okhttp.Request;
 
 /**
  * @author jaehong.kim
  */
 public abstract class AbstractRequestBuilderBuildMethodInterceptor implements AroundInterceptor {
-
     protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -67,9 +66,10 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
 
             final Request.Builder builder = ((Request.Builder) target);
             if (!trace.canSampled()) {
-                builder.header(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
-                if (isDebug) {
-                    logger.debug("Set HTTP header. sampled=false");
+                if (builder != null) {
+                    final String host = toHost(target);
+                    final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderTrace(builder, host));
+                    requestTraceWriter.write();
                 }
                 return;
             }
@@ -84,23 +84,9 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
             }
 
             final TraceId nextId = (TraceId) attachment;
-            builder.header(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            builder.header(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            builder.header(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            builder.header(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            builder.header(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            builder.header(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-            if (isDebug) {
-                logger.debug("Set HTTP headers. traceId={}, spanId={}, parentSpanId={}", nextId.getTransactionId(), nextId.getSpanId(), nextId.getParentSpanId());
-            }
-
             final String host = toHost(target);
-            if (host != null) {
-                builder.header(Header.HTTP_HOST.toString(), host);
-                if (isDebug) {
-                    logger.debug("Set HTTP header. host={}", host);
-                }
-            }
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderTrace(builder, host));
+            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }

@@ -22,11 +22,31 @@ import com.navercorp.pinpoint.bootstrap.plugin.RequestTrace;
  * @author jaehong.kim
  */
 public interface ServerRequestTrace extends RequestTrace {
+    /**
+     * Procedure name(optional)
+     *
+     * @return
+     */
     String getRpcName();
 
+    /**
+     * Server address
+     *
+     * @return
+     */
     String getEndPoint();
 
+    /**
+     * Client address
+     *
+     * @return
+     */
     String getRemoteAddress();
 
+    /**
+     * Server address that the client used
+     *
+     * @return
+     */
     String getAcceptorHost();
 }

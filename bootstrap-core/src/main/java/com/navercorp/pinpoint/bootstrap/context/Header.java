@@ -30,6 +30,7 @@ public enum Header {
     HTTP_FLAGS("Pinpoint-Flags"),
     HTTP_PARENT_APPLICATION_NAME("Pinpoint-pAppName"),
     HTTP_PARENT_APPLICATION_TYPE("Pinpoint-pAppType"),
+    HTTP_PARENT_APPLICATION_NAMESPACE("Pinpoint-pAppNamespace"),
     HTTP_HOST("Pinpoint-Host"),
     HTTP_PROXY_NGINX("Pinpoint-ProxyNginx"),
     HTTP_PROXY_APACHE("Pinpoint-ProxyApache"),

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.okhttp.v3.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -26,10 +25,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.v3.HttpUrlGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestBuilderTrace;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
@@ -66,10 +66,11 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
                 return;
             }
             final Request.Builder builder = ((Request.Builder) target);
+            final String host = getHost(target);
             if (!trace.canSampled()) {
-                builder.header(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
-                if (isDebug) {
-                    logger.debug("Set HTTP headers. sampled=false");
+                if (builder != null) {
+                    final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderTrace(builder, null));
+                    requestTraceWriter.write();
                 }
                 return;
             }
@@ -84,26 +85,8 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             }
 
             final TraceId nextId = (TraceId) attachment;
-            builder.header(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            builder.header(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            builder.header(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            builder.header(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            builder.header(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            builder.header(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-            if (isDebug) {
-                logger.debug("Set HTTP Headers. transactionId={}, spanId={}, parentSpanId={}", nextId.getTransactionId(), nextId.getSpanId(), nextId.getParentSpanId());
-            }
-
-            if (target instanceof HttpUrlGetter) {
-                final HttpUrl url = ((HttpUrlGetter) target)._$PINPOINT$_getHttpUrl();
-                if (url != null) {
-                    final String endpoint = getDestinationId(url);
-                    builder.header(Header.HTTP_HOST.toString(), endpoint);
-                    if (isDebug) {
-                        logger.debug("Set HTTP header. host={}", endpoint);
-                    }
-                }
-            }
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderTrace(builder, host));
+            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }
@@ -116,9 +99,19 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         return invocation.getAttachment();
     }
 
+    private String getHost(Object target) {
+        if (target instanceof HttpUrlGetter) {
+            final HttpUrl url = ((HttpUrlGetter) target)._$PINPOINT$_getHttpUrl();
+            if (url != null) {
+                return getDestinationId(url);
+            }
+        }
+        return null;
+    }
+
     private String getDestinationId(HttpUrl httpUrl) {
         if (httpUrl == null || httpUrl.host() == null) {
-            return "UnknownHttpClient";
+            return "Unknown";
         }
         final int port = EndPointUtils.getPort(httpUrl.port(), HttpUrl.defaultPort(httpUrl.scheme()));
         return HostAndPort.toHostAndPortString(httpUrl.host(), port);

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -54,6 +55,8 @@ public class RequestTraceReaderTest {
         when(traceContext.disableSampling()).thenReturn(disableTrace);
         when(traceContext.continueTraceObject(any(TraceId.class))).thenReturn(continueTrace);
         when(traceContext.newTraceObject()).thenReturn(newTrace);
+        when(traceContext.getProfilerConfig()).thenReturn(new DefaultProfilerConfig());
+
         TraceId traceId = mock(TraceId.class);
         when(traceContext.createTraceId(anyString(), anyLong(), anyLong(), anyShort())).thenReturn(traceId);
 

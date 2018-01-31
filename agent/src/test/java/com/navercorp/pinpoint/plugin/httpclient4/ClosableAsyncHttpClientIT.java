@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author netspider
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({ "org.apache.httpcomponents:httpasyncclient:[4.0,)", "org.nanohttpd:nanohttpd:2.3.1"})
+@Dependency({ "org.apache.httpcomponents:httpasyncclient:[4.0],[4.0.1],[4.0.2],[4.1],[4.1.1],[4.1.2],[4.1.3]", "org.nanohttpd:nanohttpd:2.3.1"})
 public class ClosableAsyncHttpClientIT {
     private static WebServer webServer;
 

@@ -176,6 +176,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private List<String> httpStatusCodeErrors = Collections.emptyList();
 
     private String injectionModuleFactoryClazzName = null;
+    private String applicationNamespace = "";
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -488,6 +489,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return injectionModuleFactoryClazzName;
     }
 
+    @Override
+    public String getApplicationNamespace() {
+        return applicationNamespace;
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
@@ -600,6 +606,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.httpStatusCodeErrors = readList("profiler.http.status.code.errors");
 
         this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
+
+        this.applicationNamespace = readString("profiler.application.namespace", "");
 
         logger.info("configuration loaded successfully.");
     }
@@ -762,7 +770,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
-        sb.append(", injectionModuleFactoryClazzName=").append(injectionModuleFactoryClazzName);
+        sb.append(", injectionModuleFactoryClazzName='").append(injectionModuleFactoryClazzName).append('\'');
+        sb.append(", applicationNamespace='").append(applicationNamespace).append('\'');
         sb.append('}');
         return sb.toString();
     }

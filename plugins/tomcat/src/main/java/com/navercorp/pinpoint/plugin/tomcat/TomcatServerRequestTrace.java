@@ -42,10 +42,6 @@ public class TomcatServerRequestTrace implements ServerRequestTrace {
     }
 
     @Override
-    public void setHeader(String name, String value) {
-    }
-
-    @Override
     public String getRpcName() {
         return this.request.getRequestURI();
     }
