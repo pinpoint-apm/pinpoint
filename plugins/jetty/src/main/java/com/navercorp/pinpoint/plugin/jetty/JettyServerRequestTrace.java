@@ -40,10 +40,6 @@ public abstract class JettyServerRequestTrace implements ServerRequestTrace {
     }
 
     @Override
-    public void setHeader(final String name, final String value) {
-    }
-
-    @Override
     public String getRpcName() {
         final String requestURL = request.getRequestURI();
         return requestURL;

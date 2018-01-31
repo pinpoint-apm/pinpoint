@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.websphere;
+package com.navercorp.pinpoint.plugin.weblogic;
 
-import com.ibm.websphere.servlet.request.IRequest;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.Assert;
+import weblogic.servlet.internal.ServletRequestImpl;
 
 /**
  * @author jaehong.kim
  */
-public class WebsphereServerRequestTrace implements ServerRequestTrace {
-    private final IRequest request;
+public class WeblogicServerRequestTrace implements ServerRequestTrace {
+    private final ServletRequestImpl request;
 
-    public WebsphereServerRequestTrace(final IRequest request) {
-        this.request = Assert.requireNonNull(request, "");
+    public WeblogicServerRequestTrace(final ServletRequestImpl request) {
+        this.request = request;
     }
 
     @Override
@@ -39,13 +37,13 @@ public class WebsphereServerRequestTrace implements ServerRequestTrace {
 
     @Override
     public String getRpcName() {
-        return this.request.getRequestURI();
+        return request.getRequestURI();
     }
 
     @Override
     public String getEndPoint() {
         final int port = request.getServerPort();
-        final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
+        final String endPoint = request.getServerName() + ":" + port;
         return endPoint;
     }
 

@@ -74,9 +74,5 @@ public class ServerRequestRecorderTest {
         public String getHeader(String name) {
             return GET_HEADER;
         }
-
-        @Override
-        public void setHeader(String name, String value) {
-        }
     }
 }

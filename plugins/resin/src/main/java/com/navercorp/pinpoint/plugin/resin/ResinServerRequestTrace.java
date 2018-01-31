@@ -42,10 +42,6 @@ public class ResinServerRequestTrace implements ServerRequestTrace {
     }
 
     @Override
-    public void setHeader(String name, String value) {
-    }
-
-    @Override
     public String getRpcName() {
         return request.getRequestURI();
     }

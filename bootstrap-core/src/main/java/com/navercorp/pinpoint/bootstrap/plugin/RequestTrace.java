@@ -21,6 +21,4 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  */
 public interface RequestTrace {
     String getHeader(String name);
-
-    void setHeader(String name, String value);
 }

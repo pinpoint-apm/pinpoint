@@ -144,6 +144,8 @@ public interface ProfilerConfig {
 
     String getInjectionModuleFactoryClazzName();
 
+    String getApplicationNamespace();
+
     String readString(String propertyName, String defaultValue);
 
     int readInt(String propertyName, int defaultValue);

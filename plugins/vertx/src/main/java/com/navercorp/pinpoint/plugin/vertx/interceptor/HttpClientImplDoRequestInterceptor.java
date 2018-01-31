@@ -20,17 +20,17 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
+import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestTrace;
 import io.vertx.core.http.HttpClientRequest;
 
 /**
  * @author jaehong.kim
  */
 public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
-
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -71,14 +71,16 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             return;
         }
 
-        HttpClientRequest request = null;
+        HttpClientRequest resultToRequest = null;
         if (validate(result)) {
-            request = (HttpClientRequest) result;
+            resultToRequest = (HttpClientRequest) result;
         }
+        final HttpClientRequest request = resultToRequest;
 
         if (!trace.canSampled()) {
             if (request != null) {
-                request.putHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestTrace(request));
+                requestTraceWriter.write();
             }
             return;
         }

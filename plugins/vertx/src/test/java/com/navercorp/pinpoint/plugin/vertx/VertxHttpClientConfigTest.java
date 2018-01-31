@@ -42,9 +42,6 @@ public class VertxHttpClientConfigTest {
         VertxHttpClientConfig config = new VertxHttpClientConfig(profilerConfig);
 
         assertEquals(true, config.isParam());
-        assertEquals(true, config.isCookie());
-        assertEquals(DumpType.EXCEPTION, config.getCookieDumpType());
-        assertEquals(1, config.getCookieSamplingRate());
         assertEquals(true, config.isStatusCode());
 
         properties = new Properties();
@@ -58,9 +55,6 @@ public class VertxHttpClientConfigTest {
         config = new VertxHttpClientConfig(profilerConfig);
 
         assertEquals(false, config.isParam());
-        assertEquals(false, config.isCookie());
-        assertEquals(DumpType.ALWAYS, config.getCookieDumpType());
-        assertEquals(99, config.getCookieSamplingRate());
         assertEquals(false, config.isStatusCode());
     }
 }

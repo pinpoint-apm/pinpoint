@@ -36,6 +36,8 @@ public class RequestTraceReader {
 
     private final TraceContext traceContext;
     private final boolean async;
+    private final String applicationNamespace;
+
 
     public RequestTraceReader(final TraceContext traceContext) {
         this(traceContext, false);
@@ -44,10 +46,14 @@ public class RequestTraceReader {
     public RequestTraceReader(final TraceContext traceContext, final boolean async) {
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
         this.async = async;
+        this.applicationNamespace = traceContext.getProfilerConfig().getApplicationNamespace();
     }
 
+    // Read the transaction information from the request.
     public Trace read(final ServerRequestTrace serverRequestTrace) {
-        // check sampling flag from client. If the flag is false, do not sample this request.
+        Assert.requireNonNull(serverRequestTrace, "serverRequestTrace must not be n ull");
+
+        // Check sampling flag from client. If the flag is false, do not sample this request.
         final boolean sampling = samplingEnable(serverRequestTrace);
         if (!sampling) {
             // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
@@ -98,15 +104,24 @@ public class RequestTraceReader {
     }
 
     private TraceId populateTraceIdFromRequest(final ServerRequestTrace serverRequestTrace) {
+        final String parentApplicationNamespace = serverRequestTrace.getHeader(Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString());
+        // If parentApplicationNamespace is null, it is ignored for backwards compatibility.
+        if (parentApplicationNamespace != null) {
+            if (!this.applicationNamespace.equals(parentApplicationNamespace)) {
+                // collision.
+                if (isDebug) {
+                    logger.debug("Collision namespace. applicationNamespace={}, parentApplicationNamespace={}", this.applicationNamespace, parentApplicationNamespace);
+                }
+                return null;
+            }
+        }
+
         final String transactionId = serverRequestTrace.getHeader(Header.HTTP_TRACE_ID.toString());
         if (transactionId != null) {
             final long parentSpanId = NumberUtils.parseLong(serverRequestTrace.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
             final long spanId = NumberUtils.parseLong(serverRequestTrace.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
             final short flags = NumberUtils.parseShort(serverRequestTrace.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
             final TraceId id = this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
-            if (isDebug) {
-                logger.debug("TraceID exist. continue trace. {}", id);
-            }
             return id;
         }
         return null;

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.netty.interceptor.http;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -29,16 +28,15 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.plugin.netty.NettyClientRequestTrace;
+import com.navercorp.pinpoint.plugin.netty.NettyConfig;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
-import com.navercorp.pinpoint.plugin.netty.NettyUtils;
 import com.navercorp.pinpoint.plugin.netty.field.accessor.AsyncStartFlagFieldAccessor;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
-import io.netty.handler.codec.http.HttpRequest;
 
 /**
  * @author Taejin Koo
@@ -51,6 +49,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     protected final MethodDescriptor methodDescriptor;
+    private final ClientRequestRecorder clientRequestRecorder;
 
     public HttpEncoderInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         if (traceContext == null) {
@@ -62,6 +61,8 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
+        final NettyConfig config = new NettyConfig(traceContext.getProfilerConfig());
+        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
     }
 
     @Override
@@ -84,9 +85,9 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
     private void before0(Trace trace, Object target, Object[] args) {
         if (!trace.canSampled()) {
-            HttpMessage httpMessage = (HttpMessage) args[1];
-            HttpHeaders headers = httpMessage.headers();
-            addHeaderIfNotExist(headers, Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+            final HttpMessage httpMessage = (HttpMessage) args[1];
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NettyClientRequestTrace(httpMessage, null));
+            requestTraceWriter.write();
             return;
         }
         final SpanEventRecorder recorder = trace.traceBlockBegin();
@@ -127,34 +128,10 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(NettyConstants.SERVICE_TYPE_CODEC_HTTP);
 
-        ChannelHandlerContext channelHandlerContext = (ChannelHandlerContext) args[0];
-        Channel channel = channelHandlerContext.channel();
-        final String endpoint = NettyUtils.getEndPoint(channel.remoteAddress());
-        recorder.recordDestinationId(endpoint);
-
-        HttpMessage httpMessage = (HttpMessage) args[1];
-        HttpHeaders headers = httpMessage.headers();
-
-        addHeaderIfNotExist(headers, Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-        addHeaderIfNotExist(headers, Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-
-        addHeaderIfNotExist(headers, Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-
-        addHeaderIfNotExist(headers, Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-        addHeaderIfNotExist(headers, Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-        addHeaderIfNotExist(headers, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-
-        addHeaderIfNotExist(headers, Header.HTTP_HOST.toString(), endpoint);
-
-        if (httpMessage instanceof HttpRequest) {
-            recorder.recordAttribute(AnnotationKey.HTTP_URL, ((HttpRequest) httpMessage).getUri());
-        }
-    }
-
-    private void addHeaderIfNotExist(HttpHeaders headers, String key, Object value) {
-        if (!headers.contains(key)) {
-            headers.set(key, value);
-        }
+        final ChannelHandlerContext channelHandlerContext = (ChannelHandlerContext) args[0];
+        final HttpMessage httpMessage = (HttpMessage) args[1];
+        final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NettyClientRequestTrace(httpMessage, channelHandlerContext));
+        requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
     }
 
     @Override
@@ -171,11 +148,11 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         if (async) {
             afterAsync(target, args, result, throwable);
         } else {
-            after0(throwable);
+            after0(target, args, result, throwable);
         }
     }
 
-    private void after0(Throwable throwable) {
+    private void after0(Object target, Object[] args, Object result, Throwable throwable) {
         final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
@@ -185,7 +162,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         }
         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         try {
-            doInAfterTrace(recorder, throwable);
+            doInAfterTrace(recorder, target, args, result, throwable);
         } finally {
             trace.traceBlockEnd();
         }
@@ -215,7 +192,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            doInAfterTrace(recorder, throwable);
+            doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
@@ -228,9 +205,12 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         }
     }
 
-    protected void doInAfterTrace(SpanEventRecorder recorder, Throwable throwable) {
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
+        final ChannelHandlerContext channelHandlerContext = (ChannelHandlerContext) args[0];
+        final HttpMessage httpMessage = (HttpMessage) args[1];
+        this.clientRequestRecorder.record(recorder, new NettyClientRequestTrace(httpMessage, channelHandlerContext), throwable);
     }
 
     protected AsyncContext getAsyncContext(Object target) {
@@ -319,5 +299,4 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
         return true;
     }
-
 }

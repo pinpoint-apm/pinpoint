@@ -56,20 +56,12 @@ public class ProxyHttpHeaderRecorderTest {
             public String getHeader(String name) {
                 return name;
             }
-
-            @Override
-            public void setHeader(String name, String value) {
-            }
         });
 
         recorder.record(spanRecorder, new RequestTrace() {
             @Override
             public String getHeader(String name) {
                 throw new NullPointerException();
-            }
-
-            @Override
-            public void setHeader(String name, String value) {
             }
         });
     }
