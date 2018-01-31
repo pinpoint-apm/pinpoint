@@ -16,18 +16,18 @@ Application inspector provides an aggregate view of all the agent's resource dat
 To access application inspector, click on the application inspector menu on the left side of the screen.
 
 - 1 : application inspector menu, 2 : application stat data
-![inspector_view.jpg](img/applicationInspector/inspector_view.jpg)
+![inspector_view.jpg](images/inspector_view.jpg)
 
 The Heap Usage chart above for example, shows the average(Avg), smallest(Min), greatest(Max) heap usage of the agents registered under the same application name along with the id of the agent that had the smallest/greatest heap usage at a certain point in time. The application inspector also provides other statistics found in the agent inspector in a similar fashion.
 
-![graph.jpg](img/applicationInspector/graph.jpg)
+![graph.jpg](images/graph.jpg)
 
 
 Application inspector requires [flink](https://flink.apache.org) and [zookeeper](https://zookeeper.apache.org/). Please read on for more detail.
 
 ## 2. Architecture
 
-![execute_flow.jpg](img/applicationInspector/execute_flow.jpg)
+![execute_flow.jpg](images/execute_flow.jpg)
 
 **A.** Run a streaming job on [flink](https://flink.apache.org).  
 **B.** The taskmanager server is registered to zookeeper as a data node once the job starts.  

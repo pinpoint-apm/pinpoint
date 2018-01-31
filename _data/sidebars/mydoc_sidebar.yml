@@ -48,11 +48,6 @@ entries:
       url: /additionalplugins.html
       output: web, pdf
 
-    - title: How to use Application Inspector
-      url: /applicationinspector.html
-      output: web, pdf
-
-
   - title: Getting Started
     output: web, pdf
     folderitems:
@@ -65,10 +60,30 @@ entries:
       url: /installation.html
       output: web, pdf
 
+
+  - title: Documents
+    output: web, pdf
+    folderitems:
+
     - title: Setting Alarms
       url: /alarm.html
       output: web, pdf
 
+    - title: How to use Application Inspector
+      url: /applicationinspector.html
+      output: web, pdf
+
+    - title: HTTP Status Code Failure
+      url: /httpstatuscodefailure.html
+      output: web, pdf
+
+    - title: Per Request Features
+      url: /perrequestfeatureguide.html
+      output: web, pdf
+
+    - title: Proxy HTTP Header
+      url: /proxyhttpheader.html
+      output: web, pdf
 
   - title: Contribution
     output: web, pdf
