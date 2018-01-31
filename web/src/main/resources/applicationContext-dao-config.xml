@@ -16,20 +16,7 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
-        <tx:attributes>
-            <tx:method name="select*" read-only="true" />
-            <tx:method name="read*" read-only="true" />
-            <tx:method name="get*" read-only="true" />
-            <tx:method name="view*"/>
-            <tx:method name="list*"/>
-            <tx:method name="add*"/>
-            <tx:method name="create*"/>
-            <tx:method name="delete*"/>
-            <tx:method name="update*"/>
-        </tx:attributes>
-    </tx:advice>
-
+    <tx:annotation-driven/>
 
     <!-- SqlsessionFactory setup for MyBatis Database Layer -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">

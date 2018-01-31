@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,33 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.service;
-
-import java.util.List;
-
-import com.navercorp.pinpoint.web.vo.User;
+package com.navercorp.pinpoint.web.vo.exception;
 
 /**
  * @author minwoo.jung
  */
-public interface UserService {
+public class PinpointUserGroupException extends Exception {
 
-    void dropAndCreateUserTable();
-    
-    void insertUser(User user);
-
-    void insertUserList(List<User> users);
-
-    void deleteUser(User user);
-
-    void updateUser(User user);
-
-    List<User> selectUser();
-
-    User selectUserByUserId(String userId);
-
-    List<User> selectUserByUserName(String userName);
-
-    List<User> selectUserByDepartment(String department);
-
+    public PinpointUserGroupException(String message) {
+        super(message);
+    }
 }
