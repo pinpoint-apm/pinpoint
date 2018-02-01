@@ -5,6 +5,7 @@ keywords: start, begin, quickstart, quick
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: quickstart.html
+disqus: true
 ---
 
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.

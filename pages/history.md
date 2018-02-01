@@ -5,6 +5,7 @@ keywords: history
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: history.html
+disqus: false
 ---
 
 Pinpoint is a platform that analyzes large-scale distributed systems and provides a solution to handle large collections of trace data. It has been developed since July 2012 and was launched as an open-source project on January 9, 2015.

@@ -5,6 +5,7 @@ keywords: install, start, installation
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: installation.html
+disqus: false
 ---
 
 To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.

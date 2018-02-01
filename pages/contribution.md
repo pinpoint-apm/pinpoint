@@ -5,6 +5,7 @@ keywords: help
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: contribution.html
+disqus: false
 ---
 
 Thank you very much for choosing to share your contribution with us. Please read this page to help yourself to the contribution.

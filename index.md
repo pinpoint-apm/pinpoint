@@ -6,6 +6,7 @@ sidebar: mydoc_sidebar
 permalink: index.html
 summary:
 toc: false
+disqus: false
 ---
 
 ![Pinpoint](images/logo.png)

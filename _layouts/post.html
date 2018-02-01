@@ -32,6 +32,10 @@ layout: default
 
 </article>
 
+{% if page.disqus %}
+{% include disqus.html %}
+{% endif %}
+
 {{site.data.alerts.hr_shaded}}
 
 {% include footer.html %}

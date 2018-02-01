@@ -6,6 +6,7 @@ keywords: faq, question, answer, frequently asked questions, FAQ, question and a
 last_updated: Feb 1, 2018
 permalink: faq.html
 toc: false
+disqus: false
 ---
 
 For any other questions, please use the [user group](https://groups.google.com/forum/#!forum/pinpoint_user)

@@ -5,6 +5,7 @@ keywords: plugins, plugin, plug
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: additionalplugins.html
+disqus: false
 ---
 
 ## Third-party agents/plugins

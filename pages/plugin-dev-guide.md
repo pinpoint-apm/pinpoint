@@ -5,6 +5,7 @@ keywords: plugin, plug-in, plug
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: plugindevguide.html
+disqus: true
 ---
 
 You can write Pinpoint profiler plugins to extend profiling target coverage. It is highly advisable to look into the trace data recorded by pinpoint plugins before jumping into plugin development.
