@@ -3,23 +3,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:annotation-config/>
-
-        <!--
-    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
-                                         com.navercorp.pinpoint.web.dao.mysql,
-                                         com.navercorp.pinpoint.web.service,
-                                         com.navercorp.pinpoint.web.mapper,
-                                         com.navercorp.pinpoint.web.filter" />
-        -->
-
     <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
@@ -164,8 +153,20 @@
         </property>
     </bean>
 
+    <bean id="requestContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator"/>
+    <bean id="securityContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator"/>
+    <bean id="contextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.ChainedTaskDecorator">
+        <constructor-arg>
+            <list>
+                <ref bean="requestContextPropagatingTaskDecorator"/>
+                <ref bean="securityContextPropagatingTaskDecorator"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
     <bean id="callerRunsPolicy" class="java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy"/>
     <bean id="baseTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" abstract="true">
+        <property name="taskDecorator" ref="contextPropagatingTaskDecorator"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
