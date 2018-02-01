@@ -5,6 +5,7 @@ keywords: pinpoint, used, working, use, inuse
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: pinpointinaction.html
+disqus: false
 ---
 
 Pinpoint is used globally. Currently top 3 countries using Pinpoint are China, Korea, USA.

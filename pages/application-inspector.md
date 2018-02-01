@@ -5,6 +5,7 @@ keywords: inspector, how, how-to
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: applicationinspector.html
+disqus: true
 ---
 
 # Application Inspector
