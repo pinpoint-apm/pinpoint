@@ -65,6 +65,10 @@ entries:
     output: web, pdf
     folderitems:
 
+    - title: Plugin Developer Guide
+      url: /plugindevguide.html
+      output: web, pdf
+
     - title: Setting Alarms
       url: /alarm.html
       output: web, pdf
@@ -91,10 +95,6 @@ entries:
     folderitems:
     - title: Readme
       url: /contribution.html
-      output: web, pdf
-
-    - title: Plugin Developer Guide
-      url: /plugindevguide.html
       output: web, pdf
 
     - title: Help Wanted
