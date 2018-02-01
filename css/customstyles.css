@@ -935,6 +935,11 @@ a[href^="http://"]:after, a[href^="https://"]:after {
     padding-left: 3px;
 }
 
+a[no_icon]:after {
+    content:"" !important;
+    padding-left: 0;
+}
+
 /* Strip the outbound icon when this class is present */
 a[href].noCrossRef::after,
 a.no_icon:after
