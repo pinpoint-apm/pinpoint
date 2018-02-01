@@ -19,4 +19,4 @@ Pinpoint is used globally. Currently top 3 countries using Pinpoint are China, K
 * Pikicast (www.pikicast.com)
 * ... and much more companies
 
-If your company wants(or does not want) to be listed here, feel free to contact us anytime. 
+If you want(or don't want) your company's title to be added in the list, feel free to contact us anytime. 
