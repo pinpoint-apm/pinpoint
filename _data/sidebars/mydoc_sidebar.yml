@@ -36,9 +36,9 @@ entries:
       url: /history.html
       output: web, pdf
 
-    - title: 2018 Roadmap
-      url: /roadmap.html
-      output: web, pdf
+#    - title: 2018 Roadmap
+#      url: /roadmap.html
+#      output: web, pdf
 
     - title: Technical Details
       url: /techdetail.html
@@ -73,15 +73,15 @@ entries:
       url: /applicationinspector.html
       output: web, pdf
 
-    - title: HTTP Status Code Failure
-      url: /httpstatuscodefailure.html
-      output: web, pdf
-
     - title: Per Request Features
       url: /perrequestfeatureguide.html
       output: web, pdf
 
-    - title: Proxy HTTP Header
+    - title: HTTP Status Code Failure(config)
+      url: /httpstatuscodefailure.html
+      output: web, pdf
+
+    - title: Proxy HTTP Header(config)
       url: /proxyhttpheader.html
       output: web, pdf
 
