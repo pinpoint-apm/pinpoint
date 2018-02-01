@@ -141,9 +141,9 @@ function func_init_agent
 
 function func_start_pinpoint_testapp
 {
-		version=$( func_read_properties "$KEY_VERSION" )
+        version=$( func_read_properties "$KEY_VERSION" )
         maven_opt=$MAVEN_OPTS
-		pinpoint_agent=$AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar
+        pinpoint_agent=$AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar
         pinpoint_opt="-javaagent:$pinpoint_agent -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP"
         export MAVEN_OPTS=$pinpoint_opt
 

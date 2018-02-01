@@ -193,8 +193,10 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
                     InstrumentUtils.findMethod(target, "executeUpdate")
                             .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), POSTGRESQL_SCOPE);
 
-                    for (InstrumentMethod method : declaredMethods) {
-                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", POSTGRESQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                    if (config.isTraceSqlBindValue()) {
+                        for (InstrumentMethod method : declaredMethods) {
+                            method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", POSTGRESQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                        }
                     }
                 }
 
@@ -230,8 +232,10 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
                     InstrumentUtils.findMethod(target, "executeUpdate")
                             .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), POSTGRESQL_SCOPE);
 
-                    for (InstrumentMethod method : declaredMethods) {
-                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", POSTGRESQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                    if (config.isTraceSqlBindValue()) {
+                        for (InstrumentMethod method : declaredMethods) {
+                            method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", POSTGRESQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                        }
                     }
                 }
 
@@ -380,10 +384,12 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
                 InstrumentUtils.findMethod(target, "execute", "java.lang.String")
                         .addScopedInterceptor(executeUpdateInterceptor, POSTGRESQL_SCOPE);
 
-                final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
-                final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(excludes);
-                for (InstrumentMethod method : declaredMethods) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", POSTGRESQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                if (config.isTraceSqlBindValue()) {
+                    final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
+                    final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(excludes);
+                    for (InstrumentMethod method : declaredMethods) {
+                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", POSTGRESQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                    }
                 }
 
                 return target.toBytecode();
