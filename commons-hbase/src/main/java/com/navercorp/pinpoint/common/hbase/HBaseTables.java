@@ -37,6 +37,9 @@ public final class HBaseTables {
     public static final int APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 
     public static final TableName AGENT_STAT_VER2 = TableName.valueOf("AgentStatV2");
+    //[XINGUANG]
+    public static final TableName BUSINESS_LOG = TableName.valueOf("BusinessLog");
+    public static final byte[] BUSINESS_MESSAGEINFO = Bytes.toBytes("MessageInfo");
 
     public static final byte[] AGENT_STAT_CF_STATISTICS = Bytes.toBytes("S"); // agent statistics column family
 

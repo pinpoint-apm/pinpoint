@@ -342,6 +342,22 @@
 
         <plugins>
             <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>http://localhost:8080/manager/html</url>
+                    <server>tomcat7</server>
+                    <username>admin</username>
+                    <password>password</password>
+                    <ignorePackaging>true</ignorePackaging>
+                    <path>/</path>
+                    <port>8089</port>
+                    <!--   <fork>true</fork> -->
+                    <uriEncoding>UTF-8</uriEncoding>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>

@@ -18,9 +18,12 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.AgentEventHandler;
 import com.navercorp.pinpoint.collector.handler.AgentStatHandlerV2;
+import com.navercorp.pinpoint.collector.handler.BusinessLogHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.TBusinessLog;
+import com.navercorp.pinpoint.thrift.dto.TBusinessLogBatch;
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,8 @@ public class StatDispatchHandler extends AbstractDispatchHandler {
     @Autowired
     private AgentEventHandler agentEventHandler;
 
+    @Autowired
+    private BusinessLogHandler businessLogHandler;
     public StatDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
@@ -53,6 +58,10 @@ public class StatDispatchHandler extends AbstractDispatchHandler {
         if (tBase instanceof TAgentStat || tBase instanceof TAgentStatBatch) {
             simpleHandlerList.add(agentStatHandler);
             simpleHandlerList.add(agentEventHandler);
+        }
+        //[XINGUANG]
+        if (tBase instanceof TBusinessLog || tBase instanceof TBusinessLogBatch) {
+            simpleHandlerList.add(businessLogHandler);
         }
 
         return simpleHandlerList;

@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.BusinessLogMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -58,6 +59,8 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final DeadlockMonitor deadlockMonitor;
     private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
+    //[XINGUANG]:BusinessLogMonitor
+    private final BusinessLogMonitor businessLogMonitor;
 
     private final TraceContext traceContext;
 
@@ -133,6 +136,8 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+        //[XINGUANG]:initialization BusinessLogMonitor
+        this.businessLogMonitor = injector.getInstance(BusinessLogMonitor.class);
     }
 
     public ClassFileTransformer wrap(ClassFileTransformerDispatcher classFileTransformerDispatcher) {
@@ -206,6 +211,10 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor.start();
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
+        //[XINGUANG]:start business log collect monitor
+        if (profilerConfig.isBusinesslogEnable()) {
+            this.businessLogMonitor.start();
+        }
     }
 
     @Override
@@ -220,6 +229,11 @@ public class DefaultApplicationContext implements ApplicationContext {
         if (spanStatClientFactory != null) {
             spanStatClientFactory.release();
         }
+        //[XINGUANG]:stop business log collect monitor
+        if (profilerConfig.isBusinesslogEnable()) {
+            this.businessLogMonitor.stop();
+        }
+
 
         closeTcpDataSender();
     }

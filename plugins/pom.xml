@@ -45,6 +45,7 @@
         <module>okhttp</module>
         <module>log4j</module>
         <module>logback</module>
+        <module>logging-event</module>
         <module>dubbo</module>
         <module>cassandra</module>
         <module>activemq-client</module>
@@ -262,6 +263,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-resin-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-loggingevent-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

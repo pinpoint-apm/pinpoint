@@ -24,5 +24,8 @@ public final class PinpointConstants {
     public static final int APPLICATION_NAME_MAX_LEN = 24;
 
     public static final int AGENT_NAME_MAX_LEN = 24;
+    
+    //[XINGUANG]: transactionId and spanId length
+    public static final int TRANSACTIONID_AND_SPANID_LEN = 64;
 
 }
