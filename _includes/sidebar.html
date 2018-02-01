@@ -1,7 +1,22 @@
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetLatestReleaseInfo();
+    });
+
+    function GetLatestReleaseInfo() {
+        $.getJSON("https://api.github.com/repos/naver/pinpoint/releases").done(function (json) {
+            var release = json[0];
+            var version = release.tag_name;
+            document.getElementById("version").innerHTML = version;
+        });
+    }
+</script>
+
+
 {% assign sidebar = site.data.sidebars[page.sidebar].entries %}
 
 <ul id="mysidebar" class="nav">
-  <li class="sidebarTitle">{{sidebar[0].product}} {{sidebar[0].version}}</li>
+    <li class="sidebarTitle">{{sidebar[0].product}} <object id="version"></object> </li>
     <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
     <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
     </td> </tr>
