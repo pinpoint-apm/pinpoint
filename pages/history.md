@@ -10,7 +10,7 @@ disqus: false
 
 Pinpoint is a platform that analyzes large-scale distributed systems and provides a solution to handle large collections of trace data. It has been developed since July 2012 and was launched as an open-source project on January 9, 2015.
 
-This article introduces Pinpoint; it describes what motivated us to start this project, which technologies are used, and how the Pinpoint agent can be optimized.
+This article introduces Pinpoint; it describes what motivated us to start this project, which technologies are used, and how the Pinpoint Agent can be optimized.
 
 > 本文的中文翻译版本 [请见这里](https://github.com/skyao/leaning-pinpoint/blob/master/design/technical_overview.md)
 
