@@ -10,7 +10,7 @@ disqus: true
 
 # Alarm
 
-Pinpoint-web periodically checks the applications' status and triggers an alarm if certain pre-configured conditions (rules) are met.
+Pinpoint Web periodically checks the applications' status and triggers an alarm if certain pre-configured conditions (rules) are met.
 
 These conditions are (by default) checked every 3 minutes by a background batch process within the Web module, using the last 5 minutes of data. Once a condition is met, the batch process sends an sms/email to users registered to a user group.
 
@@ -175,7 +175,7 @@ If there are a lot of alarms registered to applications, you may set the `alarmS
 <task:executor id="poolTaskExecutorForStep" pool-size="10" />
 ```
 
-**4) use quickstart's web** - 
+**4) use quickstart's Web** - 
 Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
 However Quickstart uses MockDAO to reduce memory usage.<br/>
 Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/applicationContext-dao-config.xml
