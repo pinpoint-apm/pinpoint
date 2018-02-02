@@ -171,7 +171,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private List<String> httpStatusCodeErrors = Collections.emptyList();
 
     
-	//[XINGUANG]:businesslog switch
+  	//[XINGUANG]:businesslog switch
     private boolean businesslogEnable = false;
     
     //[XINGUANG]:tomcat log dir
@@ -593,6 +593,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         //[XINGUANG]:read value of dir of log of tomcat from pinpoint.config
         this.tomcatLogDir = readString("profiler.tomcatlog.dir",null);
 		this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
+
+        this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
 
         logger.info("configuration loaded successfully.");
     }
