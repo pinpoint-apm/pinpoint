@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
+import java.util.concurrent.Executor;
+
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
@@ -41,17 +43,10 @@ public class ApplicationMapBuilderTestHelper {
     private static final ServiceType TERMINAL_TYPE = ServiceTypeFactory.of(2000, "TERMINAL", TERMINAL, INCLUDE_DESTINATION_ID);
     private static final ServiceType RPC_TYPE = ServiceTypeFactory.of(9000, "RPC", RECORD_STATISTICS);
 
-    public static ApplicationMapBuilder createApplicationMapBuilder(Range range) {
-        NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory("serial", 16);
-        ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory("serial", 16);
+    public static ApplicationMapBuilder createApplicationMapBuilder(Range range, Executor executor) {
+        NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory(executor);
+        ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory(executor);
         return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
-    }
-
-    public static ApplicationMapBuilder createApplicationMapBuilder_parallelAppenders(Range range) {
-        NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory("parallel", 16);
-        ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory("parallel", 16);
-        return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
-
     }
 
     public static int getExpectedNumNodes(int calleeDepth, int callerDepth) {

@@ -41,6 +41,7 @@ import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +58,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,6 +76,8 @@ import static org.mockito.Mockito.when;
 public class FilteredMapServiceImplTest {
 
     private static final Random RANDOM = new Random();
+
+    private final ExecutorService executor = Executors.newFixedThreadPool(8);
 
     @Mock
     private AgentInfoService agentInfoService;
@@ -90,8 +96,8 @@ public class FilteredMapServiceImplTest {
 
     @Spy
     private ApplicationMapBuilderFactory applicationMapBuilderFactory = new ApplicationMapBuilderFactory(
-            new NodeHistogramAppenderFactory("serial", 0),
-            new ServerInfoAppenderFactory("serial", 0)
+            new NodeHistogramAppenderFactory(executor),
+            new ServerInfoAppenderFactory(executor)
     );
 
     @InjectMocks
@@ -114,6 +120,19 @@ public class FilteredMapServiceImplTest {
             ServiceType serviceType = registry.findServiceTypeByName(invocation.getArgument(1));
             return new Application(applicationName, serviceType);
         });
+    }
+
+    @After
+    public void cleanUp() {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**

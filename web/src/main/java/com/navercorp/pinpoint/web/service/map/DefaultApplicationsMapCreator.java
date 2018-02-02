@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,50 +21,63 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
  * @author HyunGil Jeong
  */
-public class ParallelApplicationsMapCreator implements ApplicationsMapCreator {
+public class DefaultApplicationsMapCreator implements ApplicationsMapCreator {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ApplicationMapCreator applicationMapCreator;
 
-    private final ExecutorService executorService;
+    private final Executor executor;
 
-    public ParallelApplicationsMapCreator(ApplicationMapCreator applicationMapCreator, ExecutorService executorService) {
-        if (applicationMapCreator == null) {
-            throw new NullPointerException("applicationMapCreator must not be null");
-        }
-        if (executorService == null) {
-            throw new NullPointerException("executorService must not be null");
-        }
-        this.applicationMapCreator = applicationMapCreator;
-        this.executorService = executorService;
+    public DefaultApplicationsMapCreator(ApplicationMapCreator applicationMapCreator, Executor executor) {
+        this.applicationMapCreator = Objects.requireNonNull(applicationMapCreator, "applicationMapCreator must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
     }
 
     @Override
     public LinkDataDuplexMap createLinkDataDuplexMap(List<Application> applications, LinkSelectContext linkSelectContext) {
-        final Set<LinkDataDuplexMap> searchResults = Sets.newConcurrentHashSet();
-        CompletableFuture[] futures = getLinkDataMapFutures(searchResults, applications, linkSelectContext);
-        try {
-            CompletableFuture.allOf(futures).join();
-        } catch (Exception e) {
-            logger.error("Error selecting link", e);
+        if (CollectionUtils.isEmpty(applications)) {
             return new LinkDataDuplexMap();
         }
+
+        if (applications.size() > 1) {
+            return createParallel(applications, linkSelectContext);
+        }
+        return createSerial(applications, linkSelectContext);
+    }
+
+    private LinkDataDuplexMap createSerial(List<Application> applications, LinkSelectContext linkSelectContext) {
+        final LinkDataDuplexMap resultMap = new LinkDataDuplexMap();
+        for (Application application : applications) {
+            LinkDataDuplexMap searchResult = applicationMapCreator.createMap(application, linkSelectContext);
+            resultMap.addLinkDataDuplexMap(searchResult);
+        }
+        logger.debug("depth search. callerDepth : {}, calleeDepth : {}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
+        return resultMap;
+    }
+
+    private LinkDataDuplexMap createParallel(List<Application> applications, LinkSelectContext linkSelectContext) {
+        final Set<LinkDataDuplexMap> searchResults = Sets.newConcurrentHashSet();
+        CompletableFuture[] futures = getLinkDataMapFutures(searchResults, applications, linkSelectContext);
+        CompletableFuture.allOf(futures).join();
         LinkDataDuplexMap resultMap = new LinkDataDuplexMap();
         for (LinkDataDuplexMap searchResult : searchResults) {
             resultMap.addLinkDataDuplexMap(searchResult);
         }
+        logger.debug("depth search. callerDepth : {}, calleeDepth : {}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
         return resultMap;
     }
 
@@ -76,7 +89,7 @@ public class ParallelApplicationsMapCreator implements ApplicationsMapCreator {
                 public LinkDataDuplexMap get() {
                     return applicationMapCreator.createMap(targetApplication, linkSelectContext);
                 }
-            }, executorService);
+            }, executor);
             CompletableFuture<Void> searchResultsFuture = linkDataDuplexMapFuture.thenAccept(searchResults::add);
             linkDataDuplexMapFutures.add(searchResultsFuture);
         }

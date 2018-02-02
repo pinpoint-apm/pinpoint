@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-public abstract class BidirectionalLinkSelectorTestBase extends LinkSelectorTestBase {
+public class BidirectionalLinkSelectorTest extends LinkSelectorTestBase {
 
     @Override
     protected LinkSelectorType getLinkSelectorType() {
