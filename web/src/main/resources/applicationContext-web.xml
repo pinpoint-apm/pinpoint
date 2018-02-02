@@ -164,33 +164,31 @@
         </constructor-arg>
     </bean>
 
-    <bean id="callerRunsPolicy" class="java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy"/>
     <bean id="baseTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" abstract="true">
         <property name="taskDecorator" ref="contextPropagatingTaskDecorator"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
-        <property name="allowCoreThreadTimeOut" value="false"/>
     </bean>
 
     <bean id="applicationsMapCreateExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="rejectedExecutionHandler" ref="callerRunsPolicy"/>
-        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.creator.parallel.maxthreads'] ?: 16}"/>
-        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.creator.parallel.maxthreads'] ?: 16}"/>
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.creator.worker.threadSize'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.creator.worker.threadSize'] ?: 16}"/>
+        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.creator.worker.queueSize'] ?: 1024}"/>
         <property name="threadNamePrefix" value="Pinpoint-Link-Selector-"/>
     </bean>
 
     <bean id="nodeHistogramAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="rejectedExecutionHandler" ref="callerRunsPolicy"/>
-        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}"/>
-        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}"/>
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
+        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.appender.worker.queueSize'] ?: 1024}"/>
         <property name="threadNamePrefix" value="Pinpoint-Node-Histogram-Appender-"/>
     </bean>
 
     <bean id="serverInfoAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="rejectedExecutionHandler" ref="callerRunsPolicy"/>
-        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}"/>
-        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}"/>
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
+        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.appender.worker.queueSize'] ?: 1024}"/>
         <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
     </bean>
 </beans>
