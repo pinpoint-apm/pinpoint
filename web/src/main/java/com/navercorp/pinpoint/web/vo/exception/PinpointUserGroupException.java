@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.navercorp.pinpoint.collector.receiver.tcp;
-
-import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.packet.BasicPacket;
+package com.navercorp.pinpoint.web.vo.exception;
 
 /**
- * @author Taejin Koo
+ * @author minwoo.jung
  */
-public interface PinpointPacketHandler<P extends BasicPacket> {
+public class PinpointUserGroupException extends Exception {
 
-    void handle(P packet, PinpointSocket pinpointSocket);
-
+    public PinpointUserGroupException(String message) {
+        super(message);
+    }
 }

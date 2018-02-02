@@ -22,11 +22,13 @@ import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.vo.User;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author minwoo.jung
  */
 @Service
+@Transactional(rollbackFor = {Exception.class})
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -49,21 +51,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> selectUser() {
         return userDao.selectUser();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User selectUserByUserId(String userId) {
         return userDao.selectUserByUserId(userId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> selectUserByUserName(String userName) {
         return userDao.selectUserByUserName(userName);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> selectUserByDepartment(String department) {
         return userDao.selectUserByDepartment(department);
     }
@@ -71,6 +77,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void dropAndCreateUserTable() {
         userDao.dropAndCreateUserTable();
+    }
+
+    @Override
+    public void insertUserList(List<User> users) {
+        userDao.insertUserList(users);
     }
 
 }

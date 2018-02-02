@@ -20,8 +20,10 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -43,6 +45,9 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
+    @Autowired
+    private TableNameProvider tableNameProvider;
+
     @Override
     public void insert(final TAgentInfo agentInfo) {
         if (agentInfo == null) {
@@ -54,8 +59,9 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         byte[] value = Bytes.toBytes(agentInfo.getServiceType());
         
         put.addColumn(APPLICATION_INDEX_CF_AGENTS, qualifier, value);
-        
-        hbaseTemplate.put(APPLICATION_INDEX, put);
+
+        TableName applicationIndexTableName = tableNameProvider.getTableName(APPLICATION_INDEX_STR);
+        hbaseTemplate.put(applicationIndexTableName, put);
 
         logger.debug("Insert agentInfo. {}", agentInfo);
     }

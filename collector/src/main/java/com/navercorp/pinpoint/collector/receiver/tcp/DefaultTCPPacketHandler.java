@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,15 +19,13 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.packet.BasicPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -38,9 +36,9 @@ import java.net.SocketAddress;
 import java.util.Objects;
 
 /**
- * @author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public class RequestPacketHandler implements PinpointPacketHandler<RequestPacket> {
+public class DefaultTCPPacketHandler implements TCPPacketHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -50,31 +48,43 @@ public class RequestPacketHandler implements PinpointPacketHandler<RequestPacket
     private final SerializerFactory<HeaderTBaseSerializer> serializerFactory;
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
-    public RequestPacketHandler(DispatchHandler dispatchHandler) {
-        this(dispatchHandler, new ThreadLocalHeaderTBaseSerializerFactory<>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE)));
-    }
 
-    public RequestPacketHandler(DispatchHandler dispatchHandler, SerializerFactory<HeaderTBaseSerializer> serializerFactory) {
-        this(dispatchHandler, serializerFactory, new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory()));
-    }
-
-    public RequestPacketHandler(DispatchHandler dispatchHandler, DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
-        this(dispatchHandler, new ThreadLocalHeaderTBaseSerializerFactory<>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE)), deserializerFactory);
-    }
-
-    public RequestPacketHandler(DispatchHandler dispatchHandler, SerializerFactory<HeaderTBaseSerializer> serializerFactory, DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
+    public DefaultTCPPacketHandler(DispatchHandler dispatchHandler, SerializerFactory<HeaderTBaseSerializer> serializerFactory, DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
         this.serializerFactory = Objects.requireNonNull(serializerFactory, "serializerFactory must not be null");
         this.deserializerFactory = Objects.requireNonNull(deserializerFactory, "deserializerFactory must not be null");
     }
 
     @Override
-    public void handle(RequestPacket packet, PinpointSocket pinpointSocket) {
+    public void handleSend(SendPacket packet, PinpointSocket pinpointSocket) {
         Objects.requireNonNull(packet, "packet must not be null");
         Objects.requireNonNull(pinpointSocket, "pinpointSocket must not be null");
-        
-        byte[] payload = packet.getPayload();
+
+        final byte[] payload = getPayload(packet);
+        SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
+        try {
+            TBase<?, ?> tBase = SerializationUtils.deserialize(payload, deserializerFactory);
+            dispatchHandler.dispatchSendMessage(tBase);
+        } catch (TException e) {
+            handleTException(payload, remoteAddress, e);
+        } catch (Exception e) {
+            // there are cases where invalid headers are received
+            handleException(payload, remoteAddress, e);
+        }
+    }
+
+    public byte[] getPayload(BasicPacket packet) {
+        final byte[] payload = packet.getPayload();
         Objects.requireNonNull(payload, "payload must not be null");
+        return payload;
+    }
+
+    @Override
+    public void handleRequest(RequestPacket packet, PinpointSocket pinpointSocket) {
+        Objects.requireNonNull(packet, "packet must not be null");
+        Objects.requireNonNull(pinpointSocket, "pinpointSocket must not be null");
+
+        final byte[] payload = getPayload(packet);
 
         SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
         try {
@@ -85,21 +95,28 @@ public class RequestPacketHandler implements PinpointPacketHandler<RequestPacket
                 pinpointSocket.response(packet, resultBytes);
             }
         } catch (TException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("packet serialize error. remote:{} cause:{}", remoteAddress, e.getMessage(), e);
-            }
-            if (isDebug) {
-                logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(payload));
-            }
+            handleTException(payload, remoteAddress, e);
         } catch (Exception e) {
-            // there are cases where invalid headers are received
-            if (logger.isWarnEnabled()) {
-                logger.warn("Unexpected error. remote:{} cause:{}", remoteAddress, e.getMessage(), e);
-            }
-            if (isDebug) {
-                logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(payload));
-            }
+            handleException(payload, remoteAddress, e);
         }
     }
 
+    private void handleTException(byte[] payload, SocketAddress remoteAddress, TException e) {
+        if (logger.isWarnEnabled()) {
+            logger.warn("packet serialize error. remote:{} cause:{}", remoteAddress, e.getMessage(), e);
+        }
+        if (isDebug) {
+            logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(payload));
+        }
+    }
+
+    private void handleException(byte[] payload, SocketAddress remoteAddress, Exception e) {
+        // there are cases where invalid headers are received
+        if (logger.isWarnEnabled()) {
+            logger.warn("Unexpected error. remote:{} cause:{}", remoteAddress, e.getMessage(), e);
+        }
+        if (isDebug) {
+            logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(payload));
+        }
+    }
 }

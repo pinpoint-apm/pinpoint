@@ -17,10 +17,12 @@ package com.navercorp.pinpoint.flink.process;
 
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -42,9 +44,11 @@ public class ApplicationCache {
 
     private final transient HbaseTemplate2 hbaseTemplate2;
 
+    private final transient TableNameProvider tableNameProvider;
 
-    public ApplicationCache(HbaseTemplate2 hbaseTemplate2) {
+    public ApplicationCache(HbaseTemplate2 hbaseTemplate2, TableNameProvider tableNameProvider) {
         this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate must not be null");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider must not be null");
     }
 
     @Cacheable(value="applicationId", key=SPEL_KEY)
@@ -57,7 +61,8 @@ public class ApplicationCache {
         get.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
         AgentInfo agentInfo = null;
         try {
-            agentInfo = hbaseTemplate2.get(HBaseTables.AGENTINFO, get, agentInfoMapper);
+            TableName tableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+            agentInfo = hbaseTemplate2.get(tableName, get, agentInfoMapper);
         } catch (Exception e) {
             logger.error("can't found application id({})", agentId, e);
         }

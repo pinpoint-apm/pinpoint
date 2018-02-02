@@ -170,11 +170,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private List<String> httpStatusCodeErrors = Collections.emptyList();
 
-    //[XINGUANG]:businesslog switch
+    
+	//[XINGUANG]:businesslog switch
     private boolean businesslogEnable = false;
     
     //[XINGUANG]:tomcat log dir
     private String tomcatLogDir = null;
+
+    private String injectionModuleFactoryClazzName = null;
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -472,6 +475,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return httpStatusCodeErrors;
     }
 
+    @Override
+    public String getInjectionModuleFactoryClazzName() {
+        return injectionModuleFactoryClazzName;
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
@@ -573,12 +581,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
 
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
+        this.supportLambdaExpressions = readBoolean("profiler.lambda.expressions.support", true);
 
+        // proxy http header names
+        this.proxyHttpHeaderEnable = readBoolean("profiler.proxy.http.header.enable", true);
+
+        this.httpStatusCodeErrors = readList("profiler.http.status.code.errors");
         //[XINGUANG]:read value of businesslog switch from pinpoint.config
         this.businesslogEnable = readBoolean("profiler.businesslog.enable",false);
         
         //[XINGUANG]:read value of dir of log of tomcat from pinpoint.config
         this.tomcatLogDir = readString("profiler.tomcatlog.dir",null);
+		this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
 
         logger.info("configuration loaded successfully.");
     }
@@ -744,6 +758,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
+        sb.append(", injectionModuleFactoryClazzName=").append(injectionModuleFactoryClazzName);
         sb.append('}');
         return sb.toString();
     }

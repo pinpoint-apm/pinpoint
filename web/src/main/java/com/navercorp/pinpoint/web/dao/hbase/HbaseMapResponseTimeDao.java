@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -27,6 +28,7 @@ import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +60,9 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
+    private TableNameProvider tableNameProvider;
+
+    @Autowired
     private RangeFactory rangeFactory;
 
     @Autowired
@@ -76,7 +81,8 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
         Scan scan = createScan(application, range, HBaseTables.MAP_STATISTICS_SELF_VER2_CF_COUNTER);
 
-        List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(HBaseTables.MAP_STATISTICS_SELF_VER2, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
+        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(HBaseTables.MAP_STATISTICS_SELF_VER2_STR);
+        List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
         if (logger.isDebugEnabled()) {
             logger.debug("Self data {}", responseTimeList);
         }

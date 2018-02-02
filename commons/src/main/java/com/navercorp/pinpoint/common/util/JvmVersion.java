@@ -29,6 +29,7 @@ public enum JvmVersion {
     JAVA_6(1.6f, 50),
     JAVA_7(1.7f, 51),
     JAVA_8(1.8f, 52),
+    JAVA_9(9f, 53),
     UNSUPPORTED(-1, -1);
 
     private final float version;
