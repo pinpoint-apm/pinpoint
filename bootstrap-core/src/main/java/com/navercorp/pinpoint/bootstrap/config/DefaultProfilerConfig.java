@@ -594,6 +594,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.tomcatLogDir = readString("profiler.tomcatlog.dir",null);
 		this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
 
+        this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
+
         logger.info("configuration loaded successfully.");
     }
 
