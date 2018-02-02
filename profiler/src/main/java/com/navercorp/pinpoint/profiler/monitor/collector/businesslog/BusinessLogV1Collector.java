@@ -115,7 +115,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
     }
