@@ -249,6 +249,7 @@ You may take a look at the default *pinpoint.config* file [here](https://github.
 
 ## Miscellaneous
 
+
 ### Routing Web requests to Agents
 
 Starting from 1.5.0, Pinpoint can send requests from the Web to Agents directly via the Collector (and vice-versa). To make this possible, we use Zookeeper to co-ordinate the communication channels established between Agents and Collectors, and those between Collectors and Web instances. With this addition, real-time communication (for things like active thread count monitoring) is now possible.

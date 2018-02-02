@@ -175,7 +175,7 @@ If there are a lot of alarms registered to applications, you may set the `alarmS
 <task:executor id="poolTaskExecutorForStep" pool-size="10" />
 ```
 
-**4) use quickstart's Web** - 
+**4) use quickstart's web** - 
 Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
 However Quickstart uses MockDAO to reduce memory usage.<br/>
 Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/applicationContext-dao-config.xml
