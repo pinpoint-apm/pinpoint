@@ -197,8 +197,8 @@ If the per-request logging is correctly configured, the transactionId, and spanI
 2015-04-04 14:35:20 [INFO](ContentInfoCollector:123 ) [txId : agent^142533^18 spanId : 1231] get content name : OPINION
 2015-04-04 14:35:20 [INFO](ContentInfoCollector:12) [txId : agent^142533^19 spanId : 1246] get content name : SPORTS
 ```
-  
-### 3. expose log in Pinpoint web
+
+### 3. expose log in Pinpoint Web
 
 If you want to add links to the logs in the transaction list view, you should configure and implement the logic as below.
 Pinpoint Web only adds link buttons - you should implement the logic to retrieve the log message.

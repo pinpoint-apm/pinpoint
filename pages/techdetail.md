@@ -9,7 +9,7 @@ disqus: false
 ---
 
 
-In this article, we describe the Pinpoint's techniques such as transaction tracing and bytecode instrumentation. And we explain the optimization method applied to Pinpoint agent, which modifies bytecode and record performance data.
+In this article, we describe the Pinpoint's techniques such as transaction tracing and bytecode instrumentation. And we explain the optimization method applied to Pinpoint Agent, which modifies bytecode and record performance data.
 
 ## Distributed Transaction Tracing, Modeled after Google's Dapper
 
@@ -64,7 +64,7 @@ A TransactionId consists of AgentIds, JVM (Java virtual machine) startup time, a
 
 *	AgentId: A user-created ID when JVM starts; it must be globally unique across the entire group of servers where Pinpoint has been installed. The easiest way to make it unique is to use a hostname ($HOSTNAME) because the hostname is not duplicate in general. If you need to run multiple JVMs within the server group, add a postfix to the hostname to avoid duplicates.
 *	JVM startup time: Required to guarantee a unique SequenceNumber which starts with zero. This value is used to prevent ID conflicts when a user creates duplicate AgentId by mistake.
-*	SequenceNumber: ID issued by the Pinpoint agent, with sequentially increasing numbers that start with zero; it is issued per message.
+*	SequenceNumber: ID issued by the Pinpoint Agent, with sequentially increasing numbers that start with zero; it is issued per message.
 
 Dapper and [Zipkin](https://github.com/twitter/zipkin), a distributed systems tracing platform at Twitter, generate random TraceIds (TransactionIds in Pinpoint) and consider conflict situations as a normal case. However, we wanted to avoid this conflict as much as possible in Pinpoint. We had two available options for this; one with a method in which the amount of data is small but the probability of conflict is high; the other is a method in which the amount of data is large but the probability of conflict is low; We chose the second option.
 
@@ -74,7 +74,7 @@ There may be a better ways to handle transactions. We came up with several ideas
 
 Earlier, we explained distributed transaction tracing. One way for implementing this is that developers to modify their code by themselves. Allow developers to add tag information when an RPC is made. However, it could be a burden to modify code even though such functionality is useful to developers.
 
-Twitter's Zipkin provides the functionality of distributed transaction tracing using modified libraries and its container (Finagle). However, it requires the code to be modified if needed. We wanted the functionality to work without code modifications and desired to ensure code-level visibility. To solve such problems, the bytecode instrumentation technique was adopted in Pinpoint. The Pinpoint agent intervenes code to make RPCs so as to automatically handle tag information.
+Twitter's Zipkin provides the functionality of distributed transaction tracing using modified libraries and its container (Finagle). However, it requires the code to be modified if needed. We wanted the functionality to work without code modifications and desired to ensure code-level visibility. To solve such problems, the bytecode instrumentation technique was adopted in Pinpoint. The Pinpoint Agent intervenes code to make RPCs so as to automatically handle tag information.
 
 ### Overcoming Disadvantages of Bytecode Instrumentation
  
@@ -128,7 +128,7 @@ With bytecode instrumentation, we don't have to worry about the problems caused 
  
 The disadvantage of using bytecode instrumentation is that it could affect your applications when a problem occurs in the profiling section of a library or Pinpoint itself. However, you can easily solve it by just disabling the Pinpoint since you don't have to change any code.
 
-You can easily enable Pinpoint for your applications by adding the three lines (associated with the configuration of the Pinpoint agent) below into your JVM startup script:
+You can easily enable Pinpoint for your applications by adding the three lines (associated with the configuration of the Pinpoint Agent) below into your JVM startup script:
 
     -javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar
     -Dpinpoint.agentId=<Agent's UniqueId>
@@ -176,7 +176,7 @@ If it takes more time to execute a method, it will increase the number of bytes 
 
 We wanted Pinpoint to enable code-level tracing. However, it had a problem in terms of increasing data size. Every time data with a high degree of precision is sent to a server, due to the size of the data it increased network usage.
 
-To solve such a problem, we adopted a strategy by creating a constant table in a remote HBase server. Since there will be an overload to send data of "method A" to Pinpoint Collector each time, Pinpoint Agent converts "method A" data to an ID and stores this information as a constant table in HBase, and continue tracing data with the ID. When a user retrieves trace data on the Website, the Pinpoint web searches for the method information of the corresponding ID in the constant table and reorganize them. The same way is used to reduce data size in SQLs or frequently-used strings. 
+To solve such a problem, we adopted a strategy by creating a constant table in a remote HBase server. Since there will be an overload to send data of "method A" to Pinpoint Collector each time, Pinpoint Agent converts "method A" data to an ID and stores this information as a constant table in HBase, and continue tracing data with the ID. When a user retrieves trace data on the Website, the Pinpoint Web searches for the method information of the corresponding ID in the constant table and reorganize them. The same way is used to reduce data size in SQLs or frequently-used strings. 
 
 ### Handling Samples for Bulk Requests 
 
@@ -213,7 +213,7 @@ Figure 5. Example of Pinpoint in action
 
 The following describes what Pinpoint does for each method. 
 
-1. Pinpoint agent issues a TraceId when a request arrives at TomcatA. 
+1. Pinpoint Agent issues a TraceId when a request arrives at TomcatA. 
   - TX_ID: TomcatA^TIME^1
   - SpanId: 10
   - ParentSpanId: -1(Root)

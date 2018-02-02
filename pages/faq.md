@@ -47,7 +47,7 @@ For any other questions, please use the [user group](https://groups.google.com/f
                         <div id="collapseThree" class="panel-collapse collapse noCrossRef">
                             <div class="panel-body">
                                 <p>The Scatter Chart data have a second granularity, so the requests counted here can be differentiated by a second interval.
-                                On the other hand, the Server Map, Response Summary, and Load Chart data are stored in a minute granularity (the collector aggregates these in memory and flushes them every minute due to performance reasons).
+                                On the other hand, the Server Map, Response Summary, and Load Chart data are stored in a minute granularity (the Collector aggregates these in memory and flushes them every minute due to performance reasons).
                                 For example, if the data is queried from 10:00:30 to 10:05:30, the Scatter Chart will show the requests counted between 10:00:30 and 10:05:30, whereas the server map, response summary, and load chart will show the requests counted between 10:00:00 and 10:05:59.</p>
                             </div>
                         </div>
