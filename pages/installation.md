@@ -149,7 +149,7 @@ Pinpoint Web Supported Browsers:
 Since Pinpoint Web is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications. The web module must also be deployed as a ROOT application.
 
 ### Configuration
-Similar to the collector, Pinpoint Web has configuration files related to installation: *pinpoint-web.properties*, and *hbase.properties*. 
+Similar to the Collector, Pinpoint Web has configuration files related to installation: *pinpoint-web.properties*, and *hbase.properties*. 
 
 Make sure you check the following configuration options :
 
@@ -236,7 +236,7 @@ Some application servers require additional configuration and/or may have caveat
 
 There are various configuration options for Pinpoint Agent available in *$AGENT_PATH/pinpoint.config*.
 
-Most of these options are self explanatory, but the most important configuration options you must check are **collector ip address**, and the **TCP/UDP ports**. These values are required for the agent to establish connection to the *Collector* and function correctly. 
+Most of these options are self explanatory, but the most important configuration options you must check are **Collector ip address**, and the **TCP/UDP ports**. These values are required for the agent to establish connection to the *Collector* and function correctly. 
 
 Set these values appropriately in *pinpoint.config*:
 
@@ -249,9 +249,10 @@ You may take a look at the default *pinpoint.config* file [here](https://github.
 
 ## Miscellaneous
 
-### Routing web requests to agents
 
-Starting from 1.5.0, Pinpoint can send requests from the web to agents directly via the collector (and vice-versa). To make this possible, we use Zookeeper to co-ordinate the communication channels established between agents and collectors, and those between collectors and web instances. With this addition, real-time communication (for things like active thread count monitoring) is now possible.
+### Routing Web requests to Agents
+
+Starting from 1.5.0, Pinpoint can send requests from the Web to Agents directly via the Collector (and vice-versa). To make this possible, we use Zookeeper to co-ordinate the communication channels established between Agents and Collectors, and those between Collectors and Web instances. With this addition, real-time communication (for things like active thread count monitoring) is now possible.
 
 We typically use the Zookeeper instance provided by the HBase backend so no additional Zookeeper configuration is required. Related configuration options are shown below.
 
