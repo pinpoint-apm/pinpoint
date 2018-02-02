@@ -42,6 +42,7 @@ public final class HBaseTables {
     public static final String AGENT_STAT_VER2_STR = "AgentStatV2";
     @Deprecated
     public static final TableName AGENT_STAT_VER2 = TableName.valueOf(AGENT_STAT_VER2_STR);
+
     //[XINGUANG]
     public static final TableName BUSINESS_LOG = TableName.valueOf("BusinessLog");
     public static final byte[] BUSINESS_MESSAGEINFO = Bytes.toBytes("MessageInfo");
