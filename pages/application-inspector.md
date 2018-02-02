@@ -32,8 +32,8 @@ Application inspector requires [flink](https://flink.apache.org) and [zookeeper]
 
 **A.** Run a streaming job on [flink](https://flink.apache.org).  
 **B.** The taskmanager server is registered to zookeeper as a data node once the job starts.  
-**C.** The collector obtains the flink server info from zookeeper to create a tcp connection with it and starts sending agent data.  
-**D.** The flink server aggregates data sent by the collector and stores them into hbase.
+**C.** The Collector obtains the flink server info from zookeeper to create a tcp connection with it and starts sending agent data.  
+**D.** The flink server aggregates data sent by the Collector and stores them into hbase.
 
 ## 3. Configuration
 
@@ -50,7 +50,7 @@ In order to enable application inspector, you will need to do the following and 
     flink.cluster.tcp.port=19994
 ```
 
-**C.** Configure job execution type and the number of listeners to receive data from the collector in [pinpoint-flink.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/pinpoint-flink.properties).
+**C.** Configure job execution type and the number of listeners to receive data from the Collector in [pinpoint-flink.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/pinpoint-flink.properties).
 * If you are running a flink cluster, set *flink.StreamExecutionEnvironment* to **server**, and *flink.sourceFunction.Parallel* to the number of task manager servers.
 * If you are running flink as a standalone, set *flink.StreamExecutionEnvironment* to **local**, and *flink.sourceFunction.Parallel* to **1**.
 ```properties
@@ -82,7 +82,7 @@ In order to enable application inspector, you will need to do the following and 
 
 ## 4. Monitoring Streaming Jobs
 
-There is a batch job that monitors how pinpoint streaming jobs are running. To enable this batch job, configure the following files for *pinpoint-web*.
+There is a batch job that monitors how Pinpoint streaming jobs are running. To enable this batch job, configure the following files for *pinpoint-web*.
 
 **batch.properties**
 ```properties
