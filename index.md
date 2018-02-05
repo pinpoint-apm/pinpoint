@@ -19,6 +19,8 @@ disqus: false
 * Install Agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
+## Latest new on Pinpoint?
+[Latest updates on Pinpoint](./news.html)
 
 ## Want a quick tour?
 
