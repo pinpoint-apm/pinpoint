@@ -24,7 +24,7 @@ public class BusinessLogMapperTest {
 
     @Test
     public void mapRowNull() throws Exception {
-        Assert.assertNull(businessLogMapper.mapRow(null,0));
+        Assert.assertNull(businessLogMapper.mapRow(new Result(),0));
     }
 
 }
