@@ -498,27 +498,30 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     private Map<String, Object> createHandshakeResponse(HandshakeResponseCode responseCode, boolean isFirst) {
-        HandshakeResponseCode createdCode = null;
-        if (isFirst) {
-            createdCode = responseCode;
-        } else {
-            if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
-                createdCode = HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION;
-            } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode) {
-                createdCode = HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION;
-            } else {
-                createdCode = responseCode;
-            }
-        }
+        final HandshakeResponseCode createdCode = getHandshakeResponseCode(responseCode, isFirst);
 
         Map<String, Object> result = new HashMap<String, Object>();
         result.put(ControlHandshakeResponsePacket.CODE, createdCode.getCode());
         result.put(ControlHandshakeResponsePacket.SUB_CODE, createdCode.getSubCode());
         if (localClusterOption.isEnable()) {
-            result.put(ControlHandshakeResponsePacket.CLUSTER, localClusterOption.getProperties());
+            Map<String, Object> clusterOption = localClusterOption.toMap();
+            result.put(ControlHandshakeResponsePacket.CLUSTER, clusterOption);
         }
 
         return result;
+    }
+
+    private HandshakeResponseCode getHandshakeResponseCode(HandshakeResponseCode responseCode, boolean isFirst) {
+        if (isFirst) {
+            return responseCode;
+        }
+        if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
+            return HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION;
+        } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode) {
+            return HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION;
+        }
+
+        return responseCode;
     }
 
     private void sendHandshakeResponse0(int requestId, Map<String, Object> data) {

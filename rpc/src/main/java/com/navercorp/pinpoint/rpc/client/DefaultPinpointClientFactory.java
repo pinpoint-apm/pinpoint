@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
@@ -27,18 +26,9 @@ import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListe
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineException;
-import org.jboss.netty.channel.socket.nio.NioClientBossPool;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
@@ -49,11 +39,10 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -63,27 +52,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultPinpointClientFactory implements PinpointClientFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final String CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
-    private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
-    private static final long DEFAULT_TIMEOUT_MILLIS = 3 * 1000;
-    private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
-    private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
-
     private final AtomicInteger socketId = new AtomicInteger(1);
 
-    private volatile boolean released;
-    private ClientBootstrap bootstrap;
+    private final Closed closed = new Closed();
+
+    private final ChannelFactory channelFactory;
+    private final SocketOption.Builder socketOptionBuilder;
+
     private Map<String, Object> properties = Collections.emptyMap();
 
-    private long reconnectDelay = 3 * 1000;
     private final Timer timer;
 
-    // it's better to be a long value. even though keeping ping period from client to server short,
-    // disconnection between them dose not be detected quickly.
-    // rather keeping it from server to client short help detect disconnection as soon as possible.
-    private long pingDelay = DEFAULT_PING_DELAY;
-    private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
-    private long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
+    private final ClientOption.Builder clientOptionBuilder = new ClientOption.Builder();
 
     private ClusterOption clusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
 
@@ -106,110 +86,60 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         }
 
         // create a timer earlier because it is used for connectTimeout
-        Timer timer = createTimer();
-        ClientBootstrap bootstrap = createBootStrap(bossCount, workerCount, timer);
-        setOptions(bootstrap);
-        addPipeline(bootstrap);
+        this.timer = createTimer("Pinpoint-SocketFactory-Timer");
+        final ClientChannelFactory channelFactory = new ClientChannelFactory();
+        logger.debug("createBootStrap boss:{}, worker:{}", bossCount, workerCount);
+        this.channelFactory = channelFactory.createChannelFactory(bossCount, workerCount, timer);
+        this.socketOptionBuilder = new SocketOption.Builder();
 
-        this.bootstrap = bootstrap;
-        this.timer = timer;
     }
 
-    private Timer createTimer() {
-        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-SocketFactory-Timer", 100, TimeUnit.MILLISECONDS, 512);
+    private static Timer createTimer(String timerName) {
+        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer(timerName, 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         return timer;
     }
 
-    private void addPipeline(ClientBootstrap bootstrap) {
-        PinpointClientPipelineFactory pinpointClientPipelineFactory = new PinpointClientPipelineFactory(this);
-        bootstrap.setPipelineFactory(pinpointClientPipelineFactory);
-    }
-
-    private void setOptions(ClientBootstrap bootstrap) {
-        // connectTimeout
-        bootstrap.setOption(CONNECT_TIMEOUT_MILLIS, DEFAULT_CONNECT_TIMEOUT);
-        // read write timeout needed?  isn't it needed because of nio?
-
-        // tcp setting
-        bootstrap.setOption("tcpNoDelay", true);
-        bootstrap.setOption("keepAlive", true);
-        // buffer setting
-        bootstrap.setOption("sendBufferSize", 1024 * 64);
-        bootstrap.setOption("receiveBufferSize", 1024 * 64);
-
-    }
-
     public void setConnectTimeout(int connectTimeout) {
-        if (connectTimeout < 0) {
-            throw new IllegalArgumentException("connectTimeout cannot be a negative number");
-        }
-        bootstrap.setOption(CONNECT_TIMEOUT_MILLIS, connectTimeout);
+        this.socketOptionBuilder.setConnectTimeout(connectTimeout);
     }
 
     public int getConnectTimeout() {
-        return (Integer) bootstrap.getOption(CONNECT_TIMEOUT_MILLIS);
+        return socketOptionBuilder.getConnectTimeout();
     }
 
     public long getReconnectDelay() {
-        return reconnectDelay;
+        return clientOptionBuilder.getReconnectDelay();
     }
 
     public void setReconnectDelay(long reconnectDelay) {
-        if (reconnectDelay < 0) {
-            throw new IllegalArgumentException("reconnectDelay cannot be a negative number");
-        }
-        this.reconnectDelay = reconnectDelay;
+        this.clientOptionBuilder.setReconnectDelay(reconnectDelay);
     }
 
     public long getPingDelay() {
-        return pingDelay;
+        return this.clientOptionBuilder.getPingDelay();
     }
 
     public void setPingDelay(long pingDelay) {
-        if (pingDelay < 0) {
-            throw new IllegalArgumentException("pingDelay cannot be a negative number");
-        }
-        this.pingDelay = pingDelay;
+        this.clientOptionBuilder.setPingDelay(pingDelay);
     }
 
     public long getEnableWorkerPacketDelay() {
-        return enableWorkerPacketDelay;
+        return this.clientOptionBuilder.getEnableWorkerPacketDelay();
     }
 
     public void setEnableWorkerPacketDelay(long enableWorkerPacketDelay) {
-        if (enableWorkerPacketDelay < 0) {
-            throw new IllegalArgumentException("EnableWorkerPacketDelay cannot be a negative number");
-        }
-        this.enableWorkerPacketDelay = enableWorkerPacketDelay;
+        this.clientOptionBuilder.setEnableWorkerPacketDelay(enableWorkerPacketDelay);
     }
 
     public long getTimeoutMillis() {
-        return timeoutMillis;
+        return this.clientOptionBuilder.getTimeoutMillis();
     }
 
     public void setTimeoutMillis(long timeoutMillis) {
-        if (timeoutMillis < 0) {
-            throw new IllegalArgumentException("timeoutMillis cannot be a negative number");
-        }
-        this.timeoutMillis = timeoutMillis;
+        this.clientOptionBuilder.setTimeoutMillis(timeoutMillis);
     }
 
-    private ClientBootstrap createBootStrap(int bossCount, int workerCount, Timer timer) {
-        // profiler, collector,
-        logger.debug("createBootStrap boss:{}, worker:{}", bossCount, workerCount);
-        ChannelFactory channelFactory = createChannelFactory(bossCount, workerCount, timer);
-        return new ClientBootstrap(channelFactory);
-    }
-
-    private ChannelFactory createChannelFactory(int bossCount, int workerCount, Timer timer) {
-        ExecutorService boss = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Client-Boss", true));
-        NioClientBossPool bossPool = new NioClientBossPool(boss, bossCount, timer, ThreadNameDeterminer.CURRENT);
-
-        ExecutorService worker = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Client-Worker", true));
-        NioWorkerPool workerPool = new NioWorkerPool(worker, workerCount, ThreadNameDeterminer.CURRENT);
-        return new NioClientSocketChannelFactory(bossPool, workerPool);
-    }
 
     public PinpointClient connect(String host, int port) throws PinpointSocketException {
         InetSocketAddress connectAddress = new InetSocketAddress(host, port);
@@ -217,20 +147,29 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException {
-        ChannelFuture connectFuture = bootstrap.connect(connectAddress);
-        PinpointClientHandler pinpointClientHandler = getSocketHandler(connectFuture, connectAddress);
+        Connection connection = connectInternal(connectAddress, false);
 
-        PinpointClient pinpointClient = new DefaultPinpointClient(pinpointClientHandler);
-        traceSocket(pinpointClient);
-        return pinpointClient;
+        return connection.awaitHandshake();
     }
 
-    /*
-        trace mechanism is needed in case of calling close without closing socket
-        it is okay to make that later because this is a exceptional case.
-     */
-    private void traceSocket(PinpointClient pinpointClient) {
 
+    private Connection connectInternal(SocketAddress remoteAddress, boolean reconnect) {
+        final ConnectionFactory connectionFactory = createConnectionFactory();
+        return connectionFactory.connect(remoteAddress, reconnect);
+    }
+
+    private ConnectionFactory createConnectionFactory() {
+        final ClientOption clientOption = clientOptionBuilder.build();
+        final ClusterOption clusterOption = ClusterOption.copy(this.clusterOption);
+        final Map<String, Object> handShakeData = newHandShakeData();
+        final MessageListener messageListener = this.getMessageListener(SimpleMessageListener.INSTANCE);
+        final ServerStreamChannelMessageListener serverStreamChannelMessageListener = this.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
+        final List<StateChangeEventListener> stateChangeEventListeners = this.getStateChangeEventListeners();
+        ClientHandlerFactory clientHandlerFactory =  new DefaultPinpointClientHandlerFactory(clientOption, handShakeData, clusterOption,
+                messageListener, serverStreamChannelMessageListener, stateChangeEventListeners);
+
+        final SocketOption socketOption = this.socketOptionBuilder.build();
+        return new ConnectionFactory(timer, this.closed, this.channelFactory, socketOption, clientOption, clientHandlerFactory);
     }
 
     public PinpointClient scheduledConnect(String host, int port) {
@@ -240,57 +179,17 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     public PinpointClient scheduledConnect(InetSocketAddress connectAddress) {
         PinpointClient pinpointClient = new DefaultPinpointClient(new ReconnectStateClientHandler());
-        reconnect(pinpointClient, connectAddress);
+
+        ConnectionFactory connectionFactory = createConnectionFactory();
+        connectionFactory.reconnect(pinpointClient, connectAddress);
         return pinpointClient;
     }
 
-    PinpointClientHandler getSocketHandler(ChannelFuture channelConnectFuture, SocketAddress address) {
-        if (address == null) {
-            throw new NullPointerException("address");
-        }
 
-        PinpointClientHandler pinpointClientHandler = getSocketHandler(channelConnectFuture.getChannel());
-
-        ConnectFuture handlerConnectFuture = pinpointClientHandler.getConnectFuture();
-        handlerConnectFuture.awaitUninterruptibly();
-
-        if (ConnectFuture.Result.FAIL == handlerConnectFuture.getResult()) {
-            throw new PinpointSocketException("connect fail to " + address + ".", channelConnectFuture.getCause());
-        }
-
-        return pinpointClientHandler;
-    }
-
+    @Deprecated
     public ChannelFuture reconnect(final SocketAddress remoteAddress) {
-        if (remoteAddress == null) {
-            throw new NullPointerException("remoteAddress");
-        }
-
-        ChannelPipeline pipeline;
-        final ClientBootstrap bootstrap = this.bootstrap;
-        try {
-            pipeline = bootstrap.getPipelineFactory().getPipeline();
-        } catch (Exception e) {
-            throw new ChannelPipelineException("Failed to initialize a pipeline.", e);
-        }
-        PinpointClientHandler pinpointClientHandler = (DefaultPinpointClientHandler) pipeline.getLast();
-        pinpointClientHandler.initReconnect();
-
-
-        // Set the options.
-        Channel ch = bootstrap.getFactory().newChannel(pipeline);
-        boolean success = false;
-        try {
-            ch.getConfig().setOptions(bootstrap.getOptions());
-            success = true;
-        } finally {
-            if (!success) {
-                ch.close();
-            }
-        }
-
-        // Connect.
-        return ch.connect(remoteAddress);
+        Connection connection = connectInternal(remoteAddress, true);
+        return connection.getConnectFuture();
     }
 
     public Timeout newTimeout(TimerTask task, long delay, TimeUnit unit) {
@@ -298,89 +197,18 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
 
-    private PinpointClientHandler getSocketHandler(Channel channel) {
-        return (PinpointClientHandler) channel.getPipeline().getLast();
-    }
-
-    void reconnect(final PinpointClient pinpointClient, final SocketAddress socketAddress) {
-        DefaultPinpointClientFactory.ConnectEvent connectEvent = new DefaultPinpointClientFactory.ConnectEvent(pinpointClient, socketAddress);
-        timer.newTimeout(connectEvent, reconnectDelay, TimeUnit.MILLISECONDS);
-    }
-
-    private class ConnectEvent implements TimerTask {
-
-        private final Logger logger = LoggerFactory.getLogger(getClass());
-        private final PinpointClient pinpointClient;
-        private final SocketAddress socketAddress;
-
-        private ConnectEvent(PinpointClient pinpointClient, SocketAddress socketAddress) {
-            if (pinpointClient == null) {
-                throw new NullPointerException("pinpointClient must not be null");
-            }
-            if (socketAddress == null) {
-                throw new NullPointerException("socketAddress must not be null");
-            }
-
-            this.pinpointClient = pinpointClient;
-            this.socketAddress = socketAddress;
-        }
-
-        @Override
-        public void run(Timeout timeout) {
-            if (timeout.isCancelled()) {
-                return;
-            }
-
-            // Just return not to try reconnection when event has been fired but pinpointClient already closed.
-            if (pinpointClient.isClosed()) {
-                logger.debug("pinpointClient is already closed.");
-                return;
-            }
-
-            logger.warn("try reconnect. connectAddress:{}", socketAddress);
-            final ChannelFuture channelFuture = reconnect(socketAddress);
-            Channel channel = channelFuture.getChannel();
-            final PinpointClientHandler pinpointClientHandler = getSocketHandler(channel);
-            pinpointClientHandler.setPinpointClient(pinpointClient);
-
-            channelFuture.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.isSuccess()) {
-                        Channel channel = future.getChannel();
-                        logger.info("reconnect success {}, {}", socketAddress, channel);
-                        pinpointClient.reconnectSocketHandler(pinpointClientHandler);
-                    } else {
-                        if (!pinpointClient.isClosed()) {
-
-                         /*
-                            // comment out because exception message can be taken at exceptionCaught
-                            if (logger.isWarnEnabled()) {
-                                Throwable cause = future.getCause();
-                                logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage());
-                            }
-                          */
-                            reconnect(pinpointClient, socketAddress);
-                        } else {
-                            logger.info("pinpointClient is closed. stop reconnect.");
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-
     public void release() {
-        synchronized (this) {
-            if (released) {
-                return;
-            }
-            released = true;
+        if (this.closed.isClosed()) {
+            return;
+        }
+        if (!this.closed.close()) {
+            return;
         }
 
-        if (bootstrap != null) {
-            bootstrap.releaseExternalResources();
+
+        final ChannelFactory channelFactory = this.channelFactory;
+        if (channelFactory != null) {
+            channelFactory.releaseExternalResources();
         }
         Set<Timeout> stop = this.timer.stop();
         if (!stop.isEmpty()) {
@@ -390,14 +218,10 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         // stop, cancel something?
     }
 
-    Map<String, Object> getProperties() {
-        return properties;
-    }
-
     public void setProperties(Map<String, Object> agentProperties) {
         Assert.requireNonNull(properties, "agentProperties must not be null");
 
-        this.properties = Collections.unmodifiableMap(agentProperties);
+        this.properties = new HashMap<String, Object>(agentProperties);
     }
 
     public ClusterOption getClusterOption() {
@@ -456,11 +280,21 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         this.stateChangeEventListeners.add(stateChangeEventListener);
     }
 
-    boolean isReleased() {
-        return released;
+    private Map<String, Object> newHandShakeData() {
+
+        Map<String, Object> handshakeData = new HashMap<String, Object>(this.properties);
+
+        final int socketId = nextSocketId();
+        handshakeData.put("socketId", socketId);
+
+        final ClusterOption clusterOption = this.clusterOption;
+        if (clusterOption.isEnable()) {
+            handshakeData.put("cluster", clusterOption.toMap());
+        }
+        return handshakeData;
     }
 
-    int issueNewSocketId() {
+    private int nextSocketId() {
         return socketId.getAndIncrement();
     }
 }

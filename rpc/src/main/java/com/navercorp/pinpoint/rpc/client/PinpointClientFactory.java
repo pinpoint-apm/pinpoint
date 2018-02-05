@@ -67,7 +67,11 @@ public interface PinpointClientFactory {
 
     PinpointClient scheduledConnect(InetSocketAddress connectAddress);
 
-
+    /**
+     *
+     * @deprecated Since 1.7.2
+            */
+    @Deprecated
     ChannelFuture reconnect(final SocketAddress remoteAddress);
 
 
@@ -99,8 +103,5 @@ public interface PinpointClientFactory {
 
     void addStateChangeEventListener(StateChangeEventListener stateChangeEventListener);
 
-//    boolean isReleased();
-//
-//    int issueNewSocketId();
 
 }

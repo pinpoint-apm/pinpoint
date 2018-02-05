@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.*;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
@@ -26,9 +27,7 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.stream.*;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
@@ -36,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,79 +47,71 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DefaultPinpointClientHandler extends SimpleChannelHandler implements PinpointClientHandler {
 
-    private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
-    private static final long DEFAULT_TIMEOUT_MILLIS = 3 * 1000;
-
-    private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
     private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = Integer.MAX_VALUE;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final int socketId;
     private final AtomicInteger pingIdGenerator;
     private final PinpointClientHandlerState state;
+    private final Map<String, Object> handshakeData;
 
     private volatile Channel channel;
-    
-    private long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
-    private long pingDelay = DEFAULT_PING_DELAY;
-    
+
+
     private int maxHandshakeCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
-    
+
     private final Timer channelTimer;
 
-    private final DefaultPinpointClientFactory clientFactory;
+    private final ConnectionFactory connectionFactory;
     private SocketAddress connectSocketAddress;
     private volatile PinpointClient pinpointClient;
 
     private final MessageListener messageListener;
     private final ServerStreamChannelMessageListener serverStreamChannelMessageListener;
-    
+
     private final RequestManager requestManager;
 
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write success.");
 
     private final ChannelFutureListener sendClosePacketFailFutureListener = new WriteFailFutureListener(this.logger, "sendClosedPacket() write fail.", "sendClosedPacket() write success.");
-    
-    private final PinpointClientHandshaker handshaker;
-    
-    private final ConnectFuture connectFuture = new ConnectFuture();
-    
-    private final String objectUniqName;
 
+    private final PinpointClientHandshaker handshaker;
+
+    private final ConnectFuture connectFuture = new ConnectFuture();
+
+    private final String objectUniqName;
+    private final ClientOption clientOption;
     private final ClusterOption localClusterOption;
     private ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
-    
-    public DefaultPinpointClientHandler(DefaultPinpointClientFactory clientFactory) {
-        this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUT_MILLIS);
-    }
 
-    public DefaultPinpointClientHandler(DefaultPinpointClientFactory clientFactory, long pingDelay, long handshakeRetryInterval, long timeoutMillis) {
-        if (clientFactory == null) {
-            throw new NullPointerException("pinpointClientFactory must not be null");
-        }
-        
-        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-PinpointClientHandler-Timer", 100, TimeUnit.MILLISECONDS, 512);
-        timer.start();
-        
-        this.channelTimer = timer;
-        this.clientFactory = clientFactory;
-        this.requestManager = new RequestManager(timer, timeoutMillis);
-        this.pingDelay = pingDelay;
-        this.timeoutMillis = timeoutMillis;
-        
-        this.messageListener = clientFactory.getMessageListener(SimpleMessageListener.INSTANCE);
-        this.serverStreamChannelMessageListener = clientFactory.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
-        
+
+    public DefaultPinpointClientHandler(ConnectionFactory connectionFactory, Map<String, Object> handshakeData, ClusterOption localClusterOption,
+                                        MessageListener messageListener,
+                                        ServerStreamChannelMessageListener serverStreamChannelMessageListener,
+                                        List<StateChangeEventListener> stateChangeEventListeners,
+                                        Timer channelTimer,
+                                        ClientOption clientOption) {
+
+        this.connectionFactory = Assert.requireNonNull(connectionFactory, "clientFactory must not be null");
+        this.handshakeData = Assert.requireNonNull(handshakeData, "properies must not be null");
+
+        this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer must not be null");
+        this.requestManager = new RequestManager(channelTimer, clientOption.getTimeoutMillis());
+        this.clientOption = Assert.requireNonNull(clientOption, "clientOption must not be null");
+
+
+        this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
+        this.serverStreamChannelMessageListener = Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
+
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
-        this.handshaker = new PinpointClientHandshaker(channelTimer, (int) handshakeRetryInterval, maxHandshakeCount);
-        
-        this.socketId = clientFactory.issueNewSocketId();
-        this.pingIdGenerator = new AtomicInteger(0);
-        this.state = new PinpointClientHandlerState(this, clientFactory.getStateChangeEventListeners());
+        this.handshaker = new PinpointClientHandshaker(channelTimer, clientOption.getEnableWorkerPacketDelay(), maxHandshakeCount);
 
-        this.localClusterOption = clientFactory.getClusterOption();
+        this.pingIdGenerator = new AtomicInteger(0);
+        this.state = new PinpointClientHandlerState(this.objectUniqName, this, stateChangeEventListeners);
+
+        this.localClusterOption = Assert.requireNonNull(localClusterOption, "clusterOption must not be null");
+
     }
 
     public void setPinpointClient(PinpointClient pinpointClient) {
@@ -133,7 +124,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
-        
+
         logger.debug("{} channelOpen() started. channel:{}", objectUniqName, channel);
 
         this.channel = channel;
@@ -154,31 +145,24 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         if (!stateChangeResult.isChange()) {
             throw new IllegalStateException("Invalid state:" + stateChangeResult.getCurrentState());
         }
-        
+
         prepareChannel(channel);
-        
+
         stateChangeResult = state.toRunWithoutHandshake();
         if (!stateChangeResult.isChange()) {
             throw new IllegalStateException("Failed to execute channelConnected() method. Error:" + stateChangeResult);
         }
-        
+
         registerPing();
 
-        Map<String, Object> handshakeData = new HashMap<String, Object>();
-        handshakeData.putAll(clientFactory.getProperties());
-        handshakeData.put("socketId", socketId);
-
-        if (localClusterOption.isEnable()) {
-            handshakeData.put("cluster", localClusterOption.getProperties());
-        }
 
         handshaker.handshakeStart(channel, handshakeData);
-        
+
         connectFuture.setResult(Result.SUCCESS);
-        
+
         logger.info("{} channelConnected() completed.", objectUniqName);
     }
-    
+
     private void prepareChannel(Channel channel) {
         StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createOddIdGenerator(), serverStreamChannelMessageListener);
 
@@ -189,7 +173,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     @Override
     public void initReconnect() {
         logger.info("{} initReconnect() started.", objectUniqName);
-        
+
         SocketStateChangeResult stateChangeResult = state.toBeingConnect();
         if (!stateChangeResult.isChange()) {
             throw new IllegalStateException("Failed to execute initReconnect() method. Error:" + stateChangeResult);
@@ -204,7 +188,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     private void newPingTimeout(TimerTask pingTask) {
-        this.channelTimer.newTimeout(pingTask, pingDelay, TimeUnit.MILLISECONDS);
+        this.channelTimer.newTimeout(pingTask, clientOption.getPingDelay(), TimeUnit.MILLISECONDS);
     }
 
     private class PingTask implements TimerTask {
@@ -214,7 +198,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
                 newPingTimeout(this);
                 return;
             }
-            
+
             if (state.isClosed()) {
                 return;
             }
@@ -260,9 +244,9 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     @Override
     public Future sendAsync(byte[] bytes) {
         ChannelFuture channelFuture = send0(bytes);
-        final ChannelWriteCompleteListenableFuture future = new ChannelWriteCompleteListenableFuture(timeoutMillis);
+        final ChannelWriteCompleteListenableFuture future = new ChannelWriteCompleteListenableFuture(clientOption.getTimeoutMillis());
         channelFuture.addListener(future);
-        return future ;
+        return future;
     }
 
     @Override
@@ -289,7 +273,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private void await(ChannelFuture channelFuture) {
         try {
-            channelFuture.await(timeoutMillis, TimeUnit.MILLISECONDS);
+            channelFuture.await(clientOption.getTimeoutMillis(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -343,12 +327,12 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         }
 
         RequestPacket request = new RequestPacket(bytes);
-        final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request, this.timeoutMillis);
+        final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request, clientOption.getTimeoutMillis());
 
         write0(request, messageFuture);
         return messageFuture;
     }
-    
+
     @Override
     public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
         return openStream(payload, messageListener, null);
@@ -401,7 +385,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
                     handleClosedPacket(e.getChannel());
                     return;
                 case PacketType.CONTROL_HANDSHAKE_RESPONSE:
-                    handleHandshakePacket((ControlHandshakeResponsePacket)message, e.getChannel());
+                    handleHandshakePacket((ControlHandshakeResponsePacket) message, e.getChannel());
                     return;
                 default:
                     logger.warn("{} messageReceived() failed. unexpectedMessage received:{} address:{}", objectUniqName, message, e.getRemoteAddress());
@@ -416,12 +400,12 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
         state.toBeingCloseByPeer();
     }
-    
+
     private void handleHandshakePacket(ControlHandshakeResponsePacket message, Channel channel) {
         boolean isCompleted = handshaker.handshakeComplete(message);
 
         logger.info("{} handleHandshakePacket() started. message:{}", objectUniqName, message);
-        
+
         if (isCompleted) {
             HandshakeResponseCode code = handshaker.getHandshakeResult();
 
@@ -438,7 +422,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             }
 
             logger.info("{} handleHandshakePacket() completed. code:{}", channel, code);
-        } else if (handshaker.isFinished()){
+        } else if (handshaker.isFinished()) {
             logger.warn("{} handleHandshakePacket() failed. Error:Handshake already completed.");
         } else {
             logger.warn("{} handleHandshakePacket() failed. Error:Handshake not yet started.");
@@ -448,7 +432,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
-        
+
         SocketStateCode currentStateCode = state.getCurrentStateCode();
         if (currentStateCode == SocketStateCode.BEING_CONNECT) {
             // removed stackTrace when reconnect. so many logs.
@@ -476,14 +460,14 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         if (state.isReconnect(currentStateCode)) {
             throw new PinpointSocketException("reconnecting...");
         }
-        
+
         throw new PinpointSocketException("Invalid socket state:" + currentStateCode);
     }
 
     // Calling this method on a closed PinpointClientHandler has no effect.
     public void close() {
         logger.debug("{} close() started.", objectUniqName);
-        
+
         SocketStateCode currentStateCode = state.getCurrentStateCode();
         if (currentStateCode.isRun()) {
             state.toBeingClose();
@@ -497,7 +481,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             logger.warn("Illegal State :{}.", currentStateCode);
         }
     }
-    
+
     private void closeChannel() {
         Channel channel = this.channel;
         if (channel != null) {
@@ -538,7 +522,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             logger.debug("{} sendClosedPacket() failed. Error:channel already closed.", objectUniqName);
             return;
         }
-        
+
         logger.debug("{} sendClosedPacket() started.", objectUniqName);
 
         ClientClosePacket clientClosePacket = new ClientClosePacket();
@@ -548,11 +532,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     @Override
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        logger.info("{} channelClosed() started.", objectUniqName); 
-        
+        logger.info("{} channelClosed() started.", objectUniqName);
+
         try {
-            boolean factoryReleased = clientFactory.isReleased();
-            
+            boolean factoryReleased = connectionFactory.isClosed();
+
             boolean needReconnect = false;
             SocketStateCode currentStateCode = state.getCurrentStateCode();
             if (currentStateCode == SocketStateCode.BEING_CLOSE_BY_CLIENT) {
@@ -570,7 +554,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             }
 
             if (needReconnect) {
-                clientFactory.reconnect(this.pinpointClient, this.connectSocketAddress);
+                reconnect();
             }
         } finally {
             closeResources();
@@ -578,33 +562,34 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         }
     }
 
+    private void reconnect() {
+        connectionFactory.reconnect(this.pinpointClient, this.connectSocketAddress);
+    }
+
     private ChannelFuture write0(Object message) {
         return write0(message, null);
     }
-    
+
     private ChannelFuture write0(Object message, ChannelFutureListener futureListener) {
         ChannelFuture future = channel.write(message);
         if (futureListener != null) {
             future.addListener(futureListener);
         }
-        
+
         return future;
     }
 
-    public Timer getChannelTimer() {
-        return channelTimer;
-    }
 
     @Override
     public ConnectFuture getConnectFuture() {
         return connectFuture;
     }
-    
+
     @Override
     public SocketStateCode getCurrentStateCode() {
         return state.getCurrentStateCode();
     }
-    
+
     private PinpointClientHandlerContext getChannelContext(Channel channel) {
         if (channel == null) {
             throw new NullPointerException("channel must not be null");
@@ -632,7 +617,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         return remoteClusterOption;
     }
 
-    protected PinpointClient getPinpointClient() {
+    protected PinpointSocket getPinpointSocket() {
         return pinpointClient;
     }
 

@@ -47,14 +47,8 @@ public class DefaultPinpointClient implements PinpointClient {
 
     private List<PinpointClientReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointClientReconnectEventListener>();
 
-    public DefaultPinpointClient() {
-        this(new ReconnectStateClientHandler());
-    }
-
-    public DefaultPinpointClient(PinpointClientHandler pinpointClientHandler) {
-        Assert.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
-
-        this.pinpointClientHandler = pinpointClientHandler;
+     public DefaultPinpointClient(PinpointClientHandler pinpointClientHandler) {
+        this.pinpointClientHandler = Assert.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
         pinpointClientHandler.setPinpointClient(this);
     }
 
