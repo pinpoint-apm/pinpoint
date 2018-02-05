@@ -100,4 +100,4 @@ Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.
 However Quickstart uses MockDAO to reduce memory usage.<br/>
 Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml](../web/src/main/resources/applicationContext-dao-config.xml), [jdbc.properties](../web/src/main/resources/jdbc.properties).
 
-Additionally, if you would like to enable alerts, you need to implement additional logic. Please ref this [link](../doc/alarm.md)
+Additionally, if you would like to enable alerts, you need to implement additional logic. Please ref this [link](./alarm.html)
