@@ -45,7 +45,7 @@ public class PinpointClientFactoryTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static int bindPort;
-    private static PinpointClientFactory clientFactory;
+    private static DefaultPinpointClientFactory clientFactory;
     
     @BeforeClass
     public static void setUp() throws IOException {

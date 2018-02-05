@@ -60,7 +60,7 @@ public class PinpointClientHandshaker {
     private final AtomicInteger handshakeCount;
 
     private final Timer handshakerTimer;
-    private final int retryInterval;
+    private final long retryInterval;
     private final int maxHandshakeCount;
     
     private final Object lock = new Object();
@@ -70,13 +70,12 @@ public class PinpointClientHandshaker {
     private final String id = ClassUtils.simpleClassNameAndHashCodeString(this);
 
 
-    public PinpointClientHandshaker(Timer handshakerTimer, int retryInterval, int maxHandshakeCount) {
-        Assert.requireNonNull(handshakerTimer, "handshakerTimer must not be null.");
+    public PinpointClientHandshaker(Timer handshakerTimer, long retryInterval, int maxHandshakeCount) {
         Assert.isTrue(retryInterval > 0, "retryInterval must greater than zero.");
         Assert.isTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
         
         this.state = new AtomicInteger(STATE_INIT);
-        this.handshakerTimer = handshakerTimer;
+        this.handshakerTimer = Assert.requireNonNull(handshakerTimer, "handshakerTimer must not be null.");
         this.retryInterval = retryInterval;
         this.maxHandshakeCount = maxHandshakeCount;
         
