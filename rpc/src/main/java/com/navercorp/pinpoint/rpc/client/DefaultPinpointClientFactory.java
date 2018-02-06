@@ -31,7 +31,6 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
-import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,8 +147,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     public PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException {
         Connection connection = connectInternal(connectAddress, false);
-
-        return connection.awaitHandshake();
+        return connection.awaitConnected();
     }
 
 
@@ -161,16 +159,21 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     private ConnectionFactory createConnectionFactory() {
         final ClientOption clientOption = clientOptionBuilder.build();
         final ClusterOption clusterOption = ClusterOption.copy(this.clusterOption);
-        final Map<String, Object> handShakeData = newHandShakeData();
+
         final MessageListener messageListener = this.getMessageListener(SimpleMessageListener.INSTANCE);
         final ServerStreamChannelMessageListener serverStreamChannelMessageListener = this.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
         final List<StateChangeEventListener> stateChangeEventListeners = this.getStateChangeEventListeners();
-        ClientHandlerFactory clientHandlerFactory =  new DefaultPinpointClientHandlerFactory(clientOption, handShakeData, clusterOption,
+
+        Map<String, Object> copyProperties = new HashMap<String, Object>(this.properties);
+        final HandshakerFactory handshakerFactory = new HandshakerFactory(socketId, copyProperties, clientOption, clusterOption);
+        final ClientHandlerFactory clientHandlerFactory =  new DefaultPinpointClientHandlerFactory(clientOption, clusterOption, handshakerFactory,
                 messageListener, serverStreamChannelMessageListener, stateChangeEventListeners);
 
         final SocketOption socketOption = this.socketOptionBuilder.build();
+
         return new ConnectionFactory(timer, this.closed, this.channelFactory, socketOption, clientOption, clientHandlerFactory);
     }
+
 
     public PinpointClient scheduledConnect(String host, int port) {
         InetSocketAddress connectAddress = new InetSocketAddress(host, port);
@@ -190,10 +193,6 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     public ChannelFuture reconnect(final SocketAddress remoteAddress) {
         Connection connection = connectInternal(remoteAddress, true);
         return connection.getConnectFuture();
-    }
-
-    public Timeout newTimeout(TimerTask task, long delay, TimeUnit unit) {
-        return this.timer.newTimeout(task, delay, unit);
     }
 
 
@@ -278,20 +277,6 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     public void addStateChangeEventListener(StateChangeEventListener stateChangeEventListener) {
         this.stateChangeEventListeners.add(stateChangeEventListener);
-    }
-
-    private Map<String, Object> newHandShakeData() {
-
-        Map<String, Object> handshakeData = new HashMap<String, Object>(this.properties);
-
-        final int socketId = nextSocketId();
-        handshakeData.put("socketId", socketId);
-
-        final ClusterOption clusterOption = this.clusterOption;
-        if (clusterOption.isEnable()) {
-            handshakeData.put("cluster", clusterOption.toMap());
-        }
-        return handshakeData;
     }
 
     private int nextSocketId() {

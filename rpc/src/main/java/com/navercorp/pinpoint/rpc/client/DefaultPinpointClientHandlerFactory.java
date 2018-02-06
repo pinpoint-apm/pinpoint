@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import org.jboss.netty.util.Timer;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,38 +31,37 @@ import java.util.Map;
 public class DefaultPinpointClientHandlerFactory implements ClientHandlerFactory {
 
     private final ClientOption clientOption;
-    private final Map<String, Object> handShakeData;
     private final ClusterOption clusterOption;
+    private final HandshakerFactory handshakerFactory;
 
     private final MessageListener messageListener;
     private final ServerStreamChannelMessageListener serverStreamChannelMessageListener;
     private final List<StateChangeEventListener> stateChangeEventListeners;
 
 
-
-    public DefaultPinpointClientHandlerFactory(ClientOption clientOption, Map<String, Object> handShakeData, ClusterOption clusterOption,
+    public DefaultPinpointClientHandlerFactory(ClientOption clientOption, ClusterOption clusterOption, HandshakerFactory handshakerFactory,
                                                MessageListener messageListener,
                                                ServerStreamChannelMessageListener serverStreamChannelMessageListener,
                                                List<StateChangeEventListener> stateChangeEventListeners) {
 
         this.clientOption = Assert.requireNonNull(clientOption, "clientOption must not be null");
-        this.handShakeData = Assert.requireNonNull(handShakeData, "handShakeData must not be null");
         this.clusterOption = Assert.requireNonNull(clusterOption, "clusterOption must not be null");
+        this.handshakerFactory = Assert.requireNonNull(handshakerFactory, "handshakerFactory must not be null");
 
         this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
         this.serverStreamChannelMessageListener = Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
         this.stateChangeEventListeners = Assert.requireNonNull(stateChangeEventListeners, "stateChangeEventListeners must not be null");
 
+
     }
 
 
     @Override
-    public DefaultPinpointClientHandler newClientHandler(ConnectionFactory connectionFactory, Timer channelTimer, boolean reconnect) {
-
-
-        final DefaultPinpointClientHandler clientHandler = new DefaultPinpointClientHandler(connectionFactory, handShakeData, clusterOption,
-                messageListener, serverStreamChannelMessageListener, stateChangeEventListeners,
-                channelTimer, clientOption);
+    public PinpointClientHandler newClientHandler(ConnectionFactory connectionFactory, Timer channelTimer, boolean reconnect) {
+        PinpointClientHandshaker handshaker = handshakerFactory.newHandShaker(channelTimer);
+        final DefaultPinpointClientHandler clientHandler = new DefaultPinpointClientHandler(connectionFactory, handshaker, clusterOption,
+                clientOption, channelTimer, messageListener, serverStreamChannelMessageListener, stateChangeEventListeners
+        );
 
         if (reconnect) {
             clientHandler.initReconnect();

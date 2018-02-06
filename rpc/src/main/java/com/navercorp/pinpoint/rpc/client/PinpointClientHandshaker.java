@@ -69,20 +69,24 @@ public class PinpointClientHandshaker {
 
     private final String id = ClassUtils.simpleClassNameAndHashCodeString(this);
 
+    private final Map<String, Object> handshakeData;
 
-    public PinpointClientHandshaker(Timer handshakerTimer, long retryInterval, int maxHandshakeCount) {
+
+    public PinpointClientHandshaker(Map<String, Object> handshakeData, Timer handshakerTimer, long retryInterval, int maxHandshakeCount) {
         Assert.isTrue(retryInterval > 0, "retryInterval must greater than zero.");
         Assert.isTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
         
         this.state = new AtomicInteger(STATE_INIT);
         this.handshakerTimer = Assert.requireNonNull(handshakerTimer, "handshakerTimer must not be null.");
+        this.handshakeData = Assert.requireNonNull(handshakeData, "handshakeData must not be null");
+
         this.retryInterval = retryInterval;
         this.maxHandshakeCount = maxHandshakeCount;
-        
+
         this.handshakeCount = new AtomicInteger(0);
     }
 
-    public void handshakeStart(Channel channel, Map<String, Object> handshakeData) {
+    public void handshakeStart(Channel channel) {
         logger.info("{} handshakeStart() started. channel:{}", id, channel);
         
         if (channel == null) {
@@ -102,7 +106,7 @@ public class PinpointClientHandshaker {
         
         HandshakeJob handshakeJob = null;
         try {
-            handshakeJob = createHandshakeJob(channel, handshakeData);
+            handshakeJob = createHandshakeJob(channel);
         } catch (Exception e) {
             logger.warn("{} create HandshakeJob failed. caused:{}", id, e.getMessage(), e);
         }
@@ -118,7 +122,7 @@ public class PinpointClientHandshaker {
         logger.info("{} handshakeStart() completed. channel:{}, data:{}", id, channel, handshakeData);
     }
 
-    private HandshakeJob createHandshakeJob(Channel channel, Map<String, Object> handshakeData) throws ProtocolException {
+    private HandshakeJob createHandshakeJob(Channel channel) throws ProtocolException {
         byte[] payload = ControlMessageEncodingUtils.encode(handshakeData);
         ControlHandshakePacket handshakePacket = new ControlHandshakePacket(payload);
 

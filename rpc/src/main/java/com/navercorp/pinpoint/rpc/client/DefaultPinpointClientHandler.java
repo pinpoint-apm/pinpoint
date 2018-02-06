@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,18 +46,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DefaultPinpointClientHandler extends SimpleChannelHandler implements PinpointClientHandler {
 
-    private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = Integer.MAX_VALUE;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AtomicInteger pingIdGenerator;
     private final PinpointClientHandlerState state;
-    private final Map<String, Object> handshakeData;
 
     private volatile Channel channel;
 
-
-    private int maxHandshakeCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
 
     private final Timer channelTimer;
 
@@ -83,18 +77,17 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private final String objectUniqName;
     private final ClientOption clientOption;
     private final ClusterOption localClusterOption;
-    private ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
+    private volatile ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
 
 
-    public DefaultPinpointClientHandler(ConnectionFactory connectionFactory, Map<String, Object> handshakeData, ClusterOption localClusterOption,
+    public DefaultPinpointClientHandler(ConnectionFactory connectionFactory, PinpointClientHandshaker handshaker,
+                                        ClusterOption localClusterOption, ClientOption clientOption,
+                                        Timer channelTimer,
                                         MessageListener messageListener,
                                         ServerStreamChannelMessageListener serverStreamChannelMessageListener,
-                                        List<StateChangeEventListener> stateChangeEventListeners,
-                                        Timer channelTimer,
-                                        ClientOption clientOption) {
+                                        List<StateChangeEventListener> stateChangeEventListeners) {
 
         this.connectionFactory = Assert.requireNonNull(connectionFactory, "clientFactory must not be null");
-        this.handshakeData = Assert.requireNonNull(handshakeData, "properies must not be null");
 
         this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer must not be null");
         this.requestManager = new RequestManager(channelTimer, clientOption.getTimeoutMillis());
@@ -105,7 +98,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         this.serverStreamChannelMessageListener = Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
 
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
-        this.handshaker = new PinpointClientHandshaker(channelTimer, clientOption.getEnableWorkerPacketDelay(), maxHandshakeCount);
+        this.handshaker = Assert.requireNonNull(handshaker, "handshaker must not be null");
 
         this.pingIdGenerator = new AtomicInteger(0);
         this.state = new PinpointClientHandlerState(this.objectUniqName, this, stateChangeEventListeners);
@@ -156,7 +149,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         registerPing();
 
 
-        handshaker.handshakeStart(channel, handshakeData);
+        handshaker.handshakeStart(channel);
 
         connectFuture.setResult(Result.SUCCESS);
 
@@ -619,10 +612,6 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     protected PinpointSocket getPinpointSocket() {
         return pinpointClient;
-    }
-
-    protected String getObjectName() {
-        return objectUniqName;
     }
 
     @Override

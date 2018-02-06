@@ -116,7 +116,7 @@ public class Connection {
     }
 
 
-    private PinpointClientHandler awaitHandshake0() {
+    private PinpointClientHandler awaitConnected0() {
         ConnectFuture handlerConnectFuture = pinpointClientHandler.getConnectFuture();
         handlerConnectFuture.awaitUninterruptibly();
 
@@ -127,8 +127,8 @@ public class Connection {
         return pinpointClientHandler;
     }
 
-    public PinpointClient awaitHandshake() {
-        PinpointClientHandler pinpointClientHandler = awaitHandshake0();
+    public PinpointClient awaitConnected() {
+        PinpointClientHandler pinpointClientHandler = awaitConnected0();
         PinpointClient pinpointClient = new DefaultPinpointClient(pinpointClientHandler);
         return pinpointClient;
     }
