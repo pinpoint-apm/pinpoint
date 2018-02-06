@@ -1,5 +1,3 @@
-
-
 ![Pinpoint](web/src/main/webapp/images/logo.png)
 
 [![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)](https://travis-ci.org/naver/pinpoint)
