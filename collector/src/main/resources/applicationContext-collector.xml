@@ -62,6 +62,7 @@
     </bean>
 
     <import resource="classpath:applicationContext-hbase.xml"/>
+    <import resource="classpath:applicationContext-collector-namespace.xml"/>
 
     <util:list id="cachedStatisticsDaoList" value-type="com.navercorp.pinpoint.collector.dao.CachedStatisticsDao">
         <beans:ref bean="hbaseMapStatisticsCallerDao"/>

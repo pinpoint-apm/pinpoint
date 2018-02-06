@@ -38,6 +38,7 @@
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:applicationContext-cache.xml" />
     <import resource="classpath:applicationContext-websocket.xml" />
+    <import resource="classpath:applicationContext-web-namespace.xml"/>
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
     </bean>
