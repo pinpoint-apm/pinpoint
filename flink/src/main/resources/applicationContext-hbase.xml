@@ -82,7 +82,7 @@
     </bean>
 
     <bean id="tableNameProvider" class="com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider">
-        <constructor-arg index="0" value="${hbase.namespace:}"/>
+        <constructor-arg index="0" value="${hbase.namespace:default}"/>
     </bean>
 
     <!--<bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">-->

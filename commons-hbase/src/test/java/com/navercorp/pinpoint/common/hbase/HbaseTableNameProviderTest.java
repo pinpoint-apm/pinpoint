@@ -42,30 +42,22 @@ public class HbaseTableNameProviderTest {
     @Mock
     private NamespaceValidator namespaceValidator;
 
-    @Test
-    public void nullNamespaceShouldReturnDefaultNamespace() {
+    @Test(expected = IllegalArgumentException.class)
+    public void nullNamespaceShouldThrowException() {
         // Given
         final String nullNamespace = null;
         // When
-        final TableNameProvider tableNameProvider = new HbaseTableNameProvider(nullNamespace, namespaceValidator);
-        final TableName tableName = tableNameProvider.getTableName(TABLE_QUALIFIER);
-        // Then
-        verify(namespaceValidator, never()).validate(anyString());
-        Assert.assertEquals(NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR, tableName.getNamespaceAsString());
-        Assert.assertEquals(TABLE_QUALIFIER, tableName.getQualifierAsString());
+        new HbaseTableNameProvider(nullNamespace, namespaceValidator);
+        Assert.fail("Expected IllegalArgumentException to be thrown");
     }
 
-    @Test
-    public void emptyNamespaceShouldReturnDefaultNamespace() {
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyNamespaceShouldThrowException() {
         // Given
         final String emptyNamespace = "";
         // When
-        final TableNameProvider tableNameProvider = new HbaseTableNameProvider(emptyNamespace, namespaceValidator);
-        final TableName tableName = tableNameProvider.getTableName(TABLE_QUALIFIER);
-        // Then
-        verify(namespaceValidator, never()).validate(anyString());
-        Assert.assertEquals(NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR, tableName.getNamespaceAsString());
-        Assert.assertEquals(TABLE_QUALIFIER, tableName.getQualifierAsString());
+        new HbaseTableNameProvider(emptyNamespace, namespaceValidator);
+        Assert.fail("Expected IllegalArgumentException to be thrown");
     }
 
     @Test
