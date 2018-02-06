@@ -199,7 +199,7 @@
 							if ( oPinpointUserList[i].userId == oPinpointUser.userId ) {
 								oPinpointUserList[i].name = oPinpointUser.name;
 								oPinpointUserList[i].department = oPinpointUser.department;
-								oPinpointUserList[i].phoneNumber = oPinpointUser.phone;
+								oPinpointUserList[i].phoneNumber = oPinpointUser.phoneNumber;
 								oPinpointUserList[i].email = oPinpointUser.email;
 								break;
 							}
