@@ -32,7 +32,7 @@ public class RequestContextPropagatingTaskDecorator implements TaskDecorator {
         return new RequestContextPropagatingRunnable(runnable);
     }
 
-    private class RequestContextPropagatingRunnable implements Runnable {
+    private static class RequestContextPropagatingRunnable implements Runnable {
 
         private final Runnable delegate;
         private final RequestAttributes requestAttributes;

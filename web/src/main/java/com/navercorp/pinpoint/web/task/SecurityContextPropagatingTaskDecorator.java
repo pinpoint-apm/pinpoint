@@ -32,7 +32,7 @@ public class SecurityContextPropagatingTaskDecorator implements TaskDecorator {
         return new SecurityContextPropagatingRunnable(runnable);
     }
 
-    private class SecurityContextPropagatingRunnable implements Runnable {
+    private static class SecurityContextPropagatingRunnable implements Runnable {
 
         private final Runnable delegate;
         private final SecurityContext securityContext;
