@@ -58,6 +58,13 @@
 	    				addSelectClass( AlarmUtilService.extractID( $el ) );
 						scope.$emit( "userGroup.selectedUserGroup", $el.find(".contents").html() );
 	    			}
+	    			function releaseGroup( groupNumber ) {
+						if ( selectedGroupNumber !== groupNumber ) {
+							return;
+						}
+						selectedGroupNumber = "";
+						scope.$emit( "userGroup.selectedNone" );
+					}
 					function addSelectClass( newSelectedGroupNumber ) {
 						$( "#" + scope.prefix + selectedGroupNumber ).removeClass("selected");
 						$( "#" + scope.prefix + newSelectedGroupNumber ).addClass("selected");
@@ -134,6 +141,7 @@
 					};
 					scope.onApplyRemoveUserGroup = function() {
 						SystemConfigService.getConfig().then(function(config) {
+							var groupNumber = AlarmUtilService.extractID($workingNode);
 							RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, config["userId"], function( groupId ) {
 								for (var i = 0; i < oUserGroupList.length; i++) {
 									if ( oUserGroupList[i].id == groupId ) {
@@ -141,6 +149,7 @@
 										break;
 									}
 								}
+								releaseGroup( groupNumber );
 								scope.$apply(function () {
 									scope.userGroupList = oUserGroupList;
 								});
