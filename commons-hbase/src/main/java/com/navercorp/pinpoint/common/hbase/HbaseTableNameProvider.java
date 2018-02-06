@@ -47,7 +47,7 @@ public class HbaseTableNameProvider implements TableNameProvider {
 
     private String requireValidation(String namespace, NamespaceValidator namespaceValidator) {
         if (StringUtils.isEmpty(namespace)) {
-            return NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR;
+            throw new IllegalArgumentException("Namespace must not be empty");
         }
         if (!namespaceValidator.validate(namespace)) {
             throw new IllegalArgumentException("Invalid namespace : " + namespace);

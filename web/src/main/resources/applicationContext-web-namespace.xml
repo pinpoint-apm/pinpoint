@@ -4,6 +4,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="tableNameProvider" class="com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider">
-        <constructor-arg index="0" value="${hbase.namespace:}"/>
+        <constructor-arg index="0" value="${hbase.namespace:default}"/>
     </bean>
 </beans>
