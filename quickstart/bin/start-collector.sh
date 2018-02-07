@@ -38,6 +38,7 @@ CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
 KEY_VERSION="quickstart.version"
+KEY_CONTEXT_PATH="quickstart.collector.context.path"
 KEY_PORT="quickstart.collector.port"
 
 function func_read_properties
@@ -112,8 +113,12 @@ function func_init_log
 
 function func_check_running_pinpoint_collector
 {
+    context_path=$( func_read_properties "$KEY_CONTEXT_PATH" )
+    if [ "$context_path" == "/" ]; then
+            context_path=""
+    fi
     port=$( func_read_properties "$KEY_PORT" )
-    check_url="http://localhost:"$port"/serverTime.pinpoint"
+    check_url="http://localhost:$port$context_path/serverTime.pinpoint"
 
     process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
 

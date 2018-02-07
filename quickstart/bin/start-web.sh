@@ -38,6 +38,7 @@ CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
 KEY_VERSION="quickstart.version"
+KEY_CONTEXT_PATH="quickstart.web.context.path"
 KEY_PORT="quickstart.web.port"
 
 function func_read_properties
@@ -112,9 +113,13 @@ function func_init_log
 function func_start_pinpoint_web
 {
     version=$( func_read_properties "$KEY_VERSION" )
+    context_path=$( func_read_properties "$KEY_CONTEXT_PATH" )
+    if [ "$context_path" == "/" ]; then
+            context_path=""
+    fi
     port=$( func_read_properties "$KEY_PORT" )
     pid=`nohup ${bin}/../../mvnw -f $WEB_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
-    check_url="http://localhost:"$port"/serverTime.pinpoint"
+    check_url="http://localhost:$port$context_path/serverTime.pinpoint"
     echo $pid > $PID_DIR/$PID_FILE
 
     echo "---$WEB_IDENTIFIER initialization started. pid=$pid.---"
