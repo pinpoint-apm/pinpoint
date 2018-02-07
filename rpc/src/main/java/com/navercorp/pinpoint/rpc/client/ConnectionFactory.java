@@ -27,7 +27,6 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -59,14 +58,14 @@ public class ConnectionFactory {
         return closed.isClosed();
     }
 
-    public Connection connect(SocketAddress remoteAddress, boolean reconnect) {
-        Connection connection = new Connection(this, remoteAddress, this.socketOption, this.channelFactory, clientHandlerFactory);
-        connection.connect(reconnect);
+    public Connection connect(SocketAddressProvider remoteAddressProvider, boolean reconnect) {
+        Connection connection = new Connection(this, this.socketOption, this.channelFactory, clientHandlerFactory);
+        connection.connect(remoteAddressProvider, reconnect);
         return connection;
     }
 
-    public void reconnect(final PinpointClient pinpointClient, final SocketAddress socketAddress) {
-        ConnectEvent connectEvent = new ConnectEvent(this, pinpointClient, socketAddress);
+    public void reconnect(final PinpointClient pinpointClient, final SocketAddressProvider socketAddressProvider) {
+        ConnectEvent connectEvent = new ConnectEvent(this, socketAddressProvider, pinpointClient);
         this.connectTimer.newTimeout(connectEvent, clientOption.getReconnectDelay(), TimeUnit.MILLISECONDS);
     }
 
@@ -75,16 +74,15 @@ public class ConnectionFactory {
         private final Logger logger = LoggerFactory.getLogger(getClass());
 
         private final ConnectionFactory connectionFactory;
+        private final SocketAddressProvider socketAddressProvider;
+
         private final PinpointClient pinpointClient;
 
-        private final SocketAddress socketAddress;
 
-        private ConnectEvent(ConnectionFactory connectionFactory, PinpointClient pinpointClient, SocketAddress socketAddress) {
+        private ConnectEvent(ConnectionFactory connectionFactory, SocketAddressProvider socketAddressProvider, PinpointClient pinpointClient) {
             this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory must not be null");
-
+            this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
             this.pinpointClient = Assert.requireNonNull(pinpointClient, "pinpointClient must not be null");
-            this.socketAddress = Assert.requireNonNull(socketAddress, "socketAddress must not be null");
-
         }
 
         @Override
@@ -98,10 +96,9 @@ public class ConnectionFactory {
                 logger.debug("pinpointClient is already closed.");
                 return;
             }
+            logger.warn("try reconnect. connectAddress:{}", socketAddressProvider);
 
-            logger.warn("try reconnect. connectAddress:{}", socketAddress);
-
-            final Connection connection = connectionFactory.connect(socketAddress, true);
+            final Connection connection = connectionFactory.connect(socketAddressProvider, true);
 
             final PinpointClientHandler pinpointClientHandler = connection.getPinpointClientHandler();
             pinpointClientHandler.setPinpointClient(pinpointClient);
@@ -112,7 +109,7 @@ public class ConnectionFactory {
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
                         Channel channel = future.getChannel();
-                        logger.info("reconnect success {}, {}", socketAddress, channel);
+                        logger.info("reconnect success {}, {}", socketAddressProvider, channel);
                         pinpointClient.reconnectSocketHandler(pinpointClientHandler);
                     } else {
                         if (!pinpointClient.isClosed()) {
@@ -124,7 +121,7 @@ public class ConnectionFactory {
                                 logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage());
                             }
                           */
-                            connectionFactory.reconnect(pinpointClient, socketAddress);
+                            connectionFactory.reconnect(pinpointClient, socketAddressProvider);
                         } else {
                             logger.info("pinpointClient is closed. stop reconnect.");
                         }

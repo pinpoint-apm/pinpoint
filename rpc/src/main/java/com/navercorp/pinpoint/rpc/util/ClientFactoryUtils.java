@@ -32,10 +32,27 @@ public final class ClientFactoryUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientFactoryUtils.class);
 
     public static PinpointClient createPinpointClient(String host, int port, PinpointClientFactory clientFactory) {
-        InetSocketAddress connectAddress = new InetSocketAddress(host, port);
-        return createPinpointClient(connectAddress, clientFactory);
+
+        PinpointClient pinpointClient = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                pinpointClient = clientFactory.connect(host, port);
+                LOGGER.info("tcp connect success. remote:{}/{}", host, port);
+                return pinpointClient;
+            } catch (PinpointSocketException e) {
+                LOGGER.warn("tcp connect fail. remote:{}/{} try reconnect, retryCount:{}", host, port, i);
+            }
+        }
+        LOGGER.warn("change background tcp connect mode remote:{}/{} ", host, port);
+        pinpointClient = clientFactory.scheduledConnect(host, port);
+
+        return pinpointClient;
     }
 
+    /**
+     * @deprecated Since 1.7.2 Use {@link #createPinpointClient(String, int, PinpointClientFactory)}
+     */
+    @Deprecated
     public static PinpointClient createPinpointClient(InetSocketAddress connectAddress, PinpointClientFactory clientFactory) {
         PinpointClient pinpointClient = null;
         for (int i = 0; i < 3; i++) {

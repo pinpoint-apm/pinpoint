@@ -50,6 +50,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private final AtomicInteger pingIdGenerator;
     private final PinpointClientHandlerState state;
+    private final SocketAddressProvider socketAddressProvider;
 
     private volatile Channel channel;
 
@@ -80,14 +81,15 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private volatile ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
 
 
-    public DefaultPinpointClientHandler(ConnectionFactory connectionFactory, PinpointClientHandshaker handshaker,
+    public DefaultPinpointClientHandler(ConnectionFactory connectionFactory, SocketAddressProvider socketAddressProvider, PinpointClientHandshaker handshaker,
                                         ClusterOption localClusterOption, ClientOption clientOption,
                                         Timer channelTimer,
                                         MessageListener messageListener,
                                         ServerStreamChannelMessageListener serverStreamChannelMessageListener,
                                         List<StateChangeEventListener> stateChangeEventListeners) {
 
-        this.connectionFactory = Assert.requireNonNull(connectionFactory, "clientFactory must not be null");
+        this.connectionFactory = Assert.requireNonNull(connectionFactory,   "clientFactory must not be null");
+        this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
 
         this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer must not be null");
         this.requestManager = new RequestManager(channelTimer, clientOption.getTimeoutMillis());
@@ -556,7 +558,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     private void reconnect() {
-        connectionFactory.reconnect(this.pinpointClient, this.connectSocketAddress);
+        connectionFactory.reconnect(this.pinpointClient, this.socketAddressProvider);
     }
 
     private ChannelFuture write0(Object message) {

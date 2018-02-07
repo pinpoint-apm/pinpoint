@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class Connection {
     private final ConnectionFactory connectionFactory;
-    private final SocketAddress remoteAddress;
     private final SocketOption socketOption;
 
     private final ChannelFactory channelFactory;
@@ -47,19 +46,17 @@ public class Connection {
     private PinpointClientHandler pinpointClientHandler;
     private ChannelFuture connectFuture;
 
-    public Connection(ConnectionFactory connectionFactory, SocketAddress remoteAddress, SocketOption socketOption, ChannelFactory channelFactory, ClientHandlerFactory clientHandlerFactory) {
+    public Connection(ConnectionFactory connectionFactory, SocketOption socketOption, ChannelFactory channelFactory, ClientHandlerFactory clientHandlerFactory) {
         this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory must not be null");
 
-        this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress must not be null");
         this.socketOption = Assert.requireNonNull(socketOption, "socketOption must not be null");
-
 
         this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory must not be null");
         this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory must not be null");
     }
 
-    public void connect(boolean reconnect) {
-        Assert.requireNonNull(remoteAddress, "remoteAddress must not be null");
+    public void connect(SocketAddressProvider remoteAddressProvider, boolean reconnect) {
+        Assert.requireNonNull(remoteAddressProvider, "remoteAddress must not be null");
 
         final CodecPipelineFactory pipelineFactory = new CodecPipelineFactory();
         final ChannelPipeline pipeline = pipelineFactory.newPipeline();
@@ -68,18 +65,24 @@ public class Connection {
         final ChannelHandler writeTimeout = new WriteTimeoutHandler(channelTimer, 3000, TimeUnit.MILLISECONDS);
         pipeline.addLast("writeTimeout", writeTimeout);
 
-        this.pinpointClientHandler = this.clientHandlerFactory.newClientHandler(connectionFactory, channelTimer, reconnect);
+        this.pinpointClientHandler = this.clientHandlerFactory.newClientHandler(connectionFactory, remoteAddressProvider, channelTimer, reconnect);
         if (pinpointClientHandler instanceof SimpleChannelHandler) {
             pipeline.addLast("socketHandler", (SimpleChannelHandler)this.pinpointClientHandler);
         } else {
             throw new IllegalArgumentException("invalid pinpointClientHandler");
         }
 
-
-        this.connectFuture  = connect0(pipeline);
+        final SocketAddress remoteAddress = remoteAddressProvider.resolve();
+        this.connectFuture  = connect0(remoteAddress, pipeline);
     }
 
-    private ChannelFuture connect0(ChannelPipeline pipeline) {
+    private ChannelFuture connect0(SocketAddress remoteAddress, ChannelPipeline pipeline) {
+        final Channel channel = newChannel(pipeline);
+        // Connect.
+        return channel.connect(remoteAddress);
+    }
+
+    private Channel newChannel(ChannelPipeline pipeline) {
         // Set the options.
         final Channel ch = this.channelFactory.newChannel(pipeline);
         boolean success = false;
@@ -91,15 +94,9 @@ public class Connection {
                 ch.close();
             }
         }
-
-        // Connect.
-        return ch.connect(remoteAddress);
+        return ch;
     }
 
-
-    public SocketAddress getRemoteAddress() {
-        return remoteAddress;
-    }
 
     public ChannelFuture getConnectFuture() {
         return connectFuture;
@@ -121,7 +118,8 @@ public class Connection {
         handlerConnectFuture.awaitUninterruptibly();
 
         if (ConnectFuture.Result.FAIL == handlerConnectFuture.getResult()) {
-            throw new PinpointSocketException("connect fail to " + getRemoteAddress() + ".", connectFuture.getCause());
+            SocketAddress remoteAddress = connectFuture.getChannel().getRemoteAddress();
+            throw new PinpointSocketException("connect fail to " + remoteAddress + ".", connectFuture.getCause());
         }
 
         return pinpointClientHandler;

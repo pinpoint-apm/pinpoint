@@ -141,19 +141,25 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
 
     public PinpointClient connect(String host, int port) throws PinpointSocketException {
-        InetSocketAddress connectAddress = new InetSocketAddress(host, port);
-        return connect(connectAddress);
+        SocketAddressProvider socketAddressProvider = new DnsSocketAddressProvider(host, port);
+        return connect(socketAddressProvider);
     }
 
+    @Deprecated
     public PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException {
-        Connection connection = connectInternal(connectAddress, false);
+        SocketAddressProvider socketAddressProvider = new StaticSocketAddressProvider(connectAddress);
+        return connect(socketAddressProvider);
+    }
+
+    private PinpointClient connect(SocketAddressProvider socketAddressProvider) throws PinpointSocketException {
+        Connection connection = connectInternal(socketAddressProvider, false);
         return connection.awaitConnected();
     }
 
 
-    private Connection connectInternal(SocketAddress remoteAddress, boolean reconnect) {
+    private Connection connectInternal(SocketAddressProvider socketAddressProvider, boolean reconnect) {
         final ConnectionFactory connectionFactory = createConnectionFactory();
-        return connectionFactory.connect(remoteAddress, reconnect);
+        return connectionFactory.connect(socketAddressProvider, reconnect);
     }
 
     private ConnectionFactory createConnectionFactory() {
@@ -180,18 +186,23 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         return scheduledConnect(connectAddress);
     }
 
+    @Deprecated
     public PinpointClient scheduledConnect(InetSocketAddress connectAddress) {
         PinpointClient pinpointClient = new DefaultPinpointClient(new ReconnectStateClientHandler());
-
+        SocketAddressProvider socketAddressProvider = new StaticSocketAddressProvider(connectAddress);
         ConnectionFactory connectionFactory = createConnectionFactory();
-        connectionFactory.reconnect(pinpointClient, connectAddress);
+        connectionFactory.reconnect(pinpointClient, socketAddressProvider);
         return pinpointClient;
     }
 
 
     @Deprecated
     public ChannelFuture reconnect(final SocketAddress remoteAddress) {
-        Connection connection = connectInternal(remoteAddress, true);
+        if (!(remoteAddress instanceof InetSocketAddress)) {
+            throw new IllegalArgumentException("invalid remoteAddress:" + remoteAddress);
+        }
+        SocketAddressProvider socketAddressProvider = new StaticSocketAddressProvider((InetSocketAddress) remoteAddress);
+        Connection connection = connectInternal(socketAddressProvider, true);
         return connection.getConnectFuture();
     }
 

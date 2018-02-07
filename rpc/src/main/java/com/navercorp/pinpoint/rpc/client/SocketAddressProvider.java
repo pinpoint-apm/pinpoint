@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import org.jboss.netty.util.Timer;
+import java.net.InetSocketAddress;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-interface ClientHandlerFactory {
-
-    PinpointClientHandler newClientHandler(ConnectionFactory connectionFactory, SocketAddressProvider remoteAddressProvider, Timer timer, boolean reconnect);
+public interface SocketAddressProvider {
+    InetSocketAddress resolve();
 }
