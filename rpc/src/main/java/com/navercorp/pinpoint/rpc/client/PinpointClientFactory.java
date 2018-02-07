@@ -60,17 +60,24 @@ public interface PinpointClientFactory {
 
     PinpointClient connect(String host, int port) throws PinpointSocketException;
 
+    /**
+     * @deprecated Since 1.7.2 Use {@link #connect(String, int)}
+     */
+    @Deprecated
     PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException;
 
 
     PinpointClient scheduledConnect(String host, int port);
 
+    /**
+     * @deprecated Since 1.7.2 Use {@link #scheduledConnect(String, int)}
+     */
+    @Deprecated
     PinpointClient scheduledConnect(InetSocketAddress connectAddress);
 
     /**
-     *
-     * @deprecated Since 1.7.2
-            */
+     * @deprecated Since 1.7.2 Use {@link #scheduledConnect(String, int)}
+     */
     @Deprecated
     ChannelFuture reconnect(final SocketAddress remoteAddress);
 

@@ -57,10 +57,13 @@ public class DefaultPinpointClientHandlerFactory implements ClientHandlerFactory
 
 
     @Override
-    public PinpointClientHandler newClientHandler(ConnectionFactory connectionFactory, Timer channelTimer, boolean reconnect) {
+    public PinpointClientHandler newClientHandler(ConnectionFactory connectionFactory, SocketAddressProvider remoteAddressProvider, Timer channelTimer, boolean reconnect) {
         PinpointClientHandshaker handshaker = handshakerFactory.newHandShaker(channelTimer);
-        final DefaultPinpointClientHandler clientHandler = new DefaultPinpointClientHandler(connectionFactory, handshaker, clusterOption,
-                clientOption, channelTimer, messageListener, serverStreamChannelMessageListener, stateChangeEventListeners
+        final DefaultPinpointClientHandler clientHandler = new DefaultPinpointClientHandler(connectionFactory, remoteAddressProvider, handshaker,
+                clusterOption, clientOption, channelTimer,
+                messageListener,
+                serverStreamChannelMessageListener,
+                stateChangeEventListeners
         );
 
         if (reconnect) {
