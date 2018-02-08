@@ -18,31 +18,27 @@ package com.navercorp.pinpoint.plugin.vertx.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpHeaderFilter;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerConfig;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerMethodDescriptor;
+import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerServerRequestTrace;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
@@ -65,6 +61,8 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final RemoteAddressResolver<HttpServerRequest> remoteAddressResolver;
     private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
     private final VertxHttpHeaderFilter httpHeaderFilter;
+    private final ServerRequestRecorder serverRequestRecorder = new ServerRequestRecorder();
+    private final RequestTraceReader requestTraceReader;
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
@@ -86,6 +84,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         this.excludeProfileMethodFilter = config.getExcludeProfileMethodFilter();
         this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
         this.httpHeaderFilter = new VertxHttpHeaderFilter(config.isHidePinpointHeader());
+        this.requestTraceReader = new RequestTraceReader(traceContext, true);
 
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
     }
@@ -109,7 +108,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
             final HttpServerRequest request = (HttpServerRequest) args[0];
             final HttpServerResponse response = request.response();
-            if(!(response instanceof AsyncContextAccessor)) {
+            if (!(response instanceof AsyncContextAccessor)) {
                 if (isDebug) {
                     logger.debug("Invalid response. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
                 }
@@ -242,145 +241,29 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             return null;
         }
 
-        final boolean sampling = samplingEnable(request);
-        if (!sampling) {
-            final Trace trace = traceContext.disableSampling();
-            if (isDebug) {
-                logger.debug("Remote call sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.path(), request.remoteAddress());
-            }
-            if (!initScope(trace)) {
-                // invalid scope.
-                deleteTrace(trace);
-                return null;
-            }
-
-            return trace;
+        final ServerRequestTrace serverRequestTrace = new VertxHttpServerServerRequestTrace(request, this.remoteAddressResolver);
+        final Trace trace = this.requestTraceReader.read(serverRequestTrace);
+        if (trace.canSampled()) {
+            final SpanRecorder recorder = trace.getSpanRecorder();
+            // root
+            recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER);
+            recorder.recordApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
+            this.serverRequestRecorder.record(recorder, serverRequestTrace);
+            // record proxy HTTP header.
+            this.proxyHttpHeaderRecorder.record(recorder, serverRequestTrace);
         }
 
-        final TraceId traceId = populateTraceIdFromRequest(request);
-        if (traceId != null) {
-            final Trace trace = traceContext.continueAsyncTraceObject(traceId);
-            if (trace.canSampled()) {
-                final SpanRecorder recorder = trace.getSpanRecorder();
-                recordRootSpan(recorder, request);
-                if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.path(), request.remoteAddress());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.path(), request.remoteAddress());
-                }
-            }
-            if (!initScope(trace)) {
-                // invalid scope.
-                deleteTrace(trace);
-                return null;
-            }
-
-            return trace;
-        } else {
-            // make asynchronous trace.
-            final Trace trace = traceContext.newAsyncTraceObject();
-            if (trace.canSampled()) {
-                final SpanRecorder recorder = trace.getSpanRecorder();
-                recordRootSpan(recorder, request);
-                if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.path(), request.remoteAddress());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.path(), request.remoteAddress());
-                }
-            }
-
-            if (!initScope(trace)) {
-                // invalid scope.
-                deleteTrace(trace);
-                return null;
-            }
-
-            return trace;
+        if (!initScope(trace)) {
+            // invalid scope.
+            deleteTrace(trace);
+            return null;
         }
+        return trace;
     }
 
     private void deleteTrace(final Trace trace) {
         traceContext.removeTraceObject();
         trace.close();
-    }
-
-    private boolean samplingEnable(HttpServerRequest request) {
-        // optional value
-        final String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
-        if (isDebug) {
-            logger.debug("SamplingFlag={}", samplingFlag);
-        }
-        return SamplingFlagUtils.isSamplingFlag(samplingFlag);
-    }
-
-    private TraceId populateTraceIdFromRequest(HttpServerRequest request) {
-        final String transactionId = request.getHeader(Header.HTTP_TRACE_ID.toString());
-        if (transactionId != null) {
-            final long parentSpanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
-            final long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
-            final short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
-            final TraceId id = traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
-            if (isDebug) {
-                logger.debug("TraceID exist. continue trace. {}", id);
-            }
-            return id;
-        } else {
-            return null;
-        }
-    }
-
-
-    private void recordRootSpan(final SpanRecorder recorder, final HttpServerRequest request) {
-        // root
-        recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER);
-        final String requestURL = request.path();
-        if (requestURL != null) {
-            recorder.recordRpcName(requestURL);
-        }
-
-        if (request.localAddress() != null) {
-            final int port = request.localAddress().port();
-            if (port <= 0) {
-                recorder.recordEndPoint(request.host());
-            } else {
-                recorder.recordEndPoint(request.host() + ":" + port);
-            }
-        }
-
-        final String remoteAddr = remoteAddressResolver.resolve(request);
-        recorder.recordRemoteAddress(remoteAddr);
-
-        if (!recorder.isRoot()) {
-            recordParentInfo(recorder, request);
-        }
-        recorder.recordApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
-
-        // record proxy HTTP header.
-        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
-            @Override
-            public String read(String name) {
-                return request.getHeader(name);
-            }
-        });
-    }
-
-    private void recordParentInfo(SpanRecorder recorder, HttpServerRequest request) {
-        String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
-        if (parentApplicationName != null) {
-            final String host = request.getHeader(Header.HTTP_HOST.toString());
-            if (host != null) {
-                recorder.recordAcceptorHost(host);
-            } else {
-                recorder.recordAcceptorHost(NetworkUtils.getHostFromURL(request.uri().toString()));
-            }
-            final String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
-            final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
-            recorder.recordParentApplication(parentApplicationName, parentApplicationType);
-        }
     }
 
     private String getRequestParameter(HttpServerRequest request, int eachLimit, int totalLimit) {

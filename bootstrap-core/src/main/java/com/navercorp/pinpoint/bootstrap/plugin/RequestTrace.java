@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.proxy;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
 /**
  * @author jaehong.kim
  */
-public interface ProxyHttpHeaderHandler {
+public interface RequestTrace {
+    String getHeader(String name);
 
-    String read(String name);
+    void setHeader(String name, String value);
 }
