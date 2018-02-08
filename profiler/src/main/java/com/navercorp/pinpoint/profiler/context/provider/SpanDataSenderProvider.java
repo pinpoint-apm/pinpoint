@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-
 /**
  * @author Taejin Koo
  */
@@ -76,8 +74,7 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
             }
 
             PinpointClientFactory pinpointClientFactory = clientFactoryProvider.get();
-            InetSocketAddress address = new InetSocketAddress(ip, port);
-            return new TcpDataSender("SpanDataSender", address, pinpointClientFactory);
+            return new TcpDataSender("SpanDataSender", ip, port, pinpointClientFactory);
         } else {
             UdpDataSenderFactory factory = new UdpDataSenderFactory(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize);
             return factory.create(ioType);
