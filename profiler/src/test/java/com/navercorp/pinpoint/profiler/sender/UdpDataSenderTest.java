@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
+import com.navercorp.pinpoint.thrift.dto.TBusinessLog;
+import com.navercorp.pinpoint.thrift.dto.TBusinessLogBatch;
+import com.navercorp.pinpoint.thrift.dto.TBusinessLogV1;
 import org.junit.Assert;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -29,6 +32,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -48,8 +53,31 @@ public class UdpDataSenderTest {
         Slf4jLoggerBinderInitializer.afterClass();
     }
 
+    protected TBusinessLogBatch create() {
+        //create TBusinessLogBatch
+        List<TBusinessLog> listBusinessLog = new ArrayList<TBusinessLog>();
+        TBusinessLogBatch tBusinessLogBatch = new TBusinessLogBatch("agentId", System.currentTimeMillis(), listBusinessLog);
+        //create TBusinessLog
+        TBusinessLog tBusinessLog = new TBusinessLog();
+        listBusinessLog.add(tBusinessLog);
+        //create TBusinessLogV1
+        TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
+        tBusinessLogV1.setTime("time");
+        tBusinessLogV1.setThreadName("threadName");
+        tBusinessLogV1.setLogLevel("level");
+        tBusinessLogV1.setClassName("class");
+        tBusinessLogV1.setMessage("message");
+        tBusinessLogV1.setTransactionId("transactionId");
+        tBusinessLogV1.setSpanId("spanId");
+        tBusinessLog.addToBusinessLogV1s(tBusinessLogV1);
+        return tBusinessLogBatch;
+    }
+    @Test
+    public void sendAndFlushCheckBusinessLogBatch() throws InterruptedException {
+        TBusinessLogBatch tBusinessLogBatch = create();
+        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100);
 
-
+    }
     @Test
     public void sendAndFlushCheck() throws InterruptedException {
         UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100);

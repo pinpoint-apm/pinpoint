@@ -94,7 +94,15 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
 
         TableName mapStatisticsCalleeTableName = tableNameProvider.getTableName(HBaseTables.MAP_STATISTICS_CALLEE_VER2_STR);
+<<<<<<< HEAD
+<<<<<<< HEAD
         LinkDataMap linkDataMap = this.hbaseTemplate.findParallel(mapStatisticsCalleeTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
+=======
+        LinkDataMap linkDataMap = hbaseOperations2.findParallel(mapStatisticsCalleeTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
+>>>>>>> 9290595ec... sync with naver master
+=======
+        LinkDataMap linkDataMap = this.hbaseTemplate.findParallel(mapStatisticsCalleeTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
+>>>>>>> c13e6d7ee... sync with naver master
         logger.debug("Caller data. {}, {}", linkDataMap, range);
         if (linkDataMap != null && linkDataMap.size() > 0) {
             return linkDataMap;

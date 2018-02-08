@@ -149,4 +149,8 @@ public interface ProfilerConfig {
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
 
+    //[XINGUANG]:check if businesslog is enable
+    public boolean isBusinesslogEnable();
+    //[XINGUANG]:get dir of log of tomcat
+    public String getTomcatLogDir();
 }

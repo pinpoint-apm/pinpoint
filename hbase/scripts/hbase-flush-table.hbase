@@ -17,4 +17,6 @@ flush 'ApplicationMapStatisticsSelf_Ver2'
 
 flush 'HostApplicationMap_Ver2'
 
+flush 'BusinessLog'
+
 exit

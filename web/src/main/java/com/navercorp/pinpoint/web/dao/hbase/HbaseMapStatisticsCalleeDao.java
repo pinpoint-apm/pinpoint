@@ -93,7 +93,15 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
 
         TableName mapStatisticsCallerTableName = tableNameProvider.getTableName(HBaseTables.MAP_STATISTICS_CALLER_VER2_STR);
+<<<<<<< HEAD
+<<<<<<< HEAD
         LinkDataMap linkDataMap = hbaseTemplate.findParallel(mapStatisticsCallerTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
+=======
+        LinkDataMap linkDataMap = hbaseOperations2.findParallel(mapStatisticsCallerTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
+>>>>>>> 9290595ec... sync with naver master
+=======
+        LinkDataMap linkDataMap = hbaseTemplate.findParallel(mapStatisticsCallerTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
+>>>>>>> c13e6d7ee... sync with naver master
         logger.debug("Callee data. {}, {}", linkDataMap, range);
         if (linkDataMap != null && linkDataMap.size() > 0) {
             return linkDataMap;

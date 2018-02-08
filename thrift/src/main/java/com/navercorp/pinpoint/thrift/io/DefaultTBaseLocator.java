@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import com.navercorp.pinpoint.thrift.dto.TBusinessLogBatch;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
@@ -53,6 +54,9 @@ class DefaultTBaseLocator implements TBaseLocator {
     private static final Header AGENT_STAT_HEADER = createHeader(AGENT_STAT);
     private static final short AGENT_STAT_BATCH = 56;
     private static final Header AGENT_STAT_BATCH_HEADER = createHeader(AGENT_STAT_BATCH);
+    
+    private static final short BUSINESS_LOG_BATCH = 66;
+    private static final Header BUSINESS_LOG_BATCH_HEADER = createHeader(BUSINESS_LOG_BATCH);
 
     private static final short SPANCHUNK = 70;
     private static final Header SPANCHUNK_HEADER = createHeader(SPANCHUNK);
@@ -86,6 +90,8 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return new TAgentStat();
             case AGENT_STAT_BATCH:
                 return new TAgentStatBatch();
+            case BUSINESS_LOG_BATCH:
+            	return new TBusinessLogBatch();
             case SPANCHUNK:
                 return new TSpanChunk();
             case SPANEVENT:
@@ -125,6 +131,9 @@ class DefaultTBaseLocator implements TBaseLocator {
         }
         if (tbase instanceof TAgentStatBatch) {
             return AGENT_STAT_BATCH_HEADER;
+        }
+        if (tbase instanceof TBusinessLogBatch) {
+        	return BUSINESS_LOG_BATCH_HEADER;
         }
         if (tbase instanceof TSqlMetaData) {
             return SQLMETADATA_HEADER;
@@ -173,6 +182,9 @@ class DefaultTBaseLocator implements TBaseLocator {
         }
         if (clazz.equals(TAgentStatBatch.class)) {
             return true;
+        }
+        if (clazz.equals(TBusinessLogBatch.class)) {
+        	return true;
         }
         if (clazz.equals(TSqlMetaData.class)) {
             return true;

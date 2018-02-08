@@ -170,6 +170,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private List<String> httpStatusCodeErrors = Collections.emptyList();
 
+    //[XINGUANG]:businesslog switch
+    private boolean businesslogEnable = false;
+    
+    //[XINGUANG]:tomcat log dir
+    private String tomcatLogDir = null;
+
     private String injectionModuleFactoryClazzName = null;
 
     public DefaultProfilerConfig() {
@@ -434,6 +440,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return propagateInterceptorException;
     }
 
+    //[XINGUANG]:check if businesslog is enable
+    @Override
+    public boolean isBusinesslogEnable() { return businesslogEnable; }
+
     @Override
     public String getProfileInstrumentEngine() {
         return profileInstrumentEngine;
@@ -576,6 +586,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.proxyHttpHeaderEnable = readBoolean("profiler.proxy.http.header.enable", true);
 
         this.httpStatusCodeErrors = readList("profiler.http.status.code.errors");
+        //[XINGUANG]:read value of businesslog switch from pinpoint.config
+        this.businesslogEnable = readBoolean("profiler.businesslog.enable",false);
+        
+        //[XINGUANG]:read value of dir of log of tomcat from pinpoint.config
+        this.tomcatLogDir = readString("profiler.tomcatlog.dir",null);
+		this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
 
         this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
 
@@ -736,6 +752,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);
         sb.append(", disabledPlugins=").append(disabledPlugins);
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
+		//[XINGUANG]:append businesslog switch to StringBuilder
+        sb.append(", businesslogEnable=").append(businesslogEnable);
+		//[XINGUANG]:append tomcatLogDir switch to StringBuilder
+		sb.append(", tomcatLogDir=").append(tomcatLogDir);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
@@ -743,4 +763,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append('}');
         return sb.toString();
     }
+
+	@Override
+	public String getTomcatLogDir() {
+		// TODO Auto-generated method stub
+		 return tomcatLogDir;
+	}
 }

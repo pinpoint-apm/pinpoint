@@ -39,9 +39,15 @@ public final class HBaseTables {
     public static final byte[] APPLICATION_TRACE_INDEX_CF_TRACE = Bytes.toBytes("I"); // applicationIndex
     public static final int APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 
+
     public static final String AGENT_STAT_VER2_STR = "AgentStatV2";
     @Deprecated
     public static final TableName AGENT_STAT_VER2 = TableName.valueOf(AGENT_STAT_VER2_STR);
+
+    //[XINGUANG]
+    public static final TableName BUSINESS_LOG = TableName.valueOf("BusinessLog");
+    public static final byte[] BUSINESS_MESSAGEINFO = Bytes.toBytes("MessageInfo");
+
     public static final byte[] AGENT_STAT_CF_STATISTICS = Bytes.toBytes("S"); // agent statistics column family
 
     public static final String TRACE_V2_STR = "TraceV2";

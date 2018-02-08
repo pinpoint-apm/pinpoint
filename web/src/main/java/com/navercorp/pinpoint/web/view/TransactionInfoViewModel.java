@@ -116,7 +116,9 @@ public class TransactionInfoViewModel {
     public String getLogPageUrl() {
         if (StringUtils.isNotEmpty(logPageUrl)) {
             StringBuilder sb = new StringBuilder();
-            sb.append("transactionId=").append(getTransactionId());
+            //[XINGUANG]:add AgentId to distinguish different Agents' log
+            sb.append("agentId=").append(getAgentId());
+            sb.append("&transactionId=").append(getTransactionId());
             sb.append("&time=").append(recordSet.getStartTime());
             return logPageUrl + "?" + sb.toString();
         }

@@ -20,6 +20,7 @@ disable 'ApplicationMapStatisticsSelf_Ver2'
 
 disable 'HostApplicationMap_Ver2'
 
+disable 'BusinessLog'
 
 drop 'AgentInfo'
 drop 'AgentStatV2'
@@ -41,5 +42,7 @@ drop 'ApplicationMapStatisticsCallee_Ver2'
 drop 'ApplicationMapStatisticsSelf_Ver2'
 
 drop 'HostApplicationMap_Ver2'
+
+drop 'BusinessLog'
 
 exit

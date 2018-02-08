@@ -67,41 +67,7 @@ import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptor
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
-import com.navercorp.pinpoint.profiler.context.provider.ActiveTraceRepositoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AgentInfoFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ApiMetaDataServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AsyncTraceContextProvider;
-import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.CallStackFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerDispatcherProvider;
-import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
-import com.navercorp.pinpoint.profiler.context.provider.DataSourceMonitorRegistryServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.DeadlockMonitorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.DeadlockThreadRegistryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.DynamicTransformTriggerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider;
-import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParsingServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ObjectBinderFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanChunkFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
-import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.*;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricCollectorProvider;
@@ -129,13 +95,13 @@ import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
-import com.navercorp.pinpoint.profiler.monitor.DeadlockThreadRegistry;
-import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.*;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.BusinessLogMetaCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.BusinessLogTotalCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTraceMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.businesslog.BusinessLogVXMetaCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.deadlock.DeadlockMetricCollector;
@@ -162,6 +128,7 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TBusinessLog;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -256,6 +223,8 @@ public class ApplicationContextModule extends AbstractModule {
         bind(DeadlockMonitor.class).toProvider(DeadlockMonitorProvider.class).in(Scopes.SINGLETON);
         bind(AgentInfoSender.class).toProvider(AgentInfoSenderProvider.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
+        //[XINGUANG]:bind BusinessLogMonitor
+        bind(BusinessLogMonitor.class).to(DefaultBusinessLogMonitor.class).in(Scopes.SINGLETON);
     }
 
     private void bindTraceComponent() {
@@ -333,5 +302,12 @@ public class ApplicationContextModule extends AbstractModule {
         bind(new TypeLiteral<AgentStatMetricCollector<TAgentStat>>() {})
                 .annotatedWith(Names.named("AgentStatCollector"))
                 .to(AgentStatCollector.class).in(Scopes.SINGLETON);
+
+        //[XINGUANG]:bind BusinessLogVXMetaCollector
+        bind(BusinessLogVXMetaCollector.class).toProvider(BusinessLogVXMetaCollectorProvider.class).in(Scopes.SINGLETON);
+        //[XINGUANG]:bind BusinessLogTotalCollector
+        bind(new TypeLiteral<BusinessLogMetaCollector<TBusinessLog>>() {})
+                .annotatedWith(Names.named("BusinessLogTotalCollector"))
+                .to(BusinessLogTotalCollector.class).in(Scopes.SINGLETON);
     }
 }

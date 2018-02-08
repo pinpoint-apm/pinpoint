@@ -66,6 +66,9 @@ public class CollectorConfiguration implements InitializingBean {
     private String flinkClusterZookeeperAddress;
     private int flinkClusterSessionTimeout;
 
+    //[XINGUANG]:businesslog switch
+    private boolean businesslogEnable;
+
     public void setFlinkClusterEnable(boolean flinkClusterEnable) {
         this.flinkClusterEnable = flinkClusterEnable;
     }
@@ -208,6 +211,8 @@ public class CollectorConfiguration implements InitializingBean {
 
         this.clusterListenIp = readString(properties, "cluster.listen.ip", "");
         this.clusterListenPort = readInt(properties, "cluster.listen.port", -1);
+        //[XINGUANG]:read value of businesslog switch from pinpoint-collector.properties
+        this.businesslogEnable = readBoolean(properties,"collector.businesslog.enable");
     }
 
     protected static String readString(Properties properties, String propertyName, String defaultValue) {
@@ -260,9 +265,8 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
         sb.append(", clusterListenIp='").append(clusterListenIp).append('\'');
         sb.append(", clusterListenPort=").append(clusterListenPort);
-        sb.append(", flinkClusterEnable=").append(flinkClusterEnable);
-        sb.append(", flinkClusterZookeeperAddress='").append(flinkClusterZookeeperAddress).append('\'');
-        sb.append(", flinkClusterSessionTimeout=").append(flinkClusterSessionTimeout);
+        //[XINGUANG]:append businesslog switch to string
+        sb.append(", businesslogEnable=").append(businesslogEnable);
         sb.append('}');
         return sb.toString();
     }
