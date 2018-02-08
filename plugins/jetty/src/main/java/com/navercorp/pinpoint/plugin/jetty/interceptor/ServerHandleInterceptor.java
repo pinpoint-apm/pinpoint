@@ -18,17 +18,17 @@ package com.navercorp.pinpoint.plugin.jetty.interceptor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.plugin.jetty.JettyServerRequestTrace;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 
 /**
  * @author Taejin Koo
  * @author jaehong.kim
- *
- * jetty-9.x
  */
 public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
-
+    // jetty-9.x
     public ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         super(traceContext, descriptor, excludeFilter);
     }
@@ -47,10 +47,14 @@ public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
     }
 
     @Override
-    String getHeader(final Request request, final String name) {
-        if (request == null || request.getHttpFields() == null) {
-            return null;
-        }
-        return request.getHttpFields().get(name);
+    ServerRequestTrace getServerRequestTrace(final Request request) {
+        return new JettyServerRequestTrace(request) {
+            public String _getHeader(String name) {
+                if (request != null && request.getHttpFields() != null) {
+                    return request.getHttpFields().get(name);
+                }
+                return null;
+            }
+        };
     }
 }

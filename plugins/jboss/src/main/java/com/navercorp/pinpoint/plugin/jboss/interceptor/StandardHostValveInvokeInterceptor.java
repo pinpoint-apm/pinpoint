@@ -21,30 +21,25 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.jboss.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
+import com.navercorp.pinpoint.plugin.jboss.JbossServerRequestTrace;
 import com.navercorp.pinpoint.plugin.jboss.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.TraceAccessor;
@@ -57,46 +52,70 @@ import com.navercorp.pinpoint.plugin.jboss.TraceAccessor;
  */
 public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
-    /** The Constant SERVLET_SYNCHRONOUS_API_TAG. */
+    /**
+     * The Constant SERVLET_SYNCHRONOUS_API_TAG.
+     */
     public static final ServletSyncMethodDescriptor SERVLET_SYNCHRONOUS_API_TAG = new ServletSyncMethodDescriptor();
 
-    /** The Constant SERVLET_ASYNCHRONOUS_API_TAG. */
+    /**
+     * The Constant SERVLET_ASYNCHRONOUS_API_TAG.
+     */
     public static final ServletAsyncMethodDescriptor SERVLET_ASYNCHRONOUS_API_TAG = new ServletAsyncMethodDescriptor();
 
-    /** The logger. */
+    /**
+     * The logger.
+     */
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    /** The is debug. */
+    /**
+     * The is debug.
+     */
     private final boolean isDebug = logger.isDebugEnabled();
 
-    /** The is trace. */
+    /**
+     * The is trace.
+     */
     private final boolean isTrace = logger.isTraceEnabled();
 
-    /** The is trace request param. */
+    /**
+     * The is trace request param.
+     */
     private final boolean isTraceRequestParam;
 
-    /** The exclude url filter. */
+    /**
+     * The exclude url filter.
+     */
     private final Filter<String> excludeUrlFilter;
 
-    /** The exclude profile method filter. */
+    /**
+     * The exclude profile method filter.
+     */
     private final Filter<String> excludeProfileMethodFilter;
 
-    /** The remote address resolver. */
+    /**
+     * The remote address resolver.
+     */
     private final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
 
-    /** The method descriptor. */
+    /**
+     * The method descriptor.
+     */
     private final MethodDescriptor methodDescriptor;
 
-    /** The trace context. */
+    /**
+     * The trace context.
+     */
     private final TraceContext traceContext;
 
     private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
+    private final ServerRequestRecorder serverRequestRecorder = new ServerRequestRecorder();
+    private final RequestTraceReader requestTraceReader;
 
     /**
      * Instantiates a new standard host valve invoke interceptor.
      *
      * @param traceContext the trace context
-     * @param descriptor the descriptor
+     * @param descriptor   the descriptor
      */
     public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
         this.traceContext = traceContext;
@@ -115,6 +134,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         this.isTraceRequestParam = jbossConfig.isJbossTraceRequestParam();
         this.excludeProfileMethodFilter = jbossConfig.getJbossExcludeProfileMethodFilter();
         this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
+        this.requestTraceReader = new RequestTraceReader(traceContext);
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -175,19 +195,29 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      */
     public static class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
-        /** The Constant X_FORWARDED_FOR. */
+        /**
+         * The Constant X_FORWARDED_FOR.
+         */
         public static final String X_FORWARDED_FOR = "x-forwarded-for";
 
-        /** The Constant X_REAL_IP. */
+        /**
+         * The Constant X_REAL_IP.
+         */
         public static final String X_REAL_IP = "x-real-ip";
 
-        /** The Constant UNKNOWN. */
+        /**
+         * The Constant UNKNOWN.
+         */
         public static final String UNKNOWN = "unknown";
 
-        /** The real ip header name. */
+        /**
+         * The real ip header name.
+         */
         private final String realIpHeaderName;
 
-        /** The empty header value. */
+        /**
+         * The empty header value.
+         */
         private final String emptyHeaderValue;
 
         /**
@@ -241,7 +271,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * Creates the trace.
      *
      * @param target the target
-     * @param args the args
+     * @param args   the args
      * @return the trace
      */
     private Trace createTrace(final Object target, final Object[] args) {
@@ -268,61 +298,26 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             return null;
         }
 
-        // check sampling flag from client. If the flag is false, do not sample this request.
-        final boolean sampling = samplingEnable(request);
-        if (!sampling) {
-            // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
-            // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this
-            // transaction'
-            final Trace trace = traceContext.disableSampling();
-            if (isDebug) {
-                logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
-            }
-            return trace;
+        final ServerRequestTrace serverRequestTrace = new JbossServerRequestTrace(request, this.remoteAddressResolver);
+        final Trace trace = this.requestTraceReader.read(serverRequestTrace);
+        if (trace.canSampled()) {
+            final SpanRecorder recorder = trace.getSpanRecorder();
+            // root
+            recorder.recordServiceType(JbossConstants.JBOSS);
+            recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+            this.serverRequestRecorder.record(recorder, serverRequestTrace);
+            // record proxy HTTP headers.
+            this.proxyHttpHeaderRecorder.record(recorder, serverRequestTrace);
+            setTraceMetadata(request, trace);
         }
-
-        final TraceId traceId = populateTraceIdFromRequest(request);
-        if (traceId != null) {
-            // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are
-            // traced.
-            final Trace trace = traceContext.continueTraceObject(traceId);
-            if (trace.canSampled()) {
-                final SpanRecorder recorder = trace.getSpanRecorder();
-                recordRootSpan(recorder, request);
-                setTraceMetadata(request, trace);
-                if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(),
-                        request.getRemoteAddr());
-                }
-            }
-            return trace;
-        } else {
-            final Trace trace = traceContext.newTraceObject();
-            if (trace.canSampled()) {
-                final SpanRecorder recorder = trace.getSpanRecorder();
-                recordRootSpan(recorder, request);
-                setTraceMetadata(request, trace);
-                if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
-                }
-            }
-            return trace;
-        }
+        return trace;
     }
 
     /**
      * Sets the trace metadata.
      *
      * @param request the request
-     * @param trace the trace
+     * @param trace   the trace
      */
     private void setTraceMetadata(final HttpServletRequest request, final Trace trace) {
         if (request instanceof TraceAccessor) {
@@ -370,66 +365,6 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         }
 
         return getAsyncMetadata(request);
-    }
-
-    /**
-     * Record root span.
-     *
-     * @param recorder the recorder
-     * @param request the request
-     */
-    private void recordRootSpan(final SpanRecorder recorder, final HttpServletRequest request) {
-        // root
-        recorder.recordServiceType(JbossConstants.JBOSS);
-
-        final String requestURL = request.getRequestURI();
-        recorder.recordRpcName(requestURL);
-
-        final int port = request.getServerPort();
-        final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
-        recorder.recordEndPoint(endPoint);
-
-        final String remoteAddress = remoteAddressResolver.resolve(request);
-        // TODO API safety check required
-        // Potential Risk
-        // 1. Implicit DNSLookup (InetAddress.getByName())
-        // 2. DNSLookup can cause thread blocking.
-        // 3. difficult format parsing problem in collector
-//        recorder.recordRemoteAddress(JbossUtility.fetchRemoteAddressDetails(remoteAddress));
-        recorder.recordRemoteAddress(remoteAddress);
-        if (!recorder.isRoot()) {
-            recordParentInfo(recorder, request);
-        }
-        recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
-
-        // record proxy HTTP headers.
-        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
-            @Override
-            public String read(String name) {
-                return request.getHeader(name);
-            }
-        });
-    }
-
-    /**
-     * Record parent info.
-     *
-     * @param recorder the recorder
-     * @param request the request
-     */
-    private void recordParentInfo(final SpanRecorder recorder, final HttpServletRequest request) {
-        final String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
-        if (parentApplicationName != null) {
-            final String host = request.getHeader(Header.HTTP_HOST.toString());
-            if (host != null) {
-                recorder.recordAcceptorHost(host);
-            } else {
-                recorder.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
-            }
-            final String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
-            final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
-            recorder.recordParentApplication(parentApplicationName, parentApplicationType);
-        }
     }
 
     /*
@@ -481,50 +416,10 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     }
 
     /**
-     * Populate source trace from HTTP Header.
-     *
-     * @param request the request
-     * @return TraceId when it is possible to get a transactionId from Http header. if not possible return null
-     */
-    private TraceId populateTraceIdFromRequest(final HttpServletRequest request) {
-
-        final String transactionId = request.getHeader(Header.HTTP_TRACE_ID.toString());
-        if (transactionId != null) {
-
-            final long parentSpanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
-            final long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
-            final short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
-
-            final TraceId id = traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
-            if (isDebug) {
-                logger.debug("TraceID exist. continue trace. {}", id);
-            }
-            return id;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Sampling enable.
-     *
-     * @param request the request
-     * @return true, if successful
-     */
-    private boolean samplingEnable(final HttpServletRequest request) {
-        // optional value
-        final String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
-        if (isDebug) {
-            logger.debug("SamplingFlag:{}", samplingFlag);
-        }
-        return SamplingFlagUtils.isSamplingFlag(samplingFlag);
-    }
-
-    /**
      * Gets the request parameter.
      *
-     * @param request the request
-     * @param eachLimit the each limit
+     * @param request    the request
+     * @param eachLimit  the each limit
      * @param totalLimit the total limit
      * @return the request parameter
      */
@@ -555,10 +450,10 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     /**
      * Delete trace.
      *
-     * @param trace the trace
-     * @param target the target
-     * @param args the args
-     * @param result the result
+     * @param trace     the trace
+     * @param target    the target
+     * @param args      the args
+     * @param result    the result
      * @param throwable the throwable
      */
     private void deleteTrace(final Trace trace, final Object target, final Object[] args, final Object result, final Throwable throwable) {
