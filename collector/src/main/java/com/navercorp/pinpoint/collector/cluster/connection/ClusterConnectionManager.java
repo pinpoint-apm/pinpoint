@@ -29,7 +29,7 @@ public interface ClusterConnectionManager {
 
     void connectPointIfAbsent(InetSocketAddress address);
 
-    public void disconnectPoint(SocketAddress address);
+    void disconnectPoint(SocketAddress address);
 
-    public List<SocketAddress> getConnectedAddressList();
+    List<SocketAddress> getConnectedAddressList();
 }

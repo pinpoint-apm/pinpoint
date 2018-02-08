@@ -108,7 +108,7 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
 
     private SenderContext createTcpDataSender(InetSocketAddress address) {
         try {
-            TcpDataSender tcpDataSender = new TcpDataSender(address, pinpointClientFactory, flinkHeaderTBaseSerializerFactory.createSerializer());
+            TcpDataSender tcpDataSender = new TcpDataSender("flink", address, pinpointClientFactory, flinkHeaderTBaseSerializerFactory.createSerializer());
             return new SenderContext(tcpDataSender);
         } catch (Exception e) {
             logger.error("not create tcpDataSender for {}.", address, e);

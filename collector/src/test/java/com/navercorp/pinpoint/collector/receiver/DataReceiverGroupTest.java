@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.SocketUtils;
 
-import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -66,11 +65,10 @@ public class DataReceiverGroupTest {
             udpReceiverBean.afterPropertiesSet();
             tcpReceiverBean.afterPropertiesSet();
 
-            udpDataSender = new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), "test", 10, 1000, 1024 * 64 * 100);
+            udpDataSender = newUdpDataSender(mockConfig);
 
             pinpointClientFactory = createPinpointClientFactory();
-            InetSocketAddress address = new InetSocketAddress("127.0.0.1", mockConfig.getTcpBindPort());
-            tcpDataSender = new TcpDataSender(address, pinpointClientFactory);
+            tcpDataSender = new TcpDataSender(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
 
             udpDataSender.send(new TResult());
 
@@ -88,6 +86,11 @@ public class DataReceiverGroupTest {
             closeBean(udpReceiverBean);
             closeBean(tcpReceiverBean);
         }
+    }
+
+    public UdpDataSender newUdpDataSender(DataReceiverGroupConfiguration mockConfig) {
+        String threadName = this.getClass().getName();
+        return new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), threadName, 10, 1000, 1024 * 64 * 100);
     }
 
     private TCPReceiverBean createTcpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler dispatchHandler) {
@@ -129,14 +132,13 @@ public class DataReceiverGroupTest {
         try {
             receiver.afterPropertiesSet();
 
-            udpDataSender = new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), "test", 10, 1000, 1024 * 64 * 100);
+            udpDataSender = newUdpDataSender(mockConfig);
             udpDataSender.send(new TResult());
 
             Assert.assertFalse(testDispatchHandler.getSendLatch().await(1000, TimeUnit.MILLISECONDS));
 
             pinpointClientFactory = createPinpointClientFactory();
-            InetSocketAddress address = new InetSocketAddress("127.0.0.1", mockConfig.getTcpBindPort());
-            tcpDataSender = new TcpDataSender(address, pinpointClientFactory);
+            tcpDataSender = new TcpDataSender(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
 
             Assert.assertTrue(tcpDataSender.isConnected());
 
@@ -167,14 +169,13 @@ public class DataReceiverGroupTest {
         try {
             receiver.afterPropertiesSet();
 
-            udpDataSender = new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), "test", 10, 1000, 1024 * 64 * 100);
+            udpDataSender = newUdpDataSender(mockConfig);
             udpDataSender.send(new TResult());
 
             Assert.assertTrue(testDispatchHandler.getSendLatch().await(1000, TimeUnit.MILLISECONDS));
 
             pinpointClientFactory = createPinpointClientFactory();
-            InetSocketAddress address = new InetSocketAddress("127.0.0.1", mockConfig.getTcpBindPort());
-            tcpDataSender = new TcpDataSender(address, pinpointClientFactory);
+            tcpDataSender = new TcpDataSender(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
 
             Assert.assertFalse(tcpDataSender.isConnected());
         } finally {
