@@ -65,6 +65,9 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         addBridegInterceptor();
         addRequestBuilder();
         addRealConnection();
+
+        // 3.0 ~ 3.3
+        addHttpEngine(config);
     }
 
     private void addRealCall() {
@@ -121,6 +124,36 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
         });
     }
+
+    private void addHttpEngine(final OkHttpPluginConfig config) {
+        transformTemplate.transform("okhttp3.internal.http.HttpEngine", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addGetter(OkHttpConstants.USER_REQUEST_GETTER_V3, OkHttpConstants.FIELD_USER_REQUEST);
+                target.addGetter(OkHttpConstants.USER_RESPONSE_GETTER_V3, OkHttpConstants.FIELD_USER_RESPONSE);
+
+                final InstrumentMethod sendRequestMethod = target.getDeclaredMethod("sendRequest");
+                if (sendRequestMethod != null) {
+                    sendRequestMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.HttpEngineSendRequestMethodInterceptor", OkHttpConstants.SEND_REQUEST_SCOPE);
+                }
+
+                final InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
+                if (connectMethod != null) {
+                    connectMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.HttpEngineConnectMethodInterceptor");
+                }
+
+                final InstrumentMethod readResponseMethod = target.getDeclaredMethod("readResponse");
+                if (readResponseMethod != null) {
+                    readResponseMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.HttpEngineReadResponseMethodInterceptor", va(config.isStatusCode()));
+                }
+
+                return target.toBytecode();
+            }
+        });
+    }
+
 
     private void addBridegInterceptor() {
         transformTemplate.transform("okhttp3.internal.http.BridgeInterceptor", new TransformCallback() {

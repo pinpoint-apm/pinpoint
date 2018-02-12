@@ -122,9 +122,9 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addGetter(OkHttpConstants.USER_REQUEST_GETTER, OkHttpConstants.FIELD_USER_REQUEST);
-                target.addGetter(OkHttpConstants.USER_RESPONSE_GETTER, OkHttpConstants.FIELD_USER_RESPONSE);
-                target.addGetter(OkHttpConstants.CONNECTION_GETTER, OkHttpConstants.FIELD_CONNECTION);
+                target.addGetter(OkHttpConstants.USER_REQUEST_GETTER_V2, OkHttpConstants.FIELD_USER_REQUEST);
+                target.addGetter(OkHttpConstants.USER_RESPONSE_GETTER_V2, OkHttpConstants.FIELD_USER_RESPONSE);
+                target.addGetter(OkHttpConstants.CONNECTION_GETTER_V2, OkHttpConstants.FIELD_CONNECTION);
 
                 final InstrumentMethod sendRequestMethod = target.getDeclaredMethod("sendRequest");
                 if (sendRequestMethod != null) {
