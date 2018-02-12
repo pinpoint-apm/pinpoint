@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.okhttp.v2.interceptor;
+package com.navercorp.pinpoint.plugin.okhttp.v3.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -34,15 +34,13 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.okhttp.v2.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
-import com.navercorp.pinpoint.plugin.okhttp.v2.UserRequestGetter;
-import com.navercorp.pinpoint.plugin.okhttp.v2.UserResponseGetter;
-import com.squareup.okhttp.Request;
-
-import java.net.URL;
+import com.navercorp.pinpoint.plugin.okhttp.v3.UserRequestGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v3.UserResponseGetter;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
 
 /**
  * @author jaehong.kim
@@ -126,13 +124,6 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             return false;
         }
 
-        if (!(target instanceof ConnectionGetter)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
-            }
-            return false;
-        }
-
         return true;
     }
 
@@ -167,7 +158,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             final Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
                 try {
-                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(request.urlString(), param));
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(request.url().toString(), param));
                     final String endpoint = getDestinationId(request.url());
                     recorder.recordDestinationId(endpoint);
                 } catch (Exception ignored) {
@@ -188,12 +179,12 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         return invocation.getAttachment();
     }
 
-    private String getDestinationId(URL httpUrl) {
-        if (httpUrl == null || httpUrl.getHost() == null) {
+    private String getDestinationId(HttpUrl httpUrl) {
+        if (httpUrl == null || httpUrl.host() == null) {
             return "UnknownHttpClient";
         }
-        final int port = EndPointUtils.getPort(httpUrl.getPort(), httpUrl.getDefaultPort());
-        return HostAndPort.toHostAndPortString(httpUrl.getHost(), port);
+        final int port = EndPointUtils.getPort(httpUrl.port(), httpUrl.defaultPort(httpUrl.scheme()));
+        return HostAndPort.toHostAndPortString(httpUrl.host(), port);
     }
 
 

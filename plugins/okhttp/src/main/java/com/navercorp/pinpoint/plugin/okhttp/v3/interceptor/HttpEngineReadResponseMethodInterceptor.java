@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.okhttp.v2.interceptor;
+package com.navercorp.pinpoint.plugin.okhttp.v3.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.plugin.okhttp.v2.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
-import com.navercorp.pinpoint.plugin.okhttp.v2.UserRequestGetter;
-import com.navercorp.pinpoint.plugin.okhttp.v2.UserResponseGetter;
-import com.squareup.okhttp.Response;
+import com.navercorp.pinpoint.plugin.okhttp.v3.UserRequestGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v3.UserResponseGetter;
+import okhttp3.Response;
 
 /**
  * @author jaehong.kim
@@ -74,13 +76,6 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
         if (!(target instanceof UserResponseGetter)) {
             if (isDebug) {
                 logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_RESPONSE);
-            }
-            return false;
-        }
-
-        if (!(target instanceof ConnectionGetter)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
             }
             return false;
         }
