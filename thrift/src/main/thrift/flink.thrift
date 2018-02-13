@@ -105,6 +105,7 @@ struct TFAgentStat {
     40: optional TFActiveTrace   activeTrace
     50: optional TFDataSourceList dataSourceList
     60: optional TFResponseTime responseTime
+    80: optional TFFileDescriptor fileDescriptor
     200: optional string    metadata
 }
 
@@ -125,4 +126,8 @@ struct TFDataSource {
 
 struct TFDataSourceList {
     1: list<TFDataSource> dataSourceList
+}
+
+struct TFFileDescriptor {
+    1: i64                      openFileDescriptorCount
 }
