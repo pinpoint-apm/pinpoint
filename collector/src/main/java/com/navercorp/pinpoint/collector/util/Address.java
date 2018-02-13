@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,24 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.cluster.connection;
 
-import com.navercorp.pinpoint.collector.util.Address;
-
-import java.net.SocketAddress;
-import java.util.List;
+package com.navercorp.pinpoint.collector.util;
 
 /**
- * @author minwoo.jung
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClusterConnectionManager {
-    void start();
-
-    void stop();
-
-    void connectPointIfAbsent(Address address);
-
-    void disconnectPoint(Address address);
-
-    List<Address> getConnectedAddressList();
+public interface Address {
+    String getHost();
+    int getPort();
 }
