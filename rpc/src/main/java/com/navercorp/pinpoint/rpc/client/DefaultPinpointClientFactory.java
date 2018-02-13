@@ -151,7 +151,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         return connect(socketAddressProvider);
     }
 
-    private PinpointClient connect(SocketAddressProvider socketAddressProvider) throws PinpointSocketException {
+    public PinpointClient connect(SocketAddressProvider socketAddressProvider) throws PinpointSocketException {
         Connection connection = connectInternal(socketAddressProvider, false);
         return connection.awaitConnected();
     }
@@ -180,16 +180,23 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         return new ConnectionFactory(timer, this.closed, this.channelFactory, socketOption, clientOption, clientHandlerFactory);
     }
 
-
+    @Override
     public PinpointClient scheduledConnect(String host, int port) {
-        InetSocketAddress connectAddress = new InetSocketAddress(host, port);
-        return scheduledConnect(connectAddress);
+        SocketAddressProvider socketAddressProvider = new DnsSocketAddressProvider(host, port);
+        return scheduledConnect(socketAddressProvider);
     }
 
     @Deprecated
     public PinpointClient scheduledConnect(InetSocketAddress connectAddress) {
-        PinpointClient pinpointClient = new DefaultPinpointClient(new ReconnectStateClientHandler());
         SocketAddressProvider socketAddressProvider = new StaticSocketAddressProvider(connectAddress);
+        return scheduledConnect(socketAddressProvider);
+    }
+
+    @Override
+    public PinpointClient scheduledConnect(SocketAddressProvider socketAddressProvider) {
+        Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
+
+        PinpointClient pinpointClient = new DefaultPinpointClient(new ReconnectStateClientHandler());
         ConnectionFactory connectionFactory = createConnectionFactory();
         connectionFactory.reconnect(pinpointClient, socketAddressProvider);
         return pinpointClient;

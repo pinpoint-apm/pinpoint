@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 
@@ -34,7 +35,7 @@ public class CollectorClusterConnectionFactory implements CollectorClusterConnec
     private final ServerStreamChannelMessageListener routeStreamMessageHandler;
 
     public CollectorClusterConnectionFactory(String clusterId, MessageListener routeMessageHandler, ServerStreamChannelMessageListener routeStreamMessageHandler) {
-        this.clusterId = clusterId;
+        this.clusterId = Assert.requireNonNull(clusterId, "clusterId must not be null");
         this.routeMessageHandler = routeMessageHandler;
         this.routeStreamMessageHandler = routeStreamMessageHandler;
     }

@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
+import com.navercorp.pinpoint.collector.util.Address;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
@@ -27,7 +29,6 @@ import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class CollectorClusterConnector implements CollectorClusterConnectionProv
 
     private PinpointClientFactory clientFactory;
     public CollectorClusterConnector(CollectorClusterConnectionOption option) {
-        this.option = option;
+        this.option = Assert.requireNonNull(option, "option must not be null");
     }
 
     @Override
@@ -75,12 +76,12 @@ public class CollectorClusterConnector implements CollectorClusterConnectionProv
         logger.info("{} destroying completed.", ClassUtils.simpleClassName(this));
     }
 
-    PinpointSocket connect(InetSocketAddress address) {
+    PinpointSocket connect(Address address) {
         if (clientFactory == null) {
             throw new IllegalStateException("not started.");
         }
 
-        PinpointSocket socket = ClientFactoryUtils.createPinpointClient(address, clientFactory);
+        PinpointSocket socket = ClientFactoryUtils.createPinpointClient(address.getHost(), address.getPort(), clientFactory);
         return socket;
     }
 

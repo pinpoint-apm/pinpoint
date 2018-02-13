@@ -17,14 +17,13 @@
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
+import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 
 /**
@@ -45,11 +44,9 @@ public class CollectorClusterConnectionManager implements  ClusterConnectionMana
     }
 
     public CollectorClusterConnectionManager(String clusterId, CollectorClusterConnectionRepository socketRepository, CollectorClusterConnector client, CollectorClusterAcceptor acceptor) {
-        Assert.requireNonNull(client, "clusterConnector must not be null.");
-
-        this.clusterId = clusterId;
+        this.clusterId = Assert.requireNonNull(clusterId, "clusterId must not be null");
         this.socketRepository = socketRepository;
-        this.clusterConnector = client;
+        this.clusterConnector = Assert.requireNonNull(client, "clusterConnector must not be null.");
         this.clusterAcceptor = acceptor;
     }
 
@@ -90,7 +87,7 @@ public class CollectorClusterConnectionManager implements  ClusterConnectionMana
     }
 
     @Override
-    public void connectPointIfAbsent(InetSocketAddress address) {
+    public void connectPointIfAbsent(Address address) {
         logger.info("localhost -> {} connect started.", address);
 
         if (socketRepository.containsKey(address)) {
@@ -98,13 +95,14 @@ public class CollectorClusterConnectionManager implements  ClusterConnectionMana
             return;
         }
 
-        socketRepository.putIfAbsent(address, clusterConnector.connect(address));
+        PinpointSocket connect = clusterConnector.connect(address);
+        socketRepository.putIfAbsent(address, connect);
 
         logger.info("localhost -> {} connect completed.", address);
     }
 
     @Override
-    public void disconnectPoint(SocketAddress address) {
+    public void disconnectPoint(Address address) {
         logger.info("localhost -> {} disconnect started.", address);
 
         PinpointSocket socket = socketRepository.remove(address);
@@ -117,7 +115,7 @@ public class CollectorClusterConnectionManager implements  ClusterConnectionMana
     }
 
     @Override
-    public List<SocketAddress> getConnectedAddressList() {
+    public List<Address> getConnectedAddressList() {
         return socketRepository.getAddressList();
     }
 

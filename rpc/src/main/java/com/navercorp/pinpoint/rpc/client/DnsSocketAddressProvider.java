@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class DnsSocketAddressProvider implements SocketAddressProvider{
     }
 
     private static int checkPort(int port) {
-        if (port < 0 || port > 65535) {
+        if (!HostAndPort.isValidPort(port)) {
             throw new IllegalArgumentException("port out of range:" + port);
         }
         return port;
@@ -61,7 +62,9 @@ public class DnsSocketAddressProvider implements SocketAddressProvider{
             return updateAddress;
         } catch (UnknownHostException e) {
             logger.info("dns lookup fail. host:{}", host);
+            // expected UnknownHostException from tcp connect timing
             return InetSocketAddress.createUnresolved(host, port);
+            // or return null;
         }
     }
 
