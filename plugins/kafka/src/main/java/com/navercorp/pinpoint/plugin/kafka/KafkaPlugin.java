@@ -19,6 +19,10 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
+        final KafkaConfig config = new KafkaConfig(context.getConfig());
+        if (!config.isEnable()) {
+            return;
+        }
         transformTemplate.transform("org.apache.kafka.clients.producer.KafkaProducer", new TransformCallback() {
 
             @Override
