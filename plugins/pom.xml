@@ -57,8 +57,12 @@
         <module>jsp</module>
         <module>rxjava</module>
         <module>rabbitmq</module>
+<<<<<<< HEAD
         <module>weblogic</module>
         <module>php</module>
+=======
+        <module>akka-http</module>
+>>>>>>> add akka-http plugin
     </modules>
 
     <dependencies>
@@ -290,6 +294,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-php-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-akka-http-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
