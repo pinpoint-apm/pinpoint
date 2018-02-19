@@ -56,6 +56,7 @@
         <module>jsp</module>
         <module>rxjava</module>
         <module>rabbitmq</module>
+        <module>akka-http</module>
         <module>weblogic</module>
         <module>php</module>
     </modules>
@@ -279,6 +280,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-rabbitmq-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-akka-http-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
