@@ -121,7 +121,7 @@ public enum TCommandType {
         return code;
     }
 
-    public Class getClazz() {
+    public Class<? extends TBase> getClazz() {
         return clazz;
     }
 
