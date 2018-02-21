@@ -130,7 +130,8 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
         byte[] payload = ((TCommandTransfer)request).getPayload();
         TBase<?,?> command = deserialize(payload);
 
-        TCommandTransferResponse response = routeHandler.onRoute(new RequestEvent((TCommandTransfer) request, pinpointSocket.getRemoteAddress(), requestPacket.getRequestId(), command));
+        RequestEvent event = new RequestEvent((TCommandTransfer) request, pinpointSocket.getRemoteAddress(), requestPacket.getRequestId(), command);
+        TCommandTransferResponse response = routeHandler.onRoute(event);
         pinpointSocket.response(requestPacket, serialize(response));
 
         return response.getRouteResult() == TRouteResult.OK;
