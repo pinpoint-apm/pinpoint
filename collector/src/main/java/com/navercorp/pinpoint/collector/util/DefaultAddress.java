@@ -61,4 +61,12 @@ public class DefaultAddress implements Address {
         result = 31 * result + port;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultAddress{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                '}';
+    }
 }
