@@ -89,6 +89,7 @@
         <sniffer.artifactid>java16</sniffer.artifactid>
         <dubbo.version>2.5.3</dubbo.version>
         <asm.version>6.1</asm.version>
+        <javassist.version>3.22.0-GA</javassist.version>
     </properties>
 
     <dependencies>
@@ -571,13 +572,10 @@
                 <version>1.4.7</version>
             </dependency>
 
-
-
-
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.22.0-GA</version>
+                <version>${javassist.version}</version>
             </dependency>
             <dependency>
                 <groupId>cglib</groupId>
