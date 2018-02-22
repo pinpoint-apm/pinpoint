@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestTrace;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -50,17 +51,25 @@ public class ProxyHttpHeaderRecorderTest {
         SpanRecorder spanRecorder = mock(SpanRecorder.class);
 
         ProxyHttpHeaderRecorder recorder = new ProxyHttpHeaderRecorder(true);
-        recorder.record(spanRecorder, new ProxyHttpHeaderHandler() {
+        recorder.record(spanRecorder, new RequestTrace() {
             @Override
-            public String read(String name) {
+            public String getHeader(String name) {
                 return name;
+            }
+
+            @Override
+            public void setHeader(String name, String value) {
             }
         });
 
-        recorder.record(spanRecorder, new ProxyHttpHeaderHandler() {
+        recorder.record(spanRecorder, new RequestTrace() {
             @Override
-            public String read(String name) {
+            public String getHeader(String name) {
                 throw new NullPointerException();
+            }
+
+            @Override
+            public void setHeader(String name, String value) {
             }
         });
     }
