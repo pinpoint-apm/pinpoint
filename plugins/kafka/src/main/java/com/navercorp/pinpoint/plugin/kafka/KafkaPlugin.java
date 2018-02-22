@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final KafkaConfig config = new KafkaConfig(context.getConfig());
-        if (!config.isEnable()) {
-            return;
-        }
+        if (!config.isEnable()) return;
         transformTemplate.transform("org.apache.kafka.clients.producer.KafkaProducer", new TransformCallback() {
 
             @Override
@@ -52,15 +50,32 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         transformTemplate.transform("org.apache.kafka.clients.consumer.ConsumerRecord", new TransformCallback() {
 
-
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.weave("com.navercorp.pinpoint.plugin.kafka.aspect.ConsumerRecord");
+                if (config.isCreateContext()) {
+                    InstrumentMethod method = target.getConstructor("java.lang.String", "int", "long", "long", "org.apache.kafka.common.record.TimestampType",
+                            "java.lang.Long", "int", "int", "java.lang.Object", "java.lang.Object", "org.apache.kafka.common.header.Headers");
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordConstructorInterceptor");
+                }
+                if (config.isIncludeHeader()) {
+                    target.weave("com.navercorp.pinpoint.plugin.kafka.aspect.ConsumerRecordAspect");
+                }
                 return target.toBytecode();
             }
         });
 
+        transformTemplate.transform("org.apache.kafka.clients.consumer.KafkaConsumer", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                InstrumentMethod method = target.getConstructor("org.apache.kafka.clients.consumer.ConsumerConfig",
+                        "org.apache.kafka.common.serialization.Deserializer", "org.apache.kafka.common.serialization.Deserializer");
+                method.addInterceptor("com.navercorp.pinpoint.plugin.kafka.interceptor.KafkaConsumerConstructorInterceptor");
+                return target.toBytecode();
+            }
+        });
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
-import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
+import com.navercorp.pinpoint.plugin.kafka.encoder.PinpointValueEncoder;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 @Aspect
@@ -50,18 +50,7 @@ public abstract class ConsumerRecordAspect<K, V> extends ConsumerRecord {
         }
 
         if (transactionId != null && parentSpanID != null && spanID != null && parentApplicationName != null && parentApplicationType != null && flags != null) {
-            byte[] pinpointHeader = new StringBuffer().append(KafkaConstants.PINPOINT_HEADER_PREFIX)
-                    .append(transactionId).append(KafkaConstants.PINPOINT_HEADER_DELIMITIER)
-                    .append(parentSpanID).append(KafkaConstants.PINPOINT_HEADER_DELIMITIER)
-                    .append(spanID).append(KafkaConstants.PINPOINT_HEADER_DELIMITIER)
-                    .append(parentApplicationName).append(KafkaConstants.PINPOINT_HEADER_DELIMITIER)
-                    .append(parentApplicationType).append(KafkaConstants.PINPOINT_HEADER_DELIMITIER)
-                    .append(flags).append(KafkaConstants.PINPOINT_HEADER_DELIMITIER)
-                    .append(KafkaConstants.PINPOINT_HEADER_POSTFIX).toString().getBytes();
-            byte[] valueIncludePinpointHeader = new byte[pinpointHeader.length + ((byte[]) __value()).length];
-            System.arraycopy(pinpointHeader, 0, valueIncludePinpointHeader, 0, pinpointHeader.length);
-            System.arraycopy(__value(), 0, valueIncludePinpointHeader, pinpointHeader.length, ((byte[]) __value()).length);
-            return (V) valueIncludePinpointHeader;
+            return PinpointValueEncoder.INSTANCE.encode(__value(), transactionId, parentSpanID, spanID, parentApplicationName, parentApplicationType, flags);
         }
         return __value();
     }
