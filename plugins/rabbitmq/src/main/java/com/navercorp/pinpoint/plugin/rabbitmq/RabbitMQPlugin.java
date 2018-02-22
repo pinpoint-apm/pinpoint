@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.rabbitmq;
 
+import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -11,6 +12,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
 import java.security.ProtectionDomain;
+import java.util.List;
 
 /**
  * @author Jinkai.Ma
@@ -34,7 +36,7 @@ public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
                 addPublisher();
             }
             if (config.isTraceRabbitMQClientConsumer()) {
-                addConsumer();
+                addConsumer(config.getConsumerClasses());
             }
         }
     }
@@ -78,46 +80,44 @@ public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addConsumer() {
-        transformTemplate.transform("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$InternalConsumer", new TransformCallback() {
+    private void addConsumer(List<String> customConsumers) {
+        final TransformCallback consumerTransformCallback = new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 final InstrumentMethod method = target.getDeclaredMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
                 if (method != null) {
-                    method.addInterceptor(CONSUMER_INTERCEPTOR_FQCN);
+                    method.addScopedInterceptor(CONSUMER_INTERCEPTOR_FQCN, RabbitMQConstants.RABBITMQ_CONSUMER_SCOPE);
                 }
 
                 return target.toBytecode();
             }
-        });
-        transformTemplate.transform("com.rabbitmq.client.QueueingConsumer", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+        };
+        transformTemplate.transform("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$InternalConsumer", consumerTransformCallback);
+        transformTemplate.transform("com.rabbitmq.client.QueueingConsumer", consumerTransformCallback);
+        transformTemplate.transform("com.rabbitmq.client.DefaultConsumer", consumerTransformCallback);
+        for (String customConsumer : customConsumers) {
+            transformTemplate.transform(customConsumer, new TransformCallback() {
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                final InstrumentMethod method = target.getDeclaredMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
-                if (method != null) {
-                    method.addInterceptor(CONSUMER_INTERCEPTOR_FQCN);
+                    final InstrumentMethod method = target.getDeclaredMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
+                    if (method != null) {
+                        method.addScopedInterceptor(CONSUMER_INTERCEPTOR_FQCN, RabbitMQConstants.RABBITMQ_CONSUMER_SCOPE);
+                    } else {
+                        // Check inner classes for consumer implementations
+                        for (InstrumentClass potentialConsumer : target.getNestedClasses(ClassFilters.ACCEPT_ALL)) {
+                            if (potentialConsumer.hasMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]")) {
+                                instrumentor.transform(loader, potentialConsumer.getName(), consumerTransformCallback);
+                            }
+                        }
+                    }
+                    return target.toBytecode();
                 }
-
-                return target.toBytecode();
-            }
-        });
-        transformTemplate.transform("com.rabbitmq.client.DefaultConsumer", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                final InstrumentMethod method = target.getDeclaredMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
-                if (method != null) {
-                    method.addInterceptor(CONSUMER_INTERCEPTOR_FQCN);
-                }
-
-                return target.toBytecode();
-            }
-        });
+            });
+        }
     }
 
     @Override
