@@ -11,9 +11,12 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
 
 /**
  * @author Jinkai.Ma
+ * @author HyunGil Jeong
  */
 public interface RabbitMQConstants {
     ServiceType RABBITMQ_SERVICE_TYPE = ServiceTypeFactory.of(8300, "RABBITMQ", QUEUE, RECORD_STATISTICS);
+    ServiceType RABBITMQ_INTERNAL_SERVICE_TYPE = ServiceTypeFactory.of(8301, "RABBITMQ_INTERNAL", "RABBITMQ");
+
     String RABBITMQ_SCOPE = "rabbitmqScope";
     String RABBITMQ_CONSUMER_SCOPE = "rabbitmqConsumerScope";
 
