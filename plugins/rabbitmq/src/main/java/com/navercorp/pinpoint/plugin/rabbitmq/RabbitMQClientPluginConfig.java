@@ -5,6 +5,8 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 
+import java.util.List;
+
 /**
  * @author Jiaqi Feng
  */
@@ -12,13 +14,15 @@ public class RabbitMQClientPluginConfig {
 
     private final boolean traceRabbitMQClient;
     private final boolean traceRabbitMQClientProducer;
-    private final Boolean traceRabbitMQClientConsumer;
+    private final boolean traceRabbitMQClientConsumer;
+    private final List<String> consumerClasses;
     private final Filter<String> excludeExchangeFilter;
 
     public RabbitMQClientPluginConfig(ProfilerConfig config) {
         this.traceRabbitMQClient = config.readBoolean("profiler.rabbitmq.client.enable", true);
         this.traceRabbitMQClientProducer = config.readBoolean("profiler.rabbitmq.client.producer.enable", true);
         this.traceRabbitMQClientConsumer = config.readBoolean("profiler.rabbitmq.client.consumer.enable", true);
+        this.consumerClasses = config.readList("profiler.rabbitmq.client.consumer.classes");
 
         String excludeExchnage = config.readString("profiler.rabbitmq.client.exchange.exclude", "");
         if (!excludeExchnage.isEmpty()) {
@@ -38,6 +42,10 @@ public class RabbitMQClientPluginConfig {
 
     public boolean isTraceRabbitMQClientConsumer() {
         return this.traceRabbitMQClientConsumer;
+    }
+
+    public List<String> getConsumerClasses() {
+        return consumerClasses;
     }
 
     public Filter<String> getExcludeExchangeFilter() {

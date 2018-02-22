@@ -15,6 +15,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
 public interface RabbitMQConstants {
     ServiceType RABBITMQ_SERVICE_TYPE = ServiceTypeFactory.of(8300, "RABBITMQ", QUEUE, RECORD_STATISTICS);
     String RABBITMQ_SCOPE = "rabbitmqScope";
+    String RABBITMQ_CONSUMER_SCOPE = "rabbitmqConsumerScope";
 
     AnnotationKey RABBITMQ_EXCHANGE_ANNOTATION_KEY = AnnotationKeyFactory.of(130, "rabbitmq.exchange", VIEW_IN_RECORD_SET);
     AnnotationKey RABBITMQ_ROUTINGKEY_ANNOTATION_KEY = AnnotationKeyFactory.of(131, "rabbitmq.routingkey", VIEW_IN_RECORD_SET);
