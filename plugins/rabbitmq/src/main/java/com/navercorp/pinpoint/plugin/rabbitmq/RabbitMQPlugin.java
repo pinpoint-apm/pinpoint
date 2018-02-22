@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.rabbitmq;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -8,6 +9,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -17,6 +19,7 @@ import java.util.List;
 /**
  * @author Jinkai.Ma
  * @author Jiaqi Feng
+ * @author HyunGil Jeong
  */
 public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -37,6 +40,7 @@ public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             if (config.isTraceRabbitMQClientConsumer()) {
                 addConsumer(config.getConsumerClasses());
+                addSpringAmqpSupport();
             }
         }
     }
@@ -80,44 +84,79 @@ public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addConsumer(List<String> customConsumers) {
-        final TransformCallback consumerTransformCallback = new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    private static class ConsumerTransformCallback implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                final InstrumentMethod method = target.getDeclaredMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
-                if (method != null) {
-                    method.addScopedInterceptor(CONSUMER_INTERCEPTOR_FQCN, RabbitMQConstants.RABBITMQ_CONSUMER_SCOPE);
-                }
-
-                return target.toBytecode();
+            final InstrumentMethod method = target.getDeclaredMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
+            if (method == null) {
+                return null;
             }
-        };
-        transformTemplate.transform("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$InternalConsumer", consumerTransformCallback);
-        transformTemplate.transform("com.rabbitmq.client.QueueingConsumer", consumerTransformCallback);
-        transformTemplate.transform("com.rabbitmq.client.DefaultConsumer", consumerTransformCallback);
+            method.addScopedInterceptor(CONSUMER_INTERCEPTOR_FQCN, RabbitMQConstants.RABBITMQ_CONSUMER_SCOPE);
+            return target.toBytecode();
+        }
+    }
+
+    private void addConsumer(List<String> customConsumers) {
+        transformTemplate.transform("com.rabbitmq.client.QueueingConsumer", new ConsumerTransformCallback());
+        transformTemplate.transform("com.rabbitmq.client.DefaultConsumer", new ConsumerTransformCallback());
+        // Custom consumers
         for (String customConsumer : customConsumers) {
-            transformTemplate.transform(customConsumer, new TransformCallback() {
+            transformTemplate.transform(customConsumer, new ConsumerTransformCallback() {
                 @Override
                 public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    byte[] transformedConsumerByteCode = super.doInTransform(instrumentor, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+                    if (transformedConsumerByteCode != null) {
+                        return transformedConsumerByteCode;
+                    }
                     InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                    final InstrumentMethod method = target.getDeclaredMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
-                    if (method != null) {
-                        method.addScopedInterceptor(CONSUMER_INTERCEPTOR_FQCN, RabbitMQConstants.RABBITMQ_CONSUMER_SCOPE);
-                    } else {
-                        // Check inner classes for consumer implementations
-                        for (InstrumentClass potentialConsumer : target.getNestedClasses(ClassFilters.ACCEPT_ALL)) {
-                            if (potentialConsumer.hasMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]")) {
-                                instrumentor.transform(loader, potentialConsumer.getName(), consumerTransformCallback);
-                            }
+                    // Check inner classes for consumer implementations
+                    for (InstrumentClass potentialConsumer : target.getNestedClasses(ClassFilters.ACCEPT_ALL)) {
+                        if (potentialConsumer.hasMethod("handleDelivery", "java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]")) {
+                            instrumentor.transform(loader, potentialConsumer.getName(), new ConsumerTransformCallback());
                         }
                     }
-                    return target.toBytecode();
+                    return null;
                 }
             });
         }
+    }
+
+    private void addSpringAmqpSupport() {
+        transformTemplate.transform("org.springframework.amqp.core.Message", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(AsyncContextAccessor.class.getName());
+                return target.toBytecode();
+            }
+        });
+        transformTemplate.transform("org.springframework.amqp.rabbit.support.Delivery", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod constructor = target.getConstructor("java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
+                if (constructor == null) {
+                    return null;
+                }
+                constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.interceptor.DeliveryConstructInterceptor", RabbitMQConstants.RABBITMQ_CONSUMER_SCOPE, ExecutionPolicy.INTERNAL);
+                target.addField(AsyncContextAccessor.class.getName());
+                return target.toBytecode();
+            }
+        });
+        transformTemplate.transform("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod handleMethod = target.getDeclaredMethod("handle", "org.springframework.amqp.rabbit.support.Delivery");
+                if (handleMethod != null) {
+                    handleMethod.addInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.interceptor.BlockingQueueConsumerHandleInterceptor");
+                }
+                return target.toBytecode();
+            }
+        });
+        transformTemplate.transform("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$InternalConsumer", new ConsumerTransformCallback());
     }
 
     @Override

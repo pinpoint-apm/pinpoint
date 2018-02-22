@@ -84,7 +84,6 @@ public class MQExternalClientHandlerInterceptor implements AroundInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         final AsyncContext asyncContext = getAsyncContext(args);
         if (asyncContext == null) {
-            logger.debug("AsyncContext not found");
             return;
         }
 
