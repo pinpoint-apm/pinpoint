@@ -22,20 +22,18 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  * @author koo.taejin
  */
-public class ControlHandshakeResponsePacket extends ControlPacket {
+public class ControlHandshakeResponsePacket extends BasicPacket {
 
     public static final String CODE = "code";
     public static final String SUB_CODE = "subCode";
 
     public static final String CLUSTER = "cluster";
-    
-    public ControlHandshakeResponsePacket(byte[] payload) {
-        super(payload);
-    }
 
+    private final int requestId;;
+    
     public ControlHandshakeResponsePacket(int requestId, byte[] payload) {
         super(payload);
-        setRequestId(requestId);
+        this.requestId = requestId;
     }
 
     @Override
@@ -48,7 +46,7 @@ public class ControlHandshakeResponsePacket extends ControlPacket {
 
         ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
         header.writeShort(PacketType.CONTROL_HANDSHAKE_RESPONSE);
-        header.writeInt(getRequestId());
+        header.writeInt(requestId);
 
         return PayloadPacket.appendPayload(header, payload);
     }
@@ -66,8 +64,7 @@ public class ControlHandshakeResponsePacket extends ControlPacket {
         if (payload == null) {
             return null;
         }
-        final ControlHandshakeResponsePacket helloPacket = new ControlHandshakeResponsePacket(payload.array());
-        helloPacket.setRequestId(messageId);
+        final ControlHandshakeResponsePacket helloPacket = new ControlHandshakeResponsePacket(messageId, payload.array());
         return helloPacket;
     }
 
@@ -75,7 +72,7 @@ public class ControlHandshakeResponsePacket extends ControlPacket {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getSimpleName());
-        sb.append("{requestId=").append(getRequestId());
+        sb.append("{requestId=").append(requestId);
         sb.append(", ");
         if (payload == null) {
             sb.append("payload=null");

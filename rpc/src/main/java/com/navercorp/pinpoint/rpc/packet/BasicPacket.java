@@ -37,8 +37,4 @@ public abstract class BasicPacket implements Packet {
         return payload;
     }
 
-    public void setPayload(byte[] payload) {
-        this.payload = payload;
-    }
-
 }

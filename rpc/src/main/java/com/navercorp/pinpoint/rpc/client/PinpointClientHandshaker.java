@@ -124,7 +124,8 @@ public class PinpointClientHandshaker {
 
     private HandshakeJob createHandshakeJob(Channel channel) throws ProtocolException {
         byte[] payload = ControlMessageEncodingUtils.encode(handshakeData);
-        ControlHandshakePacket handshakePacket = new ControlHandshakePacket(payload);
+
+        ControlHandshakePacket handshakePacket = new ControlHandshakePacket(0, payload);
 
         HandshakeJob handshakeJob = new HandshakeJob(channel, handshakePacket);
         return handshakeJob;
