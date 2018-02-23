@@ -58,7 +58,6 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private final Timer channelTimer;
 
     private final ConnectionFactory connectionFactory;
-    private SocketAddress connectSocketAddress;
     private volatile PinpointClient pinpointClient;
 
     private final MessageListener messageListener;
@@ -133,8 +132,6 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         }
 
         logger.info("{} channelConnected() started. channel:{}", objectUniqName, channel);
-        this.connectSocketAddress = channel.getRemoteAddress();
-        logger.debug("{} connectedSocketAddress:() channel:{}", channel, connectSocketAddress);
 
         SocketStateChangeResult stateChangeResult = state.toConnected();
         if (!stateChangeResult.isChange()) {
@@ -263,7 +260,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     @Override
     public SocketAddress getRemoteAddress() {
-        return connectSocketAddress;
+        final Channel channel = this.channel;
+        if (channel == null) {
+            return null;
+        }
+        return channel.getRemoteAddress();
     }
 
     private void await(ChannelFuture channelFuture) {
@@ -314,15 +315,15 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             throw new NullPointerException("bytes");
         }
 
-        boolean isEnable = state.isEnableCommunication();
+        final boolean isEnable = state.isEnableCommunication();
         if (!isEnable) {
             DefaultFuture<ResponseMessage> closedException = new DefaultFuture<ResponseMessage>();
             closedException.setFailure(new PinpointSocketException("invalid state:" + state.getCurrentStateCode() + " channel:" + channel));
             return closedException;
         }
-
-        RequestPacket request = new RequestPacket(bytes);
-        final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request, clientOption.getTimeoutMillis());
+        final int requestId = this.requestManager.nextRequestId();
+        final RequestPacket request = new RequestPacket(requestId, bytes);
+        final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request.getRequestId(), clientOption.getTimeoutMillis());
 
         write0(request, messageFuture);
         return messageFuture;
@@ -562,15 +563,15 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     private ChannelFuture write0(Object message) {
-        return write0(message, null);
+        return channel.write(message);
     }
 
     private ChannelFuture write0(Object message, ChannelFutureListener futureListener) {
-        ChannelFuture future = channel.write(message);
-        if (futureListener != null) {
-            future.addListener(futureListener);
+        if (futureListener == null) {
+            throw new NullPointerException("futureListener must not be null");
         }
-
+        ChannelFuture future = channel.write(message);
+        future.addListener(futureListener);
         return future;
     }
 

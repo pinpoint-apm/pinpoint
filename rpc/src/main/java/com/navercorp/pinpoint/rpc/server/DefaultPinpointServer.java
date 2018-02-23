@@ -205,10 +205,11 @@ public class DefaultPinpointServer implements PinpointServer {
             throw new IllegalStateException("Request fail. Error: Illegal State. pinpointServer:" + toString());
         }
 
-        RequestPacket requestPacket = new RequestPacket(payload);
-        ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(requestPacket);
-        write0(requestPacket, messageFuture);
-        return messageFuture;
+        final int requestId = this.requestManager.nextRequestId();
+        RequestPacket requestPacket = new RequestPacket(requestId, payload);
+        ChannelWriteFailListenableFuture<ResponseMessage> responseFuture = this.requestManager.register(requestPacket.getRequestId());
+        write0(requestPacket, responseFuture);
+        return responseFuture;
     }
 
     @Override
