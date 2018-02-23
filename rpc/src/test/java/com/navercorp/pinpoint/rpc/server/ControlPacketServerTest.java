@@ -179,8 +179,7 @@ public class ControlPacketServerTest {
     }
 
     private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
-        RequestPacket packet = new RequestPacket(new byte[0]);
-        packet.setRequestId(10);
+        RequestPacket packet = new RequestPacket(10, new byte[0]);
 
         ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
         IOUtils.write(outputStream, bb.array());
