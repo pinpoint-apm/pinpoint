@@ -48,12 +48,12 @@ public class PinpointServerStateTest {
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 1000);
 
     @BeforeClass
-    public static void setUp() throws IOException {
+    public static void setUp() {
         bindPort = SocketUtils.findAvailableTcpPort();
     }
 
     @Test
-    public void closeByPeerTest() throws InterruptedException {
+    public void closeByPeerTest() {
         PinpointServerAcceptor serverAcceptor = null;
         PinpointClient client = null;
         PinpointClientFactory clientFactory = null;
@@ -87,7 +87,7 @@ public class PinpointServerStateTest {
     }
 
     @Test
-    public void closeTest() throws InterruptedException {
+    public void closeTest() {
         PinpointServerAcceptor serverAcceptor = null;
         PinpointClient client = null;
         PinpointClientFactory clientFactory = null;
@@ -114,7 +114,7 @@ public class PinpointServerStateTest {
     }
 
     @Test
-    public void unexpectedCloseByPeerTest() throws InterruptedException, IOException, ProtocolException {
+    public void unexpectedCloseByPeerTest() throws IOException, ProtocolException {
         PinpointServerAcceptor serverAcceptor = null;
         try {
             serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
@@ -146,7 +146,7 @@ public class PinpointServerStateTest {
     }
 
     @Test
-    public void unexpectedCloseTest() throws InterruptedException, IOException, ProtocolException {
+    public void unexpectedCloseTest() {
         PinpointServerAcceptor serverAcceptor = null;
         PinpointClient client = null;
         PinpointClientFactory clientFactory = null;
@@ -175,7 +175,7 @@ public class PinpointServerStateTest {
 
     private byte[] createHandshakePayload(Map<String, Object> data) throws ProtocolException {
         byte[] payload = ControlMessageEncodingUtils.encode(data);
-        ControlHandshakePacket handshakePacket = new ControlHandshakePacket(payload);
+        ControlHandshakePacket handshakePacket = new ControlHandshakePacket(0, payload);
         ChannelBuffer channelBuffer = handshakePacket.toBuffer();
         return channelBuffer.toByteBuffer().array();
     }
