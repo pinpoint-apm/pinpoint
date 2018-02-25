@@ -38,7 +38,6 @@ public class ConsumerRecordConstructorInterceptor implements AroundInterceptor {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         KafkaConfig config = new KafkaConfig(traceContext.getProfilerConfig());
-        PinpointValueEncoder.INSTANCE.init(config.getEncoder());
         CALL_SERVER = config.getCaller();
     }
 

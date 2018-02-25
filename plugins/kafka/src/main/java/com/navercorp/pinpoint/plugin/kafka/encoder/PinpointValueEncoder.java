@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.kafka.encoder;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,6 +42,7 @@ public enum PinpointValueEncoder {
     }
 
     public void init(String className) {
+        if (StringUtils.isEmpty(className)) return;
         try {
             Class clazz = Class.forName(className);
             encoder = clazz.newInstance();
