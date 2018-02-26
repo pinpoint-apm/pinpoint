@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
 public class OpenwhiskConstants {
-    public static final ServiceType OPENWHISK_INTERNAL = ServiceTypeFactory.of(9997, "OPENWHISK_INTERNAL", "OPENWHISK_INTERNAL");
-    public static final ServiceType OPENWHISK_INVOKER = ServiceTypeFactory.of(9996, "OPENWHISK_INVOKER", "OPENWHISK_INVOKER", RECORD_STATISTICS);
+    public static final ServiceType OPENWHISK_INTERNAL = ServiceTypeFactory.of(9170, "OPENWHISK_INTERNAL", "OPENWHISK_INTERNAL");
+    public static final ServiceType OPENWHISK_INVOKER = ServiceTypeFactory.of(9171, "OPENWHISK_INVOKER", "OPENWHISK_INVOKER", RECORD_STATISTICS);
 
     public static final String PINPOINT_HEADER_DELIMITIER = "@";
     public static final int PINPOINT_HEADER_DELIMITIER_ASCII = PINPOINT_HEADER_DELIMITIER.charAt(0);
