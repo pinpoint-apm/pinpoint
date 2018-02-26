@@ -66,7 +66,14 @@ Once the components are running, you should be able to visit http://localhost:28
 For details, please refer to the [quick-start guide](quickstart/README.md).
 
 ## Installation
-**Build Requirements**
+To set up your very own Pinpoint instance, please **download the required binaries** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest).
+Please take a look at our [installation guide](doc/installation.md) for further instructions.
+
+**Building** (Optional)
+
+You may also choose to build pinpoint from source for various reasons including plugin development. However, our master branch is also our development branch so stability is not always guaranteed, so we recommend downloading and running the binaries from our stable releases if you are simply looking to run pinpoint.
+
+Regardless, if you would like to build pinpoint from source, you will need the following:
 
 * JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
 * JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
@@ -75,7 +82,7 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 * JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8 home directory.
 
-**Prerequisites**
+## Compatibility
 
 Java version required to run Pinpoint:
 
@@ -110,11 +117,6 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 Pinpoint Web Supported Browsers:
 
 * Chrome
-
-**Installation**
-
-To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
-Take a look at our [installation guide](doc/installation.md) for further instructions.
 
 ## Issues
 For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues "Pinpoint Issues").  
