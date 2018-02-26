@@ -24,6 +24,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
  * @author lopiter
  */
 public class AkkaHttpConstants {
-    public static final ServiceType AKKA_HTTP = ServiceTypeFactory.of(9999, "AKKA_HTTP_SERVER", ServiceTypeProperty.RECORD_STATISTICS);
-    public static final ServiceType AKKA_HTTP_SERVER_INTERNAL = ServiceTypeFactory.of(9998, "AKKA_HTTP_SERVER_INTERNAL", "AKKA_HTTP_SERVER_INTERNAL");
+    public static final ServiceType AKKA_HTTP = ServiceTypeFactory.of(1310, "AKKA_HTTP_SERVER", ServiceTypeProperty.RECORD_STATISTICS);
+    public static final ServiceType AKKA_HTTP_SERVER_INTERNAL = ServiceTypeFactory.of(9998, "1311", "AKKA_HTTP_SERVER_INTERNAL");
 }
