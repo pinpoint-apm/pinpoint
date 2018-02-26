@@ -102,7 +102,7 @@ public final class NetworkUtils {
         }
 
         if (interfaces == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         while (interfaces.hasMoreElements()) {

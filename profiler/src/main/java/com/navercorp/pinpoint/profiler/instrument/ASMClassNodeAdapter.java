@@ -440,7 +440,7 @@ public class ASMClassNodeAdapter {
 
     public List<ASMClassNodeAdapter> getInnerClasses() {
         if (this.classNode.innerClasses == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         final List<ASMClassNodeAdapter> innerClasses = new ArrayList<ASMClassNodeAdapter>();

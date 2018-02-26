@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class ClusterOption {
 
-    public static final ClusterOption DISABLE_CLUSTER_OPTION = new ClusterOption(false, "", Collections.EMPTY_LIST);
+    public static final ClusterOption DISABLE_CLUSTER_OPTION = new ClusterOption(false, "", Collections.<Role>emptyList());
 
     private final boolean enable;
     private final String id;
