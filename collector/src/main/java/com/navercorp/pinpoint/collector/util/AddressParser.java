@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.collector.util;
 
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.NetUtils;
 
 import java.util.List;

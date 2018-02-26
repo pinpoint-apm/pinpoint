@@ -269,7 +269,7 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(RecorderFactory.class).to(DefaultRecorderFactory.class).in(Scopes.SINGLETON);
 
-        bind(BaseTraceFactory.class).toProvider(BaseTraceFactoryProvider.class).in(Scopes.SINGLETON);;
+        bind(BaseTraceFactory.class).toProvider(BaseTraceFactoryProvider.class).in(Scopes.SINGLETON);
         bind(TraceFactory.class).toProvider(TraceFactoryProvider.class).in(Scopes.SINGLETON);
     }
 

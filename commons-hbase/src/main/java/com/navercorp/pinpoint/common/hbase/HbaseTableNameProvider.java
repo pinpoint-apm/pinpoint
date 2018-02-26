@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.hbase.namespace.HbaseNamespaceValidator;
 import com.navercorp.pinpoint.common.hbase.namespace.NamespaceValidator;
 import com.navercorp.pinpoint.common.hbase.util.HbaseTableNameCache;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
 
 import java.util.Objects;

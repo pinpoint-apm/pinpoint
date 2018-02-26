@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
-import com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver;
 import com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.udp.NetworkAvailabilityCheckPacketFilter;
 import com.navercorp.pinpoint.collector.receiver.udp.PacketHandlerFactory;

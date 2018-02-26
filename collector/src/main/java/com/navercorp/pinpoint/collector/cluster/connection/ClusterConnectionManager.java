@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.collector.cluster.connection;
 
 import com.navercorp.pinpoint.collector.util.Address;
 
-import java.net.SocketAddress;
 import java.util.List;
 
 /**

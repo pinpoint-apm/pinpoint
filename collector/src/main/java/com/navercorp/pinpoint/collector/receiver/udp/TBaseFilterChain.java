@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 import org.apache.thrift.TBase;
 
 import java.net.DatagramSocket;
-import java.net.SocketAddress;
 import java.util.List;
 
 /**
