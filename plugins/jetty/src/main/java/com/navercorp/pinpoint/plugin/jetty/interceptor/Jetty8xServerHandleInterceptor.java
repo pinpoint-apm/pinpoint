@@ -32,8 +32,6 @@ import java.lang.reflect.Method;
  */
 public class Jetty8xServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
-    private volatile Method getRequestMethod;
-
     public Jetty8xServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         super(traceContext, descriptor, excludeFilter);
     }

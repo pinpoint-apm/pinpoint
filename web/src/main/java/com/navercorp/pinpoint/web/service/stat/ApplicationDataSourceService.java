@@ -88,7 +88,7 @@ public class ApplicationDataSourceService {
             }
         }
 
-        for(List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList : aggreJoinDataSourceBoMap.values()) {
+        for (List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList : aggreJoinDataSourceBoMap.values()) {
             Collections.sort(aggreJoinDataSourceBoList, comparator);
         }
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -235,7 +236,7 @@ public class SpanAligner {
             }
             // find missing grand parent.
             final List<Link> targetLinkList = LinkList.filterSpan(this.linkList, node.span);
-            if (targetLinkList != null && !targetLinkList.isEmpty()) {
+            if (CollectionUtils.hasLength(targetLinkList)) {
                 final Link matchedLink = LinkList.matchSpan(targetLinkList, node.span);
                 if (matchedLink != null) {
                     if (isDebug) {
@@ -395,7 +396,7 @@ public class SpanAligner {
         return unknownCallTree;
     }
 
-    private class Node {
+    private static class Node {
         private SpanBo span;
         private SpanCallTree spanCallTree;
         private boolean linked = false;
@@ -457,8 +458,8 @@ public class SpanAligner {
         }
 
         private static List<Node> filter(List<Node> nodeList, NodeFilter filter) {
-            if (nodeList == null && nodeList.isEmpty()) {
-                return Collections.EMPTY_LIST;
+            if (CollectionUtils.isEmpty(nodeList)) {
+                return Collections.emptyList();
             }
 
             final List<Node> result = new ArrayList<>();
@@ -475,7 +476,7 @@ public class SpanAligner {
         boolean filter(final Node node);
     }
 
-    private class Link {
+    private static class Link {
         private long parentSpanId;
         private long spanId;
         private long nextSpanId;
@@ -506,8 +507,8 @@ public class SpanAligner {
 
     private static class LinkList {
         private static List<Link> filterSpan(final List<Link> linkList, final SpanBo span) {
-            if (linkList == null || linkList.isEmpty()) {
-                return Collections.EMPTY_LIST;
+            if (CollectionUtils.isEmpty(linkList)) {
+                return Collections.emptyList();
             }
 
             final List<Link> result = new ArrayList<>();
@@ -524,7 +525,7 @@ public class SpanAligner {
         }
 
         private static Link matchSpan(final List<Link> linkList, final SpanBo span) {
-            if (linkList == null || linkList.isEmpty()) {
+            if (CollectionUtils.isEmpty(linkList)) {
                 return null;
             }
 
