@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

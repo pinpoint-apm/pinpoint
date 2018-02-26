@@ -7,7 +7,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
 
 /**

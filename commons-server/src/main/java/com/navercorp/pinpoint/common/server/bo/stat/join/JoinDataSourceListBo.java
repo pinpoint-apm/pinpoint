@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-
 import java.util.*;
 
 /**

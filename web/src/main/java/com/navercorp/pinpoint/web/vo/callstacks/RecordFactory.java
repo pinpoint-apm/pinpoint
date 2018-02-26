@@ -17,11 +17,9 @@ package com.navercorp.pinpoint.web.vo.callstacks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
-import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
@@ -34,7 +32,6 @@ import com.navercorp.pinpoint.common.util.ApiDescription;
 import com.navercorp.pinpoint.common.server.util.ApiDescriptionParser;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
-import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
