@@ -17,14 +17,13 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 
-import java.util.List;
 
 /**
  * @author minwoo.jung
  */
 public class AggreJoinDataSourceBo extends JoinDataSourceBo implements AggregationStatData {
 
-    private long timestamp = Long.MIN_VALUE;
+    private long timestamp;
 
 
     public AggreJoinDataSourceBo(short serviceTypeCode, String url, int avgActiveConnectionSize, int minActiveConnectionSize, String minActiveConnectionAgentId, int maxActiveConnectionSize, String maxActiveConnectionAgentId ,long timestamp) {
@@ -35,5 +34,23 @@ public class AggreJoinDataSourceBo extends JoinDataSourceBo implements Aggregati
     @Override
     public long getTimestamp() {
         return timestamp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AggreJoinDataSourceBo)) return false;
+        if (!super.equals(o)) return false;
+
+        AggreJoinDataSourceBo that = (AggreJoinDataSourceBo) o;
+
+        return timestamp == that.timestamp;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        return result;
     }
 }
