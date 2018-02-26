@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
+import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Map;
@@ -30,10 +31,7 @@ public final class BindValueUtils {
     }
 
     public static String bindValueToString(final Map<Integer, String> bindValueMap, int limit) {
-        if (bindValueMap == null) {
-            return "";
-        }
-        if (bindValueMap.isEmpty()) {
+        if (MapUtils.isEmpty(bindValueMap)) {
             return "";
         }
         final int maxParameterIndex = getMaxParameterIndex(bindValueMap);

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.ClusterDataManager;
@@ -249,7 +250,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
         logger.info("syncPullCollectorCluster() started.");
         synchronized (this) {
             Map<String, byte[]> map = clusterDataManagerHelper.syncPullCollectorCluster(client, PINPOINT_COLLECTOR_CLUSTER_PATH);
-            if (Collections.EMPTY_MAP == map) {
+            if (MapUtils.isEmpty(map)) {
                 return false;
             }
 
