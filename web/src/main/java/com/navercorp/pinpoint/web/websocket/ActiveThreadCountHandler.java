@@ -70,15 +70,15 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private SimpleOrderedThreadPool webSocketFlushExecutor;
 
-    private java.util.Timer flushTimer;
+    private Timer flushTimer;
     private static final long DEFAULT_FLUSH_DELAY = 1000;
     private final long flushDelay;
 
-    private java.util.Timer healthCheckTimer;
+    private Timer healthCheckTimer;
     private static final long DEFAULT_HEALTH_CHECk_DELAY = 60 * 1000;
     private final long healthCheckDelay;
 
-    private java.util.Timer reactiveTimer;
+    private Timer reactiveTimer;
     
     @Autowired(required=false)
     ServerMapDataFilter serverMapDataFilter;
@@ -113,7 +113,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     private Timer newJavaTimer(String timerName) {
-        return new java.util.Timer(timerName, true);
+        return new Timer(timerName, true);
     }
 
     @Override

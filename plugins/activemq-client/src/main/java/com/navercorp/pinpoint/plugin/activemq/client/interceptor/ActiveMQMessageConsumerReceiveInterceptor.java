@@ -41,7 +41,7 @@ public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAr
     // Instead, only log when the method is actually traced.
     @Override
     protected void logBeforeInterceptor(Object target, Object[] args) {
-        return;
+
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAr
     // Instead, only log when the method is actually traced.
     @Override
     protected void logAfterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
-        return;
+
     }
 
     @Override

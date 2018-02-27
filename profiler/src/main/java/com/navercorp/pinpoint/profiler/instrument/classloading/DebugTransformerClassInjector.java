@@ -19,7 +19,6 @@ import java.io.InputStream;
 
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.BootstrapPackage;
-import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 
 /**
  * @author Woonduk Kang(emeroad)
