@@ -21,6 +21,7 @@ import org.springframework.batch.core.JobExecution;
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
 public interface JobFailMessageSender {
-	void sendSMS(JobExecution jobExecution);
-	void sendEmail(JobExecution jobExecution);
+    void sendSMS(JobExecution jobExecution);
+
+    void sendEmail(JobExecution jobExecution);
 }

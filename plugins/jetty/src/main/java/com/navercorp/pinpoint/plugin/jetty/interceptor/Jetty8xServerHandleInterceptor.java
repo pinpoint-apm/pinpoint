@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import org.eclipse.jetty.server.AbstractHttpConnection;
 import org.eclipse.jetty.server.Request;
 
-import java.lang.reflect.Method;
 
 /**
  * @author Taejin Koo
