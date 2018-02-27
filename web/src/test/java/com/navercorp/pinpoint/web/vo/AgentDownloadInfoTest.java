@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory;
 import com.navercorp.pinpoint.web.dao.memory.MemoryAgentDownloadInfoDao;
@@ -57,9 +58,8 @@ public class AgentDownloadInfoTest {
         String mockResponseString = getMockJsonString();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        JavaType agentDownloadInfoListType = objectMapper.getTypeFactory().constructCollectionType(List.class, GithubAgentDownloadInfo.class);
-
-        List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(mockResponseString, agentDownloadInfoListType);
+        TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<List<GithubAgentDownloadInfo>>() {};
+        List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(mockResponseString, typeReference);
 
         Assert.assertEquals(15, agentDownloadInfoList.size());
     }
@@ -68,7 +68,7 @@ public class AgentDownloadInfoTest {
         InputStream resourceAsStream = null;
         try {
             resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("mock/github_pinpoint_release_response.json");
-            return IOUtils.toString(resourceAsStream);
+            return IOUtils.toString(resourceAsStream, Charsets.UTF_8);
         } finally {
             IOUtils.closeQuietly(resourceAsStream);
         }
