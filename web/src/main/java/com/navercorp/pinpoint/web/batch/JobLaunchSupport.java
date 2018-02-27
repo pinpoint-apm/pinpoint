@@ -48,7 +48,7 @@ public class JobLaunchSupport implements InitializingBean {
     private JobLauncher launcher;
 
     public JobExecution run(String jobName, JobParameters params) {
-        if(BatchUtils.decisionBatchServer(batchConfiguration.getBatchServerIp())) {
+        if(!BatchUtils.decisionBatchServer(batchConfiguration.getBatchServerIp())) {
             return null;
         }
         try {
