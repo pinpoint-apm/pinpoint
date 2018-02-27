@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.plugin.rabbitmq.interceptor;
+package com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -10,9 +10,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.MapUtils;
-import com.navercorp.pinpoint.plugin.rabbitmq.RabbitMQClientPluginConfig;
-import com.navercorp.pinpoint.plugin.rabbitmq.RabbitMQConstants;
-import com.navercorp.pinpoint.plugin.rabbitmq.field.setter.HeadersFieldSetter;
+import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPluginConfig;
+import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
+import com.navercorp.pinpoint.plugin.rabbitmq.client.field.setter.HeadersFieldSetter;
 import com.rabbitmq.client.AMQP;
 
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import java.util.Map;
  * @author Jinkai.Ma
  * @author Jiaqi Feng
  */
-public class RabbitMQPublishInterceptor implements AroundInterceptor {
+public class ChannelBasicPublishInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -31,7 +31,7 @@ public class RabbitMQPublishInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final Filter<String> excludeExchangeFilter;
 
-    public RabbitMQPublishInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ChannelBasicPublishInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.descriptor = descriptor;
         this.traceContext = traceContext;
 
@@ -65,20 +65,20 @@ public class RabbitMQPublishInterceptor implements AroundInterceptor {
 
         if (trace.canSampled()) {
             SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(RabbitMQConstants.RABBITMQ_SERVICE_TYPE);
+            recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT);
 
             TraceId nextId = trace.getTraceId().getNextTraceId();
 
             recorder.recordNextSpanId(nextId.getSpanId());
 
-            headers.put(RabbitMQConstants.META_TRANSACTION_ID, nextId.getTransactionId());
-            headers.put(RabbitMQConstants.META_SPAN_ID, Long.toString(nextId.getSpanId()));
-            headers.put(RabbitMQConstants.META_PARENT_SPAN_ID, Long.toString(nextId.getParentSpanId()));
-            headers.put(RabbitMQConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
-            headers.put(RabbitMQConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
-            headers.put(RabbitMQConstants.META_FLAGS, Short.toString(nextId.getFlags()));
+            headers.put(RabbitMQClientConstants.META_TRACE_ID, nextId.getTransactionId());
+            headers.put(RabbitMQClientConstants.META_SPAN_ID, Long.toString(nextId.getSpanId()));
+            headers.put(RabbitMQClientConstants.META_PARENT_SPAN_ID, Long.toString(nextId.getParentSpanId()));
+            headers.put(RabbitMQClientConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
+            headers.put(RabbitMQClientConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
+            headers.put(RabbitMQClientConstants.META_FLAGS, Short.toString(nextId.getFlags()));
         } else {
-            headers.put(RabbitMQConstants.META_DO_NOT_TRACE, "1");
+            headers.put(RabbitMQClientConstants.META_SAMPLED, "1");
         }
 
         if (properties instanceof HeadersFieldSetter) {
@@ -128,8 +128,8 @@ public class RabbitMQPublishInterceptor implements AroundInterceptor {
                 recorder.recordEndPoint("exchange:"+exchange);
                 recorder.recordDestinationId("exchange-" + exchange);
 
-                recorder.recordAttribute(RabbitMQConstants.RABBITMQ_EXCHANGE_ANNOTATION_KEY, exchange);
-                recorder.recordAttribute(RabbitMQConstants.RABBITMQ_ROUTINGKEY_ANNOTATION_KEY, routingKey);
+                recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_EXCHANGE_ANNOTATION_KEY, exchange);
+                recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_ROUTINGKEY_ANNOTATION_KEY, routingKey);
             } else {
                 recorder.recordException(throwable);
             }

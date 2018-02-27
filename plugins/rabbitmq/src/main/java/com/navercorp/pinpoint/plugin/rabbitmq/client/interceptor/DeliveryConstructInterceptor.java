@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.rabbitmq.interceptor;
+package com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.plugin.rabbitmq.RabbitMQConstants;
+import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 
 /**
  * @author HyunGil Jeong
@@ -40,7 +40,7 @@ public class DeliveryConstructInterceptor extends SpanEventSimpleAroundIntercept
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(RabbitMQConstants.RABBITMQ_INTERNAL_SERVICE_TYPE);
+        recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT_INTERNAL);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 
