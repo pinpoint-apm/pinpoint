@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.rabbitmq.interceptor;
+package com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;

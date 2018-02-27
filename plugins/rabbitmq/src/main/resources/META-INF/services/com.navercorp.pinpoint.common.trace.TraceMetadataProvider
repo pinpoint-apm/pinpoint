@@ -1,1 +1,1 @@
-com.navercorp.pinpoint.plugin.rabbitmq.RabbitMQTraceMetadataProvider
+com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientTraceMetadataProvider

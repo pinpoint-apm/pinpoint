@@ -1,4 +1,20 @@
-package com.navercorp.pinpoint.plugin.rabbitmq;
+/*
+ * Copyright 2018 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.plugin.rabbitmq.client;
 
 import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
@@ -24,9 +40,9 @@ public class RabbitMQClientPluginConfig {
         this.traceRabbitMQClientConsumer = config.readBoolean("profiler.rabbitmq.client.consumer.enable", true);
         this.consumerClasses = config.readList("profiler.rabbitmq.client.consumer.classes");
 
-        String excludeExchnage = config.readString("profiler.rabbitmq.client.exchange.exclude", "");
-        if (!excludeExchnage.isEmpty()) {
-            this.excludeExchangeFilter = new ExcludePathFilter(excludeExchnage);
+        String excludeExchange = config.readString("profiler.rabbitmq.client.exchange.exclude", "");
+        if (!excludeExchange.isEmpty()) {
+            this.excludeExchangeFilter = new ExcludePathFilter(excludeExchange);
         } else {
             this.excludeExchangeFilter = new SkipFilter<String>();
         }

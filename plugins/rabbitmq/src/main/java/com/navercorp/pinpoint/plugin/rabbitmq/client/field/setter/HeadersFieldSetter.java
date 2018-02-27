@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.plugin.rabbitmq.field.setter;
+package com.navercorp.pinpoint.plugin.rabbitmq.client.field.setter;
 
 import java.util.Map;
 

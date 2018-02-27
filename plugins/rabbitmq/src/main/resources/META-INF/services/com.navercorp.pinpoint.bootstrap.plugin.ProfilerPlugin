@@ -1,1 +1,1 @@
-com.navercorp.pinpoint.plugin.rabbitmq.RabbitMQPlugin
+com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPlugin
