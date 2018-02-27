@@ -27,7 +27,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author dawidmalina
@@ -36,9 +38,10 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
 
 //    jdbc:(mysql|mariadb):[replication:|failover|loadbalance:|aurora:]//<hostDescription>[,<hostDescription>]/[database>]
 //    jdbc:mariadb:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MariaDB?characterEncoding=UTF-8
-    private static final String URL_PREFIX = "jdbc:mariadb:";
-
+    private static final String MARIA_URL_PREFIX = "jdbc:mariadb:";
     private static final String MYSQL_URL_PREFIX = "jdbc:mysql:";
+
+    private static final Set<Type> TYPES = EnumSet.allOf(Type.class);
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
@@ -49,20 +52,18 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
-        Type type = Type.findType(jdbcUrl);
+        Type type = getType(jdbcUrl);
         if (type == null) {
-            logger.info("jdbcUrl has invalid prefix.(url:{}, prefix:{}, {})", jdbcUrl, URL_PREFIX, MYSQL_URL_PREFIX);
+            logger.info("jdbcUrl has invalid prefix.(url:{}, valid prefixes:{}, {})", jdbcUrl, MARIA_URL_PREFIX, MYSQL_URL_PREFIX);
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
-        DatabaseInfo result = null;
         try {
-            result = parse0(jdbcUrl, type);
+            return parse0(jdbcUrl, type);
         } catch (Exception e) {
             logger.info("MaridDBJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
-            result = UnKnownDatabaseInfo.createUnknownDataBase(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, jdbcUrl);
+            return UnKnownDatabaseInfo.createUnknownDataBase(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, jdbcUrl);
         }
-        return result;
     }
 
     private DatabaseInfo parse0(String url, Type type) {
@@ -119,8 +120,17 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
         return MariaDBConstants.MARIADB;
     }
 
-    private static enum Type {
-        MARIA(URL_PREFIX),
+    private static Type getType(String jdbcUrl) {
+        for (Type type : TYPES) {
+            if (jdbcUrl.startsWith(type.getUrlPrefix())) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    private enum Type {
+        MARIA(MARIA_URL_PREFIX),
         MYSQL(MYSQL_URL_PREFIX);
 
         private final String urlPrefix;
@@ -136,19 +146,7 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
         }
 
         private String getLoadbalanceUrlPrefix() {
-            return urlPrefix + "loadbalance:";
+            return loadbalanceUrlPrefix;
         }
-
-        private static Type findType(String jdbcUrl) {
-            for (Type type : Type.values()) {
-                if (jdbcUrl.startsWith(type.urlPrefix)) {
-                    return type;
-                }
-            }
-
-            return null;
-        }
-
     }
-
 }
