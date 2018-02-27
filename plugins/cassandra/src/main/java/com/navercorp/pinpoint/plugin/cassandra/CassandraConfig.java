@@ -30,7 +30,6 @@ public class CassandraConfig extends JdbcConfig {
 
     @Override
     public String toString() {
-        return "CassandraConfig [cassandra=" + isPluginEnable() + "]";
+        return "CassandraConfig [" + super.toString() + "]";
     }
-
 }
