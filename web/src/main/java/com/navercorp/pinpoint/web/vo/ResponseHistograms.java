@@ -83,11 +83,7 @@ public class ResponseHistograms {
         }
 
         private ResponseTime getResponseTime(Application application, Long timestamp) {
-            Map<Application, ResponseTime> responseTimeMap = responseTimeApplicationMap.get(timestamp);
-            if (responseTimeMap == null) {
-                responseTimeMap = new HashMap<>();
-                responseTimeApplicationMap.put(timestamp, responseTimeMap);
-            }
+            Map<Application, ResponseTime> responseTimeMap = responseTimeApplicationMap.computeIfAbsent(timestamp, (Long k) -> new HashMap<>());
             ResponseTime responseTime = responseTimeMap.get(application);
             if (responseTime == null) {
                 responseTime = new ResponseTime(application.getName(), application.getServiceType(), timestamp);
@@ -101,12 +97,7 @@ public class ResponseHistograms {
 
             for (Map<Application, ResponseTime> entry : responseTimeApplicationMap.values()) {
                 for (Map.Entry<Application, ResponseTime> applicationResponseTimeEntry : entry.entrySet()) {
-                    List<ResponseTime> responseTimeList = responseTimeMap.get(applicationResponseTimeEntry.getKey());
-                    if (responseTimeList == null) {
-                        responseTimeList = new ArrayList<>();
-                        Application key = applicationResponseTimeEntry.getKey();
-                        responseTimeMap.put(key, responseTimeList);
-                    }
+                    List<ResponseTime> responseTimeList = responseTimeMap.computeIfAbsent(applicationResponseTimeEntry.getKey(), (Application k) -> new ArrayList<>());
                     responseTimeList.add(applicationResponseTimeEntry.getValue());
                 }
             }

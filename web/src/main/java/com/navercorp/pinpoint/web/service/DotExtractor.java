@@ -66,11 +66,7 @@ public class DotExtractor {
     }
 
     private List<Dot> getDotList(Application spanApplication) {
-        List<Dot> dotList = this.dotMap.get(spanApplication);
-        if (dotList == null) {
-            dotList = new ArrayList<>();
-            this.dotMap.put(spanApplication, dotList);
-        }
+        List<Dot> dotList = this.dotMap.computeIfAbsent(spanApplication, k -> new ArrayList<>());
         return dotList;
     }
 

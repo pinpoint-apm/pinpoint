@@ -212,18 +212,15 @@ public class AgentStatusTimelineBuilder {
         Map<Long, List<AgentEvent>> partitions = new HashMap<>();
         for (AgentEvent agentEvent : agentEvents) {
             long startTimestamp = agentEvent.getStartTimestamp();
-            List<AgentEvent> partition = partitions.get(startTimestamp);
-            if (partition == null) {
-                partition = new ArrayList<>();
-                partitions.put(startTimestamp, partition);
-            }
+            List<AgentEvent> partition = partitions.computeIfAbsent(startTimestamp, k -> new ArrayList<>());
             partition.add(agentEvent);
         }
         return partitions;
     }
 
     private AgentLifeCycle createAgentLifeCycle(long agentStartTimestamp, List<AgentEvent> agentEvents) {
-        Collections.sort(agentEvents, AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
+        agentEvents.sort(AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
+
         AgentEvent first = agentEvents.get(0);
         AgentEvent last = agentEvents.get(agentEvents.size() - 1);
         AgentState endState = AgentState.fromAgentEvent(last);
@@ -239,7 +236,8 @@ public class AgentStatusTimelineBuilder {
     }
 
     private List<AgentLifeCycle> mergeOverlappingLifeCycles(List<AgentLifeCycle> agentLifeCycles) {
-        Collections.sort(agentLifeCycles, AgentLifeCycle.START_TIMESTAMP_ASC_COMPARATOR);
+        agentLifeCycles.sort(AgentLifeCycle.START_TIMESTAMP_ASC_COMPARATOR);
+
         Queue<AgentLifeCycle> mergedAgentLifeCycles = new PriorityQueue<>(agentLifeCycles.size(), AgentLifeCycle.START_TIMESTAMP_ASC_COMPARATOR);
         for (AgentLifeCycle agentLifeCycle : agentLifeCycles) {
             Iterator<AgentLifeCycle> mergedAgentLifeCyclesIterator = mergedAgentLifeCycles.iterator();

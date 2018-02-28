@@ -71,11 +71,7 @@ public class ResponseTime {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        TimeHistogram histogram = responseHistogramMap.get(agentId);
-        if (histogram == null) {
-            histogram = new TimeHistogram(applicationServiceType, timeStamp);
-            responseHistogramMap.put(agentId, histogram);
-        }
+        TimeHistogram histogram = responseHistogramMap.computeIfAbsent(agentId, k -> new TimeHistogram(applicationServiceType, timeStamp));
         return histogram;
     }
 

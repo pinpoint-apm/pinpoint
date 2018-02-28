@@ -88,11 +88,7 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
         if (CollectionUtils.hasLength(agentWarningStatDataPointList)) {
             for (AgentWarningStatDataPoint agentWarningStatDataPoint : agentWarningStatDataPointList) {
                 long startTimestamp = agentWarningStatDataPoint.getStartTimestamp();
-                List<AgentWarningStatDataPoint> partition = partitions.get(startTimestamp);
-                if (partition == null) {
-                    partition = new ArrayList<>();
-                    partitions.put(startTimestamp, partition);
-                }
+                List<AgentWarningStatDataPoint> partition = partitions.computeIfAbsent(startTimestamp, k -> new ArrayList<>());
                 partition.add(agentWarningStatDataPoint);
             }
         }
@@ -100,7 +96,7 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
     }
 
     private List<AgentStatusTimelineSegment> createTimelineSegment(List<AgentWarningStatDataPoint> agentWarningStatDataPointList) {
-        Collections.sort(agentWarningStatDataPointList, new Comparator<AgentWarningStatDataPoint>() {
+        agentWarningStatDataPointList.sort(new Comparator<AgentWarningStatDataPoint>() {
             @Override
             public int compare(AgentWarningStatDataPoint o1, AgentWarningStatDataPoint o2) {
                 int eventTimestampComparison = Long.compare(o1.getTimestamp(), o2.getTimestamp());

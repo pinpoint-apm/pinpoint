@@ -89,11 +89,7 @@ public class ScatterData {
     }
 
     private void addDot(Coordinates coordinates, Dot dot) {
-        DotGroups dotGroups = scatterData.get(coordinates.getX());
-        if (dotGroups == null) {
-            dotGroups = new DotGroups(coordinates.getX());
-            scatterData.put(coordinates.getX(), dotGroups);
-        }
+        DotGroups dotGroups = scatterData.computeIfAbsent(coordinates.getX(), k -> new DotGroups(coordinates.getX()));
 
         dotGroups.addDot(coordinates, dot);
 

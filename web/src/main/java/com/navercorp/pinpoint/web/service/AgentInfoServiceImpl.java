@@ -145,7 +145,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         for (List<AgentInfo> agentInfoList : result.values()) {
-            Collections.sort(agentInfoList, AgentInfo.AGENT_NAME_ASC_COMPARATOR);
+            agentInfoList.sort(AgentInfo.AGENT_NAME_ASC_COMPARATOR);
         }
 
         logger.info("getApplicationAgentList={}", result);
@@ -187,7 +187,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             }
         }
 
-        Collections.sort(applicationNameList, Ordering.usingToString());
+        applicationNameList.sort(Ordering.usingToString());
         return applicationNameList;
     }
 
@@ -307,7 +307,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             return null;
         }
 
-        Collections.sort(downloadInfoList, new Comparator<AgentDownloadInfo>() {
+        downloadInfoList.sort(new Comparator<AgentDownloadInfo>() {
             @Override
             public int compare(AgentDownloadInfo o1, AgentDownloadInfo o2) {
                 return o2.getVersion().compareTo(o1.getVersion());

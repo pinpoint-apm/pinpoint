@@ -59,7 +59,7 @@ public class HealthCheckTasklet implements Tasklet {
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         List<String> urlList = generatedFlinkManagerServerApi();
 
-        if (urlList.size() == 0) {
+        if (urlList.isEmpty()) {
             return RepeatStatus.FINISHED;
         }
 

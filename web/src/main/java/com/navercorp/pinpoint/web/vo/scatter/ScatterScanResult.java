@@ -79,12 +79,8 @@ public class ScatterScanResult {
     @JsonProperty("scatter")
     public Map<String, List<Dot>> getScatter() {
         final Map<String, List<Dot>> scatterAgentData = new HashMap<>();
-        for(Dot dot : scatter) {
-            List<Dot> list = scatterAgentData.get(dot.getAgentId());
-            if(list == null) {
-                list = new ArrayList<>();
-                scatterAgentData.put(dot.getAgentId(), list);
-            }
+        for (Dot dot : scatter) {
+            List<Dot> list = scatterAgentData.computeIfAbsent(dot.getAgentId(), k -> new ArrayList<>());
             list.add(dot);
         }
 

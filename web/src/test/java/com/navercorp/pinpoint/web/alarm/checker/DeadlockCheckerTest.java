@@ -118,7 +118,7 @@ public class DeadlockCheckerTest {
         Assert.assertTrue(StringUtils.isEmpty(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assert.assertTrue(smsMessage.size() == 0);
+        Assert.assertTrue(smsMessage.isEmpty());
     }
 
     private AgentEventBo createAgentEvent(String agentId, long eventTimestamp, AgentEventType agentEventType) {

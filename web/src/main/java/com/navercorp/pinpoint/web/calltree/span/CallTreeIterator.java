@@ -260,7 +260,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     }
 
     public boolean isEmpty() {
-        return size() == 0;
+        return nodes.isEmpty();
     }
 
     public String toString() {

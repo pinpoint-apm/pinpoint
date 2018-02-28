@@ -154,7 +154,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     private void sortSpanEvent(List<SpanBo> spanBoList) {
         for (SpanBo spanBo : spanBoList) {
             List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
-            Collections.sort(spanEventBoList, SpanEventComparator.INSTANCE);
+            spanEventBoList.sort(SpanEventComparator.INSTANCE);
         }
     }
 

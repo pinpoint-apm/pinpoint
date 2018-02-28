@@ -81,7 +81,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
         }
 
         
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             addChecker(applicationList.get(i));
         }
     }
@@ -94,8 +94,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
         for (Rule rule : rules) {
             CheckerCategory checkerCategory = CheckerCategory.getValue(rule.getCheckerName());
             DataCollector collector = collectorMap.get(checkerCategory.getDataCollectorCategory());
-            
-            if(collector == null) {
+            if (collector == null) {
                 collector = dataCollectorFactory.createDataCollector(checkerCategory, application, timeSlotEndTime);
                 collectorMap.put(collector.getDataCollectorCategory(), collector);
             }

@@ -64,7 +64,7 @@ public class JoinDataSourceListBo implements JoinStatBo {
     }
 
     public static JoinDataSourceListBo joinDataSourceListBoList(List<JoinDataSourceListBo> joinDataSourceListBoList, Long timestamp) {
-        if (joinDataSourceListBoList.size() == 0) {
+        if (joinDataSourceListBoList.isEmpty()) {
             return EMPTY_JOIN_DATA_SOURCE_LIST_BO;
         }
 
@@ -86,7 +86,6 @@ public class JoinDataSourceListBo implements JoinStatBo {
             for (JoinDataSourceBo joinDataSourceBo : dataSourceBoList) {
                 DataSourceKey dataSourceKey = new DataSourceKey(joinDataSourceBo.getUrl(), joinDataSourceBo.getServiceTypeCode());
                 List<JoinDataSourceBo> joinDataSourceBoList = dataSourceBoListMap.get(dataSourceKey);
-
                 if (joinDataSourceBoList == null) {
                     joinDataSourceBoList = new ArrayList<JoinDataSourceBo>();
                     dataSourceBoListMap.put(dataSourceKey, joinDataSourceBoList);

@@ -92,16 +92,8 @@ public class RowKeyMerge {
             final TableName tableName = rowInfo.getTableName();
             final RowKey rowKey = rowInfo.getRowKey();
 
-            Map<RowKey, List<ColumnName>> rows = tables.get(tableName);
-            if (rows == null) {
-                rows = new HashMap<>();
-                tables.put(tableName, rows);
-            }
-            List<ColumnName> columnNames = rows.get(rowKey);
-            if (columnNames == null) {
-                columnNames = new ArrayList<>();
-                rows.put(rowKey, columnNames);
-            }
+            Map<RowKey, List<ColumnName>> rows = tables.computeIfAbsent(tableName, k -> new HashMap<>());
+            List<ColumnName> columnNames = rows.computeIfAbsent(rowKey, k -> new ArrayList<>());
             columnNames.add(rowInfo.getColumnName());
         }
         return tables;

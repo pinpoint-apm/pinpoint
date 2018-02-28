@@ -90,7 +90,7 @@ public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
             }
         }
         // Reverse sort as timestamp is stored in a reversed order.
-        Collections.sort(dataPoints, REVERSE_TIMESTAMP_COMPARATOR);
+        dataPoints.sort(REVERSE_TIMESTAMP_COMPARATOR);
         return dataPoints;
     }
 }
