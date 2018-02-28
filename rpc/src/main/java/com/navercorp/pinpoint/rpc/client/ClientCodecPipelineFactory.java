@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.client;
 
 
+import com.navercorp.pinpoint.rpc.PipelineFactory;
 import com.navercorp.pinpoint.rpc.codec.PacketDecoder;
 import com.navercorp.pinpoint.rpc.codec.PacketEncoder;
 
@@ -27,12 +28,12 @@ import org.jboss.netty.channel.Channels;
  * @author emeroad
  * @author koo.taejin
  */
-public class CodecPipelineFactory {
+public class ClientCodecPipelineFactory implements PipelineFactory {
 
-    public CodecPipelineFactory() {
+    public ClientCodecPipelineFactory() {
     }
 
-
+    @Override
     public ChannelPipeline newPipeline() {
         ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("encoder", new PacketEncoder());

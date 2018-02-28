@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.PipelineFactory;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
@@ -33,7 +34,9 @@ import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -89,6 +92,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final ClusterOption clusterOption;
 
+    private final PipelineFactory pipelineFactory;
+
     private long defaultRequestTimeout = DEFAULT_TIMEOUT_MILLIS;
 
     static {
@@ -103,7 +108,15 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         this(ClusterOption.DISABLE_CLUSTER_OPTION, channelConnectedFilter);
     }
 
+    public PinpointServerAcceptor(ChannelFilter channelConnectedFilter, PipelineFactory pipelineFactory) {
+        this(ClusterOption.DISABLE_CLUSTER_OPTION, channelConnectedFilter, pipelineFactory);
+    }
+
     public PinpointServerAcceptor(ClusterOption clusterOption, ChannelFilter channelConnectedFilter) {
+        this(clusterOption, channelConnectedFilter, new ServerCodecPipelineFactory());
+    }
+
+    public PinpointServerAcceptor(ClusterOption clusterOption, ChannelFilter channelConnectedFilter, PipelineFactory pipelineFactory) {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
         setOptions(bootstrap);
         addPipeline(bootstrap);
@@ -116,6 +129,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         this.clusterOption = clusterOption;
         this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter must not be null");
+
+        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
     }
 
     private ServerBootstrap createBootStrap(int bossCount, int workerCount) {
@@ -146,8 +161,15 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     private void addPipeline(ServerBootstrap bootstrap) {
-        ServerPipelineFactory serverPipelineFactory = new ServerPipelineFactory(nettyChannelHandler);
-        bootstrap.setPipelineFactory(serverPipelineFactory);
+        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            @Override
+            public ChannelPipeline getPipeline() throws Exception {
+                ChannelPipeline pipeline = pipelineFactory.newPipeline();
+                pipeline.addLast("handler", nettyChannelHandler);
+
+                return pipeline;
+            }
+        });
     }
 
     @VisibleForTesting
@@ -156,6 +178,20 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
             throw new NullPointerException("channelPipelineFactory must not be null");
         }
         bootstrap.setPipelineFactory(channelPipelineFactory);
+    }
+
+    @VisibleForTesting
+    void setMessageHandler(final ChannelHandler messageHandler) {
+        Assert.requireNonNull(messageHandler, "messageHandler must not be null");
+        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            @Override
+            public ChannelPipeline getPipeline() throws Exception {
+                ChannelPipeline pipeline = pipelineFactory.newPipeline();
+                pipeline.addLast("handler", messageHandler);
+
+                return pipeline;
+            }
+        });
     }
 
     public void bind(String host, int port) throws PinpointSocketException {
