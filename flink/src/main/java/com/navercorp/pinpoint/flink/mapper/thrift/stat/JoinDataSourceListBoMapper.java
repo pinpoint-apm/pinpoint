@@ -41,7 +41,7 @@ public class JoinDataSourceListBoMapper implements ThriftBoMapper<JoinDataSource
         }
 
         List<TFDataSource> tFDataSourceList = dataSourceList.getDataSourceList();
-        if (tFDataSourceList.size() == 0) {
+        if (tFDataSourceList.isEmpty()) {
             return JoinDataSourceListBo.EMPTY_JOIN_DATA_SOURCE_LIST_BO;
         }
 

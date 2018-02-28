@@ -67,7 +67,7 @@ public class AgentEventServiceImpl implements AgentEventService {
         }
         List<AgentEventBo> agentEventBos = this.agentEventDao.getAgentEvents(agentId, range, excludeEventTypes);
         List<AgentEvent> agentEvents = createAgentEvents(agentEventBos);
-        Collections.sort(agentEvents, AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
+        agentEvents.sort(AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
         return agentEvents;
     }
 

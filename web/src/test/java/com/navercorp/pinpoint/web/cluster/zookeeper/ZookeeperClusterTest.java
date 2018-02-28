@@ -110,7 +110,7 @@ public class ZookeeperClusterTest {
             boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
                 @Override
                 public boolean checkCompleted() {
-                    return finalManager.getRegisteredAgentList("a", "b", 1L).size() == 0;
+                    return finalManager.getRegisteredAgentList("a", "b", 1L).isEmpty();
                 }
             });
 

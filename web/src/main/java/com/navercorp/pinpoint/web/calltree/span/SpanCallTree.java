@@ -282,7 +282,7 @@ public class SpanCallTree implements CallTree {
         }
 
         // order by abs.
-        Collections.sort(spans, new Comparator<CallTreeNode>() {
+        spans.sort(new Comparator<CallTreeNode>() {
             @Override
             public int compare(CallTreeNode source, CallTreeNode target) {
                 return (int) (source.getValue().getStartTime() - target.getValue().getStartTime());

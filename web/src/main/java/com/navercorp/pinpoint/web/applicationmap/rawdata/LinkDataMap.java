@@ -70,11 +70,7 @@ public class LinkDataMap {
 
     private LinkData getLinkData(Application fromApplication, Application toApplication) {
         final LinkKey key = new LinkKey(fromApplication, toApplication);
-        LinkData findLink = linkDataMap.get(key);
-        if (findLink == null) {
-            findLink = new LinkData(fromApplication, toApplication, timeWindow);
-            linkDataMap.put(key, findLink);
-        }
+        LinkData findLink = linkDataMap.computeIfAbsent(key, k -> new LinkData(fromApplication, toApplication, timeWindow));
         return findLink;
     }
 

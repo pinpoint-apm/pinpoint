@@ -93,11 +93,7 @@ public class AgentHistogramList {
             throw new NullPointerException("agentId must not be null");
         }
 
-        AgentHistogram agentHistogram = agentHistogramMap.get(agentId);
-        if (agentHistogram == null) {
-            agentHistogram = new AgentHistogram(agentId);
-            agentHistogramMap.put(agentId, agentHistogram);
-        }
+        AgentHistogram agentHistogram = agentHistogramMap.computeIfAbsent(agentId, k -> new AgentHistogram(agentId));
         return agentHistogram;
     }
 

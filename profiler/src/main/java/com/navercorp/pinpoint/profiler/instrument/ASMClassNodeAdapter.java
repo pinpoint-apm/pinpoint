@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -124,7 +125,7 @@ public class ASMClassNodeAdapter {
 
     public String[] getInterfaceNames() {
         final List<String> interfaces = this.classNode.interfaces;
-        if (interfaces == null || interfaces.size() == 0) {
+        if (CollectionUtils.isEmpty(interfaces)) {
             return new String[0];
         }
 

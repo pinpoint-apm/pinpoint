@@ -51,8 +51,8 @@ public class AgentActiveThreadDumpList {
     }
 
     public List<AgentActiveThreadDump> getSortOldestAgentActiveThreadDumpRepository() {
-        ArrayList<AgentActiveThreadDump> copied = new ArrayList<>(agentActiveThreadDumpRepository);
-        Collections.sort(copied, new Comparator<AgentActiveThreadDump>() {
+        List<AgentActiveThreadDump> copied = new ArrayList<>(agentActiveThreadDumpRepository);
+        copied.sort(new Comparator<AgentActiveThreadDump>() {
 
             private static final int CHANGE_TO_NEW_ELEMENT = 1;
             private static final int KEEP_OLD_ELEMENT = -1;
