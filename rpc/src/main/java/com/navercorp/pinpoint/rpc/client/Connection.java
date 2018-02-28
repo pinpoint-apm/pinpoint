@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.PipelineFactory;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
@@ -55,10 +56,9 @@ public class Connection {
         this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory must not be null");
     }
 
-    public void connect(SocketAddressProvider remoteAddressProvider, boolean reconnect) {
+    void connect(SocketAddressProvider remoteAddressProvider, boolean reconnect, PipelineFactory pipelineFactory) {
         Assert.requireNonNull(remoteAddressProvider, "remoteAddress must not be null");
 
-        final CodecPipelineFactory pipelineFactory = new CodecPipelineFactory();
         final ChannelPipeline pipeline = pipelineFactory.newPipeline();
 
         Timer channelTimer = createTimer("Pinpoint-PinpointClientHandler-Timer");
