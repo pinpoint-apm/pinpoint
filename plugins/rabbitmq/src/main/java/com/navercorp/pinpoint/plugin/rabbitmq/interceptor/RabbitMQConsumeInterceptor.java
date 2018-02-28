@@ -34,8 +34,9 @@ public class RabbitMQConsumeInterceptor extends SpanSimpleAroundInterceptor {
         String exchange = envelope.getExchange();
 
         if (RabbitMQClientPluginConfig.isExchangeExcluded(exchange, excludeExchangeFilter)) {
-            if (isDebug)
+            if (isDebug) {
                 logger.debug("exchange {} is excluded", exchange);
+            }
             return null;
         }
 
@@ -69,12 +70,13 @@ public class RabbitMQConsumeInterceptor extends SpanSimpleAroundInterceptor {
         Map<String, Object> headers = properties.getHeaders();
         Envelope envelope = (Envelope) args[1];
 
-        String exchange=envelope.getExchange();
-        if (exchange == null || exchange.equals(""))
+        String exchange = envelope.getExchange();
+        if (exchange == null || exchange.equals("")) {
             exchange = "unknown";
+        }
 
         recorder.recordServiceType(RabbitMQConstants.RABBITMQ_SERVICE_TYPE);
-        recorder.recordEndPoint("exchange:"+exchange);
+        recorder.recordEndPoint("exchange:" + exchange);
 
         if (headers != null) {
             Object parentApplicationName = headers.get(RabbitMQConstants.META_PARENT_APPLICATION_NAME);
@@ -83,10 +85,10 @@ public class RabbitMQConsumeInterceptor extends SpanSimpleAroundInterceptor {
                 recorder.recordParentApplication(parentApplicationName.toString(), NumberUtils.parseShort(parentApplicationType.toString(), ServiceType.UNDEFINED.getCode()));
             }
         }
-        recorder.recordRpcName("rabbitmq://exchange="+exchange);
+        recorder.recordRpcName("rabbitmq://exchange=" + exchange);
         recorder.recordAcceptorHost("exchange-" + exchange);
         if (isDebug)
-            logger.debug("endPoint=" + envelope.getExchange() + ",=" + exchange);
+            logger.debug("endPoint={}->{}", envelope.getExchange(), exchange);
     }
 
     @Override
@@ -94,12 +96,6 @@ public class RabbitMQConsumeInterceptor extends SpanSimpleAroundInterceptor {
         DefaultConsumer consumer = (DefaultConsumer) target;
         Connection connection = consumer.getChannel().getConnection();
         Envelope envelope = (Envelope) args[1];
-        AMQP.BasicProperties properties = (AMQP.BasicProperties) args[2];
-        byte[] body = (byte[]) args[3];
-
-        String exchange=envelope.getExchange();
-        if (exchange == null || exchange.equals(""))
-            exchange = "unknown";
 
         recorder.recordApi(methodDescriptor);
         recorder.recordAttribute(RabbitMQConstants.RABBITMQ_ROUTINGKEY_ANNOTATION_KEY, envelope.getRoutingKey());

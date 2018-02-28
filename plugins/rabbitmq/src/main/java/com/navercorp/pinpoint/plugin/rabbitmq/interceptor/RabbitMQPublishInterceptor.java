@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.RabbitMQClientPluginConfig;
 import com.navercorp.pinpoint.plugin.rabbitmq.RabbitMQConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.field.setter.HeadersFieldSetter;
@@ -55,17 +56,13 @@ public class RabbitMQPublishInterceptor implements AroundInterceptor {
             return;
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
-        AMQP.BasicProperties properties = (AMQP.BasicProperties) args[4];
-        Map<String, Object> headers = new HashMap<String, Object>();
-        if (properties != null && properties.getHeaders() != null && properties.getHeaders().keySet() != null) {
-            for (String key : properties.getHeaders().keySet()) {
-                headers.put(key, properties.getHeaders().get(key));
-            }
-        }
+        final AMQP.BasicProperties properties = (AMQP.BasicProperties) args[4];
+        final Map<String, Object> headers = copyHeader(properties);
+
         if (trace.canSampled()) {
             SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(RabbitMQConstants.RABBITMQ_SERVICE_TYPE);
@@ -84,7 +81,22 @@ public class RabbitMQPublishInterceptor implements AroundInterceptor {
             headers.put(RabbitMQConstants.META_DO_NOT_TRACE, "1");
         }
 
-        ((HeadersFieldSetter) properties)._$PINPOINT$_setHeaders(headers);
+        if (properties instanceof HeadersFieldSetter) {
+            ((HeadersFieldSetter) properties)._$PINPOINT$_setHeaders(headers);
+        }
+    }
+
+    private Map<String, Object> copyHeader(AMQP.BasicProperties properties) {
+        if (properties == null) {
+            return new HashMap<String, Object>();
+        }
+
+        final Map<String, Object> headers = properties.getHeaders();
+        if (MapUtils.isEmpty(headers)) {
+            return new HashMap<String, Object>();
+        }
+
+        return new HashMap<String, Object>(headers);
     }
 
     @Override
