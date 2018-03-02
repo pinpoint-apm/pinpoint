@@ -85,7 +85,7 @@ There are two options:
 	* JAVA_7_HOME environment variable set to JDK 7 home directory.
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
 
-	JDK 7+ and JAVA_7_HOME, JAVA_8_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
+	JDK 7+ and JAVA_7_HOME, JAVA_8_HOME environment variable are required to build **profiler-optional**.
 
 	Additionally, the required Java version to run each Pinpoint component is given below:
 
