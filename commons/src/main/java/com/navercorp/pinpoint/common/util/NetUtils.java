@@ -127,7 +127,6 @@ public final class NetUtils {
      * If no network interfaces can be found on this machine, returns an empty List.
      */
     public static List<String> getLocalV4IpList() {
-        List<String> result = new ArrayList<String>();
 
         Enumeration<NetworkInterface> interfaces = null;
         try {
@@ -140,6 +139,7 @@ public final class NetUtils {
             return Collections.emptyList();
         }
 
+        List<String> result = new ArrayList<String>();
         while (interfaces.hasMoreElements()) {
             NetworkInterface current = interfaces.nextElement();
             if (isSkipIp(current)) {
