@@ -92,7 +92,6 @@ public final class NetworkUtils {
     }
 
     public static List<String> getHostIpList() {
-        List<String> result = new ArrayList<String>();
 
         Enumeration<NetworkInterface> interfaces = null;
         try {
@@ -105,6 +104,7 @@ public final class NetworkUtils {
             return Collections.emptyList();
         }
 
+        List<String> result = new ArrayList<String>();
         while (interfaces.hasMoreElements()) {
             NetworkInterface current = interfaces.nextElement();
             if (isSkipNetworkInterface(current)) {
