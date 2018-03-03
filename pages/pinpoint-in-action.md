@@ -1,5 +1,5 @@
 ---
-title: Pinpoint in Action
+title: Powered by Pinpoint
 tags:
 keywords: pinpoint, used, working, use, inuse
 last_updated: Feb 1, 2018
