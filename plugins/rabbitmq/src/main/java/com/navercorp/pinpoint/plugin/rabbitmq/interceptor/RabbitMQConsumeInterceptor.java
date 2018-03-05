@@ -41,7 +41,14 @@ public class RabbitMQConsumeInterceptor extends SpanSimpleAroundInterceptor {
         }
 
         AMQP.BasicProperties properties = (AMQP.BasicProperties) args[2];
+        if (properties == null) {
+            return traceContext.newTraceObject();
+        }
+
         Map<String, Object> headers = properties.getHeaders();
+        if (headers == null) {
+            return traceContext.newTraceObject();
+        }
 
         // If this transaction is not traceable, mark as disabled.
         if (headers.get(RabbitMQConstants.META_DO_NOT_TRACE) != null) {
