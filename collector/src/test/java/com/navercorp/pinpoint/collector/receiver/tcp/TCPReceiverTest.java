@@ -19,8 +19,11 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.config.DeprecatedConfiguration;
+import com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.rpc.server.ChannelFilter;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
@@ -43,7 +46,11 @@ public class TCPReceiverTest {
     @Test
     public void server() throws InterruptedException {
         Executor executor = MoreExecutors.directExecutor();
-        AgentBaseDataReceiver tcpReceiver = new AgentBaseDataReceiver(createConfiguration(), executor, AddressFilter.ALL, new DispatchHandler() {
+
+        ChannelFilter channelFilter = new AddressFilterAdaptor(AddressFilter.ALL);
+        PinpointServerAcceptor acceptor = new PinpointServerAcceptor(channelFilter);
+
+        AgentBaseDataReceiver tcpReceiver = new AgentBaseDataReceiver(createConfiguration(), executor, acceptor, new DispatchHandler() {
 
             @Override
             public void dispatchSendMessage(TBase<?, ?> tBase) {

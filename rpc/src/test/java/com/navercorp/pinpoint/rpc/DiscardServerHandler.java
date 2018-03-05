@@ -31,6 +31,8 @@ public class DiscardServerHandler extends SimpleChannelUpstreamHandler {
 
     private long transferredBytes;
 
+    private int messageReceivedCount = 0;
+
     public long getTransferredBytes() {
         return transferredBytes;
     }
@@ -39,12 +41,14 @@ public class DiscardServerHandler extends SimpleChannelUpstreamHandler {
     public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
         if (e instanceof ChannelStateEvent) {
             logger.debug("event:{}", e);
+        } else if (e instanceof MessageEvent) {
+            messageReceived(ctx, (MessageEvent) e);
         }
-
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+        messageReceivedCount++;
 
         transferredBytes += ((ChannelBuffer) e.getMessage()).readableBytes();
         logger.debug("messageReceived. meg:{} channel:{}", e.getMessage(), e.getChannel());
@@ -56,4 +60,9 @@ public class DiscardServerHandler extends SimpleChannelUpstreamHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
         logger.warn("Unexpected exception from downstream. Caused:{}", e, e.getCause());
     }
+
+    public int getMessageReceivedCount() {
+        return messageReceivedCount;
+    }
+
 }

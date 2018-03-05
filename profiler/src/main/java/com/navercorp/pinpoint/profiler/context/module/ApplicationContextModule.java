@@ -80,6 +80,7 @@ import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider
 import com.navercorp.pinpoint.profiler.context.provider.CallStackFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
+import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DataSourceMonitorRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DeadlockMonitorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DeadlockThreadRegistryProvider;
@@ -160,6 +161,7 @@ import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
+import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 
@@ -277,6 +279,7 @@ public class ApplicationContextModule extends AbstractModule {
         // create tcp channel
 
         bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+        bind(ConnectionFactoryProvider.class).toProvider(ConnectionFactoryProviderProvider.class).in(Scopes.SINGLETON);
         bind(PinpointClientFactory.class).annotatedWith(DefaultClientFactory.class).
                 toProvider(PinpointClientFactoryProvider.class).in(Scopes.SINGLETON);
         bind(EnhancedDataSender.class).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);

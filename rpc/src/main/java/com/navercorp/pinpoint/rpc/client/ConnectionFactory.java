@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.rpc.PipelineFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
@@ -39,10 +40,11 @@ public class ConnectionFactory {
     private final ClientHandlerFactory clientHandlerFactory;
     private final SocketOption socketOption;
     private final ClientOption clientOption;
+    private final PipelineFactory pipelineFactory;
 
+    ConnectionFactory(Timer connectTimer, Closed closed, ChannelFactory channelFactory,
+                             SocketOption socketOption, ClientOption clientOption, ClientHandlerFactory clientHandlerFactory, PipelineFactory pipelineFactory) {
 
-    public ConnectionFactory(Timer connectTimer, Closed closed, ChannelFactory channelFactory,
-                             SocketOption socketOption, ClientOption clientOption, ClientHandlerFactory clientHandlerFactory) {
         this.connectTimer = Assert.requireNonNull(connectTimer, "connectTimer must not be null");
         this.closed = Assert.requireNonNull(closed, "release must not be null");
 
@@ -51,8 +53,8 @@ public class ConnectionFactory {
         this.socketOption = Assert.requireNonNull(socketOption, "option must not be null");
         this.clientOption = Assert.requireNonNull(clientOption, "connectTimer must not be null");
         this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory must not be null");
+        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
     }
-
 
     public boolean isClosed() {
         return closed.isClosed();
@@ -60,7 +62,7 @@ public class ConnectionFactory {
 
     public Connection connect(SocketAddressProvider remoteAddressProvider, boolean reconnect) {
         Connection connection = new Connection(this, this.socketOption, this.channelFactory, clientHandlerFactory);
-        connection.connect(remoteAddressProvider, reconnect);
+        connection.connect(remoteAddressProvider, reconnect, pipelineFactory);
         return connection;
     }
 
