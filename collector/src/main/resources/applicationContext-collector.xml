@@ -241,6 +241,13 @@
         <constructor-arg value="#{collectorConfiguration.l4IpList}"/>
     </bean>
 
+    <bean id="channelFilter" class="com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor">
+        <constructor-arg ref="addressFilter"/>
+    </bean>
+
+    <bean id="acceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor">
+        <constructor-arg ref="channelFilter"/>
+    </bean>
 
     <bean id="tcpReceiverExecutor" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean" >
         <property name="corePoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
@@ -256,7 +263,7 @@
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.AgentBaseDataReceiver" >
         <constructor-arg ref="baseDataReceiverConfig"/>
         <constructor-arg ref="tcpReceiverExecutor"/>
-        <constructor-arg ref="addressFilter"/>
+        <constructor-arg ref="acceptor"/>
         <constructor-arg ref="tcpDispatchHandlerWrapper"/>
         <constructor-arg ref="clusterService"/>
     </bean>
