@@ -1,6 +1,6 @@
 ## Vertx HTTP Server/Client.
 
-Currently supports vertx.io 3.3.x, 3.4.1, 3.4.2
+Currently supports vertx.io 3.3.x, 3.4.1, 3.4.2, 3.5.0
 
 ### Pinpoint Configuration
 pinpoint.config
@@ -27,6 +27,12 @@ profiler.vertx.bootstrap.main=io.vertx.core.Starter
 profiler.vertx.handler.base-packages=
 ~~~
 
+#### Set the HttpServerRequestHandler method name.
+The argument is io.vertx.core.http.HttpServerRequest. (Since pinpoint version 1.7.2)
+~~~
+profiler.vertx.http.server.request-handler.method.name=io.vertx.ext.web.impl.RouterImpl.accept
+~~~
+
 ### Examples
 If the main class looks like this:
 ~~~
@@ -49,4 +55,15 @@ public class Server {
 profiler.vertx.bootstrap.main=com.navercorp.test.pinpoint.Server
 
 profiler.vertx.handler.base-packages=com.navercorp.test.pinpoint
+~~~
+
+If used the Router class:
+~~~
+Router router = Router.router(vertx);
+...
+vertx.createHttpServer().requestHandler(router::accept).listen(8090);
+~~~
+
+~~~
+profiler.vertx.http.server.request-handler.method.name=io.vertx.ext.web.impl.RouterImpl.accept
 ~~~
