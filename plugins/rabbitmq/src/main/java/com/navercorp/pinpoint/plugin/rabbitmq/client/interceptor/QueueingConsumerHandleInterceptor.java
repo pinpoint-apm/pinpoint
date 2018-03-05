@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 /**
  * @author HyunGil Jeong
  */
-public class BlockingQueueConsumerHandleInterceptor implements AroundInterceptor {
+public class QueueingConsumerHandleInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
