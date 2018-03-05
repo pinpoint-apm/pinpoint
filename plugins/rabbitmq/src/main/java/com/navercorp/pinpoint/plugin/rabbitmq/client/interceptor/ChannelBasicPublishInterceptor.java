@@ -109,7 +109,7 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
             return;
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null || !trace.canSampled()) {
             return;
         }
@@ -117,10 +117,10 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
         try {
             String exchange = (String) args[0];
             String routingKey = (String) args[1];
-            AMQP.BasicProperties properties = (AMQP.BasicProperties) args[4];
-            byte[] body = (byte[]) args[5];
 
-            if (exchange == null || exchange.equals("")) exchange = "unknown";
+            if (exchange == null || exchange.equals("")) {
+                exchange = RabbitMQClientConstants.UNKNOWN;
+            }
 
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);

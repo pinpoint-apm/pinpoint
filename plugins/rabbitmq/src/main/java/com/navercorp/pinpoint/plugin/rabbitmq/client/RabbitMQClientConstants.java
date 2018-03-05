@@ -41,6 +41,8 @@ public interface RabbitMQClientConstants {
     AnnotationKey RABBITMQ_PROPERTIES_ANNOTATION_KEY = AnnotationKeyFactory.of(132, "rabbitmq.properties");
     AnnotationKey RABBITMQ_BODY_ANNOTATION_KEY = AnnotationKeyFactory.of(133, "rabbitmq.body");
 
+    String UNKNOWN = "Unknown";
+
     String META_TRACE_ID = "Pinpoint-TraceID";
     String META_SPAN_ID = "Pinpoint-SpanID";
     String META_PARENT_SPAN_ID = "Pinpoint-pSpanID";
