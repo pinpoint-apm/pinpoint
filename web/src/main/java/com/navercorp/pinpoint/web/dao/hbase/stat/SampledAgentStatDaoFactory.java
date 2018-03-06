@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledTransactionDao;
+import com.navercorp.pinpoint.web.dao.stat.SampledFileDescriptorDao;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
+import com.navercorp.pinpoint.web.vo.stat.SampledFileDescriptor;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -242,4 +244,27 @@ abstract class SampledAgentStatDaoFactory<S extends SampledAgentStatDataPoint, D
         }
     }
 
+    @Repository("sampledFileDescriptorDaoFactory")
+    public static class SampledFileDescriptorDaoFactory extends SampledAgentStatDaoFactory<SampledFileDescriptor, SampledFileDescriptorDao> implements FactoryBean<SampledFileDescriptorDao> {
+
+        @Autowired
+        public void setV2(@Qualifier("sampledFileDescriptorDaoV2") SampledFileDescriptorDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public SampledFileDescriptorDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return SampledFileDescriptorDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+    }
 }
