@@ -17,16 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
-import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.*;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.commons.lang3.RandomUtils;
 
@@ -354,6 +345,26 @@ public class TestAgentStatFactory {
         return dataSourceListBo;
     }
 
+    public static List<FileDescriptorBo> createFileDescriptorBos(String agentId, long startTimestamp, long initialTimestamp) {
+        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        return createFileDescriptorBos(agentId, startTimestamp, initialTimestamp, numValues);
+    }
+
+    public static List<FileDescriptorBo> createFileDescriptorBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+        List<FileDescriptorBo> fileDescriptorBos = new ArrayList<FileDescriptorBo>(numValues);
+        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
+        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+        List<Long> openFileDescriptors = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
+        for (int i = 0; i < numValues; i++) {
+            FileDescriptorBo fileDescriptorBo = new FileDescriptorBo();
+            fileDescriptorBo.setStartTimestamp(startTimestamps.get(i));
+            fileDescriptorBo.setAgentId(agentId);
+            fileDescriptorBo.setTimestamp(timestamps.get(i));
+            fileDescriptorBo.setOpenFileDescriptorCount(openFileDescriptors.get(i));
+            fileDescriptorBos.add(fileDescriptorBo);
+        }
+        return fileDescriptorBos;
+    }
 
     private static List<Long> createStartTimestamps(long startTimestamp, int numValues) {
         return TestAgentStatDataPointFactory.LONG.createConstantValues(startTimestamp, startTimestamp, numValues);
@@ -377,4 +388,6 @@ public class TestAgentStatFactory {
         }
         return values;
     }
+
+
 }
