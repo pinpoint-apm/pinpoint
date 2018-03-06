@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.web.service.stat.ActiveTraceChartService;
 import com.navercorp.pinpoint.web.service.stat.ActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
@@ -43,6 +44,9 @@ import com.navercorp.pinpoint.web.service.stat.ResponseTimeChartService;
 import com.navercorp.pinpoint.web.service.stat.ResponseTimeService;
 import com.navercorp.pinpoint.web.service.stat.TransactionChartService;
 import com.navercorp.pinpoint.web.service.stat.TransactionService;
+import com.navercorp.pinpoint.web.service.stat.FileDescriptorChartService;
+import com.navercorp.pinpoint.web.service.stat.FileDescriptorService;
+
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
@@ -221,4 +225,12 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
         }
     }
 
+    @Controller
+    @RequestMapping("/getAgentStat/fileDescriptor")
+    public static class FileDescriptorController extends AgentStatController<FileDescriptorBo> {
+        @Autowired
+        public FileDescriptorController(FileDescriptorService fileDescriptorService, FileDescriptorChartService fileDescriptorChartService) {
+            super(fileDescriptorService, fileDescriptorChartService);
+        }
+    }
 }
