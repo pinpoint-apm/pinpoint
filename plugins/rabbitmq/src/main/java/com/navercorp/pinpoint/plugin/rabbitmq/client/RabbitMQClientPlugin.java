@@ -50,7 +50,7 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
         if (!config.isTraceRabbitMQClient()) {
             return;
         }
-        addChannelEditors(config.isTraceRabbitMQClientProducer(), config.isTraceRabbitMQClientConsumer());
+        addCommonEditors(config.isTraceRabbitMQClientProducer(), config.isTraceRabbitMQClientConsumer());
         if (config.isTraceRabbitMQClientProducer()) {
             addAmqpBasicPropertiesEditor();
         }
@@ -101,12 +101,44 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
         }
     }
 
-    private void addChannelEditors(final boolean traceProducer, final boolean traceConsumer) {
+    private void addCommonEditors(final boolean traceProducer, final boolean traceConsumer) {
         if (!traceProducer && !traceConsumer) {
             return;
         }
+        // Channels
         transformTemplate.transform("com.rabbitmq.client.impl.ChannelN", new ChannelTransformCallback(traceProducer, traceConsumer));
         transformTemplate.transform("com.rabbitmq.client.impl.recovery.AutorecoveringChannel", new ChannelTransformCallback(traceProducer, traceConsumer));
+        // FrameHandler implementations for end point and remote address
+        transformTemplate.transform("com.rabbitmq.client.impl.SocketFrameHandler", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField("com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.LocalAddressAccessor");
+                target.addField("com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.RemoteAddressAccessor");
+                final InstrumentMethod constructor1 = target.getConstructor("java.net.Socket");
+                if (constructor1 != null) {
+                    constructor1.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.SocketFrameHandlerConstructInterceptor", RabbitMQClientConstants.RABBITMQ_FRAME_HANDLER_CREATION_SCOPE);
+                }
+                final InstrumentMethod constructor2 = target.getConstructor("java.net.Socket", "java.util.concurrent.ExecutorService");
+                if (constructor2 != null) {
+                    constructor2.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.SocketFrameHandlerConstructInterceptor", RabbitMQClientConstants.RABBITMQ_FRAME_HANDLER_CREATION_SCOPE);
+                }
+                return target.toBytecode();
+            }
+        });
+        transformTemplate.transform("com.rabbitmq.client.impl.nio.SocketChannelFrameHandler", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField("com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.LocalAddressAccessor");
+                target.addField("com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.RemoteAddressAccessor");
+                final InstrumentMethod constructor = target.getConstructor("com.rabbitmq.client.impl.nio.SocketChannelFrameHandlerState");
+                if (constructor != null) {
+                    constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.SocketChannelFrameHandlerConstructInterceptor", RabbitMQClientConstants.RABBITMQ_FRAME_HANDLER_CREATION_SCOPE);
+                }
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addAMQChannelEditor(final Filter<String> excludeExchangeFilter) {

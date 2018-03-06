@@ -12,8 +12,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPluginConfig;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
+import com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.RemoteAddressAccessor;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.field.setter.HeadersFieldSetter;
 import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.impl.AMQConnection;
+import com.rabbitmq.client.impl.FrameHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -125,7 +130,19 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             if (throwable == null) {
-                recorder.recordEndPoint("exchange:"+exchange);
+                String endPoint = RabbitMQClientConstants.UNKNOWN;
+                // Producer's endPoint should be the socket address of where the producer is actually connected to.
+                final Connection connection = ((Channel) target).getConnection();
+                if (connection instanceof AMQConnection) {
+                    AMQConnection amqConnection = (AMQConnection) connection;
+                    FrameHandler frameHandler = amqConnection.getFrameHandler();
+                    if (frameHandler instanceof RemoteAddressAccessor) {
+                        endPoint = ((RemoteAddressAccessor) frameHandler)._$PINPOINT$_getRemoteAddress();
+                    }
+                }
+                recorder.recordEndPoint(endPoint);
+                // DestinationId is used to render the virtual queue node.
+                // We choose the exchange name as the logical name of the queue node.
                 recorder.recordDestinationId("exchange-" + exchange);
 
                 recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_EXCHANGE_ANNOTATION_KEY, exchange);
@@ -139,7 +156,7 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object target, Object[] args) {
-        if (!(target instanceof com.rabbitmq.client.Channel)) {
+        if (!(target instanceof Channel)) {
             return false;
         }
         if (args == null || args.length < 6) {

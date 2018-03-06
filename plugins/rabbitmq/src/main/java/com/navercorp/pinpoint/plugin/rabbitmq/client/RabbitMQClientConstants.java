@@ -35,6 +35,7 @@ public interface RabbitMQClientConstants {
 
     String RABBITMQ_SCOPE = "rabbitmqScope";
     String RABBITMQ_CONSUMER_SCOPE = "rabbitmqConsumerScope";
+    String RABBITMQ_FRAME_HANDLER_CREATION_SCOPE = "rabbitmqFrameHandlerCreationScope";
 
     AnnotationKey RABBITMQ_EXCHANGE_ANNOTATION_KEY = AnnotationKeyFactory.of(130, "rabbitmq.exchange", VIEW_IN_RECORD_SET);
     AnnotationKey RABBITMQ_ROUTINGKEY_ANNOTATION_KEY = AnnotationKeyFactory.of(131, "rabbitmq.routingkey", VIEW_IN_RECORD_SET);

@@ -28,21 +28,22 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPluginConfig;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.descriptor.RabbitMQConsumerEntryMethodDescriptor;
+import com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.LocalAddressAccessor;
+import com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.RemoteAddressAccessor;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.impl.AMQChannel;
 import com.rabbitmq.client.impl.AMQCommand;
 import com.rabbitmq.client.impl.AMQConnection;
 import com.rabbitmq.client.impl.AMQContentHeader;
+import com.rabbitmq.client.impl.FrameHandler;
 import com.rabbitmq.client.impl.Method;
 
-import java.net.InetAddress;
 import java.util.Collections;
 import java.util.Map;
 
@@ -202,10 +203,15 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
         String endPoint = RabbitMQClientConstants.UNKNOWN;
         String remoteAddress = RabbitMQClientConstants.UNKNOWN;
         if (amqConnection != null) {
+            FrameHandler frameHandler = amqConnection.getFrameHandler();
             // Endpoint should be the local socket address of the consumer.
-            endPoint = createAddress(amqConnection.getLocalAddress(), amqConnection.getLocalPort());
+            if (frameHandler instanceof LocalAddressAccessor) {
+                endPoint = ((LocalAddressAccessor) frameHandler)._$PINPOINT$_getLocalAddress();
+            }
             // Remote address is the socket address of where the consumer is connected to.
-            remoteAddress = createAddress(amqConnection.getAddress(), amqConnection.getPort());
+            if (frameHandler instanceof RemoteAddressAccessor) {
+                remoteAddress = ((RemoteAddressAccessor) frameHandler)._$PINPOINT$_getRemoteAddress();
+            }
         }
         recorder.recordEndPoint(endPoint);
         recorder.recordRemoteAddress(remoteAddress);
@@ -228,13 +234,6 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
                 recorder.recordParentApplication(parentApplicationName.toString(), NumberUtils.parseShort(parentApplicationType.toString(), ServiceType.UNDEFINED.getCode()));
             }
         }
-    }
-
-    private String createAddress(InetAddress inetAddress, int port) {
-        if (inetAddress == null) {
-            return RabbitMQClientConstants.UNKNOWN;
-        }
-        return HostAndPort.toHostAndPortString(inetAddress.getHostAddress(), port);
     }
 
     private boolean validate(Object target, Object[] args) {
