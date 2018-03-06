@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
@@ -65,6 +66,9 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
 
     @Autowired
     private DeadlockBoMapper deadlockBoMapper;
+
+    @Autowired
+    private FileDescriptorBoMapper fileDescriptorBoMapper;
 
     @Override
     public AgentStatBo map(TAgentStat tAgentStat) {
@@ -133,6 +137,12 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
             DeadlockBo deadlockBo = this.deadlockBoMapper.map(tAgentStat.getDeadlock());
             setBaseData(deadlockBo, agentId, startTimestamp, timestamp);
             agentStatBo.setDeadlockBos(Arrays.asList(deadlockBo));
+        }
+        // fileDescriptor
+        if (tAgentStat.isSetFileDescriptor()) {
+            FileDescriptorBo fileDescriptorBo = this.fileDescriptorBoMapper.map(tAgentStat.getFileDescriptor());
+            setBaseData(fileDescriptorBo, agentId, startTimestamp, timestamp);
+            agentStatBo.setFileDescriptorBos(Arrays.asList(fileDescriptorBo));
         }
 
         return agentStatBo;
