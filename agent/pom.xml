@@ -264,7 +264,7 @@
         <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
-            <version>3.5.5</version>
+            <version>4.4.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
