@@ -26,7 +26,7 @@ import com.rabbitmq.client.impl.LongStringHelper;
  */
 public interface RabbitMQTestConstants {
 
-    String BROKER_HOST = "localhost";
+    String BROKER_HOST = "127.0.0.1";
     int BROKER_PORT = 20179;
 
     String RABBITMQ_CLIENT = "RABBITMQ_CLIENT";
