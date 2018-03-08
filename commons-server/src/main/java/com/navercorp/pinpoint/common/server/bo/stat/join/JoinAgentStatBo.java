@@ -35,6 +35,7 @@ public class JoinAgentStatBo implements JoinStatBo {
     private List<JoinActiveTraceBo> joinActiveTraceBoList = Collections.emptyList();
     private List<JoinResponseTimeBo> joinResponseTimeBoList = Collections.emptyList();
     private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
+    private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
 
     public List<JoinResponseTimeBo> getJoinResponseTimeBoList() {
         return joinResponseTimeBoList;
@@ -66,6 +67,14 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public List<JoinFileDescriptorBo> getJoinFileDescriptorBoList() {
+        return joinFileDescriptorBoList;
+    }
+
+    public void setJoinFileDescriptorBoList(List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
+        this.joinFileDescriptorBoList = joinFileDescriptorBoList;
     }
 
     public List<JoinCpuLoadBo> getJoinCpuLoadBoList() {
