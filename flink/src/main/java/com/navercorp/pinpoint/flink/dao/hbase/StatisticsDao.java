@@ -41,6 +41,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private transient ActiveTraceDao activeTraceDao;
     private transient ResponseTimeDao responseTimeDao;
     private transient DataSourceDao dataSourceDao;
+    private transient FileDescriptorDao fileDescriptorDao;
 
 
     public StatisticsDao() {
@@ -55,6 +56,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         activeTraceDao = bootstrap.getActiveTraceDao();
         responseTimeDao = bootstrap.getResponseTimeDao();
         dataSourceDao = bootstrap.getDataSourceDao();
+        fileDescriptorDao = bootstrap.getFileDescriptorDao();
     }
 
     @Override
@@ -84,6 +86,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         List<JoinStatBo> joinActiveTraceBoList = castJoinStatBoList(joinApplicationStatBo.getJoinActiveTraceBoList());
         List<JoinStatBo> joinResponseTimeBoList = castJoinStatBoList(joinApplicationStatBo.getJoinResponseTimeBoList());
         List<JoinStatBo> joinDataSourceBoList = castJoinStatBoList(joinApplicationStatBo.getJoinDataSourceListBoList());
+        List<JoinStatBo> joinFileDescriptorBoList = castJoinStatBoList(joinApplicationStatBo.getJoinFileDescriptorBoList());
 
         if (joinApplicationStatBo.getStatType() == StatType.APP_STST_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
@@ -96,6 +99,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
             activeTraceDao.insert(id, timestamp, joinActiveTraceBoList, StatType.APP_ACTIVE_TRACE_COUNT);
             responseTimeDao.insert(id, timestamp, joinResponseTimeBoList, StatType.APP_RESPONSE_TIME);
             dataSourceDao.insert(id, timestamp, joinDataSourceBoList, StatType.APP_DATA_SOURCE);
+            fileDescriptorDao.insert(id, timestamp, joinFileDescriptorBoList, StatType.APP_FILE_DESCRIPTOR);
         }
     }
 
