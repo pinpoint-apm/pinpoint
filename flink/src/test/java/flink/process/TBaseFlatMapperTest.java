@@ -305,4 +305,82 @@ public class TBaseFlatMapperTest {
 
         return tFAgentStatBatch;
     }
+
+    @Test
+    public void flatMap4Test() throws Exception {
+
+        ApplicationCache applicationCache = newMockApplicationCache();
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+
+
+        TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch4();
+        ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
+        ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
+        mapper.flatMap(tfAgentStatBatch, collector);
+
+        assertEquals(dataList.size(), 2);
+
+        Tuple3<String, JoinStatBo, Long> data1 = dataList.get(0);
+        assertEquals(data1.f0, AGENT_ID);
+        assertEquals(data1.f2.longValue(), 1491274143454L);
+        JoinAgentStatBo joinAgentStatBo = (JoinAgentStatBo) data1.f1;
+        assertEquals(joinAgentStatBo.getId(), AGENT_ID);
+        assertEquals(joinAgentStatBo.getAgentStartTimestamp(), 1491274142454L);
+        assertEquals(joinAgentStatBo.getTimestamp(), 1491274143454L);
+        assertJoinFileDescriptorBo(joinAgentStatBo.getJoinFileDescriptorBoList());
+
+        Tuple3<String, JoinStatBo, Long> data2 = dataList.get(1);
+        assertEquals(data2.f0, APPLICATION_ID);
+        assertEquals(data2.f2.longValue(), 1491274140000L);
+        JoinApplicationStatBo joinApplicationStatBo = (JoinApplicationStatBo) data2.f1;
+        assertEquals(joinApplicationStatBo.getId(), APPLICATION_ID);
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1491274140000L);
+        assertEquals(joinApplicationStatBo.getStatType(), StatType.APP_STST);
+        assertJoinFileDescriptorBo(joinApplicationStatBo.getJoinFileDescriptorBoList());
+    }
+
+    private void assertJoinFileDescriptorBo(List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
+        assertEquals(2, joinFileDescriptorBoList.size());
+        JoinFileDescriptorBo joinFileDescriptorBo = joinFileDescriptorBoList.get(0);
+        assertEquals(joinFileDescriptorBo.getId(), AGENT_ID);
+        assertEquals(joinFileDescriptorBo.getTimestamp(), 1491274143454L);
+        assertEquals(joinFileDescriptorBo.getAvgOpenFDCount(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getMinOpenFDCount(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getMaxOpenFDCount(), 10, 0);
+        joinFileDescriptorBo = joinFileDescriptorBoList.get(1);
+        assertEquals(joinFileDescriptorBo.getId(), AGENT_ID);
+        assertEquals(joinFileDescriptorBo.getTimestamp(), 1491274148454L);
+        assertEquals(joinFileDescriptorBo.getAvgOpenFDCount(), 20, 0);
+        assertEquals(joinFileDescriptorBo.getMinOpenFDCount(), 20, 0);
+        assertEquals(joinFileDescriptorBo.getMaxOpenFDCount(), 20, 0);
+    }
+
+    private TFAgentStatBatch createTFAgentStatBatch4() {
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274142454L);
+        tFAgentStatBatch.setAgentId(AGENT_ID);
+
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(AGENT_ID);
+        tFAgentStat.setTimestamp(1491274143454L);
+
+        final TFFileDescriptor tFFileDescriptor = new TFFileDescriptor();
+        tFFileDescriptor.setOpenFileDescriptorCount(10);
+        tFAgentStat.setFileDescriptor(tFFileDescriptor);
+
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(AGENT_ID);
+        tFAgentStat2.setTimestamp(1491274148454L);
+
+        final TFFileDescriptor tFFileDescriptor2 = new TFFileDescriptor();
+        tFFileDescriptor2.setOpenFileDescriptorCount(20);
+        tFAgentStat2.setFileDescriptor(tFFileDescriptor2);
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        return tFAgentStatBatch;
+    }
 }
