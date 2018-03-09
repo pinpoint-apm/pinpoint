@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.service.stat.ApplicationMemoryService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationResponseTimeService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationTransactionService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationFileDescriptorService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Range;
