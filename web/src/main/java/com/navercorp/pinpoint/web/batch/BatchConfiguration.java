@@ -54,9 +54,7 @@ public class BatchConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        logger.info("batch.enable:{}", enableBatch);
-        logger.info("batch.server.ip:{}", batchServerIp);
-        logger.info("batch.flink.server:{}", flinkServerList);
+        logger.info("BatchConfiguration:{}", this.toString());
     }
 
 
@@ -85,5 +83,14 @@ public class BatchConfiguration implements InitializingBean {
 
     public List<String> getFlinkServerList() {
         return flinkServerList;
+    }
+
+    @Override
+    public String toString() {
+        return "BatchConfiguration{" +
+                "enableBatch=" + enableBatch +
+                ", flinkServerList=" + flinkServerList +
+                ", batchServerIp='" + batchServerIp + '\'' +
+                '}';
     }
 }
