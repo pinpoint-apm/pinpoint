@@ -132,5 +132,15 @@ public class ApplicationStatController {
             }
         }
     }
+
+    @Controller
+    @RequestMapping("/getApplicationStat/fileDescriptor/chart")
+    public static class ApplicationFileDescriptorController extends ApplicationStatController {
+        @Autowired
+        public ApplicationFileDescriptorController(ApplicationFileDescriptorService applicationFileDescriptorService) {
+            super(applicationFileDescriptorService);
+        }
+    }
+
 }
 
