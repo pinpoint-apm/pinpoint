@@ -77,6 +77,9 @@
     <bean id="joinDataSourceCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceCodec"/>
     <bean id="dataSourceEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceEncoder"/>
     <bean id="dataSourceSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DataSourceSerializer"/>
+    <bean id="joinFileDescriptorCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorCodec"/>
+    <bean id="fileDescriptorEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorEncoder"/>
+    <bean id="fileDescriptorSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.FileDescriptorSerializer"/>
 
 
     <bean id="joinAgentStatBoMapper" class="com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper"/>
@@ -122,6 +125,13 @@
         <constructor-arg index="0" ref="hbaseTemplate"/>
         <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="2" ref="dataSourceSerializer"/>
+        <constructor-arg index="3" ref="tableNameProvider"/>
+    </bean>
+
+    <bean id="fileDescriptorDao" class="com.navercorp.pinpoint.flink.dao.hbase.FileDescriptorDao">
+        <constructor-arg index="0" ref="hbaseTemplate"/>
+        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
+        <constructor-arg index="2" ref="fileDescriptorSerializer"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 

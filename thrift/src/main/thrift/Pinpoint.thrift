@@ -114,6 +114,7 @@ struct TAgentStat {
     50: optional TDataSourceList dataSourceList
     60: optional TResponseTime responseTime
     70: optional TDeadlock deadlock
+    80: optional TFileDescriptor fileDescriptor
     200: optional string    metadata
 }
 
@@ -134,4 +135,8 @@ struct TDataSource {
 
 struct TDataSourceList {
     1: list<TDataSource> dataSourceList
+}
+
+struct TFileDescriptor {
+    1: i64                      openFileDescriptorCount
 }

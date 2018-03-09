@@ -54,6 +54,7 @@ public class Bootstrap {
     private final ActiveTraceDao activeTraceDao;
     private final ResponseTimeDao responseTimeDao;
     private final DataSourceDao dataSourceDao;
+    private final FileDescriptorDao fileDescriptorDao;
 
     private Bootstrap() {
         String[] SPRING_CONFIG_XML = new String[]{"applicationContext-flink.xml", "applicationContext-cache.xml"};
@@ -71,6 +72,11 @@ public class Bootstrap {
         activeTraceDao = applicationContext.getBean("activeTraceDao", ActiveTraceDao.class);
         responseTimeDao = applicationContext.getBean("responseTimeDao", ResponseTimeDao.class);
         dataSourceDao = applicationContext.getBean("dataSourceDao", DataSourceDao.class);
+        fileDescriptorDao = applicationContext.getBean("fileDescriptorDao", FileDescriptorDao.class);
+    }
+
+    public FileDescriptorDao getFileDescriptorDao() {
+        return fileDescriptorDao;
     }
 
     public static Bootstrap getInstance() {

@@ -1127,6 +1127,162 @@ public class JoinApplicationStatBoTest {
         return joinDataSourceListBoList;
     }
 
+
+    @Test
+    public void joinApplicationStatBoByTimeSlice13Test() {
+        final long currentTime = 1487149800000L; // 18:10:00 15 2 2017
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id1", currentTime, 10));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id2", currentTime + 1000, -40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id3", currentTime + 2000, -30));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id4", currentTime + 3000, 40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id5", currentTime + 4000, -50));
+        JoinApplicationStatBo resultJoinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = resultJoinApplicationStatBo.getJoinFileDescriptorBoList();
+        Collections.sort(joinFileDescriptorBoList, new ComparatorImpl7());
+        assertJoinFileDescriptorBoList(joinFileDescriptorBoList);
+    }
+    @Test
+    public void joinApplicationStatBoByTimeSlice14Test() {
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList1 = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1_1 = new JoinFileDescriptorBo("agent1", 440, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo1_2 = new JoinFileDescriptorBo("agent1", 330, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo1_3 = new JoinFileDescriptorBo("agent1", 550, 600, "agent1", 70, "agent1", 1498462555000L);
+        joinFileDescriptorBoList1.add(joinFileDescriptorBo1_1);
+        joinFileDescriptorBoList1.add(joinFileDescriptorBo1_2);
+        joinFileDescriptorBoList1.add(joinFileDescriptorBo1_3);
+        JoinApplicationStatBo joinApplicationStatBo1 = new JoinApplicationStatBo();
+        joinApplicationStatBo1.setId("test_app");
+        joinApplicationStatBo1.setJoinFileDescriptorBoList(joinFileDescriptorBoList1);
+        joinApplicationStatBo1.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo1);
+
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList2 = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo2_1 = new JoinFileDescriptorBo("agent1", 330, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2_2 = new JoinFileDescriptorBo("agent1", 220, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2_3 = new JoinFileDescriptorBo("agent1", 110, 600, "agent1", 70, "agent1", 1498462555000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2_4 = new JoinFileDescriptorBo("agent1", 770, 600, "agent1", 70, "agent1", 1498462560000L);
+        joinFileDescriptorBoList2.add(joinFileDescriptorBo2_1);
+        joinFileDescriptorBoList2.add(joinFileDescriptorBo2_2);
+        joinFileDescriptorBoList2.add(joinFileDescriptorBo2_3);
+        joinFileDescriptorBoList2.add(joinFileDescriptorBo2_4);
+        JoinApplicationStatBo joinApplicationStatBo2 = new JoinApplicationStatBo();
+        joinApplicationStatBo2.setId("test_app");
+        joinApplicationStatBo2.setJoinFileDescriptorBoList(joinFileDescriptorBoList2);
+        joinApplicationStatBo2.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo2);
+
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList3 = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo3_1 = new JoinFileDescriptorBo("agent1", 220, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3_2 = new JoinFileDescriptorBo("agent1", 110, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3_3 = new JoinFileDescriptorBo("agent1", 880, 600, "agent1", 70, "agent1", 1498462565000L);
+        joinFileDescriptorBoList3.add(joinFileDescriptorBo3_1);
+        joinFileDescriptorBoList3.add(joinFileDescriptorBo3_2);
+        joinFileDescriptorBoList3.add(joinFileDescriptorBo3_3);
+        JoinApplicationStatBo joinApplicationStatBo3 = new JoinApplicationStatBo();
+        joinApplicationStatBo3.setId("test_app");
+        joinApplicationStatBo3.setJoinFileDescriptorBoList(joinFileDescriptorBoList3);
+        joinApplicationStatBo3.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo3);
+
+
+        JoinApplicationStatBo joinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        assertEquals(joinApplicationStatBo.getId(), "test_app");
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1498462545000L);
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = joinApplicationStatBo.getJoinFileDescriptorBoList();
+        Collections.sort(joinFileDescriptorBoList, new ComparatorImpl7());
+
+        assertEquals(joinFileDescriptorBoList.size(), 5);
+        assertEquals(joinFileDescriptorBoList.get(0).getAvgOpenFDCount(), 330,0);
+        assertEquals(joinFileDescriptorBoList.get(1).getAvgOpenFDCount(), 220,0);
+        assertEquals(joinFileDescriptorBoList.get(2).getAvgOpenFDCount(), 330,0);
+        assertEquals(joinFileDescriptorBoList.get(3).getAvgOpenFDCount(), 770,0);
+        assertEquals(joinFileDescriptorBoList.get(4).getAvgOpenFDCount(), 880,0);
+    }
+
+    private class ComparatorImpl7 implements Comparator<JoinFileDescriptorBo> {
+        @Override
+        public int compare(JoinFileDescriptorBo bo1, JoinFileDescriptorBo bo2) {
+            return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
+        }
+    }
+
+    private void assertJoinFileDescriptorBoList(List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
+        assertEquals(joinFileDescriptorBoList.size(), 5);
+        JoinFileDescriptorBo joinFileDescriptorBo1 = joinFileDescriptorBoList.get(0);
+        assertEquals(joinFileDescriptorBo1.getId(), "id1");
+        assertEquals(joinFileDescriptorBo1.getTimestamp(), 1487149800000L);
+        assertEquals(joinFileDescriptorBo1.getAvgOpenFDCount(), 486, 0);
+        assertEquals(joinFileDescriptorBo1.getMinOpenFDCount(), 220, 0);
+        assertEquals(joinFileDescriptorBo1.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo1.getMaxOpenFDCount(), 910, 0);
+        assertEquals(joinFileDescriptorBo1.getMaxOpenFDCountAgentId(), "id4_1");
+
+        JoinFileDescriptorBo joinFileDescriptorBo2 = joinFileDescriptorBoList.get(1);
+        assertEquals(joinFileDescriptorBo2.getId(), "id1");
+        assertEquals(joinFileDescriptorBo2.getTimestamp(), 1487149805000L);
+        assertEquals(joinFileDescriptorBo2.getAvgOpenFDCount(), 386, 0);
+        assertEquals(joinFileDescriptorBo2.getMinOpenFDCount(), 350, 0);
+        assertEquals(joinFileDescriptorBo2.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo2.getMaxOpenFDCount(), 810, 0);
+        assertEquals(joinFileDescriptorBo2.getMaxOpenFDCountAgentId(), "id4_1");
+
+        JoinFileDescriptorBo joinFileDescriptorBo3 = joinFileDescriptorBoList.get(2);
+        assertEquals(joinFileDescriptorBo3.getId(), "id1");
+        assertEquals(joinFileDescriptorBo3.getTimestamp(), 1487149810000L);
+        assertEquals(joinFileDescriptorBo3.getAvgOpenFDCount(), 286, 0);
+        assertEquals(joinFileDescriptorBo3.getMinOpenFDCount(), 220, 0);
+        assertEquals(joinFileDescriptorBo3.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo3.getMaxOpenFDCount(), 710, 0);
+        assertEquals(joinFileDescriptorBo3.getMaxOpenFDCountAgentId(), "id4_1");
+
+        JoinFileDescriptorBo joinFileDescriptorBo4 = joinFileDescriptorBoList.get(3);
+        assertEquals(joinFileDescriptorBo4.getId(), "id1");
+        assertEquals(joinFileDescriptorBo4.getTimestamp(), 1487149815000L);
+        assertEquals(joinFileDescriptorBo4.getAvgOpenFDCount(), 186, 0);
+        assertEquals(joinFileDescriptorBo4.getMinOpenFDCount(), 120, 0);
+        assertEquals(joinFileDescriptorBo4.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo4.getMaxOpenFDCount(), 610, 0);
+        assertEquals(joinFileDescriptorBo4.getMaxOpenFDCountAgentId(), "id4_1");
+
+        JoinFileDescriptorBo joinFileDescriptorBo5 = joinFileDescriptorBoList.get(4);
+        assertEquals(joinFileDescriptorBo5.getId(), "id1");
+        assertEquals(joinFileDescriptorBo5.getTimestamp(), 1487149820000L);
+        assertEquals(joinFileDescriptorBo5.getAvgOpenFDCount(), 86, 0);
+        assertEquals(joinFileDescriptorBo5.getMinOpenFDCount(), 20, 0);
+        assertEquals(joinFileDescriptorBo5.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo5.getMaxOpenFDCount(), 930, 0);
+        assertEquals(joinFileDescriptorBo5.getMaxOpenFDCountAgentId(), "id4_1");
+    }
+
+    private JoinApplicationStatBo createJoinApplicationStatBo7(final String id, final long timestamp, final int plus) {
+        final JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
+        joinApplicationStatBo.setId(id);
+        joinApplicationStatBo.setJoinFileDescriptorBoList(createJoinFileDescriptorBoList(id, timestamp, plus));
+        joinApplicationStatBo.setTimestamp(timestamp);
+        joinApplicationStatBo.setStatType(StatType.APP_STST);
+        return joinApplicationStatBo;
+    }
+
+    private List<JoinFileDescriptorBo> createJoinFileDescriptorBoList(final String id, final long currentTime, int plus) {
+        final List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo(id, 500 + plus, 870 + plus, id + "_1", 270 + plus, id + "_2", currentTime);
+        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo(id, 400 + plus, 770 + plus, id + "_1", 400 + plus, id + "_2", currentTime + 5000);
+        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo(id, 300 + plus, 670 + plus, id + "_1", 270 + plus, id + "_2", currentTime + 10000);
+        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo(id, 200 + plus, 570 + plus, id + "_1", 170 + plus, id + "_2", currentTime + 15000);
+        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo(id, 100 + plus, 890 + plus, id + "_1", 70 + plus, id + "_2", currentTime + 20000);
+
+        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+
+        return joinFileDescriptorBoList;
+    }
+
     @Test
     public void createJoinApplicationStatBoTest() {
         JoinAgentStatBo joinAgentStatBo = new JoinAgentStatBo();
@@ -1231,6 +1387,18 @@ public class JoinApplicationStatBoTest {
         joinDataSourceListBoList.add(joinDataSourceListBo5);
         joinAgentStatBo.setJoinDataSourceListBoList(joinDataSourceListBoList);
 
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo("agent1", 44, 70, "agent1", 30, "agent1", 1498462565000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo("agent1", 33, 40, "agent1", 10, "agent1", 1498462570000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo("agent1", 55, 60, "agent1", 7, "agent1", 1498462575000L);
+        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo("agent1", 11, 80, "agent1", 8, "agent1", 1498462580000L);
+        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo("agent1", 22, 70, "agent1", 12, "agent1", 1498462585000L);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+        joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
 
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
         assertEquals(joinApplicationStatBoList.size(), 1);
@@ -1242,6 +1410,7 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 5);
         assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 5);
         assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 5);
+        assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 5);
     }
 
     @Test
@@ -1348,6 +1517,19 @@ public class JoinApplicationStatBoTest {
         joinDataSourceListBoList.add(joinDataSourceListBo5);
         joinAgentStatBo.setJoinDataSourceListBoList(joinDataSourceListBoList);
 
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo("agent1", 44, 70, "agent1", 30, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo("agent1", 33, 40, "agent1", 10, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo("agent1", 55, 60, "agent1", 7, "agent1", 1498462555000L);
+        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo("agent1", 11, 80, "agent1", 8, "agent1", 1498462560000L);
+        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo("agent1", 22, 70, "agent1", 12, "agent1", 1498462565000L);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+        joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
         assertEquals(joinApplicationStatBoList.size(), 2);
         for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
@@ -1359,6 +1541,7 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 2);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462500000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 3);
@@ -1366,6 +1549,7 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 3);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 3);
             } else {
                 fail();
             }
@@ -1476,6 +1660,19 @@ public class JoinApplicationStatBoTest {
         joinDataSourceListBoList.add(joinDataSourceListBo5);
         joinAgentStatBo.setJoinDataSourceListBoList(joinDataSourceListBoList);
 
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo("agent1", 44, 70, "agent1", 30, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo("agent1", 33, 40, "agent1", 10, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo("agent1", 55, 60, "agent1", 7, "agent1", 1498462555000L);
+        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo("agent1", 11, 80, "agent1", 8, "agent1", 1498462560000L);
+        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo("agent1", 22, 70, "agent1", 12, "agent1", 1498462565000L);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+        joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 10000);
         assertEquals(joinApplicationStatBoList.size(), 3);
         for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
@@ -1487,6 +1684,7 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 2);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462540000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 1);
@@ -1494,6 +1692,7 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 1);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 1);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462550000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
@@ -1501,6 +1700,7 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 2);
             } else {
                 fail();
             }
