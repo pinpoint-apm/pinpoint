@@ -30,7 +30,8 @@ public enum SystemPropertyKey {
     JAVA_VM_VERSION("java.vm.version"),
     JAVA_VM_INFO("java.vm.info"),
     JAVA_VM_SPECIFICATION_VERSION("java.vm.specification.version"),
-    SUN_JAVA_COMMAND("sun.java.command"); // May be unsupported depending on the JVM.
+    SUN_JAVA_COMMAND("sun.java.command"), // May be unsupported depending on the JVM.
+    OS_NAME("os.name");
 
     private final String key;
 
