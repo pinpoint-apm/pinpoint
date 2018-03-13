@@ -140,6 +140,11 @@ profiler.log4j.logging.transactioninfo=false
 ###########################################################
 profiler.logback.logging.transactioninfo=true
 ```
+To log each request with, sample should be disabled or sample rate should be set to 100%.
+```
+# 1 out of n transactions will be sampled where n is the rate. (20: 5%)
+profiler.sampling.rate=1
+```
 
 **2-2 log4j, logback configuration**
 
