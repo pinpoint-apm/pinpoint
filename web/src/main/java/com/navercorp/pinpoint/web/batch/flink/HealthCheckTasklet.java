@@ -47,9 +47,6 @@ public class HealthCheckTasklet implements Tasklet {
     @Autowired
     private BatchConfiguration batchConfiguration;
 
-    @Autowired(required=false)
-    private AlarmMessageSender alarmMessageSender = new EmptyMessageSender();
-
     public HealthCheckTasklet() {
         this.jobNameList = new ArrayList<>(1);
         jobNameList.add("Aggregation Stat Data");
