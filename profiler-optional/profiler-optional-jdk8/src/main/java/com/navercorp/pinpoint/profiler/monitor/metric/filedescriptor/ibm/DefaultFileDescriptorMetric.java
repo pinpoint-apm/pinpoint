@@ -14,45 +14,35 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle;
+package com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.ibm;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
-
 import java.lang.management.OperatingSystemMXBean;
-import java.lang.reflect.Method;
-
 
 /**
  * @author Roy Kim
  */
 public class DefaultFileDescriptorMetric implements FileDescriptorMetric {
 
-    private final com.sun.management.OperatingSystemMXBean operatingSystemMXBean;
+    private final com.ibm.lang.management.UnixOperatingSystemMXBean unixOperatingSystemMXBean;
 
     public DefaultFileDescriptorMetric(OperatingSystemMXBean operatingSystemMXBean) {
         if (operatingSystemMXBean == null) {
             throw new NullPointerException("operatingSystemMXBean must not be null");
         }
-        this.operatingSystemMXBean = (com.sun.management.OperatingSystemMXBean) operatingSystemMXBean;
+        this.unixOperatingSystemMXBean = (com.ibm.lang.management.UnixOperatingSystemMXBean) operatingSystemMXBean;
     }
 
     @Override
     public FileDescriptorMetricSnapshot getSnapshot() {
 
-        Long cnt = null;
-        try {
-            Method getOpenFileDescriptorCountField = operatingSystemMXBean.getClass().getDeclaredMethod("getOpenFileDescriptorCount");
-            getOpenFileDescriptorCountField.setAccessible(true);
-            cnt = ((Long) getOpenFileDescriptorCountField.invoke(operatingSystemMXBean));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new FileDescriptorMetricSnapshot(cnt);
+        long openFileDescriptorCount = unixOperatingSystemMXBean.getOpenFileDescriptorCount();
+        return new FileDescriptorMetricSnapshot(openFileDescriptorCount);
     }
 
     @Override
     public String toString() {
-        return "FileDescriptorMetric for Oracle Java";
+        return "FileDescriptorMetric for IBM Java 1.8+";
     }
 }
