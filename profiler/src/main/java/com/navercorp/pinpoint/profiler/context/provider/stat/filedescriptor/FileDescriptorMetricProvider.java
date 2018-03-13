@@ -19,8 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.JvmType;
-import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.*;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import java.lang.reflect.Constructor;
 public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetric> {
 
     private static final String ORACLE_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle.DefaultFileDescriptorMetric";
+    private static final String IBM_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.ibm.DefaultFileDescriptorMetric";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -52,16 +52,32 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
     public FileDescriptorMetric get() {
 
         String classToLoad = null;
+        JvmVersion jvmVersion = JvmUtils.getVersion();
         JvmType jvmType = JvmType.fromVendor(vendorName);
+
+        OsType osType = OsUtils.getType();
 
         if (jvmType == JvmType.UNKNOWN) {
             jvmType = JvmUtils.getType();
         }
 
-        if (jvmType == JvmType.ORACLE) {
+        if(osType == OsType.MAC || osType == OsType.SOLARIS || osType == OsType.LINUX){
 
-            classToLoad = ORACLE_FILE_DESCRIPTOR_METRIC;
-        } else {
+            if (jvmType == JvmType.ORACLE || jvmType == JvmType.OPENJDK) {
+                if(osType == OsType.LINUX){
+                    logger.warn("Unsupported operating system.");
+                    return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
+                }
+                if (jvmVersion.onOrAfter(JvmVersion.JAVA_5)) {
+                    classToLoad = ORACLE_FILE_DESCRIPTOR_METRIC;
+                }
+            } else if (jvmType == JvmType.IBM) {
+                if (jvmVersion.onOrAfter(JvmVersion.JAVA_8)) {
+                    classToLoad = IBM_FILE_DESCRIPTOR_METRIC;
+                }
+            }
+        }else{
+            logger.warn("Unsupported operating system.");
             return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
         }
 
@@ -84,7 +100,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
             try {
                 Constructor<FileDescriptorMetric> fileDescriptorMetricConstructor = fileDescriptorMetricClass.getConstructor(OperatingSystemMXBean.class);
                 return fileDescriptorMetricConstructor.newInstance(operatingSystemMXBean);
-            } catch (NoSuchMethodException e1) {
+            } catch (NoSuchMethodException e) {
                 logger.warn("Unknown FileDescriptorMetric : {}", classToLoad);
                 return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
             }
