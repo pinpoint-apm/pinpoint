@@ -16,7 +16,7 @@
     <job id="alarmJob" xmlns="http://www.springframework.org/schema/batch" >
         <step id="alarmPartitionStep">
             <partition step="alarmStep" partitioner="alarmPartitioner">
-                <handler task-executor="poolTaskExecutorForPartition" />
+                <handler task-executor="alarmPoolTaskExecutorForPartition" />
             </partition>
         </step>
         <listeners>
@@ -35,5 +35,5 @@
     <bean id="processor" class="com.navercorp.pinpoint.web.alarm.AlarmProcessor" scope="step"/>
     <bean id="writer" class="com.navercorp.pinpoint.web.alarm.AlarmWriter" scope="step"/>
     
-    <task:executor id="poolTaskExecutorForPartition" pool-size="1" />
+    <task:executor id="alarmPoolTaskExecutorForPartition" pool-size="1" />
 </beans>
