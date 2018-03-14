@@ -202,13 +202,13 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
         return chunkCount;
     }
 
-    private boolean needFlush(SpanStreamSendData spanStreamSendData, int length, int delemeterBufferSize) {
-        if (!spanStreamSendData.isAvailableBufferCapacity(length + delemeterBufferSize)) {
+    private boolean needFlush(SpanStreamSendData spanStreamSendData, int length, int delimiterBufferSize) {
+        if (!spanStreamSendData.isAvailableBufferCapacity(length + delimiterBufferSize)) {
             return true;
         }
 
         int availableComponentsCount = 1;
-        if (delemeterBufferSize > 0) {
+        if (delimiterBufferSize > 0) {
             availableComponentsCount++;
         }
 
