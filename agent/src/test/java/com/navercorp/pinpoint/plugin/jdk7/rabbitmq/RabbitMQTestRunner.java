@@ -56,7 +56,6 @@ class RabbitMQTestRunner {
 
     void runPushTest() throws Exception {
 
-        final String routingKey = "routingKey";
         final String message = "hello rabbit mq";
 
         // producer side
@@ -64,11 +63,11 @@ class RabbitMQTestRunner {
         final Channel producerChannel = producerConnection.createChannel();
 
         producerChannel.exchangeDeclare(RabbitMQTestConstants.EXCHANGE, "direct", false);
-        producerChannel.queueDeclare(RabbitMQTestConstants.QUEUE, false, false, false, null);
-        producerChannel.queueBind(RabbitMQTestConstants.QUEUE, RabbitMQTestConstants.EXCHANGE, routingKey);
+        producerChannel.queueDeclare(RabbitMQTestConstants.QUEUE_PUSH, false, false, false, null);
+        producerChannel.queueBind(RabbitMQTestConstants.QUEUE_PUSH, RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PUSH);
 
         AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
-        producerChannel.basicPublish(RabbitMQTestConstants.EXCHANGE, routingKey, false, false, builder.appId("test").build(), message.getBytes());
+        producerChannel.basicPublish(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PUSH, false, false, builder.appId("test").build(), message.getBytes());
 
         producerChannel.close();
         producerConnection.close();
@@ -78,10 +77,10 @@ class RabbitMQTestRunner {
         final Channel consumerChannel = consumerConnection.createChannel();
         final String remoteAddress = consumerConnection.getAddress().getHostAddress() + ":" + consumerConnection.getPort();
 
-        consumerChannel.queueDeclare(RabbitMQTestConstants.QUEUE, false, false, false, null);
+        consumerChannel.queueDeclare(RabbitMQTestConstants.QUEUE_PUSH, false, false, false, null);
 
         TestConsumer<String> consumer = new TestConsumer<String>(consumerChannel, MessageConverter.FOR_TEST);
-        consumerChannel.basicConsume(RabbitMQTestConstants.QUEUE, true, consumer);
+        consumerChannel.basicConsume(RabbitMQTestConstants.QUEUE_PUSH, true, consumer);
 
         // wait consumer
         Assert.assertEquals(message, consumer.getMessage(10, TimeUnit.SECONDS));
@@ -103,14 +102,14 @@ class RabbitMQTestRunner {
                 remoteAddress, // endPoint
                 "exchange-" + RabbitMQTestConstants.EXCHANGE, // destinationId
                 Expectations.annotation("rabbitmq.exchange", RabbitMQTestConstants.EXCHANGE),
-                Expectations.annotation("rabbitmq.routingkey", routingKey));
+                Expectations.annotation("rabbitmq.routingkey", RabbitMQTestConstants.ROUTING_KEY_PUSH));
         ExpectedTrace rabbitMqConsumerInvocationTrace = Expectations.root(
                 RabbitMQTestConstants.RABBITMQ_CLIENT, // serviceType
                 "RabbitMQ Consumer Invocation", // method
                 "rabbitmq://exchange=" + RabbitMQTestConstants.EXCHANGE, // rpc
                 null, // endPoint (collected but API to retrieve local address is not available in all versions, so skip)
                 remoteAddress, // remoteAddress
-                Expectations.annotation("rabbitmq.routingkey", routingKey));
+                Expectations.annotation("rabbitmq.routingkey", RabbitMQTestConstants.ROUTING_KEY_PUSH));
         Class<?> consumerDispatchClass = Class.forName("com.rabbitmq.client.impl.ConsumerDispatcher");
         Method consumerDispatchHandleDelivery = consumerDispatchClass.getDeclaredMethod("handleDelivery", Consumer.class, String.class, Envelope.class, AMQP.BasicProperties.class, byte[].class);
         ExpectedTrace consumerDispatcherHandleDeliveryTrace = Expectations.event(
@@ -141,7 +140,6 @@ class RabbitMQTestRunner {
 
     void runPullTest() throws Exception {
 
-        final String routingKey = "routingKey";
         final String message = "hello rabbit mq";
 
         // producer side
@@ -149,11 +147,11 @@ class RabbitMQTestRunner {
         final Channel producerChannel = producerConnection.createChannel();
 
         producerChannel.exchangeDeclare(RabbitMQTestConstants.EXCHANGE, "direct", false);
-        producerChannel.queueDeclare(RabbitMQTestConstants.QUEUE, false, false, false, null);
-        producerChannel.queueBind(RabbitMQTestConstants.QUEUE, RabbitMQTestConstants.EXCHANGE, routingKey);
+        producerChannel.queueDeclare(RabbitMQTestConstants.QUEUE_PULL, false, false, false, null);
+        producerChannel.queueBind(RabbitMQTestConstants.QUEUE_PULL, RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PULL);
 
         AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
-        producerChannel.basicPublish(RabbitMQTestConstants.EXCHANGE, routingKey, false, false, builder.appId("test").build(), message.getBytes());
+        producerChannel.basicPublish(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PULL, false, false, builder.appId("test").build(), message.getBytes());
 
         producerChannel.close();
         producerConnection.close();
@@ -164,7 +162,7 @@ class RabbitMQTestRunner {
         final String remoteAddress = consumerConnection.getAddress().getHostAddress() + ":" + consumerConnection.getPort();
 
         TestMessagePuller messagePuller = new TestMessagePuller(consumerChannel);
-        Assert.assertEquals(message, messagePuller.pullMessage(MessageConverter.FOR_TEST, RabbitMQTestConstants.QUEUE, true));
+        Assert.assertEquals(message, messagePuller.pullMessage(MessageConverter.FOR_TEST, RabbitMQTestConstants.QUEUE_PULL, true));
 
         consumerChannel.close();
         consumerConnection.close();
@@ -184,14 +182,14 @@ class RabbitMQTestRunner {
                 remoteAddress, // endPoint
                 "exchange-" + RabbitMQTestConstants.EXCHANGE, // destinationId
                 Expectations.annotation("rabbitmq.exchange", RabbitMQTestConstants.EXCHANGE),
-                Expectations.annotation("rabbitmq.routingkey", routingKey));
+                Expectations.annotation("rabbitmq.routingkey", RabbitMQTestConstants.ROUTING_KEY_PULL));
         ExpectedTrace rabbitMqConsumerInvocationTrace = Expectations.root(
                 RabbitMQTestConstants.RABBITMQ_CLIENT, // serviceType
                 "RabbitMQ Consumer Invocation", // method
                 "rabbitmq://exchange=" + RabbitMQTestConstants.EXCHANGE, // rpc
                 null, // endPoint (collected but API to retrieve local address is not available in all versions, so skip)
                 remoteAddress, // remoteAddress
-                Expectations.annotation("rabbitmq.routingkey", routingKey));
+                Expectations.annotation("rabbitmq.routingkey", RabbitMQTestConstants.ROUTING_KEY_PULL));
         Class<?> amqChannelClass = Class.forName("com.rabbitmq.client.impl.AMQChannel");
         Method handleCompleteInboundCommand = amqChannelClass.getDeclaredMethod("handleCompleteInboundCommand", AMQCommand.class);
         ExpectedTrace handleCompleteInboundCommandTrace = Expectations.event(

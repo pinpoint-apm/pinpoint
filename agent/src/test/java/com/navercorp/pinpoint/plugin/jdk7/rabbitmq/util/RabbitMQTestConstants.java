@@ -33,7 +33,10 @@ public interface RabbitMQTestConstants {
     String RABBITMQ_CLIENT_INTERNAL = "RABBITMQ_CLIENT_INTERNAL";
 
     String EXCHANGE = "TestExchange";
-    String QUEUE = "TestQueue";
+    String QUEUE_PUSH = "TestPushQueue";
+    String QUEUE_PULL = "TestPullQueue";
+    String ROUTING_KEY_PUSH = "push";
+    String ROUTING_KEY_PULL = "pull";
 
     SaslConfig SASL_CONFIG = new SaslConfig() {
         public SaslMechanism getSaslMechanism(String[] mechanisms) {

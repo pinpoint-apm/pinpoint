@@ -262,9 +262,9 @@
 
         <!-- for rabbitmq -->
         <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>4.4.2</version>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit</artifactId>
+            <version>1.7.5.RELEASE</version>
             <scope>test</scope>
         </dependency>
         <dependency>
