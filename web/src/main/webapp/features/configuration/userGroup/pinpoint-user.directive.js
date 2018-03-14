@@ -249,11 +249,7 @@
 					AlarmUtilService.show( $elLoading );
 					var $node = AlarmUtilService.getNode( $event, "li" );
 					var userId =  AlarmUtilService.extractID( $node );
-					if ( $node.find("input").get(0).checked ) {
-						scope.$emit( "pinpointUser.sendUserAdd", getUser( userId ) );
-					} else {
-						scope.$emit( "pinpointUser.sendUserRemoved", userId );
-					}
+					scope.$emit( "pinpointUser.sendUserAdd", getUser( userId ) );
 				};
 				scope.$on( "pinpointUser.changeSelectedMember", function( event, list ) {
 					resetList( list );
@@ -261,6 +257,7 @@
 						scope.pinpointUserList = oPinpointUserList;
 					});
 					AlarmUtilService.setTotal( $elTotal, getTotal() );
+					AlarmUtilService.hide( $elLoading );
 				});
 				scope.$on( "pinpointUser.checkSelectedMember", function( event, list ) {
 					$elWrapper.removeClass( "_disable-check" );

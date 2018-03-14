@@ -40,7 +40,7 @@
 			</li>
 			<li ng-repeat="pinpointUser in pinpointUserList" id="{{prefix + pinpointUser.userId}}">
 				<span class="contents" style="margin-left:6px">{{"("+pinpointUser.department + ")" + pinpointUser.name}}</span>
-				<input type="checkbox" ng-click="checkUser($event)" ng-model="pinpointUser.has"/>
+				<input type="checkbox" ng-click="checkUser($event)" ng-model="pinpointUser.has" ng-disabled="pinpointUser.has"/>
 				<div style="float:right" class="_normal" ng-show="canEditUserInfo">
 					<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onRemovePinpointUser($event)"></span>
 					<span class="glyphicon glyphicon-pencil edit" aria-hidden="true" ng-click="onUpdatePinpointUser($event)"></span>

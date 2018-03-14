@@ -46,11 +46,6 @@
 						scope.$broadcast( "pinpointUser.addUserCallback", bIsSuccess, userId );
 						event.stopPropagation();
 					});
-					// pinpointUser > groupMember
-					scope.$on( "pinpointUser.sendUserRemoved", function( event, userId ) {
-						scope.$broadcast( "groupMember.removeUser", userId );
-						event.stopPropagation();
-					});
 					scope.$on( "pinpointUser.sendUserUpdated", function( event, oPinpointUser ) {
 						scope.$broadcast( "groupMember.updateUser", oPinpointUser );
 						event.stopPropagation();

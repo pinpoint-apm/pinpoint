@@ -167,9 +167,12 @@
 	    			scope.$on( "groupMember.removeUser", function( event, userId )  {
 	    				if ( hasUser( userId ) ) {
 							cancelPreviousWork();
-	    					// scope.$apply(function() {
-	    						removeGroupMember( userId );
-	    					// });
+							RemoveGroupMember.applyAction( AlarmUtilService, currentUserGroupId, $workingNode, $elLoading, function( userId ) {
+								scope.$apply(function() {
+									removeGroupMember( userId );
+								});
+							}, showAlert, userId );
+
 	    				}
 	    			});
 	            }
@@ -218,10 +221,10 @@
 				this._bIng = false;
 			}
 		},
-		applyAction: function( AlarmUtilService, currentUserGroupId, $node, $elLoading, cbSuccess, cbFail ) {
+		applyAction: function( AlarmUtilService, currentUserGroupId, $node, $elLoading, cbSuccess, cbFail, userId ) {
 			AlarmUtilService.show( $elLoading );
 			var self = this;
-			var memberId = AlarmUtilService.extractID( $node );
+			var memberId = userId || AlarmUtilService.extractID( $node );
 			AlarmUtilService.sendCRUD( "removeMemberInGroup", {
 				"userGroupId": currentUserGroupId,
 				"memberId": memberId
