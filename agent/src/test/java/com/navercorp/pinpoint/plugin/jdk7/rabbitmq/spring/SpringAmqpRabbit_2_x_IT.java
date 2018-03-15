@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.MessageListenerConfig_Post_1_4_0;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.ReceiverConfig_Post_1_6_0;
@@ -58,6 +59,7 @@ import java.lang.reflect.Method;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @Dependency({"org.springframework.amqp:spring-rabbit:[2.0.0.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
+@JvmVersion(8)
 @JvmArgument({"-Dpinpoint.configcenter=false"})
 public class SpringAmqpRabbit_2_x_IT {
 
