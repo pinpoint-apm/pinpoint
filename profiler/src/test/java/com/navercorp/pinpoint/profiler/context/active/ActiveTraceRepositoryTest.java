@@ -30,10 +30,10 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.MockApplicationContext;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class ActiveTraceRepositoryTest {
     private TransactionCounter transactionCounter;
     private ActiveTraceRepository activeTraceRepository;
 
-    private MockApplicationContext applicationContext;
+    private DefaultApplicationContext applicationContext;
 
     @Before
     public void setUp() {
@@ -140,7 +140,7 @@ public class ActiveTraceRepositoryTest {
     }
 
     private ListenableFuture<TraceThreadTuple> executeNewTrace(ListeningExecutorService executorService, final CountDownLatch awaitLatch, final CountDownLatch executeLatch) {
-        return executorService.submit(new Callable<TraceThreadTuple>() {
+        Callable<TraceThreadTuple> task = new Callable<TraceThreadTuple>() {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
@@ -152,7 +152,8 @@ public class ActiveTraceRepositoryTest {
                     traceContext.removeTraceObject();
                 }
             }
-        });
+        };
+        return (ListenableFuture<TraceThreadTuple>) executorService.submit(task);
     }
 
     private ListenableFuture<TraceThreadTuple> executeSampledContinuedTrace(ListeningExecutorService executorService, final CountDownLatch awaitLatch, final CountDownLatch executeLatch, final long id) {

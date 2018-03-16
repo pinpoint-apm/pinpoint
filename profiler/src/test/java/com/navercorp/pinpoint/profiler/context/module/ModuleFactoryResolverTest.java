@@ -18,43 +18,40 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Module;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * @author Taejin Koo
  */
-public class ModuleFactoryProviderTest {
+public class ModuleFactoryResolverTest {
 
     @Test
     public void test() {
-        ModuleFactoryProvider provider = new DefaultModuleFactoryProvider(TestModuleFactory.class.getName());
-        ModuleFactory moduleFactory = provider.get();
+        ModuleFactoryResolver provider = new DefaultModuleFactoryResolver(TestModuleFactory.class.getName());
+        ModuleFactory moduleFactory = provider.resolve();
 
         Assert.assertEquals(TestModuleFactory.class, moduleFactory.getClass());
     }
 
     @Test
     public void test2() {
-        ModuleFactoryProvider provider = new DefaultModuleFactoryProvider("");
-        ModuleFactory moduleFactory = provider.get();
+        ModuleFactoryResolver provider = new DefaultModuleFactoryResolver();
+        ModuleFactory moduleFactory = provider.resolve();
 
         Assert.assertEquals(ApplicationContextModuleFactory.class, moduleFactory.getClass());
     }
 
-    @Test
+    @Test(expected = Exception.class)
     public void test3() {
-        ModuleFactoryProvider provider = new DefaultModuleFactoryProvider("abcde");
-        ModuleFactory moduleFactory = provider.get();
-
-        Assert.assertNull(moduleFactory);
+        ModuleFactoryResolver provider = new DefaultModuleFactoryResolver("abcde");
+        provider.resolve();
     }
 
     public static class TestModuleFactory implements ModuleFactory {
 
         @Override
-        public Module newModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+        public Module newModule(AgentOption agentOption) {
             return null;
         }
 

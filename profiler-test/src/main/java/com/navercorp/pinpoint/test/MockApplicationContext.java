@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test;
 
 
+import com.google.inject.Injector;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -29,24 +30,17 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
  * @author hyungil.jeong
  */
 public class MockApplicationContext extends DefaultApplicationContext {
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
 
-
-    public MockApplicationContext(AgentOption agentOption, InterceptorRegistryBinder binder, ModuleFactory moduleFactory) {
-        super(agentOption, binder, moduleFactory);
-
-        if (binder == null) {
-            throw new NullPointerException("binder must not be null");
-        }
-        this.interceptorRegistryBinder = binder;
+    public MockApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
+        super(agentOption, moduleFactory);
     }
 
     @Override
     public void close() {
         super.close();
 
-        if (this.interceptorRegistryBinder != null) {
-            interceptorRegistryBinder.unbind();
-        }
+        final Injector injector = this.getInjector();
+        InterceptorRegistryBinder binder = injector.getInstance(InterceptorRegistryBinder.class);
+        binder.unbind();
     }
 }

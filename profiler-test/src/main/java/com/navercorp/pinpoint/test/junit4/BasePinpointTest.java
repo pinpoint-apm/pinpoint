@@ -21,9 +21,9 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
-import com.navercorp.pinpoint.test.MockApplicationContext;
 
 import org.apache.thrift.TBase;
 import org.junit.runner.RunWith;
@@ -81,7 +81,7 @@ public abstract class BasePinpointTest {
     }
 
     public void setup(TestContext testContext) {
-        MockApplicationContext mockApplicationContext = testContext.getMockApplicationContext();
+        DefaultApplicationContext mockApplicationContext = testContext.getDefaultApplicationContext();
 
         DataSender spanDataSender = mockApplicationContext.getSpanDataSender();
         if (spanDataSender instanceof ListenableDataSender) {

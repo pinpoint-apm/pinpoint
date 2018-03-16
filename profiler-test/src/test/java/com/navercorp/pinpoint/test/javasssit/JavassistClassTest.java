@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -38,7 +39,6 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.GlobalInterceptorReg
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
-import com.navercorp.pinpoint.test.MockApplicationContext;
 import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
@@ -210,9 +210,10 @@ public class JavassistClassTest {
 
         DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
+        profilerConfig.setStaticResourceCleanup(true);
 
         MockApplicationContextFactory factory = new MockApplicationContextFactory();
-        MockApplicationContext applicationContext = factory.of(profilerConfig);
+        DefaultApplicationContext applicationContext = factory.build(profilerConfig);
 
         TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         testClassLoader.initialize();

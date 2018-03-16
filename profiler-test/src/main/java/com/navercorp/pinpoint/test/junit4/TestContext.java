@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test.junit4;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.classloader.TestClassLoaderFactory;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.test.MockApplicationContext;
 
 /**
  * @author hyungil.jeong
@@ -43,7 +43,7 @@ public class TestContext implements Closeable {
 
     private final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
     private final TestClassLoader classLoader;
-    private final MockApplicationContext mockApplicationContext;
+    private final DefaultApplicationContext mockApplicationContext;
 
     private final Class<?> baseTestClass;
 
@@ -60,17 +60,17 @@ public class TestContext implements Closeable {
     }
 
 
-    private MockApplicationContext createMockApplicationContext() {
+    private DefaultApplicationContext createMockApplicationContext() {
         logger.trace("agent create");
         MockApplicationContextFactory factory = new MockApplicationContextFactory();
-        return factory.of("pinpoint.config");
+        return factory.build("pinpoint.config");
     }
 
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
-    public MockApplicationContext getMockApplicationContext() {
+    public DefaultApplicationContext getDefaultApplicationContext() {
         return mockApplicationContext;
     }
 

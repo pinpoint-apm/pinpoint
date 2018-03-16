@@ -40,7 +40,6 @@ import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
 import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -59,7 +58,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
@@ -84,27 +83,17 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
 
     public PluginTestAgent(AgentOption agentOption) {
-        super(agentOption, new DefaultInterceptorRegistryBinder());
+        super(agentOption);
         this.annotationKeyRegistryService = agentOption.getAnnotationKeyRegistryService();
         PluginTestVerifierHolder.setInstance(this);
     }
 
     @Override
-    protected ApplicationContext newApplicationContext(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+    protected ApplicationContext newApplicationContext(AgentOption agentOption) {
 
         this.pluginApplicationContextModule = new PluginApplicationContextModule();
-
-        final ModuleFactory moduleFactory = new ModuleFactory() {
-            @Override
-            public Module newModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-
-                Module module = new ApplicationContextModule(agentOption, interceptorRegistryBinder);
-
-                return Modules.override(module).with(pluginApplicationContextModule);
-            }
-        };
-
-        ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, interceptorRegistryBinder, moduleFactory);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(pluginApplicationContextModule);
+        ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, moduleFactory);
         return applicationContext;
 
     }

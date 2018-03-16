@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
@@ -31,7 +32,6 @@ import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerGuardDelegate;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
-import com.navercorp.pinpoint.test.MockApplicationContext;
 import javassist.ClassPool;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -49,13 +49,13 @@ public class TestClassLoader extends TransformClassLoader {
 
     private final Logger logger = Logger.getLogger(TestClassLoader.class.getName());
 
-    private final MockApplicationContext applicationContext;
+    private final DefaultApplicationContext applicationContext;
     private Translator instrumentTranslator;
     private final List<String> delegateClass;
     private final ClassFileTransformerLoader classFileTransformerLoader;
     private final InstrumentContext instrumentContext;
 
-    public TestClassLoader(MockApplicationContext applicationContext) {
+    public TestClassLoader(DefaultApplicationContext applicationContext) {
         Assert.requireNonNull(applicationContext, "applicationContext must not be null");
 
         this.applicationContext = applicationContext;
