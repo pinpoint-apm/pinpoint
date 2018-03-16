@@ -88,9 +88,9 @@
 							dataSourceChartData = result;
 							showDataSourceChart();
 						});
-						AgentAjaxService.getOpenFileDescriptorChartData( oParam, function (result) {
-							showOpenFileDescriptorChart();
-						});
+						// AgentAjaxService.getOpenFileDescriptorChartData( oParam, function (result) {
+						// 	showOpenFileDescriptorChart();
+						// });
 					}
 					function loadAgentInfo( time ) {
 						AgentAjaxService.getAgentInfo({
@@ -134,8 +134,9 @@
 					}
 					function initTooltip() {
 						if ( bInitTooltip === false ) {
-							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor"].forEach(function(value) {
-								TooltipService.init( value );
+							/* ["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor"].forEach(function(value) { */
+							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource"].forEach(function(value) {
+									TooltipService.init( value );
 							});
 							bInitTooltip = true;
 						}
@@ -219,16 +220,16 @@
 							"270px"
 						);
 					}
-					function showOpenFileDescriptorChart( chartData ) {
-						var refinedChartData = OpenFileDescriptorDaoService.parseData( chartData );
-						scope.$broadcast(
-							"agentInspectorChartDirective.initAndRenderWithData.open-file-descriptor",
-							refinedChartData,
-							OpenFileDescriptorDaoService.getChartOptions( refinedChartData ),
-							"100%",
-							"270px"
-						);
-					}
+					// function showOpenFileDescriptorChart( chartData ) {
+					// 	var refinedChartData = OpenFileDescriptorDaoService.parseData( chartData );
+					// 	scope.$broadcast(
+					// 		"agentInspectorChartDirective.initAndRenderWithData.open-file-descriptor",
+					// 		refinedChartData,
+					// 		OpenFileDescriptorDaoService.getChartOptions( refinedChartData ),
+					// 		"100%",
+					// 		"270px"
+					// 	);
+					// }
 					var dataSourceChartData = [];
 					var dataSourceIdPrefix = "source_";
 					scope.dataSourceChartKeys = [];
