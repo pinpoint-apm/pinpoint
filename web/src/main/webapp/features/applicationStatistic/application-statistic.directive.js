@@ -40,14 +40,10 @@
 					}
 
 					function initTooltip() {
-						TooltipService.init( "statHeap" );
-						TooltipService.init( "statPermGen" );
-						TooltipService.init( "statJVMCpu" );
-						TooltipService.init( "statSystemCpu" );
-						TooltipService.init( "statTPS" );
-						TooltipService.init( "statActiveThread" );
-						TooltipService.init( "statResponseTime" );
-						TooltipService.init( "statDataSource" );
+						// [ "statHeap", "statPermGen", "statJVMCpu", "statSystemCpu", "statTPS", "statActiveThread", "statResponseTime", "statDataSource", "statOpenFileDescriptor" ].forEach(function( name ) {
+						[ "statHeap", "statPermGen", "statJVMCpu", "statSystemCpu", "statTPS", "statActiveThread", "statResponseTime", "statDataSource" ].forEach(function( name ) {
+							TooltipService.init( name );
+						});
 					}
 					function loadStatChart(from, to) {
 						var oParam = {
@@ -160,6 +156,21 @@
 									console.log("error");
 								}
 							});
+							// AgentAjaxService.getStatOpenFileDescriptor( oParam, function(chartData) {
+							// 	if ( angular.isUndefined(chartData.exception) ) {
+							// 		scope.$broadcast("statisticChartDirective.initAndRenderWithData.application-open-file-descriptor", makeChartData({
+							// 			title: "Open File Descriptor",
+							// 			fixMax: true,
+							// 			defaultMax: 100,
+							// 			yAxisTitle: "Open File Descriptor(count)",
+							// 			labelFunc: function(value) {
+							// 				return value;
+							// 			}
+							// 		}, chartData.charts.x, chartData.charts.y["OPEN_FILE_DESCRIPTOR_COUNT"]), "100%", "270px");
+							// 	} else {
+							// 		console.log("error");
+							// 	}
+							// });
 						}
 					}
 					function broadcastToDataSource( xData, yData ) {
