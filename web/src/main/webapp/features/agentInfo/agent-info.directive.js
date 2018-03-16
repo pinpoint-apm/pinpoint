@@ -88,6 +88,9 @@
 							dataSourceChartData = result;
 							showDataSourceChart();
 						});
+						AgentAjaxService.getOpenFileDescriptorChartData( oParam, function (result) {
+							showOpenFileDescriptorChart();
+						});
 					}
 					function loadAgentInfo( time ) {
 						AgentAjaxService.getAgentInfo({
@@ -131,7 +134,7 @@
 					}
 					function initTooltip() {
 						if ( bInitTooltip === false ) {
-							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource"].forEach(function(value) {
+							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor"].forEach(function(value) {
 								TooltipService.init( value );
 							});
 							bInitTooltip = true;
@@ -212,6 +215,16 @@
 							"agentInspectorChartDirective.initAndRenderWithData.agent-response-time",
 							refinedChartData,
 							ResponseTimeChartDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showOpenFileDescriptorChart( chartData ) {
+						var refinedChartData = OpenFileDescriptorDaoService.parseData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.open-file-descriptor",
+							refinedChartData,
+							OpenFileDescriptorDaoService.getChartOptions( refinedChartData ),
 							"100%",
 							"270px"
 						);
