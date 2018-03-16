@@ -119,7 +119,6 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     public PinpointServerAcceptor(ClusterOption clusterOption, ChannelFilter channelConnectedFilter, PipelineFactory pipelineFactory) {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
         setOptions(bootstrap);
-        addPipeline(bootstrap);
         this.bootstrap = bootstrap;
 
         this.healthCheckTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-HealthCheckTimer", 50, TimeUnit.MILLISECONDS, 512);
@@ -131,6 +130,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter must not be null");
 
         this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
+        addPipeline(bootstrap, pipelineFactory);
     }
 
     private ServerBootstrap createBootStrap(int bossCount, int workerCount) {
@@ -160,7 +160,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         // bootstrap.setOption("child.soLinger", 0);
     }
 
-    private void addPipeline(ServerBootstrap bootstrap) {
+    private void addPipeline(ServerBootstrap bootstrap, final PipelineFactory pipelineFactory) {
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() throws Exception {
