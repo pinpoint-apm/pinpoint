@@ -13,26 +13,26 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.web.batch.job" />
                                          
-    <job id="agentCountJob" xmlns="http://www.springframework.org/schema/batch" >
-        <step id="agentCountPartitionStep">
-            <partition step="agentCountStep" partitioner="agentCountPartitioner">
-                <handler task-executor="agentCountPoolTaskExecutorForPartition" />
-            </partition>
-        </step>
-        <listeners>
-            <listener ref="jobFailListener"/>
-        </listeners>
-    </job>
+    <batch:job id="agentCountJob">
+        <batch:step id="agentCountPartitionStep">
+            <batch:partition step="agentCountStep" partitioner="agentCountPartitioner">
+                <batch:handler task-executor="agentCountPoolTaskExecutorForPartition" />
+            </batch:partition>
+        </batch:step>
+        <batch:listeners>
+            <batch:listener ref="jobFailListener"/>
+        </batch:listeners>
+    </batch:job>
 
-    <step id="agentCountStep" xmlns="http://www.springframework.org/schema/batch">
-        <tasklet>
-            <chunk reader="agentCountReader" processor="agentCountProcessor" writer="agentCountWriter" commit-interval="1" retry-limit="2">
-                <retryable-exception-classes>
+    <batch:step id="agentCountStep">
+        <batch:tasklet>
+            <batch:chunk reader="agentCountReader" processor="agentCountProcessor" writer="agentCountWriter" commit-interval="1" retry-limit="2">
+                <batch:retryable-exception-classes>
                     <batch:include class="org.springframework.batch.core.JobExecutionException" />
-                </retryable-exception-classes>
-            </chunk>
-        </tasklet>
-    </step>
+                </batch:retryable-exception-classes>
+            </batch:chunk>
+        </batch:tasklet>
+    </batch:step>
 
     <bean id="agentCountPartitioner" class="com.navercorp.pinpoint.web.batch.job.AgentCountPartitioner"/>
     <bean id="agentCountReader" class="com.navercorp.pinpoint.web.batch.job.AgentCountReader" scope="step"/>
