@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
-import com.google.inject.Module;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-
 /**
- * @author Woonduk Kang(emeroad)
+ * @author Taejin Koo
  */
-public interface ModuleFactory {
-    Module newModule(AgentOption agentOption);
+public interface ModuleFactoryResolver {
+
+    ModuleFactory resolve();
+
 }

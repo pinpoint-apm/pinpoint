@@ -43,7 +43,8 @@ public class MockApplicationContextModuleTest {
 
     @Test
     public void test() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        profilerConfig.setStaticResourceCleanup(true);
 
         AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
@@ -53,30 +54,23 @@ public class MockApplicationContextModuleTest {
         try {
             pluginTestAgent.start();
         } finally {
-            pluginTestAgent.stop(true);
+            pluginTestAgent.stop();
         }
     }
 
     @Test
     public void testMockApplicationContext() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
         AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
 
-        ModuleFactory moduleFactory = new ModuleFactory() {
-            @Override
-            public Module newModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+        Module pluginModule = new PluginApplicationContextModule();
+        InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
+        Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(pluginModule, testInterceptorRegistryModule);
 
-                Module module = new ApplicationContextModule(agentOption, interceptorRegistryBinder);
-                Module pluginModule = new PluginApplicationContextModule();
-
-                return Modules.override(module).with(pluginModule);
-            }
-        };
-
-        DefaultApplicationContext applicationContext = new DefaultApplicationContext(agentOption, binder, moduleFactory);
+        DefaultApplicationContext applicationContext = new DefaultApplicationContext(agentOption, moduleFactory);
 
         Injector injector = applicationContext.getInjector();
         // singleton check
@@ -85,6 +79,8 @@ public class MockApplicationContextModuleTest {
         Assert.assertSame(instance1, instance2);
 
         ClassFileTransformerDispatcher instance4 = injector.getInstance(ClassFileTransformerDispatcher.class);
+
+        applicationContext.close();
     }
 
 

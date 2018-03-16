@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,28 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.test;
 
-import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class MockApplicationContext extends DefaultApplicationContext {
+public class OverrideModuleFactory implements ModuleFactory {
+    private final Module[] with;
 
-
-    public MockApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
-        super(agentOption, moduleFactory);
+    public OverrideModuleFactory(Module... with) {
+        this.with = Assert.requireNonNull(with, "with must not be null");
     }
 
     @Override
-    public void close() {
-        super.close();
-
-        Injector injector = this.getInjector();
-        InterceptorRegistryBinder interceptorRegistryBinder = injector.getInstance(InterceptorRegistryBinder.class);
-        interceptorRegistryBinder.unbind();
+    public Module newModule(AgentOption agentOption) {
+        Module module = new ApplicationContextModule(agentOption);
+        return Modules.override(module).with(with);
     }
-
 }

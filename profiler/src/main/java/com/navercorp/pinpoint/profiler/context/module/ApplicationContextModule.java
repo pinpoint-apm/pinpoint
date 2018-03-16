@@ -86,6 +86,7 @@ import com.navercorp.pinpoint.profiler.context.provider.DeadlockMonitorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DeadlockThreadRegistryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DynamicTransformTriggerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider;
+import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParsingServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ObjectBinderFactoryProvider;
@@ -177,13 +178,11 @@ public class ApplicationContextModule extends AbstractModule {
     private final ProfilerConfig profilerConfig;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final AgentOption agentOption;
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
 
-    public ApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+    public ApplicationContextModule(AgentOption agentOption) {
         this.agentOption = Assert.requireNonNull(agentOption, "agentOption must not be null");
         this.profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "agentOption.getProfilerConfig() must not be null");
         this.serviceTypeRegistryService = Assert.requireNonNull(agentOption.getServiceTypeRegistryService(), "agentOption.getServiceTypeRegistryService() must not be null");
-        this.interceptorRegistryBinder = interceptorRegistryBinder;
     }
 
     @Override
@@ -194,9 +193,9 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(ProfilerConfig.class).toInstance(profilerConfig);
         bind(ServiceTypeRegistryService.class).toInstance(serviceTypeRegistryService);
-        bind(AgentOption.class).toInstance(agentOption);
         bind(Instrumentation.class).toInstance(agentOption.getInstrumentation());
-        bind(InterceptorRegistryBinder.class).toInstance(interceptorRegistryBinder);
+
+        bind(InterceptorRegistryBinder.class).toProvider(InterceptorRegistryBinderProvider.class).in(Scopes.SINGLETON);
 
         bind(URL[].class).annotatedWith(PluginJars.class).toInstance(agentOption.getPluginJars());
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
@@ -97,6 +98,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
 
     private int interceptorRegistrySize = 1024 * 8;
+
+    @VisibleForTesting
+    private boolean staticResourceCleanup = false;
 
     private String collectorSpanServerIp = DEFAULT_IP;
     private int collectorSpanServerPort = 9996;
@@ -393,6 +397,15 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public long getAgentInfoSendRetryInterval() {
         return agentInfoSendRetryInterval;
+    }
+
+    @Override
+    public boolean getStaticResourceCleanup() {
+        return staticResourceCleanup;
+    }
+
+    public void setStaticResourceCleanup(boolean staticResourceCleanup) {
+        this.staticResourceCleanup = staticResourceCleanup;
     }
 
 

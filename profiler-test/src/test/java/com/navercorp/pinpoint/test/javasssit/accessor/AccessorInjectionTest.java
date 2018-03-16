@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.test.MockApplicationContext;
 import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.javasssit.JavassistClassTest;
@@ -45,7 +45,7 @@ import java.security.ProtectionDomain;
 @Deprecated
 public class AccessorInjectionTest {
 
-    private Logger logger = LoggerFactory.getLogger(JavassistClassTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(JavassistClassTest.class.getName());
 
     private TestClassLoader getTestClassLoader() {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
@@ -54,7 +54,7 @@ public class AccessorInjectionTest {
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
 
         MockApplicationContextFactory factory = new MockApplicationContextFactory();
-        MockApplicationContext applicationContext = factory.of(profilerConfig);
+        DefaultApplicationContext applicationContext = factory.build(profilerConfig);
 
         TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         testClassLoader.initialize();

@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.profiler.context.module;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Module;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
@@ -83,13 +83,18 @@ public class DefaultApplicationContextTest {
     }
 
     private DefaultApplicationContext newApplicationContext() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
+        DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        profilerConfig.setStaticResourceCleanup(true);
+
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
 
-        return new DefaultApplicationContext(agentOption, binder, new DefaultModuleFactoryProvider(""));
+        InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
+        Module interceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(interceptorRegistryModule);
+
+        return new DefaultApplicationContext(agentOption, moduleFactory);
     }
 
 }
