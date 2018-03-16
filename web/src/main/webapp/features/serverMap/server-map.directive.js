@@ -410,7 +410,7 @@
 								$timeout(function() {
 									if ( scope.oNavbarVoService.isRealtime() ) {
 										htLastQuery.to = htLastQuery.to + reloadRequestRepeatingTime;
-										htLastQuery.from = htLastQuery.from - reloadRequestTimeRange;
+										htLastQuery.from = htLastQuery.to - reloadRequestTimeRange;
 										ServerMapDaoService.getServerMapData(htLastQuery, function (err, query, mapData) {
 											if ( scope.oNavbarVoService.isRealtime() ) {
 												htLastMapData = mapData;
