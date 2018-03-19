@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.rpc.codec.TestCodec;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.Packet;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
@@ -26,8 +27,6 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -38,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -218,19 +216,13 @@ public class HealthCheckTest {
     }
 
     private void sendPingPacket(OutputStream outputStream, Packet pingPacket) throws ProtocolException, IOException {
-        ByteBuffer bb = pingPacket.toBuffer().toByteBuffer(0, pingPacket.toBuffer().writerIndex());
-        IOUtils.write(outputStream, bb.array());
+        byte[] payload = TestCodec.encodePacket(pingPacket);
+        IOUtils.write(outputStream, payload);
     }
-
 
     private PongPacket readPongPacket(InputStream inputStream) throws ProtocolException, IOException {
         byte[] payload = IOUtils.read(inputStream, 50, 3000);
-        ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
-
-        short packetType = cb.readShort();
-
-        PongPacket pongPacket = PongPacket.readBuffer(packetType, cb);
-        return pongPacket;
+        return (PongPacket) TestCodec.decodePacket(payload);
     }
 
 }

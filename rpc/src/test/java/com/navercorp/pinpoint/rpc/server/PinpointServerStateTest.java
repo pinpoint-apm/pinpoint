@@ -21,13 +21,13 @@ import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.rpc.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.codec.TestCodec;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
-import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -175,9 +175,7 @@ public class PinpointServerStateTest {
 
     private byte[] createHandshakePayload(Map<String, Object> data) throws ProtocolException {
         byte[] payload = ControlMessageEncodingUtils.encode(data);
-        ControlHandshakePacket handshakePacket = new ControlHandshakePacket(0, payload);
-        ChannelBuffer channelBuffer = handshakePacket.toBuffer();
-        return channelBuffer.toByteBuffer().array();
+        return TestCodec.encodePacket(new ControlHandshakePacket(0, payload));
     }
 
     private void assertAvailableWritableSocket(final PinpointServerAcceptor serverAcceptor) {
