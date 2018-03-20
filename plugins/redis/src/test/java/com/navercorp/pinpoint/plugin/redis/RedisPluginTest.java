@@ -26,9 +26,7 @@ public class RedisPluginTest extends BasePinpointTest {
         try {
             jedis.get("foo");
         } finally {
-            if(jedis != null) {
-                jedis.close();
-            }
+            close(jedis);
         }
         final List<SpanEventBo> events = getCurrentSpanEvents();
         assertEquals(1, events.size());
@@ -38,16 +36,20 @@ public class RedisPluginTest extends BasePinpointTest {
         assertEquals("REDIS", eventBo.getDestinationId());
         
     }
-    
+
+    public void close(Jedis jedis) {
+        if (jedis != null) {
+            jedis.close();
+        }
+    }
+
     @Test
     public void binaryJedis() {
         JedisMock jedis = new JedisMock("localhost", 6379);
         try {
             jedis.get("foo".getBytes());
         } finally {
-            if(jedis != null) {
-                jedis.close();
-            }
+            close(jedis);
         }
         final List<SpanEventBo> events = getCurrentSpanEvents();
         assertEquals(1, events.size());
@@ -65,9 +67,7 @@ public class RedisPluginTest extends BasePinpointTest {
             Pipeline pipeline = jedis.pipelined();
             pipeline.get("foo");
         } finally {
-            if(jedis != null) {
-                jedis.close();
-            }
+            close(jedis);
         }
         
         final List<SpanEventBo> events = getCurrentSpanEvents();

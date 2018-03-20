@@ -18,23 +18,24 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.net.URL;
+import java.lang.instrument.Instrumentation;
+import java.util.Collections;
+
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,12 +44,13 @@ public class MockApplicationContextModuleTest {
 
     @Test
     public void test() {
-        DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        profilerConfig.setStaticResourceCleanup(true);
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+        Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
-        AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
-                "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+        AgentOption agentOption = new DefaultAgentOption(instrumentation,
+                "mockAgent", "mockApplicationName", profilerConfig, Collections.<String>emptyList(),
+                null);
 
         PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
         try {
@@ -60,10 +62,13 @@ public class MockApplicationContextModuleTest {
 
     @Test
     public void testMockApplicationContext() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
-                "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+        Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
+
+        AgentOption agentOption = new DefaultAgentOption(instrumentation,
+                "mockAgent", "mockApplicationName", profilerConfig, Collections.<String>emptyList(),
+                null);
 
         Module pluginModule = new PluginApplicationContextModule();
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();

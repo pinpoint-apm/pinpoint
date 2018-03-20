@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
@@ -58,8 +57,6 @@ public class DefaultAgent implements Agent {
     private final Object agentStatusLock = new Object();
     private volatile AgentStatus agentStatus;
 
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
-    
 
     static {
         // Preload classes related to pinpoint-rpc module.
@@ -76,17 +73,11 @@ public class DefaultAgent implements Agent {
         if (agentOption.getProfilerConfig() == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        if (agentOption.getServiceTypeRegistryService() == null) {
-            throw new NullPointerException("serviceTypeRegistryService must not be null");
-        }
 
         logger.info("AgentOption:{}", agentOption);
 
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
-
-
-        this.serviceTypeRegistryService = agentOption.getServiceTypeRegistryService();
 
         dumpSystemProperties();
         dumpConfig(agentOption.getProfilerConfig());
@@ -143,10 +134,6 @@ public class DefaultAgent implements Agent {
     }
 
 
-    public ServiceTypeRegistryService getServiceTypeRegistryService() {
-        return serviceTypeRegistryService;
-    }
-    
     @Override
     public void start() {
         synchronized (agentStatusLock) {

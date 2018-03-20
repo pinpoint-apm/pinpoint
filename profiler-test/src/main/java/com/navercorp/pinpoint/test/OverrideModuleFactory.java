@@ -27,15 +27,15 @@ import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
  * @author Woonduk Kang(emeroad)
  */
 public class OverrideModuleFactory implements ModuleFactory {
-    private final Module[] with;
+    private final Module[] overrideModule;
 
-    public OverrideModuleFactory(Module... with) {
-        this.with = Assert.requireNonNull(with, "with must not be null");
+    public OverrideModuleFactory(Module... overrideModule) {
+        this.overrideModule = Assert.requireNonNull(overrideModule, "overrideModule must not be null");
     }
 
     @Override
     public Module newModule(AgentOption agentOption) {
         Module module = new ApplicationContextModule(agentOption);
-        return Modules.override(module).with(with);
+        return Modules.override(module).with(overrideModule);
     }
 }

@@ -18,22 +18,24 @@ package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.bootstrap.classloader.LibClass;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.common.plugin.JarPlugin;
+import com.navercorp.pinpoint.common.plugin.Plugin;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginPackageFilter;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.jar.JarFile;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,14 +50,12 @@ public class JarProfilerPluginClassInjectorTest {
 
     @Test
     public void testInjectClass() throws Exception {
-        final URL sampleJar = getSampleJar("org.slf4j.impl.Log4jLoggerAdapter");
+        final Plugin plugin = getMockPlugin("org.slf4j.impl.Log4jLoggerAdapter");
 
-        final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{sampleJar});
+        final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{plugin.getURL()});
 
-        final ProfilerPlugin profilerPlugin = Mockito.mock(ProfilerPlugin.class);
-
-        final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(Arrays.asList(LOG4_IMPL));
-        PluginConfig pluginConfig = new PluginConfig(sampleJar, pluginPackageFilter);
+         final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(Collections.singletonList(LOG4_IMPL));
+        PluginConfig pluginConfig = new PluginConfig(plugin, pluginPackageFilter);
         logger.debug("pluginConfig:{}", pluginConfig);
 
         PlainClassLoaderHandler injector = new PlainClassLoaderHandler(pluginConfig);
@@ -97,7 +97,7 @@ public class JarProfilerPluginClassInjectorTest {
     }
 
 
-    private URL getSampleJar(String className) {
+    private Plugin getMockPlugin(String className) throws IOException {
         ClassLoader cl = ClassLoaderUtils.getDefaultClassLoader();
         Class<?> clazz = null;
         try {
@@ -105,16 +105,16 @@ public class JarProfilerPluginClassInjectorTest {
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(className + " class not found. Caused by:" + ex.getMessage(), ex);
         }
-        return getSampleJar(clazz);
+        return getMockPlugin(clazz);
     }
 
-    private URL getSampleJar(Class clazz) {
+    private Plugin<?> getMockPlugin(Class<?> clazz) throws IOException {
         final CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
         final URL location = codeSource.getLocation();
 
         logger.debug("url:{}", location);
-
-        return location;
+        JarFile jarFile = new JarFile(location.getPath());
+        return new JarPlugin<Object>(location, jarFile, Collections.emptyList(), Collections.<String>emptyList());
     }
 
 }
