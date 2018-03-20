@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.test;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.util.Providers;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.common.plugin.ServerPluginLoader;
+import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
@@ -49,11 +52,11 @@ public class MockApplicationContextModule extends AbstractModule {
     @Override
     protected void configure() {
 
-        final DataSender spanDataSender = newUdpSpanDataSender();
+        final DataSender spanDataSender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
         logger.debug("spanDataSender:{}", spanDataSender);
         bind(DataSender.class).annotatedWith(SpanDataSender.class).toInstance(spanDataSender);
 
-        final DataSender statDataSender = newUdpStatDataSender();
+        final DataSender statDataSender = new ListenableDataSender<TBase<?, ?>>("StatDataSender");
         logger.debug("statDataSender:{}", statDataSender);
         bind(DataSender.class).annotatedWith(StatDataSender.class).toInstance(statDataSender);
 
@@ -63,31 +66,17 @@ public class MockApplicationContextModule extends AbstractModule {
 
         bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
 
-        EnhancedDataSender enhancedDataSender = newTcpDataSender();
+        EnhancedDataSender enhancedDataSender = new TestTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
         bind(EnhancedDataSender.class).toInstance(enhancedDataSender);
 
         ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
         bind(ServerMetaDataRegistryService.class).toInstance(serverMetaDataRegistryService);
 
+        bind(PluginLoader.class).toInstance(new ServerPluginLoader(ClassLoaderUtils.getDefaultClassLoader()));
         bind(PluginContextLoadResult.class).toProvider(MockPluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
     }
 
-
-    protected DataSender newUdpStatDataSender() {
-        DataSender dataSender = new ListenableDataSender<TBase<?, ?>>("StatDataSender");
-        return dataSender;
-    }
-
-
-    protected DataSender newUdpSpanDataSender() {
-        DataSender dataSender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
-        return dataSender;
-    }
-
-    protected EnhancedDataSender newTcpDataSender() {
-        return new TestTcpDataSender();
-    }
 
     private ServerMetaDataRegistryService newServerMetaDataRegistryService() {
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();

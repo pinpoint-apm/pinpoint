@@ -81,8 +81,8 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     public DefaultApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
         Assert.requireNonNull(agentOption, "agentOption must not be null");
-        this.profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
         Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
+        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
 
         this.instrumentation = agentOption.getInstrumentation();
         if (logger.isInfoEnabled()) {
@@ -92,6 +92,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         final Module applicationContextModule = moduleFactory.newModule(agentOption);
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
+        this.profilerConfig = injector.getInstance(ProfilerConfig.class);
         this.interceptorRegistryBinder = injector.getInstance(InterceptorRegistryBinder.class);
 
         this.instrumentEngine = injector.getInstance(InstrumentEngine.class);
@@ -189,6 +190,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     public ServerMetaDataRegistryService getServerMetaDataRegistryService() {
         return this.serverMetaDataRegistryService;
     }
+
 
     @Override
     public void start() {

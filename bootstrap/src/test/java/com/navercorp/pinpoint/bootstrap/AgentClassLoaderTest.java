@@ -17,18 +17,18 @@
 package com.navercorp.pinpoint.bootstrap;
 
 
-import java.io.IOException;
-import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
+import java.util.Collections;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author emeroad
@@ -38,16 +38,14 @@ public class AgentClassLoaderTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void boot() throws IOException, ClassNotFoundException {
+    public void boot() {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
         agentClassLoader.setBootClass("com.navercorp.pinpoint.bootstrap.DummyAgent");
-        AgentOption option = new DefaultAgentOption(new DummyInstrumentation(), "testCaseAgent", "testCaseAppName", new DefaultProfilerConfig(), new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
-        agentClassLoader.boot(option);
-        // TODO need verification - implementation for obtaining logger changed
-//        PLoggerBinder loggerBinder = (PLoggerBinder) agentClassLoader.initializeLoggerBinder();
-//        PLogger test = loggerBinder.getLogger("test");
-//        test.info("slf4j logger test");
+        Instrumentation instrumentation = mock(Instrumentation.class);
+        AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", "testCaseAppName", new DefaultProfilerConfig(), Collections.<String>emptyList(), null);
+        Agent boot = agentClassLoader.boot(option);
 
+        boot.stop();
     }
 
     private String getProjectLibDir() {

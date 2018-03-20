@@ -50,6 +50,7 @@ public class TestContext implements Closeable {
 
     public TestContext() {
         this.mockApplicationContext = createMockApplicationContext();
+        this.mockApplicationContext.start();
         this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockApplicationContext);
         this.classLoader.initialize();
         try {

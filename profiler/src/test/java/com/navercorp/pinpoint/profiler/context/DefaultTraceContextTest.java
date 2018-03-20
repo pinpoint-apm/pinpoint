@@ -53,6 +53,7 @@ public class DefaultTraceContextTest {
         ProfilerConfig profilerConfig = getProfilerConfig();
 
         applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext.start();
     }
 
     @After
@@ -99,6 +100,8 @@ public class DefaultTraceContextTest {
         ProfilerConfig profilerConfig = getProfilerConfig();
 
         DefaultApplicationContext applicationContext2 = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext2.start();
+
         TraceContext traceContext2 = applicationContext2.getTraceContext();
         Trace notExist = traceContext2.currentRawTraceObject();
         applicationContext2.close();
@@ -122,6 +125,8 @@ public class DefaultTraceContextTest {
 
 
         DefaultApplicationContext customContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        customContext.start();
+
         final TraceContext traceContext = customContext.getTraceContext();
         IdGenerator idGenerator = customContext.getInjector().getInstance(IdGenerator.class);
         final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);

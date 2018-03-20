@@ -70,6 +70,7 @@ public class ActiveTraceRepositoryTest {
         Mockito.when(profilerConfig.getSamplingRate()).thenReturn(SAMPLING_RATE);
 
         this.applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext.start();
 
         this.traceContext = applicationContext.getTraceContext();
         this.transactionCounter = new DefaultTransactionCounter(applicationContext.getInjector().getInstance(IdGenerator.class));

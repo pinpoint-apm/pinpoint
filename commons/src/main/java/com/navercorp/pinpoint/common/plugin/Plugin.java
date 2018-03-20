@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.common.plugin;
 
-import java.lang.instrument.Instrumentation;
+import java.net.URL;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-
 /**
- * @author emeroad
+ * @author Woonduk Kang(emeroad)
  */
-public interface AgentOption {
+public interface Plugin<T> {
+    URL getURL();
 
-    Instrumentation getInstrumentation();
+    List<T> getInstanceList();
 
-    String getAgentId();
-
-    String getApplicationName();
-
-    ProfilerConfig getProfilerConfig();
-
-    List<String> getPluginJars();
-
-    List<String> getBootstrapJarPaths();
-
+    List<String> getPackageList();
 }

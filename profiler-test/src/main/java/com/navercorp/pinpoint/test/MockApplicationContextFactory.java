@@ -16,19 +16,12 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -36,6 +29,7 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.Collections;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -46,7 +40,7 @@ public class MockApplicationContextFactory {
     }
 
     public DefaultApplicationContext build(String configPath) {
-        ProfilerConfig profilerConfig = readProfilerConfig(configPath, MockApplicationContext.class.getClassLoader());
+        ProfilerConfig profilerConfig = readProfilerConfig(configPath, this.getClass().getClassLoader());
         return build(profilerConfig);
     }
 
@@ -76,13 +70,7 @@ public class MockApplicationContextFactory {
 
     public DefaultApplicationContext build(ProfilerConfig config) {
         DefaultApplicationContext context = build(config, newModuleFactory());
-        bindInterceptorRegistry(context.getInjector());
         return context;
-    }
-
-    private void bindInterceptorRegistry(Injector injector) {
-        InterceptorRegistryBinder binder = injector.getInstance(InterceptorRegistryBinder.class);
-        binder.bind();
     }
 
     public DefaultApplicationContext build(ProfilerConfig config, ModuleFactory moduleFactory) {
@@ -90,12 +78,9 @@ public class MockApplicationContextFactory {
         String mockAgent = "mockAgent";
         String mockApplicationName = "mockApplicationName";
 
-        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
-
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, new URL[0],
-                null, serviceTypeRegistryService, annotationKeyRegistryService);
-        return new MockApplicationContext(agentOption, moduleFactory);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, Collections.<String>emptyList(),
+                null);
+        return new DefaultApplicationContext(agentOption, moduleFactory);
     }
 
 
