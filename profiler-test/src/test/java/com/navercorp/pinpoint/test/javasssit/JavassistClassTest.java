@@ -43,6 +43,7 @@ import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import javassist.bytecode.Descriptor;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -62,13 +63,33 @@ import static org.mockito.Mockito.mock;
 /**
  * @author emeroad
  */
-@Deprecated
+//@Deprecated
 public class JavassistClassTest {
     private Logger logger = LoggerFactory.getLogger(JavassistClassTest.class.getName());
 
+    private DefaultApplicationContext applicationContext;
+    Slf4jLoggerBinder loggerBinder = new Slf4jLoggerBinder();
+
     @Before
-    public void clear() {
+    public void setUp() throws Exception {
         TestInterceptors.clear();
+        PLoggerFactory.initialize(loggerBinder);
+
+        DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
+        profilerConfig.setStaticResourceCleanup(true);
+
+        MockApplicationContextFactory factory = new MockApplicationContextFactory();
+        this.applicationContext = factory.build(profilerConfig);
+        this.applicationContext.start();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        PLoggerFactory.unregister(loggerBinder);
+        if (this.applicationContext != null) {
+            this.applicationContext.close();
+        }
     }
 
     private byte[] readByteCode(String className) {
@@ -206,15 +227,6 @@ public class JavassistClassTest {
     }
 
     private TestClassLoader getTestClassLoader() {
-        PLoggerFactory.initialize(new Slf4jLoggerBinder());
-
-        DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
-        profilerConfig.setStaticResourceCleanup(true);
-
-        MockApplicationContextFactory factory = new MockApplicationContextFactory();
-        DefaultApplicationContext applicationContext = factory.build(profilerConfig);
-
         TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         testClassLoader.initialize();
         return testClassLoader;

@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.provider.plugin.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
@@ -45,34 +48,24 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     private final List<SetupResult> setupResultList;
 
     public DefaultPluginContextLoadResult(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
-                                          URL[] pluginJars) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (dynamicTransformTrigger == null) {
-            throw new NullPointerException("dynamicTransformTrigger must not be null");
-        }
-        if (instrumentEngine == null) {
-            throw new NullPointerException("instrumentEngine must not be null");
-        }
-        if (pluginJars == null) {
-            throw new NullPointerException("pluginJars must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-        this.dynamicTransformTrigger = dynamicTransformTrigger;
+                                          URL[] pluginJars, PluginLoader pluginLoader) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
+        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars must not be null");
+        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
 
-        this.pluginJars = pluginJars;
-        this.instrumentEngine = instrumentEngine;
-        this.setupResultList = load();
+        this.setupResultList = load(pluginLoader);
     }
 
 
 
 
-    private List<SetupResult> load() {
+    private List<SetupResult> load(PluginLoader pluginLoader) {
+        Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
+
         logger.info("load plugin");
         PluginSetup pluginSetup = new DefaultPluginSetup(profilerConfig, instrumentEngine, dynamicTransformTrigger);
-        final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, instrumentEngine);
+        final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, instrumentEngine, pluginLoader);
         List<SetupResult> load = loader.load(pluginJars);
         return load;
     }

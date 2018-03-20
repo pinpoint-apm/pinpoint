@@ -83,7 +83,7 @@ public class DependencyGraph {
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+                null);
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
         Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);

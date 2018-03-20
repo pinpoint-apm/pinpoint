@@ -386,7 +386,8 @@
     </bean>
 
     <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService">
-        <constructor-arg ref="slf4jCommonLoggerFactory"/>
+        <constructor-arg index="0" value="#{T(org.springframework.util.ClassUtils).getDefaultClassLoader()}"/>
+        <constructor-arg index="1" ref="slf4jCommonLoggerFactory"/>
     </bean>
 
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">

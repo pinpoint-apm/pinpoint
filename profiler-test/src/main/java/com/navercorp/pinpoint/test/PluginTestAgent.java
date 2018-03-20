@@ -27,17 +27,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.google.inject.Module;
-import com.google.inject.util.Modules;
+import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 
@@ -58,7 +59,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
@@ -74,26 +77,21 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
  */
 public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier {
 
-
-    private AnnotationKeyRegistryService annotationKeyRegistryService;
-
     private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
 
-    private PluginApplicationContextModule pluginApplicationContextModule;
-
+    private DefaultApplicationContext applicationContext;
 
     public PluginTestAgent(AgentOption agentOption) {
         super(agentOption);
-        this.annotationKeyRegistryService = agentOption.getAnnotationKeyRegistryService();
         PluginTestVerifierHolder.setInstance(this);
     }
 
     @Override
     protected ApplicationContext newApplicationContext(AgentOption agentOption) {
 
-        this.pluginApplicationContextModule = new PluginApplicationContextModule();
+        PluginApplicationContextModule pluginApplicationContextModule = new PluginApplicationContextModule();
         ModuleFactory moduleFactory = new OverrideModuleFactory(pluginApplicationContextModule);
-        ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, moduleFactory);
+        this.applicationContext = new DefaultApplicationContext(agentOption, moduleFactory);
         return applicationContext;
 
     }
@@ -183,7 +181,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private ServiceType findServiceType(String name) {
-        ServiceType serviceType = getServiceTypeRegistryService().findServiceTypeByName(name);
+        ServiceTypeRegistryService serviceTypeRegistryService = getServiceTypeRegistry();
+        ServiceType serviceType = serviceTypeRegistryService.findServiceTypeByName(name);
 
         if (serviceType == ServiceType.UNDEFINED) {
             throw new AssertionError("No such service type: " + name);
@@ -330,6 +329,19 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     private static String toString(TAnnotation a) {
         return a.getKey() + "=" + a.getValue().getFieldValue();
+    }
+
+    private Injector getInjector() {
+        return this.applicationContext.getInjector();
+    }
+
+    private ServiceTypeRegistryService getServiceTypeRegistry() {
+        return getInjector().getInstance(ServiceTypeRegistryService.class);
+    }
+
+    private AnnotationKeyRegistryService getAnnotationKeyRegistryService() {
+        Injector injector = getInjector();
+        return injector.getInstance(AnnotationKeyRegistryService.class);
     }
 
     private interface ActualTrace {
@@ -654,7 +666,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
         for (int i = 0; i < len; i++) {
             ExpectedAnnotation expect = expected.annotations[i];
-            AnnotationKey expectedAnnotationKey = annotationKeyRegistryService.findAnnotationKeyByName(expect.getKeyName());
+            AnnotationKey expectedAnnotationKey = getAnnotationKeyRegistryService().findAnnotationKeyByName(expect.getKeyName());
             TAnnotation actualAnnotation = actualAnnotations.get(i);
 
             if (expectedAnnotationKey.getCode() != actualAnnotation.getKey()) {
@@ -748,15 +760,32 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private TestTcpDataSender getTestTcpDataSender() {
-        return this.pluginApplicationContextModule.getTcpDataSender();
+        Injector injector = getInjector();
+        EnhancedDataSender dataSender = injector.getInstance(EnhancedDataSender.class);
+        if (dataSender instanceof TestTcpDataSender) {
+            return (TestTcpDataSender)dataSender;
+        }
+        throw new IllegalStateException("unexpected dataSender" + dataSender);
     }
 
     private OrderedSpanRecorder getRecorder() {
-        return this.pluginApplicationContextModule.getOrderedSpanRecorder();
+        Injector injector = getInjector();
+        Key<DataSender> dataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
+        DataSender dataSender = injector.getInstance(dataSenderKey);
+        if (dataSender instanceof ListenableDataSender) {
+            ListenableDataSender listenableDataSender = (ListenableDataSender) dataSender;
+            ListenableDataSender.Listener listener = listenableDataSender.getListener();
+            if (listener instanceof OrderedSpanRecorder) {
+                return (OrderedSpanRecorder) listener;
+            }
+        }
+
+        throw new IllegalStateException("unexpected datasender:" + dataSender);
     }
 
     private ServerMetaData getServerMetaData() {
-        return this.pluginApplicationContextModule.getServerMetaData();
+        Injector injector = getInjector();
+        return injector.getInstance(ServerMetaDataRegistryService.class).getServerMetaData();
     }
 
     private Object popSpan() {

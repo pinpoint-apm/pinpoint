@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Module;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
@@ -28,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
@@ -104,6 +105,7 @@ import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginLoaderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricCollectorProvider;
@@ -176,13 +178,11 @@ import java.util.List;
  */
 public class ApplicationContextModule extends AbstractModule {
     private final ProfilerConfig profilerConfig;
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final AgentOption agentOption;
 
     public ApplicationContextModule(AgentOption agentOption) {
         this.agentOption = Assert.requireNonNull(agentOption, "agentOption must not be null");
         this.profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "agentOption.getProfilerConfig() must not be null");
-        this.serviceTypeRegistryService = Assert.requireNonNull(agentOption.getServiceTypeRegistryService(), "agentOption.getServiceTypeRegistryService() must not be null");
     }
 
     @Override
@@ -192,8 +192,11 @@ public class ApplicationContextModule extends AbstractModule {
         binder().disableCircularProxies();
 
         bind(ProfilerConfig.class).toInstance(profilerConfig);
-        bind(ServiceTypeRegistryService.class).toInstance(serviceTypeRegistryService);
         bind(Instrumentation.class).toInstance(agentOption.getInstrumentation());
+
+        Module pluginModule = new PluginModule();
+        install(pluginModule);
+
 
         bind(InterceptorRegistryBinder.class).toProvider(InterceptorRegistryBinderProvider.class).in(Scopes.SINGLETON);
 
@@ -237,6 +240,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(ActiveTraceRepository.class).toProvider(ActiveTraceRepositoryProvider.class).in(Scopes.SINGLETON);
 
         bind(PluginContextLoadResult.class).toProvider(PluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
+        bind(PluginLoader.class).toProvider(PluginLoaderProvider.class).in(Scopes.SINGLETON);
 
         bind(JdbcContext.class).to(DefaultJdbcContext.class).in(Scopes.SINGLETON);
         bind(JdbcUrlParsingService.class).toProvider(JdbcUrlParsingServiceProvider.class).in(Scopes.SINGLETON);

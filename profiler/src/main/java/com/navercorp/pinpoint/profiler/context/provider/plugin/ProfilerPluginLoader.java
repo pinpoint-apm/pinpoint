@@ -1,18 +1,19 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,8 +28,17 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.plugin.JarPluginLoader;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.plugin.ClassNameFilter;
+import com.navercorp.pinpoint.profiler.plugin.ClassNameFilterChain;
+import com.navercorp.pinpoint.profiler.plugin.PinpointProfilerPackageSkipFilter;
+import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
+import com.navercorp.pinpoint.profiler.plugin.PluginPackageFilter;
+import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
+import com.navercorp.pinpoint.profiler.plugin.SetupResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,23 +59,15 @@ public class ProfilerPluginLoader {
     private final ProfilerConfig profilerConfig;
     private final PluginSetup pluginSetup;
     private final InstrumentEngine instrumentEngine;
+    private final PluginLoader pluginLoader;
 
 
-    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup, InstrumentEngine instrumentEngine) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (pluginSetup == null) {
-            throw new NullPointerException("pluginSetup must not be null");
-        }
-        if (instrumentEngine == null) {
-            throw new NullPointerException("instrumentEngine must not be null");
-        }
-
-
-        this.profilerConfig = profilerConfig;
-        this.pluginSetup = pluginSetup;
-        this.instrumentEngine = instrumentEngine;
+    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup,
+                                InstrumentEngine instrumentEngine, PluginLoader pluginLoader) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup must not be null");
+        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
+        this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
 
     }
 
@@ -80,7 +82,7 @@ public class ProfilerPluginLoader {
 
             final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
 
-            final List<ProfilerPlugin> original = PluginLoader.load(ProfilerPlugin.class, new URL[] { pluginJar });
+            List<ProfilerPlugin> original = pluginLoader.load(pluginJar, ProfilerPlugin.class);
 
             List<ProfilerPlugin> plugins = filterDisablePlugin(original);
 

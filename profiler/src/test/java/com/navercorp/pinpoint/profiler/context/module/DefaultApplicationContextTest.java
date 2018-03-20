@@ -87,8 +87,8 @@ public class DefaultApplicationContextTest {
         profilerConfig.setStaticResourceCleanup(true);
 
         Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig,
+                new URL[0], null);
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
         Module interceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
