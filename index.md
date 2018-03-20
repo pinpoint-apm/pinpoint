@@ -16,10 +16,15 @@ disqus: false
 
 **Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
-* Install Agents without changing a single line of code
-* Minimal impact on performance (approximately 3% increase in resource usage)
+You should definitely check **Pinpoint** out If you want to
 
-## Latest new on Pinpoint?
+* understand your [application topology](./overview.html) at a glance
+* monitor your application in *Real-Time*
+* gain code-level visibility to every transaction
+* install APM Agents without changing a single line of code
+* have minimal impact on the performance (approximately 3% increase in resource usage)
+
+## Latest news on Pinpoint?
 [Latest updates on Pinpoint](./news.html)
 
 ## Want a quick tour?
@@ -27,6 +32,15 @@ disqus: false
 [Introduction to Pinpoint](https://www.youtube.com/watch?v=U4EwnB34Dus&feature=youtu.be)(v1.5.0)
 
 ![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/U4EwnB34Dus/0.jpg)
+
+## Quick Start
+
+[quick-start guide](./quickstart.html)
+
+## Installation
+
+[installation guide](./installation.html) for further instructions.
+
 
 ## Supported Modules
 * JDK 6+
@@ -41,6 +55,15 @@ disqus: false
 * gson, Jackson, Json Lib
 * log4j, Logback
 
+
+## Google Analytics
+The web module has google analytics attached that tracks the number and the order of button clicks in the server map, transaction list, and the inspector view.
+
+This data is used to better understand how users interact with the Web UI which gives us valuable information in improving Pinpoint Web's user experience.
+To disable this for any reason, set the following option to false in *pinpoint-web.properties* for your web instance.
+```
+config.sendUsage=false
+```
 
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.
