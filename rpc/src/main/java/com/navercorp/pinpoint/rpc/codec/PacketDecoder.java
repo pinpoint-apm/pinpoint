@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.codec;
 
+import com.navercorp.pinpoint.rpc.packet.ControlConnectionHandshakePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlConnectionHandshakeResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.PingSimplePacket;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -111,6 +113,11 @@ public class PacketDecoder extends FrameDecoder {
                 return readEnableWorker(packetType, buffer);
             case PacketType.CONTROL_HANDSHAKE_RESPONSE:
                 return readEnableWorkerConfirm(packetType, buffer);
+            case PacketType.CONTROL_CONNECTION_HANDSHAKE:
+                return readConnectionHandshake(packetType, buffer);
+            case PacketType.CONTROL_CONNECTION_HANDSHAKE_RESPONSE:
+                return readConnectionHandshakeResponse(packetType, buffer);
+
         }
         logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
         channel.close();
@@ -203,6 +210,14 @@ public class PacketDecoder extends FrameDecoder {
 
     Object readEnableWorkerConfirm(short packetType, ChannelBuffer buffer) {
         return ControlHandshakeResponsePacket.readBuffer(packetType, buffer);
+    }
+
+    Object readConnectionHandshake(short packetType, ChannelBuffer buffer) {
+        return ControlConnectionHandshakePacket.readBuffer(packetType, buffer);
+    }
+
+    Object readConnectionHandshakeResponse(short packetType, ChannelBuffer buffer) {
+        return ControlConnectionHandshakeResponsePacket.readBuffer(packetType, buffer);
     }
 
 }

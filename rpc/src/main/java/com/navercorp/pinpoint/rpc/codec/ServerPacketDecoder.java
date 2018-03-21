@@ -81,6 +81,8 @@ public class ServerPacketDecoder extends PacketDecoder {
                 return readEnableWorker(packetType, buffer);
             case PacketType.CONTROL_HANDSHAKE_RESPONSE:
                 return readEnableWorkerConfirm(packetType, buffer);
+            case PacketType.CONTROL_CONNECTION_HANDSHAKE:
+                return readConnectionHandshake(packetType, buffer);
         }
         logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
         channel.close();

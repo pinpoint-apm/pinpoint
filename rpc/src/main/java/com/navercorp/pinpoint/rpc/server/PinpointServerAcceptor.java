@@ -181,7 +181,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     @VisibleForTesting
-    void setMessageHandler(final ChannelHandler messageHandler) {
+    public void setMessageHandler(final ChannelHandler messageHandler) {
         Assert.requireNonNull(messageHandler, "messageHandler must not be null");
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
