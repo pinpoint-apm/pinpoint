@@ -15,23 +15,14 @@
  */
 package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.plugin.JarPluginLoader;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.common.plugin.Plugin;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.JarProfilerPluginClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.ClassNameFilter;
 import com.navercorp.pinpoint.profiler.plugin.ClassNameFilterChain;
 import com.navercorp.pinpoint.profiler.plugin.PinpointProfilerPackageSkipFilter;
@@ -42,10 +33,9 @@ import com.navercorp.pinpoint.profiler.plugin.SetupResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
-import com.navercorp.pinpoint.profiler.instrument.classloading.JarProfilerPluginClassInjector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Jongho Moon
@@ -71,50 +61,48 @@ public class ProfilerPluginLoader {
 
     }
 
-    public List<SetupResult> load(URL[] pluginJars) {
+    public List<SetupResult> load() {
 
-        List<SetupResult> pluginContexts = new ArrayList<SetupResult>(pluginJars.length);
+        List<Plugin<ProfilerPlugin>> plugins = pluginLoader.load(ProfilerPlugin.class);
 
-        for (URL pluginJar : pluginJars) {
-
-            final JarFile pluginJarFile = createJarFile(pluginJar);
-            final List<String> pluginPackageList = getPluginPackage(pluginJarFile);
-
-            final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
-
-            List<ProfilerPlugin> original = pluginLoader.load(pluginJar, ProfilerPlugin.class);
-
-            List<ProfilerPlugin> plugins = filterDisablePlugin(original);
-
-            for (ProfilerPlugin plugin : plugins) {
-                 if (logger.isInfoEnabled()) {
-                    logger.info("{} Plugin {}:{}", plugin.getClass(), PluginConfig.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
-                }
-                
-                logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
-
-                PluginConfig pluginConfig = new PluginConfig(pluginJar, pluginFilterChain);
-                final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig, instrumentEngine);
-                final SetupResult result = pluginSetup.setupPlugin(plugin, classInjector);
-                pluginContexts.add(result);
-            }
+        List<SetupResult> pluginContexts = new ArrayList<SetupResult>(plugins.size());
+        for (Plugin<ProfilerPlugin> plugin : plugins) {
+            List<SetupResult> setupResults = loadProfilerPlugin(plugin);
+            pluginContexts.addAll(setupResults);
         }
-        
 
         return pluginContexts;
     }
 
-    private List<ProfilerPlugin> filterDisablePlugin(List<ProfilerPlugin> plugins) {
+    private List<SetupResult> loadProfilerPlugin(Plugin<ProfilerPlugin> plugin) {
+        List<String> pluginPackageList = plugin.getPackageList();
+        final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
 
-        List<String> disabled = profilerConfig.getDisabledPlugins();
+        List<ProfilerPlugin> filterProfilerPlugin = filterProfilerPlugin(plugin.getInstanceList(), profilerConfig.getDisabledPlugins());
 
+        List<SetupResult> result = new ArrayList<SetupResult>();
+        for (ProfilerPlugin profilerPlugin : filterProfilerPlugin) {
+            if (logger.isInfoEnabled()) {
+                logger.info("{} Plugin {}:{}", profilerPlugin.getClass(), PluginConfig.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
+            }
+            logger.info("Loading plugin:{} pluginPackage:{}", profilerPlugin.getClass().getName(), profilerPlugin);
+
+            PluginConfig pluginConfig = new PluginConfig(plugin, pluginFilterChain);
+            final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig, instrumentEngine);
+            final SetupResult setupResult = pluginSetup.setupPlugin(profilerPlugin, classInjector);
+            result.add(setupResult);
+        }
+        return result;
+    }
+
+    private List<ProfilerPlugin> filterProfilerPlugin(List<ProfilerPlugin> originalProfilerPlugin, List<String> disabled) {
         List<ProfilerPlugin> result = new ArrayList<ProfilerPlugin>();
-        for (ProfilerPlugin plugin : plugins) {
-            if (disabled.contains(plugin.getClass().getName())) {
-                logger.info("Skip disabled plugin: {}", plugin.getClass().getName());
+        for (ProfilerPlugin profilerPlugin : originalProfilerPlugin) {
+            if (disabled.contains(profilerPlugin.getClass().getName())) {
+                logger.info("Skip disabled plugin: {}", profilerPlugin.getClass().getName());
                 continue;
             }
-            result.add(plugin);
+            result.add(profilerPlugin);
         }
         return result;
     }
@@ -129,40 +117,5 @@ public class ProfilerPluginLoader {
 
         return filterChain;
     }
-
-    private JarFile createJarFile(URL pluginJar) {
-        try {
-            final URI uri = pluginJar.toURI();
-            return new JarFile(new File(uri));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("URISyntax error. " + e.getCause(), e);
-        } catch (IOException e) {
-            throw new RuntimeException("IO error. " + e.getCause(), e);
-        }
-    }
-    private Manifest getManifest(JarFile pluginJarFile) {
-        try {
-            return pluginJarFile.getManifest();
-        } catch (IOException ex) {
-            logger.info("{} IoError :{}", pluginJarFile.getName(), ex.getMessage(), ex);
-            return null;
-        }
-    }
-
-    public List<String> getPluginPackage(JarFile pluginJarFile) {
-
-        final Manifest manifest =  getManifest(pluginJarFile);
-        if (manifest == null) {
-            return PluginConfig.DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME;
-        }
-
-        final Attributes attributes = manifest.getMainAttributes();
-        final String pluginPackage = attributes.getValue(PluginConfig.PINPOINT_PLUGIN_PACKAGE);
-        if (pluginPackage == null) {
-            return PluginConfig.DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME;
-        }
-        return StringUtils.tokenizeToStringList(pluginPackage, ",");
-    }
-
 
 }

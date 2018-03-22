@@ -18,17 +18,15 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.plugin.JarPluginLoader;
+import com.navercorp.pinpoint.common.plugin.Plugin;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,25 +37,24 @@ public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadat
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final URL[] pluginJars;
-
     private final PluginLoader pluginLoader;
+
     @Inject
-    public TraceMetadataLoaderServiceProvider(@PluginJars URL[] pluginJars, PluginLoader pluginLoader) {
-        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars must not be null");
+    public TraceMetadataLoaderServiceProvider(PluginLoader pluginLoader) {
         this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
     }
 
     @Override
     public TraceMetadataLoaderService get() {
-        Slf4jCommonLoggerFactory slf4jCommonLoggerFactory = new Slf4jCommonLoggerFactory();
 
+        List<Plugin<TraceMetadataProvider>> plugins = pluginLoader.load(TraceMetadataProvider.class);
         List<TraceMetadataProvider> providers = new ArrayList<TraceMetadataProvider>();
-        for (URL pluginJar : pluginJars) {
-            List<TraceMetadataProvider> load = pluginLoader.load(pluginJar, TraceMetadataProvider.class);
-            providers.addAll(load);
+        for (Plugin<TraceMetadataProvider> plugin : plugins) {
+            List<TraceMetadataProvider> pluginList = plugin.getInstanceList();
+            providers.addAll(pluginList);
         }
 
+        Slf4jCommonLoggerFactory slf4jCommonLoggerFactory = new Slf4jCommonLoggerFactory();
         TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(providers, slf4jCommonLoggerFactory);
         return typeLoaderService;
     }

@@ -128,27 +128,27 @@ public class TestClassLoader extends TransformClassLoader {
     }
 
     public void addTranslator() {
+        this.instrumentTranslator = newTranslator();
+        addTranslator(instrumentTranslator);
+    }
+
+    private Translator newTranslator() {
         final InstrumentEngine instrumentEngine = applicationContext.getInstrumentEngine();
         if (instrumentEngine instanceof JavassistEngine) {
 
             logger.info("JAVASSIST BCI engine");
             ClassPool classPool = ((JavassistEngine) instrumentEngine).getClassPool(this);
-            this.instrumentTranslator = new JavassistTranslator(this, classPool, applicationContext.getClassFileTransformerDispatcher());
-            this.addTranslator(instrumentTranslator);
-
-        } else if (instrumentEngine instanceof ASMEngine) {
-
-            logger.info("ASM BCI engine");
-            this.instrumentTranslator = new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
-            this.addTranslator(instrumentTranslator);
-
-        } else {
-
-            logger.info("Unknown BCI engine");
-
-            this.instrumentTranslator = new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
-            this.addTranslator(instrumentTranslator);
+            return new JavassistTranslator(this, classPool, applicationContext.getClassFileTransformerDispatcher());
         }
+
+        if (instrumentEngine instanceof ASMEngine) {
+            logger.info("ASM BCI engine");
+            return new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
+        }
+
+
+        logger.info("Unknown BCI engine");
+        return new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
     }
 
 }

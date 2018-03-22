@@ -83,7 +83,7 @@ class PinpointStarter {
             return false;
         }
 
-        URL[] pluginJars = classPathResolver.resolvePlugins();
+        List<String> pluginJars = classPathResolver.resolvePlugins();
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null) {
             return false;
@@ -138,7 +138,7 @@ class PinpointStarter {
 
     private AgentOption createAgentOption(String agentId, String applicationName, ProfilerConfig profilerConfig,
                                           Instrumentation instrumentation,
-                                          URL[] pluginJars,
+                                          List<String> pluginJars,
                                           BootstrapJarFile bootstrapJarFile) {
         List<String> bootstrapJarPaths = bootstrapJarFile.getJarNameList();
         return new DefaultAgentOption(instrumentation, agentId, applicationName, profilerConfig, pluginJars, bootstrapJarPaths);

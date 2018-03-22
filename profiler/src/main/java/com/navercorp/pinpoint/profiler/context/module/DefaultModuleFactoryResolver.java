@@ -29,25 +29,33 @@ import java.lang.reflect.Constructor;
  */
 public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
 
+    private static final String DEFAULT_MODULE_FACTORY = ApplicationContextModuleFactory.class.getName();
     private final Logger logger = LoggerFactory.getLogger(DefaultModuleFactoryResolver.class);
 
     private final String moduleFactoryClazzName;
-    private final boolean defaultModuleFactory;
+
+
 
     public DefaultModuleFactoryResolver() {
-        this(ApplicationContextModuleFactory.class.getName());
+        this(DEFAULT_MODULE_FACTORY);
     }
 
     public DefaultModuleFactoryResolver(String moduleFactoryClazzName) {
-        this.moduleFactoryClazzName = Assert.requireNonNull(moduleFactoryClazzName, "moduleFactoryClazzName must not be null");
-        this.defaultModuleFactory = isDefaultModuleFactory(moduleFactoryClazzName);
+        this.moduleFactoryClazzName = getDefaultModuleFactoryClassName(moduleFactoryClazzName);
+    }
+
+    private String getDefaultModuleFactoryClassName(String moduleFactoryClazzName) {
+        if (StringUtils.isEmpty(moduleFactoryClazzName)) {
+            return DEFAULT_MODULE_FACTORY;
+        }
+        return moduleFactoryClazzName;
     }
 
     private boolean isDefaultModuleFactory(String moduleFactoryClazzName) {
         if (StringUtils.isEmpty(moduleFactoryClazzName)) {
             return true;
         }
-        if (ApplicationContextModuleFactory.class.getName().equals(moduleFactoryClazzName)) {
+        if (DEFAULT_MODULE_FACTORY.equals(moduleFactoryClazzName)) {
             return true;
         }
         return false;
@@ -55,10 +63,11 @@ public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
 
     @Override
     public ModuleFactory resolve() {
-        if (defaultModuleFactory) {
+        logger.info("{} ModuleFactory lookup", moduleFactoryClazzName);
+        if (isDefaultModuleFactory(moduleFactoryClazzName)) {
             return new ApplicationContextModuleFactory();
         }
-        logger.info("{} ModuleFactory lookup", moduleFactoryClazzName);
+
         ClassLoader classLoader = getClassLoader(DefaultModuleFactoryResolver.class.getClassLoader());
         try {
             final Class<? extends ModuleFactory> moduleFactoryClass =

@@ -39,7 +39,6 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final URL[] pluginJars;
     private final InstrumentEngine instrumentEngine;
 
     private final ProfilerConfig profilerConfig;
@@ -48,10 +47,9 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     private final List<SetupResult> setupResultList;
 
     public DefaultPluginContextLoadResult(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
-                                          URL[] pluginJars, PluginLoader pluginLoader) {
+                                          PluginLoader pluginLoader) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
-        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars must not be null");
         this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
 
         this.setupResultList = load(pluginLoader);
@@ -66,7 +64,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
         logger.info("load plugin");
         PluginSetup pluginSetup = new DefaultPluginSetup(profilerConfig, instrumentEngine, dynamicTransformTrigger);
         final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, instrumentEngine, pluginLoader);
-        List<SetupResult> load = loader.load(pluginJars);
+        List<SetupResult> load = loader.load();
         return load;
     }
 

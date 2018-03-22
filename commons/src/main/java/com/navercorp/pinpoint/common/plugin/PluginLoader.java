@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.plugin;
 
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -24,6 +23,6 @@ import java.util.List;
  */
 public interface PluginLoader {
 
-    <T> List<T> load(URL pluginUrl, Class<T> serviceType);
+    <T> List<Plugin<T>> load(Class<T> serviceType);
 
 }

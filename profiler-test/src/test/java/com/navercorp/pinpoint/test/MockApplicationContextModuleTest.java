@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
+import java.util.Collections;
 
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -49,7 +49,7 @@ public class MockApplicationContextModuleTest {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
+                "mockAgent", "mockApplicationName", profilerConfig, Collections.<String>emptyList(),
                 null);
 
         PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
@@ -67,7 +67,7 @@ public class MockApplicationContextModuleTest {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
+                "mockAgent", "mockApplicationName", profilerConfig, Collections.<String>emptyList(),
                 null);
 
         Module pluginModule = new PluginApplicationContextModule();

@@ -169,7 +169,6 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
 import java.util.List;
 
 
@@ -200,10 +199,11 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(InterceptorRegistryBinder.class).toProvider(InterceptorRegistryBinderProvider.class).in(Scopes.SINGLETON);
 
-        bind(URL[].class).annotatedWith(PluginJars.class).toInstance(agentOption.getPluginJars());
+        TypeLiteral<List<String>> pluginJarFile = new TypeLiteral<List<String>>() {};
+        bind(pluginJarFile).annotatedWith(PluginJars.class).toInstance(agentOption.getPluginJars());
 
-        TypeLiteral<List<String>> listString = new TypeLiteral<List<String>>() {};
-        bind(listString).annotatedWith(BootstrapJarPaths.class).toInstance(agentOption.getBootstrapJarPaths());
+        TypeLiteral<List<String>> bootstrapJarFIle = new TypeLiteral<List<String>>() {};
+        bind(bootstrapJarFIle).annotatedWith(BootstrapJarPaths.class).toInstance(agentOption.getBootstrapJarPaths());
 
         bindAgentInformation(agentOption.getAgentId(), agentOption.getApplicationName());
 

@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.Collections;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -77,7 +78,7 @@ public class MockApplicationContextFactory {
         String mockAgent = "mockAgent";
         String mockApplicationName = "mockApplicationName";
 
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, new URL[0],
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, Collections.<String>emptyList(),
                 null);
         return new DefaultApplicationContext(agentOption, moduleFactory);
     }

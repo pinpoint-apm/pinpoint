@@ -89,7 +89,7 @@ public class URLClassLoaderHandler implements ClassInjector {
         return null;
     }
 
-    private void addPluginURLIfAbsent(URLClassLoader classLoader) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+    private void addPluginURLIfAbsent(URLClassLoader classLoader) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         final URL[] urls = classLoader.getURLs();
         if (urls != null) {
             final boolean hasPluginJar = hasPluginJar(urls);

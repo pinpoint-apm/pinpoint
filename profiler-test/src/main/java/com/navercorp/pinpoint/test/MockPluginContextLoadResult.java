@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.common.plugin.JarPluginLoader;
+import com.navercorp.pinpoint.common.plugin.Plugin;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
@@ -46,7 +45,6 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final PluginLoader pluginLoader;
 
-
     private List<SetupResult> lazy;
 
     public MockPluginContextLoadResult(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine,
@@ -65,24 +63,19 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
         return lazy;
     }
 
-
     private List<SetupResult> load() {
-
-        List<ProfilerPlugin> plugins = load(ProfilerPlugin.class, ClassLoader.getSystemClassLoader());
+        List<Plugin<ProfilerPlugin>> plugins = pluginLoader.load(ProfilerPlugin.class);
 
         List<SetupResult> pluginContexts = new ArrayList<SetupResult>();
         ClassInjector classInjector = new TestProfilerPluginClassLoader();
         PluginSetup pluginSetup = new MockPluginSetup(profilerConfig, instrumentEngine, dynamicTransformTrigger);
-        for (ProfilerPlugin plugin : plugins) {
-            SetupResult context = pluginSetup.setupPlugin(plugin, classInjector);
-            pluginContexts.add(context);
+        for (Plugin<ProfilerPlugin> plugin : plugins) {
+            for (ProfilerPlugin profilerPlugin : plugin.getInstanceList()) {
+                SetupResult context = pluginSetup.setupPlugin(profilerPlugin, classInjector);
+                pluginContexts.add(context);
+            }
         }
         return pluginContexts;
-    }
-
-    public <T> List<T> load(Class<T> serviceType, ClassLoader classLoader) {
-        ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceType, classLoader);
-        return Lists.newArrayList(serviceLoader);
     }
 
 

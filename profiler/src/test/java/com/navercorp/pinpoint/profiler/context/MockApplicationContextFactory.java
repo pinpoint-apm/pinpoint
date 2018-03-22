@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import org.mockito.Mockito;
 
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
+import java.util.Collections;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -39,7 +39,7 @@ public class MockApplicationContextFactory {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
         String mockAgent = "mockAgent";
         String mockApplicationName = "mockApplicationName";
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, new URL[0], null);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, Collections.<String>emptyList(), null);
         return new DefaultApplicationContext(agentOption, moduleFactory);
     }
 

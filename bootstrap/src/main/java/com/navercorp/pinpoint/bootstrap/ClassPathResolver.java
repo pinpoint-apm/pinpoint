@@ -47,7 +47,7 @@ public interface ClassPathResolver {
 
     List<URL> resolveLib();
 
-    URL[] resolvePlugins();
+    List<String> resolvePlugins();
 
     String getAgentDirPath();
 

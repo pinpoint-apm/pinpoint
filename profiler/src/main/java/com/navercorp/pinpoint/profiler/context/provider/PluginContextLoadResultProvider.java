@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
-import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.plugin.DefaultPluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
@@ -36,24 +35,21 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
 
     private final ProfilerConfig profilerConfig;
     private final InstrumentEngine instrumentEngine;
-    private final URL[] pluginJars;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final PluginLoader pluginLoader;
 
     @Inject
     public PluginContextLoadResultProvider(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
-                                           @PluginJars URL[] pluginJars, PluginLoader pluginLoader) {
+                                           PluginLoader pluginLoader) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
         this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
-        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars must not be null");
         this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
 
     }
 
     @Override
     public PluginContextLoadResult get() {
-        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, pluginJars, pluginLoader);
-
+        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, pluginLoader);
     }
 }

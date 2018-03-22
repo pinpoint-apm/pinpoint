@@ -17,16 +17,16 @@
 package com.navercorp.pinpoint.bootstrap;
 
 
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
+import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
 
@@ -42,7 +42,7 @@ public class AgentClassLoaderTest {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
         agentClassLoader.setBootClass("com.navercorp.pinpoint.bootstrap.DummyAgent");
         Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", "testCaseAppName", new DefaultProfilerConfig(), new URL[0], null);
+        AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", "testCaseAppName", new DefaultProfilerConfig(), Collections.<String>emptyList(), null);
         Agent boot = agentClassLoader.boot(option);
 
         boot.stop();

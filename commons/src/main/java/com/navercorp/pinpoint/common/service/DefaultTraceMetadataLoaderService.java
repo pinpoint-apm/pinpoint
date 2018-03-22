@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 
-import java.net.URL;
 import java.util.List;
 
 /**

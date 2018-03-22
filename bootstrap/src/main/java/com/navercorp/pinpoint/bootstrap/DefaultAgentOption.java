@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
  * @author emeroad
@@ -35,10 +33,10 @@ public class DefaultAgentOption implements AgentOption {
     private final String applicationName;
 
     private final ProfilerConfig profilerConfig;
-    private final URL[] pluginJars;
+    private final List<String> pluginJars;
     private final List<String> bootstrapJarPaths;
 
-    public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final ProfilerConfig profilerConfig, final URL[] pluginJars, final List<String> bootstrapJarPaths) {
+    public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
@@ -82,7 +80,7 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
-    public URL[] getPluginJars() {
+    public List<String> getPluginJars() {
         return this.pluginJars;
     }
 
@@ -104,7 +102,7 @@ public class DefaultAgentOption implements AgentOption {
         sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", applicationName='").append(applicationName).append('\'');
         sb.append(", profilerConfig=").append(profilerConfig);
-        sb.append(", pluginJars=").append(Arrays.toString(pluginJars));
+        sb.append(", pluginJars=").append(pluginJars);
         sb.append(", bootstrapJarPaths=").append(bootstrapJarPaths);
         sb.append('}');
         return sb.toString();
