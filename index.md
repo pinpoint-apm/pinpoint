@@ -1,6 +1,6 @@
 ---
 title: "Welcome to Pinpoint"
-keywords: Pinpoint homepage
+keywords: Pinpoint Homepage
 tags:
 sidebar: mydoc_sidebar
 permalink: index.html
@@ -24,23 +24,16 @@ You should definitely check **Pinpoint** out If you want to
 * install APM Agents without changing a single line of code
 * have minimal impact on the performance (approximately 3% increase in resource usage)
 
-## Latest news on Pinpoint?
-[Latest updates on Pinpoint](./news.html)
-
 ## Want a quick tour?
+ * [Latest updates on Pinpoint](./news.html)
+ * [Overview](./overview.html)/[History](./history.html)/[Tech Details](./techdetail.html) to get to know more about Pinpoint 
+ * [Introduction to Pinpoint(v1.5.0)](https://www.youtube.com/watch?v=U4EwnB34Dus&feature=youtu.be) - a video introducing Pinpoint
 
-[Introduction to Pinpoint](https://www.youtube.com/watch?v=U4EwnB34Dus&feature=youtu.be)(v1.5.0)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/U4EwnB34Dus" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
-![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/U4EwnB34Dus/0.jpg)
-
-## Quick Start
-
-[quick-start guide](./quickstart.html)
-
-## Installation
-
-[installation guide](./installation.html) for further instructions.
-
+## Getting Started
+ * [Quick-start guide](./quickstart.html) for simple test run of Pinpoint
+ * [Installation guide](./installation.html) for further instructions.
 
 ## Supported Modules
 * JDK 6+

@@ -1,1 +1,1 @@
-# Git page for pinpoint
+# Homepage for pinpoint
