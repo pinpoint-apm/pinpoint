@@ -30,3 +30,4 @@ Feel free to contact us anytime. We are glad to add more links.
 ## Resources (中文)
 * [Pinpoint学习笔记](http://skyao.gitbooks.io/leaning-pinpoint/)：中文资料收集整理和更重要的-中文翻译！
 * [Pinpoint - 应用性能管理(APM)平台实践之部署篇](https://sconts.com/11)
+* [开源APM工具Pinpoint线上部署](https://www.iqarr.com/2018/02/04/java/pinpoint/pinpoint-deploy/)
