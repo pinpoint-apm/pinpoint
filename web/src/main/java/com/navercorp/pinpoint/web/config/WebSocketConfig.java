@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.web.config;
 
 
-import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
-import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
-import com.navercorp.pinpoint.web.websocket.WebSocketSessionContextPrepareHandshakeInterceptor;
+import com.navercorp.pinpoint.web.websocket.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistration;
@@ -48,13 +47,18 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Autowired
     private ConfigProperties configProperties;
 
+    @Autowired(required = false)
+    private WebSocketHandlerDecoratorFactory webSocketHandlerDecoratorFactory = new DefaultWebSocketHandlerDecoratorFactory();
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         final String[] allowedOriginArray = getAllowedOriginArray(configProperties.getWebSocketAllowedOrigins());
 
         for (PinpointWebSocketHandler handler : handlerRepository.getWebSocketHandlerRepository()) {
             String path = handler.getRequestMapping() + WEBSOCKET_SUFFIX;
-            final WebSocketHandlerRegistration webSocketHandlerRegistration = registry.addHandler(handler, path);
+
+            WebSocketHandler webSocketHandler = webSocketHandlerDecoratorFactory.createWebSocketHandlerDecorator(handler);
+            final WebSocketHandlerRegistration webSocketHandlerRegistration = registry.addHandler(webSocketHandler, path);
 
             webSocketHandlerRegistration.addInterceptors(new HttpSessionHandshakeInterceptor());
             webSocketHandlerRegistration.addInterceptors(new WebSocketSessionContextPrepareHandshakeInterceptor());
