@@ -361,17 +361,17 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     }
     
     @Override
-    public URL[] resolvePlugins() {
+    public List<String> resolvePlugins() {
         final File file = new File(getAgentPluginPath());
         
         if (!file.exists()) {
             logger.warn(file + " not found");
-            return new URL[0];
+            return Collections.emptyList();
         }
         
         if (!file.isDirectory()) {
             logger.warn(file + " is not a directory");
-            return new URL[0];
+            return Collections.emptyList();
         }
         
         
@@ -379,31 +379,32 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             
             @Override
             public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
+                  return name.endsWith(".jar");
             }
         });
 
         if (isEmpty(jars)) {
-            return new URL[0];
-        }
-        
-        final URL[] urls = new URL[jars.length];
-        
-        
-        for (int i = 0; i < jars.length; i++) {
-            try {
-                urls[i] = jars[i].toURI().toURL();
-            } catch (MalformedURLException e) {
-                // TODO have to change to PinpointException AFTER moving the exception to pinpoint-common
-                throw new RuntimeException("Fail to load plugin jars", e);
-            }
+            return Collections.emptyList();
         }
 
+        List<String> pluginFileList = filterReadPermission(jars);
+        for (String pluginJar : pluginFileList) {
+            logger.info("Found plugins:" + pluginJar);
+        }
+        return pluginFileList;
+    }
+
+    private List<String> filterReadPermission(File[] jars) {
+        List<String> result = new ArrayList<String>();
         for (File pluginJar : jars) {
-            logger.info("Found plugins: " + pluginJar.getPath());
-        }
+            if (!pluginJar.canRead()) {
+                logger.info("File '" + pluginJar + "' cannot be read");
+                continue;
+            }
 
-        return urls;
+            result.add(pluginJar.getPath());
+        }
+        return result;
     }
 
     private URL toURI(File file) {

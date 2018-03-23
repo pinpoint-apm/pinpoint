@@ -16,11 +16,24 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
+import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.common.util.Assert;
+
 /**
- * @author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public interface ModuleFactoryProvider {
+public class OverrideModuleFactory implements ModuleFactory {
+    private final Module[] with;
 
-    ModuleFactory get();
+    public OverrideModuleFactory(Module... with) {
+        this.with = Assert.requireNonNull(with, "with must not be null");
+    }
 
+    @Override
+    public Module newModule(AgentOption agentOption) {
+        Module module = new ApplicationContextModule(agentOption);
+        return Modules.override(module).with(with);
+    }
 }

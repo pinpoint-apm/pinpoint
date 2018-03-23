@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
@@ -71,34 +70,30 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final AgentInformation agentInformation;
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
-
     private final ClassFileTransformerDispatcher classFileDispatcher;
 
     private final Instrumentation instrumentation;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
+    private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     private final Injector injector;
 
-    public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder, ModuleFactoryProvider moduleFactoryProvider) {
-        this(agentOption, interceptorRegistryBinder, moduleFactoryProvider.get());
-    }
-
-    public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder, ModuleFactory moduleFactory) {
+    public DefaultApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
         Assert.requireNonNull(agentOption, "agentOption must not be null");
-        this.profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
         Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
+        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
 
         this.instrumentation = agentOption.getInstrumentation();
-        this.serviceTypeRegistryService = agentOption.getServiceTypeRegistryService();
-
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
 
-        final Module applicationContextModule = moduleFactory.newModule(agentOption, interceptorRegistryBinder);
+        final Module applicationContextModule = moduleFactory.newModule(agentOption);
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
+
+        this.profilerConfig = injector.getInstance(ProfilerConfig.class);
+        this.interceptorRegistryBinder = injector.getInstance(InterceptorRegistryBinder.class);
 
         this.instrumentEngine = injector.getInstance(InstrumentEngine.class);
 
@@ -141,10 +136,6 @@ public class DefaultApplicationContext implements ApplicationContext {
             return BytecodeDumpTransformer.wrap(classFileTransformerDispatcher, profilerConfig);
         }
         return classFileTransformerDispatcher;
-    }
-
-    protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-        return new ApplicationContextModule(agentOption, interceptorRegistryBinder);
     }
 
     private DataSender newUdpStatDataSender() {
@@ -200,8 +191,11 @@ public class DefaultApplicationContext implements ApplicationContext {
         return this.serverMetaDataRegistryService;
     }
 
+
     @Override
     public void start() {
+        this.interceptorRegistryBinder.bind();
+
         this.deadlockMonitor.start();
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
@@ -221,6 +215,8 @@ public class DefaultApplicationContext implements ApplicationContext {
         }
 
         closeTcpDataSender();
+
+        this.interceptorRegistryBinder.unbind();
     }
 
     private void closeTcpDataSender() {

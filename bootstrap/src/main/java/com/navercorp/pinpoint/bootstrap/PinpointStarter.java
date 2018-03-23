@@ -18,17 +18,9 @@ import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
-import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -91,14 +83,7 @@ class PinpointStarter {
             return false;
         }
 
-        URL[] pluginJars = classPathResolver.resolvePlugins();
-
-        // TODO using PLogger instead of CommonLogger
-        CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
-        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(pluginJars, loggerFactory);
-        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(typeLoaderService, loggerFactory);
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, loggerFactory);
-
+        List<String> pluginJars = classPathResolver.resolvePlugins();
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null) {
             return false;
@@ -121,7 +106,7 @@ class PinpointStarter {
             logger.info("pinpoint agent [" + bootClass + "] starting...");
 
 
-            AgentOption option = createAgentOption(agentId, applicationName, profilerConfig, instrumentation, pluginJars, bootstrapJarFile, serviceTypeRegistryService, annotationKeyRegistryService);
+            AgentOption option = createAgentOption(agentId, applicationName, profilerConfig, instrumentation, pluginJars, bootstrapJarFile);
             Agent pinpointAgent = agentClassLoader.boot(option);
             pinpointAgent.start();
             registerShutdownHook(pinpointAgent);
@@ -153,12 +138,10 @@ class PinpointStarter {
 
     private AgentOption createAgentOption(String agentId, String applicationName, ProfilerConfig profilerConfig,
                                           Instrumentation instrumentation,
-                                          URL[] pluginJars,
-                                          BootstrapJarFile bootstrapJarFile,
-                                          ServiceTypeRegistryService serviceTypeRegistryService,
-                                          AnnotationKeyRegistryService annotationKeyRegistryService) {
+                                          List<String> pluginJars,
+                                          BootstrapJarFile bootstrapJarFile) {
         List<String> bootstrapJarPaths = bootstrapJarFile.getJarNameList();
-        return new DefaultAgentOption(instrumentation, agentId, applicationName, profilerConfig, pluginJars, bootstrapJarPaths, serviceTypeRegistryService, annotationKeyRegistryService);
+        return new DefaultAgentOption(instrumentation, agentId, applicationName, profilerConfig, pluginJars, bootstrapJarPaths);
     }
 
     // for test

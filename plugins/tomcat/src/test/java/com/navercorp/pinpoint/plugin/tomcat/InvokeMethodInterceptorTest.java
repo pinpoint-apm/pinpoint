@@ -71,6 +71,7 @@ public class InvokeMethodInterceptorTest {
 
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext.start();
     }
 
     @After

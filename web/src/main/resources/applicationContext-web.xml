@@ -84,7 +84,8 @@
     <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
     </bean>
 
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService">
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">
+        <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
     </bean>
 
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.graph;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.grapher.graphviz.GraphvizGrapher;
 import com.google.inject.grapher.graphviz.GraphvizModule;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -25,12 +26,13 @@ import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.Charsets;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
+import com.navercorp.pinpoint.profiler.context.module.OverrideModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +42,10 @@ import java.io.PrintWriter;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.security.CodeSource;
+import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -75,14 +79,19 @@ public class DependencyGraph {
     }
 
     private DefaultApplicationContext newApplicationContext() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        Mockito.when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+                "mockAgent", "mockApplicationName", profilerConfig, Collections.<String>emptyList(),
+                null);
 
-        return new DefaultApplicationContext(agentOption, binder, new DefaultModuleFactoryProvider(""));
+        InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
+        Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(testInterceptorRegistryModule);
+
+        return new DefaultApplicationContext(agentOption, moduleFactory);
     }
 
     private String currentWorkingDir() {
