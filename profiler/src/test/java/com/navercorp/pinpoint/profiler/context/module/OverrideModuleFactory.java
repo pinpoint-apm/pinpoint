@@ -33,7 +33,8 @@ public class OverrideModuleFactory implements ModuleFactory {
 
     @Override
     public Module newModule(AgentOption agentOption) {
-        Module module = new ApplicationContextModule(agentOption);
+        ModuleFactory moduleFactory = new ApplicationContextModuleFactory();
+        Module module = moduleFactory.newModule(agentOption);
         return Modules.override(module).with(with);
     }
 }

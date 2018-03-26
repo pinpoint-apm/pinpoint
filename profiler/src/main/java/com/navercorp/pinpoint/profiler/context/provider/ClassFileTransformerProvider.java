@@ -22,15 +22,16 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.profiler.MatchableClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DefaultClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
+import java.lang.instrument.ClassFileTransformer;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ClassFileTransformerDispatcherProvider implements Provider<ClassFileTransformerDispatcher> {
+public class ClassFileTransformerProvider implements Provider<ClassFileTransformer> {
 
     private final ProfilerConfig profilerConfig;
     private final PluginContextLoadResult pluginContextLoadResult;
@@ -39,8 +40,8 @@ public class ClassFileTransformerDispatcherProvider implements Provider<ClassFil
     private final DynamicTransformerRegistry dynamicTransformerRegistry;
 
     @Inject
-    public ClassFileTransformerDispatcherProvider(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, PluginContextLoadResult pluginContextLoadResult,
-                                                  DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
+    public ClassFileTransformerProvider(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, PluginContextLoadResult pluginContextLoadResult,
+                                        DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -64,8 +65,8 @@ public class ClassFileTransformerDispatcherProvider implements Provider<ClassFil
     }
 
     @Override
-    public ClassFileTransformerDispatcher get() {
-        if(this.profilerConfig.isInstrumentMatcherEnable()) {
+    public ClassFileTransformer get() {
+        if (this.profilerConfig.isInstrumentMatcherEnable()) {
             return new MatchableClassFileTransformerDispatcher(profilerConfig, pluginContextLoadResult, instrumentEngine, dynamicTransformTrigger, dynamicTransformerRegistry);
         }
         return new DefaultClassFileTransformerDispatcher(profilerConfig, pluginContextLoadResult, instrumentEngine, dynamicTransformTrigger, dynamicTransformerRegistry);

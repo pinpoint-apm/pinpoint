@@ -16,24 +16,36 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
-import com.google.inject.AbstractModule;
+import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.AnnotationKeyRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.ServiceTypeRegistryServiceProvider;
+import com.navercorp.pinpoint.profiler.context.provider.plugin.Slf4jCommonLoggerFactory;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.TraceMetadataLoaderServiceProvider;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class PluginModule extends AbstractModule {
+
+public class PluginModule extends PrivateModule {
 
     @Override
     protected void configure() {
+        binder().requireExplicitBindings();
+        binder().requireAtInjectOnConstructors();
+        binder().disableCircularProxies();
+
+        bind(CommonLoggerFactory.class).toInstance(new Slf4jCommonLoggerFactory());
         bind(TraceMetadataLoaderService.class).toProvider(TraceMetadataLoaderServiceProvider.class).in(Scopes.SINGLETON);
+
         bind(ServiceTypeRegistryService.class).toProvider(ServiceTypeRegistryServiceProvider.class).in(Scopes.SINGLETON);
+        expose(ServiceTypeRegistryService.class);
+
         bind(AnnotationKeyRegistryService.class).toProvider(AnnotationKeyRegistryServiceProvider.class).in(Scopes.SINGLETON);
+        expose(AnnotationKeyRegistryService.class);
     }
 }

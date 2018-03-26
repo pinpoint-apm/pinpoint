@@ -17,14 +17,22 @@
 package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ApplicationContextModuleFactory implements ModuleFactory {
+
     @Override
     public Module newModule(AgentOption agentOption) {
-        return new ApplicationContextModule(agentOption);
+        final Module config = new ConfigModule(agentOption);
+        final Module pluginModule = new PluginModule();
+        final Module applicationContextModule = new ApplicationContextModule();
+        final Module statsModule = new StatsModule();
+
+        return Modules.combine(config, pluginModule, applicationContextModule, statsModule);
     }
 }

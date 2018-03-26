@@ -24,8 +24,7 @@ import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +34,12 @@ import java.util.List;
  */
 public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadataLoaderService> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final PluginLoader pluginLoader;
+    private final CommonLoggerFactory commonLoggerFactory;
 
     @Inject
-    public TraceMetadataLoaderServiceProvider(PluginLoader pluginLoader) {
+    public TraceMetadataLoaderServiceProvider(CommonLoggerFactory commonLoggerFactory, PluginLoader pluginLoader) {
+        this.commonLoggerFactory = Assert.requireNonNull(commonLoggerFactory, "commonLogger must not be null");
         this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
     }
 
@@ -54,8 +53,7 @@ public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadat
             providers.addAll(pluginList);
         }
 
-        Slf4jCommonLoggerFactory slf4jCommonLoggerFactory = new Slf4jCommonLoggerFactory();
-        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(providers, slf4jCommonLoggerFactory);
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(providers, commonLoggerFactory);
         return typeLoaderService;
     }
 

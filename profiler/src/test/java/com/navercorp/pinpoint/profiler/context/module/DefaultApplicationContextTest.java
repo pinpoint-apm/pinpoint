@@ -25,6 +25,7 @@ import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
@@ -37,6 +38,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -81,8 +84,8 @@ public class DefaultApplicationContextTest {
     }
 
     private DefaultApplicationContext newApplicationContext() {
-        DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        profilerConfig.setStaticResourceCleanup(true);
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
 
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig,

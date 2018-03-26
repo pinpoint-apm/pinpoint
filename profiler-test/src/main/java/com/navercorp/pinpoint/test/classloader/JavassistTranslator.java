@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.test.classloader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import javassist.ClassPool;
 import javassist.CtClass;
 
@@ -47,10 +47,10 @@ public class JavassistTranslator implements Translator {
     private final ConcurrentMap<String, MatchableClassFileTransformer> transformerMap = new ConcurrentHashMap<String, MatchableClassFileTransformer>();
 
     private final ClassLoader loader;
-    private final ClassFileTransformerDispatcher dispatcher;
+    private final ClassFileTransformer dispatcher;
     private final ClassPool classPool;
 
-    public JavassistTranslator(ClassLoader loader, ClassPool classPool, ClassFileTransformerDispatcher defaultTransformer) {
+    public JavassistTranslator(ClassLoader loader, ClassPool classPool, ClassFileTransformer defaultTransformer) {
         if (defaultTransformer == null) {
             throw new NullPointerException("dispatcher must not be null");
         }

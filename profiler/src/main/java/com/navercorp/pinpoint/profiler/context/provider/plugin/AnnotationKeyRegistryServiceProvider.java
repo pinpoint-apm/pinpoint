@@ -22,22 +22,24 @@ import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class AnnotationKeyRegistryServiceProvider implements Provider<AnnotationKeyRegistryService> {
 
+    private final CommonLoggerFactory commonLoggerFactory;
     private final TraceMetadataLoaderService traceMetadataLoaderService;
 
     @Inject
-    public AnnotationKeyRegistryServiceProvider(TraceMetadataLoaderService traceMetadataLoaderService) {
+    public AnnotationKeyRegistryServiceProvider(CommonLoggerFactory commonLoggerFactory, TraceMetadataLoaderService traceMetadataLoaderService) {
+        this.commonLoggerFactory = Assert.requireNonNull(commonLoggerFactory, "commonLoggerFactory must not be null");
         this.traceMetadataLoaderService = Assert.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService must not be null");
     }
 
     @Override
     public AnnotationKeyRegistryService get() {
-        Slf4jCommonLoggerFactory commonLoggerFactory = new Slf4jCommonLoggerFactory();
         AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(traceMetadataLoaderService, commonLoggerFactory);
         return annotationKeyRegistryService;
     }
