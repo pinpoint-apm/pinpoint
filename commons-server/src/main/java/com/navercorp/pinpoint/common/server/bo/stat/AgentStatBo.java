@@ -36,6 +36,7 @@ public class AgentStatBo {
     private List<ResponseTimeBo> responseTimeBos;
     private List<DeadlockBo> deadlockBos;
     private List<FileDescriptorBo> fileDescriptorBos;
+    private List<DirectBufferBo> directBufferBos;
 
     public long getStartTimestamp() {
         return startTimestamp;
@@ -125,6 +126,10 @@ public class AgentStatBo {
         this.fileDescriptorBos = fileDescriptorBos;
     }
 
+    public List<DirectBufferBo> getDirectBufferBos() { return directBufferBos; }
+
+    public void setDirectBufferBos(List<DirectBufferBo> directBufferBos) { this.directBufferBos = directBufferBos; }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentStatBo{");
@@ -138,6 +143,7 @@ public class AgentStatBo {
         sb.append(", responseTimeBos=").append(responseTimeBos);
         sb.append(", deadlockBos=").append(deadlockBos);
         sb.append(", fileDescriptorBos=").append(fileDescriptorBos);
+        sb.append(", directBufferBos=").append(directBufferBos);
         sb.append('}');
         return sb.toString();
     }
