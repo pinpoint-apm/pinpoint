@@ -21,11 +21,12 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,9 @@ public class HBaseAgentStatService implements AgentStatService {
     @Autowired
     private AgentStatDaoV2<FileDescriptorBo> fileDescriptorDao;
 
+    @Autowired
+    private AgentStatDaoV2<DirectBufferBo> directBufferDao;
+
     @Override
     public void save(AgentStatBo agentStatBo) {
         final String agentId = agentStatBo.getAgentId();
@@ -79,6 +83,7 @@ public class HBaseAgentStatService implements AgentStatService {
             this.responseTimeDao.insert(agentId, agentStatBo.getResponseTimeBos());
             this.deadlockDao.insert(agentId, agentStatBo.getDeadlockBos());
             this.fileDescriptorDao.insert(agentId, agentStatBo.getFileDescriptorBos());
+            this.directBufferDao.insert(agentId, agentStatBo.getDirectBufferBos());
         } catch (Exception e) {
             logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage(), e);
         }
