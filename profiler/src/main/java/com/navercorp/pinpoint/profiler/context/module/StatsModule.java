@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSour
 import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.directbuffer.DirectBufferMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.directbuffer.DirectBufferMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.FileDescriptorMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.FileDescriptorMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedGarbageCollectorMetricProvider;
@@ -45,6 +47,7 @@ import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTrac
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.deadlock.DeadlockMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.directbuffer.DirectBufferMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.FileDescriptorMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.response.ResponseTimeMetricCollector;
@@ -53,6 +56,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMe
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.directbuffer.DirectBufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
@@ -85,6 +89,9 @@ public class StatsModule extends AbstractModule {
 
         bind(FileDescriptorMetric.class).toProvider(FileDescriptorMetricProvider.class).in(Scopes.SINGLETON);
         bind(FileDescriptorMetricCollector.class).toProvider(FileDescriptorMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        bind(DirectBufferMetric.class).toProvider(DirectBufferMetricProvider.class).in(Scopes.SINGLETON);
+        bind(DirectBufferMetricCollector.class).toProvider(DirectBufferMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         bind(TransactionMetric.class).toProvider(TransactionMetricProvider.class).in(Scopes.SINGLETON);
         bind(TransactionMetricCollector.class).toProvider(TransactionMetricCollectorProvider.class).in(Scopes.SINGLETON);
