@@ -138,17 +138,17 @@ public class TestClassLoader extends TransformClassLoader {
 
             logger.info("JAVASSIST BCI engine");
             ClassPool classPool = ((JavassistEngine) instrumentEngine).getClassPool(this);
-            return new JavassistTranslator(this, classPool, applicationContext.getClassFileTransformerDispatcher());
+            return new JavassistTranslator(this, classPool, applicationContext.getClassFileTransformer());
         }
 
         if (instrumentEngine instanceof ASMEngine) {
             logger.info("ASM BCI engine");
-            return new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
+            return new DefaultTranslator(this, applicationContext.getClassFileTransformer());
         }
 
 
         logger.info("Unknown BCI engine");
-        return new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
+        return new DefaultTranslator(this, applicationContext.getClassFileTransformer());
     }
 
 }

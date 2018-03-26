@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
@@ -70,7 +69,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final AgentInformation agentInformation;
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
-    private final ClassFileTransformerDispatcher classFileDispatcher;
+    private final ClassFileTransformer classFileTransformer;
 
     private final Instrumentation instrumentation;
     private final InstrumentEngine instrumentEngine;
@@ -97,10 +96,10 @@ public class DefaultApplicationContext implements ApplicationContext {
 
         this.instrumentEngine = injector.getInstance(InstrumentEngine.class);
 
-        this.classFileDispatcher = injector.getInstance(ClassFileTransformerDispatcher.class);
+        this.classFileTransformer = injector.getInstance(ClassFileTransformer.class);
         this.dynamicTransformTrigger = injector.getInstance(DynamicTransformTrigger.class);
-//        ClassFileTransformer classFileTransformer = injector.getInstance(ClassFileTransformer.class);
-        ClassFileTransformer classFileTransformer = wrap(classFileDispatcher);
+
+        ClassFileTransformer classFileTransformer = wrap(this.classFileTransformer);
         instrumentation.addTransformer(classFileTransformer, true);
 
         this.spanStatClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanStatClientFactory.class));
@@ -129,13 +128,13 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
     }
 
-    public ClassFileTransformer wrap(ClassFileTransformerDispatcher classFileTransformerDispatcher) {
+    private ClassFileTransformer wrap(ClassFileTransformer classFileTransformer) {
         final boolean enableBytecodeDump = profilerConfig.readBoolean(ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP, ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP_DEFAULT_VALUE);
         if (enableBytecodeDump) {
             logger.info("wrapBytecodeDumpTransformer");
-            return BytecodeDumpTransformer.wrap(classFileTransformerDispatcher, profilerConfig);
+            return BytecodeDumpTransformer.wrap(classFileTransformer, profilerConfig);
         }
-        return classFileTransformerDispatcher;
+        return classFileTransformer;
     }
 
     private DataSender newUdpStatDataSender() {
@@ -148,7 +147,6 @@ public class DefaultApplicationContext implements ApplicationContext {
         return injector.getInstance(spanDataSenderKey);
     }
 
-    @Override
     public ProfilerConfig getProfilerConfig() {
         return profilerConfig;
     }
@@ -157,7 +155,6 @@ public class DefaultApplicationContext implements ApplicationContext {
         return injector;
     }
 
-    @Override
     public TraceContext getTraceContext() {
         return traceContext;
     }
@@ -171,18 +168,15 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
 
-    @Override
     public DynamicTransformTrigger getDynamicTransformTrigger() {
         return dynamicTransformTrigger;
     }
 
 
-    @Override
-    public ClassFileTransformerDispatcher getClassFileTransformerDispatcher() {
-        return classFileDispatcher;
+    public ClassFileTransformer getClassFileTransformer() {
+        return classFileTransformer;
     }
 
-    @Override
     public AgentInformation getAgentInformation() {
         return this.agentInformation;
     }

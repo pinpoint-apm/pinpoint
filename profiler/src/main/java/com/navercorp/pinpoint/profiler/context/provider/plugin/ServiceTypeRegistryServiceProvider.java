@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,15 +30,17 @@ import com.navercorp.pinpoint.common.util.Assert;
 public class ServiceTypeRegistryServiceProvider implements Provider<ServiceTypeRegistryService> {
 
     private final TraceMetadataLoaderService traceMetadataLoaderService;
+    private final CommonLoggerFactory commonLoggerFactory;
 
     @Inject
-    public ServiceTypeRegistryServiceProvider(TraceMetadataLoaderService traceMetadataLoaderService) {
+    public ServiceTypeRegistryServiceProvider(CommonLoggerFactory commonLoggerFactory, TraceMetadataLoaderService traceMetadataLoaderService) {
         this.traceMetadataLoaderService = Assert.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService must not be null");
+        this.commonLoggerFactory = Assert.requireNonNull(commonLoggerFactory, "commonLoggerFactory must not be null");
     }
 
     @Override
     public ServiceTypeRegistryService get() {
-        Slf4jCommonLoggerFactory commonLoggerFactory = new Slf4jCommonLoggerFactory();
+
         ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(traceMetadataLoaderService, commonLoggerFactory);
         return serviceTypeRegistryService ;
     }

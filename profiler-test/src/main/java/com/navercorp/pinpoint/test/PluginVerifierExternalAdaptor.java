@@ -42,7 +42,6 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -78,13 +77,13 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         this.applicationContext = Assert.requireNonNull(applicationContext, "applicationContext must not be null");
     }
 
-    public ApplicationContext getApplicationContext() {
+    public DefaultApplicationContext getApplicationContext() {
         return applicationContext;
     }
 
     @Override
     public void verifyServerType(String serviceTypeName) {
-        final ApplicationContext applicationContext = getApplicationContext();
+        final DefaultApplicationContext applicationContext = getApplicationContext();
 
         ServiceType expectedType = findServiceType(serviceTypeName);
         ServiceType actualType = applicationContext.getAgentInformation().getServerType();
@@ -824,7 +823,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
     private TraceContext getTraceContext() {
-        ApplicationContext applicationContext = getApplicationContext();
+        DefaultApplicationContext applicationContext = getApplicationContext();
         return applicationContext.getTraceContext();
     }
 
