@@ -24,11 +24,12 @@ import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
@@ -72,6 +73,9 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
     @Autowired
     private FileDescriptorBoMapper fileDescriptorBoMapper;
 
+    @Autowired
+    private DirectBufferBoMapper directBufferBoMapper;
+
     @Override
     public AgentStatBo map(TAgentStatBatch tAgentStatBatch) {
         if (!tAgentStatBatch.isSetAgentStats()) {
@@ -95,6 +99,7 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         List<ResponseTimeBo> responseTimeBos = new ArrayList<>(agentStatsSize);
         List<DeadlockBo> deadlockBos = new ArrayList<>(agentStatsSize);
         List<FileDescriptorBo> fileDescriptorBos = new ArrayList<>(agentStatsSize);
+        List<DirectBufferBo> directBufferBos = new ArrayList<>(agentStatsSize);
 
         for (TAgentStat tAgentStat : tAgentStatBatch.getAgentStats()) {
             final long timestamp = tAgentStat.getTimestamp();
@@ -168,6 +173,13 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
                 setBaseData(fileDescriptorBo, agentId, startTimestamp, timestamp);
                 fileDescriptorBos.add(fileDescriptorBo);
             }
+
+            // directBuffer
+            if (tAgentStat.isSetDirectBuffer()) {
+                DirectBufferBo directBufferBo = this.directBufferBoMapper.map(tAgentStat.getDirectBuffer());
+                setBaseData(directBufferBo, agentId, startTimestamp, timestamp);
+                directBufferBos.add(directBufferBo);
+            }
         }
 
         agentStatBo.setJvmGcBos(jvmGcBos);
@@ -179,6 +191,7 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         agentStatBo.setResponseTimeBos(responseTimeBos);
         agentStatBo.setDeadlockBos(deadlockBos);
         agentStatBo.setFileDescriptorBos(fileDescriptorBos);
+        agentStatBo.setDirectBufferBos(directBufferBos);
         return agentStatBo;
     }
 

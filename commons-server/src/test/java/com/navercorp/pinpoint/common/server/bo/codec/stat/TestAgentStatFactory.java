@@ -366,6 +366,34 @@ public class TestAgentStatFactory {
         return fileDescriptorBos;
     }
 
+    public static List<DirectBufferBo> createDirectBufferBos(String agentId, long startTimestamp, long initialTimestamp) {
+        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        return createDirectBufferBos(agentId, startTimestamp, initialTimestamp, numValues);
+    }
+
+    public static List<DirectBufferBo> createDirectBufferBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+        List<DirectBufferBo> directBufferBos = new ArrayList<DirectBufferBo>(numValues);
+        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
+        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+        List<Long> directBuffers1 = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
+        List<Long> directBuffers2 = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
+        List<Long> directBuffers3 = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
+        List<Long> directBuffers4 = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
+
+        for (int i = 0; i < numValues; i++) {
+            DirectBufferBo directBufferBo = new DirectBufferBo();
+            directBufferBo.setStartTimestamp(startTimestamps.get(i));
+            directBufferBo.setAgentId(agentId);
+            directBufferBo.setTimestamp(timestamps.get(i));
+            directBufferBo.setDirectCount(directBuffers1.get(i));
+            directBufferBo.setDirectMemoryUsed(directBuffers2.get(i));
+            directBufferBo.setMappedCount(directBuffers3.get(i));
+            directBufferBo.setMappedMemoryUsed(directBuffers4.get(i));
+
+            directBufferBos.add(directBufferBo);
+        }
+        return directBufferBos;
+    }
     private static List<Long> createStartTimestamps(long startTimestamp, int numValues) {
         return TestAgentStatDataPointFactory.LONG.createConstantValues(startTimestamp, startTimestamp, numValues);
     }
