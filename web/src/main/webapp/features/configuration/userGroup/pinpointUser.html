@@ -1,7 +1,7 @@
 <div class="some-list" style="width:300px;margin-left: 15px;">
 	<div class="some-list-header" style="background-color:#9A9A9A;color:#FFF;">
 		<span class="title">Pinpoint User <span class="total"></span></span>
-		<span ng-show="getCreateAllow()" class="right" style="text-decoration: underline;cursor:pointer" ng-click="onAddPinpointUser()">+ Add</span>
+		<span ng-show="canEditUserInfo" class="right" style="text-decoration: underline;cursor:pointer" ng-click="onAddPinpointUser()">+ Add</span>
 	</div>
 	<div class="some-list-search">
 		<div class="input-group">
@@ -40,12 +40,12 @@
 			</li>
 			<li ng-repeat="pinpointUser in pinpointUserList" id="{{prefix + pinpointUser.userId}}">
 				<span class="contents" style="margin-left:6px">{{"("+pinpointUser.department + ")" + pinpointUser.name}}</span>
-				<input type="checkbox" ng-click="checkUser($event)" ng-model="pinpointUser.has"/>
-				<div style="float:right" class="_normal" ng-show="getCreateAllow()">
+				<input type="checkbox" ng-click="checkUser($event)" ng-model="pinpointUser.has" ng-disabled="pinpointUser.has"/>
+				<div style="float:right" class="_normal" ng-show="canEditUserInfo">
 					<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onRemovePinpointUser($event)"></span>
 					<span class="glyphicon glyphicon-pencil edit" aria-hidden="true" ng-click="onUpdatePinpointUser($event)"></span>
 				</div>
-				<div style="float:right" class="_remove hide-me" ng-show="getCreateAllow()">
+				<div style="float:right" class="_remove hide-me" ng-show="canEditUserInfo">
 					<span class="glyphicon glyphicon-remove remove remove-confirm" aria-hidden="true" ng-click="onApplyRemovePinpointUser()"></span>
 					<span class="glyphicon glyphicon-arrow-left remove-cancel" aria-hidden="true" ng-click="onCancelRemovePinpointUser()"></span>
 				</div>

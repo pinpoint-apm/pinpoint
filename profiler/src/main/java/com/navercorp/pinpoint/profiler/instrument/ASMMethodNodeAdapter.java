@@ -208,10 +208,11 @@ public class ASMMethodNodeAdapter {
             throw new IllegalArgumentException("method name must not be null.");
         }
 
-        final ASMMethodInsnNodeRemapper remapper = new ASMMethodInsnNodeRemapper();
-        remapper.addFilter(this.declaringClassInternalName, this.methodNode.name, this.methodNode.desc);
-        remapper.setName(name);
+        final ASMMethodInsnNodeRemapper.Builder remapBuilder = new ASMMethodInsnNodeRemapper.Builder();
+        remapBuilder.addFilter(this.declaringClassInternalName, this.methodNode.name, this.methodNode.desc);
+        remapBuilder.setName(name);
         // change recursive call.
+        ASMMethodInsnNodeRemapper remapper = remapBuilder.build();
         remapMethodInsnNode(remapper);
 
         // change name.

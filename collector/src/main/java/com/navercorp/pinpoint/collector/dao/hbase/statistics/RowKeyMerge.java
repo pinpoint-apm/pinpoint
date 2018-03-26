@@ -17,14 +17,21 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
+ * @author HyunGil Jeong
  */
 public class RowKeyMerge {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -37,19 +44,24 @@ public class RowKeyMerge {
         this.family = Arrays.copyOf(family, family.length);
     }
 
-    public  List<Increment> createBulkIncrement(Map<RowInfo, Long> data, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    public Map<TableName, List<Increment>> createBulkIncrement(Map<RowInfo, Long> data, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         if (data.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
 
-        final Map<RowKey, List<ColumnName>> rowkeyMerge = rowKeyBaseMerge(data);
+        final Map<TableName, List<Increment>> tableIncrementMap = new HashMap<>();
+        final Map<TableName, Map<RowKey, List<ColumnName>>> tableRowKeyMap = mergeRowKeys(data);
 
-        List<Increment> incrementList = new ArrayList<>();
-        for (Map.Entry<RowKey, List<ColumnName>> rowKeyEntry : rowkeyMerge.entrySet()) {
-            Increment increment = createIncrement(rowKeyEntry, rowKeyDistributorByHashPrefix);
-            incrementList.add(increment);
+        for (Map.Entry<TableName, Map<RowKey, List<ColumnName>>> tableRowKeys : tableRowKeyMap.entrySet()) {
+            final TableName tableName = tableRowKeys.getKey();
+            final List<Increment> incrementList = new ArrayList<>();
+            for (Map.Entry<RowKey, List<ColumnName>> rowKeyEntry : tableRowKeys.getValue().entrySet()) {
+                Increment increment = createIncrement(rowKeyEntry, rowKeyDistributorByHashPrefix);
+                incrementList.add(increment);
+            }
+            tableIncrementMap.put(tableName, incrementList);
         }
-        return incrementList;
+        return tableIncrementMap;
     }
 
     private Increment createIncrement(Map.Entry<RowKey, List<ColumnName>> rowKeyEntry, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
@@ -68,8 +80,8 @@ public class RowKeyMerge {
         return increment;
     }
 
-    private Map<RowKey, List<ColumnName>> rowKeyBaseMerge(Map<RowInfo, Long> data) {
-        final Map<RowKey, List<ColumnName>> merge = new HashMap<>();
+    private Map<TableName, Map<RowKey, List<ColumnName>>> mergeRowKeys(Map<RowInfo, Long> data) {
+        final Map<TableName, Map<RowKey, List<ColumnName>>> tables = new HashMap<>();
 
         for (Map.Entry<RowInfo, Long> entry : data.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
@@ -77,16 +89,13 @@ public class RowKeyMerge {
             long callCount = entry.getValue();
             rowInfo.getColumnName().setCallCount(callCount);
 
-            RowKey rowKey = rowInfo.getRowKey();
-            List<ColumnName> oldList = merge.get(rowKey);
-            if (oldList == null) {
-                List<ColumnName> newList = new ArrayList<>();
-                newList.add(rowInfo.getColumnName());
-                merge.put(rowKey, newList);
-            } else {
-                oldList.add(rowInfo.getColumnName());
-            }
+            final TableName tableName = rowInfo.getTableName();
+            final RowKey rowKey = rowInfo.getRowKey();
+
+            Map<RowKey, List<ColumnName>> rows = tables.computeIfAbsent(tableName, k -> new HashMap<>());
+            List<ColumnName> columnNames = rows.computeIfAbsent(rowKey, k -> new ArrayList<>());
+            columnNames.add(rowInfo.getColumnName());
         }
-        return merge;
+        return tables;
     }
 }

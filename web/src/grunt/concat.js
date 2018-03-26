@@ -96,7 +96,8 @@ module.exports = function( grunt, options ) {
 				'/time-slider.state-line.js',
 				'/time-slider.time-series-signboard.js',
 				'/time-slider.time-signboard.js',
-				'/time-slider.x-axis.js'
+				'/time-slider.x-axis.js',
+				'/time-slider.focus.js'
 			], options.RESOURCE_PATH.TIME_SLIDER ),
 			dest: options.RESOURCE_PATH.DEST_JS + '/time-slider.js'
 		},

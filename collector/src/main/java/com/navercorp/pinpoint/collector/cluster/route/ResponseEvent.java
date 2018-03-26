@@ -54,11 +54,11 @@ public class ResponseEvent extends DefaultRouteEvent {
         final StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getSimpleName());
         sb.append("{");
-        sb.append("{remoteAddress=").append(getRemoteAddress()).append(",");
-        sb.append("applicationName=").append(getDeliveryCommand().getApplicationName()).append(",");
-        sb.append("agentId=").append(getDeliveryCommand().getAgentId()).append(",");
-        sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime());
-        sb.append("requestId=").append(requestId);
+        sb.append("{remoteAddress=").append(getRemoteAddress()).append(", ");
+        sb.append("applicationName=").append(getDeliveryCommand().getApplicationName()).append(", ");
+        sb.append("agentId=").append(getDeliveryCommand().getAgentId()).append(", ");
+        sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime()).append(", ");
+        sb.append("requestId=").append(requestId).append(", ");
         sb.append("routeResult=").append(routeResult);
         sb.append('}');
         

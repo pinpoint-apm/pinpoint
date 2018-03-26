@@ -41,24 +41,32 @@ In order to enable application inspector, you will need to do the following and 
     flink.cluster.tcp.port=19994
 ```
 
-**C.** Configure hbase address in [hbase.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/hbase.properties) which will be used to store aggregated application data.
+**C.** Configure job execution type and the number of listeners to receive data from the collector in [pinpoint-flink.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/pinpoint-flink.properties).
+* If you are running a flink cluster, set *flink.StreamExecutionEnvironment* to **server**, and *flink.sourceFunction.Parallel* to the number of task manager servers.
+* If you are running flink as a standalone, set *flink.StreamExecutionEnvironment* to **local**, and *flink.sourceFunction.Parallel* to **1**.
+```properties
+    flink.StreamExecutionEnvironment=server
+    flink.sourceFunction.Parallel=1
+```
+
+**D.** Configure hbase address in [hbase.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/hbase.properties) which will be used to store aggregated application data.
 ```properties
     hbase.client.host=YOUR_HBASE_ADDRESS
     hbase.client.port=2181
 ```
 
-**D.** Build [pinpoint-flink](https://github.com/naver/pinpoint/tree/master/flink) and run the streaming job file created under *target* directory on the flink server.  
+**E.** Build [pinpoint-flink](https://github.com/naver/pinpoint/tree/master/flink) and run the streaming job file created under *target* directory on the flink server.  
   - The name of the streaming job is `pinpoint-flink-job.2.0.jar`.
   - For details on how to run the job, please refer to the [flink website](https://flink.apache.org).
 
-**E.** Configure zookeeper address in [pinpoint-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties) so that the collector can connect to the flink server.
+**F.** Configure zookeeper address in [pinpoint-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties) so that the collector can connect to the flink server.
 ```properties
     flink.cluster.enable=true
     flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
     flink.cluster.zookeeper.sessiontimeout=3000
 ```
 
-**F.** Enable application inspector in the web-ui by enabling the following configuration in [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties).
+**G.** Enable application inspector in the web-ui by enabling the following configuration in [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties).
 ```properties
     config.show.applicationStat=true
 ```
@@ -134,24 +142,33 @@ application inspector 기능을 실행하기 위해서 아래와 같이 설정�
     flink.cluster.tcp.port=19994
 ```
 
-**C.** flink 프로젝트 설정파일([hbase.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/hbase.properties))에 집계 데이터를 저장하는 hbase 주소를 설정한다.
+**C.** flink 프로젝트 설정파일([pinpoint-flink.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/pinpoint-flink.properties))에 job의 실행 방법과 collector에서 데이터를 받는 listener의 개수를 설정한다.
+- flink를 cluster로 구축해서 사용한다면 *flink.StreamExecutionEnvironment*에는 **server**를 설정하고 *flink.sourceFunction.Parallel*에는 task manager 서버의 개수만큼 설정한다.
+- flink를 Standalone 형태로 실행한다면 *flink.StreamExecutionEnvironment*에는 **local**을 설정하고 *flink.sourceFunction.Parallel*에는 **1**을 설정하면 된다.
+
+```properties
+    flink.StreamExecutionEnvironment=server
+    flink.sourceFunction.Parallel=1
+```
+
+**D.** flink 프로젝트 설정파일([hbase.properties](https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/hbase.properties))에 집계 데이터를 저장하는 hbase 주소를 설정한다.
 ```properties
     hbase.client.host=YOUR_HBASE_ADDRESS
     hbase.client.port=2181
 ```
 
-**D.** [flink 프로젝트](https://github.com/naver/pinpoint/tree/master/flink)를 빌드하여 target 폴더 하위에 생성된 streaming job 파일을 flink 서버에 job을 실행한다.  
+**E.** [flink 프로젝트](https://github.com/naver/pinpoint/tree/master/flink)를 빌드하여 target 폴더 하위에 생성된 streaming job 파일을 flink 서버에 job을 실행한다.  
   - streaming job 파일 이름은 `pinpoint-flink-job.2.0.jar` 이다.
   - 실행방법은 [flink 사이트](https://flink.apache.org)를 참조한다.
 
-**E.** collector에서 flink와 연결을 맺을 수 있도록 설정파일([pinpoint-collector.porperties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties))에 zookeeper 주소를 설정한다.
+**F.** collector에서 flink와 연결을 맺을 수 있도록 설정파일([pinpoint-collector.porperties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties))에 zookeeper 주소를 설정한다.
 ```properties
     flink.cluster.enable=true
     flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
     flink.cluster.zookeeper.sessiontimeout=3000
 ```
 
-**F.** web에서 application inspector 버튼을 활성화 하기 위해서 설정파일(pinpoint-web.porperties)을 수정한다.
+**G.** web에서 application inspector 버튼을 활성화 하기 위해서 설정파일(pinpoint-web.porperties)을 수정한다.
 ```properties
     config.show.applicationStat=true
 ```

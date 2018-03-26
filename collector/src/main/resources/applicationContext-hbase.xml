@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:beans="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
@@ -35,16 +34,27 @@
         </property>
     </bean>
 
-    <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
-        <constructor-arg ref="hbaseConfiguration"/>
-        <constructor-arg value="${hbase.client.thread.max}"/>
-        <constructor-arg value="${hbase.client.threadPool.queueSize}"/>
-        <constructor-arg value="${hbase.client.threadPool.prestart}"/>
+    <bean id="hbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean">
+        <property name="corePoolSize" value="${hbase.client.thread.max}"/>
+        <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
+        <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-HConnectionExecutor-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
     </bean>
 
+    <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
+        <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
+        <constructor-arg type="java.util.concurrent.ExecutorService" ref="hbaseThreadPool"/>
+    </bean>
+
+    <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
+
     <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
-        <constructor-arg value="#{connectionFactory.getConnection()}"/>
-        <constructor-arg ref="hbaseConfiguration"/>
+        <constructor-arg type="org.apache.hadoop.hbase.client.Connection" value="#{connectionFactory.getConnection()}"/>
+        <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
     </bean>
 
     <bean id="asyncOperationMetrics" class="com.navercorp.pinpoint.collector.monitor.HBaseAsyncOperationMetrics">
@@ -58,7 +68,7 @@
     </bean>
 
     <bean id="hBaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">
-        <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
+        <constructor-arg ref="hbaseConfiguration" index="0"/>
     </bean>
 
     <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
@@ -66,19 +76,7 @@
     </bean>
 
     <bean id="applicationTraceIndex" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
-        <constructor-arg>
-            <value type="int">32</value>
-        </constructor-arg>
-    </bean>
-
-    <bean id="traceDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="traceHasher"/>
-    </bean>
-
-    <bean id="traceHasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
-        <constructor-arg>
-            <value type="int">64</value>
-        </constructor-arg>
+        <constructor-arg type="int" value="32"/>
     </bean>
 
     <bean id="traceV2Distributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
@@ -101,18 +99,8 @@
         <constructor-arg type="int" value="64"/>
     </bean>
 
-    <bean id="agentStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="agentStatRangeHasher"/>
-    </bean>
-
     <bean id="agentStatV2RowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg ref="agentStatV2RangeHasher"/>
-    </bean>
-
-    <bean id="agentStatRangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="24"/>
-        <constructor-arg type="int" value="32"/>
     </bean>
 
     <bean id="agentStatV2RangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">

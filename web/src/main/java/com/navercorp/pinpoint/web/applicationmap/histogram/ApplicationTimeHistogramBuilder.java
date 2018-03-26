@@ -120,17 +120,13 @@ public class ApplicationTimeHistogramBuilder {
         for (TimeHistogram timeHistogram : histogramList) {
             long time = window.refineTimestamp(timeHistogram.getTimeStamp());
 
-            TimeHistogram windowHistogram = resultMap.get(time);
-            if (windowHistogram == null) {
-                windowHistogram = new TimeHistogram(application.getServiceType(), time);
-                resultMap.put(time, windowHistogram);
-            }
+            TimeHistogram windowHistogram = resultMap.computeIfAbsent(time, t -> new TimeHistogram(application.getServiceType(), t));
             windowHistogram.add(timeHistogram);
         }
 
 
         List<TimeHistogram> resultList = new ArrayList<>(resultMap.values());
-        Collections.sort(resultList, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
+        resultList.sort(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
         return resultList;
     }
 

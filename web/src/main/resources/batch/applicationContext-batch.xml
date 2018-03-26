@@ -19,7 +19,7 @@
         <property name="jobRepository" ref="jobRepository" />
     </bean>
  
- 	<batch:job-repository id="jobRepository" data-source="dataSource"/>
+ 	<batch:job-repository id="jobRepository" data-source="metaDataDataSource" transaction-manager="metaDataTransactionManager"/>
 	
 	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
 	

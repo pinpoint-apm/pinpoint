@@ -102,9 +102,9 @@ public class ASMAspectWeaver {
     }
 
     private void copyPointCutMethods(final MethodNodes methodNodes, final ASMClassNodeAdapter classNode) throws InstrumentException {
-        final ASMMethodInsnNodeRemapper remapper = new ASMMethodInsnNodeRemapper();
+        final ASMMethodInsnNodeRemapper.Builder remapBuilder = new ASMMethodInsnNodeRemapper.Builder();
         for (ASMMethodNodeAdapter joinPointMethodNode : methodNodes.jointPoints) {
-            remapper.addFilter(null, joinPointMethodNode.getName(), joinPointMethodNode.getDesc());
+            remapBuilder.addFilter(null, joinPointMethodNode.getName(), joinPointMethodNode.getDesc());
         }
 
         for (ASMMethodNodeAdapter pointCutMethodNode : methodNodes.pointCuts) {
@@ -134,7 +134,8 @@ public class ASMAspectWeaver {
             if (newMethodNode == null) {
                 throw new InstrumentException("not found new method. " + classNode.getInternalName() + "." + pointCutMethodNode.getName());
             }
-            remapper.setName(methodName);
+            remapBuilder.setName(methodName);
+            ASMMethodInsnNodeRemapper remapper = remapBuilder.build();
             newMethodNode.remapMethodInsnNode(remapper);
         }
     }

@@ -77,7 +77,9 @@ public class ResponseTimeChartGroupTest {
         List<ResponseTimeBo> responseTimeBoList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {
             ResponseTimeBo responseTimeBo = new ResponseTimeBo();
-            responseTimeBo.setAvg(ThreadLocalRandom.current().nextLong(RANDOM_AVG_MAX_SIZE));
+            long avg = ThreadLocalRandom.current().nextLong(RANDOM_AVG_MAX_SIZE);
+            responseTimeBo.setAvg(avg);
+            responseTimeBo.setMax(avg + 100);
             responseTimeBoList.add(responseTimeBo);
         }
 
@@ -89,13 +91,22 @@ public class ResponseTimeChartGroupTest {
 
         Chart avgChart = charts.get(ResponseTimeChart.ResponseTimeChartGroup.ResponseTimeChartType.AVG);
         List<Point> avgChartPointList = avgChart.getPoints();
-
         for (int i = 0; i < sampledResponseTimeList.size(); i++) {
             SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
             Point point = sampledResponseTime.getAvg();
 
             Assert.assertEquals(avgChartPointList.get(i), point);
         }
+
+        Chart maxChart = charts.get(ResponseTimeChart.ResponseTimeChartGroup.ResponseTimeChartType.MAX);
+        List<Point> maxChartPointList = maxChart.getPoints();
+        for (int i = 0; i < sampledResponseTimeList.size(); i++) {
+            SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
+            Point point = sampledResponseTime.getMax();
+
+            Assert.assertEquals(maxChartPointList.get(i), point);
+        }
+
     }
 
 }

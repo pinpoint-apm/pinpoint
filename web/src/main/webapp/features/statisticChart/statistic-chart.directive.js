@@ -165,11 +165,13 @@
 					}
 					function showCursorAt(category) {
 						if (category && angular.isNumber(category)) {
-							if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
-								try {
-									oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
-								} catch(e) {}
-								return;
+							if ( category >= oChart.startIndex && category <= oChart.endIndex ) {
+								if (oChart.dataProvider[category] && oChart.dataProvider[category].time) {
+									try {
+										oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									} catch (e) {}
+									return;
+								}
 							}
 						}
 						oChart.chartCursor.hideCursor();

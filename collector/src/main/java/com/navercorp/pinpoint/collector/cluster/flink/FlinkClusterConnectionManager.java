@@ -16,15 +16,17 @@
 package com.navercorp.pinpoint.collector.cluster.flink;
 
 import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionManager;
+import com.navercorp.pinpoint.collector.util.Address;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 
 /**
@@ -34,10 +36,10 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PinpointClientFactory pinpointClientFactory;
     private final TcpDataSenderRepository tcpDataSenderRepository;
-    private final FlinkHeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory;
+    private final SerializerFactory<HeaderTBaseSerializer> flinkHeaderTBaseSerializerFactory;
 
     public FlinkClusterConnectionManager(TcpDataSenderRepository tcpDataSenderRepository) {
-        this.tcpDataSenderRepository = tcpDataSenderRepository;
+        this.tcpDataSenderRepository = Assert.requireNonNull(tcpDataSenderRepository, "tcpDataSenderRepository must not be null");
         this.pinpointClientFactory = newPointClientFactory();
         this.flinkHeaderTBaseSerializerFactory = new FlinkHeaderTBaseSerializerFactory();
     }
@@ -62,7 +64,7 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     }
 
     @Override
-    public void connectPointIfAbsent(InetSocketAddress address) {
+    public void connectPointIfAbsent(Address address) {
         logger.info("localhost -> {} connect started.", address);
 
         if (tcpDataSenderRepository.containsKey(address)) {
@@ -70,14 +72,12 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
             return;
         }
 
-        SenderContext senderContext = createTcpDataSender(address);
-
+        final SenderContext senderContext = createTcpDataSender(address);
         if (senderContext == null) {
             return;
         }
 
-        SenderContext context = tcpDataSenderRepository.putIfAbsent(address, senderContext);
-
+        final SenderContext context = tcpDataSenderRepository.putIfAbsent(address, senderContext);
         if (context != null) {
             logger.info("TcpDataSender have already been for {}.", address);
             senderContext.close();
@@ -87,10 +87,10 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     }
 
     @Override
-    public void disconnectPoint(SocketAddress address) {
+    public void disconnectPoint(Address address) {
         logger.info("localhost -> {} disconnect started.", address);
 
-        SenderContext context = tcpDataSenderRepository.remove(address);
+        final SenderContext context = tcpDataSenderRepository.remove(address);
         if (context != null) {
             context.close();
             logger.info("localhost -> {} disconnect completed.", address);
@@ -100,13 +100,17 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     }
 
     @Override
-    public List<SocketAddress> getConnectedAddressList() {
+    public List<Address> getConnectedAddressList() {
         return tcpDataSenderRepository.getAddressList();
     }
 
-    private SenderContext createTcpDataSender(InetSocketAddress address) {
+    private SenderContext createTcpDataSender(Address address) {
         try {
-            TcpDataSender tcpDataSender = new TcpDataSender(address, pinpointClientFactory, flinkHeaderTBaseSerializerFactory.createSerializer());
+            final String host = address.getHost();
+            final int port = address.getPort();
+            PinpointClientFactory pinpointClientFactory = this.pinpointClientFactory;
+            HeaderTBaseSerializer serializer = flinkHeaderTBaseSerializerFactory.createSerializer();
+            TcpDataSender tcpDataSender = new TcpDataSender("flink", host, port, pinpointClientFactory, serializer);
             return new SenderContext(tcpDataSender);
         } catch (Exception e) {
             logger.error("not create tcpDataSender for {}.", address, e);

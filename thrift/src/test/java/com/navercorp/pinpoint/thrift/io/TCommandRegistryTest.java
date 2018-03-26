@@ -95,4 +95,18 @@ public class TCommandRegistryTest {
         Assert.assertFalse(isSupport);
     }
 
+//    @Test
+    public void isSupportTest_Inheritance() throws TException {
+        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
+
+        boolean isSupport = registry.isSupport(TResultEx.class);
+        Assert.assertTrue(isSupport);
+
+        isSupport = registry.isSupport(TCommandTransferResponse.class);
+        Assert.assertFalse(isSupport);
+    }
+
+    class TResultEx extends TResult {
+    }
+
 }

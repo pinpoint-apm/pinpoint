@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -71,29 +72,45 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private AsyncQueueingExecutor<Object> executor;
 
+    /**
+     * @deprecated Since 1.7.2 Use {@link #TcpDataSender(String, String, int, PinpointClientFactory)}
+     */
+    @Deprecated
     public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory) {
-        this(null, address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+        this(null, ClientFactoryUtils.newPinpointClientProvider(address, clientFactory), HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
     }
 
+    /**
+     * @deprecated Since 1.7.2 Use {@link #TcpDataSender(String, String, int, PinpointClientFactory, HeaderTBaseSerializer)}
+     */
+    @Deprecated
     public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
-        this(null, address, clientFactory, serializer);
+        this(null, ClientFactoryUtils.newPinpointClientProvider(address, clientFactory), serializer);
     }
 
+    /**
+     * @deprecated Since 1.7.2 Use {@link #TcpDataSender(String, String, int, PinpointClientFactory)}
+     */
+    @Deprecated
     public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory) {
-        this(name, address, clientFactory, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+        this(name, ClientFactoryUtils.newPinpointClientProvider(address, clientFactory), HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
     }
 
+    @Deprecated
     public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
-        if (address == null) {
-            throw new NullPointerException("address must not be null");
-        }
-        if (clientFactory == null) {
-            throw new NullPointerException("clientFactory must not be null");
-        }
-        if (serializer == null) {
-            throw new NullPointerException("serializer must not be null");
-        }
+        this(name, ClientFactoryUtils.newPinpointClientProvider(address, clientFactory), serializer);
+    }
 
+    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory) {
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+    }
+
+
+    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), serializer);
+    }
+
+    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, HeaderTBaseSerializer serializer) {
         String executorName = "Pinpoint-TcpDataSender-Executor";
         if (name != null) {
             logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + name);
@@ -101,15 +118,14 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         } else {
             logger = LoggerFactory.getLogger(this.getClass());
         }
-
-        PinpointClient client = ClientFactoryUtils.createPinpointClient(address, clientFactory);
-
-        this.client = client;
-        this.serializer = serializer;
+        Assert.requireNonNull(clientProvider, "clientProvider must not be null");
+        this.client = clientProvider.get();
+        this.serializer = Assert.requireNonNull(serializer, "serializer must not be null");
         this.timer = createTimer(name);
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
         this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
     }
+
 
     private Timer createTimer(String name) {
         String timerName = "Pinpoint-TcpDataSender-Timer";

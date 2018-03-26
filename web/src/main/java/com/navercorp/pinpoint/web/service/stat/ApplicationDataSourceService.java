@@ -53,7 +53,7 @@ public class ApplicationDataSourceService {
         List<StatChart> result = new ArrayList<>();
         List<AggreJoinDataSourceListBo> aggreJoinDataSourceListBoList = this.applicationDataSourceDao.getApplicationStatList(applicationId, timeWindow);
 
-        if (aggreJoinDataSourceListBoList.size() == 0) {
+        if (aggreJoinDataSourceListBoList.isEmpty()) {
             result.add(new ApplicationDataSourceChart(timeWindow, "", "", Collections.emptyList()));
             return result;
         }
@@ -77,19 +77,14 @@ public class ApplicationDataSourceService {
         for (AggreJoinDataSourceListBo aggreJoinDataSourceListBo : aggreJoinDataSourceListBoList) {
             for (AggreJoinDataSourceBo aggreJoinDataSourceBo : aggreJoinDataSourceListBo.getAggreJoinDataSourceBoList()) {
                 DataSourceKey dataSourceKey = new DataSourceKey(aggreJoinDataSourceBo.getUrl(), aggreJoinDataSourceBo.getServiceTypeCode());
-                List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList = aggreJoinDataSourceBoMap.get(dataSourceKey);
-
-                if (aggreJoinDataSourceBoList == null) {
-                    aggreJoinDataSourceBoList = new ArrayList<>();
-                    aggreJoinDataSourceBoMap.put(dataSourceKey, aggreJoinDataSourceBoList);
-                }
+                List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList = aggreJoinDataSourceBoMap.computeIfAbsent(dataSourceKey, k -> new ArrayList<>());
 
                 aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo);
             }
         }
 
-        for(List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList : aggreJoinDataSourceBoMap.values()) {
-            Collections.sort(aggreJoinDataSourceBoList, comparator);
+        for (List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList : aggreJoinDataSourceBoMap.values()) {
+            aggreJoinDataSourceBoList.sort(comparator);
         }
 
         return aggreJoinDataSourceBoMap;

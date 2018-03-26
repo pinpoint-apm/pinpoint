@@ -133,6 +133,8 @@ public interface ProfilerConfig {
 
     List<String> getHttpStatusCodeErrors();
 
+    String getInjectionModuleFactoryClazzName();
+
     String readString(String propertyName, String defaultValue);
 
     int readInt(String propertyName, int defaultValue);

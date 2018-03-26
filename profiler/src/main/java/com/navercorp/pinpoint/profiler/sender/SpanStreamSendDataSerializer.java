@@ -96,7 +96,7 @@ public class SpanStreamSendDataSerializer {
 
     private TSpan copySpanWithoutSpanEvent(TSpan span) {
         TSpan copiedSpan = span.deepCopy();
-        copiedSpan.setSpanEventList(Collections.EMPTY_LIST);
+        copiedSpan.setSpanEventList(Collections.<TSpanEvent>emptyList());
         return copiedSpan;
     }
 
@@ -140,7 +140,7 @@ public class SpanStreamSendDataSerializer {
 
     private TSpanChunk copySpanChunkWithoutSpanEvent(TSpanChunk spanChunk) {
         TSpanChunk copiedSpanChunk = spanChunk.deepCopy();
-        copiedSpanChunk.setSpanEventList(Collections.EMPTY_LIST);
+        copiedSpanChunk.setSpanEventList(Collections.<TSpanEvent>emptyList());
         return copiedSpanChunk;
     }
 

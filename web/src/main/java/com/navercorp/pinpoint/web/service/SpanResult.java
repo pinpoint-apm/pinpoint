@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
-import com.navercorp.pinpoint.web.calltree.span.SpanAligner2;
+import com.navercorp.pinpoint.web.calltree.span.SpanAligner;
 
 /**
  * @author emeroad
@@ -45,11 +45,11 @@ public class SpanResult {
 
     public String getCompleteTypeString() {
         switch (completeType) {
-            case SpanAligner2.BEST_MATCH:
+            case SpanAligner.COMPLETE_MATCH:
                 return "Complete";
-            case SpanAligner2.START_TIME_MATCH:
+            case SpanAligner.PROGRESS_MATCH:
                 return "Progress";
-            case SpanAligner2.FAIL_MATCH:
+            case SpanAligner.ERROR_MATCH:
                 return "Error";
         }
         return "Error";

@@ -38,7 +38,7 @@ public class SendAgentStatService implements AgentStatService {
     private final boolean flinkClusterEnable;
     private final TFAgentStatBatchMapper tFAgentStatBatchMapper = new TFAgentStatBatchMapper();
 
-    private volatile List<TcpDataSender> flinkServerList = new CopyOnWriteArrayList();
+    private volatile List<TcpDataSender> flinkServerList = new CopyOnWriteArrayList<>();
     private AtomicInteger callCount = new AtomicInteger(1);
 
     public SendAgentStatService(CollectorConfiguration config) {
@@ -71,8 +71,8 @@ public class SendAgentStatService implements AgentStatService {
         }
     }
 
-    public TcpDataSender roundRobinTcpDataSender() {
-        if (flinkServerList.size() == 0) {
+    private TcpDataSender roundRobinTcpDataSender() {
+        if (flinkServerList.isEmpty()) {
             return null;
         }
 
@@ -94,6 +94,6 @@ public class SendAgentStatService implements AgentStatService {
     }
 
     public void replaceFlinkServerList(List<TcpDataSender> flinkServerList) {
-        this.flinkServerList = new CopyOnWriteArrayList(flinkServerList);
+        this.flinkServerList = new CopyOnWriteArrayList<>(flinkServerList);
     }
 }

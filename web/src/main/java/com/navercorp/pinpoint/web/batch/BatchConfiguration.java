@@ -1,21 +1,5 @@
-package com.navercorp.pinpoint.web.batch;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ConfigurationCondition;
-import org.springframework.context.annotation.ImportResource;
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +13,22 @@ import org.springframework.context.annotation.ImportResource;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.springframework.core.io.Resource;
+package com.navercorp.pinpoint.web.batch;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ConfigurationCondition;
+import org.springframework.context.annotation.ImportResource;
+
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -40,51 +39,34 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 @Conditional(BatchConfiguration.Condition.class)
 @ImportResource("classpath:/batch/applicationContext-batch-schedule.xml")
 public class BatchConfiguration implements InitializingBean {
-    private static final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
-    private Properties properties;
 
-    private List<String> flinkServerList;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("#{batchProps['batch.enable'] ?: false}")
+    private boolean enableBatch;
+
+    @Value("#{T(com.navercorp.pinpoint.common.util.StringUtils).tokenizeToStringList((batchProps['batch.flink.server'] ?: ''), ',')}")
+    private List<String> flinkServerList = Collections.emptyList();
+
+    @Value("#{batchProps['batch.server.ip'] ?: null}")
     private String batchServerIp;
 
-    public void setProperties(Properties properties) {
-        this.properties = properties;
-    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        readPropertyValues(this.properties);
+        logger.info("BatchConfiguration:{}", this.toString());
     }
 
-    private void readPropertyValues(Properties properties) {
-        logger.info("pinpoint-batch.properties read.");
-
-        batchServerIp = readString(properties, "batch.server.ip", null);
-        String[] flinkServers = StringUtils.split(readString(properties, "batch.flink.server", null), ",");
-        if (flinkServers == null) {
-            this.flinkServerList = Collections.emptyList();
-        } else {
-            this.flinkServerList = new ArrayList<>(flinkServers.length);
-            for (String flinkServer : flinkServers) {
-                if (!StringUtils.isEmpty(flinkServer)) {
-                    this.flinkServerList.add(StringUtils.trim(flinkServer));
-                }
-            }
-        }
-    }
-
-    private String readString(Properties properties, String propertyName, String defaultValue) {
-        final String result = properties.getProperty(propertyName, defaultValue);
-        if (logger.isInfoEnabled()) {
-            logger.info("{}={}", propertyName, result);
-        }
-        return result ;
-    }
 
     public String getBatchServerIp() {
         return batchServerIp;
     }
 
     static class Condition implements ConfigurationCondition {
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        public Condition() {
+        }
 
         @Override
         public ConfigurationPhase getConfigurationPhase() {
@@ -92,25 +74,23 @@ public class BatchConfiguration implements InitializingBean {
         }
         @Override
         public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-            Properties properties=new Properties();
-            Resource resource = context.getResourceLoader().getResource("classpath:/batch.properties");
-            try {
-                properties.load(resource.getInputStream());
-                final String enable = properties.getProperty("batch.enable");
-                if(enable == null) {
-                    return false;
-                }
-
-                return Boolean.valueOf(enable.trim());
-            } catch (Exception e) {
-                logger.error("Exception occurred while batch configuration" , e);
-            }
-
-            return false;
+            Properties batchProps = context.getBeanFactory().getBean("batchProps", Properties.class);
+            final String enable = batchProps.getProperty("batch.enable", "false").trim();
+            logger.info("batch.enable:{}", enable);
+            return Boolean.valueOf(enable);
         }
     }
 
     public List<String> getFlinkServerList() {
         return flinkServerList;
+    }
+
+    @Override
+    public String toString() {
+        return "BatchConfiguration{" +
+                "enableBatch=" + enableBatch +
+                ", flinkServerList=" + flinkServerList +
+                ", batchServerIp='" + batchServerIp + '\'' +
+                '}';
     }
 }

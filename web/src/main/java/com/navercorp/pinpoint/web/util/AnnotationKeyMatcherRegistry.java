@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author emeroad

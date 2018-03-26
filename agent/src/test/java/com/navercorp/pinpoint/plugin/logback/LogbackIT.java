@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"ch.qos.logback:logback-classic:[1.0.13],[1.1.3,)", "org.slf4j:slf4j-api:1.7.12"})
+@Dependency({"ch.qos.logback:logback-classic:[1.0.13],[1.1.3,1.2.3]", "org.slf4j:slf4j-api:1.7.12"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
 public class LogbackIT {
 

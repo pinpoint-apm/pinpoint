@@ -80,6 +80,9 @@
 							});
 						}
 					}
+					scope.isWasNode = function() {
+						return scope.node && scope.node.isWas;
+					};
 					scope.hideLayer = function( delay ) {
 						delay = delay || 100;
 						$element.animate({

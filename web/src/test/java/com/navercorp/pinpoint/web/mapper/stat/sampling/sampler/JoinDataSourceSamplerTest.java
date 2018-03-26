@@ -42,7 +42,7 @@ public class JoinDataSourceSamplerTest {
         assertEquals(aggreJoinDataSourceListBo.getId(), id);
         assertEquals(aggreJoinDataSourceListBo.getTimestamp(), timestamp);
         List<AggreJoinDataSourceBo> joinDataSourceBoList = aggreJoinDataSourceListBo.getAggreJoinDataSourceBoList();
-        Collections.sort(joinDataSourceBoList, new ComparatorImpl());
+        joinDataSourceBoList.sort(new ComparatorImpl());
 
         assertEquals(joinDataSourceBoList.size(), 5);
 

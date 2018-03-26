@@ -108,12 +108,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             if (!isPluginPackage(name)) {
                 return targetClassLoader.getResourceAsStream(classPath);
             }
-            final int fileExtensionPosition = name.lastIndexOf(".class");
-            if (fileExtensionPosition != -1) {
-                name = name.substring(0, fileExtensionPosition);
-            }
-
-            final InputStream inputStream = getInputStream(targetClassLoader, name);
+            final InputStream inputStream = getInputStream(targetClassLoader, classPath);
             if (inputStream == null) {
                 if (logger.isInfoEnabled()) {
                     logger.info("can not find resource : {} {} ", classPath, pluginConfig.getPluginJarURLExternalForm());

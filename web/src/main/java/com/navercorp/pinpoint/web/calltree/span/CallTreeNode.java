@@ -17,16 +17,14 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 /**
- *
  * @author jaehong.kim
- *
  */
 public class CallTreeNode {
 
     private CallTreeNode parent;
     private CallTreeNode child;
     private CallTreeNode sibling;
-    private final SpanAlign value;
+    private SpanAlign value;
 
     public CallTreeNode(final CallTreeNode parent, SpanAlign value) {
         this.parent = parent;
@@ -39,6 +37,10 @@ public class CallTreeNode {
 
     public CallTreeNode getParent() {
         return parent;
+    }
+
+    public void setValue(final SpanAlign spanAlign) {
+        this.value = spanAlign;
     }
 
     public SpanAlign getValue() {
@@ -85,7 +87,7 @@ public class CallTreeNode {
         // change logic from recursive to loop, because of avoid call-stack-overflow.
         int depth = 1;
         CallTreeNode node = parent.getParent();
-        while(node != null) {
+        while (node != null) {
             depth++;
             node = node.getParent();
         }

@@ -69,7 +69,6 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final DataSender statDataSender;
 
     private final AgentInformation agentInformation;
-    private final AgentOption agentOption;
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
@@ -82,12 +81,12 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final Injector injector;
 
-    public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {
-        this(agentOption, interceptorRegistryBinder, new ApplicationContextModuleFactory());
+    public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder, ModuleFactoryProvider moduleFactoryProvider) {
+        this(agentOption, interceptorRegistryBinder, moduleFactoryProvider.get());
     }
 
     public DefaultApplicationContext(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder, ModuleFactory moduleFactory) {
-        this.agentOption = Assert.requireNonNull(agentOption, "agentOption must not be null");
+        Assert.requireNonNull(agentOption, "agentOption must not be null");
         this.profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
         Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
 

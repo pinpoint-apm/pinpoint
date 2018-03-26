@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationResponseTimeDao;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationStatDaoOperations;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinResponseTimeSampler;

@@ -312,6 +312,12 @@
     stroke: #000;
     stroke-width: 1;
 }
+.timeSlider .focus line {
+    stroke: #FF0;
+    stroke-width: 3;
+    stroke-dasharray: 3, 3;
+}
+
 .timeSlider image {
     cursor: pointer;
 }

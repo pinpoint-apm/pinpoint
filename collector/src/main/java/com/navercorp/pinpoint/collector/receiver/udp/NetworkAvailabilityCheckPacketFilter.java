@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
 import java.net.*;
@@ -28,7 +27,7 @@ import java.net.*;
 /**
  * @author emeroad
  */
-public class NetworkAvailabilityCheckPacketFilter<T extends SocketAddress> implements TBaseFilter<T>, DisposableBean {
+public class NetworkAvailabilityCheckPacketFilter<T extends SocketAddress> implements TBaseFilter<T> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public NetworkAvailabilityCheckPacketFilter() {
@@ -60,8 +59,5 @@ public class NetworkAvailabilityCheckPacketFilter<T extends SocketAddress> imple
     }
 
 
-    @Override
-    public void destroy() throws Exception {
-    }
 
 }

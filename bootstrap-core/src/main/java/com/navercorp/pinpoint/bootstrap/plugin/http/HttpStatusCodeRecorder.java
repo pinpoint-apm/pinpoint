@@ -120,7 +120,7 @@ public class HttpStatusCodeRecorder {
         boolean isCode(int statusCode);
     }
 
-    private class DefaultStatusCode implements StatusCode {
+    private static class DefaultStatusCode implements StatusCode {
         private final int statusCode;
 
         public DefaultStatusCode(final int statusCode) {
@@ -138,7 +138,7 @@ public class HttpStatusCodeRecorder {
         }
     }
 
-    private class Informational implements StatusCode {
+    private static class Informational implements StatusCode {
         @Override
         public boolean isCode(int statusCode) {
             return 100 <= statusCode && statusCode <= 199;
@@ -150,7 +150,7 @@ public class HttpStatusCodeRecorder {
         }
     }
 
-    private class Success implements StatusCode {
+    private static class Success implements StatusCode {
         @Override
         public boolean isCode(int statusCode) {
             return 200 <= statusCode && statusCode <= 299;
@@ -163,7 +163,7 @@ public class HttpStatusCodeRecorder {
 
     }
 
-    private class Redirection implements StatusCode {
+    private static class Redirection implements StatusCode {
         @Override
         public boolean isCode(int statusCode) {
             return 300 <= statusCode && statusCode <= 399;
@@ -176,7 +176,7 @@ public class HttpStatusCodeRecorder {
 
     }
 
-    private class ClientError implements StatusCode {
+    private static class ClientError implements StatusCode {
         @Override
         public boolean isCode(int statusCode) {
             return 400 <= statusCode && statusCode <= 499;
@@ -189,7 +189,7 @@ public class HttpStatusCodeRecorder {
 
     }
 
-    private class ServerError implements StatusCode {
+    private static class ServerError implements StatusCode {
         @Override
         public boolean isCode(int statusCode) {
             return 500 <= statusCode && statusCode <= 599;

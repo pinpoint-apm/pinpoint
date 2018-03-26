@@ -1,11 +1,5 @@
 (function(){ 
 	'use strict';
-	/**
-	 * (en)한국어 Tooltip 
-	 * @ko 한국어 Tooltip
-	 * @group Config
-	 * @name pinpointApp#helpContent-ko
-	 */
 	var oHelp = {
 		configuration: {
 			general: {
@@ -463,6 +457,9 @@
 				category: [{
 					title: "[범례]",
 					items: [{
+						name: "<span class='glyphicon glyphicon-home'></span>",
+						desc: "물리서버 호스트 이름"
+					},{
 						name: "<span class='glyphicon glyphicon-hdd'></span>",
 						desc: "물리서버에 설치된 서버 인스턴스에서 동작중인 Pinpoint의 agentId입니다."
 					}]
@@ -560,16 +557,16 @@
 			},
 			permGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "JVM의 PermGen 정보와 full garbage collection 소요 시간",
+				title: "Non-Heap",
+				desc: "JVM의 non-heap 정보와 full garbage collection 소요 시간",
 				category: [{
 					title: "[범례]",
 					items: [{
 						name: "Max",
-						desc: "최대 heap 사이즈"
+						desc: "최대 non-heap 사이즈"
 					},{
 						name: "Used",
-						desc: "현재 사용 중인 heap 사이즈"
+						desc: "현재 사용 중인 non-heap 사이즈"
 					},{
 						name: "FGC",
 						desc: "Full garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
@@ -697,19 +694,19 @@
 			},
 			statPermGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "Agent들이 사용하는 JVM Permgen 사이즈 정보",
+				title: "Non-Heap",
+				desc: "Agent들이 사용하는 JVM non-heap 사이즈 정보",
 				category: [{
 					title: "[범례]",
 					items: [{
 						name: "MAX",
-						desc: "Agent들이 사용하는 perm 중 가장 큰 값"
+						desc: "Agent들이 사용하는 non-heap 중 가장 큰 값"
 					},{
 						name: "AVG",
-						desc: "Agent들이 사용하는 perm의 평균값"
+						desc: "Agent들이 사용하는 non-heap의 평균값"
 					},{
 						name: "MIN",
-						desc: "Agent들이 사용하는 perm 중 가장 작은 값"
+						desc: "Agent들이 사용하는 non-heap 중 가장 작은 값"
 					}]
 				}]
 			},
@@ -868,7 +865,9 @@
 				noParent: "부모 윈도우의 scatter chart 정보가 변경되어 더 이상 transaction 정보를 표시할 수 없습니다.",
 				noData: "부모 윈도우에 {{application}} scatter chart 정보가 없습니다."
 			}
-		}
+		},
+		applicationInspectorGuideMessage: "Application Inspector 기능이 활성화 되어 있지 않습니다.<br>" +
+		"Application Inspector 기능을 사용하려면 <a href='https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md' target='blank'>링크 <span class='glyphicon glyphicon-new-window'></span></a>를 참고하세요."
 	};
 	pinpointApp.constant('helpContent-ko', oHelp );
 })();

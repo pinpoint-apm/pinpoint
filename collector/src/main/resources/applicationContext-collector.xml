@@ -4,12 +4,13 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:beans="http://www.springframework.org/schema/beans"
        xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-<context:annotation-config/>
+    <context:annotation-config/>
 
     <context:component-scan
             base-package="com.navercorp.pinpoint.collector.dao.hbase,
@@ -61,18 +62,27 @@
     </bean>
 
     <import resource="classpath:applicationContext-hbase.xml"/>
+    <import resource="classpath:applicationContext-collector-namespace.xml"/>
 
-    <bean id="daoAutoFlusher" class="com.navercorp.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
-        <beans:property name="cachedStatisticsDaoList">
-            <beans:list>
-                <beans:ref bean="hbaseMapStatisticsCallerDao"/>
-                <beans:ref bean="hbaseMapStatisticsCalleeDao"/>
-                <beans:ref bean="hbaseMapResponseTimeDao"/>
-            </beans:list>
-        </beans:property>
-        <property name="flushPeriod" value="${statistics.flushPeriod}"/>
+    <util:list id="cachedStatisticsDaoList" value-type="com.navercorp.pinpoint.collector.dao.CachedStatisticsDao">
+        <beans:ref bean="hbaseMapStatisticsCallerDao"/>
+        <beans:ref bean="hbaseMapStatisticsCalleeDao"/>
+        <beans:ref bean="hbaseMapResponseTimeDao"/>
+    </util:list>
+    <bean id="statisticsScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+        <property name="poolSize" value="#{cachedStatisticsDaoList.size()}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AutoFlusher-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
     </bean>
-    
+    <task:scheduled-tasks scheduler="statisticsScheduler">
+        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushAll" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushAll" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapResponseTimeDao" method="flushAll" fixed-rate="1000"/>
+    </task:scheduled-tasks>
+
+
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
     </bean>
 
@@ -101,16 +111,19 @@
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
     <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
         <constructor-arg ref="tcpDispatchHandler"/>
+        <constructor-arg ref="handlerManager"/>
     </bean>
 
     <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler"/>
     <bean id="statDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
         <constructor-arg ref="statDispatchHandler"/>
+        <constructor-arg ref="handlerManager"/>
     </bean>
 
     <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler"/>
     <bean id="spanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
         <constructor-arg ref="spanDispatchHandler"/>
+        <constructor-arg ref="handlerManager"/>
     </bean>
 
     <!-- Serializer Factory Beans -->
@@ -123,13 +136,19 @@
     </bean>
 
     <!-- Agent Event/Lifecycle related Beans -->
-    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.util.ExecutorFactory" factory-method="newFixedThreadPool">
-        <constructor-arg index="0" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
-        <constructor-arg index="1" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
-        <constructor-arg index="2" value="Pinpoint-AgentEvent-Worker"/>
-        <constructor-arg index="3" value="true"/>
+    <task:annotation-driven />
+
+    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean" >
+        <property name="corePoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
+        <property name="maxPoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
+        <property name="queueCapacity" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AgentEvent-Worker-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
     </bean>
-    
+
     <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.thrift.io.SerializerFactory">
@@ -155,7 +174,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="responseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
@@ -164,7 +183,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="streamCreateFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
@@ -180,23 +199,22 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="streamCloseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
-            <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
-            </list>
+            <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter"/>
         </constructor-arg>
     </bean>
-    
+
     <!-- Cluster-related Beans -->
     <bean id="targetClusterPointRepository" class="com.navercorp.pinpoint.collector.cluster.ClusterPointRepository"/>
-    
+
     <bean id="defaultRouteHandler" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler">
         <constructor-arg index="0" type="com.navercorp.pinpoint.collector.cluster.ClusterPointLocator" ref="targetClusterPointRepository"/>
         <constructor-arg index="1" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="requestFilterChain"/>
         <constructor-arg index="2" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="responseFilterChain"/>
     </bean>
-    
+
     <bean id="streamRouteHandler" class="com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler">
         <constructor-arg index="0" type="com.navercorp.pinpoint.collector.cluster.ClusterPointLocator" ref="targetClusterPointRepository"/>
         <constructor-arg index="1" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain" ref="streamCreateFilterChain"/>
@@ -216,14 +234,38 @@
     </bean>
 
     <util:list id="channelStateChangeEventHandlers" value-type="com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler">
-        <ref bean="agentLifeCycleChangeEventHandler"/> 
+        <ref bean="agentLifeCycleChangeEventHandler"/>
     </util:list>
 
-    <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.AgentBaseDataReceiver" >
-        <constructor-arg type="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration" ref="baseDataReceiverConfig"/>
+    <bean id="addressFilter" class="com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter">
         <constructor-arg value="#{collectorConfiguration.l4IpList}"/>
-        <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandlerWrapper"/>
-        <constructor-arg type="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
+    </bean>
+
+    <bean id="channelFilter" class="com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor">
+        <constructor-arg ref="addressFilter"/>
+    </bean>
+
+    <bean id="acceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor">
+        <constructor-arg ref="channelFilter"/>
+    </bean>
+
+    <bean id="tcpReceiverExecutor" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean" >
+        <property name="corePoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
+        <property name="maxPoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
+        <property name="queueCapacity" value="#{baseDataReceiverConfig.workerQueueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AgentBaseDataReceiger-Worker"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
+    </bean>
+
+    <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.AgentBaseDataReceiver" >
+        <constructor-arg ref="baseDataReceiverConfig"/>
+        <constructor-arg ref="tcpReceiverExecutor"/>
+        <constructor-arg ref="acceptor"/>
+        <constructor-arg ref="tcpDispatchHandlerWrapper"/>
+        <constructor-arg ref="clusterService"/>
     </bean>
 
     <bean id="tBaseFilterChain" class="com.navercorp.pinpoint.collector.receiver.udp.TBaseFilterChain">
@@ -236,18 +278,77 @@
 
     <bean id="networkAvailabilityCheckPacketFilter" class="com.navercorp.pinpoint.collector.receiver.udp.NetworkAvailabilityCheckPacketFilter"/>
 
-    <bean id="spanReceiver" class="com.navercorp.pinpoint.collector.receiver.SpanReceiver">
-        <constructor-arg index="0" ref="spanReceiverConfig" />
-        <constructor-arg index="1" value="#{collectorConfiguration.l4IpList}"/>
-        <constructor-arg index="2" ref="spanDispatchHandlerWrapper"/>
+
+
+    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
+    <bean id="abstractReceiverExecutorFactoryBean" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" abstract="true">
+        <property name="rejectedExecutionHandler" ref="discardPolicy"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
+        <property name="registry" value="#{spanReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
+        <property name="logRate" value="100"/>
     </bean>
 
-    <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.StatReceiver" >
-        <constructor-arg index="0" ref="statReceiverConfig" />
-        <constructor-arg index="1" value="#{collectorConfiguration.l4IpList}"/>
-        <constructor-arg index="2"  ref="statDispatchHandlerWrapper"/>
+    <!-- span receiver configuration start -->
+    <bean id="spanReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+        <property name="corePoolSize" value="#{spanReceiverConfig.workerThreadSize}"/>
+        <property name="maxPoolSize" value="#{spanReceiverConfig.workerThreadSize}"/>
+        <property name="queueCapacity" value="#{spanReceiverConfig.workerQueueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Span-Worker-"/>
     </bean>
-    
+    <bean id="spanUdpReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
+        <property name="bindIp" value="#{spanReceiverConfig.udpBindIp}"/>
+        <property name="bindPort" value="#{spanReceiverConfig.udpBindPort}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="dispatchHandler" ref="spanDispatchHandlerWrapper"/>
+        <property name="udpBufferSize" value="#{spanReceiverConfig.udpReceiveBufferSize}"/>
+        <!-- TCP & UDP share threadpool for span -->
+        <property name="executor" ref="spanReceiverExecutor"/>
+        <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
+        <property name="enable" value="#{spanReceiverConfig.isUdpEnable()}"/>
+    </bean>
+    <bean id="spanTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
+        <property name="bindIp" value="#{spanReceiverConfig.tcpBindIp}"/>
+        <property name="bindPort" value="#{spanReceiverConfig.tcpBindPort}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="dispatchHandler" ref="spanDispatchHandlerWrapper"/>
+        <!-- TCP & UDP share threadpool for span -->
+        <property name="executor" ref="spanReceiverExecutor"/>
+        <property name="enable" value="#{spanReceiverConfig.isTcpEnable()}"/>
+    </bean>
+    <!-- span receiver configuration end -->
+
+    <!-- stat receiver configuration -->
+    <bean id="statReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+        <property name="corePoolSize" value="#{statReceiverConfig.workerThreadSize}"/>
+        <property name="maxPoolSize" value="#{statReceiverConfig.workerThreadSize}"/>
+        <property name="queueCapacity" value="#{statReceiverConfig.workerQueueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Stat-Worker-"/>
+    </bean>
+    <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
+        <property name="bindIp" value="#{statReceiverConfig.udpBindIp}"/>
+        <property name="bindPort" value="#{statReceiverConfig.udpBindPort}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="dispatchHandler" ref="statDispatchHandlerWrapper"/>
+        <property name="udpBufferSize" value="#{statReceiverConfig.udpReceiveBufferSize}"/>
+        <!-- TCP & UDP share threadpool for stat -->
+        <property name="executor" ref="statReceiverExecutor"/>
+        <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
+        <property name="enable" value="#{statReceiverConfig.isUdpEnable()}"/>
+    </bean>
+    <bean id="tcpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
+        <property name="bindIp" value="#{statReceiverConfig.tcpBindIp}"/>
+        <property name="bindPort" value="#{statReceiverConfig.tcpBindPort}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="dispatchHandler" ref="statDispatchHandlerWrapper"/>
+        <!-- TCP & UDP share threadpool for stat -->
+        <property name="executor" ref="statReceiverExecutor"/>
+        <property name="enable" value="#{statReceiverConfig.isTcpEnable()}"/>
+    </bean>
+    <!-- end receiver configuration -->
+
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
@@ -258,12 +359,24 @@
         <constructor-arg value="#{hTable.MAP_STATISTICS_CALLEE_VER2_CF_COUNTER}"/>
     </bean>
 
+    <bean id="callerBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
+        <constructor-arg ref="callerMerge"/>
+    </bean>
+
     <bean id="calleeMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg value="#{hTable.MAP_STATISTICS_CALLER_VER2_CF_COUNTER}"/>
     </bean>
 
+    <bean id="calleeBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
+        <constructor-arg ref="calleeMerge"/>
+    </bean>
+
     <bean id="selfMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg value="#{hTable.MAP_STATISTICS_SELF_VER2_CF_COUNTER}"/>
+    </bean>
+
+    <bean id="selfBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
+        <constructor-arg ref="selfMerge"/>
     </bean>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot">
@@ -280,11 +393,11 @@
         <constructor-arg ref="typeLoaderService"/>
         <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
-    
+
     <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
         <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
     </bean>
-    
+
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 
     <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">

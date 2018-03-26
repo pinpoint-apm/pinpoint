@@ -34,24 +34,20 @@ import java.util.Map;
 
 /**
  * @author emeroad
+ * @author HyunGil Jeong
  */
 public class DotExtractor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final Range range;
     private final ApplicationFactory applicationFactory;
 
     private final Map<Application, List<Dot>> dotMap = new HashMap<>();
 
 
-    public DotExtractor(Range range, ApplicationFactory applicationFactory) {
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
+    public DotExtractor(ApplicationFactory applicationFactory) {
         if (applicationFactory == null) {
             throw new NullPointerException("applicationFactory must not be null");
         }
-        this.range = range;
         this.applicationFactory = applicationFactory;
     }
 
@@ -70,20 +66,16 @@ public class DotExtractor {
     }
 
     private List<Dot> getDotList(Application spanApplication) {
-        List<Dot> dotList = this.dotMap.get(spanApplication);
-        if (dotList == null) {
-            dotList = new ArrayList<>();
-            this.dotMap.put(spanApplication, dotList);
-        }
+        List<Dot> dotList = this.dotMap.computeIfAbsent(spanApplication, k -> new ArrayList<>());
         return dotList;
     }
 
-    public List<ApplicationScatterScanResult> getApplicationScatterScanResult() {
+    public List<ApplicationScatterScanResult> getApplicationScatterScanResult(long from, long to) {
         List<ApplicationScatterScanResult> applicationScatterScanResult = new ArrayList<>();
         for (Map.Entry<Application, List<Dot>> entry : this.dotMap.entrySet()) {
             List<Dot> dotList = entry.getValue();
             Application application = entry.getKey();
-            ScatterScanResult scatterScanResult = new ScatterScanResult(range.getFrom(), range.getTo(), dotList);
+            ScatterScanResult scatterScanResult = new ScatterScanResult(from, to, dotList);
             applicationScatterScanResult.add(new ApplicationScatterScanResult(application, scatterScanResult));
         }
         return applicationScatterScanResult;

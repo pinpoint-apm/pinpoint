@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
-import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 
@@ -58,78 +57,6 @@ public class FilteredMapController {
 
     @Autowired
     private ServiceTypeRegistryService registry;
-
-    /**
-   * filtered server map data query within from ~ to timeframe
-     *
-     * @param applicationName
-     * @param serviceTypeCode
-     * @param from
-     * @param to
-     * @param filterText
-     * @param limit
-     * @return
-     */
-    @RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET, params="serviceTypeCode")
-    @ResponseBody
-    public FilterMapWrap getFilteredServerMapData(
-                                            @RequestParam("applicationName") String applicationName,
-                                            @RequestParam("serviceTypeCode") short serviceTypeCode,
-                                            @RequestParam("from") long from,
-                                            @RequestParam("to") long to,
-                                            @RequestParam("originTo") long originTo,
-                                            @RequestParam(value = "filter", required = false) String filterText,
-                                            @RequestParam(value = "hint", required = false) String filterHint,
-                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
-                                            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapData(applicationName, serviceTypeName, from, to, originTo, filterText, filterHint, limit, viewVersion);
-    }
-
-    /**
-   * filtered server map data query within from ~ to timeframe
-     *
-     * @param applicationName
-     * @param serviceTypeName
-     * @param from
-     * @param to
-     * @param filterText
-     * @param limit
-     * @return
-     */
-    @RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET, params="serviceTypeName")
-    @ResponseBody
-    public FilterMapWrap getFilteredServerMapData(
-                                            @RequestParam("applicationName") String applicationName,
-                                            @RequestParam("serviceTypeName") String serviceTypeName,
-                                            @RequestParam("from") long from,
-                                            @RequestParam("to") long to,
-                                            @RequestParam("originTo") long originTo,
-                                            @RequestParam(value = "filter", required = false) String filterText,
-                                            @RequestParam(value = "hint", required = false) String filterHint,
-                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
-                                            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        limit = LimitUtils.checkRange(limit);
-        final Filter filter = filterBuilder.build(filterText, filterHint);
-        final Range range = new Range(from, to);
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
-
-        final long lastScanTime = limitedScanResult.getLimitedTime();
-        // original range: needed for visual chart data sampling
-        final Range originalRange = new Range(from, originTo);
-        // needed to figure out already scanned ranged
-        final Range scannerRange = new Range(lastScanTime, to);
-        logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        ApplicationMap map = filteredMapService.selectApplicationMap(limitedScanResult.getScanData(), originalRange, scannerRange, filter, viewVersion);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateUtils.longToDateStr(lastScanTime));
-        }
-
-        FilterMapWrap mapWrap = new FilterMapWrap(map);
-        mapWrap.setLastFetchedTimestamp(lastScanTime);
-        return mapWrap;
-    }
 
     @RequestMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", method = RequestMethod.GET, params="serviceTypeCode")
     @ResponseBody
@@ -192,59 +119,4 @@ public class FilteredMapController {
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
     }
-
-    /**
-   * filtered server map data query for the last "Period" up to now
-   *
-     *
-     * @param applicationName
-     * @param serviceTypeCode
-     * @param filterText
-     * @param limit
-     * @return
-     */
-    @RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET, params="serviceTypeCode")
-    @ResponseBody
-    public FilterMapWrap getLastFilteredServerMapData(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
-            @RequestParam("period") long period,
-            @RequestParam(value = "filter", required = false) String filterText,
-            @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        String serviceTypeName = this.registry.findServiceType(serviceTypeCode).getName();
-        return getLastFilteredServerMapData(applicationName, serviceTypeName, period, filterText, filterHint, limit, viewVersion);
-    }
-
-    /**
-   * filtered server map data query for the last "Period" up to now
-   *
-     *
-     * @param applicationName
-     * @param serviceTypeName
-     * @param filterText
-     * @param limit
-     * @return
-     */
-    @RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET, params="serviceTypeName")
-    @ResponseBody
-    public FilterMapWrap getLastFilteredServerMapData(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeName") String serviceTypeName,
-            @RequestParam("period") long period,
-            @RequestParam(value = "filter", required = false) String filterText,
-            @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        limit = LimitUtils.checkRange(limit);
-
-        long to = TimeUtils.getDelayLastTime();
-        long from = to - period;
-    // TODO: since realtime query is enabled for now, calling parameters are fixed as "..., to, to, ..."
-    // may need additional @RequestParam("originTo")
-        return getFilteredServerMapData(applicationName, serviceTypeName, from, to, to, filterText, filterHint, limit, viewVersion);
-    }
-
-
 }

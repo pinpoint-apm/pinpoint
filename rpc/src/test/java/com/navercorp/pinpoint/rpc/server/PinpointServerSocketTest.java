@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import java.io.IOException;
-import java.net.Socket;
-
+import com.navercorp.pinpoint.rpc.DiscardServerHandler;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.navercorp.pinpoint.rpc.DiscardPipelineFactory;
-import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.springframework.util.SocketUtils;
+
+import java.io.IOException;
+import java.net.Socket;
 
 /**
  * @author emeroad
@@ -41,11 +40,11 @@ public class PinpointServerSocketTest {
     @Test
     public void testBind() throws Exception {
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
-        serverAcceptor.setPipelineFactory(new DiscardPipelineFactory());
+        serverAcceptor.setMessageHandler(new DiscardServerHandler());
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = new Socket("127.0.0.1", bindPort);
-        socket.getOutputStream().write(new byte[10]);
+        socket.getOutputStream().write(new byte[0]);
         socket.getOutputStream().flush();
         socket.close();
 

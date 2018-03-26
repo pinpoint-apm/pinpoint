@@ -60,14 +60,28 @@ public interface PinpointClientFactory {
 
     PinpointClient connect(String host, int port) throws PinpointSocketException;
 
-    PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException;
+    PinpointClient connect(SocketAddressProvider socketAddressProvider) throws PinpointSocketException;
 
+    /**
+     * @deprecated Since 1.7.2 Use {@link #connect(String, int)}
+     */
+    @Deprecated
+    PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException;
 
     PinpointClient scheduledConnect(String host, int port);
 
+    PinpointClient scheduledConnect(SocketAddressProvider socketAddressProvider);
+
+    /**
+     * @deprecated Since 1.7.2 Use {@link #scheduledConnect(String, int)}
+     */
+    @Deprecated
     PinpointClient scheduledConnect(InetSocketAddress connectAddress);
 
-
+    /**
+     * @deprecated Since 1.7.2 Use {@link #scheduledConnect(String, int)}
+     */
+    @Deprecated
     ChannelFuture reconnect(final SocketAddress remoteAddress);
 
 
@@ -99,8 +113,5 @@ public interface PinpointClientFactory {
 
     void addStateChangeEventListener(StateChangeEventListener stateChangeEventListener);
 
-//    boolean isReleased();
-//
-//    int issueNewSocketId();
 
 }

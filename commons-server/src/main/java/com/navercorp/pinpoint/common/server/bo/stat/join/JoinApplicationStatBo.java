@@ -37,7 +37,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
     private StatType statType = StatType.APP_STST;
 
     public static JoinApplicationStatBo joinApplicationStatBoByTimeSlice(final List<JoinApplicationStatBo> joinApplicationStatBoList) {
-        if (joinApplicationStatBoList.size() == 0) {
+        if (joinApplicationStatBoList.isEmpty()) {
             return EMPTY_JOIN_APPLICATION_STAT_BO;
         }
 
@@ -267,7 +267,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
     public static JoinApplicationStatBo joinApplicationStatBo(List<JoinApplicationStatBo> joinApplicationStatBoList) {
         JoinApplicationStatBo newJoinApplicationStatBo = new JoinApplicationStatBo();
 
-        if (joinApplicationStatBoList.size() == 0) {
+        if (joinApplicationStatBoList.isEmpty()) {
             return newJoinApplicationStatBo;
         }
 

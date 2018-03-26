@@ -13,14 +13,15 @@
 				return "rgba(" + r + ", " + g + ", " + b + ", " + chartBackgroundAlpha[index] + ")";
 			});
             return {
-                template: "<div style='user-select:none;'></div>",
+                template: "<div style='user-select:none;'><canvas></canvas></div>",
                 replace: true,
                 restrict: "EA",
                 scope: {
                     namespace: "@" // string value
                 },
                 link: function postLink( scope, element ) {
-                    var id, oChart;
+                    var id, oChart = null;
+                    var elCanvas = element.find("canvas");
 
                     function setIdAutomatically() {
                         id = "responseTimeId-" + scope.namespace;
@@ -30,9 +31,11 @@
                         element.css("width", w || "100%");
                         element.css("height", h || "150px");
                     }
-                    function renderChart(data, yMax, useFilterTransaction, useChartCursor) {
-                    	element.empty().append("<canvas>");
-						oChart = new Chart(element.find("canvas"), {
+                    function renderChart(data, yMax, useFilterTransaction) {
+						if ( oChart !== null ) {
+							oChart.clear();
+						}
+						oChart = new Chart(elCanvas, {
 							type: "bar",
 							data: {
 								labels: data.keys,

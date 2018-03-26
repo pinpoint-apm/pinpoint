@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
-import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
-import com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption;
 import com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
@@ -39,22 +36,17 @@ import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * @author emeroad
@@ -64,23 +56,16 @@ public class AgentBaseDataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(AgentBaseDataReceiver.class);
 
-    private PinpointServerAcceptor serverAcceptor;
+    private PinpointServerAcceptor acceptor;
 
     private final AgentBaseDataReceiverConfiguration configuration;
-    private final List<String> l4IpList;
 
     private final ZookeeperClusterService clusterService;
 
-    @Autowired
-    private MetricRegistry metricRegistry;
+    private final Executor executor;
 
-    private DispatchWorker worker;
+    private final TCPPacketHandler tcpPacketHandler;
 
-    private final SendPacketHandler sendPacketHandler;
-    private final RequestPacketHandler requestPacketHandler;
-
-    @Resource(name = "agentEventWorker")
-    private ExecutorService agentEventWorker;
 
     @Resource(name = "agentEventService")
     private AgentEventService agentEventService;
@@ -91,23 +76,24 @@ public class AgentBaseDataReceiver {
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, List<String> l4IpList, DispatchHandler dispatchHandler) {
-        this(configuration, l4IpList, dispatchHandler, null);
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, DispatchHandler dispatchHandler) {
+        this(configuration, executor, acceptor, dispatchHandler, null);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, List<String> l4IpList, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
-        Assert.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
         this.configuration = Assert.requireNonNull(configuration, "config must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.acceptor = Objects.requireNonNull(acceptor, "acceptor must not be null");
 
-        this.l4IpList = l4IpList;
-
-        DispatchWorkerOption dispatchWorkerOption = new DispatchWorkerOption("Pinpoint-AgentBaseDataReceiver-Worker", configuration.getWorkerThreadSize(), configuration.getWorkerQueueSize(), 1, configuration.isWorkerMonitorEnable());
-        this.worker =  new DispatchWorker(dispatchWorkerOption);
-
-        this.sendPacketHandler = new SendPacketHandler(dispatchHandler);
-        this.requestPacketHandler = new RequestPacketHandler(dispatchHandler);
-
+        this.tcpPacketHandler = wrapDispatchHandler(dispatchHandler);
         this.clusterService = service;
+    }
+
+    private TCPPacketHandler wrapDispatchHandler(DispatchHandler dispatchHandler) {
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+
+        TCPPacketHandlerFactory tcpPacketHandlerFactory = new DefaultTCPPacketHandlerFactory();
+        return tcpPacketHandlerFactory.build(dispatchHandler);
     }
 
     @PostConstruct
@@ -116,11 +102,7 @@ public class AgentBaseDataReceiver {
             logger.info("start() started");
         }
 
-        PinpointServerAcceptor acceptor = new PinpointServerAcceptor();
         prepare(acceptor);
-
-        worker.setMetricRegistry(metricRegistry);
-        worker.start();
 
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
@@ -162,8 +144,6 @@ public class AgentBaseDataReceiver {
         });
         acceptor.bind(configuration.getBindIp(), configuration.getBindPort());
 
-        this.serverAcceptor = acceptor;
-
         if (logger.isInfoEnabled()) {
             logger.info("start() completed");
         }
@@ -177,49 +157,22 @@ public class AgentBaseDataReceiver {
         for (ServerStateChangeEventHandler channelStateChangeEventHandler : this.channelStateChangeEventHandlers) {
             acceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
         }
-
-        setL4TcpChannel(acceptor, l4IpList);
-    }
-
-    private void setL4TcpChannel(PinpointServerAcceptor acceptor, List<String> l4ipList) {
-        if (l4ipList == null) {
-            return;
-        }
-        try {
-            List<InetAddress> inetAddressList = new ArrayList<>();
-            for (int i = 0; i < l4ipList.size(); i++) {
-                String l4Ip = l4ipList.get(i);
-                if (StringUtils.isBlank(l4Ip)) {
-                    continue;
-                }
-
-                InetAddress address = InetAddress.getByName(l4Ip);
-                if (address != null) {
-                    inetAddressList.add(address);
-                }
-            }
-
-            InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
-            acceptor.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
-        } catch (UnknownHostException e) {
-            logger.warn("l4ipList error {}", l4ipList, e);
-        }
     }
 
     private void receive(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-        worker.execute(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
-                sendPacketHandler.handle(sendPacket, pinpointSocket);
+                tcpPacketHandler.handleSend(sendPacket, pinpointSocket);
             }
         });
     }
 
     private void requestResponse(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-        worker.execute(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
-                requestPacketHandler.handle(requestPacket, pinpointSocket);
+                tcpPacketHandler.handleRequest(requestPacket, pinpointSocket);
             }
         });
     }
@@ -243,13 +196,8 @@ public class AgentBaseDataReceiver {
             logger.info("stop() started");
         }
 
-        if (serverAcceptor != null) {
-            serverAcceptor.close();
-        }
-        shutdownExecutor(agentEventWorker);
-
-        if (worker != null) {
-            worker.shutdown();
+        if (acceptor != null) {
+            acceptor.close();
         }
 
         if (logger.isInfoEnabled()) {
@@ -257,16 +205,6 @@ public class AgentBaseDataReceiver {
         }
     }
 
-    private void shutdownExecutor(ExecutorService executor) {
-        if (executor == null) {
-            return;
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
+
 
 }

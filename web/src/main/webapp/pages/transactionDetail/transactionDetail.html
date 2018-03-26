@@ -65,7 +65,7 @@
     <li><a href="#Timeline" data-toggle="tab">Timeline</a></li>
     <li><a href ng-click="openTransactionView($event);">Mixed View</a></li>
     <li ng-show="logLinkEnable">
-   		<a href="#Log" ng-click="viewLog(logPageUrl)" style="{{loggingTransactionInfo ? '' : 'color:#BBBABA'}}">{{logButtonName}}</a>
+   		<a href ng-click="viewLog(logPageUrl)" style="{{loggingTransactionInfo ? '' : 'color:#BBBABA'}};curspr: pointer;">{{logButtonName}}</a>
     </li>
 	<li style="padding-left:10px;padding-top:1px;" class="_searchForm">
 		<select class="form-control" style="width:100px" ng-model="searchColumn" ng-change="selectSearchColumn()">

@@ -40,9 +40,6 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
 
     private volatile SocketStateCode state = SocketStateCode.BEING_CONNECT;
     
-    @Override
-    public void setConnectSocketAddress(SocketAddress connectSocketAddress) {
-    }
 
     @Override
     public void initReconnect() {

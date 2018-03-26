@@ -1,18 +1,22 @@
+
+
 ![Pinpoint](web/src/main/webapp/images/logo.png)
 
 [![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)](https://travis-ci.org/naver/pinpoint)
 [![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/naver/pinpoint)
 
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Modelled after [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
+**Visit [our official web site](http://naver.github.io/pinpoint/) for more information.**
+
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2017/12/07)
-We're happy to announce the release of Pinpoint v1.7.0-RC2.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.7.0-RC2).
+## Latest Release (2018/01/04)
+We're happy to announce the release of Pinpoint v1.7.1.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.7.1).
 
-The current stable version is [**v1.6.2**](https://github.com/naver/pinpoint/releases/tag/1.6.2).
+The current stable version is [**v1.7.1**](https://github.com/naver/pinpoint/releases/tag/1.7.1).
 
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
@@ -40,7 +44,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 3/4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere)
+* Tomcat 6/7/8, [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx)
 * Spring, Spring Boot (Embedded Tomcat, Jetty)
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
@@ -62,7 +66,14 @@ Once the components are running, you should be able to visit http://localhost:28
 For details, please refer to the [quick-start guide](quickstart/README.md).
 
 ## Installation
-**Build Requirements**
+To set up your very own Pinpoint instance, please **download the required binaries** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest).
+Please take a look at our [installation guide](doc/installation.md) for further instructions.
+
+**Building** (Optional)
+
+You may also choose to build pinpoint from source for various reasons including plugin development. However, our master branch is also our development branch so stability is not always guaranteed, so we recommend downloading and running the binaries from our stable releases if you are simply looking to run pinpoint.
+
+Regardless, if you would like to build pinpoint from source, you will need the following:
 
 * JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
 * JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
@@ -71,7 +82,7 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 * JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8 home directory.
 
-**Prerequisites**
+## Compatibility
 
 Java version required to run Pinpoint:
 
@@ -106,11 +117,6 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 Pinpoint Web Supported Browsers:
 
 * Chrome
-
-**Installation**
-
-To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
-Take a look at our [installation guide](doc/installation.md) for further instructions.
 
 ## Issues
 For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues "Pinpoint Issues").  

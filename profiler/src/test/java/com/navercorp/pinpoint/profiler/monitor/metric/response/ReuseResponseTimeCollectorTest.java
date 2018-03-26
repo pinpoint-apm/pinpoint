@@ -35,18 +35,25 @@ public class ReuseResponseTimeCollectorTest {
 
         ReuseResponseTimeCollector reuseResponseTimeCollector = new ReuseResponseTimeCollector();
 
+        long maxValue = 0;
         long totalValue = 0;
         for (int i = 0; i < count; i++) {
             long value = Math.max(500, (random.nextLong() % 2500) + 500);
             totalValue += value;
+
+            if (value > maxValue) {
+                maxValue = value;
+            }
             reuseResponseTimeCollector.add(value);
         }
 
         ResponseTimeValue responseTimeValue = reuseResponseTimeCollector.resetAndGetValue();
         Assert.assertEquals(totalValue / count, responseTimeValue.getAvg());
+        Assert.assertEquals(maxValue, responseTimeValue.getMax());
 
         responseTimeValue = reuseResponseTimeCollector.resetAndGetValue();
         Assert.assertEquals(0, responseTimeValue.getAvg());
+        Assert.assertEquals(0, responseTimeValue.getMax());
     }
 
 }

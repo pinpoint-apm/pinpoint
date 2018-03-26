@@ -81,6 +81,10 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>82</td><td>thrift.result</td></tr>
  * <tr><td>90</td><td>dubbo.args</td></tr>
  * <tr><td>91</td><td>dubbo.result</td></tr>
+ * <tr><td>130</td><td>rabbitmq.properties</td></tr>
+ * <tr><td>131</td><td>rabbitmq.body</td></tr>
+ * <tr><td>132</td><td>rabbitmq.properties</td></tr>
+ * <tr><td>133</td><td>rabbitmq.body</td></tr>
  * <tr><td>110</td><td></td>hystrix.command</tr>
  * <tr><td>111</td><td></td>hystrix.command.execution</tr>
  * <tr><td>112</td><td></td>hystrix.command.fallback.cause</tr>

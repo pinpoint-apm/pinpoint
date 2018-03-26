@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.navercorp.pinpoint.web.config.ConfigProperties;
-import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
@@ -54,80 +53,46 @@ public class UserGroupController {
 
     @Autowired
     UserGroupService userGroupService;
-    
-    @Autowired
-    AlarmService alarmService;
-    
-    @Autowired
-    private ConfigProperties webProperties;
-    
+
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> createUserGroup(@RequestBody UserGroup userGroup, @RequestHeader(value=SSO_USER, required=false) String userId) {
         if (StringUtils.isEmpty(userGroup.getId())) {
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "There is not id of userGroup in params to create user group");
-            return result;
+            return createErrorMessage("500", "There is not id of userGroup in params to create user group");
         }
-        
-        String userGroupNumber = userGroupService.createUserGroup(userGroup);
 
-        if (webProperties.isOpenSource() == false) {
-            if (initUserGroup(userGroup, userId) == false) {
-                Map<String, String> result = new HashMap<>();
-                result.put("errorCode", "500");
-                result.put("errorMessage", "There is not userId or fail to create userGroup.");
-                return result;
-            }
+        try {
+            String userGroupNumber = userGroupService.createUserGroup(userGroup, userId);
+            Map<String, String> result = new HashMap<>();
+            result.put("number", userGroupNumber);
+            return result;
+        } catch (PinpointUserGroupException e) {
+            logger.error(e.getMessage(), e);
+            return createErrorMessage("500", e.getMessage());
         }
-        Map<String, String> result = new HashMap<>();
-        result.put("number", userGroupNumber);
-        return result;
-    }
-    
-    private boolean initUserGroup(UserGroup userGroup, String userId) {
-        if (StringUtils.isEmpty(userId)) {
-            userGroupService.deleteUserGroup(userGroup);
-            return false;
-        }
-        
-        userGroupService.insertMember(new UserGroupMember(userGroup.getId(), userId));
-        return true;
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deleteUserGroup(@RequestBody UserGroup userGroup, @RequestHeader(value=SSO_USER, required=false) String userId) {
         if (StringUtils.isEmpty(userGroup.getId())) {
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is id of userGroup in params to delete user group");
-            return result;
+            return createErrorMessage("500", "there is id of userGroup in params to delete user group");
         }
-        if (webProperties.isOpenSource() == false) {
-            if (checkValid(userId, userGroup.getId()) == false) {
-                Map<String, String> result = new HashMap<>();
-                result.put("errorCode", "500");
-                result.put("errorMessage", "There is not userId or you don't have authoriy for user group.");
-                return result;
-            }
-        }
-        userGroupService.deleteUserGroup(userGroup);
-        userGroupService.deleteMemberByUserGroupId(userGroup.getId());
-        alarmService.deleteRuleByUserGroupId(userGroup.getId());
-        
-        
 
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
+        try {
+            userGroupService.deleteUserGroup(userGroup, userId);
+            Map<String, String> result = new HashMap<>();
+            result.put("result", "SUCCESS");
+            return result;
+        } catch (PinpointUserGroupException e) {
+            logger.error(e.getMessage(), e);
+            return createErrorMessage("500", e.getMessage());
+        }
     }
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public List<UserGroup> getUserGroup(@RequestParam(value=USER_ID, required=false) String userId, @RequestParam(value=USER_GROUP_ID, required=false) String userGroupId) {
-        
         if (!StringUtils.isEmpty(userId)) {
             return userGroupService.selectUserGroupByUserId(userId);
         } else if (!StringUtils.isEmpty(userGroupId)) {
@@ -135,69 +100,41 @@ public class UserGroupController {
         }
         return userGroupService.selectUserGroup();
     }
-    
+
     @RequestMapping(value = "/member", method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember, @RequestHeader(value=SSO_USER, required=false) String userId) {
         if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getUserGroupId())) {
+            return createErrorMessage("500", "there is not userGroupId or memberId in params to insert user group member");
+        }
+
+        try {
+            userGroupService.insertMemberWithCheckAuthority(userGroupMember, userId);
             Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not userGroupId or memberId in params to insert user group member");
+            result.put("result", "SUCCESS");
             return result;
+        } catch (PinpointUserGroupException e) {
+            logger.error(e.getMessage(), e);
+            return createErrorMessage("500", e.getMessage());
         }
-
-        if (webProperties.isOpenSource() == false) {
-            boolean isValid = checkValid(userId, userGroupMember.getUserGroupId());
-            if (isValid == false) {
-                Map<String, String> result = new HashMap<>();
-                result.put("errorCode", "500");
-                result.put("errorMessage", "there is not userId or you don't have authority for user group.");
-                return result;
-            }
-        }
-        
-        userGroupService.insertMember(userGroupMember);
-
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
-    }
-    
-    private boolean checkValid(String userId, String userGroupId) {
-        if (StringUtils.isEmpty(userId)) {
-            return false;
-        }
-        if (userGroupService.containMemberForUserGroup(userId, userGroupId) == false) {
-            return false;
-        }
-        
-        return true;
     }
 
     @RequestMapping(value = "/member", method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember, @RequestHeader(value=SSO_USER, required=false) String userId) {
         if (StringUtils.isEmpty(userGroupMember.getUserGroupId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
+            return createErrorMessage("500", "there is not userGroupId or memberId in params to delete user group member");
+        }
+
+        try {
+            userGroupService.deleteMemberWithCheckAuthority(userGroupMember, userId);
             Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not userGroupId or memberId in params to delete user group member");
+            result.put("result", "SUCCESS");
             return result;
+        } catch (PinpointUserGroupException e) {
+            logger.error(e.getMessage(), e);
+            return createErrorMessage("500", e.getMessage());
         }
-        if (webProperties.isOpenSource() == false) {
-            boolean isValid = checkValid(userId, userGroupMember.getUserGroupId());
-            if (isValid == false) {
-                Map<String, String> result = new HashMap<>();
-                result.put("errorCode", "500");
-                result.put("errorMessage", "there is not userId or you don't have authority for user group.");
-                return result;
-            }
-        }
-        
-        userGroupService.deleteMember(userGroupMember);
-        
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
     }
     
     @RequestMapping(value = "/member", method = RequestMethod.GET)
@@ -210,9 +147,13 @@ public class UserGroupController {
     @ResponseBody
     public Map<String, String> handleException(Exception e) {
         logger.error("Exception occurred while trying to CRUD userGroup information", e);
+        return createErrorMessage("500", "Exception occurred while trying to CRUD userGroup information");
+    }
+
+    private Map<String, String> createErrorMessage(String code, String errorMessage) {
         Map<String, String> result = new HashMap<>();
-        result.put("errorCode", "500");
-        result.put("errorMessage", "Exception occurred while trying to CRUD userGroup information");
+        result.put("errorCode", code);
+        result.put("errorMessage", errorMessage);
         return result;
     }
 }

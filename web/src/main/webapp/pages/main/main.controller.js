@@ -10,7 +10,9 @@
 	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "UrlVoService", "NavbarVoService", "$window", "filteredMapUtilService", "$rootElement", "SystemConfigurationService", "AnalyticsService", "PreferenceService",
 	    function (cfg, $scope, $timeout, $routeParams, locationService, UrlVoService, NavbarVoService, $window, filteredMapUtilService, $rootElement, SystemConfigService, analyticsService, preferenceService) {
 			analyticsService.send(analyticsService.CONST.MAIN_PAGE);
-			analyticsService.sendMain(analyticsService.CONST.VERSION, SystemConfigService.get("version"));
+			SystemConfigService.getConfig().then(function(config) {
+				analyticsService.sendMain(analyticsService.CONST.VERSION, config["version"]);
+			});
 
 	        // define private variables
 	        var oNavbarVoService, bNoData;

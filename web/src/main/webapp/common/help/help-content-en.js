@@ -1,20 +1,14 @@
 (function() {
 	'use strict';
-	/**
-	 * (en)Tooltip for english 
-	 * @ko 영문 Tooltip
-	 * @group Config
-	 * @name pinpointApp#helpContent-en
-	 */
 	var oHelp = {
 		configuration: {
 			general: {
 				warning: "(User configuration is stored in browser cache. Server-side storage will be supported in a future release.)",
-				empty: "Favorite list empty"
+				empty: "Favorite list is empty"
 			},
 			alarmRules: {
 				mainStyle: "",
-				title: "Alarm Rule Type",
+				title: "Types of Alarm Rule",
 				desc: "The following types of alarm rules are supported by Pinpoint.",
 				category: [{
 					title: "[Type]",
@@ -64,7 +58,7 @@
 				}]
 			},
 			installation: {
-				desc: "* You can check whether the Application Name and Agent Id are duplicated.",
+				desc: "* You can check if Application Name and Agent Id are duplicated.",
 				lengthGuide: "You can enter up to {{MAX_CHAR}} characters."
 			}
 		},	
@@ -81,10 +75,10 @@
 					title: "[Legend]",
 					items: [{
 						name: "Icon",
-						desc: "Application Type"
+						desc: "Type of the Application"
 					}, {
 						name: "Text",
-						desc: "Application Name. The value set using <code>-Dpinpoint.applicationName</code> when launching Pinpoint agent."
+						desc: "Name of the Application. The value of <code>-Dpinpoint.applicationName</code> in Pinpoint agent configuration."
 					}]
 				}]
 			},
@@ -96,7 +90,7 @@
 					title: "[Legend]",
 					items: [{
 						name: "Inbound",
-						desc: "Number of depth to render for requests coming in to the selected node."
+						desc: "Number of depth to render for requests coming into the selected node."
 					}, {
 						name: "Outbound",
 						desc: "Number of depth to render for requests going out from the selected node"
@@ -111,14 +105,14 @@
 					title: "[Legend]",
 					items: [{
 						name: "Bidirectional",
-						desc: " Renders inbound/outbound nodes for each and every node (within limit) even if they are not directly related to the selected node.<br>Note that checking this option may lead to overly complex server maps."
+						desc: "Renders inbound/outbound nodes for each and every node (within limit) even if they are not directly related to the selected node.<br>Note that checking this option may lead to overly complex server maps."
 					}]
 				}]
 			},
 			periodSelector: {
 				mainStyle: "",
 				title: "Period Selector",
-				desc: "Selects the time period for querying data.",
+				desc: "Selects the time range for search data.",
 				category: [{
 					title: "[Usage]",
 					items: [{
@@ -126,7 +120,7 @@
 						desc: "Query for data traced during the most recent selected time-period.<br/>Auto-refresh is supported for 5m, 10m, 3h time-period."
 					},{
 						name: "<button type='button' class='btn btn-success btn-xs'><span class='glyphicon glyphicon-calendar'></span></button>",
-						desc: "Query for data traced between the two selected times for a maximum of 48 hours."
+						desc: "Query for traced data between two selected times with the maximum of 48 hours."
 					}]
 				}]
 			}
@@ -148,26 +142,78 @@
 					title: "[Arrow]",
 					list: [
 						"Each arrow represents a transaction flow.",
-						"The number shows the transaction count and is displayed in red for transactions with error.",
+						"The number shows the transaction count. Displayed in red for error counts that exceeds the threshold.",
 						"<span class='glyphicon glyphicon-filter' style='color:green;'></span> is shown when a filter is applied.",
 						"Clicking an arrow shows information on all transactions passing through the selected section on the right-hand side of the screen."
 				    ]
 				},{
+					title: "[Usage of the Node]",
+					list: [
+						"When the node is selected, the transaction information flowing into the application is displayed on the right side of the screen."
+					]
+				},{
+					title: "[Usage of the Arrow]",
+					list: [
+						"Select the arrow to show the transaction information that passes through the selected section on the right side of the screen.",
+						"The Filter in the Context menu shows only the transactions that pass through the selected section.",
+						"Filter wizard allows you to configure more detailed filters.",
+						"When the filter is applied, <span class = 'glyphicon glyphicon-filter' style = 'color: green;'> </span> icon will be displayed on the arrow."
+					]
+				},{
 					title: "[Applying Filter]",
 					list: [
-				        "Right-clicking on an arrow displays a filter menu.",
-				        "'Filter' filters the server map to only show transactions that has passed through the selected section.",
+				        "Right-clicking on an arrow displays the filter menu.",
+				        "'Filter' filters the server map to show transactions that have passed through the selected section.",
 				        "'Filter Wizard' allows additional filter configurations."
 					]
 				},{
 					title: "[Chart Configuration]",
 					list: [
-				        "Right-clicking on an empty area displays a chart configuration menu.",
-				        "Node Setting / Merge Unknown : Groups all agent-less applications into a single node.",
-				        "Double-clicking on an empty resets the zoom level of the server map."
+				        "Right-clicking on any blank area displays a chart configuration menu.",
+				        "Node Setting / Merge Unknown : Groups all applications without agent and displays it as a single node.",
+				        "Double-clicking on any blank area resets the zoom level of the server map."
 					]
 				}]
 			} 
+		},
+		scatter : {
+			"default": {
+				mainStyle: "",
+				title: "Response Time Scatter Chart",
+				desc: "",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "<span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span>",
+						desc: "Successful Transaction"
+					},{
+						name: "<span class='glyphicon glyphicon-stop' style='color:#f53034'></span>",
+						desc: "Failed Transaction"
+					},{
+						name: "X-axis",
+						desc: "Transaction Timestamp (hh:mm)"
+					},{
+						name: "Y-axis",
+						desc: "Response Time (ms)"
+					}]
+				},{
+					title: "[Usage]",
+					image: "<img src='images/help/scatter_01.png' width='200px' height='125px'>",
+					items: [{
+						name: "<span class='glyphicon glyphicon-plus'></span>",
+						desc: "Drag on the scatter chart to show detailed information on selected transactions."
+					},{
+						name: "<span class='glyphicon glyphicon-cog'></span>",
+						desc: "Set the min/max value of the Y-axis (Response Time)."
+					},{
+						name: "<span class='glyphicon glyphicon-download-alt'></span>",
+						desc: "Download the chart as an image file."
+					},{
+						name: "<span class='glyphicon glyphicon-fullscreen'></span>",
+						desc: "Open the chart in a new window."
+					}]
+				}]
+			}
 		},
 		realtime: {
 			"default": {
@@ -216,45 +262,6 @@
 						desc: "No response from Pinpoint Web. Please contact the administrator.",
 						nameStyle: "width:120px;border-bottom:1px solid gray",
 						descStyle: "border-bottom:1px solid gray"
-					}]
-				}]
-			}
-		},	
-		scatter : {
-			"default": {
-				mainStyle: "",
-				title: "Response Time Scatter Chart",
-				desc: "",
-				category: [{
-					title: "[Legend]",
-					items: [{
-						name: "<span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span>",
-						desc: "Successful Transaction"
-					},{
-						name: "<span class='glyphicon glyphicon-stop' style='color:#f53034'></span>",
-						desc: "Failed Transaction"
-					},{
-						name: "X-axis",
-						desc: "Transaction Timestamp (hh:mm)"
-					},{
-						name: "Y-axis",
-						desc: "Response Time (ms)"
-					}]
-				},{
-					title: "[Usage]",
-					image: "<img src='images/help/scatter_01.png' width='200px' height='125px'>",
-					items: [{
-						name: "<span class='glyphicon glyphicon-plus'></span>",
-						desc: "Drag on the scatter chart to show detailed information on selected transactions."
-					},{
-						name: "<span class='glyphicon glyphicon-cog'></span>",
-						desc: "Set the min/max value of the Y-axis (Response Time)."
-					},{
-						name: "<span class='glyphicon glyphicon-download-alt'></span>",
-						desc: "Download the chart as an image file."
-					},{
-						name: "<span class='glyphicon glyphicon-fullscreen'></span>",
-						desc: "Open the chart in a new window."
 					}]
 				}]
 			}
@@ -370,9 +377,19 @@
 			},
 			searchAndOrder: {
 				mainStyle: "",
-				title: "Search and Fliter",
-				desc: "Filter by server name or total count.Clicking Name or Count sorts the list in ascending/descending order."
-			}			
+				title: "Search and Filter",
+				desc: "You can search with server name and Counts.",
+				category: [{
+					title: "[Usage]",
+					items: [{
+						name: "Name",
+						desc: "Sort names in ascending / descending order."
+					},{
+						name: "Count",
+						desc: "Sort counts in ascending / descending order."
+					}]
+				}]
+			}
 		},
 		linkInfoDetails: {
 			responseSummary: {
@@ -461,7 +478,7 @@
 					title: "[Usage]",
 					items: [{
 						name: "<button type='button' class='btn btn-default btn-xs'>Inspector</button>",
-						desc: "Open a new window with detailed information on the WAS with Pinpoint installed."
+						desc: "Open a new window with detailed information on the WAS where Pinpoint is installed."
 					},{
 						name: "<button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
 						desc: "Display statistics on transactions carried out by the server instance."
@@ -489,7 +506,17 @@
 			searchAndOrder: {
 				mainStyle: "",
 				title: "Search and Filter",
-				desc: "Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order."
+				desc: "You can search with server name and Counts.",
+				category: [{
+					title: "[Usage]",
+					items: [{
+						name: "Name",
+						desc: "Sort names in ascending / descending order."
+					},{
+						name: "Count",
+						desc: "Sort counts in ascending / descending order."
+					}]
+				}]
 			}
 		},
 		inspector: {
@@ -524,7 +551,7 @@
 			heap: {
 				mainStyle: "",
 				title: "Heap",
-				desc: "JVM's heap information and full garbage collection times(if any)",
+				desc: "JVM's heap information and full garbage collection time required",
 				category: [{
 					title: "[Legend]",
 					items: [{
@@ -532,28 +559,28 @@
 						desc: "Maximum heap size"
 					},{
 						name: "Used",
-						desc: "Heap currently in use"
+						desc: "Heap size currently in use"
 					},{
 						name: "FGC",
-						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
+						desc: "Time required for full garbage collection (number of FGCs in parenthesis if it occurred more than once)"
 					}]
 				}]
 			},
 			permGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "JVM's PermGen information and full garbage collection times(if any)",
+				title: "Non-Heap",
+				desc: "JVM's non-heap information and full garbage collection time required",
 				category: [{
 					title: "[Legend]",
 					items: [{
 						name: "Max",
-						desc: "Maximum heap size"
+						desc: "Maximum non-heap size"
 					},{
 						name: "Used",
-						desc: "Heap currently in use"
+						desc: "Non-heap size currently in use"
 					},{
 						name: "FGC",
-						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
+						desc: "Time required for full garbage collection (number of FGCs in parenthesis if it occurred more than once)"
 					}]
 				}]
 			},
@@ -565,28 +592,28 @@
 					title: "[Legend]",
 					items: [{
 						name: "Java 1.6",
-						desc: "Only the JVM's CPU usage is collected"
+						desc: "Only JVM's CPU usage is collected"
 					},{
 						name: "Java 1.7+",
-						desc: "Both the JVM's and the system's CPU usage are collected"
+						desc: "Both JVM's and system's CPU usage are collected"
 					}]
 				}]
 			},
             tps: {
                 mainStyle: "",
                 title: "TPS",
-                desc: "Transactions per second received by the server",
+                desc: "Transactions received by the server per second ",
                 category: [{
                     title: "[Legend]",
                     items: [{
                         name: "Sampled New (S.N)",
-                        desc: "Profiled transactions that started from the current agent"
+                        desc: "Profiled transactions that started from the selected agent"
                     },{
                         name: "Sampled Continuation (S.C)",
                         desc: "Profiled transactions that started from another agent"
                     },{
                         name: "Unsampled New (U.N)",
-                        desc: "Unprofiled transactions that started from the current agent"
+                        desc: "Unprofiled transactions that started from the selected agent"
                     },{
                         name: "Unsampled Continuation (U.C)",
                         desc: "Unprofiled transactions that started from another agent"
@@ -599,7 +626,7 @@
 			activeThread: {
 				mainStyle: "",
 				title: "Active Thread",
-				desc: "Snapshots of the agent's active thread count, categorized by how long they have active for serving a request.",
+				desc: "Snapshots of the agent's active thread status, categorized by how long they have been active for serving a request.",
 				category: [{
 					title: "[Legend]",
 					items: [{
@@ -631,10 +658,10 @@
 						desc: "Maximum number of active connections"
 					},{
 						name: "Total Max",
-						desc: "The maximum number of active connections that can be allocated at the same time"
+						desc: "The maximum number of connections that can be allocated at the same time"
 					},{
 						name: "Type",
-						desc: "DB Connection Pool Type"
+						desc: "Type of DB Connection Pool"
 					}]
 				}]
 			},
@@ -654,42 +681,42 @@
 				"<div style='font-size:12px'>The agent is currently registered under {{application2}} due to the following:<br>",
 				"1. The agent has moved from {{application1}} to {{application2}}<br>",
 				"2. A different agent with the same agent id has been registered to {{application2}}<hr>",
-				"For the former case, you should delete the mapping between {{application1}} and {{agentId}}.<br>",
-				"For the latter case, the agent id of the duplicate agent must be changed.</div>"
+				"For case1, you should delete the mapping between {{application1}} and {{agentId}}.<br>",
+				"For case2, the agent id of the duplicate agent must be changed.</div>"
 			].join(""),
 			statHeap: {
 				mainStyle: "",
 				title: "Heap",
-				desc: "Heap size used by agent JVMs",
+				desc: "Heap size used by the agent JVMs",
 				category: [{
 					title: "[Legend]",
 					items: [{
 						name: "MAX",
-						desc: "Largest heap size used by agent JVMs"
+						desc: "Largest heap size used by an agent JVM"
 					},{
 						name: "AVG",
-						desc: "Average heap size used by agent JVMs"
+						desc: "Average heap size used by the agent JVMs"
 					},{
 						name: "MIN",
-						desc: "Smallest heap size used by agent JVMs"
+						desc: "Smallest heap size used by an agent JVM"
 					}]
 				}]
 			},
 			statPermGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "Permgen size used by the agent JVMs",
+				title: "Non-Heap",
+				desc: "Non-heap size used by the agent JVMs",
 				category: [{
 					title: "[Legend]",
 					items: [{
 						name: "MAX",
-						desc: "Largest permgen size used by agent JVMs"
+						desc: "Largest non-heap size used by an agent JVM"
 					},{
 						name: "AVG",
-						desc: "Average permgen size used by agent JVMs"
+						desc: "Average non-heap size used by the agent JVMs"
 					},{
 						name: "MIN",
-						desc: "Smallest permgen size used by agent JVMs"
+						desc: "Smallest non-heap size used by an agent JVM"
 					}]
 				}]
 			},
@@ -714,7 +741,7 @@
 			statSystemCpu: {
 				mainStyle: "",
 				title: "System pu Usage",
-				desc: "CPU usage of agents' whole system - For multi-core CPUs, displays the average CPU usage of all the cores.",
+				desc: "CPU usage of every agent's system - For multi-core CPUs, displays the average CPU usage of all cores.",
 				category: [{
 					title: "[Legend]",
 					items: [{
@@ -734,7 +761,7 @@
 						desc: "Only the JVM's CPU usage is collected"
 					},{
 						name: "Java 1.7+",
-						desc: "Both the JVM's and the system's CPU usage are collected"
+						desc: "Both JVM's and system's CPU usage are collected"
 					}]
 				}]
 			},
@@ -782,13 +809,13 @@
 					title: "[Legend]",
 					items: [{
 						name: "MAX",
-						desc: "Highest average response time of requests served by an agent"
+						desc: "Highest value of agents' average response time"
 					},{
 						name: "AVG",
-						desc: "Average response time of requests served by all agents"
+						desc: "Average value of agents' average response time"
 					},{
 						name: "MIN",
-						desc: "Lowest average response time of requests served by an agent"
+						desc: "Lowest value of agents' average response time"
 					}]
 				}]
 			},
@@ -820,10 +847,10 @@
 					title: "[Column]",
 					items: [{
 						name: "Gap",
-						desc: "Time elapsed between the start of the previous method and entry of this method"
+						desc: "Elapsed time between the start of the previous method and the entry of this method"
 					},{
 						name: "Exec",
-						desc: "The overall duration of the method call from method entry until method exit"
+						desc: "Duration of the method call from entry to exit"
 					},{
 						name: "Exec(%)",
 						desc: "<img src='images/help/callTree_01.png'/>"
@@ -835,7 +862,7 @@
 						desc: "<span style='background-color:#FFFFFF;color:#4343C8'>Dark blue</span> A percentage of the self execution time"
 					},{
 						name: "Self",
-						desc: "The time that was used for execution of this method only, excluding time consumed in nested methods call"
+						desc: "Duration of the method call from entry to exit, excluding time consumed in nested methods call"
 					}]
 				}]
 			}
@@ -845,10 +872,12 @@
 		},
 		transactionList: {
 			openError: {
-				noParent: "Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.",
+				noParent: "Unable to scan any more data due to the change of\r\nscatter data in parent window.",
 				noData: "There is no {{application}} scatter data in parent window."
 			}
-		}
+		},
+		applicationInspectorGuideMessage: "Application Inspector is not enabled.<br>" +
+			"To enable Application Inspector, please refer to <a href='https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md'>this link <span class='glyphicon glyphicon-new-window'></span></a>."
 	};
 	pinpointApp.constant('helpContent-en', oHelp );
 })();

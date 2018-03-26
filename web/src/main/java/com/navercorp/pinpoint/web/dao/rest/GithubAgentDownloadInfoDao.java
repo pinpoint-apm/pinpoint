@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao.rest;
 
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
@@ -48,11 +48,11 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
         List<AgentDownloadInfo> result = new ArrayList<>();
         try {
             RestTemplate restTemplate = new RestTemplate();
-
             String responseBody = restTemplate.getForObject(GITHUB_API_URL, String.class);
-            JavaType agentDownloadInfoListType = objectMapper.getTypeFactory().constructCollectionType(List.class, GithubAgentDownloadInfo.class);
 
-            List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(responseBody, agentDownloadInfoListType);
+            TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<List<GithubAgentDownloadInfo>>() {};
+            List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(responseBody, typeReference);
+
             if (CollectionUtils.isEmpty(agentDownloadInfoList)) {
                 return result;
             }

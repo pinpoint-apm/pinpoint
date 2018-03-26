@@ -19,15 +19,14 @@
 			}
 		}
 	});
-	pinpointApp.directive( "agentListDirective", [ "agentListDirectiveConfig", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AgentAjaxService", "PreferenceService", "TooltipService", "AnalyticsService",
-		function ( cfg, SystemConfigService, CommonUtilService, UrlVoService, AgentAjaxService, PreferenceService, TooltipService, AnalyticsService ) {
+	pinpointApp.directive( "agentListDirective", [ "agentListDirectiveConfig", "CommonUtilService", "UrlVoService", "AgentAjaxService", "PreferenceService", "TooltipService", "AnalyticsService",
+		function ( cfg, CommonUtilService, UrlVoService, AgentAjaxService, PreferenceService, TooltipService, AnalyticsService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
 				templateUrl: 'features/agentList/agentList.html?v=' + G_BUILD_TIME,
 				link: function postLink( scope ) {
 					cfg.ID += CommonUtilService.getRandomNum();
-					scope.showStatistic = SystemConfigService.get("showApplicationStat");
 					init();
 					function init() {
 						TooltipService.init( "agentList" );

@@ -35,15 +35,20 @@ public class SampledResponseTime implements SampledAgentStatDataPoint {
     };
 
     private final AgentStatPoint<Long> avg;
+    private final AgentStatPoint<Long> max;
 
-    public SampledResponseTime(AgentStatPoint<Long> avg) {
+    public SampledResponseTime(AgentStatPoint<Long> avg, AgentStatPoint<Long> max) {
         this.avg = Objects.requireNonNull(avg, "avg must not be null");
+        this.max = Objects.requireNonNull(max, "max must not be null");
     }
 
     public AgentStatPoint<Long> getAvg() {
         return avg;
     }
 
+    public AgentStatPoint<Long> getMax() {
+        return max;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -52,19 +57,25 @@ public class SampledResponseTime implements SampledAgentStatDataPoint {
 
         SampledResponseTime that = (SampledResponseTime) o;
 
-        return avg != null ? avg.equals(that.avg) : that.avg == null;
+        if (avg != null ? !avg.equals(that.avg) : that.avg != null) return false;
+        return max != null ? max.equals(that.max) : that.max == null;
+
     }
 
     @Override
     public int hashCode() {
-        return avg != null ? avg.hashCode() : 0;
+        int result = avg != null ? avg.hashCode() : 0;
+        result = 31 * result + (max != null ? max.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SampledResponseTime{");
         sb.append("avg=").append(avg);
+        sb.append(", max=").append(max);
         sb.append('}');
         return sb.toString();
     }
+
 }

@@ -403,25 +403,26 @@
 						reloadRealtimeServerMap( query );
 	                }
 	                function reloadRealtimeServerMap() {
-
-	                	var reloadRequestRepeatingTime = 5000;
-	                	var reloadRequestTimeRange = 300000;
-						if ( SystemConfigService.get("enableServerMapRealTime") === true && scope.oNavbarVoService.isRealtime() ) {
-							$timeout(function() {
-								if ( scope.oNavbarVoService.isRealtime() ) {
-									htLastQuery.to = htLastQuery.to + reloadRequestRepeatingTime;
-									htLastQuery.from = htLastQuery.from - reloadRequestTimeRange;
-									ServerMapDaoService.getServerMapData(htLastQuery, function (err, query, mapData) {
-										if ( scope.oNavbarVoService.isRealtime() ) {
-											htLastMapData = mapData;
-											var serverMapData = ServerMapDaoService.extractDataFromApplicationMapData(mapData.applicationMapData);
-											extractMergeTypeList(serverMapData);
-											serverMapCallback(query, serverMapData, scope.linkRouting, scope.linkCurve, true);
-										}
-									});
-								}
-							}, reloadRequestRepeatingTime);
-						}
+						var reloadRequestRepeatingTime = 5000;
+						var reloadRequestTimeRange = 300000;
+	                	SystemConfigService.getConfig().then(function(config) {
+							if ( config["enableServerMapRealTime"] === true && scope.oNavbarVoService.isRealtime() ) {
+								$timeout(function() {
+									if ( scope.oNavbarVoService.isRealtime() ) {
+										htLastQuery.to = htLastQuery.to + reloadRequestRepeatingTime;
+										htLastQuery.from = htLastQuery.to - reloadRequestTimeRange;
+										ServerMapDaoService.getServerMapData(htLastQuery, function (err, query, mapData) {
+											if ( scope.oNavbarVoService.isRealtime() ) {
+												htLastMapData = mapData;
+												var serverMapData = ServerMapDaoService.extractDataFromApplicationMapData(mapData.applicationMapData);
+												extractMergeTypeList(serverMapData);
+												serverMapCallback(query, serverMapData, scope.linkRouting, scope.linkCurve, true);
+											}
+										});
+									}
+								}, reloadRequestRepeatingTime);
+							}
+						});
 					}
 	                function showOverview() {
 	                	return /^\/main/.test( $location.path() );

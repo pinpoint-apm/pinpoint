@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.*;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
-import com.navercorp.pinpoint.thrift.dto.flink.TFDataSourceList;
-import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 
 import java.util.*;
 

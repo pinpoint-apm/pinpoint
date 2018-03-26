@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,11 +34,13 @@ import org.eclipse.jetty.server.Request;
 
 import java.util.Enumeration;
 
+/**
+ * @author Chaein Jung
+ */
 public abstract class AbstractServerHandleInterceptor implements AroundInterceptor {
-
     public static final JettySyncMethodDescriptor JETTY_SYNC_API_TAG = new JettySyncMethodDescriptor();
-
     protected PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isTrace = logger.isTraceEnabled();
 
@@ -48,7 +50,6 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
 
     public AbstractServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
-
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
@@ -57,7 +58,8 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         traceContext.cacheApi(JETTY_SYNC_API_TAG);
     }
 
-    protected abstract Request getRequest(Object[] args);
+    abstract Request getRequest(Object[] args);
+    abstract String getHeader(Request request, String name);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -177,7 +179,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
 
     private boolean samplingEnable(Request request) {
         // optional value
-        final String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
+        final String samplingFlag = getHeader(request, Header.HTTP_SAMPLED.toString());
         if (isDebug) {
             logger.debug("SamplingFlag:{}", samplingFlag);
         }
@@ -208,15 +210,15 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     }
 
     private void recordParentInfo(SpanRecorder recorder, Request request) {
-        String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
+        String parentApplicationName = getHeader(request, Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
-            final String host = request.getHeader(Header.HTTP_HOST.toString());
+            final String host = getHeader(request, Header.HTTP_HOST.toString());
             if (host != null) {
                 recorder.recordAcceptorHost(host);
             } else {
                 recorder.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
             }
-            final String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+            final String type = getHeader(request, Header.HTTP_PARENT_APPLICATION_TYPE.toString());
             final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
             recorder.recordParentApplication(parentApplicationName, parentApplicationType);
         }
@@ -245,7 +247,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
             @Override
             public String read(String name) {
-                return request.getHeader(name);
+                return getHeader(request, name);
             }
         });
     }
@@ -257,13 +259,11 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
      * @return TraceId when it is possible to get a transactionId from Http header. if not possible return null
      */
     private TraceId populateTraceIdFromRequest(Request request) {
-
-        String transactionId = request.getHeader(Header.HTTP_TRACE_ID.toString());
+        String transactionId = getHeader(request, Header.HTTP_TRACE_ID.toString());
         if (transactionId != null) {
-            long parentSpanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
-            long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
-            short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
-
+            long parentSpanID = NumberUtils.parseLong(getHeader(request, Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
+            long spanID = NumberUtils.parseLong(getHeader(request, Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
+            short flags = NumberUtils.parseShort(getHeader(request, Header.HTTP_FLAGS.toString()), (short) 0);
             final TraceId id = traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
             if (isDebug) {
                 logger.debug("TraceID exist. continue trace. {}", id);

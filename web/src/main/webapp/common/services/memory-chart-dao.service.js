@@ -58,7 +58,7 @@
 							} else {
 								var yValue = aChartData.charts.y[category[j]["id"]][i][1];
 								if (yValue > 0) {
-									thisData[category[j].key] = yValue;
+									thisData[category[j].key] = yValue === -1 ? null : yValue;
 								}
 							}
 						}

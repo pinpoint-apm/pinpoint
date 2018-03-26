@@ -744,7 +744,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     private String getConstructorInfo(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        String[] parameterTypeNames = JavaAssistUtils.getParameterType(parameterTypes);
+        String[] parameterTypeNames = JavaAssistUtils.toPinpointParameterType(parameterTypes);
 
         final String constructorSimpleName = MethodDescriptionUtils.getConstructorSimpleName(constructor);
         return MethodDescriptionUtils.toJavaMethodDescriptor(constructor.getDeclaringClass().getName(), constructorSimpleName , parameterTypeNames);

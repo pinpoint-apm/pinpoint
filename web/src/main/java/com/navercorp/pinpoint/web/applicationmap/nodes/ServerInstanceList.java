@@ -71,11 +71,7 @@ public class ServerInstanceList {
     }
 
     private List<ServerInstance> getServerInstanceList(String hostName) {
-        List<ServerInstance> find = serverInstanceList.get(hostName);
-        if (find == null) {
-            find = new ArrayList<>();
-            serverInstanceList.put(hostName, find);
-        }
+        List<ServerInstance> find = serverInstanceList.computeIfAbsent(hostName, k -> new ArrayList<>());
         return find;
     }
 

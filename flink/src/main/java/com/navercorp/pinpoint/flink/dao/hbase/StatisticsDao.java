@@ -15,14 +15,12 @@
  */
 package com.navercorp.pinpoint.flink.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.Bootstrap;
 import org.apache.flink.api.common.io.OutputFormat;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.CollectionUtil;
-import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +35,6 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final long serialVersionUID = 1L;
-    private transient TableName APPLICATION_STAT_AGGRE;
     private transient CpuLoadDao cpuLoadDao;
     private transient MemoryDao memoryDao;
     private transient TransactionDao transactionDao;
@@ -51,7 +48,6 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
 
     @Override
     public void configure(Configuration parameters) {
-        this.APPLICATION_STAT_AGGRE = HBaseTables.APPLICATION_STAT_AGGRE;
         Bootstrap bootstrap = Bootstrap.getInstance();
         cpuLoadDao = bootstrap.getCpuLoadDao();
         memoryDao = bootstrap.getMemoryDao();

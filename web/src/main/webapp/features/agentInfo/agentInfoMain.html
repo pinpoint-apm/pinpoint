@@ -83,7 +83,7 @@
 							<a ng-if="agent.linkName" class="btn btn-default btn-xs" href="{{agent.linkURL}}" target="_blank" title="System resource monitoring site">{{agent.linkName}}</a>
 						</td>
 						<td class="text-right"><strong>JVM&nbsp;(GC Type)</strong></td>
-						<td class="text-left" ng-if="agent.vmVersion">{{agent.vmVersion}}&nbsp;({{agent.jvmGcType}})</td>
+						<td class="text-left" ng-if="agent.vmVersion">{{agent.vmVersion}}&nbsp;({{agent.jvmInfo.gcTypeName || agent.jvmGcType}})</td>
 						<td class="text-left" ng-if="!agent.vmVersion">{{agent.jvmGcType}}</td>
 					</tr>
 					<tr>
@@ -169,7 +169,7 @@
 				<agent-inspector-chart-directive namespace="agent-heap"></agent-inspector-chart-directive>
 			</div>
 			<div class="col-md-6">
-				<h4><span class="glyphicon glyphicon-question-sign permGenTooltip" style="cursor:pointer;float:right;"></span> PermGen Usage</h4>
+				<h4><span class="glyphicon glyphicon-question-sign permGenTooltip" style="cursor:pointer;float:right;"></span> Non-Heap Usage</h4>
 				<agent-inspector-chart-directive namespace="agent-non-heap"></agent-inspector-chart-directive>
 			</div>
 		</div>

@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class ClusterOption {
 
-    public static final ClusterOption DISABLE_CLUSTER_OPTION = new ClusterOption(false, "", Collections.EMPTY_LIST);
+    public static final ClusterOption DISABLE_CLUSTER_OPTION = new ClusterOption(false, "", Collections.<Role>emptyList());
 
     private final boolean enable;
     private final String id;
@@ -35,6 +35,10 @@ public class ClusterOption {
 
     public ClusterOption(boolean enable, String id, Role role) {
         this(enable, id, Arrays.asList(role));
+    }
+
+    public ClusterOption(ClusterOption clusterOption) {
+        this(clusterOption.enable, clusterOption.id, new ArrayList<Role>(clusterOption.roles));
     }
 
     public ClusterOption(boolean enable, String id, List<Role> roles) {
@@ -55,7 +59,7 @@ public class ClusterOption {
         return roles;
     }
 
-    public Map<String, Object> getProperties() {
+    public Map<String, Object> toMap() {
         if (!enable) {
             return Collections.emptyMap();
         }
@@ -80,5 +84,9 @@ public class ClusterOption {
         sb.append(", roles=").append(roles);
         sb.append('}');
         return sb.toString();
+    }
+
+    public static ClusterOption copy(ClusterOption clusterOption) {
+        return new ClusterOption(clusterOption.enable, clusterOption.id, clusterOption.roles);
     }
 }

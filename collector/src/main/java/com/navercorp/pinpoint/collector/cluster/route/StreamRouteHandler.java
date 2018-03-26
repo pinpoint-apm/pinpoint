@@ -104,6 +104,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
         if (!clusterPoint.isSupportCommand(requestObject)) {
+            logger.warn("Create StreamChannel failed. target:{}, message:{} is not supported command", clusterPoint, requestObject.getClass().getName());
             return createResponse(TRouteResult.NOT_SUPPORTED_REQUEST);
         }
 
@@ -125,7 +126,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             }
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Create StreamChannel({}) failed. Error:{}", clusterPoint, e.getMessage(), e);
+                logger.warn("Create StreamChannel failed. target:{}, message:{}", clusterPoint, e.getMessage(), e);
             }
         }
 

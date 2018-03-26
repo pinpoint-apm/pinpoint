@@ -25,7 +25,7 @@ public class JdbcConfig {
     private final int maxSqlBindValueSize;
 
 
-    protected JdbcConfig( boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
+    protected JdbcConfig(boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
         this.pluginEnable = pluginEnable;
         this.traceSqlBindValue = traceSqlBindValue;
         this.maxSqlBindValueSize = maxSqlBindValue;

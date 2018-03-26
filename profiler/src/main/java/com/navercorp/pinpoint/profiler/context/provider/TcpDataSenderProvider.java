@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
-import java.net.InetSocketAddress;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -50,7 +48,8 @@ public class TcpDataSenderProvider implements Provider<EnhancedDataSender> {
     @Override
     public EnhancedDataSender get() {
         PinpointClientFactory clientFactory = clientFactoryProvider.get();
-        InetSocketAddress address = new InetSocketAddress(profilerConfig.getCollectorTcpServerIp(), profilerConfig.getCollectorTcpServerPort());
-        return new TcpDataSender("Default", address, clientFactory);
+        String collectorTcpServerIp = profilerConfig.getCollectorTcpServerIp();
+        int collectorTcpServerPort = profilerConfig.getCollectorTcpServerPort();
+        return new TcpDataSender("Default", collectorTcpServerIp, collectorTcpServerPort, clientFactory);
     }
 }

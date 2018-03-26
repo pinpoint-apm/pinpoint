@@ -78,6 +78,11 @@
             "contentZoneHeight": contentZoneHeight,
             "selectionPointRadius": this.opt.selectionPointRadius
         });
+		this.oFocus = new TimeSlider.Focus( this, this.getGroup("focus", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["focus"]), {
+			"y": this.opt.headerZoneHeight,
+			"height": contentZoneHeight,
+			"duration": this.opt.duration
+		});
         this.oXAxis = new TimeSlider.XAxis( this, this.getGroup("x-axis", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["x-axis"]), {
             "endY": this.opt.height - this.opt.eventZoneHeight,
             "width": this.opt.width,
@@ -232,7 +237,13 @@
     };
     TimeSlider.prototype.getSelectTime = function() {
     	return this.oPositionManager.getSelectTime();
-	}
+	};
+	TimeSlider.prototype.showFocus = function( time ) {
+		return this.oFocus.show( this.oPositionManager.getPositionFromTime(time) );
+	};
+	TimeSlider.prototype.hideFocus = function() {
+		return this.oFocus.hide();
+	};
 
     TimeSlider.GROUP_TYPE = {
         TOP_BASE: "top-base",
@@ -251,6 +262,7 @@
         "left-handler": 25,
         "right-handler": 25,
         "guide": 30,
+		"focus": 50,
         "loading": 100
     };
     TimeSlider.StatusColor = {

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
+import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
@@ -91,7 +92,6 @@ public final class NetworkUtils {
     }
 
     public static List<String> getHostIpList() {
-        List<String> result = new ArrayList<String>();
 
         Enumeration<NetworkInterface> interfaces = null;
         try {
@@ -101,9 +101,10 @@ public final class NetworkUtils {
         }
 
         if (interfaces == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
+        List<String> result = new ArrayList<String>();
         while (interfaces.hasMoreElements()) {
             NetworkInterface current = interfaces.nextElement();
             if (isSkipNetworkInterface(current)) {
@@ -167,23 +168,7 @@ public final class NetworkUtils {
     }
 
     public static boolean validationIpV4FormatAddress(String address) {
-        try {
-            String[] eachDotAddress = address.split("\\.");
-            if (eachDotAddress.length != 4) {
-                return false;
-            }
-
-            for (String eachAddress : eachDotAddress) {
-                if (Integer.parseInt(eachAddress) > 255) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (NumberFormatException ignore) {
-            // skip
-        }
-
-        return false;
+        return NetUtils.validationIpV4FormatAddress(address);
     }
 
     private static CommonLogger getLogger() {

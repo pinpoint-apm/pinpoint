@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.MapUtils;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +42,7 @@ public class ZookeeperClusterDataManagerHelper {
     Map<String, byte[]> getCollectorData(ZookeeperClient client, String path) {
         try {
             List<String> collectorList = client.getChildren(path, true);
-            if (collectorList == Collections.EMPTY_LIST) {
+            if (CollectionUtils.isEmpty(collectorList)) {
                 return Collections.emptyMap();
             }
 
@@ -111,7 +113,7 @@ public class ZookeeperClusterDataManagerHelper {
 
     Map<String, byte[]> syncPullCollectorCluster(ZookeeperClient client, String path) {
         Map<String, byte[]> map = getCollectorData(client, path);
-        if (map == Collections.EMPTY_MAP) {
+        if (MapUtils.isEmpty(map)) {
             return Collections.emptyMap();
         }
 

@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
-import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;

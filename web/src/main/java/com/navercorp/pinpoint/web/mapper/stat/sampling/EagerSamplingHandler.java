@@ -59,11 +59,7 @@ public class EagerSamplingHandler<T extends AgentStatDataPoint, S extends Sample
                 samplingContext.addDataPoint(dataPoint);
             } else if (timeslotTimestampToSample > timeslotTimestamp){
                 S sampledPoint = samplingContext.sampleDataPoints(dataPoint);
-                SortedMap<Long, S> sampledPoints = sampledPointProjection.get(timeslotTimestampToSample);
-                if (sampledPoints == null) {
-                    sampledPoints = new TreeMap<>();
-                    sampledPointProjection.put(timeslotTimestampToSample, sampledPoints);
-                }
+                SortedMap<Long, S> sampledPoints = sampledPointProjection.computeIfAbsent(timeslotTimestampToSample, k -> new TreeMap<>());
                 sampledPoints.put(startTimestamp, sampledPoint);
                 samplingContext = new SamplingPartitionContext(timeslotTimestamp, dataPoint);
                 samplingContexts.put(startTimestamp, samplingContext);
@@ -82,11 +78,7 @@ public class EagerSamplingHandler<T extends AgentStatDataPoint, S extends Sample
             SamplingPartitionContext samplingPartitionContext = e.getValue();
             long timeslotTimestamp = samplingPartitionContext.getTimeslotTimestamp();
             S sampledDataPoint = samplingPartitionContext.sampleDataPoints();
-            SortedMap<Long, S> reduceCandidates = sampledPointProjection.get(timeslotTimestamp);
-            if (reduceCandidates == null) {
-                reduceCandidates = new TreeMap<>();
-                sampledPointProjection.put(timeslotTimestamp, reduceCandidates);
-            }
+            SortedMap<Long, S> reduceCandidates = sampledPointProjection.computeIfAbsent(timeslotTimestamp, k -> new TreeMap<>());
             reduceCandidates.put(startTimestamp, sampledDataPoint);
         }
         // reduce projection

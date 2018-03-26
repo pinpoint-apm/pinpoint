@@ -3,8 +3,8 @@
 		ID: "AGENT_INFO_DRTV_"
 	});
 
-	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "ResponseTimeChartDaoService", "ActiveThreadChartDaoService", "TPSChartDaoService", "CPULoadChartDaoService", "MemoryChartDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
-		function ( cfg, $sce, $timeout, SystemConfigService, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, ResponseTimeChartDaoService, ActiveThreadChartDaoService, TPSChartDaoService, CPULoadChartDaoService, MemoryChartDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
+	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "ResponseTimeChartDaoService", "ActiveThreadChartDaoService", "TPSChartDaoService", "CPULoadChartDaoService", "MemoryChartDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
+		function ( cfg, $sce, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, ResponseTimeChartDaoService, ActiveThreadChartDaoService, TPSChartDaoService, CPULoadChartDaoService, MemoryChartDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
@@ -88,6 +88,9 @@
 							dataSourceChartData = result;
 							showDataSourceChart();
 						});
+						// AgentAjaxService.getOpenFileDescriptorChartData( oParam, function (result) {
+						// 	showOpenFileDescriptorChart();
+						// });
 					}
 					function loadAgentInfo( time ) {
 						AgentAjaxService.getAgentInfo({
@@ -131,8 +134,9 @@
 					}
 					function initTooltip() {
 						if ( bInitTooltip === false ) {
+							/* ["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor"].forEach(function(value) { */
 							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource"].forEach(function(value) {
-								TooltipService.init( value );
+									TooltipService.init( value );
 							});
 							bInitTooltip = true;
 						}
@@ -216,6 +220,16 @@
 							"270px"
 						);
 					}
+					// function showOpenFileDescriptorChart( chartData ) {
+					// 	var refinedChartData = OpenFileDescriptorDaoService.parseData( chartData );
+					// 	scope.$broadcast(
+					// 		"agentInspectorChartDirective.initAndRenderWithData.open-file-descriptor",
+					// 		refinedChartData,
+					// 		OpenFileDescriptorDaoService.getChartOptions( refinedChartData ),
+					// 		"100%",
+					// 		"270px"
+					// 	);
+					// }
 					var dataSourceChartData = [];
 					var dataSourceIdPrefix = "source_";
 					scope.dataSourceChartKeys = [];
@@ -295,6 +309,9 @@
 								timeSlider.addData(result);
 							}
 						});
+					}
+					function removePopover() {
+						$("._wrongApp").popover("destroy");
 					}
 					scope.toggleSourceSelectLayer = function() {
 						element.find("#data-source-chart .type-select-layer").toggle();
@@ -378,6 +395,7 @@
 						}
 					};
 					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop, sliderTimeSeriesOption ) {
+						removePopover();
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {
 							return;
@@ -427,6 +445,11 @@
 						// getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
 					scope.$on("agentInspectorChartDirective.cursorChanged", function (e, sourceTarget, event) {
+						if ( typeof event.index === "undefined" ) {
+							timeSlider.hideFocus();
+						} else {
+							timeSlider.showFocus( moment(event.target.chart.dataProvider[event.index].time).valueOf() );
+						}
 						scope.$broadcast( "agentInspectorChartDirective.showCursorAt", sourceTarget, event.index );
 						scope.$broadcast( "dsChartDirective.showCursorAt.agent-data-source", event.index);
 					});

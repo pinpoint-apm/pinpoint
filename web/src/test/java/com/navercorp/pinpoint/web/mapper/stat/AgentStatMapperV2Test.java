@@ -107,7 +107,7 @@ public class AgentStatMapperV2Test {
         List<TestAgentStat> mappedAgentStats = mapper.mapRow(result, 0);
 
         // Then
-        Collections.sort(givenAgentStats, AgentStatMapperV2.REVERSE_TIMESTAMP_COMPARATOR);
+        givenAgentStats.sort(AgentStatMapperV2.REVERSE_TIMESTAMP_COMPARATOR);
         Assert.assertEquals(givenAgentStats, mappedAgentStats);
     }
 

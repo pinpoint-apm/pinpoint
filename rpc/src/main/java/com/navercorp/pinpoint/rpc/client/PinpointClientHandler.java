@@ -30,8 +30,6 @@ import com.navercorp.pinpoint.rpc.stream.*;
  */
 public interface PinpointClientHandler {
 
-    void setConnectSocketAddress(SocketAddress address);
-
     void initReconnect();
 
     ConnectFuture getConnectFuture();

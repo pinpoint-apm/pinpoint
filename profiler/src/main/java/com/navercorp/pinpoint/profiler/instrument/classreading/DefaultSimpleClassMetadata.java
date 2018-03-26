@@ -45,19 +45,24 @@ public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
         this.accessFlag = accessFlag;
         this.className = JavaAssistUtils.jvmNameToJavaName(classInternalName);
 
-        if (superClassInternalName == null) {
-            this.superClassName = null;
-        } else {
-            this.superClassName = JavaAssistUtils.jvmNameToJavaName(superClassInternalName);
-        }
-
-        if (interfaceInternalNames == null) {
-            this.interfaceNames = Collections.EMPTY_LIST;
-        } else {
-            this.interfaceNames = Collections.unmodifiableList(JavaAssistUtils.jvmNameToJavaName(interfaceInternalNames));
-        }
+        this.superClassName = defaultSuperClassName(superClassInternalName);
+        this.interfaceNames = defaultInterfaceName(interfaceInternalNames);
 
         this.classBinary = classBinary;
+    }
+
+    private String defaultSuperClassName(String superClassInternalName) {
+        if (superClassInternalName == null) {
+            return null;
+        }
+        return JavaAssistUtils.jvmNameToJavaName(superClassInternalName);
+    }
+
+    private List<String> defaultInterfaceName(List<String> interfaceInternalNames) {
+        if (interfaceInternalNames == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(JavaAssistUtils.jvmNameToJavaName(interfaceInternalNames));
     }
 
     @Override

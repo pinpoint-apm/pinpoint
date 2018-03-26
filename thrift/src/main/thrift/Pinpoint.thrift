@@ -94,6 +94,7 @@ struct TActiveTrace {
 
 struct TResponseTime {
     1: optional i64         avg = 0
+    2: optional i64         max = 0
 }
 
 struct TDeadlock {

@@ -39,7 +39,10 @@ public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, Sam
         List<Long> avgs = getAvg(dataPoints);
         AgentStatPoint<Long> avg = createPoint(timestamp, avgs);
 
-        SampledResponseTime sampledResponseTime = new SampledResponseTime(avg);
+        List<Long> maxs = getMax(dataPoints);
+        AgentStatPoint<Long> max = createPoint(timestamp, maxs);
+
+        SampledResponseTime sampledResponseTime = new SampledResponseTime(avg, max);
         return sampledResponseTime;
     }
 
@@ -49,6 +52,14 @@ public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, Sam
             avgs.add(responseTimeBo.getAvg());
         }
         return avgs;
+    }
+
+    private List<Long> getMax(List<ResponseTimeBo> dataPoints) {
+        List<Long> maxs = new ArrayList<>(dataPoints.size());
+        for (ResponseTimeBo responseTimeBo : dataPoints) {
+            maxs.add(responseTimeBo.getMax());
+        }
+        return maxs;
     }
 
     private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
