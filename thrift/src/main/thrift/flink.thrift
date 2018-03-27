@@ -57,6 +57,13 @@ struct TFJvmGc {
     8: optional TFJvmGcDetailed    jvmGcDetailed
 }
 
+struct TFDirectBuffer {
+    1: optional i64 directCount
+    2: optional i64 directMemoryUsed
+    3: optional i64 mappedCount
+    4: optional i64 mappedMemoryUsed
+}
+
 struct TFJvmGcDetailed {
     1: optional i64 jvmGcNewCount
     2: optional i64 jvmGcNewTime
@@ -106,6 +113,7 @@ struct TFAgentStat {
     50: optional TFDataSourceList dataSourceList
     60: optional TFResponseTime responseTime
     80: optional TFFileDescriptor fileDescriptor
+    90: optional TFDirectBuffer directBuffer
     200: optional string    metadata
 }
 
