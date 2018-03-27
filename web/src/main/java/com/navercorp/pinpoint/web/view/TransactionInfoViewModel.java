@@ -49,8 +49,9 @@ public class TransactionInfoViewModel {
     private String logButtonName;
     private String logPageUrl;
     private String disableButtonMessage;
+    private String logEsIndexPrefix;
 
-    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
+    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage, String logEsIndexPrefix) {
         this.transactionId = transactionId;
         this.nodes = nodes;
         this.links = links;
@@ -60,6 +61,7 @@ public class TransactionInfoViewModel {
         this.logButtonName = logButtonName;
         this.logPageUrl = logPageUrl;
         this.disableButtonMessage = disableButtonMessage;
+        this.logEsIndexPrefix = logEsIndexPrefix;
     }
 
     @JsonProperty("applicationName")
@@ -118,6 +120,7 @@ public class TransactionInfoViewModel {
             StringBuilder sb = new StringBuilder();
             sb.append("transactionId=").append(getTransactionId());
             sb.append("&time=").append(recordSet.getStartTime());
+            sb.append("&indexPrefix=").append(logEsIndexPrefix);
             return logPageUrl + "?" + sb.toString();
         }
 
