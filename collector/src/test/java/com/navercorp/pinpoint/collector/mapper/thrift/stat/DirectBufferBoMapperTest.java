@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,17 @@ import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
 import org.junit.Assert;
 
 /**
- * @author Taejin Koo
+ * @author Roy Kim
  */
 public class DirectBufferBoMapperTest extends ThriftBoMapperTestBase<TDirectBuffer, DirectBufferBo> {
 
     @Override
     protected TDirectBuffer create() {
         TDirectBuffer directBuffer = new TDirectBuffer();
-        directBuffer.setDirectCount(getRandomLong(0, 1000));
-        directBuffer.setDirectMemoryUsed(getRandomLong(0, 1000));
-        directBuffer.setMappedCount(getRandomLong(0, 1000));
-        directBuffer.setMappedMemoryUsed(getRandomLong(0, 1000));
+        directBuffer.setDirectCount(getRandomLong(0, 5000));
+        directBuffer.setDirectMemoryUsed(getRandomLong(0, 1000000));
+        directBuffer.setMappedCount(getRandomLong(0, 5000));
+        directBuffer.setMappedMemoryUsed(getRandomLong(0, 1000000));
         return directBuffer;
     }
 
@@ -47,8 +47,6 @@ public class DirectBufferBoMapperTest extends ThriftBoMapperTestBase<TDirectBuff
         Assert.assertEquals("DirectMemoryUsed", original.getDirectMemoryUsed(), mappedStatDataPoint.getDirectMemoryUsed(), 0);
         Assert.assertEquals("MappedCount", original.getMappedCount(), mappedStatDataPoint.getMappedCount(), 0);
         Assert.assertEquals("MappedMemoryUsed", original.getMappedMemoryUsed(), mappedStatDataPoint.getMappedMemoryUsed(), 0);
-
-
     }
 
 }
