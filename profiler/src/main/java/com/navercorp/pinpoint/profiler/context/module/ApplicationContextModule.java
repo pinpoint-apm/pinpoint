@@ -73,8 +73,6 @@ import com.navercorp.pinpoint.profiler.context.provider.AsyncTraceContextProvide
 import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CallStackFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DataSourceMonitorRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DeadlockMonitorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DeadlockThreadRegistryProvider;
@@ -83,18 +81,13 @@ import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider
 import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParsingServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ObjectBinderFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanChunkFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginLoaderProvider;
@@ -115,12 +108,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeColle
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ReuseResponseTimeCollector;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
-import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
-import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -140,8 +128,6 @@ public class ApplicationContextModule extends AbstractModule {
         binder().disableCircularProxies();
 
         bind(ServiceType.class).annotatedWith(ApplicationServerType.class).toProvider(ApplicationServerTypeProvider.class).in(Scopes.SINGLETON);
-
-        bindDataTransferComponent();
 
         bind(ServerMetaDataRegistryService.class).toProvider(ServerMetaDataRegistryServiceProvider.class).in(Scopes.SINGLETON);
         bind(ServerMetaDataHolder.class).toProvider(ServerMetaDataHolderProvider.class).in(Scopes.SINGLETON);
@@ -210,22 +196,6 @@ public class ApplicationContextModule extends AbstractModule {
         bind(TraceFactory.class).toProvider(TraceFactoryProvider.class).in(Scopes.SINGLETON);
     }
 
-    private void bindDataTransferComponent() {
-        // create tcp channel
-
-        bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
-        bind(ConnectionFactoryProvider.class).toProvider(ConnectionFactoryProviderProvider.class).in(Scopes.SINGLETON);
-        bind(PinpointClientFactory.class).annotatedWith(DefaultClientFactory.class).
-                toProvider(PinpointClientFactoryProvider.class).in(Scopes.SINGLETON);
-        bind(EnhancedDataSender.class).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
-
-        bind(PinpointClientFactory.class).annotatedWith(SpanStatClientFactory.class).
-                toProvider(SpanStatClientFactoryProvider.class).in(Scopes.SINGLETON);
-        bind(DataSender.class).annotatedWith(SpanDataSender.class)
-                .toProvider(SpanDataSenderProvider.class).in(Scopes.SINGLETON);
-        bind(DataSender.class).annotatedWith(StatDataSender.class)
-                .toProvider(StatDataSenderProvider.class).in(Scopes.SINGLETON);
-    }
 
     private void bindServiceComponent() {
 

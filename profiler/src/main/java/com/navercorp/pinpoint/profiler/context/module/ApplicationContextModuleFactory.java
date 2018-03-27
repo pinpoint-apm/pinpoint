@@ -31,8 +31,9 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         final Module config = new ConfigModule(agentOption);
         final Module pluginModule = new PluginModule();
         final Module applicationContextModule = new ApplicationContextModule();
+        final Module rpcModule = new RpcModule();
         final Module statsModule = new StatsModule();
 
-        return Modules.combine(config, pluginModule, applicationContextModule, statsModule);
+        return Modules.combine(config, pluginModule, applicationContextModule, rpcModule, statsModule);
     }
 }

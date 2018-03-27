@@ -210,7 +210,9 @@ public class DefaultApplicationContext implements ApplicationContext {
 
         closeTcpDataSender();
 
-        this.interceptorRegistryBinder.unbind();
+        if (profilerConfig.getStaticResourceCleanup()) {
+            this.interceptorRegistryBinder.unbind();
+        }
     }
 
     private void closeTcpDataSender() {
