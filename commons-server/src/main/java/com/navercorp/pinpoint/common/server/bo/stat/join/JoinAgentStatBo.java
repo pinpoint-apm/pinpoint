@@ -36,6 +36,7 @@ public class JoinAgentStatBo implements JoinStatBo {
     private List<JoinResponseTimeBo> joinResponseTimeBoList = Collections.emptyList();
     private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
     private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
+    private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
 
     public List<JoinResponseTimeBo> getJoinResponseTimeBoList() {
         return joinResponseTimeBoList;
@@ -79,6 +80,14 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public List<JoinCpuLoadBo> getJoinCpuLoadBoList() {
         return joinCpuLoadBoList;
+    }
+
+    public List<JoinDirectBufferBo> getJoinDirectBufferBoList() {
+        return joinDirectBufferBoList;
+    }
+
+    public void setJoinDirectBufferBoList(List<JoinDirectBufferBo> joinDirectBufferBoList) {
+        this.joinDirectBufferBoList = joinDirectBufferBoList;
     }
 
     public long getAgentStartTimestamp() {

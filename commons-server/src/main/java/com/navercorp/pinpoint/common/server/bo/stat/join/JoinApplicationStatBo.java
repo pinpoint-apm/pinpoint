@@ -33,6 +33,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
     private List<JoinResponseTimeBo> joinResponseTimeBoList = Collections.emptyList();
     private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
     private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
+    private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
 
     private long timestamp = Long.MIN_VALUE;
     private StatType statType = StatType.APP_STST;
@@ -51,6 +52,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         newJoinApplicationStatBo.setJoinResponseTimeBoList(joinResponseTimeBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setJoinDataSourceListBoList(JoinDataSourceListBoBytTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoByTimeSlice(joinApplicationStatBoList));
+        newJoinApplicationStatBo.setJoinDirectBufferBoList(joinDirectBufferBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setTimestamp(extractMinTimestamp(newJoinApplicationStatBo));
         return newJoinApplicationStatBo;
     }
@@ -97,6 +99,12 @@ public class JoinApplicationStatBo implements JoinStatBo {
         for (JoinFileDescriptorBo joinFileDescriptorBo : joinApplicationStatBo.getJoinFileDescriptorBoList()) {
             if (joinFileDescriptorBo.getTimestamp() < minTimestamp) {
                 minTimestamp = joinFileDescriptorBo.getTimestamp();
+            }
+        }
+
+        for (JoinDirectBufferBo joinDirectBufferBo : joinApplicationStatBo.getJoinDirectBufferBoList()) {
+            if (joinDirectBufferBo.getTimestamp() < minTimestamp) {
+                minTimestamp = joinDirectBufferBo.getTimestamp();
             }
         }
 
@@ -299,6 +307,32 @@ public class JoinApplicationStatBo implements JoinStatBo {
         return newJoinFileDescriptorBoList;
     }
 
+    private static List<JoinDirectBufferBo> joinDirectBufferBoByTimeSlice(List<JoinApplicationStatBo> joinApplicationStatBoList) {
+        Map<Long, List<JoinDirectBufferBo>> joinDirectBufferBoMap = new HashMap<Long, List<JoinDirectBufferBo>>();
+
+        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
+            for (JoinDirectBufferBo joinDirectBufferBo : joinApplicationStatBo.getJoinDirectBufferBoList()) {
+                long shiftTimestamp = shiftTimestamp(joinDirectBufferBo.getTimestamp());
+                List<JoinDirectBufferBo> joinDirectBufferBoList = joinDirectBufferBoMap.get(shiftTimestamp);
+
+                if (joinDirectBufferBoList == null) {
+                    joinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+                    joinDirectBufferBoMap.put(shiftTimestamp, joinDirectBufferBoList);
+                }
+
+                joinDirectBufferBoList.add(joinDirectBufferBo);
+            }
+        }
+
+        List<JoinDirectBufferBo> newJoinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+
+        for (Map.Entry<Long, List<JoinDirectBufferBo>> entry : joinDirectBufferBoMap.entrySet()) {
+            List<JoinDirectBufferBo> joinDirectBufferBoList = entry.getValue();
+            JoinDirectBufferBo joinDirectBufferBo = JoinDirectBufferBo.joinDirectBufferBoList(joinDirectBufferBoList, entry.getKey());
+            newJoinDirectBufferBoList.add(joinDirectBufferBo);
+        }
+        return newJoinDirectBufferBoList;
+    }
     public static JoinApplicationStatBo joinApplicationStatBo(List<JoinApplicationStatBo> joinApplicationStatBoList) {
         JoinApplicationStatBo newJoinApplicationStatBo = new JoinApplicationStatBo();
 
@@ -407,6 +441,14 @@ public class JoinApplicationStatBo implements JoinStatBo {
         this.joinFileDescriptorBoList = joinFileDescriptorBoList;
     }
 
+    public List<JoinDirectBufferBo> getJoinDirectBufferBoList() {
+        return joinDirectBufferBoList;
+    }
+
+    public void setJoinDirectBufferBoList(List<JoinDirectBufferBo> joinDirectBufferBoList) {
+        this.joinDirectBufferBoList = joinDirectBufferBoList;
+    }
+
     public static List<JoinApplicationStatBo> createJoinApplicationStatBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime) {
         List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
         List<JoinAgentStatBo> joinAgentStatBoList = splitJoinAgentStatBo(applicationId, joinAgentStatBo, rangeTime);
@@ -422,6 +464,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             joinApplicationStatBo.setJoinResponseTimeBoList(sliceJoinAgentStatBo.getJoinResponseTimeBoList());
             joinApplicationStatBo.setJoinDataSourceListBoList(sliceJoinAgentStatBo.getJoinDataSourceListBoList());
             joinApplicationStatBo.setJoinFileDescriptorBoList(sliceJoinAgentStatBo.getJoinFileDescriptorBoList());
+            joinApplicationStatBo.setJoinDirectBufferBoList(sliceJoinAgentStatBo.getJoinDirectBufferBoList());
             joinApplicationStatBoList.add(joinApplicationStatBo);
         }
 
@@ -437,6 +480,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         sliceJoinResponseTimeBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         sliceJoinDataSourceListBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         sliceJoinFileDescriptorBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
+        sliceJoinDirectBufferBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         return new ArrayList<JoinAgentStatBo>(joinAgentStatBoMap.values());
     }
 
@@ -595,6 +639,27 @@ public class JoinApplicationStatBo implements JoinStatBo {
         }
     }
 
+    private static void sliceJoinDirectBufferBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime, Map<Long, JoinAgentStatBo> joinAgentStatBoMap) {
+        Map<Long, List<JoinDirectBufferBo>> joinDirectBufferBoMap = new HashMap<Long, List<JoinDirectBufferBo>>();
+
+        for (JoinDirectBufferBo joinDirectBufferBo : joinAgentStatBo.getJoinDirectBufferBoList()) {
+            long timestamp = joinDirectBufferBo.getTimestamp();
+            long time = timestamp - (timestamp % rangeTime);
+            List<JoinDirectBufferBo> joinDirectBufferBoList = joinDirectBufferBoMap.get(time);
+
+            if (joinDirectBufferBoList == null) {
+                joinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+                joinDirectBufferBoMap.put(time, joinDirectBufferBoList);
+            }
+
+            joinDirectBufferBoList.add(joinDirectBufferBo);
+        }
+        for (Map.Entry<Long, List<JoinDirectBufferBo>> entry : joinDirectBufferBoMap.entrySet()) {
+            long time = entry.getKey();
+            JoinAgentStatBo sliceJoinAgentStatBo = getORCreateJoinAgentStatBo(applicationId, joinAgentStatBoMap, time);
+            sliceJoinAgentStatBo.setJoinDirectBufferBoList(entry.getValue());
+        }
+    }
     private static JoinAgentStatBo getORCreateJoinAgentStatBo(String applicationId, Map<Long, JoinAgentStatBo> joinAgentStatBoMap, long time) {
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMap.get(time);
 
@@ -620,6 +685,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             ", joinResponseTimeBoList=" + joinResponseTimeBoList +
             ", joinDataSourceListBoList=" + joinDataSourceListBoList +
             ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
+            ", joinDirectBufferBoList=" + joinDirectBufferBoList +
             ", statType=" + statType +
             '}';
     }

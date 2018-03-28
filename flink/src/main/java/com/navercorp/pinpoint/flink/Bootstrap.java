@@ -18,7 +18,15 @@ package com.navercorp.pinpoint.flink;
 import com.navercorp.pinpoint.collector.receiver.TCPReceiverBean;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
-import com.navercorp.pinpoint.flink.dao.hbase.*;
+import com.navercorp.pinpoint.flink.dao.hbase.ActiveTraceDao;
+import com.navercorp.pinpoint.flink.dao.hbase.CpuLoadDao;
+import com.navercorp.pinpoint.flink.dao.hbase.DataSourceDao;
+import com.navercorp.pinpoint.flink.dao.hbase.DirectBufferDao;
+import com.navercorp.pinpoint.flink.dao.hbase.MemoryDao;
+import com.navercorp.pinpoint.flink.dao.hbase.ResponseTimeDao;
+import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
+import com.navercorp.pinpoint.flink.dao.hbase.TransactionDao;
+import com.navercorp.pinpoint.flink.dao.hbase.FileDescriptorDao;
 import com.navercorp.pinpoint.flink.process.ApplicationCache;
 import com.navercorp.pinpoint.flink.process.TBaseFlatMapper;
 import com.navercorp.pinpoint.flink.receiver.AgentStatHandler;
@@ -55,6 +63,7 @@ public class Bootstrap {
     private final ResponseTimeDao responseTimeDao;
     private final DataSourceDao dataSourceDao;
     private final FileDescriptorDao fileDescriptorDao;
+    private final DirectBufferDao directBufferDao;
 
     private Bootstrap() {
         String[] SPRING_CONFIG_XML = new String[]{"applicationContext-flink.xml", "applicationContext-cache.xml"};
@@ -73,6 +82,7 @@ public class Bootstrap {
         responseTimeDao = applicationContext.getBean("responseTimeDao", ResponseTimeDao.class);
         dataSourceDao = applicationContext.getBean("dataSourceDao", DataSourceDao.class);
         fileDescriptorDao = applicationContext.getBean("fileDescriptorDao", FileDescriptorDao.class);
+        directBufferDao = applicationContext.getBean("directBufferDao", DirectBufferDao.class);
     }
 
     public FileDescriptorDao getFileDescriptorDao() {
@@ -113,6 +123,10 @@ public class Bootstrap {
 
     public DataSourceDao getDataSourceDao() {
         return dataSourceDao;
+    }
+
+    public DirectBufferDao getDirectBufferDao() {
+        return directBufferDao;
     }
 
     public TBaseFlatMapper getTbaseFlatMapper() {
