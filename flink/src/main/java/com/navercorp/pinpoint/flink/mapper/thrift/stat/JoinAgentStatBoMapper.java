@@ -37,6 +37,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
     private final JoinResponseTimeBoMapper joinResponseTimeBoMapper = new JoinResponseTimeBoMapper();
     private final JoinDataSourceListBoMapper joinDataSourceListBoMapper = new JoinDataSourceListBoMapper();
     private final JoinFileDescriptorBoMapper joinFileDescriptorBoMapper = new JoinFileDescriptorBoMapper();
+    private final JoinDirectBufferBoMapper joinDirectBufferBoMapper = new JoinDirectBufferBoMapper();
 
     @Override
     public JoinAgentStatBo map(TFAgentStatBatch tFAgentStatBatch) {
@@ -57,6 +58,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
         List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>(agentStatSize);
         List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<>(agentStatSize);
         List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<>(agentStatSize);
+        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>(agentStatSize);
 
         for (TFAgentStat tFAgentStat : tFAgentStatBatch.getAgentStats()) {
             createAndAddJoinCpuLoadBo(tFAgentStat, joinCpuLoadBoList);
@@ -66,6 +68,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
             createAndAddJoinResponseTimeBo(tFAgentStat, joinResponseTimeBoList);
             createAndAddJoinDataSourceListBo(tFAgentStat, joinDataSourceListBoList);
             createAndAddJoinFileDescriptorBo(tFAgentStat, joinFileDescriptorBoList);
+            createAndAddJoinDirectBufferBo(tFAgentStat, joinDirectBufferBoList);
         }
 
         joinAgentStatBo.setJoinCpuLoadBoList(joinCpuLoadBoList);
@@ -75,6 +78,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
         joinAgentStatBo.setJoinResponseTimeBoList(joinResponseTimeBoList);
         joinAgentStatBo.setJoinDataSourceListBoList(joinDataSourceListBoList);
         joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
+        joinAgentStatBo.setJoinDirectBufferBoList(joinDirectBufferBoList);
         joinAgentStatBo.setId(tFAgentStatBatch.getAgentId());
         joinAgentStatBo.setAgentStartTimestamp(tFAgentStatBatch.getStartTimestamp());
         joinAgentStatBo.setTimestamp(getTimeStamp(joinAgentStatBo));
@@ -164,6 +168,12 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
             return joinFileDescriptorBoList.get(0).getTimestamp();
         }
 
+        List<JoinDirectBufferBo> joinDirectBufferBoList = joinAgentStatBo.getJoinDirectBufferBoList();
+
+        if (joinDirectBufferBoList.size() != 0) {
+            return joinDirectBufferBoList.get(0).getTimestamp();
+        }
+
         return Long.MIN_VALUE;
     }
 
@@ -195,5 +205,15 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
         }
 
         joinFileDescriptorBoList.add(joinFileDescriptorBo);
+    }
+
+    public void createAndAddJoinDirectBufferBo(TFAgentStat tFAgentStat, List<JoinDirectBufferBo> joinDirectBufferBoList) {
+        JoinDirectBufferBo joinDirectBufferBo = joinDirectBufferBoMapper.map(tFAgentStat);
+
+        if (joinDirectBufferBo == JoinDirectBufferBo.EMPTY_JOIN_DIRECT_BUFFER_BO) {
+            return;
+        }
+
+        joinDirectBufferBoList.add(joinDirectBufferBo);
     }
 }
