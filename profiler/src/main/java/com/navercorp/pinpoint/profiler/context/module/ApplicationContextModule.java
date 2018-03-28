@@ -111,6 +111,8 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSour
 import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.FileDescriptorMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.FileDescriptorMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedGarbageCollectorMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedMemoryMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.GarbageCollectorMetricProvider;
@@ -140,6 +142,7 @@ import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTrac
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.deadlock.DeadlockMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.FileDescriptorMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.response.ResponseTimeMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.transaction.TransactionMetricCollector;
@@ -147,6 +150,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMe
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
@@ -167,6 +171,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -332,6 +337,9 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(DeadlockMetric.class).toProvider(DeadlockMetricProvider.class).in(Scopes.SINGLETON);
         bind(DeadlockMetricCollector.class).toProvider(DeadlockMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        bind(FileDescriptorMetric.class).toProvider(FileDescriptorMetricProvider.class).in(Scopes.SINGLETON);
+        bind(FileDescriptorMetricCollector.class).toProvider(FileDescriptorMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         bind(new TypeLiteral<AgentStatMetricCollector<TAgentStat>>() {})
                 .annotatedWith(Names.named("AgentStatCollector"))
