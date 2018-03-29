@@ -9,7 +9,7 @@ disqus: false
 ---
 
 To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
-In order to run your own Pinpoint instance, you need to run below components:
+In order to run your own Pinpoint instance, you will need to run below components:
 
 * **HBase** (for storage)
 * **Pinpoint Collector** (deployed on a web container)
@@ -18,11 +18,11 @@ In order to run your own Pinpoint instance, you need to run below components:
 
 To try out a simple quickstart project, please refer to the [quick-start guide](./quickstart.md).
 
-## Quick Overview
+## Quick Overview of Installation
 1. HBase ([details](#hbase))
 	1. Set up HBase cluster - [Apache HBase](http://hbase.apache.org)
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
-2. Build Pinpoint (Optional) - You do not need to build from source to use Pinpoint (binaries [here](https://github.com/naver/pinpoint/releases)).
+2. Build Pinpoint (Optional) - No need if you use the binaries.([here](https://github.com/naver/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
 	2. Set JAVA_HOME environment variable to JDK 7+ home directory.
 	3. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
@@ -43,7 +43,7 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 	3. Set `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` command-line arguments.
 	4. Launch java application with the options above.
 
-## HBase
+## 1. HBase
 Pinpoint uses HBase as its storage backend for the Collector and the Web.
 
 To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. The HBase compatibility table is given below:
@@ -58,7 +58,7 @@ Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBa
 
 Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
 
-### Creating Schemas
+### Creating Schemas for HBase
 There are 2 scripts available to create tables for Pinpoint: *hbase-create.hbase*, and *hbase-create-snappy.hbase*. Use *hbase-create-snappy.hbase* for snappy compression (requires [snappy](http://google.github.io/snappy/)), otherwise use *hbase-create.hbase* instead.
 
 To run these scripts, feed them into the HBase shell like below:
@@ -67,11 +67,11 @@ To run these scripts, feed them into the HBase shell like below:
 
 See [here](https://github.com/naver/pinpoint/tree/master/hbase/scripts "Pinpoint HBase scripts") for a complete list of scripts.
 
-## Building Pinpoint
+## 2. Building Pinpoint (Optional)
 
 There are two options:
 
-1. Download the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest) and skip the building. **Recommended.**
+1. Download the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest) and skip building process.**(Recommended)**
 
 2. Build Pinpoint manually from the Git clone.
 	
@@ -109,7 +109,7 @@ There are two options:
 	
 Regardless of your method, you should end up with the files and directories mentioned in the following sections.
 
-## Pinpoint Collector
+## 3. Pinpoint Collector
 You should have the following **war** file that can be deployed to a web container. 
 
 *pinpoint-collector-$VERSION.war*
@@ -134,7 +134,7 @@ These files are located under `WEB-INF/classes/` inside the war file.
 
 You may take a look at the default configuration files here: [pinpoint-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties), [hbase.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/hbase.properties)
 
-## Pinpoint Web
+## 4. Pinpoint Web
 You should have the following **war** file that can be deployed to a web container.
 
 *pinpoint-web-$VERSION.war*
@@ -161,7 +161,7 @@ These files are located under `WEB-INF/classes/` inside the war file.
 
 You may take a look at the default configuration files here: [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties), [hbase.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/hbase.properties)
 
-## Pinpoint Agent
+## 5. Pinpoint Agent
 If downloaded, unzip the Pinpoint Agent file. You should have a **pinpoint-agent** directory with the layout below :
 
 ```
