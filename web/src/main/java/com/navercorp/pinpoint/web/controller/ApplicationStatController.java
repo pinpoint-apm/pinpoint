@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.web.service.stat.ApplicationActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationCpuLoadService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationDataSourceService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationDirectBufferService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationMemoryService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationResponseTimeService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationStatChartService;
@@ -143,5 +144,13 @@ public class ApplicationStatController {
         }
     }
 
+    @Controller
+    @RequestMapping("/getApplicationStat/directBuffer/chart")
+    public static class ApplicationDirectBufferController extends ApplicationStatController {
+        @Autowired
+        public ApplicationDirectBufferController(ApplicationDirectBufferService applicationDirectBufferService) {
+            super(applicationDirectBufferService);
+        }
+    }
 }
 
