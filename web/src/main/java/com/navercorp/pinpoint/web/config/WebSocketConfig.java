@@ -30,6 +30,8 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -51,6 +53,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Autowired(required = false)
     private WebSocketHandlerDecoratorFactory webSocketHandlerDecoratorFactory = new DefaultWebSocketHandlerDecoratorFactory();
 
+    @Autowired(required = false)
+    private CustomHandshakeInterceptor customHandshakeInterceptor = null;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         final String[] allowedOriginArray = getAllowedOriginArray(configProperties.getWebSocketAllowedOrigins());
@@ -63,6 +68,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
             webSocketHandlerRegistration.addInterceptors(new HttpSessionHandshakeInterceptor());
             webSocketHandlerRegistration.addInterceptors(new WebSocketSessionContextPrepareHandshakeInterceptor());
+            if (Objects.nonNull(customHandshakeInterceptor)) {
+                webSocketHandlerRegistration.addInterceptors(customHandshakeInterceptor);
+            }
             webSocketHandlerRegistration.setAllowedOrigins(allowedOriginArray);
         }
     }
