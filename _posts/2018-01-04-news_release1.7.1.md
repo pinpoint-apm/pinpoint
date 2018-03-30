@@ -1,5 +1,5 @@
 ---
-title:  "Latest Release"
+title:  "1.7.1 Release"
 categories: 
 permalink: news_release171.html
 tags: 
