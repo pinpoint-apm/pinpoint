@@ -1,6 +1,6 @@
 ---
 title: "Welcome to Pinpoint"
-keywords: Pinpoint Homepage
+keywords: pinpoint apm, apm, pinpoint, pinpoint homepage, pinpoint gitpage
 tags:
 sidebar: mydoc_sidebar
 permalink: index.html
