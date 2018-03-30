@@ -88,7 +88,7 @@
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <sniffer.artifactid>java16</sniffer.artifactid>
         <dubbo.version>2.5.3</dubbo.version>
-        <asm.version>6.0</asm.version>
+        <asm.version>6.1</asm.version>
     </properties>
 
     <dependencies>
