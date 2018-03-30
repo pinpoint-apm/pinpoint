@@ -1,7 +1,7 @@
 ---
 title: Installation.
 tags:
-keywords: install, start, installation
+keywords: pinpoint, pinpoint homepage, install, start, installation
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: installation.html
