@@ -47,7 +47,10 @@ public class PinpointBootStrap {
         }
         Map<String, String> agentArgsMap = argsToMap(agentArgs);
 
-        final ClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver();
+        JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
+        String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
+        logger.info("JavaAgentPath:" + agentPath);
+        final ClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(agentPath);
         if (!classPathResolver.verify()) {
             logger.warn("Agent Directory Verify fail. skipping agent loading.");
             logPinpointAgentLoadFail();
@@ -69,7 +72,7 @@ public class PinpointBootStrap {
         ArgsParser argsParser = new ArgsParser();
         Map<String, String> agentArgsMap = argsParser.parse(agentArgs);
         if (!agentArgsMap.isEmpty()) {
-            logger.info("agentParameter :" + agentArgs);
+            logger.info("agentParameter:" + agentArgs);
         }
         return agentArgsMap;
     }
