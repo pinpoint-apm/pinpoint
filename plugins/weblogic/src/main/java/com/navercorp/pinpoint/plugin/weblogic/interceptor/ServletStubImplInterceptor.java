@@ -15,34 +15,29 @@
  */
 package com.navercorp.pinpoint.plugin.weblogic.interceptor;
 
-
-
-import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 
-import weblogic.servlet.internal.ServletRequestImpl;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 
  * @author andyspan
  *
  */
-@TargetMethod(name = "execute", paramTypes = { "weblogic.servlet.internal.ServletRequestImpl" , "weblogic.servlet.internal.ServletResponseImpl" })
 public class ServletStubImplInterceptor extends AbstractServerHandleInterceptor {
 
-    public ServletStubImplInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
-        super(traceContext, descriptor, excludeFilter);
+    public ServletStubImplInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
     }
 
     @Override
-    protected ServletRequestImpl getRequest(Object[] args) {
+    protected HttpServletRequest getRequest(Object[] args) {
         final Object iRequestObject = args[0];
-        if (!(iRequestObject instanceof weblogic.servlet.internal.ServletRequestImpl)) {
+        if (!(iRequestObject instanceof HttpServletRequest)) {
            return null;
         }
-        return (ServletRequestImpl) iRequestObject;
+        return (HttpServletRequest) iRequestObject;
     }
 
 }

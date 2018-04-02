@@ -30,6 +30,7 @@ public class WeblogicConfiguration {
     private final boolean weblogicEnabled;
     private final List<String> weblogicBootstrapMains;
 	private final Filter<String> weblogicExcludeUrlFilter;
+	private final boolean traceRequestParam;
 
 	public WeblogicConfiguration(ProfilerConfig config) {
         this.weblogicEnabled = config.readBoolean("profiler.weblogic.enable", true);
@@ -41,6 +42,7 @@ public class WeblogicConfiguration {
 		} else {
 			this.weblogicExcludeUrlFilter = new SkipFilter<String>();
 		}
+		this.traceRequestParam = config.readBoolean("profiler.weblogic.tracerequestparam", true);
 	}
 
 	public Filter<String> getWeblogicExcludeUrlFilter() {
@@ -54,4 +56,8 @@ public class WeblogicConfiguration {
     public List<String> getWeblgoicBootstrapMains() {
         return weblogicBootstrapMains;
 }
+
+	public boolean isTraceRequestParam() {
+		return traceRequestParam;
+	}
 }
