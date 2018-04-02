@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.weblogic;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -50,10 +48,10 @@ public class WeblogicPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         context.addApplicationTypeDetector(new WeblogicDetector(config.getWeblgoicBootstrapMains()));
 
-       addServerInterceptor(config);
+       addServerInterceptor();
     }
 
-    private void addServerInterceptor(final WeblogicConfiguration config){
+    private void addServerInterceptor(){
         
         transformTemplate.transform("weblogic.servlet.internal.WebAppServletContext",  new TransformCallback() {
             @Override
@@ -63,7 +61,7 @@ public class WeblogicPlugin implements ProfilerPlugin, TransformTemplateAware {
                 
                 InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("execute", "weblogic.servlet.internal.ServletRequestImpl" , "weblogic.servlet.internal.ServletResponseImpl");
                 if (handleMethodEditorBuilder != null) {
-                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.weblogic.interceptor.ServletStubImplInterceptor", va(config.getWeblogicExcludeUrlFilter()));
+                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.weblogic.interceptor.ServletStubImplInterceptor");
                     return target.toBytecode();
                 }
 

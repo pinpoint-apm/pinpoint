@@ -74,7 +74,7 @@ public class WeblogicSyncMethodDescriptor implements MethodDescriptor{
 
     @Override
     public String getApiDescriptor() {
-        return "Weblogic Servlet Process";
+        return "WebLogic Servlet Process";
     }
 
     public int getType() {
