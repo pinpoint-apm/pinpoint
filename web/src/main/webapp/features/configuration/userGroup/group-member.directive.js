@@ -164,17 +164,6 @@
 						}
 						scope.groupMemberList = oGroupMemberList;
 					}
-	    			scope.$on( "groupMember.removeUser", function( event, userId )  {
-	    				if ( hasUser( userId ) ) {
-							cancelPreviousWork();
-							RemoveGroupMember.applyAction( AlarmUtilService, currentUserGroupId, $workingNode, $elLoading, function( userId ) {
-								scope.$apply(function() {
-									removeGroupMember( userId );
-								});
-							}, showAlert, userId );
-
-	    				}
-	    			});
 	            }
 	        };
 	}]);

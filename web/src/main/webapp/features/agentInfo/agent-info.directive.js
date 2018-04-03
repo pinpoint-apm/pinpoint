@@ -3,8 +3,8 @@
 		ID: "AGENT_INFO_DRTV_"
 	});
 
-	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "ResponseTimeChartDaoService", "ActiveThreadChartDaoService", "TPSChartDaoService", "CPULoadChartDaoService", "MemoryChartDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
-		function ( cfg, $sce, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, ResponseTimeChartDaoService, ActiveThreadChartDaoService, TPSChartDaoService, CPULoadChartDaoService, MemoryChartDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
+	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "ResponseTimeChartDaoService", "ActiveThreadChartDaoService", "TPSChartDaoService", "CPULoadChartDaoService", "MemoryChartDaoService", "OpenFileDescriptorDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
+		function ( cfg, $sce, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, ResponseTimeChartDaoService, ActiveThreadChartDaoService, TPSChartDaoService, CPULoadChartDaoService, MemoryChartDaoService, OpenFileDescriptorDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
@@ -88,9 +88,9 @@
 							dataSourceChartData = result;
 							showDataSourceChart();
 						});
-						// AgentAjaxService.getOpenFileDescriptorChartData( oParam, function (result) {
-						// 	showOpenFileDescriptorChart();
-						// });
+						AgentAjaxService.getOpenFileDescriptorChartData( oParam, function (result) {
+							showOpenFileDescriptorChart(result);
+						});
 					}
 					function loadAgentInfo( time ) {
 						AgentAjaxService.getAgentInfo({
@@ -134,9 +134,8 @@
 					}
 					function initTooltip() {
 						if ( bInitTooltip === false ) {
-							/* ["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor"].forEach(function(value) { */
-							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource"].forEach(function(value) {
-									TooltipService.init( value );
+							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor"].forEach(function(value) {
+								TooltipService.init( value );
 							});
 							bInitTooltip = true;
 						}
@@ -220,16 +219,16 @@
 							"270px"
 						);
 					}
-					// function showOpenFileDescriptorChart( chartData ) {
-					// 	var refinedChartData = OpenFileDescriptorDaoService.parseData( chartData );
-					// 	scope.$broadcast(
-					// 		"agentInspectorChartDirective.initAndRenderWithData.open-file-descriptor",
-					// 		refinedChartData,
-					// 		OpenFileDescriptorDaoService.getChartOptions( refinedChartData ),
-					// 		"100%",
-					// 		"270px"
-					// 	);
-					// }
+					function showOpenFileDescriptorChart( chartData ) {
+						var refinedChartData = OpenFileDescriptorDaoService.parseData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-open-file-descriptor",
+							refinedChartData,
+							OpenFileDescriptorDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
 					var dataSourceChartData = [];
 					var dataSourceIdPrefix = "source_";
 					scope.dataSourceChartKeys = [];

@@ -53,6 +53,10 @@
 			"position": "top",
 			"trigger": "click"
 		},
+		"openFileDescriptor": {
+			"position": "top",
+			"trigger": "click"
+		},
 		"responseSummaryChart": {
 			"position": "top",
 			"trigger": "click"
@@ -108,6 +112,10 @@
 		"statDataSource": {
 			"position": "top",
 			"trigger": "click"
+		},
+		"statOpenFileDescriptor": {
+			"position": "top",
+			"trigger": "click"
 		}
 	});
 
@@ -150,6 +158,8 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.dataSource); };
 				case "responseTime":
 					return function() { return helpContentTemplate(helpContentService.inspector.responseTime); };
+				case "openFileDescriptor":
+					return function() { return helpContentTemplate(helpContentService.inspector.openFileDescriptor); };
 				case "responseSummaryChart":
 					return function() { return helpContentTemplate(helpContentService.nodeInfoDetails.responseSummary); };
 				case "loadChart":
@@ -178,6 +188,8 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.statResponseTime); };
 				case "statDataSource":
 					return function() { return helpContentTemplate(helpContentService.inspector.statDataSource); };
+				case "statOpenFileDescriptor":
+					return function() { return helpContentTemplate(helpContentService.inspector.statOpenFileDescriptor); };
 			}
 		}
 	}]);

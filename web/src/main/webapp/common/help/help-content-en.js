@@ -677,6 +677,18 @@
 					}]
 				}]
 			},
+			openFileDescriptor: {
+				mainStyle: "",
+				title: "File Descriptor",
+				desc: "Shows the status of agent's file descriptors.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Open File Descriptor",
+						desc: "Number of open file descriptor currently used"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>The agent is currently registered under {{application2}} due to the following:<br>",
 				"1. The agent has moved from {{application1}} to {{application2}}<br>",
@@ -834,6 +846,24 @@
 					},{
 						name: "MIN",
 						desc: "Smallest data source connection count of the agents"
+					}]
+				}]
+			},
+			statOpenFileDescriptor: {
+				mainStyle: "",
+				title: "File Descriptor",
+				desc: "Number of file descriptors used by agents",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Max number of open file descriptors"
+					},{
+						name: "AVG",
+						desc: "average open file descriptors"
+					},{
+						name: "MIN",
+						desc: "Min number of open file descriptors"
 					}]
 				}]
 			}

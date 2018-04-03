@@ -666,6 +666,18 @@
 					}]
 				}]
 			},
+			openFileDescriptor: {
+				mainStyle: "",
+				title: "File Descriptor",
+				desc: "에이전트의 File Descriptor 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Open File Descriptor",
+						desc: "현재 열려있는 File Descriptor 개수"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>해당 agent는 {{application1}}이 아닌 {{application2}}에 포함되어 있습니다.<br>",
 				"원인은 다음 중 하나입니다.<hr>",
@@ -824,6 +836,24 @@
 					},{
 						name: "MIN",
 						desc: "agent들의 DataSource connection 개수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statOpenFileDescriptor: {
+				mainStyle: "",
+				title: "File Descriptor",
+				desc: "에이전트들의 File Descriptor 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 열고 있는 File Descriptor 개수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 열고 있는 File Descriptor 개수의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 열고 있는 File Descriptor 개수 중 가장 작은 값"
 					}]
 				}]
 			}
