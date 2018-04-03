@@ -80,8 +80,12 @@ public class User {
         List<String> editedPhoneNumberList = new ArrayList<>(phoneNumberList.size());
 
         for (String phoneNumber : phoneNumberList) {
-            if (phoneNumber != null && phoneNumber.contains("-")) {
+            if (phoneNumber == null) {
+                continue;
+            } else if (phoneNumber.contains("-")) {
                 editedPhoneNumberList.add(phoneNumber.replace("-", ""));
+            } else {
+                editedPhoneNumberList.add(phoneNumber);
             }
         }
 
