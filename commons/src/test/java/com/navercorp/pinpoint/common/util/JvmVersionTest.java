@@ -34,6 +34,7 @@ public class JvmVersionTest {
         assertFalse(JAVA_5.onOrAfter(JAVA_7));
         assertFalse(JAVA_5.onOrAfter(JAVA_8));
         assertFalse(JAVA_5.onOrAfter(JAVA_9));
+        assertFalse(JAVA_5.onOrAfter(JAVA_10));
         assertFalse(JAVA_5.onOrAfter(UNSUPPORTED));
         // JDK 6
         assertTrue(JAVA_6.onOrAfter(JAVA_5));
@@ -41,6 +42,7 @@ public class JvmVersionTest {
         assertFalse(JAVA_6.onOrAfter(JAVA_7));
         assertFalse(JAVA_6.onOrAfter(JAVA_8));
         assertFalse(JAVA_6.onOrAfter(JAVA_9));
+        assertFalse(JAVA_6.onOrAfter(JAVA_10));
         assertFalse(JAVA_6.onOrAfter(UNSUPPORTED));
         // JDK 7
         assertTrue(JAVA_7.onOrAfter(JAVA_5));
@@ -48,6 +50,7 @@ public class JvmVersionTest {
         assertTrue(JAVA_7.onOrAfter(JAVA_7));
         assertFalse(JAVA_7.onOrAfter(JAVA_8));
         assertFalse(JAVA_7.onOrAfter(JAVA_9));
+        assertFalse(JAVA_7.onOrAfter(JAVA_10));
         assertFalse(JAVA_7.onOrAfter(UNSUPPORTED));
         // JDK 8
         assertTrue(JAVA_8.onOrAfter(JAVA_5));
@@ -55,6 +58,7 @@ public class JvmVersionTest {
         assertTrue(JAVA_8.onOrAfter(JAVA_7));
         assertTrue(JAVA_8.onOrAfter(JAVA_8));
         assertFalse(JAVA_8.onOrAfter(JAVA_9));
+        assertFalse(JAVA_8.onOrAfter(JAVA_10));
         assertFalse(JAVA_8.onOrAfter(UNSUPPORTED));
         // JDK 9
         assertTrue(JAVA_9.onOrAfter(JAVA_5));
@@ -62,13 +66,24 @@ public class JvmVersionTest {
         assertTrue(JAVA_9.onOrAfter(JAVA_7));
         assertTrue(JAVA_9.onOrAfter(JAVA_8));
         assertTrue(JAVA_9.onOrAfter(JAVA_9));
+        assertFalse(JAVA_9.onOrAfter(JAVA_10));
         assertFalse(JAVA_9.onOrAfter(UNSUPPORTED));
+
+        assertTrue(JAVA_10.onOrAfter(JAVA_5));
+        assertTrue(JAVA_10.onOrAfter(JAVA_6));
+        assertTrue(JAVA_10.onOrAfter(JAVA_7));
+        assertTrue(JAVA_10.onOrAfter(JAVA_8));
+        assertTrue(JAVA_10.onOrAfter(JAVA_9));
+        assertTrue(JAVA_10.onOrAfter(JAVA_10));
+        assertFalse(JAVA_10.onOrAfter(UNSUPPORTED));
+
         // Unsupported
         assertFalse(UNSUPPORTED.onOrAfter(JAVA_5));
         assertFalse(UNSUPPORTED.onOrAfter(JAVA_6));
         assertFalse(UNSUPPORTED.onOrAfter(JAVA_7));
         assertFalse(UNSUPPORTED.onOrAfter(JAVA_8));
         assertFalse(UNSUPPORTED.onOrAfter(JAVA_9));
+        assertFalse(UNSUPPORTED.onOrAfter(JAVA_10));
         assertFalse(UNSUPPORTED.onOrAfter(UNSUPPORTED));
     }
 
@@ -89,6 +104,9 @@ public class JvmVersionTest {
         // JDK 9
         final JvmVersion java_9 = JvmVersion.getFromVersion(9f);
         assertSame(JAVA_9, java_9);
+        // JDK 10
+        final JvmVersion java_10 = JvmVersion.getFromVersion(10f);
+        assertSame(JAVA_10, java_10);
         // Unsupported
         final JvmVersion java_unsupported = JvmVersion.getFromVersion(0.9f);
         assertSame(UNSUPPORTED, java_unsupported);
@@ -111,6 +129,9 @@ public class JvmVersionTest {
         // JDK 9
         final JvmVersion java_9 = JvmVersion.getFromVersion("9");
         assertSame(JAVA_9, java_9);
+        // JDK 10
+        final JvmVersion java_10 = JvmVersion.getFromVersion("10");
+        assertSame(JAVA_10, java_10);
         // Unsupported
         final JvmVersion java_unsupported = JvmVersion.getFromVersion("abc");
         assertSame(UNSUPPORTED, java_unsupported);
@@ -133,6 +154,9 @@ public class JvmVersionTest {
         // JDK 9
         final JvmVersion java_9 = JvmVersion.getFromClassVersion(53);
         assertSame(JAVA_9, java_9);
+        // JDK 10
+        final JvmVersion java_10 = JvmVersion.getFromClassVersion(54);
+        assertSame(JAVA_10, java_10);
         // Unsupported
         final JvmVersion java_unsupported = JvmVersion.getFromClassVersion(-1);
         assertSame(UNSUPPORTED, java_unsupported);
