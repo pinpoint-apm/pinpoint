@@ -17,7 +17,7 @@
 				var refinedChartData = {
 					data: [],
 					empty: false,
-					forceMax: true,
+					forceMax: false,
 					defaultMax: 100
 				};
 				if ( len === 0 ) {
@@ -52,7 +52,6 @@
 							"axisAlpha": 1,
 							"position": "left",
 							"title": "File Descriptor(count)",
-							"maximum" : 100,
 							"minimum" : 0,
 							"labelFunction": function(value) {
 								return value;
