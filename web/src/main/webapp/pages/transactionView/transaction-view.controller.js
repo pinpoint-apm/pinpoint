@@ -114,7 +114,6 @@
 	         * show server map
 	         */
 	        showServerMap = function () {
-	        	console.log('----showServerMap');
 				var oNavbarVoService = new NavbarVoService();
 				oNavbarVoService.setReadablePeriod(preferenceService.getPeriodTime()[0]);
 				oNavbarVoService.setQueryEndDateTime( CommonUtilService.formatDate( $routeParams.focusTimestamp ) );
