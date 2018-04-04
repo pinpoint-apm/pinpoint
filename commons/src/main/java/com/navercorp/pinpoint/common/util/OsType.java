@@ -26,7 +26,14 @@ public enum OsType {
     WINDOW("Window"),
     MAC("Mac"),
     LINUX("Linux"),
-    SOLARIS("Solaris");
+    SOLARIS("Solaris"),
+    AIX("AIX"),
+    HP_UX("HP-UX"),
+    BSD("BSD");
+
+    public String getInclusiveString() {
+        return inclusiveString;
+    }
 
     private final String inclusiveString;
 
@@ -34,6 +41,19 @@ public enum OsType {
 
     OsType(String inclusiveString) {
         this.inclusiveString = inclusiveString;
+    }
+
+    public static OsType fromVendor(String vendorName) {
+        if (vendorName == null) {
+            return UNKNOWN;
+        }
+        final String vendorNameTrimmed = vendorName.trim();
+        for (OsType osType : OS_TYPE) {
+            if (osType.toString().equalsIgnoreCase(vendorNameTrimmed)) {
+                return osType;
+            }
+        }
+        return UNKNOWN;
     }
 
     public static OsType fromOsName(String osName) {
@@ -44,7 +64,7 @@ public enum OsType {
             if (osType.inclusiveString == null) {
                 continue;
             }
-            if (osName.contains(osType.inclusiveString)) {
+            if (osName.toLowerCase().contains(osType.inclusiveString.toLowerCase())) {
                 return osType;
             }
         }
