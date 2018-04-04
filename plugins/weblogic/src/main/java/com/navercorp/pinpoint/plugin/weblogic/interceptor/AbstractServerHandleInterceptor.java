@@ -42,8 +42,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicConfiguration;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicConstants;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicSyncMethodDescriptor;
-
-import javax.servlet.http.HttpServletRequest;
+import weblogic.servlet.internal.ServletRequestImpl;
 
 /**
  * 
@@ -75,7 +74,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         traceContext.cacheApi(WEBLOGIC_SYNC_API_TAG);
     }
 
-    protected abstract HttpServletRequest getRequest(Object[] args);
+    protected abstract ServletRequestImpl getRequest(Object[] args);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -104,7 +103,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
 
 
     private Trace createTrace(Object target, Object[] args) {
-        final HttpServletRequest request = getRequest(args);
+        final ServletRequestImpl request = getRequest(args);
         if(request == null) {
             return null;
         }
@@ -178,7 +177,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         // ------------------------------------------------------
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            final HttpServletRequest request = getRequest(args);
+            final ServletRequestImpl request = getRequest(args);
             if(request != null && this.traceRequestParam) {
                 final String parameters = getRequestParameter(request, 64, 512);
                 if (parameters != null && parameters.length() > 0) {
@@ -197,7 +196,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         }
     }
 
-    private boolean samplingEnable(HttpServletRequest request) {
+    private boolean samplingEnable(ServletRequestImpl request) {
         // optional value
         final String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
         if (isDebug) {
@@ -206,7 +205,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 
-    private String getRequestParameter(HttpServletRequest request, int eachLimit, int totalLimit) {
+    private String getRequestParameter(ServletRequestImpl request, int eachLimit, int totalLimit) {
         String queryString = request.getQueryString();
         final StringBuilder params = new StringBuilder(64);
         try {
@@ -251,7 +250,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
 		return query_pairs;
 	}
 
-    private void recordParentInfo(SpanRecorder recorder, HttpServletRequest request) {
+    private void recordParentInfo(SpanRecorder recorder, ServletRequestImpl request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
             final String host = request.getHeader(Header.HTTP_HOST.toString());
@@ -266,7 +265,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         }
     }
 
-    private void recordRootSpan(final SpanRecorder recorder, final HttpServletRequest request) {
+    private void recordRootSpan(final SpanRecorder recorder, final ServletRequestImpl request) {
         // root
         recorder.recordServiceType(WeblogicConstants.WEBLOGIC);
 
@@ -287,7 +286,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     }
 
 
-    private TraceId populateTraceIdFromRequest(HttpServletRequest request) {
+    private TraceId populateTraceIdFromRequest(ServletRequestImpl request) {
 
         String transactionId = request.getHeader(Header.HTTP_TRACE_ID.toString());
         if (transactionId != null) {
