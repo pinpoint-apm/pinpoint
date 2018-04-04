@@ -154,6 +154,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int ioBufferingBufferSize;
 
     private String profileJvmVendorName;
+    private String profileOsName;
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
     private int profileJvmStatBatchSendCount = DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
     private boolean profilerJvmStatCollectDetailedMetrics;
@@ -380,6 +381,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public String getProfilerOSName() {
+        return profileOsName;
+    }
+
+    @Override
     public int getProfileJvmStatCollectIntervalMs() {
         return profileJvmStatCollectIntervalMs;
     }
@@ -556,6 +562,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
         this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
+
+        //OS
+        this.profileOsName = readString("profiler.os.name", null);
 
         // JVM
         this.profileJvmVendorName = readString("profiler.jvm.vendor.name", null);
@@ -738,6 +747,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", samplingRate=").append(samplingRate);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
         sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
+        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
         sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
         sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);

@@ -103,6 +103,8 @@ public interface ProfilerConfig {
 
     String getProfilerJvmVendorName();
 
+    String getProfilerOSName();
+
     int getProfileJvmStatCollectIntervalMs();
 
     int getProfileJvmStatBatchSendCount();

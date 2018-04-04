@@ -37,12 +37,13 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
 
     private static final String UNSUPPORTED_METRIC = "UNSUPPORTED_FILE_DESCRIPTOR_METRIC";
 
-    static final String ORACLE_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle.DefaultFileDescriptorMetric";
+    private static final String ORACLE_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle.DefaultFileDescriptorMetric";
     private static final String IBM_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.ibm.DefaultFileDescriptorMetric";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String vendorName;
+    private final String osName;
 
     @Inject
     public FileDescriptorMetricProvider(ProfilerConfig profilerConfig) {
@@ -50,6 +51,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
             throw new NullPointerException("profilerConfig must not be null");
         }
         vendorName = profilerConfig.getProfilerJvmVendorName();
+        osName = profilerConfig.getProfilerOSName();
     }
 
     @Override
@@ -57,8 +59,8 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
 
         final JvmVersion jvmVersion = JvmUtils.getVersion();
         final JvmType jvmType = getJvmType();
+        final OsType osType = getOsType();
 
-        final OsType osType = OsUtils.getType();
         final String classToLoad = getMetricClassName(osType, jvmVersion, jvmType);
 
         FileDescriptorMetric fileDescriptorMetric = createFileDescriptorMetric(classToLoad);
@@ -93,7 +95,8 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
     }
 
     private boolean isSupportedOS(OsType osType) {
-        EnumSet<OsType> supportedOs = EnumSet.of(OsType.MAC, OsType.SOLARIS, OsType.LINUX);
+        EnumSet<OsType> supportedOs = EnumSet.of(OsType.MAC, OsType.SOLARIS, OsType.LINUX
+                , OsType.AIX, OsType.HP_UX, OsType.BSD);
         return supportedOs.contains(osType);
     }
 
@@ -103,6 +106,14 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
             return JvmUtils.getType();
         }
         return jvmType;
+    }
+
+    private OsType getOsType() {
+        final OsType osType = OsType.fromVendor(osName);
+        if (osType == osType.UNKNOWN) {
+            return OsUtils.getType();
+        }
+        return osType;
     }
 
     private FileDescriptorMetric createFileDescriptorMetric(String classToLoad) {
