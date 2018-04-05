@@ -39,6 +39,8 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -76,13 +78,12 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     }
 
     public ActiveThreadCountWorker(AgentService agentService, String applicationName, String agentId, PinpointWebSocketResponseAggregator webSocketResponseAggregator, WorkerActiveManager workerActiveManager) {
-        this.agentService = agentService;
+        this.agentService = Objects.requireNonNull(agentService, "agentService must not be null");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentId = Objects.requireNonNull(agentId, "agentId must not be null");
 
-        this.applicationName = applicationName;
-        this.agentId = agentId;
-
-        this.responseAggregator = webSocketResponseAggregator;
-        this.workerActiveManager = workerActiveManager;
+        this.responseAggregator = Objects.requireNonNull(webSocketResponseAggregator, "responseAggregator must not be null");
+        this.workerActiveManager = Objects.requireNonNull(workerActiveManager, "workerActiveManager must not be null");
 
         AgentActiveThreadCountFactory failResponseFactory = new AgentActiveThreadCountFactory();
         failResponseFactory.setAgentId(agentId);
