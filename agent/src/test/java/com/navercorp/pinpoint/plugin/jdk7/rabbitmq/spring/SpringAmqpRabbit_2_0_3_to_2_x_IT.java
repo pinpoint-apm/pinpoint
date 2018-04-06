@@ -20,17 +20,17 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
-import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.MessageListenerConfig_Post_1_4_0;
-import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.ReceiverConfig_Post_1_6_0;
 import com.navercorp.pinpoint.plugin.jdk7.rabbitmq.util.RabbitMQTestConstants;
 import com.navercorp.pinpoint.plugin.jdk7.rabbitmq.util.TestBroker;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
+import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
+import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.MessageListenerConfig_Post_1_4_0;
+import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.ReceiverConfig_Post_1_6_0;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;
@@ -46,22 +46,21 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * <p>Spring-amqp rabbit 2.x uses rabbitmq 5.x, which removed <tt>QueueingConsumer</tt>.
+ * <p>Spring-amqp rabbit 2.0.3 introduced <tt>BlockingQueueConsumer$ConsumerDecorator</tt>, which wraps
+ * <tt>BlockingQueueConsumer$InternalConsumer</tt>.
  *
- * <p>This affects traces recorded inside <tt>RabbitTemplate.receive(String queueName, long timeoutMillis)</tt> as
- * prior to 2.0.0, <tt>QueueingConsumer</tt> methods were recorded and verified for.
- *
- * <p>2.0.0 instead uses an anonymous class extending <tt>RabbitTemplate.TemplateConsumer</tt> and so verification must
- * be done on the anonymous class. Affects {@link #testPullWithTimeout()}.
+ * <p>This affects asynchronous trace propagation as async trace object now gets attached to
+ * <tt>BlockingQueueConsumer$ConsumerDecorator</tt> instead of the previous
+ * <tt>BlockingQueueConsumer$InternalConsumer</tt>.
  *
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
-@Dependency({"org.springframework.amqp:spring-rabbit:[2.0.0.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
+@Dependency({"org.springframework.amqp:spring-rabbit:[2.0.3.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 @JvmArgument({"-Dpinpoint.configcenter=false"})
-public class SpringAmqpRabbit_2_x_IT {
+public class SpringAmqpRabbit_2_0_3_to_2_x_IT {
 
     private static final TestBroker BROKER = new TestBroker();
     private static final TestApplicationContext CONTEXT = new TestApplicationContext();
@@ -118,11 +117,11 @@ public class SpringAmqpRabbit_2_x_IT {
         ExpectedTrace asynchronousInvocationTrace = Expectations.event(
                 ServiceType.ASYNC.getName(),
                 "Asynchronous Invocation");
-        Class<?> blockingQueueConsumerInternalConsumerClass = Class.forName("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$InternalConsumer");
-        Method blockingQueueConsumerInternalConsumerHandleDelivery = blockingQueueConsumerInternalConsumerClass.getDeclaredMethod("handleDelivery", String.class, Envelope.class, AMQP.BasicProperties.class, byte[].class);
-        ExpectedTrace blockingQueueConsumerInternalConsumerHandleDeliveryTrace = Expectations.event(
+        Class<?> blockingQueueConsumerConsumerDecoratorClass = Class.forName("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$ConsumerDecorator");
+        Method blockingQueueConsumerConsumerDecoratorHandleDelivery = blockingQueueConsumerConsumerDecoratorClass.getDeclaredMethod("handleDelivery", String.class, Envelope.class, AMQP.BasicProperties.class, byte[].class);
+        ExpectedTrace blockingQueueConsumerConsumerDecoratorHandleDeliveryTrace = Expectations.event(
                 RabbitMQTestConstants.RABBITMQ_CLIENT_INTERNAL, // serviceType
-                blockingQueueConsumerInternalConsumerHandleDelivery);
+                blockingQueueConsumerConsumerDecoratorHandleDelivery);
         Class<?> deliveryClass = Class.forName("org.springframework.amqp.rabbit.support.Delivery");
         Constructor<?> deliveryConstructor = deliveryClass.getDeclaredConstructor(String.class, Envelope.class, AMQP.BasicProperties.class, byte[].class);
         ExpectedTrace deliveryConstructorTrace = Expectations.event(
@@ -145,7 +144,7 @@ public class SpringAmqpRabbit_2_x_IT {
                 rabbitMqConsumerInvocationTrace,
                 consumerDispatcherHandleDeliveryTrace,
                 asynchronousInvocationTrace,
-                blockingQueueConsumerInternalConsumerHandleDeliveryTrace,
+                blockingQueueConsumerConsumerDecoratorHandleDeliveryTrace,
                 deliveryConstructorTrace,
                 asynchronousInvocationTrace,
                 abstractMessageListenerContainerExecuteListenerTrace,
@@ -306,7 +305,6 @@ public class SpringAmqpRabbit_2_x_IT {
 
         int expectedTraceCount = queueInitiatedTraces.length + clientInitiatedTraces.length;
         final PluginTestVerifier verifier = testRunner.runPull(expectedTraceCount, 5000L);
-//        final PluginTestVerifier verifier = testRunner.runPull(9, 5000L);
 
         verifier.verifyDiscreteTrace(queueInitiatedTraces);
         verifier.verifyDiscreteTrace(clientInitiatedTraces);

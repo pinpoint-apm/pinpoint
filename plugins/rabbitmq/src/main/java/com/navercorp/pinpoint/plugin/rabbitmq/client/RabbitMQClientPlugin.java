@@ -402,6 +402,17 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
                     return null;
                 }
             });
+            // Spring-rabbit 1.7.7+, 2.0.3+
+            transformTemplate.transform("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$ConsumerDecorator", new TransformCallback() {
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                    if (addConsumerHandleDeliveryInterceptor(target)) {
+                        return target.toBytecode();
+                    }
+                    return null;
+                }
+            });
         }
     }
 
