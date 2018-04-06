@@ -37,3 +37,4 @@ The plugin has been tested on the following libraries.
 com.rabbitmq:amqp-client - 2.7.0+
 org.springframework.amqp:spring-rabbit - 1.3.3+
 ```
+*(Pinpoint 1.7.2 supports up to org.springframework.amqp:spring-rabbit 1.3.3 ~ 1.7.2, 2.0.1 and 2.0.2)*
