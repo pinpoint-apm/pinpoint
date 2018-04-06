@@ -19,40 +19,23 @@ package com.navercorp.pinpoint.plugin.kafka;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 public class KafkaConfig {
-    private boolean enable;
-    private boolean createContext;
-    private boolean includeHeader;
-    private String caller;
-    private String encoder;
+    private final boolean enable;
+    private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
         /*
          * kafka
          */
         this.enable = config.readBoolean("profiler.kafka.enable", false);
-        this.caller = config.readString("profiler.kafka.caller", "CALLER");
-        this.createContext = config.readBoolean("profiler.kafka.create.context", true);
-        this.includeHeader = config.readBoolean("profiler.kafka.include.header", false);
-        this.encoder = config.readString("profiler.kafka.include.encoder", "");
+        this.kafkaEntryPoint = config.readString("profiler.kafka.entryPoint", "");
     }
 
     public boolean isEnable() {
         return enable;
     }
 
-    public String getCaller() {
-        return caller;
+    public String getKafkaEntryPoint() {
+        return kafkaEntryPoint;
     }
 
-    public boolean isCreateContext() {
-        return createContext;
-    }
-
-    public boolean isIncludeHeader() {
-        return includeHeader;
-    }
-
-    public String getEncoder() {
-        return encoder;
-    }
 }
