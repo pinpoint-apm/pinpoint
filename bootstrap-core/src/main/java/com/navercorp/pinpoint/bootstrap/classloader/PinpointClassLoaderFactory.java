@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -52,12 +54,17 @@ public final class PinpointClassLoaderFactory {
                     ClassLoader classLoader = getClassLoader(PinpointClassLoaderFactory.class.getClassLoader());
                     final Class<? extends InnerPinpointClassLoaderFactory> parallelCapableClassLoaderFactoryClass =
                             (Class<? extends InnerPinpointClassLoaderFactory>) Class.forName(PARALLEL_CAPABLE_CLASS_LOADER_FACTORY, true, classLoader);
-                    return parallelCapableClassLoaderFactoryClass.newInstance();
+                    Constructor<? extends InnerPinpointClassLoaderFactory> constructor = parallelCapableClassLoaderFactoryClass.getDeclaredConstructor();
+                    return constructor.newInstance();
                 } catch (ClassNotFoundException e) {
                     logError(e);
                 } catch (InstantiationException e) {
                     logError(e);
                 } catch (IllegalAccessException e) {
+                    logError(e);
+                } catch (NoSuchMethodException e) {
+                    logError(e);
+                } catch (InvocationTargetException e) {
                     logError(e);
                 }
                 return new DefaultPinpointClassLoaderFactory();
@@ -88,7 +95,7 @@ public final class PinpointClassLoaderFactory {
     }
 
     private static void logError(Exception e) {
-        LOGGER.info("ParallelCapablePinpointClassLoader not found.");
+        LOGGER.info("ParallelCapablePinpointClassLoader not found. {}", e.getMessage(), e);
     }
 
     public static URLClassLoader createClassLoader(URL[] urls, ClassLoader parent) {
