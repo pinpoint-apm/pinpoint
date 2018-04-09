@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 
 /**
  * PinpointURLClassLoader loads a class in the profiler lib directory and delegates to load the other classes to parent classloader
@@ -50,6 +52,22 @@ public class PinpointURLClassLoader extends URLClassLoader {
 
     public PinpointURLClassLoader(URL[] urls, ClassLoader parent) {
         this(urls, parent, PROFILER_LIB_CLASS);
+    }
+
+    @Override
+    public URL getResource(String name) {
+        URL url = findResource(name);
+        if (url == null) {
+            url = parent.getResource(name);
+        }
+        return url;
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        final Enumeration<URL> currentResource = findResources(name);
+        final Enumeration<URL> parentResource = parent.getResources(name);
+        return new MergedEnumeration2<URL>(currentResource, parentResource);
     }
 
 
