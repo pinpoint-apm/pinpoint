@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 
 /**
  * @author Taejin Koo
@@ -50,6 +52,23 @@ class ParallelCapablePinpointURLClassLoader extends URLClassLoader {
 
         this.parent = parent;
         this.libClass = libClass;
+    }
+
+    @Override
+    public URL getResource(String name) {
+        URL url = findResource(name);
+        if (url == null) {
+            url = parent.getResource(name);
+        }
+        return url;
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        final Enumeration<URL> currentResource = findResources(name);
+        final Enumeration<URL> parentResource = parent.getResources(name);
+
+        return new MergedEnumeration2<URL>(currentResource, parentResource);
     }
 
     @Override
