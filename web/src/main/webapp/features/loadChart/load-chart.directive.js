@@ -159,6 +159,8 @@
 							element.find("h4").hide().end().find("canvas").show();
 							if ( yMax ) {
 								oChart.config.options.scales.yAxes[0].ticks.max = yMax;
+							} else {
+								delete oChart.config.options.scales.yAxes[0].ticks.max;
 							}
 							oChart.data.labels = data.labels;
 							oChart.data.datasets[0].data = data.keyValues[0].values;
@@ -212,7 +214,11 @@
                 });
 
                 scope.$on("loadChartDirective.updateData." + scope.namespace, function (event, data, yMax) {
-					updateChart(parseTimeSeriesHistogram(data), yMax);
+					if ( scope.namespace === "forServerList" ) {
+						updateChart(parseTimeSeriesHistogram(data), yMax);
+					} else {
+						updateChart(parseTimeSeriesHistogram(data));
+					}
                 });
             }
         };
