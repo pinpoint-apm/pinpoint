@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -96,6 +97,12 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
             short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
 
             String callerHost = ApplicationMapStatisticsUtils.getHost(qualifier);
+            // There may be no callerHost for virtual queue nodes from user-defined entry points.
+            // Terminal nodes, such as httpclient will not have callerHost set as well, but since they're terminal
+            // nodes, they would not have reached here in the first place.
+            if (calleeApplication.getServiceType().isQueue()) {
+                callerHost = StringUtils.defaultString(callerHost);
+            }
             boolean isError = histogramSlot == (short) -1;
 
             if (logger.isDebugEnabled()) {
