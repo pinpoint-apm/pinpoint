@@ -171,9 +171,6 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
         if (args[4] !=null && !(args[4] instanceof AMQP.BasicProperties)) {
             return false;
         }
-        if (args[5] !=null && !(args[5] instanceof byte[])) {
-            return false;
-        }
         return true;
     }
 }
