@@ -28,7 +28,7 @@
 						time: moment(aX[i]).format( cfg.dateFormat )
 					};
 					if ( len > i ) {
-						thisData["count"] = pointsOpenFileDescriptor[i][1] === -1 ? null : pointsOpenFileDescriptor[i][1].toFixed(2);
+						thisData["count"] = pointsOpenFileDescriptor[i][2] === -1 ? null : pointsOpenFileDescriptor[i][2].toFixed(2);
 					}
 					refinedChartData.data.push(thisData);
 				}

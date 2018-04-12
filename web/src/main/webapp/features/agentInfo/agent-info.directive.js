@@ -3,8 +3,8 @@
 		ID: "AGENT_INFO_DRTV_"
 	});
 
-	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "ResponseTimeChartDaoService", "ActiveThreadChartDaoService", "TPSChartDaoService", "CPULoadChartDaoService", "MemoryChartDaoService", "OpenFileDescriptorDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
-		function ( cfg, $sce, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, ResponseTimeChartDaoService, ActiveThreadChartDaoService, TPSChartDaoService, CPULoadChartDaoService, MemoryChartDaoService, OpenFileDescriptorDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
+	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "ResponseTimeChartDaoService", "ActiveThreadChartDaoService", "TPSChartDaoService", "CPULoadChartDaoService", "MemoryChartDaoService", "OpenFileDescriptorDaoService", "DirectBufferDaoService","AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
+		function ( cfg, $sce, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, ResponseTimeChartDaoService, ActiveThreadChartDaoService, TPSChartDaoService, CPULoadChartDaoService, MemoryChartDaoService, OpenFileDescriptorDaoService, DirectBufferDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
@@ -91,6 +91,13 @@
 						AgentAjaxService.getOpenFileDescriptorChartData( oParam, function (result) {
 							showOpenFileDescriptorChart(result);
 						});
+						AgentAjaxService.getDirectBufferChartData( oParam, function (result) {
+							var refinedChartData = DirectBufferDaoService.parseData( result );
+							showDirectBufferCountChart(refinedChartData);
+							showDirectBufferMemoryChart(refinedChartData);
+							showMappedBufferCountChart(refinedChartData);
+							showMappedBufferMemoryChart(refinedChartData);
+						});
 					}
 					function loadAgentInfo( time ) {
 						AgentAjaxService.getAgentInfo({
@@ -134,7 +141,7 @@
 					}
 					function initTooltip() {
 						if ( bInitTooltip === false ) {
-							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor"].forEach(function(value) {
+							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor", "directBufferCount", "directBufferMemory", "mappedBufferCount", "mappedBufferMemory"].forEach(function(value) {
 								TooltipService.init( value );
 							});
 							bInitTooltip = true;
@@ -225,6 +232,42 @@
 							"agentInspectorChartDirective.initAndRenderWithData.agent-open-file-descriptor",
 							refinedChartData,
 							OpenFileDescriptorDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showDirectBufferCountChart( refinedChartData ) {
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-direct-buffer-count",
+							refinedChartData,
+							DirectBufferDaoService.getDirectBufferCountChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showDirectBufferMemoryChart( refinedChartData ) {
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-direct-buffer-memory",
+							refinedChartData,
+							DirectBufferDaoService.getDirectBufferMemoryChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showMappedBufferCountChart( refinedChartData ) {
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-mapped-buffer-count",
+							refinedChartData,
+							DirectBufferDaoService.getMappedBufferCountChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showMappedBufferMemoryChart( refinedChartData ) {
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-mapped-buffer-memory",
+							refinedChartData,
+							DirectBufferDaoService.getMappedBufferMemoryChartOptions( refinedChartData ),
 							"100%",
 							"270px"
 						);

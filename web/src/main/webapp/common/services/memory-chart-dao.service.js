@@ -32,7 +32,8 @@
 					data: [],
 					empty: false,
 					forceMax: false,
-					defaultMax: 100
+					defaultMax: 100,
+					defaultMax2: 10000000
 				};
 				var cumulativeGcTime = 0;
 
