@@ -1,5 +1,5 @@
 ---
-title: TroubleShooting_Network
+title: Checking network configuration 
 tags:
 keywords: troubleshooting
 last_updated: Apr 10, 2018
@@ -7,8 +7,6 @@ sidebar: mydoc_sidebar
 permalink: troubleshooting_network.html
 disqus: true
 ---
-
-# Checking network configuration 
 
 We provide a simple tool that can check your network configurations.  
 This tool checks the network status between Pinpoint-Agent and Pinpoint-Collector
@@ -20,8 +18,14 @@ This tool checks the network status between Pinpoint-Agent and Pinpoint-Collecto
  If you have downloaded the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest). 
 
  1. Start your collector server
- 2. With any terminal that you are using, go to the folder where you have downloaded the jar file and run below command.
- 
+ 2. With any terminal that you are using, go to *tools* folder which is under *pinpoint-agent-VERSION.tar.gz* package that you have downloaded.
+
+````
+> pwd
+/Users/user/Downloads/pinpoint-agent-1.8.0/tools
+````
+and execute the command below.
+
 ````
 > java -jar pinpoint-tools-VERSION.jar PATH_TO_CONFIG_FILE/pinpoint.config
 ```` 
