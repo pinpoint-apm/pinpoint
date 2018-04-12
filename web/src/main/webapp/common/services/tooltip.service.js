@@ -57,6 +57,22 @@
 			"position": "top",
 			"trigger": "click"
 		},
+		"directBufferCount": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"directBufferMemory": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"mappedBufferCount": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"mappedBufferMemory": {
+			"position": "top",
+			"trigger": "click"
+		},
 		"responseSummaryChart": {
 			"position": "top",
 			"trigger": "click"
@@ -116,6 +132,22 @@
 		"statOpenFileDescriptor": {
 			"position": "top",
 			"trigger": "click"
+		},
+		"statDirectBufferCount": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"statDirectBufferMemory": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"statMappedBufferCount": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"statMappedBufferMemory": {
+			"position": "top",
+			"trigger": "click"
 		}
 	});
 
@@ -160,6 +192,14 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.responseTime); };
 				case "openFileDescriptor":
 					return function() { return helpContentTemplate(helpContentService.inspector.openFileDescriptor); };
+				case "directBufferCount":
+					return function() { return helpContentTemplate(helpContentService.inspector.directBufferCount); };
+				case "directBufferMemory":
+					return function() { return helpContentTemplate(helpContentService.inspector.directBufferMemory); };
+				case "mappedBufferCount":
+					return function() { return helpContentTemplate(helpContentService.inspector.mappedBufferCount); };
+				case "mappedBufferMemory":
+					return function() { return helpContentTemplate(helpContentService.inspector.mappedBufferMemory); };
 				case "responseSummaryChart":
 					return function() { return helpContentTemplate(helpContentService.nodeInfoDetails.responseSummary); };
 				case "loadChart":
@@ -190,6 +230,14 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.statDataSource); };
 				case "statOpenFileDescriptor":
 					return function() { return helpContentTemplate(helpContentService.inspector.statOpenFileDescriptor); };
+				case "statDirectBufferCount":
+					return function() { return helpContentTemplate(helpContentService.inspector.statDirectBufferCount); };
+				case "statDirectBufferMemory":
+					return function() { return helpContentTemplate(helpContentService.inspector.statDirectBufferMemory); };
+				case "statMappedBufferCount":
+					return function() { return helpContentTemplate(helpContentService.inspector.statMappedBufferCount); };
+				case "statMappedBufferMemory":
+					return function() { return helpContentTemplate(helpContentService.inspector.statMappedBufferMemory); };
 			}
 		}
 	}]);

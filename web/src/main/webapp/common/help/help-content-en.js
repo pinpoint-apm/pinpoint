@@ -689,6 +689,54 @@
 					}]
 				}]
 			},
+			directBufferCount: {
+				mainStyle: "",
+				title: "Direct Buffer",
+				desc: "Shows the status of agent's direct buffer",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Direct Buffer Count",
+						desc: "Number of direct buffer"
+					}]
+				}]
+			},
+			directBufferMemory: {
+				mainStyle: "",
+				title: "Direct Buffer Memory",
+				desc: "Shows the status of agent's used direct buffer memory",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Direct Buffer Memory Used",
+						desc: "Currently used direct buffer memory"
+					}]
+				}]
+			},
+			mappedBufferCount: {
+				mainStyle: "",
+				title: "Mapped Buffer",
+				desc: "Shows the status of agent's Mapped buffer",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Mapped Buffer Count",
+						desc: "Number of Mapped buffer"
+					}]
+				}]
+			},
+			mappedBufferMemory: {
+				mainStyle: "",
+				title: "Mapped Buffer Memory",
+				desc: "Shows the status of agent's used Mapped buffer memory",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Mapped Buffer Memory Used",
+						desc: "Currently used Mapped buffer memory"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>The agent is currently registered under {{application2}} due to the following:<br>",
 				"1. The agent has moved from {{application1}} to {{application2}}<br>",
@@ -864,6 +912,78 @@
 					},{
 						name: "MIN",
 						desc: "Min number of open file descriptors"
+					}]
+				}]
+			},
+			statDirectBufferCount: {
+				mainStyle: "",
+				title: "Direct Buffer",
+				desc: "Number of direct buffer used by agents",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Max number of direct buffer"
+					},{
+						name: "AVG",
+						desc: "average number of direct buffer"
+					},{
+						name: "MIN",
+						desc: "Min number of direct buffer"
+					}]
+				}]
+			},
+			statDirectBufferMemory: {
+				mainStyle: "",
+				title: "Direct Buffer Memory",
+				desc: "Number of Direct buffer used by agents",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Max number of direct buffer"
+					},{
+						name: "AVG",
+						desc: "average number of direct buffer"
+					},{
+						name: "MIN",
+						desc: "Min number of direct buffer"
+					}]
+				}]
+			},
+			statMappedBufferCount: {
+				mainStyle: "",
+				title: "Mapped Buffer",
+				desc: "Number of Mapped buffer used by agents",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Max number of Mapped buffer"
+					},{
+						name: "AVG",
+						desc: "average number of Mapped buffer"
+					},{
+						name: "MIN",
+						desc: "Min number of Mapped buffer"
+					}]
+				}]
+			},
+			statMappedBufferMemory: {
+				mainStyle: "",
+				title: "Mapped Buffer Memory",
+				desc: "Number of Mapped buffer used by agents",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Max number of Mapped buffer"
+					},{
+						name: "AVG",
+						desc: "average number of Mapped buffer"
+					},{
+						name: "MIN",
+						desc: "Min number of Mapped buffer"
 					}]
 				}]
 			}

@@ -678,6 +678,54 @@
 					}]
 				}]
 			},
+			directBufferCount: {
+				mainStyle: "",
+				title: "Direct Buffer",
+				desc: "에이전트의 Direct Buffer 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Direct Buffer Count",
+						desc: "현재 Direct Buffer 의 개수"
+					}]
+				}]
+			},
+			directBufferMemory: {
+				mainStyle: "",
+				title: "Direct Buffer Memory",
+				desc: "에이전트의 Direct Buffer Memory 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Direct Buffer Memory Used",
+						desc: "현재 Direct Buffer 가 사용중인 메모리"
+					}]
+				}]
+			},
+			mappedBufferCount: {
+				mainStyle: "",
+				title: "Mapped Buffer",
+				desc: "에이전트의 Mapped Buffer 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Mapped Buffer Count",
+						desc: "현재 Mapped Buffer 의 개수"
+					}]
+				}]
+			},
+			mappedBufferMemory: {
+				mainStyle: "",
+				title: "Mapped Buffer Memory",
+				desc: "에이전트의 Mapped Buffer Memory 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Mapped Buffer Memory Used",
+						desc: "현재 Mapped Buffer 가 사용중인 메모리"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>해당 agent는 {{application1}}이 아닌 {{application2}}에 포함되어 있습니다.<br>",
 				"원인은 다음 중 하나입니다.<hr>",
@@ -854,6 +902,78 @@
 					},{
 						name: "MIN",
 						desc: "Agent 가 열고 있는 File Descriptor 개수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statDirectBufferCount: {
+				mainStyle: "",
+				title: "Direct Buffer",
+				desc: "Agent들의 Direct Buffer 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 사용 중인 Direct Buffer 개수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 사용 중인 Direct Buffer 개수의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 사용 중인 Direct Buffer 개수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statDirectBufferMemory: {
+				mainStyle: "",
+				title: "Direct Buffer Memory",
+				desc: "Agent들의 Direct Buffer Memory 사용 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 사용 중인 Direct Buffer Memory 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 사용 중인 Direct Buffer Memory 의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 사용 중인 Direct Buffer Memory 중 가장 작은 값"
+					}]
+				}]
+			},
+			statMappedBufferCount: {
+				mainStyle: "",
+				title: "Mapped Buffer",
+				desc: "Agent들의 Mapped Buffer 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 사용 중인 Mapped Buffer 개수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 사용 중인 Mapped Buffer 개수의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 사용 중인 Mapped Buffer 개수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statMappedBufferMemory: {
+				mainStyle: "",
+				title: "Mapped Buffer Memory",
+				desc: "Agent들의 Mapped Buffer Memory 사용 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 사용 중인 Mapped Buffer Memory 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 사용 중인 Mapped Buffer Memory 의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 사용 중인 Mapped Buffer Memory 중 가장 작은 값"
 					}]
 				}]
 			}
