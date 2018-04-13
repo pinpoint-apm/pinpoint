@@ -146,6 +146,15 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
                 return target.toBytecode();
             }
         });
+        // Envelope - for asynchrnous trace propagation for consumers
+        transformTemplate.transform("com.rabbitmq.client.Envelope", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(AsyncContextAccessor.class.getName());
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addAMQChannelEditor(final Filter<String> excludeExchangeFilter) {
@@ -187,7 +196,6 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
             return false;
         }
         handleDelivery.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.ConsumerHandleDeliveryInterceptor", RabbitMQClientConstants.RABBITMQ_CONSUMER_SCOPE);
-        target.addField(AsyncContextAccessor.class.getName());
         return true;
     }
 
