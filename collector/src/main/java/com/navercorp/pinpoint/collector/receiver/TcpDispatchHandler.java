@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +86,11 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
         }
 
         return simpleHandlerList;
+    }
+
+    @Override
+    protected  List<SimpleHandler> getSimpleHandler(ThriftRequest thriftRequest) {
+        return getSimpleHandler(thriftRequest.getTbase());
     }
 
 }

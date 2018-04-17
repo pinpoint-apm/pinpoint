@@ -148,4 +148,21 @@ public class JoinAgentStatBo implements JoinStatBo {
     public List<JoinDataSourceListBo> getJoinDataSourceListBoList() {
         return joinDataSourceListBoList;
     }
+
+    @Override
+    public String toString() {
+        return "JoinAgentStatBo{" +
+            "agentId='" + agentId + '\'' +
+            ", agentStartTimestamp=" + agentStartTimestamp +
+            ", timestamp=" + timestamp +
+            ", joinCpuLoadBoList=" + joinCpuLoadBoList +
+            ", joinMemoryBoList=" + joinMemoryBoList +
+            ", joinTransactionBoList=" + joinTransactionBoList +
+            ", joinActiveTraceBoList=" + joinActiveTraceBoList +
+            ", joinResponseTimeBoList=" + joinResponseTimeBoList +
+            ", joinDataSourceListBoList=" + joinDataSourceListBoList +
+            ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
+            ", joinDirectBufferBoList=" + joinDirectBufferBoList +
+            '}';
+    }
 }

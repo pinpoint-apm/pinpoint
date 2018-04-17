@@ -9,7 +9,9 @@
 
     <context:annotation-config/>
 
+    <import resource="classpath:applicationContext-flink-extend.xml"/>
     <import resource="classpath:applicationContext-hbase.xml"/>
+    <import resource="classpath:applicationContext-cache.xml"/>
 
     <context:component-scan
             base-package="com.navercorp.pinpoint.common.server.util,
@@ -154,7 +156,24 @@
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="flinkPacketHandlerFactory" class="com.navercorp.pinpoint.flink.receiver.FlinkPacketHandlerFactory"/>
+
+    <bean id="flinkHeaderDataGeneratorDelegator" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkHeaderDataGeneratorDelegator"/>
+    <bean id="flinkTBaseLocator" class="com.navercorp.pinpoint.thrift.io.FlinkTBaseLocator">
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.thrift.io.header.v2.HeaderV2.VERSION"/>
+        </constructor-arg>
+        <constructor-arg index="1" ref="flinkHeaderDataGeneratorDelegator"/>
+    </bean>
+    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
+        <constructor-arg index="0" ref="flinkTBaseLocator"/>
+    </bean>
+    <bean id="flinkHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory">
+        <constructor-arg index="0" ref="flinkTBaseLocator"/>
+    </bean>
+    <bean id="flinkPacketHandlerFactory" class="com.navercorp.pinpoint.flink.receiver.FlinkPacketHandlerFactory">
+        <constructor-arg index="0" ref="flinkHeaderTBaseSerializerFactory"/>
+        <constructor-arg index="1" ref="flinkHeaderTBaseDeserializerFactory"/>
+    </bean>
 
     <bean id="flinkServerRegister" class="com.navercorp.pinpoint.flink.cluster.FlinkServerRegister" lazy-init="true">
         <constructor-arg ref="flinkConfiguration"/>
@@ -193,7 +212,6 @@
         <property name="executor" ref="flinkWorker"/>
         <property name="tcpPacketHandlerFactory" ref="flinkPacketHandlerFactory"/>
     </bean>
-
 
     <bean id="tcpSourceFunction" class="com.navercorp.pinpoint.flink.receiver.TcpSourceFunction"/>
 </beans>

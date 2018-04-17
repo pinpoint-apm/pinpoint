@@ -46,6 +46,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private transient DataSourceDao dataSourceDao;
     private transient FileDescriptorDao fileDescriptorDao;
     private transient DirectBufferDao directBufferDao;
+    private transient StatisticsDaoInterceptor statisticsDaoInterceptor;
 
 
     public StatisticsDao() {
@@ -62,6 +63,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         dataSourceDao = bootstrap.getDataSourceDao();
         fileDescriptorDao = bootstrap.getFileDescriptorDao();
         directBufferDao = bootstrap.getDirectBufferDao();
+        statisticsDaoInterceptor = bootstrap.getStatisticsDaoInterceptor();
     }
 
     @Override
@@ -70,18 +72,22 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
 
     @Override
     public void writeRecord(Tuple3<String, JoinStatBo, Long> statData) throws IOException {
-        JoinStatBo joinStatBo = (JoinStatBo)statData.f1;
-        if (joinStatBo instanceof JoinAgentStatBo) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("JoinAgentStatBo insert data : {}", joinStatBo);
-            }
+        statisticsDaoInterceptor.before(statData);
 
-            insertJoinAgentStatBo((JoinAgentStatBo)joinStatBo);
-        } else if (joinStatBo instanceof JoinApplicationStatBo) {
+        try {
+            JoinStatBo joinStatBo = (JoinStatBo) statData.f1;
+            if (joinStatBo instanceof JoinAgentStatBo) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("JoinAgentStatBo insert data : {}", joinStatBo);
+                }
+                insertJoinAgentStatBo((JoinAgentStatBo) joinStatBo);
+            } else if (joinStatBo instanceof JoinApplicationStatBo) {
 //            logger.info("JoinApplicationStatBo insert data : " + joinStatBo);
-            insertJoinApplicationStatBo((JoinApplicationStatBo)joinStatBo);
+                insertJoinApplicationStatBo((JoinApplicationStatBo) joinStatBo);
+            }
+        } finally {
+            statisticsDaoInterceptor.after();
         }
-
     }
 
     private void insertJoinApplicationStatBo(JoinApplicationStatBo joinApplicationStatBo) {

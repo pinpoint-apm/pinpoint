@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -266,6 +267,12 @@ public class DataReceiverGroupTest {
         @Override
         public void dispatchSendMessage(TBase<?, ?> tBase) {
             LOGGER.debug("===================================== send {}", tBase);
+            sendLatch.countDown();
+        }
+
+        @Override
+        public void dispatchSendMessage(ThriftRequest thriftRequest) {
+            LOGGER.debug("===================================== send {}", thriftRequest);
             sendLatch.countDown();
         }
 
