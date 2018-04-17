@@ -178,7 +178,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
     // flush & clear
     public void flush() throws TException {
         synchronized (transport) {
-            if (flushHandler != null && transport.getBufferPosition() > Header.HEADER_SIZE) {
+            if (flushHandler != null && transport.getBufferPosition() > Header.MIN_HEADER_SIZE) {
                 flushHandler.handle(transport.getBuffer(), 0, transport.getBufferPosition());
             }
             transport.flush();

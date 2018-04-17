@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.thrift.io;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.thrift.io.header.v1.HeaderV1;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -95,7 +96,7 @@ public class ChunkHeaderTBaseDeserializer {
     }
 
     private Header readHeader() throws TException {
-        if (trans.getBytesRemainingInBuffer() < Header.HEADER_SIZE) {
+        if (trans.getBytesRemainingInBuffer() < Header.MIN_HEADER_SIZE) {
             return null;
         }
 
@@ -104,7 +105,7 @@ public class ChunkHeaderTBaseDeserializer {
         final byte type1 = protocol.readByte();
         final byte type2 = protocol.readByte();
         final short type = bytesToShort(type1, type2);
-        return new Header(signature, version, type);
+        return new HeaderV1(signature, version, type);
     }
 
     private short bytesToShort(final byte byte1, final byte byte2) {

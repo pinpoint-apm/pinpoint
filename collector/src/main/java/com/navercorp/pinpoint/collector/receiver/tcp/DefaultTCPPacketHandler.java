@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -63,8 +64,8 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
         final byte[] payload = getPayload(packet);
         SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
         try {
-            TBase<?, ?> tBase = SerializationUtils.deserialize(payload, deserializerFactory);
-            dispatchHandler.dispatchSendMessage(tBase);
+             ThriftRequest thriftRequest = SerializationUtils.deserializeThriftRequest(payload, deserializerFactory);
+             dispatchHandler.dispatchSendMessage(thriftRequest);
         } catch (TException e) {
             handleTException(payload, remoteAddress, e);
         } catch (Exception e) {

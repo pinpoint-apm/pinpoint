@@ -17,8 +17,14 @@
 package com.navercorp.pinpoint.thrift.io;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
+import com.navercorp.pinpoint.thrift.io.header.InvalidHeaderException;
+import com.navercorp.pinpoint.thrift.io.header.v1.HeaderV1;
+import com.navercorp.pinpoint.thrift.io.header.v2.HeaderV2;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -31,6 +37,9 @@ import org.slf4j.LoggerFactory;
  * copy->TBaseDeserializer
  */
 public class HeaderTBaseDeserializer {
+
+    private static final String KEY_VALUE_DELIMITER = ":";
+    private static final String KEY_VALUE_PAIR_DELIMITER = "\r\n";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -108,19 +117,85 @@ public class HeaderTBaseDeserializer {
         return result;
     }
 
-    private Header readHeader() throws TException {
-        final byte signature = protocol.readByte();
-        final byte version = protocol.readByte();
-        
-        // fixed size regardless protocol
-        final byte type1 = protocol.readByte();
-        final byte type2 = protocol.readByte();
-        final short type = bytesToShort(type1, type2);
-        return new Header(signature, version, type);
+    public ThriftRequest deserializeThrfitRequest(byte[] bytes) throws TException {
+        try {
+            trans.reset(bytes);
+            Header header = readHeader();
+            final int validate = validate(header);
+            if (validate == HeaderUtils.OK) {
+                TBase<?, ?> base = locator.tBaseLookup(header.getType());
+                base.read(protocol);
+                return new ThriftRequest(header, base);
+            }
+            throw new IllegalStateException("invalid validate " + validate);
+        } finally {
+            trans.clear();
+            protocol.reset();
+        }
+    }
+
+    private Header readHeader() {
+        try {
+            final byte signature = protocol.readByte();
+            final byte version = protocol.readByte();
+            final byte type1 = protocol.readByte();
+            final byte type2 = protocol.readByte();
+            final short type = bytesToShort(type1, type2);
+
+            if (signature != Header.SIGNATURE) {
+                throw new IllegalArgumentException(String.format("unsupported Header : signature(0x%02X), version(0x%02X), type(%d) ", signature, version, type));
+            }
+
+            if (version == HeaderV1.VERSION) {
+                return createHeaderv1(type);
+            } else if (version == HeaderV2.VERSION) {
+                return createHeaderV2(type, protocol);
+            }
+
+            throw new IllegalArgumentException(String.format("unsupported Header : signature(0x%02X), version(0x%02X), type(%d) ", signature, version, type));
+        } catch (TException e) {
+            throw new InvalidHeaderException("header is invalid.", e);
+        }
+    }
+
+    private HeaderV2 createHeaderV2(short type, TProtocol protocol) throws TException {
+        String dataString = protocol.readString();
+
+        if (dataString.length() <= 2) {
+            if (KEY_VALUE_PAIR_DELIMITER.equals(dataString)) {
+                return new HeaderV2(type, new HashMap<String, String>(0));
+            } else {
+                throw new InvalidHeaderException("header have invalid header data : " + dataString);
+            }
+        }
+
+        Map<String, String> data = stringToMap(dataString);
+
+        return new HeaderV2(type, data);
+    }
+
+    private HeaderV1 createHeaderv1(short type) {
+        return new HeaderV1(type);
     }
 
     private short bytesToShort(final byte byte1, final byte byte2) {
         return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
     }
 
+    private Map<String, String> stringToMap(String data) {
+        Map<String, String> headerData = new HashMap<String, String>();
+
+        String[] splitData = data.split(KEY_VALUE_PAIR_DELIMITER);
+        for (String entry : splitData) {
+            String[] keyValue = entry.split(KEY_VALUE_DELIMITER);
+
+            if (keyValue.length != 2) {
+                throw new InvalidHeaderException("invalid data of header : " + data);
+            }
+
+            headerData.put(keyValue[0], keyValue[1]);
+        }
+
+        return headerData;
+    }
 }

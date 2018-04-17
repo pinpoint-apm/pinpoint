@@ -18,7 +18,11 @@ package com.navercorp.pinpoint.thrift.io;
 
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
+import com.navercorp.pinpoint.thrift.io.header.InvalidHeaderException;
+import com.navercorp.pinpoint.thrift.io.header.v1.HeaderV1;
+import com.navercorp.pinpoint.thrift.io.header.v2.HeaderV2;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -33,13 +37,15 @@ import org.apache.thrift.transport.TIOStreamTransport;
 public class HeaderTBaseSerializer {
 
     private static final String UTF8 = "UTF8";
+    private static final char KEY_VALUE_DELIMITER = ':';
+    private static final String KEY_VALUE_PAIR_DELIMITER = "\r\n";
 
     private final ResettableByteArrayOutputStream baos;
     private final TProtocol protocol;
     private final TBaseLocator locator;
 
     /**
-     * Create a new HeaderTBaseSerializer. 
+     * Create a new HeaderTBaseSerializer.
      */
     HeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TBaseLocator locator) {
         this.baos = bos;
@@ -63,18 +69,18 @@ public class HeaderTBaseSerializer {
         base.write(protocol);
         return baos.toByteArray();
     }
-    
+
     public byte[] continueSerialize(TBase<?, ?> base) throws TException {
         final Header header = locator.headerLookup(base);
         writeHeader(header);
         base.write(protocol);
         return baos.toByteArray();
     }
-    
+
     public void reset() {
         baos.reset();
     }
-    
+
     public void reset(int resetIndex) {
         baos.reset(resetIndex);
     }
@@ -84,9 +90,43 @@ public class HeaderTBaseSerializer {
     }
 
     private void writeHeader(Header header) throws TException {
+        byte version = header.getVersion();
+        if (version == HeaderV1.VERSION) {
+            writeHeaderV1(protocol, (HeaderV1)header);
+        } else if (version == HeaderV2.VERSION) {
+            writeHeaderV2(protocol, (HeaderV2) header);
+        } else {
+            throw new InvalidHeaderException("can not write Header");
+        }
+    }
+
+    private void writeHeaderV2(TProtocol protocol, HeaderV2 header) throws TException {
         protocol.writeByte(header.getSignature());
         protocol.writeByte(header.getVersion());
-        // fixed size regardless protocol
+
+        short type = header.getType();
+        protocol.writeByte(BytesUtils.writeShort1(type));
+        protocol.writeByte(BytesUtils.writeShort2(type));
+
+        String dataString = mapToString(header.getData());
+        protocol.writeString(dataString);
+    }
+
+    private String mapToString(Map<String, String> data) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            builder.append(entry.getKey());
+            builder.append(KEY_VALUE_DELIMITER);
+            builder.append(entry.getValue());
+            builder.append(KEY_VALUE_PAIR_DELIMITER);
+        }
+        builder.append(KEY_VALUE_PAIR_DELIMITER);
+        return builder.toString();
+    }
+
+    private void writeHeaderV1(TProtocol protocol, HeaderV1 header) throws TException {
+        protocol.writeByte(header.getSignature());
+        protocol.writeByte(header.getVersion());
         short type = header.getType();
         protocol.writeByte(BytesUtils.writeShort1(type));
         protocol.writeByte(BytesUtils.writeShort2(type));

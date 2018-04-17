@@ -1,0 +1,42 @@
+/*
+ * Copyright 2018 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.thrift.io.header.v1;
+
+import com.navercorp.pinpoint.thrift.io.Header;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+/**
+ * @author minwoo.jung
+ */
+public class HeaderV1Test {
+
+    @Test
+    public void testGetSignature() throws Exception {
+        Header header = new HeaderV1((short)0);
+        byte signature = header.getSignature();
+        short type = header.getType();
+        byte version = header.getVersion();
+    }
+}
