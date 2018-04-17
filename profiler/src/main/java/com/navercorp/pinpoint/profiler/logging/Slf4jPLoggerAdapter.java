@@ -203,17 +203,36 @@ public class Slf4jPLoggerAdapter implements PLogger {
             if (isSimpleType(arg)) {
                 return arg.toString();
             } else {
-                return arg.getClass().getSimpleName();
+                return getSimpleName(arg.getClass());
             }
         }
     }
 
-    private static boolean isSimpleType(Object arg) {
+    static boolean isSimpleType(Object arg) {
         Class<?> find = SIMPLE_TYPE.get(arg.getClass());
         if (find == null) {
             return false;
         }
         return true;
+    }
+
+    static String getSimpleName(final Class<?> clazz) {
+        if (clazz.isArray()) {
+            return getSimpleName(clazz.getComponentType()) + "[]";
+        }
+
+        final String simpleName = clazz.getName();
+        if (simpleName == null) {
+            // Defense
+            return "";
+        }
+
+        final int lastPackagePosition = simpleName.lastIndexOf('.');
+        if (lastPackagePosition != -1) {
+            // Strip the package name
+            return simpleName.substring(lastPackagePosition + 1);
+        }
+        return simpleName;
     }
 
     @Override
