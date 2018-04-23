@@ -88,7 +88,7 @@
 						cancelPreviousWork();
 						var query = $.trim( $elSearchInput.val() );
 						if ( query === "" ) {
-							loadData({});
+							loadData("");
 						} else {
 							if ( query.length < CONSTS.MIN_GROUPNAME_LENGTH ) {
 								$elSearchInput.val("");
@@ -180,7 +180,7 @@
 					};
 					scope.$on("configuration.userGroup.show", function() {
 	    				if ( bIsLoaded === false ) {
-	    					loadData({});
+	    					loadData("");
 	    				}
 	    			});
 	            }

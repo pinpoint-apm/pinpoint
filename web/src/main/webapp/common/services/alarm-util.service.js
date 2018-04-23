@@ -22,17 +22,19 @@
 						data = {
 							"userId" : ( config["userId"] || "" )
 						};
+						self.load( funcName, data, successCallback, failCallback );
 					});
+				} else {
+					this.load( funcName, data, successCallback, failCallback );
 				}
-
-				$timeout(function() {
-					$ajaxService[funcName](data, function (resultData) {
-						if (resultData.errorCode || resultData.status) {
-							failCallback(resultData);
-						} else {
-							successCallback(resultData);
-						}
-					});
+			};
+			this.load = function( funcName, data, successCallback, failCallback ) {
+				$ajaxService[funcName](data, function (resultData) {
+					if (resultData.errorCode || resultData.status) {
+						failCallback(resultData);
+					} else {
+						successCallback(resultData);
+					}
 				});
 			};
 			this.setTotal = function( $elTotal, n ) {
