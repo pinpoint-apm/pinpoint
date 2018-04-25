@@ -89,15 +89,8 @@ public class DubboConsumerInterceptor implements AroundInterceptor1 {
 
                 // Optionally, record the destination id (logical name of server. e.g. DB name)
                 recorder.recordDestinationId(endPoint);
-                recorder.recordAttribute(DubboConstants.DUBBO_ARGS_ANNOTATION_KEY, PrettyPrint.toString(invocation.getArguments()));
-                RpcResult rpcResult = (RpcResult) result;
-                String resultString;
-                if (rpcResult.hasException()) {
-                    resultString = PrettyPrint.toString(rpcResult.getException());
-                } else {
-                    resultString = PrettyPrint.toSimpleString(rpcResult.getValue());
-                }
-                recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, resultString);
+                recorder.recordAttribute(DubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
+                recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, endPoint);
             } else {
                 recorder.recordException(throwable);
             }

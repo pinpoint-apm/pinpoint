@@ -185,9 +185,10 @@ public class DubboProviderInterceptor implements AroundInterceptor {
         RpcInvocation invocation = (RpcInvocation) args[0];
 
         recorder.recordApi(methodDescriptor,invocation.getArguments());
-
+        recorder.recordAttribute(DubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
+        
         if (throwable == null) {
-            //recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
+            recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
         } else {
             recorder.recordException(throwable);
         }
