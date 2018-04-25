@@ -133,7 +133,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             logger.warn("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
             return false;
         }
-        JarFile bootStrapCoreJarFile = getJarFile(bootStrapCoreJar);
+        final JarFile bootStrapCoreJarFile = getJarFile(bootStrapCoreJar);
         if (bootStrapCoreJarFile == null) {
             logger.warn("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
             return false;

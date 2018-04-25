@@ -22,10 +22,8 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  * @author Taejin Koo
@@ -34,45 +32,39 @@ public final class PinpointClassLoaderFactory {
 
     private static final PLogger LOGGER = PLoggerFactory.getLogger(PinpointClassLoaderFactory.class);
 
-    private static final InnerPinpointClassLoaderFactory CLASS_LOADER_FACTORY = createClassLoaderFactory();
+    private static final InnerClassLoaderFactory CLASS_LOADER_FACTORY = createClassLoaderFactory();
 
     // Jdk 7+
-    private static final String PARALLEL_CAPABLE_CLASS_LOADER_FACTORY = "com.navercorp.pinpoint.bootstrap.classloader.ParallelCapablePinpointClassLoaderFactory";
+    private static final String PARALLEL_CLASSLOADER_FACTORY = "com.navercorp.pinpoint.bootstrap.classloader.ParallelClassLoaderFactory";
 
     private PinpointClassLoaderFactory() {
         throw new IllegalAccessError();
     }
 
-    private static InnerPinpointClassLoaderFactory createClassLoaderFactory() {
+    private static InnerClassLoaderFactory createClassLoaderFactory() {
         final JvmVersion jvmVersion = JvmUtils.getVersion();
-        if (jvmVersion == JvmVersion.JAVA_6) {
-            return new DefaultPinpointClassLoaderFactory();
-        } else if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-            boolean hasRegisterAsParallelCapableMethod = hasRegisterAsParallelCapableMethod();
-            if (hasRegisterAsParallelCapableMethod) {
-                try {
-                    ClassLoader classLoader = getClassLoader(PinpointClassLoaderFactory.class.getClassLoader());
-                    final Class<? extends InnerPinpointClassLoaderFactory> parallelCapableClassLoaderFactoryClass =
-                            (Class<? extends InnerPinpointClassLoaderFactory>) Class.forName(PARALLEL_CAPABLE_CLASS_LOADER_FACTORY, true, classLoader);
-                    Constructor<? extends InnerPinpointClassLoaderFactory> constructor = parallelCapableClassLoaderFactoryClass.getDeclaredConstructor();
-                    return constructor.newInstance();
-                } catch (ClassNotFoundException e) {
-                    logError(e);
-                } catch (InstantiationException e) {
-                    logError(e);
-                } catch (IllegalAccessException e) {
-                    logError(e);
-                } catch (NoSuchMethodException e) {
-                    logError(e);
-                } catch (InvocationTargetException e) {
-                    logError(e);
-                }
-                return new DefaultPinpointClassLoaderFactory();
-            } else {
-                return new DefaultPinpointClassLoaderFactory();
+
+        if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
+            if (!hasRegisterAsParallelCapableMethod()) {
+                return new DefaultClassLoaderFactory();
             }
-        } else {
-            throw new RuntimeException("Unsupported jvm version " + jvmVersion);
+            return newClassLoaderFactory(PARALLEL_CLASSLOADER_FACTORY);
+        }
+
+        // JDK6 --
+        return new DefaultClassLoaderFactory();
+    }
+
+    private static InnerClassLoaderFactory newClassLoaderFactory(String factoryName) {
+        try {
+            ClassLoader classLoader = getClassLoader(PinpointClassLoaderFactory.class.getClassLoader());
+            final Class<? extends InnerClassLoaderFactory> parallelCapableClassLoaderFactoryClass =
+                    (Class<? extends InnerClassLoaderFactory>) Class.forName(factoryName, true, classLoader);
+            Constructor<? extends InnerClassLoaderFactory> constructor = parallelCapableClassLoaderFactoryClass.getDeclaredConstructor();
+            return constructor.newInstance();
+        } catch (Exception ex) {
+            LOGGER.info("ParallelCapablePinpointClassLoader not found. {}", ex.getMessage(), ex);
+            throw new IllegalStateException("ParallelCapablePinpointClassLoader initialize fail Caused by:" + ex.getMessage(), ex);
         }
     }
 
@@ -88,21 +80,18 @@ public final class PinpointClassLoaderFactory {
     }
 
     private static ClassLoader getClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return ClassLoader.getSystemClassLoader();
-        }
+//         @Nullable  (class == null) is Bootstrap
+//        if (classLoader == null) {
+//            return ClassLoader.getSystemClassLoader();
+//        }
         return classLoader;
     }
 
-    private static void logError(Exception e) {
-        LOGGER.info("ParallelCapablePinpointClassLoader not found. {}", e.getMessage(), e);
-    }
-
-    public static URLClassLoader createClassLoader(URL[] urls, ClassLoader parent) {
+    public static ClassLoader createClassLoader(URL[] urls, ClassLoader parent) {
         return CLASS_LOADER_FACTORY.createURLClassLoader(urls, parent);
     }
 
-    public static URLClassLoader createClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
+    public static ClassLoader createClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
         return CLASS_LOADER_FACTORY.createURLClassLoader(urls, parent, libClass);
     }
 

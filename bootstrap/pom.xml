@@ -65,6 +65,7 @@
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
                             <Pinpoint-Version>${project.version}</Pinpoint-Version>
+                            <Boot-Class-Path>${project.build.finalName}.jar</Boot-Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>

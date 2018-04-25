@@ -20,17 +20,17 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  * @author emeroad
  */
-public class PinpointURLClassLoaderTest {
+public class PinpointClassLoaderTest {
 
     @Test
     public void testOnLoadClass() throws Exception {
 
-        URLClassLoader cl = PinpointClassLoaderFactory.createClassLoader(new URL[]{}, Thread.currentThread().getContextClassLoader());
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(new URL[]{}, Thread.currentThread().getContextClassLoader());
+        Assert.assertSame(cl.getClass(), PinpointClassLoader.class);
 
         try {
             cl.loadClass("test");
@@ -47,11 +47,9 @@ public class PinpointURLClassLoaderTest {
         // it could be possible by specifying the full path to the URL classloader, but it would be harder to maintain.
         // for now, just test if DefaultAgent is specified to be loaded
 
-        if (cl instanceof PinpointURLClassLoader) {
-            Assert.assertTrue(((PinpointURLClassLoader)cl).onLoadClass("com.navercorp.pinpoint.profiler.DefaultAgent"));
-        } else {
-            Assert.fail();
-        }
 
+        Assert.assertTrue(((PinpointClassLoader)cl).onLoadClass("com.navercorp.pinpoint.profiler.DefaultAgent"));
+
+        ClassLoaderUtils.close(cl);
     }
 }
