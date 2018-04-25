@@ -3,9 +3,11 @@ package com.navercorp.pinpoint.plugin.dubbo.interceptor;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcInvocation;
+import com.alibaba.dubbo.rpc.RpcResult;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
 import com.navercorp.pinpoint.plugin.dubbo.DubboConstants;
+import com.navercorp.pinpoint.plugin.dubbo.PrettyPrint;
 
 /**
  * @author Jinkai.Ma
@@ -87,8 +89,15 @@ public class DubboConsumerInterceptor implements AroundInterceptor1 {
 
                 // Optionally, record the destination id (logical name of server. e.g. DB name)
                 recorder.recordDestinationId(endPoint);
-                recorder.recordAttribute(DubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
-                recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
+                recorder.recordAttribute(DubboConstants.DUBBO_ARGS_ANNOTATION_KEY, PrettyPrint.toString(invocation.getArguments()));
+                RpcResult rpcResult = (RpcResult) result;
+                String resultString;
+                if (rpcResult.hasException()) {
+                    resultString = PrettyPrint.toString(rpcResult.getException());
+                } else {
+                    resultString = PrettyPrint.toSimpleString(rpcResult.getValue());
+                }
+                recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, resultString);
             } else {
                 recorder.recordException(throwable);
             }

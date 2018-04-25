@@ -13,6 +13,7 @@ import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.dubbo.DubboConstants;
+import com.navercorp.pinpoint.plugin.dubbo.PrettyPrint;
 
 /**
  * @author Jinkai.Ma
@@ -183,11 +184,10 @@ public class DubboProviderInterceptor implements AroundInterceptor {
     protected void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         RpcInvocation invocation = (RpcInvocation) args[0];
 
-        recorder.recordApi(methodDescriptor);
-        recorder.recordAttribute(DubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
+        recorder.recordApi(methodDescriptor,invocation.getArguments());
 
         if (throwable == null) {
-            recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
+            //recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
         } else {
             recorder.recordException(throwable);
         }
