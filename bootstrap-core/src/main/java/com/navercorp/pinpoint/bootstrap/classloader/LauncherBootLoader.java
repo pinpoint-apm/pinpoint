@@ -29,20 +29,41 @@ import java.util.Enumeration;
 /**
  * @author Woonduk Kang(emeroad)
  */
-class LauncherBootLoader implements BootLoader {
+final class LauncherBootLoader implements BootLoader {
 
     private final URLClassPath bootstrapClassPath = getBootstrapClassPath();
 
     private static final Method FIND_BOOTSTRAP_CLASS_OR_NULL = findBootstrapClassOrNullMethod();
 
     private static Method findBootstrapClassOrNullMethod() {
+        // findBootstrapClassOrNull() jdk Compatibility
+        // oracleJdk
+        // oracleJdk 9~10 : reflection is not recommended
+
+        // old OracleJdk :
+        // oracleJdk6_24 : success
+
+        // openjdk
+        // openjdk8 : success
+        // openjdk7 : success
+        // openjdk6 : fail (findBootstrapClass0)
+        NoSuchMethodException rootException;
         try {
             Method findBootstrapClassOrNull = ClassLoader.class.getDeclaredMethod("findBootstrapClassOrNull", String.class);
             findBootstrapClassOrNull.setAccessible(true);
             return findBootstrapClassOrNull;
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("ClassLoader.findBootstrapClassOrNull() not found", e);
+        } catch (NoSuchMethodException ex) {
+            rootException = ex;
         }
+        try {
+            // for openjdk6
+            Method findBootstrapClass0 = ClassLoader.class.getDeclaredMethod("findBootstrapClass0", String.class);
+            findBootstrapClass0.setAccessible(true);
+            return findBootstrapClass0;
+        } catch (NoSuchMethodException ignore) {
+            // skip
+        }
+        throw new IllegalStateException("ClassLoader.findBootstrapClassOrNull api not found", rootException);
     }
 
     LauncherBootLoader() {
@@ -84,7 +105,7 @@ class LauncherBootLoader implements BootLoader {
     private static class URLEnumeration implements Enumeration<URL> {
         private final Enumeration<Resource> enumeration;
 
-        public URLEnumeration(Enumeration<Resource> enumeration) {
+        private URLEnumeration(Enumeration<Resource> enumeration) {
             this.enumeration = enumeration;
         }
 
