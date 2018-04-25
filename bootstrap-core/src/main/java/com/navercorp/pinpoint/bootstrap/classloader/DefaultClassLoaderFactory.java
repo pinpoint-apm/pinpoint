@@ -17,21 +17,20 @@
 package com.navercorp.pinpoint.bootstrap.classloader;
 
 import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  * @author Taejin Koo
  */
-class ParallelCapablePinpointClassLoaderFactory implements InnerPinpointClassLoaderFactory {
+class DefaultClassLoaderFactory implements InnerClassLoaderFactory {
 
     @Override
-    public URLClassLoader createURLClassLoader(URL[] urls, ClassLoader parent) {
-        return new ParallelCapablePinpointURLClassLoader(urls, parent);
+    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent) {
+        return new PinpointClassLoader(urls, parent);
     }
 
     @Override
-    public URLClassLoader createURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
-        return new ParallelCapablePinpointURLClassLoader(urls, parent, libClass);
+    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
+        return new PinpointClassLoader(urls, parent, libClass);
     }
 
 }

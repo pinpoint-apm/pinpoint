@@ -27,12 +27,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.ReflectionUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.util.Collections;
 import java.util.jar.JarFile;
@@ -71,7 +69,7 @@ public class JarProfilerPluginClassInjectorTest {
         final ClassLoader classLoader = this.getClass().getClassLoader();
         final Class<ClassLoader> aClass = (Class<ClassLoader>) classLoader.loadClass(CONTEXT_TYPE_MATCH_CLASS_LOADER);
         final Constructor<ClassLoader> constructor = aClass.getConstructor(ClassLoader.class);
-        ReflectionUtils.makeAccessible(constructor);
+        constructor.setAccessible(true);
 
         final LibClass libClassFilter = new LibClass() {
             @Override
@@ -84,7 +82,7 @@ public class JarProfilerPluginClassInjectorTest {
             }
         };
 
-        URLClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(urlArray, ClassLoader.getSystemClassLoader(), libClassFilter);
+        ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(urlArray, ClassLoader.getSystemClassLoader(), libClassFilter);
         final ClassLoader contextTypeMatchClassLoader = constructor.newInstance(testClassLoader);
 
         logger.debug("cl:{}",contextTypeMatchClassLoader);

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
@@ -29,41 +28,38 @@ import java.util.concurrent.Callable;
 /**
  * @author emeroad
  */
-public class AgentClassLoader {
+public class AgentBootLoader {
 
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
-    private final URLClassLoader classLoader;
+    private final ClassLoader classLoader;
 
-    private String bootClass;
+    private final String bootClass;
 
     private final ContextClassLoaderExecuteTemplate<Object> executeTemplate;
 
-    public AgentClassLoader(URL[] urls) {
+    public AgentBootLoader(String bootClass, URL[] urls, ClassLoader parentClassLoader) {
+        if (bootClass == null) {
+            throw new NullPointerException("bootClass must not be null");
+        }
         if (urls == null) {
             throw new NullPointerException("urls");
         }
-
-        ClassLoader bootStrapClassLoader = AgentClassLoader.class.getClassLoader();
-        this.classLoader = createClassLoader(urls, bootStrapClassLoader);
-
-        this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(classLoader);
+        this.bootClass = bootClass;
+        this.classLoader = createClassLoader(urls, parentClassLoader);
+        this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(parentClassLoader);
     }
 
-    private URLClassLoader createClassLoader(final URL[] urls, final ClassLoader bootStrapClassLoader) {
+    private ClassLoader createClassLoader(final URL[] urls, final ClassLoader parentClassLoader) {
         if (SECURITY_MANAGER != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<URLClassLoader>() {
-                public URLClassLoader run() {
-                    return PinpointClassLoaderFactory.createClassLoader(urls, bootStrapClassLoader);
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return PinpointClassLoaderFactory.createClassLoader(urls, parentClassLoader);
                 }
             });
         } else {
-            return PinpointClassLoaderFactory.createClassLoader(urls, bootStrapClassLoader);
+            return PinpointClassLoaderFactory.createClassLoader(urls, parentClassLoader);
         }
-    }
-
-    public void setBootClass(String bootClass) {
-        this.bootClass = bootClass;
     }
 
     public Agent boot(final AgentOption agentOption) {

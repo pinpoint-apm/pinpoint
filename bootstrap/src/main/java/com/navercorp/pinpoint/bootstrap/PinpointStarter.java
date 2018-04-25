@@ -50,9 +50,14 @@ class PinpointStarter {
     private final BootstrapJarFile bootstrapJarFile;
     private final ClassPathResolver classPathResolver;
     private final Instrumentation instrumentation;
+    private final ClassLoader parentClassLoader;
 
 
-    public PinpointStarter(Map<String, String> agentArgs, BootstrapJarFile bootstrapJarFile, ClassPathResolver classPathResolver, Instrumentation instrumentation) {
+    public PinpointStarter(ClassLoader parentClassLoader, Map<String, String> agentArgs, BootstrapJarFile bootstrapJarFile, ClassPathResolver classPathResolver, Instrumentation instrumentation) {
+        //        null == BootstrapClassLoader
+//        if (bootstrapClassLoader == null) {
+//            throw new NullPointerException("bootstrapClassLoader must not be null");
+//        }
         if (agentArgs == null) {
             throw new NullPointerException("agentArgs must not be null");
         }
@@ -67,6 +72,7 @@ class PinpointStarter {
         }
         this.agentArgs = agentArgs;
         this.bootstrapJarFile = bootstrapJarFile;
+        this.parentClassLoader = parentClassLoader;
         this.classPathResolver = classPathResolver;
         this.instrumentation = instrumentation;
 
@@ -100,14 +106,13 @@ class PinpointStarter {
 
             // this is the library list that must be loaded
             List<URL> libUrlList = resolveLib(classPathResolver);
-            AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
+            URL[] urls = libUrlList.toArray(new URL[libUrlList.size()]);
             final String bootClass = getBootClass();
-            agentClassLoader.setBootClass(bootClass);
+            AgentBootLoader agentBootLoader = new AgentBootLoader(bootClass, urls, parentClassLoader);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
 
-
             AgentOption option = createAgentOption(agentId, applicationName, profilerConfig, instrumentation, pluginJars, bootstrapJarFile);
-            Agent pinpointAgent = agentClassLoader.boot(option);
+            Agent pinpointAgent = agentBootLoader.boot(option);
             pinpointAgent.start();
             registerShutdownHook(pinpointAgent);
             logger.info("pinpoint agent started normally.");

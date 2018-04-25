@@ -3,18 +3,20 @@ package com.navercorp.pinpoint.bootstrap.classloader;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  * @author Taejin Koo
  */
-public class ParallelCapablePinpointURLClassLoaderTest {
+public class ParallelClassLoaderTest {
 
     @Test
     public void testOnLoadClass() throws Exception {
 
-        URLClassLoader cl = PinpointClassLoaderFactory.createClassLoader(new URL[]{}, Thread.currentThread().getContextClassLoader());
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(new URL[]{}, Thread.currentThread().getContextClassLoader());
+        Assert.assertTrue(cl instanceof ParallelClassLoader);
 
         try {
             cl.loadClass("test");
@@ -31,12 +33,25 @@ public class ParallelCapablePinpointURLClassLoaderTest {
         // it could be possible by specifying the full path to the URL classloader, but it would be harder to maintain.
         // for now, just test if DefaultAgent is specified to be loaded
 
-        if (cl instanceof ParallelCapablePinpointURLClassLoader) {
-            Assert.assertTrue(((ParallelCapablePinpointURLClassLoader) cl).onLoadClass("com.navercorp.pinpoint.profiler.DefaultAgent"));
+        if (cl instanceof ParallelClassLoader) {
+            Assert.assertTrue(((ParallelClassLoader) cl).onLoadClass("com.navercorp.pinpoint.profiler.DefaultAgent"));
         } else {
             Assert.fail();
         }
 
+        close(cl);
+    }
+
+    private void close(ClassLoader classLoader) throws IOException {
+        if (classLoader instanceof Closeable) {
+            ((Closeable)classLoader).close();
+        }
+    }
+
+    @Test
+    public void testBootstrapClassLoader() throws Exception {
+        ClassLoader classLoader = new ParallelClassLoader(new URL[0], null);
+        close(classLoader);
     }
 
 }

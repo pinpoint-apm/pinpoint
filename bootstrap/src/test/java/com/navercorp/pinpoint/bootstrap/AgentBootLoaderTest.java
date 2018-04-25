@@ -33,24 +33,24 @@ import static org.mockito.Mockito.mock;
 /**
  * @author emeroad
  */
-public class AgentClassLoaderTest {
+public class AgentBootLoaderTest {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void boot() {
-        AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
-        agentClassLoader.setBootClass("com.navercorp.pinpoint.bootstrap.DummyAgent");
+        ClassLoader classLoader = AgentBootLoaderTest.class.getClassLoader();
+        AgentBootLoader agentBootLoader = new AgentBootLoader("com.navercorp.pinpoint.bootstrap.DummyAgent", new URL[0], classLoader);
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", "testCaseAppName", new DefaultProfilerConfig(), Collections.<String>emptyList(), null);
-        Agent boot = agentClassLoader.boot(option);
+        Agent boot = agentBootLoader.boot(option);
 
         boot.stop();
     }
 
     private String getProjectLibDir() {
         // not really necessary, but useful for testing protectionDomain
-        ProtectionDomain protectionDomain = AgentClassLoader.class.getProtectionDomain();
+        ProtectionDomain protectionDomain = AgentBootLoader.class.getProtectionDomain();
         CodeSource codeSource = protectionDomain.getCodeSource();
         URL location = codeSource.getLocation();
 
