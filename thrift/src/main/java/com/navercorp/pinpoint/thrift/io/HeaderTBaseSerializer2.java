@@ -60,8 +60,8 @@ public class HeaderTBaseSerializer2 {
         protocol.writeByte(header.getVersion());
         // fixed size regardless protocol
         short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
+        protocol.writeByte(BytesUtils.readByte1ForShort(type));
+        protocol.writeByte(BytesUtils.readByte2ForShort(type));
     }
 
 }

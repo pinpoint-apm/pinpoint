@@ -16,10 +16,7 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import com.navercorp.pinpoint.thrift.io.header.InvalidHeaderException;
@@ -37,10 +34,6 @@ import org.slf4j.LoggerFactory;
  * copy->TBaseDeserializer
  */
 public class HeaderTBaseDeserializer {
-
-    private static final String KEY_VALUE_DELIMITER = ":";
-    private static final String KEY_VALUE_PAIR_DELIMITER = "\r\n";
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final TProtocol protocol;
@@ -140,14 +133,14 @@ public class HeaderTBaseDeserializer {
             final byte version = protocol.readByte();
             final byte type1 = protocol.readByte();
             final byte type2 = protocol.readByte();
-            final short type = bytesToShort(type1, type2);
+            final short type = BytesUtils.bytesToShort(type1, type2);
 
             if (signature != Header.SIGNATURE) {
                 throw new IllegalArgumentException(String.format("unsupported Header : signature(0x%02X), version(0x%02X), type(%d) ", signature, version, type));
             }
 
             if (version == HeaderV1.VERSION) {
-                return createHeaderv1(type);
+                return createHeaderV1(type);
             } else if (version == HeaderV2.VERSION) {
                 return createHeaderV2(type, protocol);
             }
@@ -159,43 +152,52 @@ public class HeaderTBaseDeserializer {
     }
 
     private HeaderV2 createHeaderV2(short type, TProtocol protocol) throws TException {
-        String dataString = protocol.readString();
-
-        if (dataString.length() <= 2) {
-            if (KEY_VALUE_PAIR_DELIMITER.equals(dataString)) {
-                return new HeaderV2(type, new HashMap<String, String>(0));
-            } else {
-                throw new InvalidHeaderException("header have invalid header data : " + dataString);
-            }
+        final short headerDataSize = readShort();
+        if (headerDataSize == 0) {
+            return new HeaderV2(type, new HashMap<String, String>(0));
+        }
+        if (headerDataSize > HeaderTBaseSerializer.HEADER_DATA_MAX_SIZE) {
+            throw new InvalidHeaderException("header data size exceed the max limit. size : " + headerDataSize);
         }
 
-        Map<String, String> data = stringToMap(dataString);
+        final Map<String, String> data = new HashMap<String, String>(headerDataSize);
+        for (int i = 0 ; i < headerDataSize ; i++ ) {
+            String key = readString();
+            String value = readString();
+            data.put(key, value);
+        }
 
         return new HeaderV2(type, data);
     }
 
-    private HeaderV1 createHeaderv1(short type) {
-        return new HeaderV1(type);
-    }
-
-    private short bytesToShort(final byte byte1, final byte byte2) {
-        return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
-    }
-
-    private Map<String, String> stringToMap(String data) {
-        Map<String, String> headerData = new HashMap<String, String>();
-
-        String[] splitData = data.split(KEY_VALUE_PAIR_DELIMITER);
-        for (String entry : splitData) {
-            String[] keyValue = entry.split(KEY_VALUE_DELIMITER);
-
-            if (keyValue.length != 2) {
-                throw new InvalidHeaderException("invalid data of header : " + data);
-            }
-
-            headerData.put(keyValue[0], keyValue[1]);
+    private String readString() throws TException {
+        final short stringLength = readShort();
+        if(!validCheck(stringLength)) {
+            throw new InvalidHeaderException("string length is invalid in header data. length : " + stringLength);
         }
 
-        return headerData;
+        final byte[] bytes = new byte[stringLength];
+        for (int index = 0; index < bytes.length; index++) {
+            bytes[index] = protocol.readByte();
+        }
+        return new String(bytes, BytesUtils.UTF_8);
+    }
+
+    private boolean validCheck(short length) {
+        if (length > HeaderTBaseSerializer.HEADER_DATA_STRING_MAX_LANGTH || length == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private short readShort() throws TException {
+        final byte byte1 = protocol.readByte();
+        final byte byte2 = protocol.readByte();
+        return BytesUtils.bytesToShort(byte1, byte2);
+    }
+
+    private HeaderV1 createHeaderV1(short type) {
+        return new HeaderV1(type);
     }
 }

@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.thrift.io.header;
+package com.navercorp.pinpoint.flink.process;
+
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.thrift.TBase;
+
+import java.util.List;
 
 /**
  * @author minwoo.jung
  */
-public class InvalidHeaderException extends RuntimeException {
+public interface TBaseFlatMapperInterceptor {
 
-    public InvalidHeaderException(String message) {
-        super(message);
-    }
+    void before(ThriftRequest thriftRequest);
 
-    public InvalidHeaderException(String message, Throwable e) {
-        super(message, e);
-    }
+    void after();
+
+    List<Tuple3<String,JoinStatBo,Long>> middle(List<Tuple3<String, JoinStatBo, Long>> outData);
 }

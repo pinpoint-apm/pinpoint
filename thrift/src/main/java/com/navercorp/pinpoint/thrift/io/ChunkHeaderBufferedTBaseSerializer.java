@@ -171,8 +171,8 @@ public class ChunkHeaderBufferedTBaseSerializer {
         protocol.writeByte(header.getSignature());
         protocol.writeByte(header.getVersion());
         short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
+        protocol.writeByte(BytesUtils.readByte1ForShort(type));
+        protocol.writeByte(BytesUtils.readByte2ForShort(type));
     }
 
     // flush & clear

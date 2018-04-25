@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.thrift.io.header;
+package com.navercorp.pinpoint.flink.process;
 
 /**
  * @author minwoo.jung
  */
-public class InvalidHeaderException extends RuntimeException {
-
-    public InvalidHeaderException(String message) {
-        super(message);
-    }
-
-    public InvalidHeaderException(String message, Throwable e) {
-        super(message, e);
-    }
+public class PaaSCustomProcessor implements CustomProcessor {
 }

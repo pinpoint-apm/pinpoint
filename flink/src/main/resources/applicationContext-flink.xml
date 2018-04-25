@@ -9,6 +9,7 @@
 
     <context:annotation-config/>
 
+    <import resource="classpath:applicationContext-flink-extend.xml"/>
     <import resource="classpath:applicationContext-hbase.xml"/>
     <import resource="classpath:applicationContext-cache.xml"/>
 
@@ -211,7 +212,6 @@
         <property name="executor" ref="flinkWorker"/>
         <property name="tcpPacketHandlerFactory" ref="flinkPacketHandlerFactory"/>
     </bean>
-
 
     <bean id="tcpSourceFunction" class="com.navercorp.pinpoint.flink.receiver.TcpSourceFunction"/>
 </beans>

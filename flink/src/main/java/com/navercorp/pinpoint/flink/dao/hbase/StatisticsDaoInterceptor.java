@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.thrift.io.header;
+package com.navercorp.pinpoint.flink.dao.hbase;
+
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import org.apache.flink.api.java.tuple.Tuple3;
 
 /**
  * @author minwoo.jung
  */
-public class InvalidHeaderException extends RuntimeException {
+public interface StatisticsDaoInterceptor {
+    void before(Tuple3<String, JoinStatBo, Long> statData);
 
-    public InvalidHeaderException(String message) {
-        super(message);
-    }
-
-    public InvalidHeaderException(String message, Throwable e) {
-        super(message, e);
-    }
+    void after();
 }

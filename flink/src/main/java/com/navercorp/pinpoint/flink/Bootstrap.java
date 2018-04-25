@@ -19,20 +19,15 @@ import com.navercorp.pinpoint.collector.receiver.TCPReceiverBean;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
-import com.navercorp.pinpoint.flink.dao.hbase.ActiveTraceDao;
-import com.navercorp.pinpoint.flink.dao.hbase.CpuLoadDao;
-import com.navercorp.pinpoint.flink.dao.hbase.DataSourceDao;
-import com.navercorp.pinpoint.flink.dao.hbase.DirectBufferDao;
-import com.navercorp.pinpoint.flink.dao.hbase.MemoryDao;
-import com.navercorp.pinpoint.flink.dao.hbase.ResponseTimeDao;
-import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
-import com.navercorp.pinpoint.flink.dao.hbase.TransactionDao;
-import com.navercorp.pinpoint.flink.dao.hbase.FileDescriptorDao;
+import com.navercorp.pinpoint.flink.dao.hbase.*;
 import com.navercorp.pinpoint.flink.process.ApplicationCache;
+import com.navercorp.pinpoint.flink.process.DefaultTBaseFlatMapperInterceptor;
 import com.navercorp.pinpoint.flink.process.TBaseFlatMapper;
+import com.navercorp.pinpoint.flink.process.TBaseFlatMapperInterceptor;
 import com.navercorp.pinpoint.flink.receiver.AgentStatHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpDispatchHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -70,25 +65,11 @@ public class Bootstrap {
     private final DataSourceDao dataSourceDao;
     private final FileDescriptorDao fileDescriptorDao;
     private final DirectBufferDao directBufferDao;
+    private final TBaseFlatMapperInterceptor tBaseFlatMapperInterceptor;
+    private final StatisticsDaoInterceptor statisticsDaoInterceptor;
 
     private Bootstrap() {
-        final ArrayList<String> importFileList = new ArrayList<>(3);
-        importFileList.add("applicationContext-flink.xml");
-        try {
-            Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-flink.properties");
-            String fileList = properties.getProperty("import.spring.applicationcontext.file");
-            fileList = StringUtils.trimWhitespace(fileList);
-            if (!StringUtils.isEmpty(fileList)) {
-                String[] files = fileList.split(",");
-                for (String file : files) {
-                    importFileList.add(file);
-                }
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("can not read pinpoint-flink.properties file", e);
-        }
-        String[] files = importFileList.toArray(new String[importFileList.size()]);
-        applicationContext = new ClassPathXmlApplicationContext(files);
+        applicationContext = new ClassPathXmlApplicationContext("applicationContext-flink.xml");
 
         tbaseFlatMapper = applicationContext.getBean("tbaseFlatMapper", TBaseFlatMapper.class);
         flinkConfiguration = applicationContext.getBean("flinkConfiguration", FlinkConfiguration.class);
@@ -104,6 +85,8 @@ public class Bootstrap {
         dataSourceDao = applicationContext.getBean("dataSourceDao", DataSourceDao.class);
         fileDescriptorDao = applicationContext.getBean("fileDescriptorDao", FileDescriptorDao.class);
         directBufferDao = applicationContext.getBean("directBufferDao", DirectBufferDao.class);
+        tBaseFlatMapperInterceptor = applicationContext.getBean(TBaseFlatMapperInterceptor.class);
+        statisticsDaoInterceptor =  applicationContext.getBean(StatisticsDaoInterceptor.class);
     }
 
     public FileDescriptorDao getFileDescriptorDao() {
@@ -177,7 +160,7 @@ public class Bootstrap {
         rawData.setParallelism(parallel);
     }
 
-    public void setStatHandlerTcpDispatchHandler(SourceContext<TBase> sourceContext) {
+    public void setStatHandlerTcpDispatchHandler(SourceContext<ThriftRequest> sourceContext) {
         AgentStatHandler agentStatHandler = new AgentStatHandler(sourceContext);
         tcpDispatchHandler.setAgentStatHandler(agentStatHandler);
     }
@@ -193,5 +176,13 @@ public class Bootstrap {
 
     public TcpSourceFunction getTcpSourceFunction() {
         return tcpSourceFunction;
+    }
+
+    public TBaseFlatMapperInterceptor getTbaseFlatMapperInterceptor() {
+        return tBaseFlatMapperInterceptor;
+    }
+
+    public StatisticsDaoInterceptor getStatisticsDaoInterceptor() {
+        return statisticsDaoInterceptor;
     }
 }

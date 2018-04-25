@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.thrift.io;
 
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.navercorp.pinpoint.thrift.io.header.InvalidHeaderException;
@@ -36,9 +37,8 @@ import org.apache.thrift.transport.TIOStreamTransport;
  */
 public class HeaderTBaseSerializer {
 
-    private static final String UTF8 = "UTF8";
-    private static final char KEY_VALUE_DELIMITER = ':';
-    private static final String KEY_VALUE_PAIR_DELIMITER = "\r\n";
+    public static final int HEADER_DATA_MAX_SIZE = 64;
+    public static final int HEADER_DATA_STRING_MAX_LANGTH = 1024;
 
     private final ResettableByteArrayOutputStream baos;
     private final TProtocol protocol;
@@ -91,45 +91,78 @@ public class HeaderTBaseSerializer {
 
     private void writeHeader(Header header) throws TException {
         byte version = header.getVersion();
-        if (version == HeaderV1.VERSION) {
-            writeHeaderV1(protocol, (HeaderV1)header);
-        } else if (version == HeaderV2.VERSION) {
-            writeHeaderV2(protocol, (HeaderV2) header);
-        } else {
-            throw new InvalidHeaderException("can not write Header");
+
+        try{
+            if (version == HeaderV1.VERSION) {
+                writeHeaderV1((HeaderV1)header);
+            } else if (version == HeaderV2.VERSION) {
+                writeHeaderV2((HeaderV2) header);
+            } else {
+                throw new InvalidHeaderException("can not find header version. header : " + header);
+            }
+        } catch (Exception e) {
+            throw new InvalidHeaderException("can not write header. header : " + header, e);
         }
+
     }
 
-    private void writeHeaderV2(TProtocol protocol, HeaderV2 header) throws TException {
+    private void writeHeaderV2(HeaderV2 header) throws TException, UnsupportedEncodingException {
         protocol.writeByte(header.getSignature());
         protocol.writeByte(header.getVersion());
 
-        short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
+        writeShort(header.getType());
 
-        String dataString = mapToString(header.getData());
-        protocol.writeString(dataString);
+        writeHeaderData(header.getData());
     }
 
-    private String mapToString(Map<String, String> data) {
-        StringBuilder builder = new StringBuilder();
+    private void writeHeaderData(Map<String, String> data) throws TException, UnsupportedEncodingException {
+        final int size = data.size();
+        if (size >= HEADER_DATA_MAX_SIZE) {
+            throw new InvalidHeaderException("header size is to big. size : " + size);
+        }
+        writeShort((short)size);
+        if (size == 0) {
+            return;
+        }
+
         for (Map.Entry<String, String> entry : data.entrySet()) {
-            builder.append(entry.getKey());
-            builder.append(KEY_VALUE_DELIMITER);
-            builder.append(entry.getValue());
-            builder.append(KEY_VALUE_PAIR_DELIMITER);
+            writeString(entry.getKey());
+            writeString(entry.getValue());
         }
-        builder.append(KEY_VALUE_PAIR_DELIMITER);
-        return builder.toString();
     }
 
-    private void writeHeaderV1(TProtocol protocol, HeaderV1 header) throws TException {
+    private void writeShort(short value) throws TException {
+        protocol.writeByte(BytesUtils.readByte1ForShort(value));
+        protocol.writeByte(BytesUtils.readByte2ForShort(value));
+    }
+
+    private void writeString(String value) throws TException, UnsupportedEncodingException {
+        if (!validCheck(value)) {
+            throw new InvalidHeaderException("string length is invalid in header data. value : " + value);
+        }
+        
+        writeShort((short)value.length());
+
+        byte[] valueBytes = value.getBytes(BytesUtils.UTF_8);
+        for (int index = 0 ; index < valueBytes.length ; index++) {
+            protocol.writeByte(valueBytes[index]);
+        }
+    }
+
+    private boolean validCheck(String value) {
+        int length = value.length();
+
+        if (length > HEADER_DATA_STRING_MAX_LANGTH || length == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void writeHeaderV1(HeaderV1 header) throws TException {
         protocol.writeByte(header.getSignature());
         protocol.writeByte(header.getVersion());
-        short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
+        writeShort(header.getType());
     }
 
     /**
@@ -140,7 +173,7 @@ public class HeaderTBaseSerializer {
      * @return Serialized object as a String
      */
     public String toString(TBase<?, ?> base) throws TException {
-        return toString(base, UTF8);
+        return toString(base, BytesUtils.UTF_8_NAME);
     }
  
     /**
@@ -159,5 +192,5 @@ public class HeaderTBaseSerializer {
         }
     }
 
-   
+
 }

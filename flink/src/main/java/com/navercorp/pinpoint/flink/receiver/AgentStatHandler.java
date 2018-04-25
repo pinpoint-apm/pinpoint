@@ -36,7 +36,7 @@ public class AgentStatHandler implements SimpleHandler {
 
     @Override
     public void handleSimple(ThriftRequest thriftRequest) {
-        handleSimple(thriftRequest.getTbase());
+        sourceContext.collect(thriftRequest);
     }
 
     @Override

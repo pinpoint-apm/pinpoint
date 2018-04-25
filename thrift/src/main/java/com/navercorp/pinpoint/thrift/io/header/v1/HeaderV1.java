@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.thrift.io.header.v1;
 
 import com.navercorp.pinpoint.thrift.io.Header;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -57,7 +58,7 @@ final public class HeaderV1 implements Header {
 
     @Override
     public Map<String, String> getData() {
-        throw new UnsupportedOperationException("Header v1 doesn't support getData method.");
+        return Collections.emptyMap();
     }
 
     @Override
