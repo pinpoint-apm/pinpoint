@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.flink.dao.hbase;
 
-package com.navercorp.pinpoint.thrift.io;
-
-import java.util.Map;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import org.apache.flink.api.java.tuple.Tuple3;
 
 /**
- * @author emeroad
+ * @author minwoo.jung
  */
-public interface Header {
+public class DefaultStatisticsDaoInterceptor implements StatisticsDaoInterceptor {
 
-    public static final byte SIGNATURE = (byte) 0xef;
-    public static final int MIN_HEADER_SIZE = 4;
+    @Override
+    public void before(Tuple3<String, JoinStatBo, Long> statData) {
+    }
 
-    byte getSignature();
-
-    byte getVersion();
-
-    short getType();
-
-    public Map<String, String> getData();
+    @Override
+    public void after() {
+    }
 }
-

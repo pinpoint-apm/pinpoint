@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,6 +55,10 @@ public class TCPReceiverTest {
 
             @Override
             public void dispatchSendMessage(TBase<?, ?> tBase) {
+            }
+
+            @Override
+            public void dispatchSendMessage(ThriftRequest thriftRequest) {
             }
 
             @Override

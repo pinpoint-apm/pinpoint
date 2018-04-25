@@ -171,14 +171,14 @@ public class ChunkHeaderBufferedTBaseSerializer {
         protocol.writeByte(header.getSignature());
         protocol.writeByte(header.getVersion());
         short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
+        protocol.writeByte(BytesUtils.readByte1ForShort(type));
+        protocol.writeByte(BytesUtils.readByte2ForShort(type));
     }
 
     // flush & clear
     public void flush() throws TException {
         synchronized (transport) {
-            if (flushHandler != null && transport.getBufferPosition() > Header.HEADER_SIZE) {
+            if (flushHandler != null && transport.getBufferPosition() > Header.MIN_HEADER_SIZE) {
                 flushHandler.handle(transport.getBuffer(), 0, transport.getBufferPosition());
             }
             transport.flush();
