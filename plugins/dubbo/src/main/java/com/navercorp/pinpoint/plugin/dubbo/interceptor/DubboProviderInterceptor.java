@@ -184,7 +184,7 @@ public class DubboProviderInterceptor implements AroundInterceptor {
     protected void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         RpcInvocation invocation = (RpcInvocation) args[0];
 
-        recorder.recordApi(methodDescriptor,invocation.getArguments());
+        recorder.recordApi(methodDescriptor);
         recorder.recordAttribute(DubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
         
         if (throwable == null) {
