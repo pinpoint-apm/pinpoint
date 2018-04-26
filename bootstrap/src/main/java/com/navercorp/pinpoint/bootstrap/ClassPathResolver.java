@@ -35,6 +35,8 @@ public interface ClassPathResolver {
 
     String getBootStrapCoreOptionalJar();
 
+    String getBootStrapJava9Jar();
+
     String getAgentJarName();
 
     String getAgentJarFullPath();

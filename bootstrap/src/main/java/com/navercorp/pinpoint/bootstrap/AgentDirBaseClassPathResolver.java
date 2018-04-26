@@ -44,12 +44,14 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     static final Pattern DEFAULT_AGENT_PATTERN = compile("pinpoint-bootstrap" + VERSION_PATTERN + "\\.jar");
     static final Pattern DEFAULT_AGENT_COMMONS_PATTERN = compile("pinpoint-commons" + VERSION_PATTERN + "\\.jar");
     static final Pattern DEFAULT_AGENT_CORE_PATTERN = compile("pinpoint-bootstrap-core" + VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_AGENT_JAVA9_PATTERN = compile("pinpoint-bootstrap-java9" + VERSION_PATTERN + "\\.jar");
     static final Pattern DEFAULT_AGENT_CORE_OPTIONAL_PATTERN = compile("pinpoint-bootstrap-core-optional" + VERSION_PATTERN + "\\.jar");
     static final Pattern DEFAULT_ANNOTATIONS = compile("pinpoint-annotations" + VERSION_PATTERN + "\\.jar");
 
     private final Pattern agentPattern;
     private final Pattern agentCommonsPattern;
     private final Pattern agentCorePattern;
+    private final Pattern agentJava9Pattern;
     private final Pattern agentCoreOptionalPattern;
     private final Pattern annotationsPattern;
 
@@ -62,6 +64,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     private List<String> fileExtensionList;
     private String pinpointCommonsJar;
     private String bootStrapCoreJar;
+    private String bootStrapJava9Jar;
     private String bootStrapCoreOptionalJar;
     private String annotationsJar;
 
@@ -79,6 +82,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         this.agentPattern = DEFAULT_AGENT_PATTERN;
         this.agentCommonsPattern = DEFAULT_AGENT_COMMONS_PATTERN;
         this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
+        this.agentJava9Pattern = DEFAULT_AGENT_JAVA9_PATTERN;
         this.agentCoreOptionalPattern = DEFAULT_AGENT_CORE_OPTIONAL_PATTERN;
         this.annotationsPattern = DEFAULT_ANNOTATIONS;
         this.fileExtensionList = getDefaultFileExtensionList();
@@ -97,6 +101,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         this.agentPattern = Pattern.compile(agentPattern);
         this.agentCommonsPattern = DEFAULT_AGENT_COMMONS_PATTERN;
         this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
+        this.agentJava9Pattern = DEFAULT_AGENT_JAVA9_PATTERN;
         this.agentCoreOptionalPattern = DEFAULT_AGENT_CORE_OPTIONAL_PATTERN;
         this.annotationsPattern = DEFAULT_ANNOTATIONS;
         this.fileExtensionList = getDefaultFileExtensionList();
@@ -153,7 +158,20 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             }
         }
 
-        // 5th find annotations.jar : optional dependency
+        final String bootStrapJava9Jar = getBootStrapJava9Jar();
+        if (bootStrapJava9Jar == null) {
+            logger.warn("pinpoint-bootstrap-java9-x.x.x(-SNAPSHOT).jar not found");
+            return false;
+        }
+        final JarFile bootStrapJava9JarFile = getJarFile(bootStrapJava9Jar);
+        if (bootStrapJava9JarFile == null) {
+            logger.warn("pinpoint-bootstrap-java9-x.x.x(-SNAPSHOT).jar not found");
+            return false;
+        }
+        bootstrapJarFile.append(bootStrapJava9JarFile);
+
+
+        // 6th find annotations.jar : optional dependency
         final String annotationsJar = getAnnotationsJar();
         if (annotationsJar == null) {
             logger.info("pinpoint-annotations-x.x.x(-SNAPSHOT).jar not found");
@@ -195,6 +213,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
         this.pinpointCommonsJar = findFromBootDir("pinpoint-commons.jar", agentCommonsPattern);
         this.bootStrapCoreJar = findFromBootDir("pinpoint-bootstrap-core.jar", agentCorePattern);
+        this.bootStrapJava9Jar = findFromBootDir("pinpoint-bootstrap-java9.jar", agentJava9Pattern);
         this.bootStrapCoreOptionalJar = findFromBootDir("pinpoint-bootstrap-core-optional.jar", agentCoreOptionalPattern);
         this.annotationsJar = findFromBootDir("pinpoint-annotations.jar", annotationsPattern);
         return true;
@@ -257,6 +276,11 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     @Override
     public String getBootStrapCoreJar() {
         return bootStrapCoreJar;
+    }
+
+    @Override
+    public String getBootStrapJava9Jar() {
+        return bootStrapJava9Jar;
     }
 
     @Override
