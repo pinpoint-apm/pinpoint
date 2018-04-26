@@ -37,6 +37,10 @@ public final class PinpointClassLoaderFactory {
     // Jdk 7+
     private static final String PARALLEL_CLASSLOADER_FACTORY = "com.navercorp.pinpoint.bootstrap.classloader.ParallelClassLoaderFactory";
 
+    // jdk9
+    private static final String JAVA9_CLASSLOADER_FACTORY = "com.navercorp.pinpoint.bootstrap.classloader.Java9ClassLoaderFactory";
+
+
     private PinpointClassLoaderFactory() {
         throw new IllegalAccessError();
     }
@@ -44,6 +48,12 @@ public final class PinpointClassLoaderFactory {
     private static InnerClassLoaderFactory createClassLoaderFactory() {
         final JvmVersion jvmVersion = JvmUtils.getVersion();
 
+        if (jvmVersion.onOrAfter(JvmVersion.JAVA_9)) {
+            if (!hasRegisterAsParallelCapableMethod()) {
+                throw new IllegalStateException("ClassLoader.registerAsParallelCapable() not supported");
+            }
+            return newClassLoaderFactory(JAVA9_CLASSLOADER_FACTORY);
+        }
         if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
             if (!hasRegisterAsParallelCapableMethod()) {
                 return new DefaultClassLoaderFactory();
