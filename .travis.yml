@@ -21,7 +21,7 @@ install:
  - $JAVA_8_HOME/bin/java -version
  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V | grep -Fv '[copy'
 
-script: mvn clover2:setup test -Ptest clover2:aggregate clover2:clover -e | grep -Fv 'DEBUG' | grep -Fv '[copy'
+script: mvn clover:setup test -Ptest clover:aggregate clover:clover -e | grep -Fv 'DEBUG' | grep -Fv '[copy'
 
 after_success:
  - bash <(curl -s https://codecov.io/bash)
