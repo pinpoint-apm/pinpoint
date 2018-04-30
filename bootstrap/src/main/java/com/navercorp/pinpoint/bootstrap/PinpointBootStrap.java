@@ -70,6 +70,20 @@ public class PinpointBootStrap {
         appendToBootstrapClassLoader(instrumentation, bootstrapJarFile);
 
         ClassLoader parentClassLoader = getParentClassLoader();
+        if (ModuleUtils.isModuleSupported()) {
+            logger.info("java9 module detected");
+            logger.info("ModuleBootLoader start");
+            ModuleBootLoader moduleBootLoader = new ModuleBootLoader(instrumentation, parentClassLoader);
+            moduleBootLoader.loadModuleSupport();
+
+            // for development option
+            // avoid java.sql.Date not found
+            // will be removed future release
+            if (System.getProperty("pinpoint.dev.option.agentClassLoader", "platform").equals("platform")) {
+                parentClassLoader = moduleBootLoader.getPlatformClassLoader();
+                logger.info("override parentClassLoader:" + parentClassLoader);
+            }
+        }
 
         PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, bootstrapJarFile, classPathResolver, instrumentation);
         if (!bootStrap.start()) {
