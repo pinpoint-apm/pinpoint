@@ -19,25 +19,25 @@ In order to run your own Pinpoint instance, you will need to run below component
 To try out a simple quickstart project, please refer to the [quick-start guide](./quickstart.md).
 
 ## Quick Overview of Installation
-1. HBase ([details](#hbase))
+1. HBase ([details](#1-hbase))
 	1. Set up HBase cluster - [Apache HBase](http://hbase.apache.org)
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
-2. Build Pinpoint (Optional) - No need if you use the binaries.([here](https://github.com/naver/pinpoint/releases)).
+2. Build Pinpoint (Optional)([details](#2-building-pinpoint-optional)) - No need if you use the binaries.([here](https://github.com/naver/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
 	2. Set JAVA_HOME environment variable to JDK 7+ home directory.
 	3. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
 	4. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
 	5. Set JAVA_8_HOME environment variable to JDK 8 home directory.
 	6. Run `./mvnw clean install -Dmaven.test.skip=true` (or `./mvnw.cmd` for Windows)
-3. Pinpoint Collector ([details](#pinpoint-collector))
+3. Pinpoint Collector ([details](#3-pinpoint-collector))
 	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
 	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
 	3. Start container.
-4. Pinpoint Web ([details](#pinpoint-web))
+4. Pinpoint Web ([details](#4-pinpoint-web))
 	1. Deploy *pinpoint-web-$VERSION.war* to a web container as a ROOT application.
 	2. Configure *pinpoint-web.properties*, *hbase.properties*.
 	3. Start container.
-5. Pinpoint Agent ([details](#pinpoint-agent))
+5. Pinpoint Agent ([details](#5-pinpoint-agent))
 	1. Extract/move *pinpoint-agent/* to a convenient location (`$AGENT_PATH`).
 	2. Set `-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar` JVM argument to attach the agent to a java application.
 	3. Set `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` command-line arguments.
@@ -55,6 +55,7 @@ Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBa
 1.5.x | no | not tested | yes | not tested | not tested
 1.6.x | no | not tested | not tested | not tested | yes
 1.7.x | no | not tested | not tested | not tested | yes
+1.8.x | no | not tested | not tested | not tested | yes
 
 Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
 
@@ -80,12 +81,15 @@ There are two options:
     * JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
     * JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
     * JDK 8 installed
+    * JDK 9 installed
 	* JAVA_HOME environment variable set to JDK 7+ home directory.
 	* JAVA_6_HOME environment variable set to JDK 6 home directory.
 	* JAVA_7_HOME environment variable set to JDK 7 home directory.
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
+	* JAVA_9_HOME environment variable set to JDK 9 home directory.
 
 	JDK 7+ and JAVA_7_HOME, JAVA_8_HOME environment variable are required to build **profiler-optional**.
+	JDK 9+ and JAVA_9_HOME environment variable are required to build **bootstrap-java9**.
 
 	Additionally, the required Java version to run each Pinpoint component is given below:
 
@@ -96,7 +100,8 @@ There are two options:
 	1.5.x | 6-8 | 7+ | 7+
 	1.6.x | 6-8 | 7+ | 7+
 	1.7.x | 6-8 | 8+ | 8+
-
+    1.8.x | 6-8<br> 9+(Experimental) | 8+ | 8+ 
+    
 	Once the above requirements are met, simply run the command below (you may need to add permission for **mvnw** so that it can be executed) :
 
 	`./mvnw install -Dmaven.test.skip=true`
@@ -193,13 +198,14 @@ You may move/extract the contents of **pinpoint-agent** directory to any locatio
 
 Agent compatibility to Collector table:
 
-Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 1.6.x | Collector 1.7.x
-------------- | --------------- | --------------- | --------------- | --------------- | ---------------
-1.0.x | yes | yes | yes | yes | yes
-1.1.x | not tested | yes | yes | yes | yes
-1.5.x | no | no | yes | yes | yes
-1.6.x | no | no | not tested | yes | yes
-1.7.x | no | no | no | no | yes
+Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 1.6.x | Collector 1.7.x | Collector 1.8.x
+------------- | --------------- | --------------- | --------------- | --------------- | --------------- | ---------------
+1.0.x | yes | yes | yes | yes | yes | yes
+1.1.x | not tested | yes | yes | yes | yes | yes
+1.5.x | no | no | yes | yes | yes | yes
+1.6.x | no | no | not tested | yes | yes | yes
+1.7.x | no | no | no | no | yes | yes
+1.8.x | no | no | no | no | no | yes
 
 ### Installation
 Pinpoint Agent runs as a java agent attached to an application to be profiled (such as Tomcat). 
