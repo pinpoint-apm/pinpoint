@@ -920,6 +920,9 @@
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_8_HOME</variableName>
                                 </requireEnvironmentVariable>
+                                <requireEnvironmentVariable>
+                                    <variableName>JAVA_9_HOME</variableName>
+                                </requireEnvironmentVariable>
                             </rules>
                             <fail>true</fail>
                         </configuration>
