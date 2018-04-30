@@ -52,12 +52,12 @@ public class PlatformClassLoaderTest {
     public void moduleLayer() {
         Class<Date> dateClass = Date.class;
         logger.debug("sqlDate module name:{}", dateClass.getModule().getName());
-        logger.debug("sqlDate module name:{}", dateClass.getModule().getClassLoader());
+        logger.debug("sqlDate module cl:{}", dateClass.getModule().getClassLoader());
         logger.debug("sqlDate module layer:{}", dateClass.getModule().getLayer());
 
         Class<Object> objectClass = Object.class;
         logger.debug("javaBase module name:{}", objectClass.getModule().getName());
-        logger.debug("javaBase module name:{}", objectClass.getModule().getClassLoader());
+        logger.debug("javaBase module cl:{}", objectClass.getModule().getClassLoader());
         logger.debug("javaBase module layer:{}", objectClass.getModule().getLayer());
         ModuleLayer layer = objectClass.getModule().getLayer();
 
