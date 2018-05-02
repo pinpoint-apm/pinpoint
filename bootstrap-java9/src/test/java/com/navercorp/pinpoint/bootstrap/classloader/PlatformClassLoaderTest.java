@@ -17,10 +17,12 @@
 package com.navercorp.pinpoint.bootstrap.classloader;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 //import java.util.Date;
@@ -32,6 +34,7 @@ public class PlatformClassLoaderTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Ignore
     @Test
     public void sqlDate() throws ClassNotFoundException {
         Class<?> sqlDateClazz = java.sql.Date.class;
@@ -48,8 +51,19 @@ public class PlatformClassLoaderTest {
         }
     }
 
+    @Ignore
     @Test
-    public void moduleLayer() {
+    public void testBigDecimal() {
+        Class<BigDecimal> bigDecimalClass = BigDecimal.class;
+        Module module = bigDecimalClass.getModule();
+        logger.debug("module:{}", module);
+        logger.debug("cl:{}", bigDecimalClass.getClassLoader());
+    }
+
+
+    @Ignore
+    @Test
+    public void sqlDate_module() {
         Class<Date> dateClass = Date.class;
         logger.debug("sqlDate module name:{}", dateClass.getModule().getName());
         logger.debug("sqlDate module cl:{}", dateClass.getModule().getClassLoader());
@@ -59,7 +73,12 @@ public class PlatformClassLoaderTest {
         logger.debug("javaBase module name:{}", objectClass.getModule().getName());
         logger.debug("javaBase module cl:{}", objectClass.getModule().getClassLoader());
         logger.debug("javaBase module layer:{}", objectClass.getModule().getLayer());
-        ModuleLayer layer = objectClass.getModule().getLayer();
+    }
+
+    @Ignore
+    @Test
+    public void moduleLayer() {
+        ModuleLayer layer = Object.class.getModule().getLayer();
 
         logger.debug("bootstrap-------------");
         for (Module module : layer.modules()) {
