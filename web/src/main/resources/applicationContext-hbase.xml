@@ -44,21 +44,29 @@
         <property name="preStartAllCoreThreads" value="true"/>
     </bean>
 
-    <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
-        <constructor-arg ref="hbaseConfiguration"/>
-        <constructor-arg ref="hbaseThreadPool"/>
+    <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean">
+        <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
+        <constructor-arg type="java.util.concurrent.ExecutorService" ref="hbaseThreadPool"/>
+    </bean>
+
+    <bean id="hbaseTableFactory" class="com.navercorp.pinpoint.common.hbase.HbaseTableFactory">
+        <constructor-arg ref="connectionFactory"/>
     </bean>
 
     <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
         <property name="configuration" ref="hbaseConfiguration"/>
-        <property name="tableFactory" ref="connectionFactory"/>
+        <property name="tableFactory" ref="hbaseTableFactory"/>
         <property name="enableParallelScan" value="${hbase.client.parallel.scan.enable:false}"/>
         <property name="maxThreads" value="${hbase.client.parallel.scan.maxthreads:16}"/>
         <property name="maxThreadsPerParallelScan" value="${hbase.client.parallel.scan.maxthreadsperscan:4}"/>
     </bean>
-    
-    <bean id="hBaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">
-        <constructor-arg ref="hbaseConfiguration" index="0"/>
+
+    <bean id="hbaseAdminFactory" class="com.navercorp.pinpoint.common.hbase.HbaseAdminFactory">
+        <constructor-arg ref="connectionFactory"/>
+    </bean>
+
+    <bean id="hbaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate">
+        <constructor-arg ref="hbaseAdminFactory"/>
     </bean>
 
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>

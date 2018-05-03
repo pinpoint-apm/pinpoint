@@ -16,14 +16,9 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -32,35 +27,21 @@ import java.util.concurrent.ExecutorService;
 /**
  * HTableInterfaceFactory based on HTablePool.
  * @author emeroad
- * @autor minwoo.jung
+ * @author minwoo.jung
+ * @author HyunGil Jeong
  */
-public class PooledHTableFactory implements TableFactory, DisposableBean {
+public class HbaseTableFactory implements TableFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private final ExecutorService executor;
     private final Connection connection;
 
-    public PooledHTableFactory(Configuration config, ExecutorService executor) {
-        Objects.requireNonNull(config, "config must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
-
-        try {
-            this.connection = ConnectionFactory.createConnection(config, executor);
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
-        }
+    public HbaseTableFactory(Connection connection) {
+        this.connection = Objects.requireNonNull(connection, "connection must not be null");
     }
-
-    public Connection getConnection() {
-        return connection;
-    }
-
 
     @Override
     public Table getTable(TableName tableName) {
         try {
-            return connection.getTable(tableName, executor);
+            return connection.getTable(tableName);
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }
@@ -85,20 +66,6 @@ public class PooledHTableFactory implements TableFactory, DisposableBean {
             table.close();
         } catch (IOException ex) {
             throw new HbaseSystemException(ex);
-        }
-    }
-
-
-    @Override
-    public void destroy() throws Exception {
-        logger.info("PooledHTableFactory.destroy()");
-        
-        if (connection != null) {
-            try {
-                this.connection.close();
-            } catch (IOException ex) {
-                logger.warn("Connection.close() error:" + ex.getMessage(), ex);
-            }
         }
     }
 }

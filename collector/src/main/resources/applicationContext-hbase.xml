@@ -45,15 +45,19 @@
         <property name="preStartAllCoreThreads" value="true"/>
     </bean>
 
-    <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
+    <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean">
         <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
         <constructor-arg type="java.util.concurrent.ExecutorService" ref="hbaseThreadPool"/>
+    </bean>
+
+    <bean id="hbaseTableFactory" class="com.navercorp.pinpoint.common.hbase.HbaseTableFactory">
+        <constructor-arg ref="connectionFactory"/>
     </bean>
 
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
 
     <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
-        <constructor-arg type="org.apache.hadoop.hbase.client.Connection" value="#{connectionFactory.getConnection()}"/>
+        <constructor-arg type="org.apache.hadoop.hbase.client.Connection" ref="connectionFactory"/>
         <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
     </bean>
 
@@ -63,12 +67,16 @@
 
     <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" destroy-method="destroy">
         <property name="configuration" ref="hbaseConfiguration"/>
-        <property name="tableFactory" ref="connectionFactory"/>
+        <property name="tableFactory" ref="hbaseTableFactory"/>
         <property name="asyncOperation" ref="asyncOperation"/>
     </bean>
 
-    <bean id="hBaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">
-        <constructor-arg ref="hbaseConfiguration" index="0"/>
+    <bean id="hbaseAdminFactory" class="com.navercorp.pinpoint.common.hbase.HbaseAdminFactory">
+        <constructor-arg ref="connectionFactory"/>
+    </bean>
+
+    <bean id="hbaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate">
+        <constructor-arg ref="hbaseAdminFactory"/>
     </bean>
 
     <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
