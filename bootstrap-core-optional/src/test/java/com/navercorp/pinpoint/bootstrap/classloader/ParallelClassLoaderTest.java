@@ -6,17 +6,32 @@ import org.junit.Test;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
+import java.security.CodeSource;
 
 /**
  * @author Taejin Koo
  */
 public class ParallelClassLoaderTest {
 
+    private final Class slf4jClass = org.slf4j.LoggerFactory.class;
+
     @Test
     public void testOnLoadClass() throws Exception {
+        Class classLoaderType = ParallelClassLoader.class;
 
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(new URL[]{}, Thread.currentThread().getContextClassLoader());
-        Assert.assertTrue(cl instanceof ParallelClassLoader);
+        ClassLoader cl = onLoadTest(classLoaderType, slf4jClass);
+
+        close(cl);
+    }
+
+    /**
+     * TODO duplicate code
+     */
+    private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
+        URL testClassJar = getJarURL(testClass);
+        URL[] urls = {testClassJar};
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        Assert.assertSame(cl.getClass(), classLoaderType);
 
         try {
             cl.loadClass("test");
@@ -24,22 +39,22 @@ public class ParallelClassLoaderTest {
         } catch (ClassNotFoundException ignored) {
         }
 
-//        try {
-//            cl.loadClass("com.navercorp.pinpoint.profiler.DefaultAgent");
-//        } catch (ClassNotFoundException e) {
-//
-//        }
-        // should be able to test using the above code, but it is not possible from bootstrap testcase.
-        // it could be possible by specifying the full path to the URL classloader, but it would be harder to maintain.
-        // for now, just test if DefaultAgent is specified to be loaded
+        Class selfLoadClass = cl.loadClass(testClass.getName());
+        Assert.assertNotSame(testClass, selfLoadClass);
+        Assert.assertSame(cl, selfLoadClass.getClassLoader());
+        Assert.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());
+        return cl;
+    }
 
-        if (cl instanceof ParallelClassLoader) {
-            Assert.assertTrue(((ParallelClassLoader) cl).onLoadClass("com.navercorp.pinpoint.profiler.DefaultAgent"));
-        } else {
-            Assert.fail();
+    private URL getJarURL(Class clazz) {
+        try {
+            CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
+            URL location = codeSource.getLocation();
+            URL url = location.toURI().toURL();
+            return url;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
-
-        close(cl);
     }
 
     private void close(ClassLoader classLoader) throws IOException {
