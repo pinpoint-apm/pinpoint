@@ -19,47 +19,106 @@ package com.navercorp.pinpoint.bootstrap.classloader;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Enumeration;
 
 /**
  * @author Taejin Koo
  */
-class ParallelClassLoader extends BaseClassLoader {
+class ParallelClassLoader extends URLClassLoader {
 
     static {
-        if (ClassLoader.registerAsParallelCapable()) {
-            System.err.println("PINPOINT ClassLoader::registerAsParallelCapable() fail");
+        if (!ClassLoader.registerAsParallelCapable()) {
+            System.err.println("PINPOINT ParallelClassLoader::registerAsParallelCapable() fail");
         }
     }
 
     private final BootLoader bootLoader = new LauncherBootLoader();
-
-    public ParallelClassLoader(URL[] urls, ClassLoader parent) {
-        this(urls, parent, PROFILER_LIB_CLASS);
-    }
+    //  @Nullable
+    // WARNING : if parentClassLoader is null. it is bootstrapClassloader
+    private final ClassLoader parent;
+    private final LibClass libClass;
 
     public ParallelClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
-        super(urls, parent, libClass);
+        super(urls, parent);
+
+        if (libClass == null) {
+            throw new NullPointerException("libClass must not be null");
+        }
+        this.parent = parent;
+        this.libClass = libClass;
     }
 
-    @Override
-    protected URL findBootstrapResource0(String name) {
-        return bootLoader.findResource(name);
+
+    public ParallelClassLoader(URL[] urls, ClassLoader parent) {
+        this(urls, parent, new ProfilerLibClass());
     }
 
-    @Override
-    protected Enumeration<URL> findBootstrapResources0(String name) throws IOException {
-        return this.bootLoader.findResources(name);
-    }
-
-    @Override
-    protected Object getClassLoadingLock0(String name) {
+    private Object getClassLoadingLock0(String name) {
         return getClassLoadingLock(name);
     }
 
+    @Override
+    public URL getResource(String name) {
+        URL url = findResource(name);
+        if (url == null) {
+            if (parent != null) {
+                url = parent.getResource(name);
+            } else {
+                url = bootLoader.findResource(name);
+            }
+        }
+
+        return url;
+    }
 
     @Override
-    protected Class findBootstrapClassOrNull0(ClassLoader classLoader, String name) {
-        return this.bootLoader.findBootstrapClassOrNull(classLoader, name);
+    public Enumeration<URL> getResources(String name) throws IOException {
+        final Enumeration<URL> currentResource = findResources(name);
+
+        Enumeration<URL> parentResource;
+        if (parent != null) {
+            parentResource = parent.getResources(name);
+        } else {
+            parentResource = this.bootLoader.findResources(name);
+        }
+
+        return new MergedEnumeration2<URL>(currentResource, parentResource);
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        synchronized (getClassLoadingLock0(name)) {
+            // First, check if the class has already been loaded
+            Class clazz = findLoadedClass(name);
+            if (clazz == null) {
+                if (onLoadClass(name)) {
+                    // load a class used for Pinpoint itself by this ClassLoader
+                    clazz = findClass(name);
+                } else {
+                    try {
+                        // load a class by parent ClassLoader
+                        if (parent != null) {
+                            clazz = parent.loadClass(name);
+                        } else {
+                            clazz = this.bootLoader.findBootstrapClassOrNull(this, name);
+                        }
+                    } catch (ClassNotFoundException ignore) {
+                    }
+                    if (clazz == null) {
+                        // if not found, try to load a class by this ClassLoader
+                        clazz = findClass(name);
+                    }
+                }
+            }
+            if (resolve) {
+                resolveClass(clazz);
+            }
+            return clazz;
+        }
+    }
+
+    private boolean onLoadClass(String name) {
+        return libClass.onLoadClass(name);
     }
 }

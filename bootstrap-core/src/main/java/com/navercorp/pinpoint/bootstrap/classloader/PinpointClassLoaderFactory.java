@@ -56,13 +56,13 @@ public final class PinpointClassLoaderFactory {
         }
         if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
             if (!hasRegisterAsParallelCapableMethod()) {
-                return new DefaultClassLoaderFactory();
+                return new Java6ClassLoaderFactory();
             }
             return newClassLoaderFactory(PARALLEL_CLASSLOADER_FACTORY);
         }
 
         // JDK6 --
-        return new DefaultClassLoaderFactory();
+        return new Java6ClassLoaderFactory();
     }
 
     private static InnerClassLoaderFactory newClassLoaderFactory(String factoryName) {

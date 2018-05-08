@@ -20,17 +20,30 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
+import java.security.CodeSource;
 
 /**
  * @author emeroad
  */
 public class PinpointClassLoaderTest {
 
+    private final Class slf4jClass = org.slf4j.LoggerFactory.class;
+
     @Test
     public void testOnLoadClass() throws Exception {
+        ClassLoader classLoader = onLoadTest(Java6ClassLoader.class, slf4jClass);
 
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(new URL[]{}, Thread.currentThread().getContextClassLoader());
-        Assert.assertSame(cl.getClass(), PinpointClassLoader.class);
+        ClassLoaderUtils.close(classLoader);
+    }
+
+    /**
+     * TODO duplicate code
+     */
+    private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
+        URL testClassJar = getJarURL(testClass);
+        URL[] urls = {testClassJar};
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        Assert.assertSame(cl.getClass(), classLoaderType);
 
         try {
             cl.loadClass("test");
@@ -38,18 +51,21 @@ public class PinpointClassLoaderTest {
         } catch (ClassNotFoundException ignored) {
         }
 
-//        try {
-//            cl.loadClass("com.navercorp.pinpoint.profiler.DefaultAgent");
-//        } catch (ClassNotFoundException e) {
-//
-//        }
-        // should be able to test using the above code, but it is not possible from bootstrap testcase.
-        // it could be possible by specifying the full path to the URL classloader, but it would be harder to maintain.
-        // for now, just test if DefaultAgent is specified to be loaded
+        Class selfLoadClass = cl.loadClass(testClass.getName());
+        Assert.assertNotSame(testClass, selfLoadClass);
+        Assert.assertSame(cl, selfLoadClass.getClassLoader());
+        Assert.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());
+        return cl;
+    }
 
-
-        Assert.assertTrue(((PinpointClassLoader)cl).onLoadClass("com.navercorp.pinpoint.profiler.DefaultAgent"));
-
-        ClassLoaderUtils.close(cl);
+    private URL getJarURL(Class clazz) {
+        try {
+            CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
+            URL location = codeSource.getLocation();
+            URL url = location.toURI().toURL();
+            return url;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
     }
 }

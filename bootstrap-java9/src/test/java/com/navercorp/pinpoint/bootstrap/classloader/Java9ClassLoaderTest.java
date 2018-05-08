@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
+import java.security.CodeSource;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,6 +33,8 @@ public class Java9ClassLoaderTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final Class slf4jClass = org.slf4j.LoggerFactory.class;
+
     @Test
     public void newClassLoader_bootstrap() throws ClassNotFoundException, IOException {
         ClassLoader classLoader = new Java9ClassLoader(new URL[0], null);
@@ -39,13 +42,21 @@ public class Java9ClassLoaderTest {
         close(classLoader);
     }
 
-
-
     @Test
-    public void testLoadClass() throws Exception {
+    public void testOnLoadClass() throws Exception {
 
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(new URL[]{}, null);
-        Assert.assertTrue(cl instanceof Java9ClassLoader);
+        ClassLoader cl = onLoadTest(Java9ClassLoader.class, slf4jClass);
+        close(cl);
+    }
+
+    /**
+     * TODO duplicate code
+     */
+    private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
+        URL testClassJar = getJarURL(testClass);
+        URL[] urls = {testClassJar};
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        Assert.assertSame(cl.getClass(), classLoaderType);
 
         try {
             cl.loadClass("test");
@@ -53,9 +64,22 @@ public class Java9ClassLoaderTest {
         } catch (ClassNotFoundException ignored) {
         }
 
-        cl.loadClass("java.lang.String");
+        Class selfLoadClass = cl.loadClass(testClass.getName());
+        Assert.assertNotSame(testClass, selfLoadClass);
+        Assert.assertSame(cl, selfLoadClass.getClassLoader());
+        Assert.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());
+        return cl;
+    }
 
-        close(cl);
+    private URL getJarURL(Class clazz) {
+        try {
+            CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
+            URL location = codeSource.getLocation();
+            URL url = location.toURI().toURL();
+            return url;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
 

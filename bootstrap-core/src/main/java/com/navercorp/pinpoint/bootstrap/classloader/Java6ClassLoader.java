@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,19 +22,21 @@ import java.net.URLClassLoader;
 import java.util.Enumeration;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * this ClassLoader loads a class in the profiler lib directory and delegates to load the other classes to parent classloader
+ * Dead lock could happen in case of standalone java application.
+ * Don't delegate to parents classlaoder if classes are in the profiler lib directory
+ *
+ * @author emeroad
  */
-public abstract class BaseClassLoader extends URLClassLoader {
+public class Java6ClassLoader extends URLClassLoader {
 
-    protected static final LibClass PROFILER_LIB_CLASS = new ProfilerLibClass();
-
+    private final BootLoader bootLoader = new LauncherBootLoader();
     //  @Nullable
     // WARNING : if parentClassLoader is null. it is bootstrapClassloader
     private final ClassLoader parent;
-
     private final LibClass libClass;
 
-    public BaseClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
+    public Java6ClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
         super(urls, parent);
 
         if (libClass == null) {
@@ -44,6 +46,14 @@ public abstract class BaseClassLoader extends URLClassLoader {
         this.libClass = libClass;
     }
 
+    public Java6ClassLoader(URL[] urls, ClassLoader parent) {
+        this(urls, parent, new ProfilerLibClass());
+    }
+
+    private Object getClassLoadingLock0(String name) {
+        return this;
+    }
+
     @Override
     public URL getResource(String name) {
         URL url = findResource(name);
@@ -51,7 +61,7 @@ public abstract class BaseClassLoader extends URLClassLoader {
             if (parent != null) {
                 url = parent.getResource(name);
             } else {
-                url = findBootstrapResource0(name);
+                url = this.bootLoader.findResource(name);
             }
         }
 
@@ -66,17 +76,11 @@ public abstract class BaseClassLoader extends URLClassLoader {
         if (parent != null) {
             parentResource = parent.getResources(name);
         } else {
-            parentResource = findBootstrapResources0(name);
+            parentResource = this.bootLoader.findResources(name);
         }
 
         return new MergedEnumeration2<URL>(currentResource, parentResource);
     }
-
-    protected abstract URL findBootstrapResource0(String name);
-
-    protected abstract Enumeration<URL> findBootstrapResources0(String name) throws IOException;
-
-    protected abstract Object getClassLoadingLock0(String name);
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
@@ -85,7 +89,7 @@ public abstract class BaseClassLoader extends URLClassLoader {
             Class clazz = findLoadedClass(name);
             if (clazz == null) {
                 if (onLoadClass(name)) {
-                    // load a class used for Pinpoint itself by this PinpointClassLoader
+                    // load a class used for Pinpoint itself by this ClassLoader
                     clazz = findClass(name);
                 } else {
                     try {
@@ -93,12 +97,12 @@ public abstract class BaseClassLoader extends URLClassLoader {
                         if (parent != null) {
                             clazz = parent.loadClass(name);
                         } else {
-                            clazz = findBootstrapClassOrNull0(this, name);
+                            clazz = this.bootLoader.findBootstrapClassOrNull(this, name);
                         }
                     } catch (ClassNotFoundException ignore) {
                     }
                     if (clazz == null) {
-                        // if not found, try to load a class by this PinpointClassLoader
+                        // if not found, try to load a class by this ClassLoader
                         clazz = findClass(name);
                     }
                 }
@@ -110,11 +114,8 @@ public abstract class BaseClassLoader extends URLClassLoader {
         }
     }
 
-    protected abstract Class findBootstrapClassOrNull0(ClassLoader classLoader, String name);
-
     // for test
-    boolean onLoadClass(String name) {
+    private boolean onLoadClass(String name) {
         return libClass.onLoadClass(name);
     }
-
 }

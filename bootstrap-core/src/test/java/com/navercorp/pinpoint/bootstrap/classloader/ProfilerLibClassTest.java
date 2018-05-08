@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,21 +16,16 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
-import java.net.URL;
-
+import org.junit.Assert;
+import org.junit.Test;
 /**
- * @author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-class DefaultClassLoaderFactory implements InnerClassLoaderFactory {
+public class ProfilerLibClassTest {
 
-    @Override
-    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent) {
-        return new PinpointClassLoader(urls, parent);
+    @Test
+    public void onLoadClass() {
+        LibClass libClass = new ProfilerLibClass();
+        Assert.assertTrue(libClass.onLoadClass("com.navercorp.pinpoint.profiler.XXX"));
     }
-
-    @Override
-    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
-        return new PinpointClassLoader(urls, parent, libClass);
-    }
-
 }
