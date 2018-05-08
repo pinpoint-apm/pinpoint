@@ -55,7 +55,7 @@ public class AkkaHttpServerMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getFullName() {
-        return "Akka HTTP Server";
+        return AkkaHttpServerMethodDescriptor.class.getName();
     }
 
     @Override

@@ -41,6 +41,8 @@ public class RequestContextImplRedirectInterceptor extends AsyncContextSpanEvent
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
-        recorder.recordException(throwable);
+        if (throwable != null) {
+            recorder.recordException(throwable);
+        }
     }
 }

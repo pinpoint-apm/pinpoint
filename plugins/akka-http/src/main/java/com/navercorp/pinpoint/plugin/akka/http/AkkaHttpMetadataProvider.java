@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.akka.http;
 
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
@@ -26,8 +28,8 @@ public class AkkaHttpMetadataProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(AkkaHttpConstants.AKKA_HTTP);
-        context.addServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
+        context.addServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER);
+        context.addServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_STATUS_CODE));
     }
 
 }

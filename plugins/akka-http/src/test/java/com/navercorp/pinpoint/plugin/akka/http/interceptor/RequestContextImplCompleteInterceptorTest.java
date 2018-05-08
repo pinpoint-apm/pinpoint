@@ -17,19 +17,15 @@
 package com.navercorp.pinpoint.plugin.akka.http.interceptor;
 
 import akka.http.scaladsl.marshalling.ToResponseMarshallable;
-import akka.http.scaladsl.model.StatusCodes;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import scala.Tuple2;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 @RunWith(org.mockito.junit.MockitoJUnitRunner.class)
@@ -50,15 +46,12 @@ public class RequestContextImplCompleteInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        Tuple2 tuple2 = Tuple2.apply(StatusCodes.OK(), "EMPTY");
-        doReturn(tuple2).when(marshallable).value();
         interceptor = new RequestContextImplCompleteInterceptor(traceContext, descriptor);
     }
 
     @Test
     public void doInBeforeTrace() {
         interceptor.doInBeforeTrace(recorder, null, null, new Object[]{marshallable});
-        verify(recorder).recordAttribute(AnnotationKey.HTTP_STATUS_CODE, StatusCodes.OK().intValue());
     }
 
     @Test
