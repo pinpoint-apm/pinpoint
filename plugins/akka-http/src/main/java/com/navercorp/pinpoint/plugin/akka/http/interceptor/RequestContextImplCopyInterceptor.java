@@ -28,6 +28,8 @@ public class RequestContextImplCopyInterceptor implements AroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(AsyncContextAccessorUtils.getAsyncContext(target));
+        if (result instanceof AsyncContextAccessor) {
+            ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(AsyncContextAccessorUtils.getAsyncContext(target));
+        }
     }
 }

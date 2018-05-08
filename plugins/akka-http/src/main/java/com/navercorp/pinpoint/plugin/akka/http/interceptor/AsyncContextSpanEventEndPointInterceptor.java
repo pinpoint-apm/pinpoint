@@ -39,7 +39,6 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
     public AsyncContextSpanEventEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
         this.methodDescriptor = Assert.requireNonNull(methodDescriptor, "methodDescriptor must not be null");
-
     }
 
     @Override

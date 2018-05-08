@@ -17,78 +17,151 @@
 package com.navercorp.pinpoint.plugin.akka.http;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 
 
 public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        transformTemplate.transform("akka.http.scaladsl.server.directives.ExecutionDirectives", new TransformCallback() {
+        final AkkaHttpConfig config = new AkkaHttpConfig(context.getConfig());
+        if (!config.isEnable()) {
+            logger.info("Disable akka http plugin");
+            return;
+        }
 
+        final String transformTargetName = config.getTransformTargetName();
+        if (StringUtils.isEmpty(transformTargetName)) {
+            logger.warn("Not found 'profiler.akka.http.transform.targetname' in config");
+        } else {
+            try {
+                final String className = toClassName(transformTargetName);
+                final String methodName = toMethodName(transformTargetName);
+                logger.info("Add request handler method for Akka HTTP Server. class={}, method={}", className, methodName);
+
+                transformDirectives(className, methodName);
+                transformRequestContext();
+                transformHttpRequest();
+            } catch (IllegalArgumentException e) {
+                logger.warn("can't find target '{}' value={}", AkkaHttpConfig.KEY_TRANSFORM_TARGET_NAME, transformTargetName);
+            }
+        }
+    }
+
+    private String toClassName(String fullQualifiedMethodName) {
+        final int classEndPosition = fullQualifiedMethodName.lastIndexOf('.');
+        if (classEndPosition <= 0) {
+            throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
+        }
+
+        return fullQualifiedMethodName.substring(0, classEndPosition).trim();
+    }
+
+    private String toMethodName(String fullQualifiedMethodName) {
+        final int methodBeginPosition = fullQualifiedMethodName.lastIndexOf('.');
+        if (methodBeginPosition <= 0 || methodBeginPosition + 1 >= fullQualifiedMethodName.length()) {
+            throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
+        }
+
+        return fullQualifiedMethodName.substring(methodBeginPosition + 1).trim();
+    }
+
+    private void transformDirectives(String clazzName, String methodName) {
+        transformTemplate.transform(clazzName, new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("$anonfun$handleExceptions$2"))) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.akka.http.interceptor.ExecutionDirectivesHandleExceptionsInterceptor");
-                    break;
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodName))) {
+                    if (checkSuitableMethod(method)) {
+                        method.addInterceptor(AkkaHttpConstants.DIRECTIVE_INTERCEPTOR);
+                    } else {
+                        logger.info("params:", Arrays.asList(method.getParameterTypes()));
+                    }
                 }
                 return target.toBytecode();
             }
         });
+    }
 
-        transformTemplate.transform("akka.http.scaladsl.server.directives.ExecutionDirectives$$anonfun$handleExceptions$1$$anonfun$apply$1", new TransformCallback() {
+    private boolean checkSuitableMethod(InstrumentMethod method) {
+        if (method == null) {
+            return false;
+        }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                final InstrumentMethod method = target.getDeclaredMethod("apply", "akka.http.scaladsl.server.RequestContext");
-                method.addInterceptor("com.navercorp.pinpoint.plugin.akka.http.interceptor.ExecutionDirectivesHandleExceptionsInterceptor");
-                return target.toBytecode();
-            }
-        });
+        String[] parameterTypes = method.getParameterTypes();
+        if (ArrayUtils.getLength(parameterTypes) != 3) {
+            return false;
+        }
 
+        if (!parameterTypes[0].equals("scala.Function1")) {
+            return false;
+        }
+        if (!parameterTypes[1].equals("scala.Function1")) {
+            return false;
+        }
+        if (!parameterTypes[2].equals("akka.http.scaladsl.server.RequestContext")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void transformRequestContext() {
         transformTemplate.transform("akka.http.scaladsl.server.RequestContextImpl", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 target.addField(AsyncContextAccessor.class.getName());
+
                 final InstrumentMethod completeMethod = target.getDeclaredMethod("complete", "akka.http.scaladsl.marshalling.ToResponseMarshallable");
-                completeMethod.addInterceptor("com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplCompleteInterceptor");
+                completeMethod.addScopedInterceptor(AkkaHttpConstants.REQUEST_CONTEXT_COMPLETE_INTERCEPTOR, "test", ExecutionPolicy.ALWAYS);
 
                 final InstrumentMethod redirectMethod = target.getDeclaredMethod("redirect", "akka.http.scaladsl.model.Uri", "akka.http.scaladsl.model.StatusCodes$Redirection");
-                redirectMethod.addInterceptor("com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplRedirectInterceptor");
+                redirectMethod.addInterceptor(AkkaHttpConstants.REQUEST_CONTEXT_REDIRECT_INTERCEPTOR);
 
                 final InstrumentMethod failMethod = target.getDeclaredMethod("fail", "java.lang.Throwable");
-                failMethod.addInterceptor("com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplFailInterceptor");
+                failMethod.addInterceptor(AkkaHttpConstants.REQUEST_CONTEXT_FAIL_INTERCEPTOR);
 
                 final InstrumentMethod copyMethod = target.getDeclaredMethod("copy", "akka.http.scaladsl.model.HttpRequest",
                         "akka.http.scaladsl.model.Uri$Path", "scala.concurrent.ExecutionContextExecutor", "akka.stream.Materializer", "akka.event.LoggingAdapter",
                         "akka.http.scaladsl.settings.RoutingSettings", "akka.http.scaladsl.settings.ParserSettings");
-                copyMethod.addInterceptor("com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplCopyInterceptor");
+                copyMethod.addInterceptor(AkkaHttpConstants.REQUEST_CONTEXT_COPY_INTERCEPTOR);
                 return target.toBytecode();
             }
         });
+    }
 
+    private void transformHttpRequest() {
         transformTemplate.transform("akka.http.javadsl.model.HttpRequest", new TransformCallback() {
-
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 target.addField(AsyncContextAccessor.class.getName());
+
                 return target.toBytecode();
             }
         });
-
     }
 
     @Override
