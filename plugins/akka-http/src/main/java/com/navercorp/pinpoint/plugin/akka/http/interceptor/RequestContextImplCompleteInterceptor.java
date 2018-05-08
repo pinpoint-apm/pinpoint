@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.akka.http.interceptor;
 
-import akka.http.scaladsl.marshalling.ToResponseMarshallable;
-import akka.http.scaladsl.model.StatusCode;
+import akka.http.javadsl.server.Complete;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -26,7 +25,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
-import scala.Tuple2;
+import scala.Option;
+import scala.concurrent.Future;
+import scala.util.Failure;
+import scala.util.Success;
 
 public class RequestContextImplCompleteInterceptor extends AsyncContextSpanEventEndPointInterceptor {
 
@@ -38,18 +40,43 @@ public class RequestContextImplCompleteInterceptor extends AsyncContextSpanEvent
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        if (args[0] instanceof ToResponseMarshallable) {
-            if (((ToResponseMarshallable) args[0]).value() instanceof Tuple2) {
-                StatusCode code = (StatusCode) ((Tuple2) ((ToResponseMarshallable) args[0]).value())._1();
-                recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, code.intValue());
-            }
-        }
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
-        recorder.recordException(throwable);
+        try {
+            if (result instanceof Future && ((Future) result).isCompleted()) {
+                Option value = ((Future) result).value();
+                if (value == null) {
+                    return;
+                }
+
+                Object routeResult = value.get();
+                if (routeResult instanceof Success) {
+                    Object success = ((Success) routeResult).get();
+                    if (success instanceof Complete) {
+                        akka.http.javadsl.model.HttpResponse response = ((Complete) success).getResponse();
+                        if (response == null) {
+                            return;
+                        }
+                        akka.http.javadsl.model.StatusCode status = response.status();
+                        if (status == null) {
+                            return;
+                        }
+                        recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, status.intValue());
+                    }
+                } else if (routeResult instanceof Failure) {
+                    Throwable failure = ((Failure) routeResult).exception();
+                    if (failure instanceof Throwable) {
+                        recorder.recordException((Throwable) failure);
+                    }
+                }
+            }
+        } finally {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
+            recorder.recordException(throwable);
+        }
     }
+
 }
