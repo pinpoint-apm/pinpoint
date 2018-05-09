@@ -45,8 +45,14 @@ public class PacketType {
     public static final short CONTROL_SERVER_CLOSE = 110;
 
     // control packet
+
+    // handshake packet that not used for initial. (Whenever handshake can be exchanged)
     public static final short CONTROL_HANDSHAKE = 150;
     public static final short CONTROL_HANDSHAKE_RESPONSE = 151;
+
+    // handshake packet that used for initial.
+    public static final short CONTROL_CONNECTION_HANDSHAKE = 155;
+    public static final short CONTROL_CONNECTION_HANDSHAKE_RESPONSE = 156;
 
     // keep stay because of performance in case of ping and pong. others removed.
     // CONTROL_PING will be deprecated. caused : Two payload types are used in one control packet.

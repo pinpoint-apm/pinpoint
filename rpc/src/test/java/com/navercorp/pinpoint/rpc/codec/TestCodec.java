@@ -33,6 +33,7 @@ public class TestCodec {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCodec.class);
 
     private static final ServerPacketDecoder SERVER_PACKET_DECODER = new ServerPacketDecoder();
+    private static final PacketDecoder PACKET_DECODER = new PacketDecoder();
 
     public static byte[] encodePacket(Packet packet) {
         ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
@@ -45,6 +46,14 @@ public class TestCodec {
             packet = (Packet) SERVER_PACKET_DECODER.decode(null, null, ChannelBuffers.wrappedBuffer(payload));
         } catch (Exception e) {
             LOGGER.warn(e.getMessage(), e);
+        }
+
+        if (packet == null) {
+            try {
+                packet = (Packet) PACKET_DECODER.decode(null, null, ChannelBuffers.wrappedBuffer(payload));
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            }
         }
 
         if (packet == null) {
