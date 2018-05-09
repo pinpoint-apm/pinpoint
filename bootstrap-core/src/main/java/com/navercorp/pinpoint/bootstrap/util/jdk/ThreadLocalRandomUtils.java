@@ -47,7 +47,8 @@ public class ThreadLocalRandomUtils {
             return new PinpointThreadLocalRandomFactory();
         } else if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
             try {
-                ClassLoader classLoader = getClassLoader(ThreadLocalRandomUtils.class.getClassLoader());
+                // @Nullable
+                final ClassLoader classLoader = ThreadLocalRandomUtils.class.getClassLoader();
 
                 final Class<? extends ThreadLocalRandomFactory> threadLocalRandomFactoryClass =
                         (Class<? extends ThreadLocalRandomFactory>) Class.forName(DEFAULT_THREAD_LOCAL_RANDOM_FACTORY, true, classLoader);
@@ -69,13 +70,6 @@ public class ThreadLocalRandomUtils {
             throw new RuntimeException("Unsupported jvm version " + jvmVersion);
         }
 
-    }
-
-    private static ClassLoader getClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return ClassLoader.getSystemClassLoader();
-        }
-        return classLoader;
     }
 
     private static void logError(Exception e) {
