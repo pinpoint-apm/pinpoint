@@ -63,6 +63,19 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                 return target.toBytecode();
             }
         });
+
+        transformTemplate.transform("sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
+                if (connectMethod == null) {
+                    return null;
+                }
+                connectMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor", "HttpURLConnection");
+                return target.toBytecode();
+            }
+        });
     }
 
     @Override
