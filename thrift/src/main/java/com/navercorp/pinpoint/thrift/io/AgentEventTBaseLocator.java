@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -29,9 +31,7 @@ public class AgentEventTBaseLocator implements TBaseLocator {
     private static final Header DEADLOCK_HEADER = createHeader(DEADLOCK);
 
     private static Header createHeader(short type) {
-        Header header = new Header();
-        header.setType(type);
-        return header;
+        return new HeaderV1(type);
     }
 
     @Override

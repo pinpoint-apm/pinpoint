@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;

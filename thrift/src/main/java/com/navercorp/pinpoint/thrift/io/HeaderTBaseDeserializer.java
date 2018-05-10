@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.thrift.io;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.io.header.ByteArrayHeaderReader;
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderReader;
+import com.navercorp.pinpoint.io.header.InvalidHeaderException;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -56,71 +60,68 @@ public class HeaderTBaseDeserializer {
      * @param bytes   The array to read from
      */
     public TBase<?, ?> deserialize(byte[] bytes) throws TException {
+
         try {
-            trans.reset(bytes);
-            Header header = readHeader();
-            final int validate = validate(header);
-            if (validate == HeaderUtils.OK) {
-                TBase<?, ?> base = locator.tBaseLookup(header.getType());
-                base.read(protocol);
-                return base;
-            }
-            throw new IllegalStateException("invalid validate " + validate);
+            trans.reset(bytes, 0, bytes.length);
+            return readInternal();
         } finally {
             trans.clear();
             protocol.reset();
         }
-    }
-    
-    public List<TBase<?, ?>> deserializeList(byte[] buffer) throws TException {
-        List<TBase<?, ?>> tBaseList = new ArrayList<TBase<?,?>>();
-        
-        trans.reset(buffer);
-        try {
-            while (trans.getBytesRemainingInBuffer() > 0) {
-                Header header = readHeader();
-                final int validate = validate(header);
-                if (validate == HeaderUtils.OK) {
-                    TBase<?, ?> base = locator.tBaseLookup(header.getType());
-                    base.read(protocol);
-                    tBaseList.add(base);
-                } else {
-                    throw new IllegalStateException("invalid validate " + validate);
-                }
-            }
-        } catch (Exception e){
-            logger.warn("failed to deserialize.", e);
-            return new ArrayList<TBase<?,?>>();
-        } finally {
-            trans.clear();
-            protocol.reset();
-        }
-        
-        return tBaseList;
     }
 
-    private int validate(Header header) throws TException {
-        final byte signature = header.getSignature();
-        final int result = HeaderUtils.validateSignature(signature);
-        if (result == HeaderUtils.FAIL) {
-            throw new TException("Invalid Signature:" + header);
-        }
-        return result;
+    private TBase<?, ?> readInternal() throws TException {
+
+        Header header = readHeader();
+
+        TBase<?, ?> base = locator.tBaseLookup(header.getType());
+        base.read(protocol);
+        return base;
     }
 
     private Header readHeader() throws TException {
-        final byte signature = protocol.readByte();
-        final byte version = protocol.readByte();
-        
-        // fixed size regardless protocol
-        final byte type1 = protocol.readByte();
-        final byte type2 = protocol.readByte();
-        final short type = bytesToShort(type1, type2);
-        return new Header(signature, version, type);
+        HeaderReader reader = newHeaderReader();
+        Header header = readHeader(reader);
+        skipHeaderOffset(reader);
+        return header;
     }
 
-    private short bytesToShort(final byte byte1, final byte byte2) {
-        return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
+    private void skipHeaderOffset(HeaderReader reader) {
+        trans.reset(trans.getBuffer(), reader.getOffset(), reader.getRemaining());
     }
+
+    private HeaderReader newHeaderReader() {
+        byte[] buffer = trans.getBuffer();
+        int bufferPosition = trans.getBufferPosition();
+        int bytesRemainingInBuffer = trans.getBytesRemainingInBuffer();
+        return new ByteArrayHeaderReader(buffer, bufferPosition, bytesRemainingInBuffer);
+    }
+
+    private Header readHeader(HeaderReader reader) throws TException {
+        try {
+            return reader.readHeader();
+        } catch (InvalidHeaderException e) {
+            throw new TException("invalid header Caused by:" + e.getMessage(), e);
+        }
+    }
+
+    public List<TBase<?, ?>> deserializeList(byte[] buffer) throws TException {
+        final List<TBase<?, ?>> tBaseList = new ArrayList<TBase<?,?>>();
+
+        try {
+            trans.reset(buffer, 0, buffer.length);
+            while (trans.getBytesRemainingInBuffer() > 0) {
+
+                    final TBase<?, ?> tBase = readInternal();
+                    tBaseList.add(tBase);
+
+            }
+        } finally {
+            trans.clear();
+            protocol.reset();
+        }
+        return tBaseList;
+    }
+
 
 }

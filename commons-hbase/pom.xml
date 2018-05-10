@@ -25,16 +25,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.navercorp.pinpoint</groupId>
-                    <artifactId>pinpoint-thrift</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -48,20 +49,13 @@ public class HeaderTBaseSerializer2 {
         tOutputStreamTransport.open(outputStream);
         try {
             final Header header = tBaseLocator.headerLookup(base);
-            writeHeader(header);
+            HeaderUtils.writeHeader(protocol, header);
             base.write(protocol);
         } finally {
             tOutputStreamTransport.close();
         }
     }
 
-    private void writeHeader(Header header) throws TException {
-        protocol.writeByte(header.getSignature());
-        protocol.writeByte(header.getVersion());
-        // fixed size regardless protocol
-        short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
-    }
+
 
 }
