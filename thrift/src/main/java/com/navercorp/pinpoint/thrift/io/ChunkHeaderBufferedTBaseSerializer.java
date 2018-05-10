@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.thrift.io;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import com.navercorp.pinpoint.io.header.Header;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -124,7 +125,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
         writeChunkHeader(protocol);
 
         // write header
-        writeHeader(protocol, locator.headerLookup(base));
+        HeaderUtils.writeHeader(protocol, locator.headerLookup(base));
         if (list != null && !list.isEmpty()) {
             protocol.addReplaceField(fieldName, list);
         }
@@ -144,7 +145,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
         writeChunkHeader(protocol);
 
         // write header
-        writeHeader(protocol, locator.headerLookup(base));
+        HeaderUtils.writeHeader(protocol, locator.headerLookup(base));
 
         base.write(protocol);
 
@@ -163,22 +164,14 @@ public class ChunkHeaderBufferedTBaseSerializer {
         }
 
         // write chunk header
-        writeHeader(protocol, locator.getChunkHeader());
+        HeaderUtils.writeHeader(protocol, locator.getChunkHeader());
         writeChunkHeader = true;
-    }
-
-    private void writeHeader(final TProtocol protocol, final Header header) throws TException {
-        protocol.writeByte(header.getSignature());
-        protocol.writeByte(header.getVersion());
-        short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
     }
 
     // flush & clear
     public void flush() throws TException {
         synchronized (transport) {
-            if (flushHandler != null && transport.getBufferPosition() > Header.HEADER_SIZE) {
+            if (flushHandler != null && transport.getBufferPosition() > Header.HEADER_PREFIX_SIZE) {
                 flushHandler.handle(transport.getBuffer(), 0, transport.getBufferPosition());
             }
             transport.flush();

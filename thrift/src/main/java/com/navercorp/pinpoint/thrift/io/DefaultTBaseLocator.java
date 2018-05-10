@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -194,8 +196,7 @@ class DefaultTBaseLocator implements TBaseLocator {
     }
     
     private static Header createHeader(short type) {
-        Header header = new Header();
-        header.setType(type);
+        Header header = new HeaderV1(type);
         return header;
     }
 

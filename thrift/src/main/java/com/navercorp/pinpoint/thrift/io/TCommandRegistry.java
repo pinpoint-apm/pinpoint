@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 

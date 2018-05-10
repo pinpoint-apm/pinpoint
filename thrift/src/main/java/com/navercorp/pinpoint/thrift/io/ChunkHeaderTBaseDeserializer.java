@@ -17,8 +17,13 @@
 package com.navercorp.pinpoint.thrift.io;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.navercorp.pinpoint.io.header.ByteArrayHeaderReader;
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderReader;
+import com.navercorp.pinpoint.io.header.InvalidHeaderException;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -43,71 +48,72 @@ public class ChunkHeaderTBaseDeserializer {
     }
 
     public List<TBase<?, ?>> deserialize(byte[] bytes, int offset, int length) throws TException {
-        List<TBase<?, ?>> list = new ArrayList<TBase<?, ?>>();
+
         try {
             trans.reset(bytes, offset, length);
 
-            final Header header = readHeader();
-            if(header == null) {
+            Header header = readHeader();
+
+            if (locator.isChunkHeader(header.getType())) {
+
+                List<TBase<?, ?>> list = new ArrayList<TBase<?, ?>>();
+
+                while (trans.getBytesRemainingInBuffer() > 0) {
+                    TBase<?, ?> base = readInternal();
+                    list.add(base);
+
+                }
+                return list;
+
+            } else {
+                final TBase<?, ?> base = readInternal();
+                if (base == null) {
+                    return Collections.emptyList();
+                }
+                List<TBase<?, ?>> list = new ArrayList<TBase<?, ?>>();
+                list.add(base);
                 return list;
             }
-            
-            if (locator.isChunkHeader(header.getType())) {
-                TBase<?, ?> base;
-                while ((base = deserialize()) != null) {
-                    list.add(base);
-                }
-            } else {
-                TBase<?, ?> base = deserialize();
-                if (base != null) {
-                    list.add(base);
-                }
-            }
-
         } finally {
             trans.clear();
             protocol.reset();
         }
 
-        return list;
     }
 
-    private TBase<?, ?> deserialize() throws TException {
-        final Header header = readHeader();
-        if (header == null) {
-            return null;
-        }
-
-        final int validate = validate(header);
+    private TBase<?, ?> readInternal() throws TException {
+        Header header = readHeader();
 
         TBase<?, ?> base = locator.tBaseLookup(header.getType());
         base.read(protocol);
         return base;
     }
 
-    private int validate(Header header) throws TException {
-        final byte signature = header.getSignature();
-        final int result = HeaderUtils.validateSignature(signature);
-        if (result == HeaderUtils.FAIL) {
-            throw new TException("Invalid Signature:" + header);
-        }
-        return result;
-    }
-
     private Header readHeader() throws TException {
-        if (trans.getBytesRemainingInBuffer() < Header.HEADER_SIZE) {
-            return null;
+        HeaderReader reader = newHeaderReader();
+        Header header = readHeader(reader);
+        skipHeaderOffset(reader);
+        return header;
+    }
+
+
+    private void skipHeaderOffset(HeaderReader reader) {
+        trans.reset(trans.getBuffer(), reader.getOffset(), reader.getRemaining());
+    }
+
+    private ByteArrayHeaderReader newHeaderReader() {
+        byte[] buffer = trans.getBuffer();
+        int bufferPosition = trans.getBufferPosition();
+        int bytesRemainingInBuffer = trans.getBytesRemainingInBuffer();
+        return new ByteArrayHeaderReader(buffer, bufferPosition, bytesRemainingInBuffer);
+    }
+
+    private Header readHeader(HeaderReader reader) throws TException {
+        try {
+            return reader.readHeader();
+        } catch (InvalidHeaderException e) {
+            throw new TException("invalid header Caused by:" + e.getMessage(), e);
         }
-
-        final byte signature = protocol.readByte();
-        final byte version = protocol.readByte();
-        final byte type1 = protocol.readByte();
-        final byte type2 = protocol.readByte();
-        final short type = bytesToShort(type1, type2);
-        return new Header(signature, version, type);
     }
 
-    private short bytesToShort(final byte byte1, final byte byte2) {
-        return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
-    }
 }
