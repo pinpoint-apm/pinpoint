@@ -24,6 +24,7 @@ public class ProfilerLibClass implements LibClass {
     private static final String[] PINPOINT_PROFILER_CLASS = new String[] {
             "com.navercorp.pinpoint.profiler",
             "com.navercorp.pinpoint.thrift",
+            "com.navercorp.pinpoint.io",
             "com.navercorp.pinpoint.rpc",
             /*
              * @deprecated javassist
