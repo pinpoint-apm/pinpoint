@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,16 @@ public class DispatchHandlerWrapper implements DispatchHandler {
         }
 
         logger.debug("Handler is disabled. Skipping send message {}.", tBase);
+    }
+
+    @Override
+    public void dispatchSendMessage(ThriftRequest thriftRequest) {
+        if (checkAvailable()) {
+            this.delegate.dispatchSendMessage(thriftRequest);
+            return;
+        }
+
+        logger.debug("Handler is disabled. Skipping send message {}.", thriftRequest);
     }
 
     @Override

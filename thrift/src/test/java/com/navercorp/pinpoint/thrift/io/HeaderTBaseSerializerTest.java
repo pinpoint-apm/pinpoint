@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
+import com.navercorp.pinpoint.thrift.io.header.v1.HeaderV1;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,9 +57,8 @@ public class HeaderTBaseSerializerTest {
     
     private void test(HeaderTBaseSerializer serializer, HeaderTBaseDeserializer deserializer) throws TException {
 
-        Header header = new Header();
+        Header header = new HeaderV1((short) 10);
         // 10 is JVMInfoThriftDTO type
-        header.setType((short) 10);
 
         TAgentInfo tAgentInfo = new TAgentInfo();
         tAgentInfo.setAgentId("agentId");

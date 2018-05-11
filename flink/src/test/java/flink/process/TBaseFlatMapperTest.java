@@ -19,8 +19,11 @@ package flink.process;
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.flink.process.ApplicationCache;
+import com.navercorp.pinpoint.flink.process.DefaultTBaseFlatMapperInterceptor;
 import com.navercorp.pinpoint.flink.process.TBaseFlatMapper;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import com.navercorp.pinpoint.thrift.dto.flink.*;
+import com.navercorp.pinpoint.thrift.io.header.v1.HeaderV1;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.junit.Test;
@@ -45,13 +48,14 @@ public class TBaseFlatMapperTest {
     public void flatMapTest() throws Exception {
 
         ApplicationCache applicationCache = newMockApplicationCache();
-        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache, new DefaultTBaseFlatMapperInterceptor());
 
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
         ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
-        mapper.flatMap(tfAgentStatBatch, collector);
+        ThriftRequest request = new ThriftRequest(new HeaderV1((short) 1000), tfAgentStatBatch);
+        mapper.flatMap(request, collector);
 
         assertEquals(dataList.size(), 2);
 
@@ -139,12 +143,13 @@ public class TBaseFlatMapperTest {
     @Test
     public void flatMap2Test() throws Exception {
         ApplicationCache applicationCache = newMockApplicationCache();
-        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache, new DefaultTBaseFlatMapperInterceptor());
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch2();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
         ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
-        mapper.flatMap(tfAgentStatBatch, collector);
+        ThriftRequest request = new ThriftRequest(new HeaderV1((short) 1000), tfAgentStatBatch);
+        mapper.flatMap(request, collector);
 
         assertEquals(dataList.size(), 2);
 
@@ -217,12 +222,13 @@ public class TBaseFlatMapperTest {
     @Test
     public void flatMap3Test() throws Exception {
         ApplicationCache applicationCache = newMockApplicationCache();
-        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache, new DefaultTBaseFlatMapperInterceptor());
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch3();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
         ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
-        mapper.flatMap(tfAgentStatBatch, collector);
+        ThriftRequest request = new ThriftRequest(new HeaderV1((short) 1000), tfAgentStatBatch);
+        mapper.flatMap(request, collector);
 
         assertEquals(dataList.size(), 2);
 
@@ -310,13 +316,14 @@ public class TBaseFlatMapperTest {
     public void flatMap4Test() throws Exception {
 
         ApplicationCache applicationCache = newMockApplicationCache();
-        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache, new DefaultTBaseFlatMapperInterceptor());
 
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch4();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
         ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
-        mapper.flatMap(tfAgentStatBatch, collector);
+        ThriftRequest request = new ThriftRequest(new HeaderV1((short) 1000), tfAgentStatBatch);
+        mapper.flatMap(request, collector);
 
         assertEquals(dataList.size(), 2);
 
@@ -389,13 +396,14 @@ public class TBaseFlatMapperTest {
     public void flatMap5Test() throws Exception {
 
         ApplicationCache applicationCache = newMockApplicationCache();
-        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache);
+        TBaseFlatMapper mapper = new TBaseFlatMapper(new JoinAgentStatBoMapper(), applicationCache, new DefaultTBaseFlatMapperInterceptor());
 
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch5();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
         ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
-        mapper.flatMap(tfAgentStatBatch, collector);
+        ThriftRequest request = new ThriftRequest(new HeaderV1((short) 1000), tfAgentStatBatch);
+        mapper.flatMap(request, collector);
 
         assertEquals(dataList.size(), 2);
 

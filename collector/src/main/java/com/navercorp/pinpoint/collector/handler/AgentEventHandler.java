@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,11 @@ public class AgentEventHandler implements SimpleHandler {
 
     @Autowired
     private AgentEventService agentEventService;
+
+    @Override
+    public void handleSimple(ThriftRequest thriftRequest) {
+        handleSimple(thriftRequest.getTbase());
+    }
 
     @Override
     public void handleSimple(TBase<?, ?> tBase) {

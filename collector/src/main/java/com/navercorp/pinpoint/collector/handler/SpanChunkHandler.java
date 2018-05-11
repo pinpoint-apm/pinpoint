@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,11 @@ public class SpanChunkHandler implements SimpleHandler {
 
     @Autowired
     private SpanFactory spanFactory;
+
+    @Override
+    public void handleSimple(ThriftRequest thriftRequest) {
+        handleSimple(thriftRequest.getTbase());
+    }
 
     @Override
     public void handleSimple(TBase<?, ?> tbase) {
