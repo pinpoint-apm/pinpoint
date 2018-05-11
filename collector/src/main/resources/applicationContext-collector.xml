@@ -309,10 +309,13 @@
         <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
         <property name="enable" value="#{spanReceiverConfig.isUdpEnable()}"/>
     </bean>
+    <bean id="spanAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider">
+        <property name="channelFilter" ref="channelFilter"/>
+    </bean>
     <bean id="spanTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
         <property name="bindIp" value="#{spanReceiverConfig.tcpBindIp}"/>
         <property name="bindPort" value="#{spanReceiverConfig.tcpBindPort}"/>
-        <property name="addressFilter" ref="addressFilter"/>
+        <property name="acceptorProvider" ref="spanAcceptorProvider"/>
         <property name="dispatchHandler" ref="spanDispatchHandlerWrapper"/>
         <!-- TCP & UDP share threadpool for span -->
         <property name="executor" ref="spanReceiverExecutor"/>
@@ -338,10 +341,13 @@
         <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
         <property name="enable" value="#{statReceiverConfig.isUdpEnable()}"/>
     </bean>
+    <bean id="statAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider">
+        <property name="channelFilter" ref="channelFilter"/>
+    </bean>
     <bean id="tcpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
         <property name="bindIp" value="#{statReceiverConfig.tcpBindIp}"/>
         <property name="bindPort" value="#{statReceiverConfig.tcpBindPort}"/>
-        <property name="addressFilter" ref="addressFilter"/>
+        <property name="acceptorProvider" ref="statAcceptorProvider"/>
         <property name="dispatchHandler" ref="statDispatchHandlerWrapper"/>
         <!-- TCP & UDP share threadpool for stat -->
         <property name="executor" ref="statReceiverExecutor"/>

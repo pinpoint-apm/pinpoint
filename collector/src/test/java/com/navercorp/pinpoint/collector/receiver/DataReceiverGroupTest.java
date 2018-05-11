@@ -93,12 +93,16 @@ public class DataReceiverGroupTest {
         return new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), threadName, 10, 1000, 1024 * 64 * 100);
     }
 
+    private PinpointServerAcceptorProvider createPinpointAcceptorProvider() {
+        return new PinpointServerAcceptorProvider();
+    }
+
     private TCPReceiverBean createTcpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler dispatchHandler) {
         TCPReceiverBean tcpReceiverBean = new TCPReceiverBean();
         tcpReceiverBean.setBeanName("tcpReceiver");
         tcpReceiverBean.setBindIp(mockConfig.getTcpBindIp());
         tcpReceiverBean.setBindPort(mockConfig.getTcpBindPort());
-        tcpReceiverBean.setAddressFilter(AddressFilter.ALL);
+        tcpReceiverBean.setAcceptorProvider(createPinpointAcceptorProvider());
         tcpReceiverBean.setDispatchHandler(dispatchHandler);
         tcpReceiverBean.setExecutor(MoreExecutors.directExecutor());
         tcpReceiverBean.setEnable(true);
