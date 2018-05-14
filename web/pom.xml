@@ -354,48 +354,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.maven.plugin.version}</version>
-                <configuration>
-                    <skipDockerBuild>false</skipDockerBuild>
-                    <imageName>naver/${project.artifactId}:${project.version}</imageName>
-                    <baseImage>tomcat:8-jre8</baseImage>
-                    <entryPoint>
-                        ["/usr/local/bin/start-web.sh"]
-                    </entryPoint>
-                    <exposes>
-                        <expose>8080</expose>
-                    </exposes>
-                    <resources>
-                        <resource>
-                            <targetPath>/assets/</targetPath>
-                            <directory>${project.build.directory}</directory>
-                            <include>${project.artifactId}-${project.version}.war</include>
-                        </resource>
-                        <resource>
-                            <targetPath>/assets/</targetPath>
-                            <directory>${project.build.directory}/deploy/WEB-INF/classes/</directory>
-                            <includes>
-                                <include>pinpoint-web.properties</include>
-                                <include>hbase.properties</include>
-                            </includes>
-                        </resource>
-                        <resource>
-                            <targetPath>/usr/local/bin/</targetPath>
-                            <directory>${project.basedir}/</directory>
-                            <include>start-web.sh</include>
-                        </resource>
-                    </resources>
-                    <runs>
-                        <run>chmod a+x /usr/local/bin/start-web.sh</run>
-                        <run>rm -rf /usr/local/tomcat/webapps/*</run>
-                        <run>unzip /assets/${project.artifactId}-${project.version}.war -d /usr/local/tomcat/webapps/ROOT</run>
-                        <run>rm -rf /assets/${project.artifactId}-${project.version}.war</run>
-                    </runs>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>

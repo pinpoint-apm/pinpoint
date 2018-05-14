@@ -84,7 +84,6 @@
         <spring.version>4.3.8.RELEASE</spring.version>
         <spring.batch.version>3.0.7.RELEASE</spring.batch.version>
         <spring.security.version>4.2.2.RELEASE</spring.security.version>
-        <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <sniffer.artifactid>java16</sniffer.artifactid>
         <dubbo.version>2.5.3</dubbo.version>
@@ -928,14 +927,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.maven.plugin.version}</version>
-                <configuration>
-                    <skipDockerBuild>true</skipDockerBuild>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
