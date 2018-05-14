@@ -60,6 +60,10 @@ entries:
       url: /installation.html
       output: web, pdf
 
+    - title: Install with Docker
+      url: /docker.html
+      output: web, pdf
+
     - title: TrobleShooting(Network)
       url: /troubleshooting_network.html
       output: web, pdf
