@@ -38,6 +38,27 @@ public class JoinAgentStatBo implements JoinStatBo {
     private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
     private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
 
+    protected JoinAgentStatBo(JoinAgentStatBo joinAgentStatBo) {
+        if (joinAgentStatBo == null) {
+            throw new IllegalArgumentException("joinAgentStatBo cannot be null");
+        }
+
+        this.agentId = joinAgentStatBo.getId();
+        this.agentStartTimestamp = joinAgentStatBo.getAgentStartTimestamp();
+        this.timestamp = joinAgentStatBo.getTimestamp();
+        this.joinCpuLoadBoList = joinAgentStatBo.getJoinCpuLoadBoList();
+        this.joinMemoryBoList = joinAgentStatBo.getJoinMemoryBoList();
+        this.joinTransactionBoList = joinAgentStatBo.getJoinTransactionBoList();
+        this.joinActiveTraceBoList = joinAgentStatBo.getJoinActiveTraceBoList();
+        this.joinResponseTimeBoList = joinAgentStatBo.getJoinResponseTimeBoList();
+        this.joinDataSourceListBoList = joinAgentStatBo.getJoinDataSourceListBoList();
+        this.joinFileDescriptorBoList = joinAgentStatBo.getJoinFileDescriptorBoList();
+        this.joinDirectBufferBoList = joinAgentStatBo.getJoinDirectBufferBoList();
+    }
+
+    public JoinAgentStatBo() {
+    }
+
     public List<JoinResponseTimeBo> getJoinResponseTimeBoList() {
         return joinResponseTimeBoList;
     }
@@ -147,5 +168,22 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public List<JoinDataSourceListBo> getJoinDataSourceListBoList() {
         return joinDataSourceListBoList;
+    }
+
+    @Override
+    public String toString() {
+        return "JoinAgentStatBo{" +
+            "agentId='" + agentId + '\'' +
+            ", agentStartTimestamp=" + agentStartTimestamp +
+            ", timestamp=" + timestamp +
+            ", joinCpuLoadBoList=" + joinCpuLoadBoList +
+            ", joinMemoryBoList=" + joinMemoryBoList +
+            ", joinTransactionBoList=" + joinTransactionBoList +
+            ", joinActiveTraceBoList=" + joinActiveTraceBoList +
+            ", joinResponseTimeBoList=" + joinResponseTimeBoList +
+            ", joinDataSourceListBoList=" + joinDataSourceListBoList +
+            ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
+            ", joinDirectBufferBoList=" + joinDirectBufferBoList +
+            '}';
     }
 }
