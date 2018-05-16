@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.flink.process;
 
-package com.navercorp.pinpoint.collector.receiver;
-
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
-import org.apache.thrift.TBase;
+import org.apache.flink.api.java.tuple.Tuple3;
+
+import java.util.List;
 
 /**
- * @author emeroad
- * @author koo.taejin
+ * @author minwoo.jung
  */
-public interface DispatchHandler {
+public class DefaultTBaseFlatMapperInterceptor implements TBaseFlatMapperInterceptor {
+    @Override
+    public void before(ThriftRequest thriftRequest) {
+    }
 
-    // Separating Send and Request. That dose not be satisfied but try to change that later.
+    @Override
+    public void after() {
+    }
 
-    void dispatchSendMessage(TBase<?, ?> tBase);
-
-    void dispatchSendMessage(ThriftRequest thriftRequest);
-
-    TBase dispatchRequestMessage(TBase<?, ?> tBase);
-
+    @Override
+    public List<Tuple3<String, JoinStatBo, Long>> middle(List<Tuple3<String, JoinStatBo, Long>> outData) {
+        return outData;
+    }
 }

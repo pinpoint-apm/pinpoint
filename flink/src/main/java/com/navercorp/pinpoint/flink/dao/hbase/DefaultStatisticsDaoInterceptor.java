@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.flink.dao.hbase;
 
-package com.navercorp.pinpoint.collector.receiver;
-
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import org.apache.flink.api.java.tuple.Tuple3;
 
 /**
- * @author emeroad
- * @author koo.taejin
+ * @author minwoo.jung
  */
-public interface DispatchHandler {
+public class DefaultStatisticsDaoInterceptor implements StatisticsDaoInterceptor {
 
-    // Separating Send and Request. That dose not be satisfied but try to change that later.
+    @Override
+    public void before(Tuple3<String, JoinStatBo, Long> statData) {
+    }
 
-    void dispatchSendMessage(TBase<?, ?> tBase);
-
-    void dispatchSendMessage(ThriftRequest thriftRequest);
-
-    TBase dispatchRequestMessage(TBase<?, ?> tBase);
-
+    @Override
+    public void after() {
+    }
 }
