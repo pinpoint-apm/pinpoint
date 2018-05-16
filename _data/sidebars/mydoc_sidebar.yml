@@ -110,7 +110,7 @@ entries:
       output: web, pdf
 
     - title: Help Wanted
-      external_url: https://github.com/naver/pinpoint/labels/Contribution
+      external_url: https://github.com/naver/pinpoint/labels/proposal
       output: web, pdf
 
   - title: Twitter
