@@ -17,8 +17,11 @@ package com.navercorp.pinpoint.flink.function;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.flink.Bootstrap;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.windowing.RichWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
@@ -32,14 +35,24 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationStatBoWindow implements WindowFunction<Tuple3<String, JoinStatBo, Long>, Tuple3<String, JoinStatBo, Long>, Tuple, TimeWindow> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, JoinStatBo, Long>, Tuple3<String, JoinStatBo, Long>, Tuple, TimeWindow> {
     public static final int WINDOW_SIZE = 10000;
     public static final int ALLOWED_LATENESS = 45000;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private transient ApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor;
+
+    @Override
+    public void open(Configuration parameters) throws Exception {
+        applicationStatBoWindowInterceptor = Bootstrap.getInstance().getApplicationStatBoWindowInterceptor();
+
+    }
+
     @Override
     public void apply(Tuple tuple, TimeWindow window, Iterable<Tuple3<String, JoinStatBo, Long>> values, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
+        String tupleKey = (String)tuple.getField(0);
+        applicationStatBoWindowInterceptor.before(values);
         try {
             JoinApplicationStatBo joinApplicationStatBo = join(values);
             long delayTime = new Date().getTime() - joinApplicationStatBo.getTimestamp();
@@ -65,9 +78,12 @@ public class ApplicationStatBoWindow implements WindowFunction<Tuple3<String, Jo
                 return;
             }
 
-            out.collect(new Tuple3<>(joinApplicationStatBo.getId(), joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
+            Tuple3 resultTuple = applicationStatBoWindowInterceptor.middle(new Tuple3<>(tupleKey, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
+            out.collect(resultTuple);
         } catch (Exception e) {
             logger.error("window function error", e);
+        } finally {
+            applicationStatBoWindowInterceptor.after();
         }
     }
 

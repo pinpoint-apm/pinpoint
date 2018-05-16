@@ -38,6 +38,28 @@ public class JoinApplicationStatBo implements JoinStatBo {
     private long timestamp = Long.MIN_VALUE;
     private StatType statType = StatType.APP_STST;
 
+    protected JoinApplicationStatBo(JoinApplicationStatBo joinApplicationStatBo) {
+        if (joinApplicationStatBo == null) {
+            throw new IllegalArgumentException("joinApplicationStatBo cannot be null");
+        }
+
+        this.applicationId = joinApplicationStatBo.getId();
+        this.joinCpuLoadBoList = joinApplicationStatBo.getJoinCpuLoadBoList();
+        this.joinMemoryBoList = joinApplicationStatBo.getJoinMemoryBoList();
+        this.joinTransactionBoList = joinApplicationStatBo.getJoinTransactionBoList();
+        this.joinActiveTraceBoList = joinApplicationStatBo.getJoinActiveTraceBoList();
+        this.joinResponseTimeBoList = joinApplicationStatBo.getJoinResponseTimeBoList();
+        this.joinDataSourceListBoList = joinApplicationStatBo.getJoinDataSourceListBoList();
+        this.joinFileDescriptorBoList = joinApplicationStatBo.getJoinFileDescriptorBoList();
+        this.joinDirectBufferBoList = joinApplicationStatBo.getJoinDirectBufferBoList();
+
+        this.timestamp= joinApplicationStatBo.getTimestamp();
+        this.statType = joinApplicationStatBo.getStatType();
+    }
+
+    public JoinApplicationStatBo() {
+    }
+
     public static JoinApplicationStatBo joinApplicationStatBoByTimeSlice(final List<JoinApplicationStatBo> joinApplicationStatBoList) {
         if (joinApplicationStatBoList.isEmpty()) {
             return EMPTY_JOIN_APPLICATION_STAT_BO;
