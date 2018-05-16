@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.io.header.ByteArrayHeaderReader;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderReader;
 import com.navercorp.pinpoint.io.header.InvalidHeaderException;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -124,18 +125,18 @@ public class HeaderTBaseDeserializer {
         return tBaseList;
     }
 
-    public ThriftRequest deserializeThrfitRequest(byte[] bytes) throws TException {
+    public ServerRequest deserializeServerRequest(byte[] bytes) throws TException {
 
         try {
             trans.reset(bytes, 0, bytes.length);
-            return readThrfitRequest();
+            return readServerRequest();
         } finally {
             trans.clear();
             protocol.reset();
         }
     }
 
-    private ThriftRequest readThrfitRequest() throws TException {
+    private ServerRequest readServerRequest() throws TException {
         Header header = readHeader();
 
         TBase<?, ?> base = locator.tBaseLookup(header.getType());

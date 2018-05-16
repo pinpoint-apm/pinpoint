@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.thrift.TBase;
@@ -42,7 +44,12 @@ public class AgentStatHandler implements SimpleHandler {
     }
 
     @Override
-    public void handleSimple(ThriftRequest thriftRequest) {
+    public void handleSimple(ServerRequest serverRequest) {
+        if (!(serverRequest instanceof ThriftRequest)) {
+            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
+        }
+
+        ThriftRequest thriftRequest = (ThriftRequest) serverRequest;
         ThriftRequest copiedThriftRequest = copyThriftRequest(thriftRequest);
 
         if (copiedThriftRequest == null) {
@@ -60,12 +67,12 @@ public class AgentStatHandler implements SimpleHandler {
         if (header.getVersion() == HeaderV1.VERSION) {
             copiedHeader = header;
         } else if (header.getVersion() == HeaderV2.VERSION) {
-            copiedHeader = new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), new HashMap<>(header.getData()));
+            copiedHeader = new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), new HashMap<>(header.getHeaderData()));
         } else {
             return null;
         }
 
-        return new ThriftRequest(copiedHeader, thriftRequest.getTbase());
+        return new ThriftRequest(copiedHeader, thriftRequest.getData());
     }
 
     @Override

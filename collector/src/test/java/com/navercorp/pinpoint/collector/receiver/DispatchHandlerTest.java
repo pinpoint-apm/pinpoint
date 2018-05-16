@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
@@ -105,8 +107,12 @@ public class DispatchHandlerTest {
         }
 
         @Override
-        protected  List<SimpleHandler> getSimpleHandler(ThriftRequest thriftRequest) {
-            return getSimpleHandler(thriftRequest.getTbase());
+        protected  List<SimpleHandler> getSimpleHandler(ServerRequest serverRequest) {
+            if (serverRequest instanceof ThriftRequest) {
+                return getSimpleHandler(((ThriftRequest)serverRequest).getData());
+            }
+
+            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
         }
 
     }
@@ -121,8 +127,12 @@ public class DispatchHandlerTest {
         }
 
         @Override
-        public void handleSimple(ThriftRequest thriftRequest) {
-            handleSimple(thriftRequest.getTbase());
+        public void handleSimple(ServerRequest serverRequest) {
+            if (serverRequest instanceof ThriftRequest) {
+                handleSimple(((ThriftRequest)serverRequest).getData());
+            }
+
+            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
         }
 
         public int getExecutedCount() {

@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.Bootstrap;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
@@ -37,7 +38,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class TBaseFlatMapper extends RichFlatMapFunction<ThriftRequest, Tuple3<String, JoinStatBo, Long>> {
+public class TBaseFlatMapper extends RichFlatMapFunction<ServerRequest, Tuple3<String, JoinStatBo, Long>> {
     private final static List<Tuple3<String, JoinStatBo, Long>> EMPTY_LIST = Collections.emptyList();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -64,11 +65,18 @@ public class TBaseFlatMapper extends RichFlatMapFunction<ThriftRequest, Tuple3<S
     }
 
     @Override
-    public void flatMap(ThriftRequest thriftRequest, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
+    public void flatMap(ServerRequest serverRequest, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
+        if (!(serverRequest instanceof ThriftRequest)) {
+            logger.error(serverRequest.getClass() + "is not support type : " + serverRequest);
+            return;
+        }
+
+        ThriftRequest thriftRequest = (ThriftRequest) serverRequest;
+
         tBaseFlatMapperInterceptor.before(thriftRequest);
 
         try {
-            List<Tuple3<String, JoinStatBo, Long>> outData = thriftRequestFlatMap(thriftRequest.getTbase());
+            List<Tuple3<String, JoinStatBo, Long>> outData = thriftRequestFlatMap(thriftRequest.getData());
             if (outData.size() == 0) {
                 return;
             }

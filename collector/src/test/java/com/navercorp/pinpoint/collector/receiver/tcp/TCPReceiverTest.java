@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.collector.config.DeprecatedConfiguration;
 import com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class TCPReceiverTest {
             }
 
             @Override
-            public void dispatchSendMessage(ThriftRequest thriftRequest) {
+            public void dispatchSendMessage(ServerRequest serverRequest) {
             }
 
             @Override

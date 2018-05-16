@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.thrift.util;
 
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -115,16 +115,16 @@ public final class SerializationUtils {
         }
     }
 
-    public static ThriftRequest deserializeThriftRequest(byte[] objectData, DeserializerFactory<HeaderTBaseDeserializer> factory) throws TException {
+    public static ServerRequest deserializeServerRequest(byte[] objectData, DeserializerFactory<HeaderTBaseDeserializer> factory) throws TException {
         assertNotNull(factory, "DeserializerFactory may note be null.");
 
-        return deserializeThriftRequest(objectData, factory.createDeserializer());
+        return deserializeServerRequest(objectData, factory.createDeserializer());
     }
 
-    public static ThriftRequest deserializeThriftRequest(byte[] objectData, HeaderTBaseDeserializer deserializer) throws TException {
+    public static ServerRequest deserializeServerRequest(byte[] objectData, HeaderTBaseDeserializer deserializer) throws TException {
         assertNotNull(objectData, "TBase may note be null.");
         assertNotNull(deserializer, "Deserializer may note be null.");
 
-        return deserializer.deserializeThrfitRequest(objectData);
+        return deserializer.deserializeServerRequest(objectData);
     }
 }

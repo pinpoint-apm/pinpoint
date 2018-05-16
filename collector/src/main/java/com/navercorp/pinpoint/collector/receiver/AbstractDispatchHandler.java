@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,22 +64,22 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
     }
 
     @Override
-    public void dispatchSendMessage(ThriftRequest thriftRequest) {
+    public void dispatchSendMessage(ServerRequest serverRequest) {
 
         // mark accepted time
         acceptedTimeService.accept();
 
         // TODO consider to change dispatch table automatically
-        List<SimpleHandler> simpleHandlerList = getSimpleHandler(thriftRequest);
+        List<SimpleHandler> simpleHandlerList = getSimpleHandler(serverRequest);
         if (CollectionUtils.isEmpty(simpleHandlerList)) {
-            throw new UnsupportedOperationException("Handler not found. Unknown type of data received. thrfitRequest=" + thriftRequest);
+            throw new UnsupportedOperationException("Handler not found. Unknown type of data received. serverRequest=" + serverRequest);
         }
 
         for (SimpleHandler simpleHandler : simpleHandlerList) {
             if (logger.isTraceEnabled()) {
                 logger.trace("simpleHandler name:{}", simpleHandler.getClass().getName());
             }
-            simpleHandler.handleSimple(thriftRequest);
+            simpleHandler.handleSimple(serverRequest);
         }
 
 
@@ -104,7 +104,7 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
         return Collections.emptyList();
     }
 
-    protected List<SimpleHandler> getSimpleHandler(ThriftRequest thriftRequest) {
+    protected List<SimpleHandler> getSimpleHandler(ServerRequest serverRequest) {
         return Collections.emptyList();
     }
 

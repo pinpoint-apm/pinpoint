@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.flink.process;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.thrift.TBase;
 
 import java.util.List;
 

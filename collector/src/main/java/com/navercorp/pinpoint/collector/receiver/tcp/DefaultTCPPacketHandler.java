@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.BasicPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -64,8 +64,8 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
         final byte[] payload = getPayload(packet);
         SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
         try {
-            ThriftRequest thriftRequest = SerializationUtils.deserializeThriftRequest(payload, deserializerFactory);
-            dispatchHandler.dispatchSendMessage(thriftRequest);
+            ServerRequest serverRequest = SerializationUtils.deserializeServerRequest(payload, deserializerFactory);
+            dispatchHandler.dispatchSendMessage(serverRequest);
         } catch (TException e) {
             handleTException(payload, remoteAddress, e);
         } catch (Exception e) {

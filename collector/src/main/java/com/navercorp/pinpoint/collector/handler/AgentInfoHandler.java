@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.handler;
 
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -44,8 +46,12 @@ public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
     private ApplicationIndexDao applicationIndexDao;
 
     @Override
-    public void handleSimple(ThriftRequest thriftRequest) {
-        handleSimple(thriftRequest.getTbase());
+    public void handleSimple(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            handleSimple(((ThriftRequest)serverRequest).getData());
+        }
+
+        throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
     }
 
     public void handleSimple(TBase<?, ?> tbase) {

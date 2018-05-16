@@ -67,7 +67,7 @@ final public class HeaderV2 implements Header {
     }
 
     @Override
-    public Map<String, String> getData() {
+    public Map<String, String> getHeaderData() {
         return this.data;
     }
 

@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
@@ -61,7 +63,11 @@ public class SpanDispatchHandler extends AbstractDispatchHandler {
     }
 
     @Override
-    protected  List<SimpleHandler> getSimpleHandler(ThriftRequest thriftRequest) {
-        return getSimpleHandler(thriftRequest.getTbase());
+    protected  List<SimpleHandler> getSimpleHandler(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            return getSimpleHandler(((ThriftRequest)serverRequest).getData());
+        }
+
+        throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
     }
 }

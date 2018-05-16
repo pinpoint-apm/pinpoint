@@ -34,6 +34,6 @@ public interface Header {
 
     short getType();
 
-    Map<String, String> getData();
+    Map<String, String> getHeaderData();
 }
 

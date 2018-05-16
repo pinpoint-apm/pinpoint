@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.navercorp.pinpoint.collector.handler;
-
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
-import org.apache.thrift.TBase;
+package com.navercorp.pinpoint.io.request;
 
 /**
- * @author emeroad
- * @author koo.taejin
+ * @author minwoo.jung
  */
-public interface SimpleHandler {
+public class UnSupportedServerRequestTypeException extends RuntimeException {
 
-    void handleSimple(TBase<?, ?> tBase);
+    public UnSupportedServerRequestTypeException(String message) {
+        super(message);
+    }
 
-    void handleSimple(ServerRequest thriftRequest);
-    
+    public UnSupportedServerRequestTypeException(String message, Throwable e) {
+        super(message, e);
+    }
 }
