@@ -79,7 +79,7 @@ public class PinpointBootStrap {
             // for development option
             // avoid java.sql.Date not found
             // will be removed future release
-            if (System.getProperty("pinpoint.dev.option.agentClassLoader", "platform").equals("platform")) {
+            if ("platform".equalsIgnoreCase(System.getProperty("pinpoint.dev.option.agentClassLoader"))) {
                 parentClassLoader = moduleBootLoader.getPlatformClassLoader();
                 logger.info("override parentClassLoader:" + parentClassLoader);
             }
