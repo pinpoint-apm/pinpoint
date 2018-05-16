@@ -15,8 +15,14 @@
  */
 package com.navercorp.pinpoint.io.request;
 
+import com.navercorp.pinpoint.io.header.Header;
+
 /**
  * @author minwoo.jung
  */
-public interface ServerRequest {
+public interface ServerRequest<T> {
+
+    Header getHeader();
+
+    T getData();
 }

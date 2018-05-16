@@ -22,7 +22,7 @@ import org.apache.thrift.TBase;
 /**
  * @author minwoo.jung
  */
-public class ThriftRequest implements ServerRequest {
+public class ThriftRequest implements ServerRequest<TBase<?,?>> {
     private final Header header;
     private final TBase<?, ?> tbase;
 
@@ -38,7 +38,7 @@ public class ThriftRequest implements ServerRequest {
         this.tbase = base;
     }
 
-    public TBase<?, ?> getTbase() {
+    public TBase<?, ?> getData() {
         return tbase;
     }
 

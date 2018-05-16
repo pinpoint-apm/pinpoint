@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -56,8 +58,12 @@ public class SpanChunkHandler implements SimpleHandler {
     private SpanFactory spanFactory;
 
     @Override
-    public void handleSimple(ThriftRequest thriftRequest) {
-        handleSimple(thriftRequest.getTbase());
+    public void handleSimple(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            handleSimple(((ThriftRequest)serverRequest).getData());
+        }
+
+        throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
     }
 
     @Override

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
@@ -51,8 +53,12 @@ public class AgentStatHandlerV2 implements SimpleHandler {
     private List<AgentStatService> agentStatServiceList = Collections.emptyList();
 
     @Override
-    public void handleSimple(ThriftRequest thriftRequest) {
-        handleSimple(thriftRequest.getTbase());
+    public void handleSimple(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            handleSimple(((ThriftRequest)serverRequest).getData());
+        }
+
+        throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
     }
 
     @Override

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -39,7 +40,6 @@ import com.navercorp.pinpoint.profiler.sender.SpanStreamUdpSender;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -274,7 +274,7 @@ public class SpanStreamUDPSenderTest {
         }
 
         @Override
-        public void dispatchSendMessage(ThriftRequest thriftRequest) {
+        public void dispatchSendMessage(ServerRequest serverRequest) {
             logger.debug("dispatchSendMessage");
         }
 

@@ -75,7 +75,7 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
     private void writeHeaderV2(HeaderV2 header) throws TException, UnsupportedEncodingException {
         writeHeaderPrefix();
 
-        writeHeaderData(header.getData());
+        writeHeaderData(header.getHeaderData());
     }
 
     private void writeHeaderData(Map<String, String> data) throws TException, UnsupportedEncodingException {

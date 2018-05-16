@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.flink.process.TBaseFlatMapperInterceptor;
 import com.navercorp.pinpoint.flink.receiver.AgentStatHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpDispatchHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -156,7 +156,7 @@ public class Bootstrap {
         rawData.setParallelism(parallel);
     }
 
-    public void setStatHandlerTcpDispatchHandler(SourceContext<ThriftRequest> sourceContext) {
+    public void setStatHandlerTcpDispatchHandler(SourceContext<ServerRequest> sourceContext) {
         AgentStatHandler agentStatHandler = new AgentStatHandler(sourceContext);
         tcpDispatchHandler.setAgentStatHandler(agentStatHandler);
     }

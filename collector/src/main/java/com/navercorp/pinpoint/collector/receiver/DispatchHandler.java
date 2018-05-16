@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 
 /**
@@ -29,7 +29,7 @@ public interface DispatchHandler {
 
     void dispatchSendMessage(TBase<?, ?> tBase);
 
-    void dispatchSendMessage(ThriftRequest thriftRequest);
+    void dispatchSendMessage(ServerRequest serverRequest);
 
     TBase dispatchRequestMessage(TBase<?, ?> tBase);
 

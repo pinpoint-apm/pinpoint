@@ -19,13 +19,13 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -275,8 +275,8 @@ public class DataReceiverGroupTest {
         }
 
         @Override
-        public void dispatchSendMessage(ThriftRequest thriftRequest) {
-            LOGGER.debug("===================================== send {}", thriftRequest);
+        public void dispatchSendMessage(ServerRequest serverRequest) {
+            LOGGER.debug("===================================== send {}", serverRequest);
             sendLatch.countDown();
         }
 
