@@ -9,7 +9,9 @@
 
     <context:annotation-config/>
 
+    <import resource="classpath:applicationContext-flink-extend.xml"/>
     <import resource="classpath:applicationContext-hbase.xml"/>
+    <import resource="classpath:applicationContext-cache.xml"/>
 
     <context:component-scan
             base-package="com.navercorp.pinpoint.common.server.util,
@@ -154,7 +156,23 @@
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="flinkPacketHandlerFactory" class="com.navercorp.pinpoint.flink.receiver.FlinkPacketHandlerFactory"/>
+    <bean id="flinkHeaderDataGeneratorDelegator" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkHeaderDataGeneratorDelegator"/>
+    <bean id="flinkTBaseLocator" class="com.navercorp.pinpoint.thrift.io.FlinkTBaseLocator">
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.io.header.v2.HeaderV2.VERSION"/>
+        </constructor-arg>
+        <constructor-arg index="1" ref="flinkHeaderDataGeneratorDelegator"/>
+    </bean>
+    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
+        <constructor-arg index="0" ref="flinkTBaseLocator"/>
+    </bean>
+    <bean id="flinkHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory">
+        <constructor-arg index="0" ref="flinkTBaseLocator"/>
+    </bean>
+    <bean id="flinkPacketHandlerFactory" class="com.navercorp.pinpoint.flink.receiver.FlinkPacketHandlerFactory">
+        <constructor-arg index="0" ref="flinkHeaderTBaseSerializerFactory"/>
+        <constructor-arg index="1" ref="flinkHeaderTBaseDeserializerFactory"/>
+    </bean>
 
     <bean id="flinkServerRegister" class="com.navercorp.pinpoint.flink.cluster.FlinkServerRegister" lazy-init="true">
         <constructor-arg ref="flinkConfiguration"/>
@@ -185,10 +203,19 @@
         <property name="registry" value="#{tcpReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
         <property name="logRate" value="1"/>
     </bean>
+
+
+    <bean id="channelFilter" class="com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor">
+        <constructor-arg ref="addressFilter"/>
+    </bean>
+
+    <bean id="spanAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider">
+        <property name="channelFilter" ref="channelFilter"/>
+    </bean>
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean" lazy-init="true">
         <property name="bindIp" value="#{tcpReceiverConfig.bindIp}"/>
         <property name="bindPort" value="#{tcpReceiverConfig.bindPort}"/>
-        <property name="addressFilter" ref="addressFilter"/>
+        <property name="acceptorProvider" ref="spanAcceptorProvider"/>
         <property name="dispatchHandler" ref="tcpDispatchHandlerWrapper"/>
         <property name="executor" ref="flinkWorker"/>
         <property name="tcpPacketHandlerFactory" ref="flinkPacketHandlerFactory"/>

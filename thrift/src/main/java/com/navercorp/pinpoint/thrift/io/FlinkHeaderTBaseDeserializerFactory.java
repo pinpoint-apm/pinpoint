@@ -19,7 +19,15 @@ package com.navercorp.pinpoint.thrift.io;
  * @author minwoo.jung
  */
 public class FlinkHeaderTBaseDeserializerFactory implements DeserializerFactory<HeaderTBaseDeserializer> {
-    private final HeaderTBaseDeserializerFactory headerTBaseDeserializerFactory = new HeaderTBaseDeserializerFactory(new FlinkTBaseLocator());
+    private final HeaderTBaseDeserializerFactory headerTBaseDeserializerFactory;
+
+    public FlinkHeaderTBaseDeserializerFactory(FlinkTBaseLocator flinkTBaseLocator) {
+        if (flinkTBaseLocator == null) {
+            throw new NullPointerException("flinkTBaseLocator must not be null.");
+        }
+
+        this.headerTBaseDeserializerFactory = new HeaderTBaseDeserializerFactory(flinkTBaseLocator);
+    }
 
     @Override
     public HeaderTBaseDeserializer createDeserializer() {

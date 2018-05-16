@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.handler.AgentStatHandlerV2;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,11 @@ public class StatDispatchHandler extends AbstractDispatchHandler {
         }
 
         return simpleHandlerList;
+    }
+
+    @Override
+    protected  List<SimpleHandler> getSimpleHandler(ThriftRequest thriftRequest) {
+        return getSimpleHandler(thriftRequest.getTbase());
     }
 
 }

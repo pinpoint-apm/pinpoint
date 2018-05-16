@@ -17,9 +17,13 @@
 package com.navercorp.pinpoint.thrift.io;
 
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import com.navercorp.pinpoint.io.header.ByteArrayHeaderWriter;
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderWriter;
+import com.navercorp.pinpoint.io.header.InvalidHeaderException;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -58,16 +62,26 @@ public class HeaderTBaseSerializer {
      * @return Serialized object in byte[] format
      */
     public byte[] serialize(TBase<?, ?> base) throws TException {
-        final Header header = locator.headerLookup(base);
         baos.reset();
-        HeaderUtils.writeHeader(protocol, header);
+
+        writeHeader(base);
         base.write(protocol);
         return baos.toByteArray();
     }
-    
+
+    public void writeHeader(TBase<?, ?> base) {
+        try {
+            final Header header = locator.headerLookup(base);
+            HeaderWriter headerWriter = new ByteArrayHeaderWriter(header);
+            byte[] headerBytes = headerWriter.writeHeader();
+            baos.write(headerBytes);
+        } catch (Exception e) {
+            throw new InvalidHeaderException("can not write header.", e);
+        }
+    }
+
     public byte[] continueSerialize(TBase<?, ?> base) throws TException {
-        final Header header = locator.headerLookup(base);
-        HeaderUtils.writeHeader(protocol, header);
+        writeHeader(base);
         base.write(protocol);
         return baos.toByteArray();
     }
