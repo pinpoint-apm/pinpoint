@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.collector.cluster.flink;
 
-package com.navercorp.pinpoint.collector.receiver;
+import com.navercorp.pinpoint.io.header.HeaderDataGenerator;
 
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
-import org.apache.thrift.TBase;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * @author emeroad
- * @author koo.taejin
+ * @author minwoo.jung
  */
-public interface DispatchHandler {
+public class DefaultCustomHeadergenerator implements HeaderDataGenerator {
 
-    // Separating Send and Request. That dose not be satisfied but try to change that later.
-
-    void dispatchSendMessage(TBase<?, ?> tBase);
-
-    void dispatchSendMessage(ThriftRequest thriftRequest);
-
-    TBase dispatchRequestMessage(TBase<?, ?> tBase);
+    @Override
+    public Map<String, String> generate() {
+        return new HashMap<String, String>();
+    }
 
 }

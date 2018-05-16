@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler;
 
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,11 @@ public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
 
     @Autowired
     private ApplicationIndexDao applicationIndexDao;
+
+    @Override
+    public void handleSimple(ThriftRequest thriftRequest) {
+        handleSimple(thriftRequest.getTbase());
+    }
 
     public void handleSimple(TBase<?, ?> tbase) {
         handleRequest(tbase);
