@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.profiler.sender.SpanStreamUdpSender;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -269,6 +270,11 @@ public class SpanStreamUDPSenderTest {
 
         @Override
         public void dispatchSendMessage(TBase<?, ?> tBase) {
+            logger.debug("dispatchSendMessage");
+        }
+
+        @Override
+        public void dispatchSendMessage(ThriftRequest thriftRequest) {
             logger.debug("dispatchSendMessage");
         }
 

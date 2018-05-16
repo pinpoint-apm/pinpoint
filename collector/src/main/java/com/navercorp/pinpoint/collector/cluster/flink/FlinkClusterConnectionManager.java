@@ -38,10 +38,10 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     private final TcpDataSenderRepository tcpDataSenderRepository;
     private final SerializerFactory<HeaderTBaseSerializer> flinkHeaderTBaseSerializerFactory;
 
-    public FlinkClusterConnectionManager(TcpDataSenderRepository tcpDataSenderRepository) {
+    public FlinkClusterConnectionManager(TcpDataSenderRepository tcpDataSenderRepository, FlinkHeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory) {
         this.tcpDataSenderRepository = Assert.requireNonNull(tcpDataSenderRepository, "tcpDataSenderRepository must not be null");
+        this.flinkHeaderTBaseSerializerFactory = Assert.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory must not be null");
         this.pinpointClientFactory = newPointClientFactory();
-        this.flinkHeaderTBaseSerializerFactory = new FlinkHeaderTBaseSerializerFactory();
     }
 
     private PinpointClientFactory newPointClientFactory() {

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,7 +55,8 @@ public class DispatchHandlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void throwExceptionTest1() {
-        testDispatchHandler.dispatchSendMessage(null);
+        TBase<?, ?> tBase = null;
+        testDispatchHandler.dispatchSendMessage(tBase);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -102,6 +104,11 @@ public class DispatchHandlerTest {
             return TEST_REQUEST_HANDLER;
         }
 
+        @Override
+        protected  List<SimpleHandler> getSimpleHandler(ThriftRequest thriftRequest) {
+            return getSimpleHandler(thriftRequest.getTbase());
+        }
+
     }
 
     private static class TestSimpleHandler implements SimpleHandler {
@@ -111,6 +118,11 @@ public class DispatchHandlerTest {
         @Override
         public void handleSimple(TBase<?, ?> tbase) {
             executedCount++;
+        }
+
+        @Override
+        public void handleSimple(ThriftRequest thriftRequest) {
+            handleSimple(thriftRequest.getTbase());
         }
 
         public int getExecutedCount() {
