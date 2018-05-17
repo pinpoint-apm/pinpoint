@@ -576,7 +576,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.profileJvmVendorName = readString("profiler.jvm.vendor.name", null);
         this.profileJvmStatCollectIntervalMs = readInt("profiler.jvm.stat.collect.interval", DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS);
         this.profileJvmStatBatchSendCount = readInt("profiler.jvm.stat.batch.send.count", DEFAULT_NUM_AGENT_STAT_BATCH_SEND);
-        this.profilerJvmStatCollectDetailedMetrics = readBoolean("profiler.stat.jvm.collect.detailed.metrics", false);
+        this.profilerJvmStatCollectDetailedMetrics = readBoolean("profiler.jvm.stat.collect.detailed.metrics", false);
 
         this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 
