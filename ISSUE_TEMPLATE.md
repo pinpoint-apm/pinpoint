@@ -1,6 +1,7 @@
 <!-- 
     If you're reporting a bug or seeking help because something is not working, 
-    please fill out below. 
+    Please take a look at our FAQ (http://naver.github.io/pinpoint/faq.html) first
+    and if still not solved please fill out following template. 
     For all else, feel free to DELETE everything and post away your issue!
 -->
 
