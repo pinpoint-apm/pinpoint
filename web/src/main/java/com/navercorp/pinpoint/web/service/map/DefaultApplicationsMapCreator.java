@@ -93,6 +93,6 @@ public class DefaultApplicationsMapCreator implements ApplicationsMapCreator {
             CompletableFuture<Void> searchResultsFuture = linkDataDuplexMapFuture.thenAccept(searchResults::add);
             linkDataDuplexMapFutures.add(searchResultsFuture);
         }
-        return linkDataDuplexMapFutures.toArray(new CompletableFuture[linkDataDuplexMapFutures.size()]);
+        return linkDataDuplexMapFutures.toArray(new CompletableFuture[0]);
     }
 }

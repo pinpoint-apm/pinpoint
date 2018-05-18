@@ -136,7 +136,7 @@ public class ASMClassNodeAdapter {
             }
         }
 
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
 
     public ASMMethodNodeAdapter getDeclaredMethod(final String methodName, final String desc) {
@@ -289,7 +289,7 @@ public class ASMClassNodeAdapter {
 
         String[] exceptions = null;
         if (superMethodNode.getExceptions() != null) {
-            exceptions = superMethodNode.getExceptions().toArray(new String[superMethodNode.getExceptions().size()]);
+            exceptions = superMethodNode.getExceptions().toArray(new String[0]);
         }
 
         final ASMMethodNodeAdapter methodNode = new ASMMethodNodeAdapter(getInternalName(), new MethodNode(superMethodNode.getAccess(), superMethodNode.getName(), superMethodNode.getDesc(), superMethodNode.getSignature(), exceptions));

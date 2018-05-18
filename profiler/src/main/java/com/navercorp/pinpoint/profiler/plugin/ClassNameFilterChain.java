@@ -30,7 +30,7 @@ public class ClassNameFilterChain implements ClassNameFilter {
         if (filterChain == null) {
             throw new NullPointerException("filterChain must not be null");
         }
-        this.filterChain = filterChain.toArray(new ClassNameFilter[filterChain.size()]);
+        this.filterChain = filterChain.toArray(new ClassNameFilter[0]);
     }
 
 

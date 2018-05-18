@@ -105,8 +105,8 @@ class PinpointStarter {
             ProfilerConfig profilerConfig = DefaultProfilerConfig.load(configPath);
 
             // this is the library list that must be loaded
-            List<URL> libUrlList = resolveLib(classPathResolver);
-            URL[] urls = libUrlList.toArray(new URL[libUrlList.size()]);
+            URL[] urls = resolveLib(classPathResolver);
+
             final String bootClass = getBootClass();
             AgentBootLoader agentBootLoader = new AgentBootLoader(bootClass, urls, parentClassLoader);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
@@ -198,7 +198,7 @@ class PinpointStarter {
     }
 
 
-    private List<URL> resolveLib(ClassPathResolver classPathResolver) {
+    private URL[] resolveLib(ClassPathResolver classPathResolver) {
         // this method may handle only absolute path,  need to handle relative path (./..agentlib/lib)
         String agentJarFullPath = classPathResolver.getAgentJarFullPath();
         String agentLibPath = classPathResolver.getAgentLibPath();
@@ -214,7 +214,7 @@ class PinpointStarter {
             logger.info("agent config:" + agentConfigPath);
         }
 
-        return urlList;
+        return urlList.toArray(new URL[0]);
     }
 
     private List<URL> resolveLib(List<URL> urlList) {

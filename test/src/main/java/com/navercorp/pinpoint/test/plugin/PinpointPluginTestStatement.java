@@ -180,7 +180,7 @@ public class PinpointPluginTestStatement extends Statement {
         list.add(mainClass);
         list.addAll(testCase.getAppArgs());
 
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
     
     private List<String> getDebugOptions() {
