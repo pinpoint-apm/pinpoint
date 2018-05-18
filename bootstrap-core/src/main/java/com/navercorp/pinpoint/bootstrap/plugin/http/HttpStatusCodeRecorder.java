@@ -81,7 +81,7 @@ public class HttpStatusCodeRecorder {
         if (CollectionUtils.isEmpty(list)) {
             return new StatusCode[0];
         }
-        return list.toArray(new StatusCode[list.size()]);
+        return list.toArray(new StatusCode[0]);
     }
 
     public void record(final SpanRecorder spanRecorder, final int statusCode) {

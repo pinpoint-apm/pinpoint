@@ -83,7 +83,7 @@ public class ASMMethodInsnNodeRemapper {
         }
 
         public ASMMethodInsnNodeRemapper build() {
-            Filter[] copyFilter = this.filters.toArray(new Filter[this.filters.size()]);
+            Filter[] copyFilter = this.filters.toArray(new Filter[0]);
             return new ASMMethodInsnNodeRemapper(copyFilter, owner, name, desc);
         }
     }

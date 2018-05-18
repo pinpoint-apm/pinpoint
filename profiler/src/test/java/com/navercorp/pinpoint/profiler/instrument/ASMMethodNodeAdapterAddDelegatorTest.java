@@ -111,7 +111,7 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
             public void handle(final ClassNode classNode) {
                 String[] exceptions = null;
                 if (methodNode.exceptions != null) {
-                    exceptions = methodNode.exceptions.toArray(new String[methodNode.exceptions.size()]);
+                    exceptions = methodNode.exceptions.toArray(new String[0]);
                 }
 
                 final MethodNode newMethodNode = new MethodNode(methodNode.access, methodNode.name, methodNode.desc, methodNode.signature, exceptions);
