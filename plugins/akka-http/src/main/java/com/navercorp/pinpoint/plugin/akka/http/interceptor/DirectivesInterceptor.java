@@ -35,8 +35,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
@@ -234,13 +234,8 @@ public class DirectivesInterceptor implements AroundInterceptor {
             recorder.recordRemoteAddress(remoteAddress);
         }
 
-        this.proxyHttpHeaderRecorder.record(recorder, new ProxyHttpHeaderHandler() {
-            @Override
-            public String read(String headerName) {
-                return getHeaderValue(request, headerName);
-            }
-        });
-
+        final ServerRequestTrace serverRequestTrace = new AkkaHttpServerRequestTrace(request);
+        this.proxyHttpHeaderRecorder.record(recorder, serverRequestTrace);
         if (!recorder.isRoot()) {
             recordParentInfo(recorder, request);
         }
