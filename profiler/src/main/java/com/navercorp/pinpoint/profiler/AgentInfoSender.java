@@ -173,7 +173,7 @@ public class AgentInfoSender {
                 final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
 
                 logger.info("Sending AgentInfo {}", agentInfo);
-                dataSender.request(agentInfo, new AgentInfoSenderListener(future));
+                dataSender.request(agentInfo, new ResponseMessageFutureListener(future));
                 if (!future.await()) {
                     logger.warn("request timed out while waiting for response.");
                     return false;

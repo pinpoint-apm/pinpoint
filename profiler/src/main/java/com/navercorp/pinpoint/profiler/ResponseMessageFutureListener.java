@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 
-public class AgentInfoSenderListener implements FutureListener<ResponseMessage> {
+public class ResponseMessageFutureListener implements FutureListener<ResponseMessage> {
 
     private final DefaultFuture<ResponseMessage> future;
 
-    public AgentInfoSenderListener(DefaultFuture<ResponseMessage> future) {
+    public ResponseMessageFutureListener(DefaultFuture<ResponseMessage> future) {
         this.future = future;
     }
 
