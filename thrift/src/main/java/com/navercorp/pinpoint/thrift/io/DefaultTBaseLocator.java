@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
  * @author jaehong.kim
  *   - add CHUNK_HEADER
  */
-class DefaultTBaseLocator implements TBaseLocator {
+public class DefaultTBaseLocator implements TBaseLocator {
 
     private static final short NETWORK_CHECK = 10;
     private static final Header NETWORK_CHECK_HEADER = createHeader(NETWORK_CHECK);
