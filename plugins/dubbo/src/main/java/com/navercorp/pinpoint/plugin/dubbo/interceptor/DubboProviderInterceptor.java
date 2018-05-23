@@ -45,7 +45,9 @@ public class DubboProviderInterceptor implements AroundInterceptor {
             if (trace == null) {
                 return;
             }
-
+            if (!trace.canSampled()) {
+                return;
+            }
             try {
                 final SpanRecorder recorder = trace.getSpanRecorder();
                 doInBeforeTrace(recorder, target, args);
