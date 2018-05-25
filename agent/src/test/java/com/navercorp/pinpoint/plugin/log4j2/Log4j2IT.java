@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.log4j;
+package com.navercorp.pinpoint.plugin.log4j2;
 
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"log4j:log4j:[1.2.16,)"})
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.10.0]", "org.apache.logging.log4j:log4j-api:[2.10.0]"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
-public class Log4jIT {
+public class Log4j2IT {
 
     @Test
     public void test() throws Exception {
