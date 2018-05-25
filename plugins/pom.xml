@@ -58,6 +58,7 @@
         <module>rabbitmq</module>
         <module>weblogic</module>
         <module>php</module>
+        <module>log4j2</module>
     </modules>
 
     <dependencies>
