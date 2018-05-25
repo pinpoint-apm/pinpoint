@@ -64,6 +64,8 @@ public class AgentBaseDataReceiver {
 
     private final Executor executor;
 
+    private final TCPPacketHandlerFactory tcpPacketHandlerFactory;
+
     private final TCPPacketHandler tcpPacketHandler;
 
 
@@ -81,18 +83,21 @@ public class AgentBaseDataReceiver {
     }
 
     public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
+        this(configuration, executor, acceptor, new DefaultTCPPacketHandlerFactory(), dispatchHandler, service);
+    }
+
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, TCPPacketHandlerFactory tcpPacketHandlerFactory, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
         this.configuration = Assert.requireNonNull(configuration, "config must not be null");
         this.executor = Objects.requireNonNull(executor, "executor must not be null");
         this.acceptor = Objects.requireNonNull(acceptor, "acceptor must not be null");
 
+        this.tcpPacketHandlerFactory = Assert.requireNonNull(tcpPacketHandlerFactory, "tcpPacketHandlerFactory must not be null");
         this.tcpPacketHandler = wrapDispatchHandler(dispatchHandler);
         this.clusterService = service;
     }
 
     private TCPPacketHandler wrapDispatchHandler(DispatchHandler dispatchHandler) {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-
-        TCPPacketHandlerFactory tcpPacketHandlerFactory = new DefaultTCPPacketHandlerFactory();
         return tcpPacketHandlerFactory.build(dispatchHandler);
     }
 
