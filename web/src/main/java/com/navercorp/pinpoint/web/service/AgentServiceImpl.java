@@ -72,6 +72,7 @@ public class AgentServiceImpl implements AgentService {
     private ClusterManager clusterManager;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseSerializerFactory")
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     @Autowired
