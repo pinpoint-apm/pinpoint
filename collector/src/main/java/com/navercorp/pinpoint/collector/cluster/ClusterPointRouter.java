@@ -64,6 +64,7 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseDeserializerFactory")
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
     public ClusterPointRouter(ClusterPointRepository<TargetClusterPoint> targetClusterPointRepository,
