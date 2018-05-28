@@ -35,6 +35,9 @@ public class HbaseAdminFactory implements AdminFactory {
 
     @Override
     public Admin getAdmin() {
+        if (connection.isClosed()) {
+            throw new HBaseAccessException("Connection already closed");
+        }
         try {
             return connection.getAdmin();
         } catch (IOException e) {

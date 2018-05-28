@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -35,56 +34,53 @@ public class HBaseAdminTemplate {
         this.adminFactory = Objects.requireNonNull(adminFactory, "adminFactory must not be null");
     }
 
-    public boolean createTableIfNotExist(HTableDescriptor htd) {
-        Admin admin = adminFactory.getAdmin();
-        try {
+    public boolean createTableIfNotExists(HTableDescriptor htd) {
+        return execute(admin -> {
             TableName tableName = htd.getTableName();
             if (!admin.tableExists(tableName)) {
                 admin.createTable(htd);
                 return true;
             }
             return false;
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
-        } finally {
-            adminFactory.releaseAdmin(admin);
-        }
+        });
     }
 
     public boolean tableExists(TableName tableName) {
-        Admin admin = adminFactory.getAdmin();
-        try {
-            return admin.tableExists(tableName);
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
-        } finally {
-            adminFactory.releaseAdmin(admin);
-        }
+        return execute(admin -> admin.tableExists(tableName));
     }
 
-    public boolean dropTableIfExist(TableName tableName) {
-        Admin admin = adminFactory.getAdmin();
-        try {
+    public boolean dropTableIfExists(TableName tableName) {
+        return execute(admin -> {
             if (admin.tableExists(tableName)) {
                 admin.disableTable(tableName);
                 admin.deleteTable(tableName);
                 return true;
             }
             return false;
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
-        } finally {
-            adminFactory.releaseAdmin(admin);
-        }
+        });
     }
 
     public void dropTable(TableName tableName) {
-        Admin admin = adminFactory.getAdmin();
-        try {
+        execute((AdminCallback<Void>) admin -> {
             admin.disableTable(tableName);
             admin.deleteTable(tableName);
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
+            return null;
+        });
+    }
+
+    public final <T> T execute(AdminCallback<T> action) {
+        Objects.requireNonNull(action, "action must not be null");
+        Admin admin = adminFactory.getAdmin();
+        try {
+            return action.doInAdmin(admin);
+        } catch (Throwable e) {
+            if (e instanceof Error) {
+                throw (Error) e;
+            }
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new HbaseSystemException((Exception) e);
         } finally {
             adminFactory.releaseAdmin(admin);
         }
