@@ -19,9 +19,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
@@ -30,19 +28,17 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestEntryPointInterceptorHelper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpHeaderFilter;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerConfig;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerMethodDescriptor;
-import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerServerRequestTrace;
+import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerRequestWrapperFactory;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-
-import java.util.Map;
 
 /**
  * @author jaehong.kim
@@ -58,11 +54,12 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final boolean isTraceRequestParam;
     private final Filter<String> excludeUrlFilter;
     private final Filter<String> excludeProfileMethodFilter;
-    private final RemoteAddressResolver<HttpServerRequest> remoteAddressResolver;
     private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
     private final VertxHttpHeaderFilter httpHeaderFilter;
     private final ServerRequestRecorder serverRequestRecorder = new ServerRequestRecorder();
     private final RequestTraceReader requestTraceReader;
+    private final VertxHttpServerRequestWrapperFactory serverRequestWrapperFactory;
+    private final ServerRequestEntryPointInterceptorHelper entryPointInterceptorHelper;
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
@@ -73,18 +70,13 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
         final VertxHttpServerConfig config = new VertxHttpServerConfig(traceContext.getProfilerConfig());
         this.excludeUrlFilter = config.getExcludeUrlFilter();
-        final String proxyIpHeader = config.getRealIpHeader();
-        if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
-            this.remoteAddressResolver = new Bypass<HttpServerRequest>();
-        } else {
-            final String tomcatRealIpEmptyValue = config.getRealIpEmptyValue();
-            this.remoteAddressResolver = new RealIpHeaderResolver<HttpServerRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
-        }
         this.isTraceRequestParam = config.isTraceRequestParam();
         this.excludeProfileMethodFilter = config.getExcludeProfileMethodFilter();
         this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
         this.httpHeaderFilter = new VertxHttpHeaderFilter(config.isHidePinpointHeader());
         this.requestTraceReader = new RequestTraceReader(traceContext, true);
+        this.serverRequestWrapperFactory = new VertxHttpServerRequestWrapperFactory(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        this.entryPointInterceptorHelper = new ServerRequestEntryPointInterceptorHelper(traceContext, excludeUrlFilter);
 
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
     }
@@ -116,12 +108,19 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             }
 
             // create trace for standalone entry point.
-            final Trace trace = createTrace(request);
+            final ServerRequestWrapper serverRequestWrapper = this.serverRequestWrapperFactory.get(request);
+            final Trace trace = this.entryPointInterceptorHelper.accept(serverRequestWrapper, VertxConstants.VERTX_HTTP_SERVER_INTERNAL, this.descriptor);
             if (trace == null) {
                 return;
             }
 
+            if (!initScope(trace)) {
+                // invalid scope.
+                deleteTrace(trace);
+                return;
+            }
             entryScope(trace);
+            // Hide pinpoint headers
             this.httpHeaderFilter.filter(request);
 
             if (!trace.canSampled()) {
@@ -130,6 +129,14 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
+            if (this.isTraceRequestParam) {
+                if (!excludeProfileMethodFilter.filter(serverRequestWrapper.getMethod())) {
+                    final String parameters = serverRequestWrapper.getParameters();
+                    if (parameters != null && !parameters.isEmpty()) {
+                        recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                    }
+                }
+            }
 
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext(true);
@@ -210,17 +217,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            if (validate(args)) {
-                if (this.isTraceRequestParam) {
-                    final HttpServerRequest request = (HttpServerRequest) args[0];
-                    if (!excludeProfileMethodFilter.filter(request.method().toString())) {
-                        final String parameters = getRequestParameter(request, 64, 512);
-                        if (parameters != null && !parameters.isEmpty()) {
-                            recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-                        }
-                    }
-                }
-            }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", t.getMessage(), t);
@@ -231,66 +227,9 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         }
     }
 
-    private Trace createTrace(final HttpServerRequest request) {
-        final String requestURI = request.path();
-        if (requestURI != null && excludeUrlFilter.filter(requestURI)) {
-            // skip request.
-            if (isTrace) {
-                logger.trace("filter requestURI:{}", requestURI);
-            }
-            return null;
-        }
-
-        final ServerRequestTrace serverRequestTrace = new VertxHttpServerServerRequestTrace(request, this.remoteAddressResolver);
-        final Trace trace = this.requestTraceReader.read(serverRequestTrace);
-        if (trace.canSampled()) {
-            final SpanRecorder recorder = trace.getSpanRecorder();
-            // root
-            recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER);
-            recorder.recordApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
-            this.serverRequestRecorder.record(recorder, serverRequestTrace);
-            // record proxy HTTP header.
-            this.proxyHttpHeaderRecorder.record(recorder, serverRequestTrace);
-        }
-
-        if (!initScope(trace)) {
-            // invalid scope.
-            deleteTrace(trace);
-            return null;
-        }
-        return trace;
-    }
-
     private void deleteTrace(final Trace trace) {
         traceContext.removeTraceObject();
         trace.close();
-    }
-
-    private String getRequestParameter(HttpServerRequest request, int eachLimit, int totalLimit) {
-        if (request.params() == null) {
-            return "";
-        }
-
-        final StringBuilder params = new StringBuilder(64);
-        for (Map.Entry<String, String> entry : request.params().entries()) {
-            if (params.length() != 0) {
-                params.append('&');
-            }
-            // skip appending parameters if parameter size is bigger than totalLimit
-            if (params.length() > totalLimit) {
-                params.append("...");
-                return params.toString();
-            }
-
-            String key = entry.getKey();
-            params.append(StringUtils.abbreviate(key, eachLimit));
-            params.append('=');
-            Object value = entry.getValue();
-            if (value != null) {
-                params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
-            }
-        }
-        return params.toString();
     }
 
     private boolean initScope(final Trace trace) {
@@ -340,63 +279,5 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private boolean isEndScope(final Trace trace) {
         final TraceScope scope = trace.getScope(SCOPE_NAME);
         return scope != null && !scope.isActive();
-    }
-
-    public static class Bypass<T extends HttpServerRequest> implements RemoteAddressResolver<T> {
-
-        @Override
-        public String resolve(T servletRequest) {
-            if (servletRequest.remoteAddress() != null) {
-                return servletRequest.remoteAddress().toString();
-            }
-            return "unknown";
-        }
-    }
-
-    public static class RealIpHeaderResolver<T extends HttpServerRequest> implements RemoteAddressResolver<T> {
-
-        public static final String X_FORWARDED_FOR = "x-forwarded-for";
-        public static final String X_REAL_IP = "x-real-ip";
-        public static final String UNKNOWN = "unknown";
-
-        private final String realIpHeaderName;
-        private final String emptyHeaderValue;
-
-        public RealIpHeaderResolver() {
-            this(X_FORWARDED_FOR, UNKNOWN);
-        }
-
-        public RealIpHeaderResolver(String realIpHeaderName, String emptyHeaderValue) {
-            if (realIpHeaderName == null) {
-                throw new NullPointerException("realIpHeaderName must not be null");
-            }
-            this.realIpHeaderName = realIpHeaderName;
-            this.emptyHeaderValue = emptyHeaderValue;
-        }
-
-        @Override
-        public String resolve(T httpServletRequest) {
-            final String realIp = httpServletRequest.getHeader(this.realIpHeaderName);
-            if (StringUtils.isEmpty(realIp)) {
-                if (httpServletRequest.remoteAddress() != null) {
-                    return httpServletRequest.remoteAddress().toString();
-                }
-                return "";
-            }
-
-            if (emptyHeaderValue != null && emptyHeaderValue.equalsIgnoreCase(realIp)) {
-                if (httpServletRequest.remoteAddress() != null) {
-                    return httpServletRequest.remoteAddress().toString();
-                }
-                return "";
-            }
-
-            final int firstIndex = realIp.indexOf(',');
-            if (firstIndex == -1) {
-                return realIp;
-            } else {
-                return realIp.substring(0, firstIndex);
-            }
-        }
     }
 }

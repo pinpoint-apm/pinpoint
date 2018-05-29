@@ -17,6 +17,9 @@ package com.navercorp.pinpoint.plugin.jetty;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
+/**
+ * @author Chaein Jung
+ */
 public class JettyTypeProvider implements TraceMetadataProvider {
 
     @Override

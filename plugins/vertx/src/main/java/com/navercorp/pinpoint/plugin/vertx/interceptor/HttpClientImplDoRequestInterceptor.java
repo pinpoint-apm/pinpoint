@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
-import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestTrace;
+import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestWrapper;
 import io.vertx.core.http.HttpClientRequest;
 
 /**
@@ -79,7 +79,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
 
         if (!trace.canSampled()) {
             if (request != null) {
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestTrace(request));
+                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestWrapper(request));
                 requestTraceWriter.write();
             }
             return;

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4RequestTrace;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4RequestWrapper;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.concurrent.BasicFuture;
@@ -79,7 +79,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if (httpRequest != null) {
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestTrace(httpRequest, host.getName(), host.getValue()));
+                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()));
                 requestTraceWriter.write();
             }
             return;
@@ -92,7 +92,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
 
         if (httpRequest != null) {
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestTrace(httpRequest, host.getName(), host.getValue()));
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()));
             requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         }
 
@@ -171,7 +171,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             final NameIntValuePair<String> host = getHost(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                this.clientRequestRecorder.record(recorder, new HttpClient4RequestTrace(httpRequest, host.getName(), host.getValue()), throwable);
+                this.clientRequestRecorder.record(recorder, new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()), throwable);
             }
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);

@@ -173,7 +173,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean proxyHttpHeaderEnable = true;
 
-    private List<String> httpStatusCodeErrors = Collections.emptyList();
+    private HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors();
 
     private String injectionModuleFactoryClazzName = null;
     private String applicationNamespace = "";
@@ -480,7 +480,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public List<String> getHttpStatusCodeErrors() {
+    public HttpStatusCodeErrors getHttpStatusCodeErrors() {
         return httpStatusCodeErrors;
     }
 
@@ -603,7 +603,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         // proxy http header names
         this.proxyHttpHeaderEnable = readBoolean("profiler.proxy.http.header.enable", true);
 
-        this.httpStatusCodeErrors = readList("profiler.http.status.code.errors");
+        this.httpStatusCodeErrors = new HttpStatusCodeErrors(readList("profiler.http.status.code.errors"));
 
         this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
 

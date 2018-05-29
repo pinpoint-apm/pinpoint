@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultAsyncContext implements AsyncContext {
-
-
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncContext.class);
 
     private final TraceRoot traceRoot;
@@ -133,5 +131,4 @@ public class DefaultAsyncContext implements AsyncContext {
                 ", asyncId=" + asyncId +
                 '}';
     }
-
 }

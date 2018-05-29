@@ -13,48 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.jetty.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
-import com.navercorp.pinpoint.plugin.jetty.JettyServerRequestTrace;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.Request;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author Taejin Koo
  * @author jaehong.kim
  */
-public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
-    // jetty-9.x
-    public ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
-        super(traceContext, descriptor, excludeFilter);
+public class ServerHandleInterceptor implements AroundInterceptor {
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+
+    private MethodDescriptor methodDescriptor;
+    private TraceContext traceContext;
+
+    public ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this.traceContext = traceContext;
+        this.methodDescriptor = methodDescriptor;
     }
 
     @Override
-    protected Request getRequest(final Object[] args) {
-        if (args == null || args.length < 1) {
-            return null;
-        }
-
-        if (args[0] instanceof HttpChannel) {
-            final HttpChannel<?> channel = (HttpChannel<?>) args[0];
-            return channel.getRequest();
-        }
-        return null;
+    public void before(Object target, Object[] args) {
     }
 
     @Override
-    ServerRequestTrace getServerRequestTrace(final Request request) {
-        return new JettyServerRequestTrace(request) {
-            public String _getHeader(String name) {
-                if (request != null && request.getHttpFields() != null) {
-                    return request.getHttpFields().get(name);
-                }
-                return null;
-            }
-        };
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args, result, throwable);
+        }
+
+        final Trace trace = this.traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return;
+        }
+        // Only remove bind trace
+        // Defense code(important)
+        this.traceContext.removeTraceObject();
     }
 }
+

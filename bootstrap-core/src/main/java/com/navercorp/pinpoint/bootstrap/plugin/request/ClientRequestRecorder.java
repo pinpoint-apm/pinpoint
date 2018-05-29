@@ -43,16 +43,16 @@ public class ClientRequestRecorder {
     }
 
     // Records the client's request information.
-    public void record(final SpanEventRecorder recorder, final ClientRequestTrace clientRequestTrace, final Throwable throwable) {
-        if (recorder == null || clientRequestTrace == null) {
+    public void record(final SpanEventRecorder recorder, final ClientRequestWrapper clientRequestWrapper, final Throwable throwable) {
+        if (recorder == null || clientRequestWrapper == null) {
             return;
         }
 
-        final String destinationId = clientRequestTrace.getDestinationId();
+        final String destinationId = clientRequestWrapper.getDestinationId();
         if (destinationId != null) {
             recorder.recordDestinationId(destinationId);
             if (isDebug) {
-                logger.debug("Record destinationId={}", clientRequestTrace.getDestinationId());
+                logger.debug("Record destinationId={}", clientRequestWrapper.getDestinationId());
             }
         } else {
             // Set default value
@@ -62,9 +62,9 @@ public class ClientRequestRecorder {
             }
         }
 
-        final String url = clientRequestTrace.getUrl();
+        final String url = clientRequestWrapper.getUrl();
         if (url != null) {
-            final String httpUrl = InterceptorUtils.getHttpUrl(clientRequestTrace.getUrl(), this.param);
+            final String httpUrl = InterceptorUtils.getHttpUrl(clientRequestWrapper.getUrl(), this.param);
             recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
             if (isDebug) {
                 logger.debug("Record url={}", httpUrl);
@@ -74,24 +74,24 @@ public class ClientRequestRecorder {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
         if (this.httpDumpConfig.isDumpCookie()) {
             if (DumpType.ALWAYS == this.httpDumpConfig.getCookieDumpType()) {
-                recordCookie(recorder, clientRequestTrace);
+                recordCookie(recorder, clientRequestWrapper);
             } else if (DumpType.EXCEPTION == this.httpDumpConfig.getCookieDumpType() && isException) {
-                recordCookie(recorder, clientRequestTrace);
+                recordCookie(recorder, clientRequestWrapper);
             }
         }
 
         if (this.httpDumpConfig.isDumpEntity()) {
             if (DumpType.ALWAYS == this.httpDumpConfig.getEntityDumpType()) {
-                recordEntity(recorder, clientRequestTrace);
+                recordEntity(recorder, clientRequestWrapper);
             } else if (DumpType.EXCEPTION == this.httpDumpConfig.getEntityDumpType() && isException) {
-                recordEntity(recorder, clientRequestTrace);
+                recordEntity(recorder, clientRequestWrapper);
             }
         }
     }
 
-    private void recordCookie(final SpanEventRecorder recorder, final ClientRequestTrace clientRequestTrace) {
+    private void recordCookie(final SpanEventRecorder recorder, final ClientRequestWrapper clientRequestWrapper) {
         if (this.httpDumpConfig.getCookieSampler().isSampling()) {
-            final String cookieValue = clientRequestTrace.getCookieValue();
+            final String cookieValue = clientRequestWrapper.getCookieValue();
             if (cookieValue != null) {
                 recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(cookieValue, this.httpDumpConfig.getCookieDumpSize()));
                 if (isDebug) {
@@ -101,9 +101,9 @@ public class ClientRequestRecorder {
         }
     }
 
-    private void recordEntity(final SpanEventRecorder recorder, final ClientRequestTrace clientRequestTrace) {
+    private void recordEntity(final SpanEventRecorder recorder, final ClientRequestWrapper clientRequestWrapper) {
         if (this.httpDumpConfig.getEntitySampler().isSampling()) {
-            final String entityValue = clientRequestTrace.getEntityValue();
+            final String entityValue = clientRequestWrapper.getEntityValue();
             if (entityValue != null) {
                 recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.abbreviate(entityValue, this.httpDumpConfig.getEntityDumpSize()));
                 if (isDebug) {

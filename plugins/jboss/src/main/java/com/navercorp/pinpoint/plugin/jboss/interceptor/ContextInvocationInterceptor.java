@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.jboss.ContextInvocationMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 
 /**
@@ -32,9 +31,6 @@ import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
  * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
  */
 public class ContextInvocationInterceptor implements AroundInterceptor {
-
-    /** The Constant CONTEXT_INVOCATION_API_TAG. */
-    public static final ContextInvocationMethodDescriptor CONTEXT_INVOCATION_API_TAG = new ContextInvocationMethodDescriptor();
 
     /** The logger. */
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -57,7 +53,6 @@ public class ContextInvocationInterceptor implements AroundInterceptor {
     public ContextInvocationInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-        traceContext.cacheApi(CONTEXT_INVOCATION_API_TAG);
     }
 
     /*
@@ -104,9 +99,9 @@ public class ContextInvocationInterceptor implements AroundInterceptor {
         }
 
         if (!trace.canSampled()) {
-            traceContext.removeTraceObject();
             return;
         }
+
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);

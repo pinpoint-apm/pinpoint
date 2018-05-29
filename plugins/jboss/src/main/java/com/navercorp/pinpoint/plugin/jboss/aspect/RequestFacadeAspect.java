@@ -21,12 +21,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
 import com.navercorp.pinpoint.common.util.DelegateEnumeration;
-import com.navercorp.pinpoint.common.util.EmptyEnumeration;
 
 import java.util.Enumeration;
 
 /**
- * filtering pinpoint header
+ * Filtering pinpoint header
  *
  * @author emeroad
  * @author jaehong.kim
@@ -34,30 +33,10 @@ import java.util.Enumeration;
 @Aspect
 public abstract class RequestFacadeAspect {
 
-    @PointCut
-    public String getHeader(String name) {
-        if (Header.startWithPinpointHeader(name)) {
-            return null;
-        }
-        return __getHeader(name);
-    }
-
-    @JointPoint
-    abstract String __getHeader(String name);
-
-    @PointCut
-    public Enumeration getHeaders(String name) {
-        if (Header.startWithPinpointHeader(name)) {
-            return new EmptyEnumeration();
-        }
-        return __getHeaders(name);
-    }
-
-    @JointPoint
-    abstract Enumeration __getHeaders(String name);
 
     @PointCut
     public Enumeration getHeaderNames() {
+        // Hide pinpoint headers
         return new DelegateEnumeration(__getHeaderNames(), Header.FILTER);
     }
 

@@ -20,7 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestTrace;
+
+import java.util.Map;
 
 /**
  * @author jaehong.kim
@@ -29,6 +30,7 @@ public class ProxyHttpHeaderRecorder {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
+
     private final ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
     private final boolean enable;
 
@@ -36,8 +38,8 @@ public class ProxyHttpHeaderRecorder {
         this.enable = enable;
     }
 
-    public void record(final SpanRecorder recorder, final RequestTrace requestTrace) {
-        if (recorder == null || requestTrace == null) {
+    public void record(final SpanRecorder recorder, final Map<String, String> proxyHeaderMap) {
+        if (recorder == null || proxyHeaderMap == null) {
             return;
         }
 
@@ -49,20 +51,22 @@ public class ProxyHttpHeaderRecorder {
         }
 
         try {
-            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
-            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
-            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
+            final String app = proxyHeaderMap.get(Header.HTTP_PROXY_APP);
+            parseAndRecord(recorder, Header.HTTP_PROXY_APP.toString(), app, ProxyHttpHeader.TYPE_APP);
+            final String nginx = proxyHeaderMap.get(Header.HTTP_PROXY_NGINX);
+            parseAndRecord(recorder, Header.HTTP_PROXY_NGINX.toString(), nginx, ProxyHttpHeader.TYPE_NGINX);
+            final String apache = proxyHeaderMap.get(Header.HTTP_PROXY_APACHE);
+            parseAndRecord(recorder, Header.HTTP_PROXY_APACHE.toString(), apache, ProxyHttpHeader.TYPE_APACHE);
         } catch (Exception e) {
             // for handler operations.
-            if (isInfo) {
-                logger.info("Failed to record proxy http header. cause={}", e.getMessage());
+            if (isDebug) {
+                logger.debug("Failed to record proxy http header. proxyHeaderMap={}", proxyHeaderMap, e);
             }
         }
     }
 
 
-    private void parseAndRecord(final SpanRecorder recorder, final RequestTrace requestTrace, final String name, final int type) {
-        final String value = requestTrace.getHeader(name);
+    private void parseAndRecord(final SpanRecorder recorder, final String name, final String value, final int type) {
         if (value == null || value.isEmpty()) {
             return;
         }
@@ -74,8 +78,8 @@ public class ProxyHttpHeaderRecorder {
                 logger.debug("Record proxy http header. name={}, value={}", name, value);
             }
         } else {
-            if (isInfo) {
-                logger.info("Failed to parse proxy http header. name={}. value={}, cause={}", name, value, header.getCause());
+            if (isDebug) {
+                logger.debug("Failed to parse proxy http header. name={}. value={}, cause={}", name, value, header.getCause());
             }
         }
     }

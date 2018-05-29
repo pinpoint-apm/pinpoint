@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
@@ -27,6 +29,8 @@ import java.util.Arrays;
  * @author jaehong.kim
  */
 public class DefaultCallStack implements CallStack {
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     protected static final int STACK_SIZE = 8;
     protected static final int DEFAULT_INDEX = 0;
 
@@ -68,6 +72,7 @@ public class DefaultCallStack implements CallStack {
         spanEvent.setSequence(sequence++);
         stack[index++] = spanEvent;
         markDepth(spanEvent, index);
+
         return index;
     }
 

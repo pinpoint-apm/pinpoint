@@ -87,4 +87,18 @@ public class VertxHttpServerConfig {
     public String getRequestHandlerMethodName() {
         return requestHandlerMethodName;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("VertxHttpServerConfig{");
+        sb.append("traceRequestParam=").append(traceRequestParam);
+        sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
+        sb.append(", realIpHeader='").append(realIpHeader).append('\'');
+        sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
+        sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
+        sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
+        sb.append(", requestHandlerMethodName='").append(requestHandlerMethodName).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }
