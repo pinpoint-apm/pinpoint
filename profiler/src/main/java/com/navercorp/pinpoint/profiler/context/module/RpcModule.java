@@ -21,6 +21,7 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.HeaderTBaseSerializerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -46,9 +48,10 @@ public class RpcModule extends PrivateModule {
         bind(pinpointClientFactory).toProvider(PinpointClientFactoryProvider.class).in(Scopes.SINGLETON);
         expose(pinpointClientFactory);
 
+        bind(HeaderTBaseSerializer.class).toProvider(HeaderTBaseSerializerProvider.class).in(Scopes.SINGLETON);
+
         bind(EnhancedDataSender.class).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(EnhancedDataSender.class);
-
 
         Key<PinpointClientFactory> pinpointStatClientFactory = Key.get(PinpointClientFactory.class, SpanStatClientFactory.class);
         bind(pinpointStatClientFactory).toProvider(SpanStatClientFactoryProvider.class).in(Scopes.SINGLETON);
@@ -63,6 +66,6 @@ public class RpcModule extends PrivateModule {
         bind(DataSender.class).annotatedWith(StatDataSender.class)
                 .toProvider(StatDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(statDataSender);
-
     }
+
 }
