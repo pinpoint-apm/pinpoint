@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -55,18 +54,18 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
+        if (classLoader != Object.class.getClassLoader()) {
+            throw new IllegalStateException("not BootStrapClassLoader");
+        }
         try {
-            if (classLoader == null) {
-                return (Class<T>) injectClass0(className);
-            }
+            return (Class<T>) injectClass0(className);
         } catch (Exception e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
             throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
         }
-        throw new PinpointException("invalid ClassLoader");
     }
 
-    private Class<?> injectClass0(String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+    private Class<?> injectClass0(String className) throws IllegalArgumentException, ClassNotFoundException {
         appendToBootstrapClassLoaderSearch();
         return Class.forName(className, false, null);
     }

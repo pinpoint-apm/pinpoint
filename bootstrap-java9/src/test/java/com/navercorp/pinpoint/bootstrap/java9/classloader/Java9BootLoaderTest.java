@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.classloader;
+package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class Java9BootLoaderTest {
     @Test
     public void testFindResource() {
 
-        BootLoader bootLoader = new Java9BootLoader();
+        Java9BootLoader bootLoader = new Java9BootLoader();
         String stringResource = getInternalName(String.class);
 
         URL url = bootLoader.findResource(stringResource);
@@ -52,7 +52,7 @@ public class Java9BootLoaderTest {
 
     @Test
     public void testFindResources() throws IOException {
-        BootLoader bootLoader = new Java9BootLoader();
+        Java9BootLoader bootLoader = new Java9BootLoader();
         String stringResource = getInternalName(String.class);
 
         Enumeration<URL> bootstrapResources = bootLoader.findResources(stringResource);

@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -32,77 +32,54 @@ public final class PinpointClassLoaderFactory {
 
     private static final PLogger LOGGER = PLoggerFactory.getLogger(PinpointClassLoaderFactory.class);
 
-    private static final InnerClassLoaderFactory CLASS_LOADER_FACTORY = createClassLoaderFactory();
+    private static final ClassLoaderFactory CLASS_LOADER_FACTORY = createClassLoaderFactory();
 
     // Jdk 7+
-    private static final String PARALLEL_CLASSLOADER_FACTORY = "com.navercorp.pinpoint.bootstrap.classloader.ParallelClassLoaderFactory";
+    private static final String PARALLEL_CLASS_LOADER_FACTORY = "com.navercorp.pinpoint.bootstrap.classloader.ParallelClassLoaderFactory";
 
     // jdk9
-    private static final String JAVA9_CLASSLOADER_FACTORY = "com.navercorp.pinpoint.bootstrap.classloader.Java9ClassLoaderFactory";
+    private static final String JAVA9_CLASSLOADER = "com.navercorp.pinpoint.bootstrap.java9.classloader.Java9ClassLoader";
 
 
     private PinpointClassLoaderFactory() {
         throw new IllegalAccessError();
     }
 
-    private static InnerClassLoaderFactory createClassLoaderFactory() {
+    public static ClassLoaderFactory createClassLoaderFactory() {
         final JvmVersion jvmVersion = JvmUtils.getVersion();
 
         if (jvmVersion.onOrAfter(JvmVersion.JAVA_9)) {
-            if (!hasRegisterAsParallelCapableMethod()) {
-                throw new IllegalStateException("ClassLoader.registerAsParallelCapable() not supported");
-            }
-            return newClassLoaderFactory(JAVA9_CLASSLOADER_FACTORY);
+            return newClassLoaderFactory(JAVA9_CLASSLOADER);
         }
         if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-            if (!hasRegisterAsParallelCapableMethod()) {
-                return new Java6ClassLoaderFactory();
-            }
-            return newClassLoaderFactory(PARALLEL_CLASSLOADER_FACTORY);
+            return newParallelClassLoaderFactory();
         }
 
         // JDK6 --
         return new Java6ClassLoaderFactory();
     }
 
-    private static InnerClassLoaderFactory newClassLoaderFactory(String factoryName) {
+    private static ClassLoaderFactory newClassLoaderFactory(String factoryName) {
+        ClassLoader classLoader = PinpointClassLoaderFactory.class.getClassLoader();
+
+        return new DynamicClassLoaderFactory(factoryName, classLoader);
+    }
+
+    private static ClassLoaderFactory newParallelClassLoaderFactory() {
         try {
-            ClassLoader classLoader = getClassLoader(PinpointClassLoaderFactory.class.getClassLoader());
-            final Class<? extends InnerClassLoaderFactory> parallelCapableClassLoaderFactoryClass =
-                    (Class<? extends InnerClassLoaderFactory>) Class.forName(factoryName, true, classLoader);
-            Constructor<? extends InnerClassLoaderFactory> constructor = parallelCapableClassLoaderFactoryClass.getDeclaredConstructor();
+            ClassLoader classLoader = PinpointClassLoaderFactory.class.getClassLoader();
+            final Class<? extends ClassLoaderFactory> classLoaderFactoryClazz =
+                    (Class<? extends ClassLoaderFactory>) Class.forName(PARALLEL_CLASS_LOADER_FACTORY, true, classLoader);
+            Constructor<? extends ClassLoaderFactory> constructor = classLoaderFactoryClazz.getDeclaredConstructor();
             return constructor.newInstance();
-        } catch (Exception ex) {
-            LOGGER.info("ParallelCapablePinpointClassLoader not found. {}", ex.getMessage(), ex);
-            throw new IllegalStateException("ParallelCapablePinpointClassLoader initialize fail Caused by:" + ex.getMessage(), ex);
+        } catch (Exception e) {
+            throw new IllegalStateException(PARALLEL_CLASS_LOADER_FACTORY  + " create fail Caused by:" + e.getMessage(), e);
         }
     }
 
-    private static boolean hasRegisterAsParallelCapableMethod() {
-        Method[] methods = ClassLoader.class.getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("registerAsParallelCapable")) {
-                return true;
-            }
-        }
 
-        return false;
-    }
-
-    private static ClassLoader getClassLoader(ClassLoader classLoader) {
-//         @Nullable  (class == null) is Bootstrap
-//        if (classLoader == null) {
-//            return ClassLoader.getSystemClassLoader();
-//        }
-        return classLoader;
-    }
-
-    public static ClassLoader createClassLoader(URL[] urls, ClassLoader parent) {
-        return CLASS_LOADER_FACTORY.createURLClassLoader(urls, parent);
-    }
-
-    public static ClassLoader createClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
-        return CLASS_LOADER_FACTORY.createURLClassLoader(urls, parent, libClass);
+    public static ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
+        return CLASS_LOADER_FACTORY.createClassLoader(name, urls, parent, libClass);
     }
 
 }

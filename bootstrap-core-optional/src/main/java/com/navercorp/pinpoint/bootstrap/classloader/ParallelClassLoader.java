@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -38,21 +39,22 @@ class ParallelClassLoader extends URLClassLoader {
     // WARNING : if parentClassLoader is null. it is bootstrapClassloader
     private final ClassLoader parent;
     private final LibClass libClass;
+    private final String name;
 
-    public ParallelClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
+    public ParallelClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
         super(urls, parent);
+        if (name == null) {
+            throw new NullPointerException("name must not be null");
+        }
+        this.name = name;
 
         if (libClass == null) {
             throw new NullPointerException("libClass must not be null");
         }
         this.parent = parent;
-        this.libClass = libClass;
+        this.libClass = new ProfilerLibClass(libClass);
     }
 
-
-    public ParallelClassLoader(URL[] urls, ClassLoader parent) {
-        this(urls, parent, new ProfilerLibClass());
-    }
 
     private Object getClassLoadingLock0(String name) {
         return getClassLoadingLock(name);
@@ -120,5 +122,19 @@ class ParallelClassLoader extends URLClassLoader {
 
     private boolean onLoadClass(String name) {
         return libClass.onLoadClass(name);
+    }
+
+    /**
+     * Java9 JPMS
+     */
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "ParallelClassLoader{" +
+                "name='" + name + '\'' +
+                "} " + super.toString();
     }
 }

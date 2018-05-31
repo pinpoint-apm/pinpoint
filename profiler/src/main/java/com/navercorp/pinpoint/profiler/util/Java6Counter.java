@@ -14,13 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.profiler.util;
 
-import java.lang.instrument.Instrumentation;
+import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ModuleSupportFactory {
-    ModuleSupport newModuleSupport(Instrumentation instrumentation);
+public class Java6Counter implements Counter {
+    private final LongAdder longAdder = new LongAdder();
+    @Override
+    public void increment() {
+        longAdder.increment();
+    }
+
+    @Override
+    public void add(long x) {
+        longAdder.add(x);
+    }
+
+    @Override
+    public long longValue() {
+        return longAdder.longValue();
+    }
 }

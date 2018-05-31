@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,21 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.classloader;
 
 import java.net.URL;
+import java.util.List;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * @author Taejin Koo
  */
-public class Java9ClassLoaderFactory implements InnerClassLoaderFactory {
+interface ClassLoaderFactory {
 
-    @Override
-    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent) {
-        return new Java9ClassLoader(urls, parent);
-    }
-
-    @Override
-    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
-        return new Java9ClassLoader(urls, parent, libClass);
-    }
+    ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass);
 
 }
-

@@ -23,10 +23,16 @@ import java.security.ProtectionDomain;
 /**
  * @author Woonduk Kang(emeroad)
  */
-class LocationUtils {
+final class LocationUtils {
     static URL getLocation(Class<?> clazz) {
-        ProtectionDomain protectionDomain = clazz.getProtectionDomain();
-        CodeSource codeSource = protectionDomain.getCodeSource();
+        if (clazz == null) {
+            throw new NullPointerException("clazz must not be null");
+        }
+        final ProtectionDomain protectionDomain = clazz.getProtectionDomain();
+        final CodeSource codeSource = protectionDomain.getCodeSource();
+        if (codeSource == null) {
+            return null;
+        }
         return codeSource.getLocation();
     }
 }

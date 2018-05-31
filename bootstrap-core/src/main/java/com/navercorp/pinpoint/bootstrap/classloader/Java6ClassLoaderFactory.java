@@ -17,20 +17,17 @@
 package com.navercorp.pinpoint.bootstrap.classloader;
 
 import java.net.URL;
+import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-class Java6ClassLoaderFactory implements InnerClassLoaderFactory {
+class Java6ClassLoaderFactory implements ClassLoaderFactory {
+
 
     @Override
-    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent) {
-        return new Java6ClassLoader(urls, parent);
-    }
-
-    @Override
-    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
-        return new Java6ClassLoader(urls, parent, libClass);
+    public ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
+        return new Java6ClassLoader(name, urls, parent, libClass);
     }
 
 }

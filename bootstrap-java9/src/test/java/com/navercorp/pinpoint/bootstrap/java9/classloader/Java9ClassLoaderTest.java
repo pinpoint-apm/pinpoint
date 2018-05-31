@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.classloader;
+package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
+import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
+import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
+import com.navercorp.pinpoint.bootstrap.java9.module.LocationUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
-import java.security.CodeSource;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -37,7 +39,7 @@ public class Java9ClassLoaderTest {
 
     @Test
     public void newClassLoader_bootstrap() throws ClassNotFoundException, IOException {
-        ClassLoader classLoader = new Java9ClassLoader(new URL[0], null);
+        ClassLoader classLoader = new Java9ClassLoader("test", new URL[0], null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
         classLoader.loadClass("java.lang.String");
         close(classLoader);
     }
@@ -52,10 +54,10 @@ public class Java9ClassLoaderTest {
     /**
      * TODO duplicate code
      */
-    private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
-        URL testClassJar = getJarURL(testClass);
+    private ClassLoader onLoadTest(Class<?> classLoaderType, Class testClass) throws ClassNotFoundException {
+        URL testClassJar = LocationUtils.getLocation(testClass);
         URL[] urls = {testClassJar};
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, Thread.currentThread().getContextClassLoader(), ProfilerLibs.PINPOINT_PROFILER_CLASS);
         Assert.assertSame(cl.getClass(), classLoaderType);
 
         try {
@@ -71,22 +73,12 @@ public class Java9ClassLoaderTest {
         return cl;
     }
 
-    private URL getJarURL(Class clazz) {
-        try {
-            CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
-            URL location = codeSource.getLocation();
-            URL url = location.toURI().toURL();
-            return url;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
 
 
     @Test
     public void loadClass_bootstrap() throws Exception {
 
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(new URL[]{}, null);
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), new URL[]{}, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
         Assert.assertTrue(cl instanceof Java9ClassLoader);
 
         Class<?> stringClazz1 = cl.loadClass("java.lang.String");

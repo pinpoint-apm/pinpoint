@@ -79,10 +79,14 @@ public class PlainClassLoaderHandler implements ClassInjector {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
+        if (classLoader == Object.class.getClassLoader()) {
+            throw new IllegalStateException("BootStrapClassLoader");
+        }
+
         try {
             if (bootstrapPackage.isBootstrapPackage(className)) {
-                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-                return loadClass(systemClassLoader, className);
+                final ClassLoader bootstrapClassLoader = Object.class.getClassLoader();
+                return loadClass(bootstrapClassLoader, className);
             }
             if (!isPluginPackage(className)) {
                 return loadClass(classLoader, className);
@@ -99,11 +103,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
         try {
             String name = JavaAssistUtils.jvmNameToJavaName(classPath);
             if (bootstrapPackage.isBootstrapPackage(name)) {
-                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-                if (systemClassLoader != null) {
-                    return systemClassLoader.getResourceAsStream(classPath);
-                }
-                return null;
+                // TODO search from BootStrapClassLoader
+                return ClassLoader.getSystemResourceAsStream(classPath);
             }
             if (!isPluginPackage(name)) {
                 return targetClassLoader.getResourceAsStream(classPath);
@@ -176,6 +177,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 //        }
 
         final PluginLock pluginLock = attachment.getPluginLock(pluginJarPath);
+//        not recommended pluginLock.isLoaded() check
         synchronized (pluginLock) {
             if (!pluginLock.isLoaded()) {
                 pluginLock.setLoaded();
@@ -206,7 +208,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             if (isDebug) {
                 logger.debug("loadClass:{}", className);
             }
-            return (Class<T>) classLoader.loadClass(className);
+            return (Class<T>) Class.forName(className, false, classLoader);
 
         } catch (ClassNotFoundException ex) {
             if (isDebug) {
@@ -257,7 +259,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         return classMetadata;
     }
 
-    private void define0(ClassLoader classLoader, ClassLoaderAttachment attachment, SimpleClassMetadata currentClass, Map<String, SimpleClassMetadata> classMetaMap, ClassLoadingChecker classLoadingChecker) {
+    private void define0(final ClassLoader classLoader, ClassLoaderAttachment attachment, SimpleClassMetadata currentClass, Map<String, SimpleClassMetadata> classMetaMap, ClassLoadingChecker classLoadingChecker) {
         if ("java.lang.Object".equals(currentClass.getClassName())) {
             return;
         }
@@ -297,7 +299,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     private Class<?> defineClass(ClassLoader classLoader, SimpleClassMetadata classMetadata) {
-        classLoader = getClassLoader(classLoader);
+
         if (isDebug) {
             logger.debug("define class:{} cl:{}", classMetadata.getClassName(), classLoader);
         }

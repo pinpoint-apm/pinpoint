@@ -25,7 +25,7 @@ public class ProfilerLibClassTest {
 
     @Test
     public void onLoadClass() {
-        LibClass libClass = new ProfilerLibClass();
+        LibClass libClass = new ProfilerLibClass(ProfilerLibs.PINPOINT_PROFILER_CLASS);
         Assert.assertTrue(libClass.onLoadClass("com.navercorp.pinpoint.profiler.XXX"));
     }
 }

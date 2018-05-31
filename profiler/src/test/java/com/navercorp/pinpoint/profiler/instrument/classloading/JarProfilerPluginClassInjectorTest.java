@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.bootstrap.classloader.LibClass;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.common.plugin.JarPlugin;
 import com.navercorp.pinpoint.common.plugin.Plugin;
@@ -33,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.Collections;
+import java.util.List;
 import java.util.jar.JarFile;
 
 /**
@@ -71,18 +71,9 @@ public class JarProfilerPluginClassInjectorTest {
         final Constructor<ClassLoader> constructor = aClass.getConstructor(ClassLoader.class);
         constructor.setAccessible(true);
 
-        final LibClass libClassFilter = new LibClass() {
-            @Override
-            public boolean onLoadClass(String clazzName) {
-                if (clazzName.startsWith(LOG4_IMPL)) {
-                    logger.debug("Loading {}", clazzName);
-                    return ON_LOAD_CLASS;
-                }
-                return DELEGATE_PARENT;
-            }
-        };
+        List<String> lib = Collections.singletonList(LOG4_IMPL);
 
-        ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(urlArray, ClassLoader.getSystemClassLoader(), libClassFilter);
+        ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urlArray, ClassLoader.getSystemClassLoader(), lib);
         final ClassLoader contextTypeMatchClassLoader = constructor.newInstance(testClassLoader);
 
         logger.debug("cl:{}",contextTypeMatchClassLoader);

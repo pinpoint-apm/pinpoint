@@ -70,33 +70,30 @@ public class PinpointBootStrap {
         appendToBootstrapClassLoader(instrumentation, bootstrapJarFile);
 
         ClassLoader parentClassLoader = getParentClassLoader();
-        if (ModuleUtils.isModuleSupported()) {
-            logger.info("java9 module detected");
-            logger.info("ModuleBootLoader start");
-            ModuleBootLoader moduleBootLoader = new ModuleBootLoader(instrumentation, parentClassLoader);
-            moduleBootLoader.loadModuleSupport();
-
-            // for development option
-            // avoid java.sql.Date not found
-            // will be removed future release
-            if ("platform".equalsIgnoreCase(System.getProperty("pinpoint.dev.option.agentClassLoader"))) {
-                parentClassLoader = moduleBootLoader.getPlatformClassLoader();
-                logger.info("override parentClassLoader:" + parentClassLoader);
-            }
-        }
-
-        PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, bootstrapJarFile, classPathResolver, instrumentation);
+        final ModuleBootLoader moduleBootLoader = loadModuleBootLoader(instrumentation, parentClassLoader);
+        PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, bootstrapJarFile, classPathResolver, instrumentation, moduleBootLoader);
         if (!bootStrap.start()) {
             logPinpointAgentLoadFail();
         }
 
     }
 
+    private static ModuleBootLoader loadModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
+        if (!ModuleUtils.isModuleSupported()) {
+            return null;
+        }
+        logger.info("java9 module detected");
+        logger.info("ModuleBootLoader start");
+        ModuleBootLoader moduleBootLoader = new ModuleBootLoader(instrumentation, parentClassLoader);
+        moduleBootLoader.loadModuleSupport();
+        return moduleBootLoader;
+    }
+
 
     private static ClassLoader getParentClassLoader() {
         final ClassLoader classLoader = getPinpointBootStrapClassLoader();
         if (classLoader == Object.class.getClassLoader()) {
-            logger.info("parentClassLoader:BootStrapClassLoader ref{}" + classLoader );
+            logger.info("parentClassLoader:BootStrapClassLoader:" + classLoader );
         } else {
             logger.info("parentClassLoader:" + classLoader);
         }

@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.common.trace;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,11 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.common.plugin.PluginLoaderClassLoader;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 /**
  * @author Jongho Moon

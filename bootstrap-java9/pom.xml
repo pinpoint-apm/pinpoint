@@ -90,7 +90,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>bootstrap.java9</Automatic-Module-Name>
+                            <Automatic-Module-Name>pinpoint.bootstrap.java9</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -111,6 +111,7 @@
                     <executable>${jdk.home}/bin/javac</executable>
                     <compilerArgs>
                         <arg>--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.base/jdk.internal.module=ALL-UNNAMED</arg>
                         <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
                     </compilerArgs>
                 </configuration>
@@ -138,6 +139,7 @@
                     </excludes>
                     <argLine>
                         --add-exports java.base/jdk.internal.loader=ALL-UNNAMED
+                        --add-exports java.base/jdk.internal.module=ALL-UNNAMED
                         --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
                         -Dfile.encoding=${encoding}
                     </argLine>

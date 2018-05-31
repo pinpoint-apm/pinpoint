@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.classloader;
+package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
 
 import java.io.IOException;
@@ -24,23 +24,20 @@ import java.util.Enumeration;
 /**
  * @author Woonduk Kang(emeroad)
  */
-class Java9BootLoader implements BootLoader {
+class Java9BootLoader {
 
     Java9BootLoader() {
     }
 
-    @Override
-    public Enumeration<URL> findResources(String name) throws IOException {
+    Enumeration<URL> findResources(String name) throws IOException {
         return jdk.internal.loader.BootLoader.findResources(name);
     }
 
-    @Override
-    public URL findResource(String name) {
+    URL findResource(String name) {
         return jdk.internal.loader.BootLoader.findResource(name);
     }
 
-    @Override
-    public Class<?> findBootstrapClassOrNull(ClassLoader classLoader, String name) {
+    Class<?> findBootstrapClassOrNull(ClassLoader classLoader, String name) {
         return jdk.internal.loader.BootLoader.loadClassOrNull(name);
     }
 

@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.common.util.Assert;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,9 +54,9 @@ public class ServerPluginLoader implements PluginLoader {
     }
 
     private <T> Plugin<T> newPlugin(T plugin) {
-        URL pluginURL = getPluginUrl(plugin);
+        URL pluginURL = LocationUtils.getLocation(plugin.getClass());
 
-        final File file = new File(pluginURL.getPath());
+        final File file = new File(pluginURL.getFile());
         if (file.isDirectory()) {
             return new DirClassPathPlugin<T>(pluginURL, Collections.singletonList(plugin), Collections.<String>emptyList());
         }
@@ -70,11 +68,6 @@ public class ServerPluginLoader implements PluginLoader {
         throw new IllegalArgumentException("unknown plugin " + pluginURL);
     }
 
-    private <T> URL getPluginUrl(T plugin) {
-        ProtectionDomain protectionDomain = plugin.getClass().getProtectionDomain();
-        CodeSource codeSource = protectionDomain.getCodeSource();
-        return codeSource.getLocation();
-    }
 
     private JarFile toJarFile(File file) {
         try {

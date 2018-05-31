@@ -33,7 +33,7 @@ public class PluginConfig {
 
 
     public static final String PINPOINT_PLUGIN_PACKAGE = "Pinpoint-Plugin-Package";
-    public static final List<String> DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME = Collections.singletonList("com.navercorp.pinpoint.plugin");
+    public static final String DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME = "com.navercorp.pinpoint.plugin";
 
     private final Plugin plugin;
     private final JarFile pluginJar;
