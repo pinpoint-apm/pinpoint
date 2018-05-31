@@ -35,7 +35,7 @@ public class PluginLoaderProvider implements Provider<PluginLoader> {
     @Inject
     public PluginLoaderProvider(@PluginJars List<String> urls) {
         // TODO configuration support
-        this.parentClassLoader = ClassLoader.getSystemClassLoader();
+        this.parentClassLoader = Object.class.getClassLoader();
 
         this.pluginLoader = new JarPluginLoader(urls, parentClassLoader);
     }

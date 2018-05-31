@@ -30,7 +30,7 @@ public class ParallelClassLoaderTest {
     private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
         URL testClassJar = getJarURL(testClass);
         URL[] urls = {testClassJar};
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, Thread.currentThread().getContextClassLoader(), ProfilerLibs.PINPOINT_PROFILER_CLASS);
         Assert.assertSame(cl.getClass(), classLoaderType);
 
         try {
@@ -65,7 +65,7 @@ public class ParallelClassLoaderTest {
 
     @Test
     public void testBootstrapClassLoader() throws Exception {
-        ClassLoader classLoader = new ParallelClassLoader(new URL[0], null);
+        ClassLoader classLoader = new ParallelClassLoader(this.getClass().getName(), new URL[0], null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
         close(classLoader);
     }
 

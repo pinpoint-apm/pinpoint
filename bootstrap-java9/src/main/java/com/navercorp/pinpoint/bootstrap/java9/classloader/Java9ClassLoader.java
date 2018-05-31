@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.classloader;
+package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+import java.util.List;
 
-/**
- * this ClassLoader loads a class in the profiler lib directory and delegates to load the other classes to parent classloader
- * Dead lock could happen in case of standalone java application.
- * Don't delegate to parents classlaoder if classes are in the profiler lib directory
- *
- * @author emeroad
- */
 public class Java9ClassLoader extends URLClassLoader {
 
     static {
@@ -36,25 +31,33 @@ public class Java9ClassLoader extends URLClassLoader {
         }
     }
 
-    private final BootLoader bootLoader = new Java9BootLoader();
+    private final Java9BootLoader bootLoader = new Java9BootLoader();
     //  @Nullable
     // WARNING : if parentClassLoader is null. it is bootstrapClassloader
     private final ClassLoader parent;
-    private final LibClass libClass;
+    private final ProfilerLibClass profilerLibClass;
 
-
-    public Java9ClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
-        super(urls, parent);
+    public Java9ClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
+        super(name, urls, parent);
+        this.parent = parent;
 
         if (libClass == null) {
-            throw new NullPointerException("libClass must not be null");
+            throw new NullPointerException("profilerLibClass must not be null");
         }
-        this.parent = parent;
-        this.libClass = libClass;
+        this.profilerLibClass = new ProfilerLibClass(libClass);
     }
 
-    public Java9ClassLoader(URL[] urls, ClassLoader parent) {
-        this(urls, parent, new ProfilerLibClass());
+    @Override
+    protected URL findResource(String moduleName, String name) throws IOException {
+        if (getName().equals(moduleName)) {
+            return findResource(name);
+        }
+        return null;
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String name) {
+        return super.getResourceAsStream(name);
     }
 
     private Object getClassLoadingLock0(String name) {
@@ -86,7 +89,7 @@ public class Java9ClassLoader extends URLClassLoader {
             parentResource = bootLoader.findResources(name);
         }
 
-        return new MergedEnumeration2<URL>(currentResource, parentResource);
+        return new MergedEnumeration2<>(currentResource, parentResource);
     }
 
     @Override
@@ -123,6 +126,13 @@ public class Java9ClassLoader extends URLClassLoader {
 
     // for test
     private boolean onLoadClass(String name) {
-        return libClass.onLoadClass(name);
+        return profilerLibClass.onLoadClass(name);
+    }
+
+    @Override
+    public String toString() {
+        return "Java9ClassLoader{" +
+                "name=" + getName() +
+                "} " + super.toString();
     }
 }

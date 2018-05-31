@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.common.plugin;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -27,9 +25,12 @@ import java.util.jar.Manifest;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class JarFileUtils {
+public final class JarFileUtils {
 
-    public static List<String> readManifestToList(JarFile jarFile, String key, List<String> defaultValue) {
+    private JarFileUtils() {
+    }
+
+    public static String getManifestValue(JarFile jarFile, String key, String defaultValue) {
         final Manifest manifest = getManifest(jarFile);
         if (manifest == null) {
             return defaultValue;
@@ -40,7 +41,7 @@ public class JarFileUtils {
         if (value == null) {
             return defaultValue;
         }
-        return StringUtils.tokenizeToStringList(value, ",");
+        return value;
     }
 
 

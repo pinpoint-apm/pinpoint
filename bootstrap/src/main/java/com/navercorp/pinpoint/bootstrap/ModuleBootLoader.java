@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.URL;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,6 +30,8 @@ class ModuleBootLoader {
     // @Nullable
     private final ClassLoader parentClassLoader;
 
+    private Object moduleSupport;
+
     ModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
@@ -37,35 +40,38 @@ class ModuleBootLoader {
         this.parentClassLoader = parentClassLoader;
     }
 
-    ClassLoader getPlatformClassLoader() {
-        try {
-            Method getPlatformClassLoader = ClassLoader.class.getDeclaredMethod("getPlatformClassLoader");
-            return (ClassLoader) getPlatformClassLoader.invoke(ClassLoader.class);
-        } catch (Exception ex) {
-            throw new IllegalStateException("getPlatformClassLoader() fail Caused by:" +ex.getMessage(), ex);
-        }
-    }
-
     void loadModuleSupport() {
         try {
             Class<?> bootStrapClass = getModuleSupportFactoryClass(parentClassLoader);
             Object moduleSupportFactory = newModuleSupportFactory(bootStrapClass);
 
             Method newModuleSupportMethod = moduleSupportFactory.getClass().getMethod("newModuleSupport", Instrumentation.class);
-            Object moduleSupport = newModuleSupportMethod.invoke(moduleSupportFactory, instrumentation);
+            this.moduleSupport = newModuleSupportMethod.invoke(moduleSupportFactory, instrumentation);
 
             Class<?> moduleSupportSetup = moduleSupport.getClass();
             Method setupMethod = moduleSupportSetup.getMethod("setup");
             setupMethod.invoke(moduleSupport);
         } catch (Exception e) {
-            System.out.println("ModuleSupport startup fail:" + e.getMessage());
-            e.printStackTrace();
+            throw new IllegalStateException("moduleSupport load fail Caused by:" + e.getMessage(), e);
         }
     }
 
+    void defineAgentModule(ClassLoader classLoader, URL[] jarFileList) {
+        if (moduleSupport == null) {
+            throw new IllegalStateException("moduleSupport not loaded");
+        }
+        try {
+            Method definePinpointPackage = this.moduleSupport.getClass().getDeclaredMethod("defineAgentModule", ClassLoader.class, URL[].class);
+            definePinpointPackage.invoke(moduleSupport, classLoader, jarFileList);
+        } catch (Exception ex) {
+            throw new IllegalStateException("defineAgentPackage fail: Caused by:" + ex.getMessage(), ex);
+        }
+    }
+
+
     private Class<?> getModuleSupportFactoryClass(ClassLoader parentClassLoader) {
         try {
-            return Class.forName("com.navercorp.pinpoint.bootstrap.module.Java9ModuleSupportFactory", false, parentClassLoader);
+            return Class.forName("com.navercorp.pinpoint.bootstrap.java9.module.ModuleSupportFactory", false, parentClassLoader);
         } catch (ClassNotFoundException ex) {
             throw new IllegalStateException("ModuleSupportFactory not found Caused by:" + ex.getMessage(), ex);
         }

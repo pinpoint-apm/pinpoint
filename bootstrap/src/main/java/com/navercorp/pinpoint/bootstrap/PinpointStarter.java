@@ -15,6 +15,8 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
+import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.Version;
@@ -24,6 +26,8 @@ import com.navercorp.pinpoint.common.util.SystemProperty;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +55,13 @@ class PinpointStarter {
     private final ClassPathResolver classPathResolver;
     private final Instrumentation instrumentation;
     private final ClassLoader parentClassLoader;
+    private final ModuleBootLoader moduleBootLoader;
 
 
-    public PinpointStarter(ClassLoader parentClassLoader, Map<String, String> agentArgs, BootstrapJarFile bootstrapJarFile, ClassPathResolver classPathResolver, Instrumentation instrumentation) {
+    public PinpointStarter(ClassLoader parentClassLoader, Map<String, String> agentArgs,
+                           BootstrapJarFile bootstrapJarFile,
+                           ClassPathResolver classPathResolver,
+                           Instrumentation instrumentation, ModuleBootLoader moduleBootLoader) {
         //        null == BootstrapClassLoader
 //        if (bootstrapClassLoader == null) {
 //            throw new NullPointerException("bootstrapClassLoader must not be null");
@@ -75,8 +83,10 @@ class PinpointStarter {
         this.parentClassLoader = parentClassLoader;
         this.classPathResolver = classPathResolver;
         this.instrumentation = instrumentation;
+        this.moduleBootLoader = moduleBootLoader;
 
     }
+
 
     boolean start() {
         final IdValidator idValidator = new IdValidator();
@@ -105,10 +115,15 @@ class PinpointStarter {
             ProfilerConfig profilerConfig = DefaultProfilerConfig.load(configPath);
 
             // this is the library list that must be loaded
-            URL[] urls = resolveLib(classPathResolver);
+            final URL[] urls = resolveLib(classPathResolver);
+            final ClassLoader agentClassLoader = createClassLoader("pinpoint.agent", urls, parentClassLoader);
+            if (moduleBootLoader != null) {
+                this.logger.info("defineAgentModule");
+                moduleBootLoader.defineAgentModule(agentClassLoader, urls);
+            }
 
             final String bootClass = getBootClass();
-            AgentBootLoader agentBootLoader = new AgentBootLoader(bootClass, urls, parentClassLoader);
+            AgentBootLoader agentBootLoader = new AgentBootLoader(bootClass, urls, agentClassLoader);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
 
             AgentOption option = createAgentOption(agentId, applicationName, profilerConfig, instrumentation, pluginJars, bootstrapJarFile);
@@ -122,6 +137,18 @@ class PinpointStarter {
             return false;
         }
         return true;
+    }
+
+    private ClassLoader createClassLoader(final String name, final URL[] urls, final ClassLoader parentClassLoader) {
+        if (System.getSecurityManager() != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, ProfilerLibs.PINPOINT_PROFILER_CLASS);
+                }
+            });
+        } else {
+            return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        }
     }
 
     private String getBootClass() {
@@ -213,12 +240,11 @@ class PinpointStarter {
             }
             logger.info("agent config:" + agentConfigPath);
         }
-
         return urlList.toArray(new URL[0]);
     }
 
     private List<URL> resolveLib(List<URL> urlList) {
-        if (DEFAULT_AGENT.equals(getAgentType().toUpperCase())) {
+        if (DEFAULT_AGENT.equalsIgnoreCase(getAgentType())) {
             final List<URL> releaseLib = new ArrayList<URL>(urlList.size());
             for (URL url : urlList) {
                 //

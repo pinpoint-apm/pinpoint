@@ -16,12 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
-
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
 
 
@@ -38,7 +34,7 @@ public class AgentBootLoader {
 
     private final ContextClassLoaderExecuteTemplate<Object> executeTemplate;
 
-    public AgentBootLoader(String bootClass, URL[] urls, ClassLoader parentClassLoader) {
+    public AgentBootLoader(String bootClass, URL[] urls, ClassLoader agentClassLoader) {
         if (bootClass == null) {
             throw new NullPointerException("bootClass must not be null");
         }
@@ -46,20 +42,8 @@ public class AgentBootLoader {
             throw new NullPointerException("urls");
         }
         this.bootClass = bootClass;
-        this.classLoader = createClassLoader(urls, parentClassLoader);
-        this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(parentClassLoader);
-    }
-
-    private ClassLoader createClassLoader(final URL[] urls, final ClassLoader parentClassLoader) {
-        if (SECURITY_MANAGER != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-                public ClassLoader run() {
-                    return PinpointClassLoaderFactory.createClassLoader(urls, parentClassLoader);
-                }
-            });
-        } else {
-            return PinpointClassLoaderFactory.createClassLoader(urls, parentClassLoader);
-        }
+        this.classLoader = agentClassLoader;
+        this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(agentClassLoader);
     }
 
     public Agent boot(final AgentOption agentOption) {

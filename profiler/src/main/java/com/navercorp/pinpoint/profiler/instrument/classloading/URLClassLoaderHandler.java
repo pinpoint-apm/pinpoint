@@ -43,7 +43,7 @@ public class URLClassLoaderHandler implements ClassInjector {
             ADD_URL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
             ADD_URL.setAccessible(true);
         } catch (Exception e) {
-            throw new PinpointException("Cannot access URLClassLoader.addURL(URL)", e);
+            throw new IllegalStateException("Cannot access URLClassLoader.addURL(URL)", e);
         }
     }
 

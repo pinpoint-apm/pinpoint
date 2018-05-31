@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.classloader;
+package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
 import org.junit.Assert;
 import org.junit.Ignore;

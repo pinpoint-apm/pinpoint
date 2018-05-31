@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,20 +17,14 @@
 package com.navercorp.pinpoint.bootstrap.classloader;
 
 import java.net.URL;
+import java.util.List;
 
 /**
- * @author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-class ParallelClassLoaderFactory implements InnerClassLoaderFactory {
-
+public class ParallelClassLoaderFactory implements ClassLoaderFactory {
     @Override
-    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent) {
-        return new ParallelClassLoader(urls, parent);
+    public ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
+        return new ParallelClassLoader(name, urls, parent, libClass);
     }
-
-    @Override
-    public ClassLoader createURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
-        return new ParallelClassLoader(urls, parent, libClass);
-    }
-
 }

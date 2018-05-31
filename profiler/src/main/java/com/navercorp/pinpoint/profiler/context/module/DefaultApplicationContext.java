@@ -21,11 +21,14 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
@@ -43,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -100,6 +104,10 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.dynamicTransformTrigger = injector.getInstance(DynamicTransformTrigger.class);
 
         ClassFileTransformer classFileTransformer = wrap(this.classFileTransformer);
+        final JvmVersion version = JvmUtils.getVersion();
+        if (version.onOrAfter(JvmVersion.JAVA_9)) {
+            classFileTransformer = wrapJava9ClassFileTransformer(instrumentation, classFileTransformer);
+        }
         instrumentation.addTransformer(classFileTransformer, true);
 
         this.spanStatClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanStatClientFactory.class));
@@ -126,6 +134,18 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+    }
+
+    private ClassFileTransformer wrapJava9ClassFileTransformer(Instrumentation instrumentation, ClassFileTransformer classFileTransformer) {
+        logger.info("initialize Java9ClassFileTransformer");
+        String java9Transformer = "com.navercorp.pinpoint.bootstrap.java9.module.Java9ClassFileTransformer";
+        try {
+            Class<?> cftClass = Class.forName(java9Transformer, false, Object.class.getClassLoader());
+            Method constructor = cftClass.getDeclaredMethod("wrap", Instrumentation.class, ClassFileTransformer.class, Class.class);
+            return (ClassFileTransformer) constructor.invoke(cftClass, instrumentation, classFileTransformer, Agent.class);
+        } catch (Exception e) {
+            throw new IllegalStateException("Java9ClassFileTransformer load fail Caused by:" + e.getMessage(), e);
+        }
     }
 
     private ClassFileTransformer wrap(ClassFileTransformer classFileTransformer) {

@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.plugin.JarFileUtils;
 import com.navercorp.pinpoint.common.plugin.JarPlugin;
 import com.navercorp.pinpoint.common.plugin.Plugin;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.common.plugin.PluginLoaderClassLoader;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -61,7 +62,8 @@ public class JarPluginLoader implements PluginLoader {
 
     public JarPluginLoader(List<String> pluginJar, ClassLoader parentClassLoader) {
         this.serviceLoaderList = loadPluginJar(pluginJar);
-        this.parentClassLoader = Assert.requireNonNull(parentClassLoader, "parentClassLoader must not be null");
+        //@Nullable
+        this.parentClassLoader = parentClassLoader;
     }
 
     private List<Entry> loadPluginJar(List<String> pluginJar) {
@@ -134,13 +136,13 @@ public class JarPluginLoader implements PluginLoader {
             logger.debug("createPluginClassLoader(urls = [{}], parent = [{}])", Arrays.toString(urls), parent);
         }
         if (SECURITY_MANAGER != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<PluginLoaderClassLoader>() {
-                public PluginLoaderClassLoader run() {
-                    return new PluginLoaderClassLoader(urls, parent);
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return new URLClassLoader(urls, parent);
                 }
             });
         } else {
-            return new PluginLoaderClassLoader(urls, parent);
+            return new URLClassLoader(urls, parent);
         }
     }
 
@@ -169,9 +171,10 @@ public class JarPluginLoader implements PluginLoader {
         ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceType, entry.getClassLoader());
         List<T> pluginList = toList(serviceLoader, serviceType);
         JarFile jarFile = createJarFile(entry.getFile());
-        List<String> pluginPackage = JarFileUtils.readManifestToList(jarFile, PluginConfig.PINPOINT_PLUGIN_PACKAGE, PluginConfig.DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME);
+        String pluginPackages = JarFileUtils.getManifestValue(jarFile, PluginConfig.PINPOINT_PLUGIN_PACKAGE, PluginConfig.DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME);
+        List<String> pluginPackageList = StringUtils.tokenizeToStringList(pluginPackages, ",");
 
-        return new JarPlugin<T>(pluginURL, jarFile, pluginList, pluginPackage);
+        return new JarPlugin<T>(pluginURL, jarFile, pluginList, pluginPackageList);
     }
 
 

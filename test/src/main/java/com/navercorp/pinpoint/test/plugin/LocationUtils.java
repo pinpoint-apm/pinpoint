@@ -14,12 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.test.plugin;
+
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ModuleSupport {
+class LocationUtils {
 
-    void setup();
+    static URL getLocation(Class<?> clazz) {
+        if (clazz == null) {
+            throw new NullPointerException("clazz must not be null");
+        }
+
+        final ProtectionDomain protectionDomain = clazz.getProtectionDomain();
+        final CodeSource codeSource = protectionDomain.getCodeSource();
+        if (codeSource == null) {
+            return null;
+        }
+        return codeSource.getLocation();
+    }
 }

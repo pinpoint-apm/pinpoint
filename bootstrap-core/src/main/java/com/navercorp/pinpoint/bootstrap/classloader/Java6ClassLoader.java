@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * this ClassLoader loads a class in the profiler lib directory and delegates to load the other classes to parent classloader
@@ -35,20 +36,22 @@ public class Java6ClassLoader extends URLClassLoader {
     // WARNING : if parentClassLoader is null. it is bootstrapClassloader
     private final ClassLoader parent;
     private final LibClass libClass;
+    private final String name;
 
-    public Java6ClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
+    public Java6ClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
         super(urls, parent);
+        if (name == null) {
+            throw new NullPointerException("name must not be null");
+        }
+        this.name = name;
 
         if (libClass == null) {
             throw new NullPointerException("libClass must not be null");
         }
         this.parent = parent;
-        this.libClass = libClass;
+        this.libClass = new ProfilerLibClass(libClass);
     }
 
-    public Java6ClassLoader(URL[] urls, ClassLoader parent) {
-        this(urls, parent, new ProfilerLibClass());
-    }
 
     private Object getClassLoadingLock0(String name) {
         return this;
@@ -117,5 +120,19 @@ public class Java6ClassLoader extends URLClassLoader {
     // for test
     private boolean onLoadClass(String name) {
         return libClass.onLoadClass(name);
+    }
+
+    /**
+     * java9 JPMS
+     */
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Java6ClassLoader{" +
+                "name='" + name + '\'' +
+                "} " + super.toString();
     }
 }
