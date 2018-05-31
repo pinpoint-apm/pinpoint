@@ -55,9 +55,9 @@ public class AgentEventHandler implements SimpleHandler {
     public void handleSimple(ServerRequest serverRequest) {
         if (serverRequest instanceof ThriftRequest) {
             handleSimple(((ThriftRequest)serverRequest).getData());
+        } else {
+            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
         }
-
-        throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
     }
 
     @Override
