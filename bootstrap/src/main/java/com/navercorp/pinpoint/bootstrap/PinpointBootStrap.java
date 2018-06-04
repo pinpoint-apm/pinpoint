@@ -23,6 +23,11 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirBaseClassPathResolver;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
+import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
+import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
+import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
 
 /**
  * @author emeroad
@@ -60,18 +65,19 @@ public class PinpointBootStrap {
         String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
         logger.info("JavaAgentPath:" + agentPath);
         final ClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(agentPath);
-        if (!classPathResolver.verify()) {
+
+        final AgentDirectory agentDirectory = resolveAgentDir(classPathResolver);
+        if (agentDirectory == null) {
             logger.warn("Agent Directory Verify fail. skipping agent loading.");
             logPinpointAgentLoadFail();
             return;
         }
-
-        BootstrapJarFile bootstrapJarFile = classPathResolver.getBootstrapJarFile();
-        appendToBootstrapClassLoader(instrumentation, bootstrapJarFile);
+        BootDir bootDir = agentDirectory.getBootDir();
+        appendToBootstrapClassLoader(instrumentation, bootDir);
 
         ClassLoader parentClassLoader = getParentClassLoader();
         final ModuleBootLoader moduleBootLoader = loadModuleBootLoader(instrumentation, parentClassLoader);
-        PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, bootstrapJarFile, classPathResolver, instrumentation, moduleBootLoader);
+        PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, agentDirectory, instrumentation, moduleBootLoader);
         if (!bootStrap.start()) {
             logPinpointAgentLoadFail();
         }
@@ -87,6 +93,16 @@ public class PinpointBootStrap {
         ModuleBootLoader moduleBootLoader = new ModuleBootLoader(instrumentation, parentClassLoader);
         moduleBootLoader.loadModuleSupport();
         return moduleBootLoader;
+    }
+
+    private static AgentDirectory resolveAgentDir(ClassPathResolver classPathResolver) {
+        try {
+            AgentDirectory agentDir = classPathResolver.resolve();
+            return agentDir;
+        } catch(Exception e) {
+            logger.warn("AgentDir resolve fail Caused by:" + e.getMessage(), e);
+            return null;
+        }
     }
 
 
@@ -114,9 +130,9 @@ public class PinpointBootStrap {
         return agentArgsMap;
     }
 
-    private static void appendToBootstrapClassLoader(Instrumentation instrumentation, BootstrapJarFile agentJarFile) {
-        List<JarFile> jarFileList = agentJarFile.getJarFileList();
-        for (JarFile jarFile : jarFileList) {
+    private static void appendToBootstrapClassLoader(Instrumentation instrumentation, BootDir bootDir) {
+        List<JarFile> jarFiles = bootDir.openJarFiles();
+        for (JarFile jarFile : jarFiles) {
             logger.info("appendToBootstrapClassLoader:" + jarFile.getName());
             instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
         }

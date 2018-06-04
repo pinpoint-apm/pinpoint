@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 public class JavaAgentPathResolver {
 
     static final String JAVA_AGENT_OPTION = "-javaagent:";
-    private final Pattern DEFAULT_AGENT_PATTERN = AgentDirBaseClassPathResolver.DEFAULT_AGENT_PATTERN;
+    private final Pattern DEFAULT_AGENT_PATTERN = AgentDirBaseClassPathResolver.DEFAULT_AGENT_BOOTSTRAP_PATTERN;
 
     private final ResolvingType resolvingType;
 
