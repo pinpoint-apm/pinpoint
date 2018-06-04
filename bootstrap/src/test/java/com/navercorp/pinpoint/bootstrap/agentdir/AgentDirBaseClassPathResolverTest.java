@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap.agentdir;
 
+import com.navercorp.pinpoint.bootstrap.AgentDirGenerator;
 import com.navercorp.pinpoint.common.Version;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -92,31 +93,31 @@ public class AgentDirBaseClassPathResolverTest {
         logger.debug("agentBootstrapPath:{}", agentBootstrapPath);
 
         AgentDirBaseClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(agentBootstrapPath);
-        Assert.assertTrue("verify agent directory ", classPathResolver.verify());
+        AgentDirectory agentDirectory = classPathResolver.resolve();
+        Assert.assertTrue("verify agent directory ", agentDirectory != null);
 
-        boolean findAgentJar = classPathResolver.findAgentJar();
-        Assert.assertTrue(findAgentJar);
+        String findAgentJar = agentDirectory.getAgentJarName();
+        Assert.assertNotNull(findAgentJar);
 
-        String agentJar = classPathResolver.getAgentJarName();
+        String agentJar = agentDirectory.getAgentJarName();
         Assert.assertEquals(BOOTSTRAP_JAR, agentJar);
 
-        String agentPath = classPathResolver.getAgentJarFullPath();
+        String agentPath = agentDirectory.getAgentJarFullPath();
         Assert.assertEquals(agentBootstrapPath, agentPath);
 
-        String agentDirPath = classPathResolver.getAgentDirPath();
+        String agentDirPath = agentDirectory.getAgentDirPath();
         Assert.assertEquals(agentBuildDir, agentDirPath);
 
-        String agentLibPath = classPathResolver.getAgentLibPath();
+        String agentLibPath = agentDirectory.getAgentLibPath();
         Assert.assertEquals(agentBuildDir + File.separator + "lib", agentLibPath);
 
-        BootstrapJarFile bootstrapJarFile = classPathResolver.getBootstrapJarFile();
+        List<JarFile> bootstrapJarFile = agentDirectory.getBootDir().openJarFiles();
         closeJarFile(bootstrapJarFile);
 
     }
 
-    private void closeJarFile(BootstrapJarFile bootstrapJarFile) {
-        final List<JarFile> jarFileList = bootstrapJarFile.getJarFileList();
-        for (JarFile jarFile : jarFileList) {
+    private void closeJarFile(List<JarFile> jarFiles) {
+        for (JarFile jarFile : jarFiles) {
             try {
                 jarFile.close();
             } catch (IOException e) {
@@ -147,14 +148,14 @@ public class AgentDirBaseClassPathResolverTest {
 
     private void findAgentJar(String path) {
         AgentDirBaseClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(path);
-        boolean agentJar = classPathResolver.findAgentJar();
-        Assert.assertTrue(agentJar);
+        String agentJar = classPathResolver.findBootstrapJar(path);
+        Assert.assertNotNull(agentJar);
     }
 
     private void findAgentJarAssertFail(String path) {
         AgentDirBaseClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(path);
-        boolean agentJar = classPathResolver.findAgentJar();
-        Assert.assertFalse(agentJar);
+        String agentJar = classPathResolver.findBootstrapJar(path);
+        Assert.assertNull(agentJar);
     }
 
 }
