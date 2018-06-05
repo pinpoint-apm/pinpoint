@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.profiler.AgentInformation;
 
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
@@ -56,6 +57,7 @@ public class DefaultTraceContext implements TraceContext {
     private final ApiMetaDataService apiMetaDataService;
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
+    private final JsonMetaDataService jsonMetaDataService;
 
     private final ProfilerConfig profilerConfig;
 
@@ -72,7 +74,8 @@ public class DefaultTraceContext implements TraceContext {
                                final ApiMetaDataService apiMetaDataService,
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
-                               final JdbcContext jdbcContext
+                               final JdbcContext jdbcContext,
+                               final JsonMetaDataService jsonMetaDataService
     ) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
@@ -87,6 +90,7 @@ public class DefaultTraceContext implements TraceContext {
         this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
         this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
         this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
+        this.jsonMetaDataService = Assert.requireNonNull(jsonMetaDataService, "jsonMetaDataService must not be null");
     }
 
     /**
@@ -235,6 +239,11 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public boolean cacheSql(ParsingResult parsingResult) {
         return this.sqlMetaDataService.cacheSql(parsingResult);
+    }
+
+    @Override
+    public ParsingResult parseJson(final String json) {
+        return this.jsonMetaDataService.parseJson(json);
     }
 
     @Override
