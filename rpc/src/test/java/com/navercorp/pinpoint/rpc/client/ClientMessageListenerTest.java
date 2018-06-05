@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.rpc.client;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.rpc.TestAwaitUtils;
+import com.navercorp.pinpoint.rpc.server.EchoServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils.EchoClientListener;
 import org.junit.Assert;
@@ -47,7 +47,7 @@ public class ClientMessageListenerTest {
 
     @Test
     public void clientMessageListenerTest1() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
         EchoClientListener echoMessageListener = new EchoClientListener();
         PinpointClientFactory clientSocketFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), echoMessageListener);
@@ -70,7 +70,7 @@ public class ClientMessageListenerTest {
 
     @Test
     public void clientMessageListenerTest2() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
         EchoClientListener echoMessageListener1 = PinpointRPCTestUtils.createEchoClientListener();
         PinpointClientFactory clientSocketFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), echoMessageListener1);

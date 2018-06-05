@@ -87,7 +87,13 @@
             <artifactId>commons-lang3</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-rpc</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
         <!-- [End] Compile Interceptors -->
 

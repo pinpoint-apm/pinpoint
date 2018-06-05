@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
-import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.EchoServerMessageListenerFactory;
+import com.navercorp.pinpoint.rpc.server.CountCheckServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.jboss.netty.channel.ChannelFuture;
 import org.junit.AfterClass;
@@ -98,13 +97,12 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void pingInternal() throws IOException, InterruptedException {
+        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
+
         final CountDownLatch pingLatch = new CountDownLatch(1);
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
-            @Override
-            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-                pingLatch.countDown();
-            }
-        });
+        messageListenerFactory.setPingCountDownLatch(pingLatch);
+
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, messageListenerFactory);
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
@@ -130,7 +128,7 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void pingAndRequestResponse() throws IOException, InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
@@ -147,7 +145,7 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void sendSync() throws IOException, InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
@@ -164,7 +162,7 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void requestAndResponse() throws IOException, InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
