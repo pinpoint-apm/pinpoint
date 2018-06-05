@@ -12,6 +12,18 @@
     <name>pinpoint-ning-asynchttpclient-plugin</name>
     <packaging>jar</packaging>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-plugin-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <properties>
         <jdk.version>1.6</jdk.version>
         <!-- for org.asynchttpclient -->
