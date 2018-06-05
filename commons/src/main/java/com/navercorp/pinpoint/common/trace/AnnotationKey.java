@@ -174,6 +174,10 @@ public interface AnnotationKey {
     AnnotationKey HTTP_IO = AnnotationKeyFactory.of(49, "http.io", VIEW_IN_RECORD_SET);
     // post method parameter of httpclient
 
+    AnnotationKey JSON = AnnotationKeyFactory.of(51, "JSON");
+    AnnotationKey MONGO_COLLECTIONINFO = AnnotationKeyFactory.of(52, "Collection-Info", VIEW_IN_RECORD_SET);
+    AnnotationKey JSON_BINDVALUE = AnnotationKeyFactory.of(54, "JSON-BindValue", VIEW_IN_RECORD_SET);
+
     AnnotationKey MESSAGE_QUEUE_URI = AnnotationKeyFactory.of(100, "message.queue.url");
 
     AnnotationKey ARGS0 = AnnotationKeyFactory.of(-1, "args[0]");
