@@ -17,16 +17,10 @@
 package com.navercorp.pinpoint.web.cluster.connection;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.UnsupportOperationMessageListener;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.server.ChannelFilter;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.web.util.WebUtils;
 import org.slf4j.Logger;
@@ -34,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Taejin Koo
@@ -60,7 +53,7 @@ public class ClusterAcceptor implements ClusterConnectionProvider {
     public void start() {
         logger.info("{} initialization started.", ClassUtils.simpleClassName(this));
 
-        this.serverAcceptor.setMessageListener(new WebClusterAcceptorListener());
+        this.serverAcceptor.setMessageListenerFactory(new ClusterAcceptorMessageListenerFactory());
         this.serverAcceptor.bind(new InetSocketAddress(bindHost, bindPort));
 
         logger.info("{} initialization completed.", ClassUtils.simpleClassName(this));
@@ -88,21 +81,6 @@ public class ClusterAcceptor implements ClusterConnectionProvider {
     @Override
     public List<PinpointSocket> getClusterSocketList() {
         return serverAcceptor.getWritableSocketList();
-    }
-
-    private class WebClusterAcceptorListener extends UnsupportOperationMessageListener implements ServerMessageListener {
-
-        @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.warn("do handShake {}", properties);
-            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-        }
-
-        @Override
-        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-            logger.debug("ping received packet:{}, remote:{}", pingPacket, pinpointServer);
-        }
-
     }
 
 }

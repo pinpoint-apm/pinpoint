@@ -58,7 +58,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListener(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
@@ -83,7 +83,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListener(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;

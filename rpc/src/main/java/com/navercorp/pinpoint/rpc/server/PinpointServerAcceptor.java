@@ -81,7 +81,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final PinpointServerChannelHandler nettyChannelHandler = new PinpointServerChannelHandler();
 
-    private ServerMessageListener messageListener = SimpleServerMessageListener.SIMPLEX_INSTANCE;
+    private ServerMessageListenerFactory messageListenerFactory = new LoggingServerMessageListenerFactory();
+
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
     private List<ServerStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ServerStateChangeEventHandler>();
 
@@ -226,13 +227,11 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     @Override
     public ServerMessageListener getMessageListener() {
-        return messageListener;
+        return messageListenerFactory.create();
     }
 
-    public void setMessageListener(ServerMessageListener messageListener) {
-        Assert.requireNonNull(messageListener, "messageListener must not be null");
-
-        this.messageListener = messageListener;
+    public void setMessageListenerFactory(ServerMessageListenerFactory messageListenerFactory) {
+        this.messageListenerFactory = Assert.requireNonNull(messageListenerFactory, "messageListenerFactory must not be null");
     }
 
     @Override

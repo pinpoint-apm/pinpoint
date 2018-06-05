@@ -16,18 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.codec.TestCodec;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
@@ -63,7 +57,7 @@ public class ControlPacketServerTest {
     // Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
     @Test
     public void registerAgentTest1() throws Exception {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new SimpleListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new HandshakeVerifyMessageListenerFactory());
 
         Socket socket = null;
         try {
@@ -84,7 +78,7 @@ public class ControlPacketServerTest {
     // Test for being possible to send messages in case of success of registering packet ( return code : 0)
     @Test
     public void registerAgentTest2() throws Exception {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new SimpleListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new HandshakeVerifyMessageListenerFactory());
 
         Socket socket = null;
         try {
@@ -105,7 +99,7 @@ public class ControlPacketServerTest {
     // when failure of registering and retrying to register, confirm to return same code ( return code : 2
     @Test
     public void registerAgentTest3() throws Exception {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new SimpleListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new HandshakeVerifyMessageListenerFactory());
 
         Socket socket = null;
         try {
@@ -127,7 +121,7 @@ public class ControlPacketServerTest {
     // test 1) confirm to return success code, 2) confirm to return already success code.
     @Test
     public void registerAgentTest4() throws Exception {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new SimpleListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new HandshakeVerifyMessageListenerFactory());
 
         Socket socket = null;
         try {
@@ -188,39 +182,6 @@ public class ControlPacketServerTest {
     private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
         byte[] payload = IOUtils.read(inputStream, 50, 3000);
         return (ResponsePacket) TestCodec.decodePacket(payload);
-    }
-
-    class SimpleListener implements ServerMessageListener {
-
-        @Override
-        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-            logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
-        }
-
-        @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
-            pinpointSocket.response(requestPacket, requestPacket.getPayload());
-        }
-
-        @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
-            if (properties == null) {
-                return HandshakeResponseType.ProtocolError.PROTOCOL_ERROR;
-            }
-
-            boolean hasRequiredKeys = HandshakePropertyType.hasRequiredKeys(properties);
-            if (!hasRequiredKeys) {
-                return HandshakeResponseType.PropertyError.PROPERTY_ERROR;
-            }
-
-            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-        }
-
-        @Override
-        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-        }
-
     }
 
 }

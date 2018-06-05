@@ -17,19 +17,11 @@
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
 import com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider;
-import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -82,48 +74,8 @@ public class TCPReceiver {
 
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
-        acceptor.setMessageListener(new ServerMessageListener() {
-
-            @Override
-            public HandshakeResponseCode handleHandshake(Map properties) {
-                return HandshakeResponseCode.SIMPLEX_COMMUNICATION;
-            }
-
-            @Override
-            public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-                receive(sendPacket, pinpointSocket);
-            }
-
-            @Override
-            public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-                requestResponse(requestPacket, pinpointSocket);
-            }
-
-            @Override
-            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-            }
-
-        });
+        acceptor.setMessageListenerFactory(new TCPReceiverServerMessageListenerFactory(executor, tcpPacketHandler));
         return acceptor;
-    }
-
-    private void receive(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                tcpPacketHandler.handleSend(sendPacket, pinpointSocket);
-            }
-        });
-    }
-
-    private void requestResponse(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                tcpPacketHandler.handleRequest(requestPacket, pinpointSocket);
-            }
-        });
     }
 
     public void shutdown() {
