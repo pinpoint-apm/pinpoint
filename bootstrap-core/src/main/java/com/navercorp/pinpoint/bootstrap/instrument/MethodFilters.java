@@ -35,7 +35,11 @@ public class MethodFilters {
     };
 
     public static MethodFilter name(String... names) {
-        return new MethodNameFilter(null, names);
+        return new MethodNameFilter(null, names, false);
+    }
+
+    public static MethodFilter nameExclude(String... names) {
+        return new MethodNameFilter(null, names, true);
     }
 
     public static MethodFilter modifier(int required) {
@@ -64,9 +68,11 @@ public class MethodFilters {
 
     private static final class MethodNameFilter implements MethodFilter {
         private final String[] names;
+        private final boolean inverter;
 
-        public MethodNameFilter(int[] rejectModifiers, String[] names) {
+        public MethodNameFilter(int[] rejectModifiers, String[] names, boolean inverter) {
             this.names = names;
+            this.inverter = inverter;
         }
 
         @Override
@@ -77,11 +83,11 @@ public class MethodFilters {
 
             for (String name : names) {
                 if (name != null && name.equals(method.getName())) {
-                    return ACCEPT;
+                    return ACCEPT^inverter;
                 }
             }
 
-            return REJECT;
+            return REJECT^inverter;
         }
     }
 
@@ -154,7 +160,6 @@ public class MethodFilters {
                     return REJECT;
                 }
             }
-
             return ACCEPT;
         }
     }
