@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.java9.module;
+package com.navercorp.pinpoint.profiler.context.javamodule;
 
 import com.navercorp.pinpoint.common.util.ClassUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.Instrumentation;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,10 +30,8 @@ public class PackageUtilsTest {
     public void getPackageName() {
 
         String internalName = ClassUtils.toInternalName(this.getClass().getName());
-
         String packageName = PackageUtils.getPackageNameFromInternalName(internalName);
 
-        Assert.assertEquals(packageName, this.getClass().getPackageName());
+        Assert.assertEquals("com.navercorp.pinpoint.profiler.context.javamodule", packageName);
     }
-
 }

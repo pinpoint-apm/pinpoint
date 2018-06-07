@@ -21,17 +21,18 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
-import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.javamodule.ClassFileTransformerModuleHandler;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -106,7 +107,8 @@ public class DefaultApplicationContext implements ApplicationContext {
         ClassFileTransformer classFileTransformer = wrap(this.classFileTransformer);
         final JvmVersion version = JvmUtils.getVersion();
         if (version.onOrAfter(JvmVersion.JAVA_9)) {
-            classFileTransformer = wrapJava9ClassFileTransformer(instrumentation, classFileTransformer);
+            ClassFileTransformModuleAdaptor classFileTransformModuleAdaptor = new ClassFileTransformerModuleHandler(instrumentation, classFileTransformer);
+            classFileTransformer = wrapJava9ClassFileTransformer(classFileTransformModuleAdaptor);
         }
         instrumentation.addTransformer(classFileTransformer, true);
 
@@ -136,15 +138,23 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
     }
 
-    private ClassFileTransformer wrapJava9ClassFileTransformer(Instrumentation instrumentation, ClassFileTransformer classFileTransformer) {
+    private ClassFileTransformer wrapJava9ClassFileTransformer(ClassFileTransformModuleAdaptor classFileTransformer) {
         logger.info("initialize Java9ClassFileTransformer");
-        String java9Transformer = "com.navercorp.pinpoint.bootstrap.java9.module.Java9ClassFileTransformer";
+        String moduleWrap = "com.navercorp.pinpoint.bootstrap.java9.module.ClassFileTransformerModuleWrap";
         try {
-            Class<?> cftClass = Class.forName(java9Transformer, false, Object.class.getClassLoader());
-            Method constructor = cftClass.getDeclaredMethod("wrap", Instrumentation.class, ClassFileTransformer.class, Class.class);
-            return (ClassFileTransformer) constructor.invoke(cftClass, instrumentation, classFileTransformer, Agent.class);
+            Class<ClassFileTransformer> cftClass = (Class<ClassFileTransformer>) forName(moduleWrap, Object.class.getClassLoader());
+            Constructor<ClassFileTransformer> constructor = cftClass.getDeclaredConstructor(ClassFileTransformModuleAdaptor.class);
+            return constructor.newInstance(classFileTransformer);
         } catch (Exception e) {
-            throw new IllegalStateException("Java9ClassFileTransformer load fail Caused by:" + e.getMessage(), e);
+            throw new IllegalStateException(moduleWrap + " load fail Caused by:" + e.getMessage(), e);
+        }
+    }
+
+    private Class<?> forName(String className, ClassLoader classLoader) {
+        try {
+            return Class.forName(className, false, classLoader);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(className + " not found");
         }
     }
 

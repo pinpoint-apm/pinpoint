@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.java9.module;
+package com.navercorp.pinpoint.bootstrap.module;
+
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-final class PackageUtils {
-
-    static String getPackageNameFromInternalName(String className) {
-        if (className == null) {
-            throw new NullPointerException("className must not be null");
-        }
-        final int lastIndexOf = className.lastIndexOf('/');
-        if (lastIndexOf == -1) {
-            // package not exist
-            return null;
-        }
-        String jvmPackageName = className.substring(0, lastIndexOf);
-        return jvmPackageName.replace('/', '.');
-    }
+public interface ClassFileTransformModuleAdaptor {
+    byte[] transform(Object module, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException;
 }

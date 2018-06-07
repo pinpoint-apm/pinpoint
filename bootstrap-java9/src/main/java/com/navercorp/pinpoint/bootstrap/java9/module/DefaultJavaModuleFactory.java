@@ -17,23 +17,28 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
+import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 
 import java.lang.instrument.Instrumentation;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-class JavaModuleFactory {
+public class DefaultJavaModuleFactory implements JavaModuleFactory {
 
+    public DefaultJavaModuleFactory() {
+    }
 
-    static JavaModule wrapFromClass(Instrumentation instrumentation, Class clazz) {
+    @Override
+    public JavaModule wrapFromClass(Instrumentation instrumentation, Class clazz) {
         if (clazz == null) {
             throw new NullPointerException("clazz must not be null");
         }
         return new Java9Module(instrumentation, clazz.getModule());
     }
 
-    static JavaModule wrapFromModule(Instrumentation instrumentation, Object module) {
+    @Override
+    public JavaModule wrapFromModule(Instrumentation instrumentation, Object module) {
         if (!(module instanceof Module)) {
             throw new IllegalArgumentException("module not java.lang.module");
         }

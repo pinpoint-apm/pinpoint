@@ -173,11 +173,11 @@ public class ModuleSupport {
     }
 
     private JavaModule wrapJavaModule(Class clazz) {
-        return JavaModuleFactory.wrapFromClass(instrumentation, clazz);
+        return new Java9Module(instrumentation, clazz.getModule());
     }
 
     private JavaModule wrapJavaModule(Module module) {
-        return JavaModuleFactory.wrapFromModule(instrumentation, module);
+        return new Java9Module(instrumentation, module);
     }
 
     private JavaModule getJavaBaseModule() {
