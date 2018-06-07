@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.bootstrap.module;
  * @author Woonduk Kang(emeroad)
  */
 class UnsupportedJavaModule implements JavaModule {
+    public static JavaModule INSTANCE = new UnsupportedJavaModule();
 
     UnsupportedJavaModule() {
     }
