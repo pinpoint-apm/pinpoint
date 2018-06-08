@@ -81,6 +81,11 @@ public class AgentEventService {
         Objects.requireNonNull(eventType, "pinpointServer must not be null");
 
         Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
+        if (MapUtils.isEmpty(channelProperties)) {
+            // It can occurs CONNECTED -> RUN_WITHOUT_HANDSHAKE -> CLOSED(UNEXPECTED_CLOSE_BY_CLIENT, ERROR_UNKNOWN)
+            logger.warn("maybe not yet received the handshake data - pinpointServer:{}", pinpointServer);
+            return;
+        }
 
         final String agentId = MapUtils.getString(channelProperties, HandshakePropertyType.AGENT_ID.getName());
         final long startTimestamp = MapUtils.getLong(channelProperties,
