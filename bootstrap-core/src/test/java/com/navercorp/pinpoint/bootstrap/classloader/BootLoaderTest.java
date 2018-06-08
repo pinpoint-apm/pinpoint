@@ -31,17 +31,21 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class LauncherBootLoaderTest {
+public class BootLoaderTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void testFindResource() {
-        BootLoader bootLoader = new LauncherBootLoader();
+        BootLoader bootLoader = newBootLoader();
         String stringResource = getInternalName(String.class);
 
         URL url = bootLoader.findResource(stringResource);
         Assert.assertNotNull(url);
+    }
+
+    private BootLoader newBootLoader() {
+        return BootLoaderFactory.newBootLoader();
     }
 
     private String getInternalName(Class<?> clazz) {
@@ -51,7 +55,7 @@ public class LauncherBootLoaderTest {
 
     @Test
     public void testFindResources() throws IOException {
-        BootLoader bootLoader = new LauncherBootLoader();
+        BootLoader bootLoader = newBootLoader();
         String stringResource = getInternalName(String.class);
 
         Enumeration<URL> bootstrapResources = bootLoader.findResources(stringResource);
@@ -62,7 +66,7 @@ public class LauncherBootLoaderTest {
 
     @Test
     public void testBootstrapClassLoader() throws Exception {
-        BootLoader bootLoader = new LauncherBootLoader();
+        BootLoader bootLoader = newBootLoader();
 
         ClassLoader parent = Object.class.getClassLoader();
         ClassLoader classLoader = new URLClassLoader(new URL[0], parent);
