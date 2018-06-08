@@ -51,12 +51,23 @@ public final class PinpointClassLoaderFactory {
         if (jvmVersion.onOrAfter(JvmVersion.JAVA_9)) {
             return newClassLoaderFactory(JAVA9_CLASSLOADER);
         }
+
+        // URLClassLoader not work for java9
+        if (disableChildFirst()) {
+            return new URLClassLoaderFactory();
+        }
+
         if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
             return newParallelClassLoaderFactory();
         }
 
         // JDK6 --
         return new Java6ClassLoaderFactory();
+    }
+
+    private static boolean disableChildFirst() {
+        String disable = System.getProperty("pinpoint.agent.classloader.childfirst.disable");
+        return "true".equalsIgnoreCase(disable);
     }
 
     private static ClassLoaderFactory newClassLoaderFactory(String factoryName) {
