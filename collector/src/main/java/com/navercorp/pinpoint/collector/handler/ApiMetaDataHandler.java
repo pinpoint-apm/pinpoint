@@ -17,9 +17,11 @@
 package com.navercorp.pinpoint.collector.handler;
 
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,16 @@ public class ApiMetaDataHandler implements RequestResponseHandler {
 
     @Autowired
     private ApiMetaDataDao sqlMetaDataDao;
+
+    @Override
+    public TBase<?, ?> handleRequest(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            return handleRequest(((ThriftRequest) serverRequest).getData());
+        }
+
+        logger.warn("invalid serverRequest:{}", serverRequest);
+        return null;
+    }
 
     @Override
     public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {

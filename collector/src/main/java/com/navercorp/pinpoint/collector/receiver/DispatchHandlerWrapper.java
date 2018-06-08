@@ -75,7 +75,20 @@ public class DispatchHandlerWrapper implements DispatchHandler {
         result.setMessage("Handler is disabled. Skipping request message.");
         return result;
     }
-    
+
+    @Override
+    public TBase dispatchRequestMessage(ServerRequest serverRequest) {
+        if (checkAvailable()) {
+            return delegate.dispatchRequestMessage(serverRequest);
+        }
+
+        logger.debug("Handler is disabled. Skipping request message {}.", serverRequest);
+
+        TResult result = new TResult(false);
+        result.setMessage("Handler is disabled. Skipping request message.");
+        return result;
+    }
+
     private boolean checkAvailable() {
         if (handlerManager.isEnable()) {
             return true;

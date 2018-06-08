@@ -286,7 +286,14 @@ public class DataReceiverGroupTest {
             requestLatch.countDown();
             return new TResult();
         }
-    }
 
+        @Override
+        public TBase dispatchRequestMessage(ServerRequest serverRequest) {
+            LOGGER.debug("===================================== request {}", serverRequest);
+            requestLatch.countDown();
+            return new TResult();
+        }
+
+    }
 
 }

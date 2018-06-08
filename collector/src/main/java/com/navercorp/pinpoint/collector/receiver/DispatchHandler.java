@@ -33,4 +33,6 @@ public interface DispatchHandler {
 
     TBase dispatchRequestMessage(TBase<?, ?> tBase);
 
+    TBase dispatchRequestMessage(ServerRequest serverRequest);
+
 }
