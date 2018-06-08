@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class Java6ClassLoader extends URLClassLoader {
 
-    private final BootLoader bootLoader = new LauncherBootLoader();
+    private final BootLoader bootLoader = BootLoaderFactory.newBootLoader();
     //  @Nullable
     // WARNING : if parentClassLoader is null. it is bootstrapClassloader
     private final ClassLoader parent;
