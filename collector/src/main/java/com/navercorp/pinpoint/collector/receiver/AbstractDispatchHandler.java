@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +47,6 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
 
     @Override
     public void dispatchSendMessage(TBase<?, ?> tBase) {
-
         // mark accepted time
         acceptedTimeService.accept();
 
@@ -65,7 +66,6 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
 
     @Override
     public void dispatchSendMessage(ServerRequest serverRequest) {
-
         // mark accepted time
         acceptedTimeService.accept();
 
@@ -81,10 +81,25 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
             }
             simpleHandler.handleSimple(serverRequest);
         }
-
-
     }
 
+    @Override
+    public TBase dispatchRequestMessage(ServerRequest serverRequest) {
+        // mark accepted time
+        acceptedTimeService.accept();
+
+        RequestResponseHandler requestResponseHandler = getRequestResponseHandler(serverRequest);
+        if (requestResponseHandler != null) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("requestResponseHandler name:{}", requestResponseHandler.getClass().getName());
+            }
+            return requestResponseHandler.handleRequest(serverRequest);
+        }
+
+        throw new UnsupportedOperationException("Handler not found. Unknown type of data received. serverRequest=" + serverRequest);
+    }
+
+    @Override
     public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
         // mark accepted time
         acceptedTimeService.accept();
@@ -109,6 +124,14 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
     }
 
     protected RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
+        return null;
+    }
+
+    protected RequestResponseHandler getRequestResponseHandler(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            return getRequestResponseHandler(((ThriftRequest) serverRequest).getData());
+        }
+
         return null;
     }
 

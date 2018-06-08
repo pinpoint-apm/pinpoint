@@ -63,7 +63,7 @@ public class DispatchHandlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void throwExceptionTest2() {
-        testDispatchHandler.dispatchRequestMessage(null);
+        testDispatchHandler.dispatchRequestMessage((TBase)null);
     }
 
     @Test
@@ -147,6 +147,12 @@ public class DispatchHandlerTest {
 
         @Override
         public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+            executedCount++;
+            return new TResult();
+        }
+
+        @Override
+        public TBase<?, ?> handleRequest(ServerRequest thriftRequest) {
             executedCount++;
             return new TResult();
         }
