@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.receiver.tcp.DefaultTCPPacketHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.tcp.TCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.tcp.TCPPacketHandlerFactory;
+import com.navercorp.pinpoint.collector.receiver.tcp.DefaultTCPReceiver;
 import com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -63,13 +64,12 @@ public class TCPReceiverBean implements InitializingBean, DisposableBean, BeanNa
         tcpReceiver.start();
     }
 
-
-    private TCPReceiver createTcpReceiver(String beanName, String bindIp, int port, Executor executor,
-                                          DispatchHandler dispatchHandler, TCPPacketHandlerFactory tcpPacketHandlerFactory, PinpointServerAcceptorProvider acceptorProvider) {
+    protected TCPReceiver createTcpReceiver(String beanName, String bindIp, int port, Executor executor,
+                                                 DispatchHandler dispatchHandler, TCPPacketHandlerFactory tcpPacketHandlerFactory, PinpointServerAcceptorProvider acceptorProvider) {
         InetSocketAddress bindAddress = new InetSocketAddress(bindIp, port);
         TCPPacketHandler tcpPacketHandler = wrapDispatchHandler(dispatchHandler, tcpPacketHandlerFactory);
 
-        return new TCPReceiver(beanName, tcpPacketHandler, executor, bindAddress, acceptorProvider);
+        return new DefaultTCPReceiver(beanName, tcpPacketHandler, executor, bindAddress, acceptorProvider);
     }
 
     private TCPPacketHandler wrapDispatchHandler(DispatchHandler dispatchHandler, TCPPacketHandlerFactory tcpPacketHandlerFactory) {
