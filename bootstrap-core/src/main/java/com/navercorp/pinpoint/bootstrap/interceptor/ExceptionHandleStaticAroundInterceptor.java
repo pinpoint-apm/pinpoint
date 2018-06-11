@@ -20,13 +20,17 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 public class ExceptionHandleStaticAroundInterceptor implements StaticAroundInterceptor {
 
     private final StaticAroundInterceptor delegate;
+    private final ExceptionHandler exceptionHandler;
 
-    public ExceptionHandleStaticAroundInterceptor(StaticAroundInterceptor delegate) {
+    public ExceptionHandleStaticAroundInterceptor(StaticAroundInterceptor delegate, ExceptionHandler exceptionHandler) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
-
+        if (exceptionHandler == null) {
+            throw new NullPointerException("exceptionHandler must not be null");
+        }
         this.delegate = delegate;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override
@@ -34,7 +38,7 @@ public class ExceptionHandleStaticAroundInterceptor implements StaticAroundInter
         try {
             this.delegate.before(target, className, methodName, parameterDescription, args);
         } catch (Throwable t) {
-            InterceptorInvokerHelper.handleException(t);
+            exceptionHandler.handleException(t);
         }
     }
 
@@ -43,7 +47,7 @@ public class ExceptionHandleStaticAroundInterceptor implements StaticAroundInter
         try {
             this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
         } catch (Throwable t) {
-            InterceptorInvokerHelper.handleException(t);
+            exceptionHandler.handleException(t);
         }
     }
 }
