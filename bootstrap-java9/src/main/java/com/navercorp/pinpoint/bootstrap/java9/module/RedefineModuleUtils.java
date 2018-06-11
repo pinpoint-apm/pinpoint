@@ -33,6 +33,13 @@ final class RedefineModuleUtils {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
+        if (module == null) {
+            throw new NullPointerException("module must not be null");
+        }
+        if (extraReads == null) {
+            throw new NullPointerException("extraReads must not be null");
+        }
+
         // for debug
 //        final Set<Module> extraReads0 = extraReads;
         final Map<String, Set<Module>> extraExports = Map.of();
@@ -45,6 +52,12 @@ final class RedefineModuleUtils {
     static void addExports(Instrumentation instrumentation, Module module, Map<String, Set<Module>> extraExports) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
+        }
+        if (module == null) {
+            throw new NullPointerException("module must not be null");
+        }
+        if (extraExports == null) {
+            throw new NullPointerException("extraExports must not be null");
         }
 
         // for debug
@@ -60,6 +73,12 @@ final class RedefineModuleUtils {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
+        if (module == null) {
+            throw new NullPointerException("module must not be null");
+        }
+        if (extraOpens == null) {
+            throw new NullPointerException("extraOpens must not be null");
+        }
 
         // for debug
         final Set<Module> extraReads = Set.of();
@@ -73,6 +92,12 @@ final class RedefineModuleUtils {
     public static void addUses(Instrumentation instrumentation, Module module, Set<Class<?>> extraUses) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
+        }
+        if (module == null) {
+            throw new NullPointerException("module must not be null");
+        }
+        if (extraUses == null) {
+            throw new NullPointerException("extraUses must not be null");
         }
 
         // for debug

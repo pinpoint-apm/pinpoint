@@ -57,24 +57,26 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
 
         final byte[] transform = delegate.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
         if (transform != null && transform != classfileBuffer) {
+            if (!javaModuleFactory.isNamedModule(module)) {
+                return transform;
+            }
+
             final JavaModule javaModule = javaModuleFactory.wrapFromModule(instrumentation, module);
-            if (javaModule.isNamed()) {
-                if (!javaModule.canRead(bootstrapModule)) {
-                    javaModule.addReads(bootstrapModule);
+            if (!javaModule.canRead(bootstrapModule)) {
+                javaModule.addReads(bootstrapModule);
+            }
+            final String packageName = getPackageName(className);
+            if (packageName != null) {
+                if (!javaModule.isExported(packageName, bootstrapModule)) {
+                    javaModule.addExports(packageName, bootstrapModule);
                 }
-                final String packageName = getPackageName(className);
-                if (packageName != null) {
-                    if (!javaModule.isExported(packageName, bootstrapModule)) {
-                        javaModule.addExports(packageName, bootstrapModule);
-                    }
-                    // need open?
-                }
+                // need open?
             }
         }
         return transform;
     }
 
-    public String getPackageName(String className) {
+    private String getPackageName(String className) {
         final String packageName = ClassUtils.getPackageName(className, '/', null);
         if (packageName == null) {
             return null;
