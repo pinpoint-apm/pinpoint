@@ -78,10 +78,7 @@ public class InvokeCodeGenerator {
         final int apiId = apiMetaDataService.cacheApi(descriptor);
         return apiId;
     }
-    
-    protected String getInterceptorInvokerHelperClassName() {
-        return InterceptorInvokerHelper.class.getName();
-    }
+
 
     protected String getInterceptorRegistryClassName() {
         return InterceptorRegistry.class.getName();

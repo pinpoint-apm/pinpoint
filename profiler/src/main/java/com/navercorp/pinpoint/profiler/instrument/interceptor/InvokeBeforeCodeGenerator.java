@@ -47,7 +47,6 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
         //     InterceptorInvokerHelper.handleException(t);
         // }
         
-        builder.append("try { ");
         builder.format("%1$s = %2$s.getInterceptor(%3$d); ", getInterceptorVar(), getInterceptorRegistryClassName(), interceptorId);
 
         final Method beforeMethod = interceptorDefinition.getBeforeMethod();
@@ -56,8 +55,6 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
             appendArguments(builder);
             builder.format(");");
         }
-        
-        builder.format("} catch (java.lang.Throwable _$PINPOINT_EXCEPTION$_) { %1$s.handleException(_$PINPOINT_EXCEPTION$_); }", getInterceptorInvokerHelperClassName());
         
         builder.end();
         
