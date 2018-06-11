@@ -25,4 +25,6 @@ public interface JavaModuleFactory {
     JavaModule wrapFromClass(Instrumentation instrumentation, Class clazz);
 
     JavaModule wrapFromModule(Instrumentation instrumentation, Object module);
+
+    boolean isNamedModule(Object module);
 }

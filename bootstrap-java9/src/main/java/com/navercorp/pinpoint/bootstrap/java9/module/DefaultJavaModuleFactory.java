@@ -44,4 +44,12 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
         }
         return new Java9Module(instrumentation, (Module) module);
     }
+
+    @Override
+    public boolean isNamedModule(Object module) {
+        if (!(module instanceof Module)) {
+            throw new IllegalArgumentException("module not java.lang.module");
+        }
+        return ((Module) module).isNamed();
+    }
 }
