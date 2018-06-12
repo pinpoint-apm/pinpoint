@@ -48,7 +48,7 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
         this.instrumentation = instrumentation;
         this.delegate = delegate;
         this.javaModuleFactory = JavaModuleFactoryFinder.lookup();
-        this.bootstrapModule = javaModuleFactory.wrapFromClass(instrumentation, JavaModuleFactoryFinder.class);
+        this.bootstrapModule = javaModuleFactory.wrapFromClass(instrumentation, JavaModuleFactory.class);
     }
 
     @Override

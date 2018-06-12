@@ -166,12 +166,6 @@ public class ModuleSupport {
 //        throw new ModuleException(moduleName + " not found");
     }
 
-    private void forTest() {
-        // jdk http-connector
-        JavaModule baseModule = wrapJavaModule(Object.class);
-        baseModule.addReads(getBootstrapModule());
-    }
-
     private JavaModule wrapJavaModule(Class clazz) {
         return new Java9Module(instrumentation, clazz.getModule());
     }
