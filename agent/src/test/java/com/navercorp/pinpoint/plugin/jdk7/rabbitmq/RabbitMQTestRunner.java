@@ -36,8 +36,10 @@ import com.rabbitmq.client.impl.AMQCommand;
 import org.junit.Assert;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
 
 /**
  * @author Jiaqi Feng
@@ -45,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  */
 class RabbitMQTestRunner {
 
-    private final ConnectionFactory connectionFactory;
+    private static final Random RANDOM = new Random();
 
     RabbitMQTestRunner(ConnectionFactory connectionFactory) {
         if (connectionFactory == null) {
@@ -54,7 +56,14 @@ class RabbitMQTestRunner {
         this.connectionFactory = connectionFactory;
     }
 
+    private final ConnectionFactory connectionFactory;
+
     void runPushTest() throws Exception {
+        int numMessages = RANDOM.nextInt(10) + 1;
+        runPushTest(numMessages);
+    }
+
+    void runPushTest(int numMessages) throws Exception {
 
         final String message = "hello rabbit mq";
 
@@ -66,13 +75,15 @@ class RabbitMQTestRunner {
         producerChannel.queueDeclare(RabbitMQTestConstants.QUEUE_PUSH, false, false, false, null);
         producerChannel.queueBind(RabbitMQTestConstants.QUEUE_PUSH, RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PUSH);
 
-        AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
-        producerChannel.basicPublish(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PUSH, false, false, builder.appId("test").build(), message.getBytes());
+        for (int i = 0; i < numMessages; i++) {
+            AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
+            producerChannel.basicPublish(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PUSH, false, false, builder.appId("test").build(), message.getBytes());
+        }
 
         producerChannel.close();
         producerConnection.close();
 
-        //comsumer side
+        // consumer side
         final Connection consumerConnection = connectionFactory.newConnection();
         final Channel consumerChannel = consumerConnection.createChannel();
         final String remoteAddress = consumerConnection.getAddress().getHostAddress() + ":" + consumerConnection.getPort();
@@ -82,17 +93,26 @@ class RabbitMQTestRunner {
         TestConsumer<String> consumer = new TestConsumer<String>(consumerChannel, MessageConverter.FOR_TEST);
         consumerChannel.basicConsume(RabbitMQTestConstants.QUEUE_PUSH, true, consumer);
 
-        // wait consumer
-        Assert.assertEquals(message, consumer.getMessage(10, TimeUnit.SECONDS));
+        List<String> actualMessages = new ArrayList<String>(numMessages);
+        for (int i = 0; i < numMessages; i++) {
+            actualMessages.add(consumer.getMessage(10, TimeUnit.SECONDS));
+        }
+
+        Assert.assertEquals(numMessages, actualMessages.size());
+        for (String actualMessage : actualMessages) {
+            Assert.assertEquals(message, actualMessage);
+        }
 
         consumerChannel.close();
         consumerConnection.close();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(verifier, 6, 5000L);
+        int expectedTraceCountPerMessage = 6;
+        awaitAndVerifyTraceCount(verifier, expectedTraceCountPerMessage * numMessages, 5000L);
 
         verifier.printCache();
+
         Class<?> producerChannelClass = producerChannel.getClass();
         Method channelBasicPublish = producerChannelClass.getDeclaredMethod("basicPublish", String.class, String.class, boolean.class, boolean.class, AMQP.BasicProperties.class, byte[].class);
         ExpectedTrace channelBasicPublishTrace = Expectations.event(
@@ -128,13 +148,17 @@ class RabbitMQTestRunner {
         ExpectedTrace markTrace = Expectations.event(
                 ServiceType.INTERNAL_METHOD.getName(),
                 propagationMarkerMark);
-        verifier.verifyTrace(
-                channelBasicPublishTrace,
-                rabbitMqConsumerInvocationTrace,
-                consumerDispatcherHandleDeliveryTrace,
-                asynchronousInvocationTrace,
-                consumerHandleDeliveryTrace,
-                markTrace);
+
+        for (int i = 0; i < numMessages; i++) {
+            verifier.verifyDiscreteTrace(channelBasicPublishTrace);
+            verifier.verifyDiscreteTrace(
+                    rabbitMqConsumerInvocationTrace,
+                    Expectations.async(
+                            consumerDispatcherHandleDeliveryTrace,
+                            asynchronousInvocationTrace,
+                            consumerHandleDeliveryTrace,
+                            markTrace));
+        }
         verifier.verifyTraceCount(0);
     }
 

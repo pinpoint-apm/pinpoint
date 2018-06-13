@@ -23,8 +23,17 @@ import org.apache.thrift.TBase;
 public class FlinkHeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
 
 
-    private final TBaseLocator tBaseLocator = new FlinkTBaseLocator();
-    private final HeaderTBaseSerializerFactory headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(tBaseLocator);
+    private final TBaseLocator tBaseLocator;
+    private final HeaderTBaseSerializerFactory headerTBaseSerializerFactory;
+
+    public FlinkHeaderTBaseSerializerFactory(FlinkTBaseLocator flinkTBaseLocator) {
+        if (flinkTBaseLocator == null) {
+            throw new NullPointerException("flinkTBaseLocator must not be null.");
+        }
+        tBaseLocator = flinkTBaseLocator;
+
+        headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(tBaseLocator);
+    }
 
     @Override
     public HeaderTBaseSerializer createSerializer() {

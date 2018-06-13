@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.websocket;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -32,6 +33,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -55,6 +57,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     private final String applicationName;
     private final AgentService agentService;
     private final Timer timer;
+    private final TimerTaskDecorator timerTaskDecorator;
 
     private final Object workerManagingLock = new Object();
     private final List<WebSocketSession> webSocketSessions = new CopyOnWriteArrayList<>();
@@ -70,11 +73,12 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<>();
 
-    public ActiveThreadCountResponseAggregator(String applicationName, AgentService agentService, Timer timer) {
-        this.applicationName = applicationName;
-        this.agentService = agentService;
+    public ActiveThreadCountResponseAggregator(String applicationName, AgentService agentService, Timer timer, TimerTaskDecorator timerTaskDecorator) {
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentService = Objects.requireNonNull(agentService, "agentService must not be null");
 
-        this.timer = timer;
+        this.timer = Objects.requireNonNull(timer, "timer must not be null");
+        this.timerTaskDecorator = Objects.requireNonNull(timerTaskDecorator, "timerTaskDecorator must not be null");
 
         this.messageConverter = new PinpointWebSocketMessageConverter();
     }
@@ -82,7 +86,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     @Override
     public void start() {
         synchronized (workerManagingLock) {
-            workerActiveManager = new WorkerActiveManager(this, agentService, timer);
+            workerActiveManager = new WorkerActiveManager(this, agentService, timer, timerTaskDecorator);
         }
     }
 

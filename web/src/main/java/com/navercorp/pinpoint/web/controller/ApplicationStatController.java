@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.web.service.stat.ApplicationActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationCpuLoadService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationDataSourceService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationDirectBufferService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationMemoryService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationResponseTimeService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationTransactionService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationFileDescriptorService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -130,6 +132,24 @@ public class ApplicationStatController {
                 logger.error("error" , e);
                 throw e;
             }
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getApplicationStat/fileDescriptor/chart")
+    public static class ApplicationFileDescriptorController extends ApplicationStatController {
+        @Autowired
+        public ApplicationFileDescriptorController(ApplicationFileDescriptorService applicationFileDescriptorService) {
+            super(applicationFileDescriptorService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getApplicationStat/directBuffer/chart")
+    public static class ApplicationDirectBufferController extends ApplicationStatController {
+        @Autowired
+        public ApplicationDirectBufferController(ApplicationDirectBufferService applicationDirectBufferService) {
+            super(applicationDirectBufferService);
         }
     }
 }

@@ -15,7 +15,10 @@
  */
 package com.navercorp.pinpoint.flink.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.*;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.flink.Bootstrap;
 import org.apache.flink.api.common.io.OutputFormat;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -41,6 +44,9 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private transient ActiveTraceDao activeTraceDao;
     private transient ResponseTimeDao responseTimeDao;
     private transient DataSourceDao dataSourceDao;
+    private transient FileDescriptorDao fileDescriptorDao;
+    private transient DirectBufferDao directBufferDao;
+    private transient StatisticsDaoInterceptor statisticsDaoInterceptor;
 
 
     public StatisticsDao() {
@@ -55,6 +61,9 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         activeTraceDao = bootstrap.getActiveTraceDao();
         responseTimeDao = bootstrap.getResponseTimeDao();
         dataSourceDao = bootstrap.getDataSourceDao();
+        fileDescriptorDao = bootstrap.getFileDescriptorDao();
+        directBufferDao = bootstrap.getDirectBufferDao();
+        statisticsDaoInterceptor = bootstrap.getStatisticsDaoInterceptor();
     }
 
     @Override
@@ -63,18 +72,22 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
 
     @Override
     public void writeRecord(Tuple3<String, JoinStatBo, Long> statData) throws IOException {
-        JoinStatBo joinStatBo = (JoinStatBo)statData.f1;
-        if (joinStatBo instanceof JoinAgentStatBo) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("JoinAgentStatBo insert data : {}", joinStatBo);
-            }
+        statisticsDaoInterceptor.before(statData);
 
-            insertJoinAgentStatBo((JoinAgentStatBo)joinStatBo);
-        } else if (joinStatBo instanceof JoinApplicationStatBo) {
+        try {
+            JoinStatBo joinStatBo = (JoinStatBo) statData.f1;
+            if (joinStatBo instanceof JoinAgentStatBo) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("JoinAgentStatBo insert data : {}", joinStatBo);
+                }
+                insertJoinAgentStatBo((JoinAgentStatBo) joinStatBo);
+            } else if (joinStatBo instanceof JoinApplicationStatBo) {
 //            logger.info("JoinApplicationStatBo insert data : " + joinStatBo);
-            insertJoinApplicationStatBo((JoinApplicationStatBo)joinStatBo);
+                insertJoinApplicationStatBo((JoinApplicationStatBo) joinStatBo);
+            }
+        } finally {
+            statisticsDaoInterceptor.after();
         }
-
     }
 
     private void insertJoinApplicationStatBo(JoinApplicationStatBo joinApplicationStatBo) {
@@ -84,6 +97,8 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         List<JoinStatBo> joinActiveTraceBoList = castJoinStatBoList(joinApplicationStatBo.getJoinActiveTraceBoList());
         List<JoinStatBo> joinResponseTimeBoList = castJoinStatBoList(joinApplicationStatBo.getJoinResponseTimeBoList());
         List<JoinStatBo> joinDataSourceBoList = castJoinStatBoList(joinApplicationStatBo.getJoinDataSourceListBoList());
+        List<JoinStatBo> joinFileDescriptorBoList = castJoinStatBoList(joinApplicationStatBo.getJoinFileDescriptorBoList());
+        List<JoinStatBo> joinDirectBufferBoList = castJoinStatBoList(joinApplicationStatBo.getJoinDirectBufferBoList());
 
         if (joinApplicationStatBo.getStatType() == StatType.APP_STST_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
@@ -96,6 +111,8 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
             activeTraceDao.insert(id, timestamp, joinActiveTraceBoList, StatType.APP_ACTIVE_TRACE_COUNT);
             responseTimeDao.insert(id, timestamp, joinResponseTimeBoList, StatType.APP_RESPONSE_TIME);
             dataSourceDao.insert(id, timestamp, joinDataSourceBoList, StatType.APP_DATA_SOURCE);
+            fileDescriptorDao.insert(id, timestamp, joinFileDescriptorBoList, StatType.APP_FILE_DESCRIPTOR);
+            directBufferDao.insert(id, timestamp, joinDirectBufferBoList, StatType.APP_DIRECT_BUFFER);
         }
     }
 

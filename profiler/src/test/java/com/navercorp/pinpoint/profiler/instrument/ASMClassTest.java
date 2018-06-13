@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
@@ -59,7 +60,9 @@ public class ASMClassTest {
     private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService = mock(DataSourceMonitorRegistryService.class);
     private final Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, apiMetaDataService);
+
+    private final ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
+    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, apiMetaDataService, exceptionHandlerFactory);
 
     @Before
     public void setUp() {
@@ -588,6 +591,22 @@ public class ASMClassTest {
         // find enclosing method & interface condition.
         assertEquals(1, clazz.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("annonymousInnerClass"), ClassFilters.interfaze("java.util.concurrent.Callable"))).size());
     }
+
+    @Test
+    public void isInterceptorable() throws Exception {
+        ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseInterface");
+        assertFalse(clazz.isInterceptable());
+
+        clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
+        assertTrue(clazz.isInterceptable());
+
+        clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum");
+        assertTrue(clazz.isInterceptable());
+
+        clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum");
+        assertTrue(clazz.isInterceptable());
+    }
+
 
     private ASMClass getClass(final String targetClassName) throws Exception {
         ClassNode classNode = ASMClassNodeLoader.get(targetClassName);

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
@@ -98,6 +99,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private int interceptorRegistrySize = 1024 * 8;
 
+    @VisibleForTesting
+    private boolean staticResourceCleanup = false;
+
     private String collectorSpanServerIp = DEFAULT_IP;
     private int collectorSpanServerPort = 9996;
 
@@ -150,6 +154,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int ioBufferingBufferSize;
 
     private String profileJvmVendorName;
+    private String profileOsName;
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
     private int profileJvmStatBatchSendCount = DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
     private boolean profilerJvmStatCollectDetailedMetrics;
@@ -171,6 +176,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private List<String> httpStatusCodeErrors = Collections.emptyList();
 
     private String injectionModuleFactoryClazzName = null;
+    private String applicationNamespace = "";
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -376,6 +382,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public String getProfilerOSName() {
+        return profileOsName;
+    }
+
+    @Override
     public int getProfileJvmStatCollectIntervalMs() {
         return profileJvmStatCollectIntervalMs;
     }
@@ -393,6 +404,15 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public long getAgentInfoSendRetryInterval() {
         return agentInfoSendRetryInterval;
+    }
+
+    @Override
+    public boolean getStaticResourceCleanup() {
+        return staticResourceCleanup;
+    }
+
+    public void setStaticResourceCleanup(boolean staticResourceCleanup) {
+        this.staticResourceCleanup = staticResourceCleanup;
     }
 
 
@@ -467,6 +487,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public String getInjectionModuleFactoryClazzName() {
         return injectionModuleFactoryClazzName;
+    }
+
+    @Override
+    public String getApplicationNamespace() {
+        return applicationNamespace;
     }
 
     // for test
@@ -544,11 +569,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
         this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
 
+        //OS
+        this.profileOsName = readString("profiler.os.name", null);
+
         // JVM
         this.profileJvmVendorName = readString("profiler.jvm.vendor.name", null);
         this.profileJvmStatCollectIntervalMs = readInt("profiler.jvm.stat.collect.interval", DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS);
         this.profileJvmStatBatchSendCount = readInt("profiler.jvm.stat.batch.send.count", DEFAULT_NUM_AGENT_STAT_BATCH_SEND);
-        this.profilerJvmStatCollectDetailedMetrics = readBoolean("profiler.stat.jvm.collect.detailed.metrics", false);
+        this.profilerJvmStatCollectDetailedMetrics = readBoolean("profiler.jvm.stat.collect.detailed.metrics", false);
 
         this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 
@@ -578,6 +606,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.httpStatusCodeErrors = readList("profiler.http.status.code.errors");
 
         this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
+
+        this.applicationNamespace = readString("profiler.application.namespace", "");
 
         logger.info("configuration loaded successfully.");
     }
@@ -725,6 +755,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", samplingRate=").append(samplingRate);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
         sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
+        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
         sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
         sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
@@ -739,7 +770,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
-        sb.append(", injectionModuleFactoryClazzName=").append(injectionModuleFactoryClazzName);
+        sb.append(", injectionModuleFactoryClazzName='").append(injectionModuleFactoryClazzName).append('\'');
+        sb.append(", applicationNamespace='").append(applicationNamespace).append('\'');
         sb.append('}');
         return sb.toString();
     }

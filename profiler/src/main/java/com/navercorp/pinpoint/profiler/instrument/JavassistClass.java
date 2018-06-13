@@ -24,6 +24,8 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import javassist.CannotCompileException;
@@ -106,7 +108,14 @@ public class JavassistClass implements InstrumentClass {
 
     @Override
     public boolean isInterceptable() {
-        return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
+        if (ctClass.isAnnotation() || ctClass.isModified()) {
+            return false;
+        }
+        // interface static method or default method is java 1.8 or later
+        if (ctClass.isInterface() && (ctClass.getClassFile2().getMajorVersion() < 52 || !JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_8))) {
+            return false;
+        }
+        return true;
     }
 
     @Override

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -269,6 +270,11 @@ public class SpanStreamUDPSenderTest {
 
         @Override
         public void dispatchSendMessage(TBase<?, ?> tBase) {
+            logger.debug("dispatchSendMessage");
+        }
+
+        @Override
+        public void dispatchSendMessage(ServerRequest serverRequest) {
             logger.debug("dispatchSendMessage");
         }
 

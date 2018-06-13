@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.test.MockTraceContextFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -62,7 +62,7 @@ public class InvokeMethodInterceptorTest {
     private final MethodDescriptor descriptor = new DefaultMethodDescriptor("org.apache.catalina.core.StandardHostValve", "invoke", new String[] {
         "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, new String[] { "request", "response" });
 
-    private ApplicationContext applicationContext;
+    private DefaultApplicationContext applicationContext;
 
     /**
      * Before.
@@ -83,6 +83,7 @@ public class InvokeMethodInterceptorTest {
 
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext.start();
     }
 
     @After

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.handler;
 
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 
 /**
@@ -25,5 +27,7 @@ import org.apache.thrift.TBase;
 public interface SimpleHandler {
 
     void handleSimple(TBase<?, ?> tBase);
+
+    void handleSimple(ServerRequest thriftRequest);
     
 }

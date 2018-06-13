@@ -21,8 +21,11 @@ import com.navercorp.pinpoint.collector.mapper.thrift.event.AgentEventMapper;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,15 @@ public class AgentEventHandler implements SimpleHandler {
 
     @Autowired
     private AgentEventService agentEventService;
+
+    @Override
+    public void handleSimple(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            handleSimple(((ThriftRequest)serverRequest).getData());
+        } else {
+            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
+        }
+    }
 
     @Override
     public void handleSimple(TBase<?, ?> tBase) {

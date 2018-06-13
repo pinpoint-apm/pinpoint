@@ -1127,6 +1127,432 @@ public class JoinApplicationStatBoTest {
         return joinDataSourceListBoList;
     }
 
+
+    @Test
+    public void joinApplicationStatBoByTimeSlice13Test() {
+        final long currentTime = 1487149800000L; // 18:10:00 15 2 2017
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id1", currentTime, 10));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id2", currentTime + 1000, -40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id3", currentTime + 2000, -30));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id4", currentTime + 3000, 40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo7("id5", currentTime + 4000, -50));
+        JoinApplicationStatBo resultJoinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = resultJoinApplicationStatBo.getJoinFileDescriptorBoList();
+        Collections.sort(joinFileDescriptorBoList, new ComparatorImpl7());
+        assertJoinFileDescriptorBoList(joinFileDescriptorBoList);
+    }
+    @Test
+    public void joinApplicationStatBoByTimeSlice14Test() {
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList1 = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1_1 = new JoinFileDescriptorBo("agent1", 440, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo1_2 = new JoinFileDescriptorBo("agent1", 330, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo1_3 = new JoinFileDescriptorBo("agent1", 550, 600, "agent1", 70, "agent1", 1498462555000L);
+        joinFileDescriptorBoList1.add(joinFileDescriptorBo1_1);
+        joinFileDescriptorBoList1.add(joinFileDescriptorBo1_2);
+        joinFileDescriptorBoList1.add(joinFileDescriptorBo1_3);
+        JoinApplicationStatBo joinApplicationStatBo1 = new JoinApplicationStatBo();
+        joinApplicationStatBo1.setId("test_app");
+        joinApplicationStatBo1.setJoinFileDescriptorBoList(joinFileDescriptorBoList1);
+        joinApplicationStatBo1.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo1);
+
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList2 = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo2_1 = new JoinFileDescriptorBo("agent1", 330, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2_2 = new JoinFileDescriptorBo("agent1", 220, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2_3 = new JoinFileDescriptorBo("agent1", 110, 600, "agent1", 70, "agent1", 1498462555000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2_4 = new JoinFileDescriptorBo("agent1", 770, 600, "agent1", 70, "agent1", 1498462560000L);
+        joinFileDescriptorBoList2.add(joinFileDescriptorBo2_1);
+        joinFileDescriptorBoList2.add(joinFileDescriptorBo2_2);
+        joinFileDescriptorBoList2.add(joinFileDescriptorBo2_3);
+        joinFileDescriptorBoList2.add(joinFileDescriptorBo2_4);
+        JoinApplicationStatBo joinApplicationStatBo2 = new JoinApplicationStatBo();
+        joinApplicationStatBo2.setId("test_app");
+        joinApplicationStatBo2.setJoinFileDescriptorBoList(joinFileDescriptorBoList2);
+        joinApplicationStatBo2.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo2);
+
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList3 = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo3_1 = new JoinFileDescriptorBo("agent1", 220, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3_2 = new JoinFileDescriptorBo("agent1", 110, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3_3 = new JoinFileDescriptorBo("agent1", 880, 600, "agent1", 70, "agent1", 1498462565000L);
+        joinFileDescriptorBoList3.add(joinFileDescriptorBo3_1);
+        joinFileDescriptorBoList3.add(joinFileDescriptorBo3_2);
+        joinFileDescriptorBoList3.add(joinFileDescriptorBo3_3);
+        JoinApplicationStatBo joinApplicationStatBo3 = new JoinApplicationStatBo();
+        joinApplicationStatBo3.setId("test_app");
+        joinApplicationStatBo3.setJoinFileDescriptorBoList(joinFileDescriptorBoList3);
+        joinApplicationStatBo3.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo3);
+
+
+        JoinApplicationStatBo joinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        assertEquals(joinApplicationStatBo.getId(), "test_app");
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1498462545000L);
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = joinApplicationStatBo.getJoinFileDescriptorBoList();
+        Collections.sort(joinFileDescriptorBoList, new ComparatorImpl7());
+
+        assertEquals(joinFileDescriptorBoList.size(), 5);
+        assertEquals(joinFileDescriptorBoList.get(0).getAvgOpenFDCount(), 330,0);
+        assertEquals(joinFileDescriptorBoList.get(1).getAvgOpenFDCount(), 220,0);
+        assertEquals(joinFileDescriptorBoList.get(2).getAvgOpenFDCount(), 330,0);
+        assertEquals(joinFileDescriptorBoList.get(3).getAvgOpenFDCount(), 770,0);
+        assertEquals(joinFileDescriptorBoList.get(4).getAvgOpenFDCount(), 880,0);
+    }
+
+    private class ComparatorImpl7 implements Comparator<JoinFileDescriptorBo> {
+        @Override
+        public int compare(JoinFileDescriptorBo bo1, JoinFileDescriptorBo bo2) {
+            return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
+        }
+    }
+
+    private void assertJoinFileDescriptorBoList(List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
+        assertEquals(joinFileDescriptorBoList.size(), 5);
+        JoinFileDescriptorBo joinFileDescriptorBo1 = joinFileDescriptorBoList.get(0);
+        assertEquals(joinFileDescriptorBo1.getId(), "id1");
+        assertEquals(joinFileDescriptorBo1.getTimestamp(), 1487149800000L);
+        assertEquals(joinFileDescriptorBo1.getAvgOpenFDCount(), 486, 0);
+        assertEquals(joinFileDescriptorBo1.getMinOpenFDCount(), 220, 0);
+        assertEquals(joinFileDescriptorBo1.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo1.getMaxOpenFDCount(), 910, 0);
+        assertEquals(joinFileDescriptorBo1.getMaxOpenFDCountAgentId(), "id4_1");
+
+        JoinFileDescriptorBo joinFileDescriptorBo2 = joinFileDescriptorBoList.get(1);
+        assertEquals(joinFileDescriptorBo2.getId(), "id1");
+        assertEquals(joinFileDescriptorBo2.getTimestamp(), 1487149805000L);
+        assertEquals(joinFileDescriptorBo2.getAvgOpenFDCount(), 386, 0);
+        assertEquals(joinFileDescriptorBo2.getMinOpenFDCount(), 350, 0);
+        assertEquals(joinFileDescriptorBo2.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo2.getMaxOpenFDCount(), 810, 0);
+        assertEquals(joinFileDescriptorBo2.getMaxOpenFDCountAgentId(), "id4_1");
+
+        JoinFileDescriptorBo joinFileDescriptorBo3 = joinFileDescriptorBoList.get(2);
+        assertEquals(joinFileDescriptorBo3.getId(), "id1");
+        assertEquals(joinFileDescriptorBo3.getTimestamp(), 1487149810000L);
+        assertEquals(joinFileDescriptorBo3.getAvgOpenFDCount(), 286, 0);
+        assertEquals(joinFileDescriptorBo3.getMinOpenFDCount(), 220, 0);
+        assertEquals(joinFileDescriptorBo3.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo3.getMaxOpenFDCount(), 710, 0);
+        assertEquals(joinFileDescriptorBo3.getMaxOpenFDCountAgentId(), "id4_1");
+
+        JoinFileDescriptorBo joinFileDescriptorBo4 = joinFileDescriptorBoList.get(3);
+        assertEquals(joinFileDescriptorBo4.getId(), "id1");
+        assertEquals(joinFileDescriptorBo4.getTimestamp(), 1487149815000L);
+        assertEquals(joinFileDescriptorBo4.getAvgOpenFDCount(), 186, 0);
+        assertEquals(joinFileDescriptorBo4.getMinOpenFDCount(), 120, 0);
+        assertEquals(joinFileDescriptorBo4.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo4.getMaxOpenFDCount(), 610, 0);
+        assertEquals(joinFileDescriptorBo4.getMaxOpenFDCountAgentId(), "id4_1");
+
+        JoinFileDescriptorBo joinFileDescriptorBo5 = joinFileDescriptorBoList.get(4);
+        assertEquals(joinFileDescriptorBo5.getId(), "id1");
+        assertEquals(joinFileDescriptorBo5.getTimestamp(), 1487149820000L);
+        assertEquals(joinFileDescriptorBo5.getAvgOpenFDCount(), 86, 0);
+        assertEquals(joinFileDescriptorBo5.getMinOpenFDCount(), 20, 0);
+        assertEquals(joinFileDescriptorBo5.getMinOpenFDCountAgentId(), "id5_2");
+        assertEquals(joinFileDescriptorBo5.getMaxOpenFDCount(), 930, 0);
+        assertEquals(joinFileDescriptorBo5.getMaxOpenFDCountAgentId(), "id4_1");
+    }
+
+    private JoinApplicationStatBo createJoinApplicationStatBo7(final String id, final long timestamp, final int plus) {
+        final JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
+        joinApplicationStatBo.setId(id);
+        joinApplicationStatBo.setJoinFileDescriptorBoList(createJoinFileDescriptorBoList(id, timestamp, plus));
+        joinApplicationStatBo.setTimestamp(timestamp);
+        joinApplicationStatBo.setStatType(StatType.APP_STST);
+        return joinApplicationStatBo;
+    }
+
+    private List<JoinFileDescriptorBo> createJoinFileDescriptorBoList(final String id, final long currentTime, int plus) {
+        final List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo(id, 500 + plus, 870 + plus, id + "_1", 270 + plus, id + "_2", currentTime);
+        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo(id, 400 + plus, 770 + plus, id + "_1", 400 + plus, id + "_2", currentTime + 5000);
+        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo(id, 300 + plus, 670 + plus, id + "_1", 270 + plus, id + "_2", currentTime + 10000);
+        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo(id, 200 + plus, 570 + plus, id + "_1", 170 + plus, id + "_2", currentTime + 15000);
+        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo(id, 100 + plus, 890 + plus, id + "_1", 70 + plus, id + "_2", currentTime + 20000);
+
+        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+
+        return joinFileDescriptorBoList;
+    }
+
+    @Test
+    public void joinApplicationStatBoByTimeSlice15Test() {
+        final long currentTime = 1487149800000L; // 18:10:00 15 2 2017
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+        joinApplicationStatBoList.add(createJoinApplicationStatBo8("id1", currentTime, 10));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo8("id2", currentTime + 1000, -40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo8("id3", currentTime + 2000, -30));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo8("id4", currentTime + 3000, 40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo8("id5", currentTime + 4000, -50));
+        JoinApplicationStatBo resultJoinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        List<JoinDirectBufferBo> joinDirectBufferBoList = resultJoinApplicationStatBo.getJoinDirectBufferBoList();
+        Collections.sort(joinDirectBufferBoList, new ComparatorImpl8());
+        assertJoinDirectBufferBoList(joinDirectBufferBoList);
+    }
+    @Test
+    public void joinApplicationStatBoByTimeSlice16Test() {
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+
+        List<JoinDirectBufferBo> joinDirectBufferBoList1 = new ArrayList<JoinDirectBufferBo>();
+        JoinDirectBufferBo joinDirectBufferBo1_1 = new JoinDirectBufferBo("agent1", 440, 700, "agent1", 300, "agent1", 440, 700, "agent1", 300, "agent1", 440, 700, "agent1", 300, "agent1", 440, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinDirectBufferBo joinDirectBufferBo1_2 = new JoinDirectBufferBo("agent1", 330, 400, "agent1", 100, "agent1", 330, 400, "agent1", 100, "agent1", 330, 400, "agent1", 100, "agent1", 330, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinDirectBufferBo joinDirectBufferBo1_3 = new JoinDirectBufferBo("agent1", 550, 600, "agent1", 70, "agent1", 550, 600, "agent1", 70, "agent1", 550, 600, "agent1", 70, "agent1", 550, 600, "agent1", 70, "agent1", 1498462555000L);
+        joinDirectBufferBoList1.add(joinDirectBufferBo1_1);
+        joinDirectBufferBoList1.add(joinDirectBufferBo1_2);
+        joinDirectBufferBoList1.add(joinDirectBufferBo1_3);
+        JoinApplicationStatBo joinApplicationStatBo1 = new JoinApplicationStatBo();
+        joinApplicationStatBo1.setId("test_app");
+        joinApplicationStatBo1.setJoinDirectBufferBoList(joinDirectBufferBoList1);
+        joinApplicationStatBo1.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo1);
+
+        List<JoinDirectBufferBo> joinDirectBufferBoList2 = new ArrayList<JoinDirectBufferBo>();
+        JoinDirectBufferBo joinDirectBufferBo2_1 = new JoinDirectBufferBo("agent1", 330, 700, "agent1", 300, "agent1", 330, 700, "agent1", 300, "agent1", 330, 700, "agent1", 300, "agent1", 330, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinDirectBufferBo joinDirectBufferBo2_2 = new JoinDirectBufferBo("agent1", 220, 400, "agent1", 100, "agent1", 220, 400, "agent1", 100, "agent1", 220, 400, "agent1", 100, "agent1", 220, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinDirectBufferBo joinDirectBufferBo2_3 = new JoinDirectBufferBo("agent1", 110, 600, "agent1", 70, "agent1", 110, 600, "agent1", 70, "agent1", 110, 600, "agent1", 70, "agent1", 110, 600, "agent1", 70, "agent1", 1498462555000L);
+        JoinDirectBufferBo joinDirectBufferBo2_4 = new JoinDirectBufferBo("agent1", 770, 600, "agent1", 70, "agent1", 770, 600, "agent1", 70, "agent1", 770, 600, "agent1", 70, "agent1", 770, 600, "agent1", 70, "agent1", 1498462560000L);
+        joinDirectBufferBoList2.add(joinDirectBufferBo2_1);
+        joinDirectBufferBoList2.add(joinDirectBufferBo2_2);
+        joinDirectBufferBoList2.add(joinDirectBufferBo2_3);
+        joinDirectBufferBoList2.add(joinDirectBufferBo2_4);
+        JoinApplicationStatBo joinApplicationStatBo2 = new JoinApplicationStatBo();
+        joinApplicationStatBo2.setId("test_app");
+        joinApplicationStatBo2.setJoinDirectBufferBoList(joinDirectBufferBoList2);
+        joinApplicationStatBo2.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo2);
+
+        List<JoinDirectBufferBo> joinDirectBufferBoList3 = new ArrayList<JoinDirectBufferBo>();
+        JoinDirectBufferBo joinDirectBufferBo3_1 = new JoinDirectBufferBo("agent1", 220, 700, "agent1", 300, "agent1", 220, 700, "agent1", 300, "agent1", 220, 700, "agent1", 300, "agent1", 220, 700, "agent1", 300, "agent1", 1498462545000L);
+        JoinDirectBufferBo joinDirectBufferBo3_2 = new JoinDirectBufferBo("agent1", 110, 400, "agent1", 100, "agent1", 110, 400, "agent1", 100, "agent1", 110, 400, "agent1", 100, "agent1", 110, 400, "agent1", 100, "agent1", 1498462550000L);
+        JoinDirectBufferBo joinDirectBufferBo3_3 = new JoinDirectBufferBo("agent1", 880, 600, "agent1", 70, "agent1", 880, 600, "agent1", 70, "agent1", 880, 600, "agent1", 70, "agent1", 880, 600, "agent1", 70, "agent1", 1498462565000L);
+        joinDirectBufferBoList3.add(joinDirectBufferBo3_1);
+        joinDirectBufferBoList3.add(joinDirectBufferBo3_2);
+        joinDirectBufferBoList3.add(joinDirectBufferBo3_3);
+        JoinApplicationStatBo joinApplicationStatBo3 = new JoinApplicationStatBo();
+        joinApplicationStatBo3.setId("test_app");
+        joinApplicationStatBo3.setJoinDirectBufferBoList(joinDirectBufferBoList3);
+        joinApplicationStatBo3.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo3);
+
+
+        JoinApplicationStatBo joinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        assertEquals(joinApplicationStatBo.getId(), "test_app");
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1498462545000L);
+        List<JoinDirectBufferBo> joinDirectBufferBoList = joinApplicationStatBo.getJoinDirectBufferBoList();
+        Collections.sort(joinDirectBufferBoList, new ComparatorImpl8());
+
+        assertEquals(joinDirectBufferBoList.size(), 5);
+        assertEquals(joinDirectBufferBoList.get(0).getAvgDirectCount(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(0).getAvgDirectMemoryUsed(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(0).getAvgMappedCount(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(0).getAvgMappedMemoryUsed(), 330,0);
+
+        assertEquals(joinDirectBufferBoList.get(1).getAvgDirectCount(), 220,0);
+        assertEquals(joinDirectBufferBoList.get(1).getAvgDirectMemoryUsed(), 220,0);
+        assertEquals(joinDirectBufferBoList.get(1).getAvgMappedCount(), 220,0);
+        assertEquals(joinDirectBufferBoList.get(1).getAvgMappedMemoryUsed(), 220,0);
+
+        assertEquals(joinDirectBufferBoList.get(2).getAvgDirectCount(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(2).getAvgDirectMemoryUsed(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(2).getAvgMappedCount(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(2).getAvgMappedMemoryUsed(), 330,0);
+
+        assertEquals(joinDirectBufferBoList.get(3).getAvgDirectCount(), 770,0);
+        assertEquals(joinDirectBufferBoList.get(3).getAvgDirectMemoryUsed(), 770,0);
+        assertEquals(joinDirectBufferBoList.get(3).getAvgMappedCount(), 770,0);
+        assertEquals(joinDirectBufferBoList.get(3).getAvgMappedMemoryUsed(), 770,0);
+
+        assertEquals(joinDirectBufferBoList.get(4).getAvgDirectCount(), 880,0);
+        assertEquals(joinDirectBufferBoList.get(4).getAvgDirectMemoryUsed(), 880,0);
+        assertEquals(joinDirectBufferBoList.get(4).getAvgMappedCount(), 880,0);
+        assertEquals(joinDirectBufferBoList.get(4).getAvgMappedMemoryUsed(), 880,0);
+    }
+
+    private class ComparatorImpl8 implements Comparator<JoinDirectBufferBo> {
+        @Override
+        public int compare(JoinDirectBufferBo bo1, JoinDirectBufferBo bo2) {
+            return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
+        }
+    }
+
+    private void assertJoinDirectBufferBoList(List<JoinDirectBufferBo> joinDirectBufferBoList) {
+        assertEquals(joinDirectBufferBoList.size(), 5);
+        JoinDirectBufferBo joinDirectBufferBo1 = joinDirectBufferBoList.get(0);
+        assertEquals(joinDirectBufferBo1.getId(), "id1");
+        //1
+        assertEquals(joinDirectBufferBo1.getTimestamp(), 1487149800000L);
+        assertEquals(joinDirectBufferBo1.getAvgDirectCount(), 486, 0);
+        assertEquals(joinDirectBufferBo1.getMinDirectCount(), 220, 0);
+        assertEquals(joinDirectBufferBo1.getMinDirectCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo1.getMaxDirectCount(), 910, 0);
+        assertEquals(joinDirectBufferBo1.getMaxDirectCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo1.getAvgDirectMemoryUsed(), 486, 0);
+        assertEquals(joinDirectBufferBo1.getMinDirectMemoryUsed(), 220, 0);
+        assertEquals(joinDirectBufferBo1.getMinDirectMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo1.getMaxDirectMemoryUsed(), 910, 0);
+        assertEquals(joinDirectBufferBo1.getMaxDirectMemoryUsedAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo1.getAvgMappedCount(), 486, 0);
+        assertEquals(joinDirectBufferBo1.getMinMappedCount(), 220, 0);
+        assertEquals(joinDirectBufferBo1.getMinMappedCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo1.getMaxMappedCount(), 910, 0);
+        assertEquals(joinDirectBufferBo1.getMaxMappedCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo1.getAvgMappedMemoryUsed(), 486, 0);
+        assertEquals(joinDirectBufferBo1.getMinMappedMemoryUsed(), 220, 0);
+        assertEquals(joinDirectBufferBo1.getMinMappedMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo1.getMaxMappedMemoryUsed(), 910, 0);
+        assertEquals(joinDirectBufferBo1.getMaxMappedMemoryUsedAgentId(), "id4_1");
+
+        //2
+        JoinDirectBufferBo joinDirectBufferBo2 = joinDirectBufferBoList.get(1);
+        assertEquals(joinDirectBufferBo2.getId(), "id1");
+        assertEquals(joinDirectBufferBo2.getTimestamp(), 1487149805000L);
+        assertEquals(joinDirectBufferBo2.getAvgDirectCount(), 386, 0);
+        assertEquals(joinDirectBufferBo2.getMinDirectCount(), 350, 0);
+        assertEquals(joinDirectBufferBo2.getMinDirectCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo2.getMaxDirectCount(), 810, 0);
+        assertEquals(joinDirectBufferBo2.getMaxDirectCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo2.getAvgDirectMemoryUsed(), 386, 0);
+        assertEquals(joinDirectBufferBo2.getMinDirectMemoryUsed(), 350, 0);
+        assertEquals(joinDirectBufferBo2.getMinDirectMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo2.getMaxDirectMemoryUsed(), 810, 0);
+        assertEquals(joinDirectBufferBo2.getMaxDirectMemoryUsedAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo2.getAvgMappedCount(), 386, 0);
+        assertEquals(joinDirectBufferBo2.getMinMappedCount(), 350, 0);
+        assertEquals(joinDirectBufferBo2.getMinMappedCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo2.getMaxMappedCount(), 810, 0);
+        assertEquals(joinDirectBufferBo2.getMaxMappedCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo2.getAvgMappedMemoryUsed(), 386, 0);
+        assertEquals(joinDirectBufferBo2.getMinMappedMemoryUsed(), 350, 0);
+        assertEquals(joinDirectBufferBo2.getMinMappedMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo2.getMaxMappedMemoryUsed(), 810, 0);
+        assertEquals(joinDirectBufferBo2.getMaxMappedMemoryUsedAgentId(), "id4_1");
+
+        //3
+        JoinDirectBufferBo joinDirectBufferBo3 = joinDirectBufferBoList.get(2);
+        assertEquals(joinDirectBufferBo3.getId(), "id1");
+        assertEquals(joinDirectBufferBo3.getTimestamp(), 1487149810000L);
+        assertEquals(joinDirectBufferBo3.getAvgDirectCount(), 286, 0);
+        assertEquals(joinDirectBufferBo3.getMinDirectCount(), 220, 0);
+        assertEquals(joinDirectBufferBo3.getMinDirectCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo3.getMaxDirectCount(), 710, 0);
+        assertEquals(joinDirectBufferBo3.getMaxDirectCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo3.getAvgDirectMemoryUsed(), 286, 0);
+        assertEquals(joinDirectBufferBo3.getMinDirectMemoryUsed(), 220, 0);
+        assertEquals(joinDirectBufferBo3.getMinDirectMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo3.getMaxDirectMemoryUsed(), 710, 0);
+        assertEquals(joinDirectBufferBo3.getMaxDirectMemoryUsedAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo3.getAvgMappedCount(), 286, 0);
+        assertEquals(joinDirectBufferBo3.getMinMappedCount(), 220, 0);
+        assertEquals(joinDirectBufferBo3.getMinMappedCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo3.getMaxMappedCount(), 710, 0);
+        assertEquals(joinDirectBufferBo3.getMaxMappedCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo3.getAvgMappedMemoryUsed(), 286, 0);
+        assertEquals(joinDirectBufferBo3.getMinMappedMemoryUsed(), 220, 0);
+        assertEquals(joinDirectBufferBo3.getMinMappedMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo3.getMaxMappedMemoryUsed(), 710, 0);
+        assertEquals(joinDirectBufferBo3.getMaxMappedMemoryUsedAgentId(), "id4_1");
+
+        //4
+        JoinDirectBufferBo joinDirectBufferBo4 = joinDirectBufferBoList.get(3);
+        assertEquals(joinDirectBufferBo4.getId(), "id1");
+        assertEquals(joinDirectBufferBo4.getTimestamp(), 1487149815000L);
+        assertEquals(joinDirectBufferBo4.getAvgDirectCount(), 186, 0);
+        assertEquals(joinDirectBufferBo4.getMinDirectCount(), 120, 0);
+        assertEquals(joinDirectBufferBo4.getMinDirectCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo4.getMaxDirectCount(), 610, 0);
+        assertEquals(joinDirectBufferBo4.getMaxDirectCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo4.getAvgDirectMemoryUsed(), 186, 0);
+        assertEquals(joinDirectBufferBo4.getMinDirectMemoryUsed(), 120, 0);
+        assertEquals(joinDirectBufferBo4.getMinDirectMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo4.getMaxDirectMemoryUsed(), 610, 0);
+        assertEquals(joinDirectBufferBo4.getMaxDirectMemoryUsedAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo4.getAvgMappedCount(), 186, 0);
+        assertEquals(joinDirectBufferBo4.getMinMappedCount(), 120, 0);
+        assertEquals(joinDirectBufferBo4.getMinMappedCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo4.getMaxMappedCount(), 610, 0);
+        assertEquals(joinDirectBufferBo4.getMaxMappedCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo4.getAvgMappedMemoryUsed(), 186, 0);
+        assertEquals(joinDirectBufferBo4.getMinMappedMemoryUsed(), 120, 0);
+        assertEquals(joinDirectBufferBo4.getMinMappedMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo4.getMaxMappedMemoryUsed(), 610, 0);
+        assertEquals(joinDirectBufferBo4.getMaxMappedMemoryUsedAgentId(), "id4_1");
+
+        //5
+        JoinDirectBufferBo joinDirectBufferBo5 = joinDirectBufferBoList.get(4);
+        assertEquals(joinDirectBufferBo5.getId(), "id1");
+        assertEquals(joinDirectBufferBo5.getTimestamp(), 1487149820000L);
+        assertEquals(joinDirectBufferBo5.getAvgDirectCount(), 86, 0);
+        assertEquals(joinDirectBufferBo5.getMinDirectCount(), 20, 0);
+        assertEquals(joinDirectBufferBo5.getMinDirectCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo5.getMaxDirectCount(), 930, 0);
+        assertEquals(joinDirectBufferBo5.getMaxDirectCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo5.getAvgDirectMemoryUsed(), 86, 0);
+        assertEquals(joinDirectBufferBo5.getMinDirectMemoryUsed(), 20, 0);
+        assertEquals(joinDirectBufferBo5.getMinDirectMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo5.getMaxDirectMemoryUsed(), 930, 0);
+        assertEquals(joinDirectBufferBo5.getMaxDirectMemoryUsedAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo5.getAvgMappedCount(), 86, 0);
+        assertEquals(joinDirectBufferBo5.getMinMappedCount(), 20, 0);
+        assertEquals(joinDirectBufferBo5.getMinMappedCountAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo5.getMaxMappedCount(), 930, 0);
+        assertEquals(joinDirectBufferBo5.getMaxMappedCountAgentId(), "id4_1");
+
+        assertEquals(joinDirectBufferBo5.getAvgMappedMemoryUsed(), 86, 0);
+        assertEquals(joinDirectBufferBo5.getMinMappedMemoryUsed(), 20, 0);
+        assertEquals(joinDirectBufferBo5.getMinMappedMemoryUsedAgentId(), "id5_2");
+        assertEquals(joinDirectBufferBo5.getMaxMappedMemoryUsed(), 930, 0);
+        assertEquals(joinDirectBufferBo5.getMaxMappedMemoryUsedAgentId(), "id4_1");
+
+    }
+
+    private JoinApplicationStatBo createJoinApplicationStatBo8(final String id, final long timestamp, final int plus) {
+        final JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
+        joinApplicationStatBo.setId(id);
+        joinApplicationStatBo.setJoinDirectBufferBoList(createJoinDirectBufferBoList(id, timestamp, plus));
+        joinApplicationStatBo.setTimestamp(timestamp);
+        joinApplicationStatBo.setStatType(StatType.APP_STST);
+        return joinApplicationStatBo;
+    }
+
+    private List<JoinDirectBufferBo> createJoinDirectBufferBoList(final String id, final long currentTime, int plus) {
+        final List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+        JoinDirectBufferBo joinDirectBufferBo1 = new JoinDirectBufferBo(id, 500 + plus, 870 + plus, id + "_1", 270 + plus, id + "_2", 500 + plus, 870 + plus, id + "_1", 270 + plus, id + "_2", 500 + plus, 870 + plus, id + "_1", 270 + plus, id + "_2", 500 + plus, 870 + plus, id + "_1", 270 + plus, id + "_2", currentTime);
+        JoinDirectBufferBo joinDirectBufferBo2 = new JoinDirectBufferBo(id, 400 + plus, 770 + plus, id + "_1", 400 + plus, id + "_2", 400 + plus, 770 + plus, id + "_1", 400 + plus, id + "_2", 400 + plus, 770 + plus, id + "_1", 400 + plus, id + "_2", 400 + plus, 770 + plus, id + "_1", 400 + plus, id + "_2", currentTime + 5000);
+        JoinDirectBufferBo joinDirectBufferBo3 = new JoinDirectBufferBo(id, 300 + plus, 670 + plus, id + "_1", 270 + plus, id + "_2", 300 + plus, 670 + plus, id + "_1", 270 + plus, id + "_2", 300 + plus, 670 + plus, id + "_1", 270 + plus, id + "_2", 300 + plus, 670 + plus, id + "_1", 270 + plus, id + "_2", currentTime + 10000);
+        JoinDirectBufferBo joinDirectBufferBo4 = new JoinDirectBufferBo(id, 200 + plus, 570 + plus, id + "_1", 170 + plus, id + "_2", 200 + plus, 570 + plus, id + "_1", 170 + plus, id + "_2", 200 + plus, 570 + plus, id + "_1", 170 + plus, id + "_2", 200 + plus, 570 + plus, id + "_1", 170 + plus, id + "_2", currentTime + 15000);
+        JoinDirectBufferBo joinDirectBufferBo5 = new JoinDirectBufferBo(id, 100 + plus, 890 + plus, id + "_1", 70 + plus, id + "_2", 100 + plus, 890 + plus, id + "_1", 70 + plus, id + "_2", 100 + plus, 890 + plus, id + "_1", 70 + plus, id + "_2", 100 + plus, 890 + plus, id + "_1", 70 + plus, id + "_2", currentTime + 20000);
+
+        joinDirectBufferBoList.add(joinDirectBufferBo1);
+        joinDirectBufferBoList.add(joinDirectBufferBo2);
+        joinDirectBufferBoList.add(joinDirectBufferBo3);
+        joinDirectBufferBoList.add(joinDirectBufferBo4);
+        joinDirectBufferBoList.add(joinDirectBufferBo5);
+
+        return joinDirectBufferBoList;
+    }
+
     @Test
     public void createJoinApplicationStatBoTest() {
         JoinAgentStatBo joinAgentStatBo = new JoinAgentStatBo();
@@ -1231,6 +1657,51 @@ public class JoinApplicationStatBoTest {
         joinDataSourceListBoList.add(joinDataSourceListBo5);
         joinAgentStatBo.setJoinDataSourceListBoList(joinDataSourceListBoList);
 
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo("agent1", 44, 70, "agent1", 30, "agent1", 1498462565000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo("agent1", 33, 40, "agent1", 10, "agent1", 1498462570000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo("agent1", 55, 60, "agent1", 7, "agent1", 1498462575000L);
+        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo("agent1", 11, 80, "agent1", 8, "agent1", 1498462580000L);
+        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo("agent1", 22, 70, "agent1", 12, "agent1", 1498462585000L);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+        joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
+
+        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+        JoinDirectBufferBo joinDirectBufferBo1 = new JoinDirectBufferBo("agent1", 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 1498462565000L);
+        JoinDirectBufferBo joinDirectBufferBo2 = new JoinDirectBufferBo("agent2", 33, 40, "agent2", 10, "agent2"
+                , 33, 40, "agent2", 10, "agent2"
+                , 33, 40, "agent2", 10, "agent2"
+                , 33, 40, "agent2", 10, "agent2"
+                , 1498462570000L);
+        JoinDirectBufferBo joinDirectBufferBo3 = new JoinDirectBufferBo("agent3", 55, 60, "agent3", 7, "agent3"
+                , 55, 60, "agent3", 7, "agent3"
+                , 55, 60, "agent3", 7, "agent3"
+                , 55, 60, "agent3", 7, "agent3"
+                , 1498462575000L);
+        JoinDirectBufferBo joinDirectBufferBo4 = new JoinDirectBufferBo("agent4", 11, 80, "agent4", 8, "agent4"
+                , 11, 80, "agent4", 8, "agent4"
+                , 11, 80, "agent4", 8, "agent4"
+                , 11, 80, "agent4", 8, "agent4"
+                , 1498462580000L);
+        JoinDirectBufferBo joinDirectBufferBo5 = new JoinDirectBufferBo("agent5", 22, 70, "agent5", 12, "agent5"
+                , 22, 70, "agent5", 12, "agent5"
+                , 22, 70, "agent5", 12, "agent5"
+                , 22, 70, "agent5", 12, "agent5"
+                , 1498462585000L);
+        joinDirectBufferBoList.add(joinDirectBufferBo1);
+        joinDirectBufferBoList.add(joinDirectBufferBo2);
+        joinDirectBufferBoList.add(joinDirectBufferBo3);
+        joinDirectBufferBoList.add(joinDirectBufferBo4);
+        joinDirectBufferBoList.add(joinDirectBufferBo5);
+        joinAgentStatBo.setJoinDirectBufferBoList(joinDirectBufferBoList);
 
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
         assertEquals(joinApplicationStatBoList.size(), 1);
@@ -1242,6 +1713,7 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 5);
         assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 5);
         assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 5);
+        assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 5);
     }
 
     @Test
@@ -1277,7 +1749,7 @@ public class JoinApplicationStatBoTest {
 
         List<JoinTransactionBo> joinTransactionBoList = new ArrayList<JoinTransactionBo>();
         JoinTransactionBo joinTransactionBo1 = new JoinTransactionBo("agent1", 5000, 150, 20, "agent1", 230, "agent1", 1498462545000L);
-        JoinTransactionBo joinTransactionBo2 = new JoinTransactionBo("agent2", 5000, 300, 10, "agent2", 400, "agent2", 1498462550000L);
+        JoinTransactionBo joinTransactionBo2 = new JoinTransactionBo("agent2", 5000, 300, 10, "agent2", 400, "agent1", 1498462550000L);
         JoinTransactionBo joinTransactionBo3 = new JoinTransactionBo("agent3", 5000, 30, 5, "agent3", 100, "agent3", 1498462555000L);
         JoinTransactionBo joinTransactionBo4 = new JoinTransactionBo("agent4", 5000, 30, 5, "agent4", 100, "agent4", 1498462560000L);
         JoinTransactionBo joinTransactionBo5 = new JoinTransactionBo("agent5", 5000, 30, 5, "agent5", 100, "agent5", 1498462565000L);
@@ -1348,6 +1820,52 @@ public class JoinApplicationStatBoTest {
         joinDataSourceListBoList.add(joinDataSourceListBo5);
         joinAgentStatBo.setJoinDataSourceListBoList(joinDataSourceListBoList);
 
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo("agent1", 44, 70, "agent1", 30, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo("agent1", 33, 40, "agent1", 10, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo("agent1", 55, 60, "agent1", 7, "agent1", 1498462555000L);
+        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo("agent1", 11, 80, "agent1", 8, "agent1", 1498462560000L);
+        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo("agent1", 22, 70, "agent1", 12, "agent1", 1498462565000L);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+        joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
+
+        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+        JoinDirectBufferBo joinDirectBufferBo1 = new JoinDirectBufferBo("agent1", 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 1498462545000L);
+        JoinDirectBufferBo joinDirectBufferBo2 = new JoinDirectBufferBo("agent1", 33, 40, "agent1", 10, "agent1"
+                , 33, 40, "agent1", 10, "agent1"
+                , 33, 40, "agent1", 10, "agent1"
+                , 33, 40, "agent1", 10, "agent1"
+                , 1498462550000L);
+        JoinDirectBufferBo joinDirectBufferBo3 = new JoinDirectBufferBo("agent1", 55, 60, "agent1", 7, "agent1"
+                , 55, 60, "agent1", 7, "agent1"
+                , 55, 60, "agent1", 7, "agent1"
+                , 55, 60, "agent1", 7, "agent1"
+                , 1498462555000L);
+        JoinDirectBufferBo joinDirectBufferBo4 = new JoinDirectBufferBo("agent1", 11, 80, "agent1", 8, "agent1"
+                , 11, 80, "agent1", 8, "agent1"
+                , 11, 80, "agent1", 8, "agent1"
+                , 11, 80, "agent1", 8, "agent1"
+                , 1498462560000L);
+        JoinDirectBufferBo joinDirectBufferBo5 = new JoinDirectBufferBo("agent1", 22, 70, "agent1", 12, "agent1"
+                , 22, 70, "agent1", 12, "agent1"
+                , 22, 70, "agent1", 12, "agent1"
+                , 22, 70, "agent1", 12, "agent1"
+                , 1498462565000L);
+        joinDirectBufferBoList.add(joinDirectBufferBo1);
+        joinDirectBufferBoList.add(joinDirectBufferBo2);
+        joinDirectBufferBoList.add(joinDirectBufferBo3);
+        joinDirectBufferBoList.add(joinDirectBufferBo4);
+        joinDirectBufferBoList.add(joinDirectBufferBo5);
+        joinAgentStatBo.setJoinDirectBufferBoList(joinDirectBufferBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
         assertEquals(joinApplicationStatBoList.size(), 2);
         for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
@@ -1359,6 +1877,8 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinDirectBufferBoList().size(), 2);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462500000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 3);
@@ -1366,6 +1886,8 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 3);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 3);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 3);
+                assertEquals(joinApplicationStatBo.getJoinDirectBufferBoList().size(), 3);
             } else {
                 fail();
             }
@@ -1476,6 +1998,52 @@ public class JoinApplicationStatBoTest {
         joinDataSourceListBoList.add(joinDataSourceListBo5);
         joinAgentStatBo.setJoinDataSourceListBoList(joinDataSourceListBoList);
 
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo("agent1", 44, 70, "agent1", 30, "agent1", 1498462545000L);
+        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo("agent1", 33, 40, "agent1", 10, "agent1", 1498462550000L);
+        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo("agent1", 55, 60, "agent1", 7, "agent1", 1498462555000L);
+        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo("agent1", 11, 80, "agent1", 8, "agent1", 1498462560000L);
+        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo("agent1", 22, 70, "agent1", 12, "agent1", 1498462565000L);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
+        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+        joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
+
+        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+        JoinDirectBufferBo joinDirectBufferBo1 = new JoinDirectBufferBo("agent1", 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 44, 70, "agent1", 30, "agent1"
+                , 1498462545000L);
+        JoinDirectBufferBo joinDirectBufferBo2 = new JoinDirectBufferBo("agent1", 33, 40, "agent1", 10, "agent1"
+                , 33, 40, "agent1", 10, "agent1"
+                , 33, 40, "agent1", 10, "agent1"
+                , 33, 40, "agent1", 10, "agent1"
+                , 1498462550000L);
+        JoinDirectBufferBo joinDirectBufferBo3 = new JoinDirectBufferBo("agent1", 55, 60, "agent1", 7, "agent1"
+                , 55, 60, "agent1", 7, "agent1"
+                , 55, 60, "agent1", 7, "agent1"
+                , 55, 60, "agent1", 7, "agent1"
+                , 1498462555000L);
+        JoinDirectBufferBo joinDirectBufferBo4 = new JoinDirectBufferBo("agent1", 11, 80, "agent1", 8, "agent1"
+                , 11, 80, "agent1", 8, "agent1"
+                , 11, 80, "agent1", 8, "agent1"
+                , 11, 80, "agent1", 8, "agent1"
+                , 1498462560000L);
+        JoinDirectBufferBo joinDirectBufferBo5 = new JoinDirectBufferBo("agent1", 22, 70, "agent1", 12, "agent1"
+                , 22, 70, "agent1", 12, "agent1"
+                , 22, 70, "agent1", 12, "agent1"
+                , 22, 70, "agent1", 12, "agent1"
+                , 1498462565000L);
+        joinDirectBufferBoList.add(joinDirectBufferBo1);
+        joinDirectBufferBoList.add(joinDirectBufferBo2);
+        joinDirectBufferBoList.add(joinDirectBufferBo3);
+        joinDirectBufferBoList.add(joinDirectBufferBo4);
+        joinDirectBufferBoList.add(joinDirectBufferBo5);
+        joinAgentStatBo.setJoinDirectBufferBoList(joinDirectBufferBoList);
+
         List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 10000);
         assertEquals(joinApplicationStatBoList.size(), 3);
         for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
@@ -1487,6 +2055,8 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinDirectBufferBoList().size(), 2);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462540000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 1);
@@ -1494,6 +2064,8 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 1);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 1);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 1);
+                assertEquals(joinApplicationStatBo.getJoinDirectBufferBoList().size(), 1);
             } else if (joinApplicationStatBo.getTimestamp() == 1498462550000L) {
                 assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
@@ -1501,6 +2073,8 @@ public class JoinApplicationStatBoTest {
                 assertEquals(joinApplicationStatBo.getJoinActiveTraceBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinResponseTimeBoList().size(), 2);
                 assertEquals(joinApplicationStatBo.getJoinDataSourceListBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinFileDescriptorBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinDirectBufferBoList().size(), 2);
             } else {
                 fail();
             }

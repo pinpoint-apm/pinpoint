@@ -16,16 +16,18 @@
 
 package com.navercorp.pinpoint.collector.handler;
 
+import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
+import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
-import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-import com.navercorp.pinpoint.thrift.dto.TResult;
 
 /**
  * @author emeroad
@@ -42,8 +44,28 @@ public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
     @Autowired
     private ApplicationIndexDao applicationIndexDao;
 
+    @Override
+    public void handleSimple(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            handleSimple(((ThriftRequest) serverRequest).getData());
+        } else {
+            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
+        }
+    }
+
+    @Override
     public void handleSimple(TBase<?, ?> tbase) {
         handleRequest(tbase);
+    }
+
+    @Override
+    public TBase<?, ?> handleRequest(ServerRequest serverRequest) {
+        if (serverRequest instanceof ThriftRequest) {
+            return handleRequest(((ThriftRequest) serverRequest).getData());
+        }
+
+        logger.warn("invalid serverRequest:{}", serverRequest);
+        return null;
     }
 
     @Override

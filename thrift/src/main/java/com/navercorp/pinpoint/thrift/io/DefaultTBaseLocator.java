@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -38,7 +40,7 @@ import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
  * @author jaehong.kim
  *   - add CHUNK_HEADER
  */
-class DefaultTBaseLocator implements TBaseLocator {
+public class DefaultTBaseLocator implements TBaseLocator {
 
     private static final short NETWORK_CHECK = 10;
     private static final Header NETWORK_CHECK_HEADER = createHeader(NETWORK_CHECK);
@@ -194,8 +196,7 @@ class DefaultTBaseLocator implements TBaseLocator {
     }
     
     private static Header createHeader(short type) {
-        Header header = new Header();
-        header.setType(type);
+        Header header = new HeaderV1(type);
         return header;
     }
 

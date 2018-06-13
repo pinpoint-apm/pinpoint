@@ -15,11 +15,17 @@
  */
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderDataGenerator;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
+import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * @author minwoo.jung
@@ -28,7 +34,21 @@ public class FlinkTBaseLocator implements TBaseLocator {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final short AGENT_STAT_BATCH = 1000;
-    private static final Header AGENT_STAT_BATCH_HEADER = createHeader(AGENT_STAT_BATCH);
+
+    private final byte version;
+    private final HeaderDataGenerator headerDataGenerator;
+
+    public FlinkTBaseLocator(byte version, HeaderDataGenerator headerDataGenerator) {
+        if (version != HeaderV1.VERSION && version != HeaderV2.VERSION) {
+            throw new IllegalArgumentException(String.format("could not select match header version. : 0x%02X", version));
+        }
+        this.version = version;
+
+        if (headerDataGenerator == null) {
+            throw new NullPointerException("headerDataGenerator must not be null.");
+        }
+        this.headerDataGenerator = headerDataGenerator;
+    }
 
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
@@ -42,7 +62,7 @@ public class FlinkTBaseLocator implements TBaseLocator {
     @Override
     public Header headerLookup(TBase<?, ?> tbase) throws TException {
         if (tbase instanceof TFAgentStatBatch) {
-            return AGENT_STAT_BATCH_HEADER;
+            return createHeader(AGENT_STAT_BATCH);
         }
 
         throw new TException("Unsupported Type" + tbase.getClass());
@@ -69,10 +89,23 @@ public class FlinkTBaseLocator implements TBaseLocator {
         return false;
     }
 
-    private static Header createHeader(short type) {
-        Header header = new Header();
-        header.setType(type);
-        return header;
+    private Header createHeader(short type) {
+        if (version == HeaderV1.VERSION) {
+            return createHeaderv1(type);
+        } else if (version == HeaderV2.VERSION) {
+            return createHeaderv2(type);
+        }
+
+        throw new IllegalArgumentException("unsupported Header version : " + version);
+    }
+
+    private Header createHeaderv1(short type) {
+        return new HeaderV1(type);
+    }
+
+    private Header createHeaderv2(short type) {
+        Map<String, String> data = headerDataGenerator.generate();
+        return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type, data);
     }
 
     @Override

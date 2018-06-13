@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterce
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleStaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedApiIdAwareAroundInterceptor;
@@ -62,6 +63,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedStaticAroundInte
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
@@ -77,30 +79,20 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final ApiMetaDataService apiMetaDataService;
     private final InstrumentContext pluginContext;
-    private final boolean exceptionHandle;
+    private final ExceptionHandlerFactory exceptionHandlerFactory;
 
-    public AnnotatedInterceptorFactory(ProfilerConfig profilerConfig, TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, InstrumentContext pluginContext, boolean exceptionHandle) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
-        }
-        if (dataSourceMonitorRegistry == null) {
-            throw new NullPointerException("dataSourceMonitorRegistry must not be null");
-        }
-        if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService must not be null");
-        }
-        if (pluginContext == null) {
-            throw new NullPointerException("pluginContext must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-        this.traceContext = traceContext;
-        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
-        this.apiMetaDataService = apiMetaDataService;
-        this.pluginContext = pluginContext;
-        this.exceptionHandle = exceptionHandle;
+    public AnnotatedInterceptorFactory(ProfilerConfig profilerConfig,
+                                       TraceContext traceContext,
+                                       DataSourceMonitorRegistry dataSourceMonitorRegistry,
+                                       ApiMetaDataService apiMetaDataService,
+                                       InstrumentContext pluginContext,
+                                       ExceptionHandlerFactory exceptionHandlerFactory) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
+        this.dataSourceMonitorRegistry = Assert.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry must not be null");
+        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
+        this.pluginContext = Assert.requireNonNull(pluginContext, "pluginContext must not be null");
+        this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory must not be null");
     }
 
     @Override
@@ -114,13 +106,13 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         Interceptor interceptor = (Interceptor) factory.createInstance(objectFactory, interceptorArgumentProvider);
 
         if (interceptorScope != null) {
-            if (exceptionHandle) {
+            if (exceptionHandlerFactory.isHandleException()) {
                 interceptor = wrapByExceptionHandleScope(interceptor, interceptorScope, getExecutionPolicy(scopeInfo.getExecutionPolicy()));
             } else {
                 interceptor = wrapByScope(interceptor, interceptorScope, getExecutionPolicy(scopeInfo.getExecutionPolicy()));
             }
         } else {
-            if (exceptionHandle) {
+            if (exceptionHandlerFactory.isHandleException()) {
                 interceptor = wrapByExceptionHandle(interceptor);
             }
         }
@@ -160,48 +152,50 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     }
 
     private Interceptor wrapByExceptionHandleScope(Interceptor interceptor, InterceptorScope scope, ExecutionPolicy policy) {
+        final ExceptionHandler exceptionHandler = exceptionHandlerFactory.getExceptionHandler();
         if (interceptor instanceof AroundInterceptor) {
-            return new ExceptionHandleScopedInterceptor((AroundInterceptor) interceptor, scope, policy);
+            return new ExceptionHandleScopedInterceptor((AroundInterceptor) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof StaticAroundInterceptor) {
-            return new ExceptionHandleScopedStaticAroundInterceptor((StaticAroundInterceptor) interceptor, scope, policy);
+            return new ExceptionHandleScopedStaticAroundInterceptor((StaticAroundInterceptor) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor5) {
-            return new ExceptionHandleScopedInterceptor5((AroundInterceptor5) interceptor, scope, policy);
+            return new ExceptionHandleScopedInterceptor5((AroundInterceptor5) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor4) {
-            return new ExceptionHandleScopedInterceptor4((AroundInterceptor4) interceptor, scope, policy);
+            return new ExceptionHandleScopedInterceptor4((AroundInterceptor4) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor3) {
-            return new ExceptionHandleScopedInterceptor3((AroundInterceptor3) interceptor, scope, policy);
+            return new ExceptionHandleScopedInterceptor3((AroundInterceptor3) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor2) {
-            return new ExceptionHandleScopedInterceptor2((AroundInterceptor2) interceptor, scope, policy);
+            return new ExceptionHandleScopedInterceptor2((AroundInterceptor2) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor1) {
-            return new ExceptionHandleScopedInterceptor1((AroundInterceptor1) interceptor, scope, policy);
+            return new ExceptionHandleScopedInterceptor1((AroundInterceptor1) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor0) {
-            return new ExceptionHandleScopedInterceptor0((AroundInterceptor0) interceptor, scope, policy);
+            return new ExceptionHandleScopedInterceptor0((AroundInterceptor0) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
-            return new ExceptionHandleScopedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, scope, policy);
+            return new ExceptionHandleScopedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, scope, policy, exceptionHandler);
         }
 
         throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());
     }
 
     private Interceptor wrapByExceptionHandle(Interceptor interceptor) {
+        final ExceptionHandler exceptionHandler = exceptionHandlerFactory.getExceptionHandler();
         if (interceptor instanceof AroundInterceptor) {
-            return new ExceptionHandleAroundInterceptor((AroundInterceptor) interceptor);
+            return new ExceptionHandleAroundInterceptor((AroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof StaticAroundInterceptor) {
-            return new ExceptionHandleStaticAroundInterceptor((StaticAroundInterceptor) interceptor);
+            return new ExceptionHandleStaticAroundInterceptor((StaticAroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor5) {
-            return new ExceptionHandleAroundInterceptor5((AroundInterceptor5) interceptor);
+            return new ExceptionHandleAroundInterceptor5((AroundInterceptor5) interceptor, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor4) {
-            return new ExceptionHandleAroundInterceptor4((AroundInterceptor4) interceptor);
+            return new ExceptionHandleAroundInterceptor4((AroundInterceptor4) interceptor, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor3) {
-            return new ExceptionHandleAroundInterceptor3((AroundInterceptor3) interceptor);
+            return new ExceptionHandleAroundInterceptor3((AroundInterceptor3) interceptor, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor2) {
-            return new ExceptionHandleAroundInterceptor2((AroundInterceptor2) interceptor);
+            return new ExceptionHandleAroundInterceptor2((AroundInterceptor2) interceptor, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor1) {
-            return new ExceptionHandleAroundInterceptor1((AroundInterceptor1) interceptor);
+            return new ExceptionHandleAroundInterceptor1((AroundInterceptor1) interceptor, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor0) {
-            return new ExceptionHandleAroundInterceptor0((AroundInterceptor0) interceptor);
+            return new ExceptionHandleAroundInterceptor0((AroundInterceptor0) interceptor, exceptionHandler);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
-            return new ExceptionHandleApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor);
+            return new ExceptionHandleApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, exceptionHandler);
         }
 
         throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());

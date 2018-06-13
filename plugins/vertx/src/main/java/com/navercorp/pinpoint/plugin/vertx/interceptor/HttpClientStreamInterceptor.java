@@ -15,18 +15,15 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
-import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
+import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestTrace;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 
@@ -34,32 +31,19 @@ import io.netty.handler.codec.http.HttpRequest;
  * @author jaehong.kim
  */
 public class HttpClientStreamInterceptor implements AroundInterceptor {
-    private static final int MAX_READ_SIZE = 1024;
-
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private boolean param;
-    private final boolean cookie;
-    private final DumpType cookieDumpType;
-    private final SimpleSampler cookieSampler;
-
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
+    private final ClientRequestRecorder clientRequestRecorder;
 
     public HttpClientStreamInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
 
         final VertxHttpClientConfig config = new VertxHttpClientConfig(traceContext.getProfilerConfig());
-        this.param = config.isParam();
-        this.cookie = config.isCookie();
-        this.cookieDumpType = config.getCookieDumpType();
-        if (cookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, config.getCookieSamplingRate());
-        } else {
-            this.cookieSampler = null;
-        }
+        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
     }
 
     @Override
@@ -85,32 +69,13 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
                 // defense code.
                 return;
             }
-
-            final String uri = request.uri();
             final String host = (String) args[1];
-
             // generate next trace id.
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
 
-            headers.set(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            headers.set(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            headers.set(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            headers.set(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            headers.set(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            headers.set(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-
-            if (host != null) {
-                headers.set(Header.HTTP_HOST.toString(), host);
-                recorder.recordDestinationId(host);
-            } else {
-                recorder.recordDestinationId("unknown");
-            }
-
-            if (uri != null) {
-                final String httpUrl = InterceptorUtils.getHttpUrl(uri, param);
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
-            }
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestTrace(request, host));
+            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
@@ -135,19 +100,6 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
         }
 
         return true;
-    }
-
-
-    private void recordCookie(final HttpHeaders headers, final Trace trace) {
-        final String cookie = headers.get("Cookie");
-        if (cookie == null) {
-            return;
-        }
-
-        if (this.cookieSampler.isSampling()) {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(cookie, MAX_READ_SIZE));
-        }
     }
 
     @Override
@@ -177,14 +129,8 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
                 return;
             }
 
-            final boolean isException = InterceptorUtils.isThrowable(throwable);
-            if (cookie) {
-                if (DumpType.ALWAYS == cookieDumpType) {
-                    recordCookie(headers, trace);
-                } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
-                    recordCookie(headers, trace);
-                }
-            }
+            final String host = (String) args[1];
+            this.clientRequestRecorder.record(recorder, new VertxHttpClientRequestTrace(request, host), throwable);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", t.getMessage(), t);

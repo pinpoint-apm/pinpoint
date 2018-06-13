@@ -20,13 +20,18 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 public class ExceptionHandleAroundInterceptor implements AroundInterceptor {
 
     private final AroundInterceptor delegate;
+    private final ExceptionHandler exceptionHandler;
 
-    public ExceptionHandleAroundInterceptor(AroundInterceptor delegate) {
+    public ExceptionHandleAroundInterceptor(AroundInterceptor delegate, ExceptionHandler exceptionHandler) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
+        if (exceptionHandler == null) {
+            throw new NullPointerException("exceptionHandler must not be null");
+        }
 
         this.delegate = delegate;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override
@@ -34,7 +39,7 @@ public class ExceptionHandleAroundInterceptor implements AroundInterceptor {
         try {
             this.delegate.before(target, args);
         } catch (Throwable t) {
-            InterceptorInvokerHelper.handleException(t);
+            exceptionHandler.handleException(t);
         }
     }
 
@@ -43,7 +48,7 @@ public class ExceptionHandleAroundInterceptor implements AroundInterceptor {
         try {
             this.delegate.after(target, args, result, throwable);
         } catch (Throwable t) {
-            InterceptorInvokerHelper.handleException(t);
+            exceptionHandler.handleException(t);
         }
     }
 }

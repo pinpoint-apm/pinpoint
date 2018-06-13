@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.common.service;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyRegistry;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.util.List;
 
@@ -35,20 +35,12 @@ public class DefaultAnnotationKeyRegistryService implements AnnotationKeyRegistr
     private final TraceMetadataLoaderService typeLoaderService;
     private final AnnotationKeyRegistry registry;
 
-    public DefaultAnnotationKeyRegistryService() {
-        this(new DefaultTraceMetadataLoaderService(), StdoutCommonLoggerFactory.INSTANCE);
-    }
-
 
     public DefaultAnnotationKeyRegistryService(TraceMetadataLoaderService typeLoaderService, CommonLoggerFactory commonLogger) {
-        if (typeLoaderService == null) {
-            throw new NullPointerException("typeLoaderService must not be null");
-        }
-        if (commonLogger == null) {
-            throw new NullPointerException("commonLogger must not be null");
-        }
+        Assert.requireNonNull(commonLogger, "commonLogger must not be null");
         this.logger = commonLogger.getLogger(DefaultAnnotationKeyRegistryService.class.getName());
-        this.typeLoaderService = typeLoaderService;
+
+        this.typeLoaderService = Assert.requireNonNull(typeLoaderService, "typeLoaderService must not be null");
         this.registry = buildAnnotationKeyRegistry();
     }
 

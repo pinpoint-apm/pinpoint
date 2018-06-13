@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.7.2-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins</artifactId>
@@ -12,6 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>bom</module>
         <module>httpclient3</module>
         <module>httpclient4</module>
         <module>ning-asynchttpclient</module>
@@ -56,6 +57,8 @@
         <module>jsp</module>
         <module>rxjava</module>
         <module>rabbitmq</module>
+        <module>weblogic</module>
+        <module>php</module>
     </modules>
 
     <dependencies>
@@ -277,6 +280,16 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-rabbitmq-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-weblogic-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-php-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

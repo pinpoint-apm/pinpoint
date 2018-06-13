@@ -92,10 +92,10 @@ public class RabbitMQConsumerDispatchInterceptor implements AroundInterceptor {
             }
             SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT_INTERNAL);
-            // args[0] would be com.rabbitmq.client.Consumer, implementing AsyncContextAccessor via plugin
-            if (args[0] instanceof AsyncContextAccessor) {
+            // args[2] would be com.rabbitmq.client.Envelope, implementing AsyncContextAccessor via plugin
+            if (args[2] instanceof AsyncContextAccessor) {
                 AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
+                ((AsyncContextAccessor) args[2])._$PINPOINT$_setAsyncContext(asyncContext);
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {

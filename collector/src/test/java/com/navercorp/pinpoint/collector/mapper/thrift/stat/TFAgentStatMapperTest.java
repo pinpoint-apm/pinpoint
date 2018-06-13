@@ -384,5 +384,60 @@ public class TFAgentStatMapperTest {
         return responseTimeBoList;
     }
 
+    @Test
+    public void map6Test() throws Exception {
+        final AgentStatBo agentStatBo = new AgentStatBo();
+        agentStatBo.setStartTimestamp(startTimestamp);
+        agentStatBo.setAgentId(TEST_AGENT);
+        agentStatBo.setFileDescriptorBos(createFileDescriptorBoList());
+
+        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        assertEquals(3, tFAgentStatList.size());
+
+        TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
+        assertEquals(TEST_AGENT, tFAgentStat1.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat1.getStartTimestamp());
+        assertEquals(collectTime1st, tFAgentStat1.getTimestamp());
+        assertEquals(4, tFAgentStat1.getFileDescriptor().getOpenFileDescriptorCount(), 0);
+
+        TFAgentStat tFAgentStat2 = tFAgentStatList.get(1);
+        assertEquals(TEST_AGENT, tFAgentStat2.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat2.getStartTimestamp());
+        assertEquals(collectTime2nd, tFAgentStat2.getTimestamp());
+        assertEquals(5, tFAgentStat2.getFileDescriptor().getOpenFileDescriptorCount(), 0);
+
+        TFAgentStat tFAgentStat3 = tFAgentStatList.get(2);
+        assertEquals(TEST_AGENT, tFAgentStat3.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat3.getStartTimestamp());
+        assertEquals(collectTime3rd, tFAgentStat3.getTimestamp());
+        assertEquals(8, tFAgentStat3.getFileDescriptor().getOpenFileDescriptorCount(), 0);
+    }
+
+    private List<FileDescriptorBo> createFileDescriptorBoList() {
+        final List<FileDescriptorBo> fileDescriptorBoList = new ArrayList<>();
+
+        FileDescriptorBo fileDescriptorBo1 = new FileDescriptorBo();
+        fileDescriptorBo1.setAgentId(TEST_AGENT);
+        fileDescriptorBo1.setTimestamp(collectTime1st);
+        fileDescriptorBo1.setStartTimestamp(startTimestamp);
+        fileDescriptorBo1.setOpenFileDescriptorCount(4);
+        fileDescriptorBoList.add(fileDescriptorBo1);
+
+        FileDescriptorBo fileDescriptorBo2 = new FileDescriptorBo();
+        fileDescriptorBo2.setAgentId(TEST_AGENT);
+        fileDescriptorBo2.setTimestamp(collectTime2nd);
+        fileDescriptorBo2.setStartTimestamp(startTimestamp);
+        fileDescriptorBo2.setOpenFileDescriptorCount(5);
+        fileDescriptorBoList.add(fileDescriptorBo2);
+
+        FileDescriptorBo fileDescriptorBo3 = new FileDescriptorBo();
+        fileDescriptorBo3.setAgentId(TEST_AGENT);
+        fileDescriptorBo3.setTimestamp(collectTime3rd);
+        fileDescriptorBo3.setStartTimestamp(startTimestamp);
+        fileDescriptorBo3.setOpenFileDescriptorCount(8);
+        fileDescriptorBoList.add(fileDescriptorBo3);
+
+        return fileDescriptorBoList;
+    }
 
 }

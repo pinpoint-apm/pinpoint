@@ -23,11 +23,7 @@ public class DefaultApiDescription implements ApiDescription {
     }
 
     public String getPackageNameName() {
-        int packageNameIndex = className.lastIndexOf('.');
-        if (packageNameIndex == -1) {
-            return "";
-        }
-        return className.substring(0, packageNameIndex);
+        return ClassUtils.getPackageName(className);
     }
 
     public void setMethodName(String methodName) {

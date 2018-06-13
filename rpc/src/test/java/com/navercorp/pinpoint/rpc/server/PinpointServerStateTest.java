@@ -58,7 +58,7 @@ public class PinpointServerStateTest {
         PinpointClient client = null;
         PinpointClientFactory clientFactory = null;
         try {
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             client = clientFactory.connect("127.0.0.1", bindPort);
@@ -92,7 +92,7 @@ public class PinpointServerStateTest {
         PinpointClient client = null;
         PinpointClientFactory clientFactory = null;
         try {
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             client = clientFactory.connect("127.0.0.1", bindPort);
@@ -117,7 +117,7 @@ public class PinpointServerStateTest {
     public void unexpectedCloseByPeerTest() throws IOException, ProtocolException {
         PinpointServerAcceptor serverAcceptor = null;
         try {
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
             Socket socket = new Socket("127.0.0.1", bindPort);
             IOUtils.write(socket.getOutputStream(), createHandshakePayload(PinpointRPCTestUtils.getParams()));
@@ -151,7 +151,7 @@ public class PinpointServerStateTest {
         PinpointClient client = null;
         PinpointClientFactory clientFactory = null;
         try {
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             client = clientFactory.connect("127.0.0.1", bindPort);

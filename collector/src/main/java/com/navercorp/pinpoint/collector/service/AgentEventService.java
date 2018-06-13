@@ -37,6 +37,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.Map;
@@ -60,6 +61,7 @@ public class AgentEventService {
     private AgentEventMessageSerializer agentEventMessageSerializer;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseDeserializerFactory")
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
     // sync method
@@ -79,6 +81,11 @@ public class AgentEventService {
         Objects.requireNonNull(eventType, "pinpointServer must not be null");
 
         Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
+        if (MapUtils.isEmpty(channelProperties)) {
+            // It can occurs CONNECTED -> RUN_WITHOUT_HANDSHAKE -> CLOSED(UNEXPECTED_CLOSE_BY_CLIENT, ERROR_UNKNOWN)
+            logger.warn("maybe not yet received the handshake data - pinpointServer:{}", pinpointServer);
+            return;
+        }
 
         final String agentId = MapUtils.getString(channelProperties, HandshakePropertyType.AGENT_ID.getName());
         final long startTimestamp = MapUtils.getLong(channelProperties,

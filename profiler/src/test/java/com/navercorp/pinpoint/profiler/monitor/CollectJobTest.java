@@ -16,25 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryProvider;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -62,17 +49,6 @@ public class CollectJobTest {
     private AgentStatMetricCollector<TAgentStat> mockAgentStatMetricCollector() {
         return Mockito.mock(AgentStatMetricCollector.class);
     }
-
-    private DefaultApplicationContext newApplicationContext() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
-
-        return new DefaultApplicationContext(agentOption, binder, new DefaultModuleFactoryProvider(""));
-    }
-
 
 
 }

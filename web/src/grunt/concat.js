@@ -158,6 +158,8 @@ module.exports = function( grunt, options ) {
 				'/common/services/tps-chart-dao.service.js',
 				'/common/services/active-thread-chart-dao.service.js',
 				'/common/services/response-time-chart-dao.service.js',
+				'/common/services/open-file-descriptor-chart-dao.service.js',
+				'/common/services/direct-buffer-chart-dao.service.js',
 				'/common/services/agent-histogram-dao.service.js',
 				'/common/services/filtered-map-util.service.js',
 				'/common/services/filter.config.js',

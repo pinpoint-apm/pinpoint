@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
@@ -93,12 +94,16 @@ public class DataReceiverGroupTest {
         return new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), threadName, 10, 1000, 1024 * 64 * 100);
     }
 
+    private PinpointServerAcceptorProvider createPinpointAcceptorProvider() {
+        return new PinpointServerAcceptorProvider();
+    }
+
     private TCPReceiverBean createTcpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler dispatchHandler) {
         TCPReceiverBean tcpReceiverBean = new TCPReceiverBean();
         tcpReceiverBean.setBeanName("tcpReceiver");
         tcpReceiverBean.setBindIp(mockConfig.getTcpBindIp());
         tcpReceiverBean.setBindPort(mockConfig.getTcpBindPort());
-        tcpReceiverBean.setAddressFilter(AddressFilter.ALL);
+        tcpReceiverBean.setAcceptorProvider(createPinpointAcceptorProvider());
         tcpReceiverBean.setDispatchHandler(dispatchHandler);
         tcpReceiverBean.setExecutor(MoreExecutors.directExecutor());
         tcpReceiverBean.setEnable(true);
@@ -270,12 +275,25 @@ public class DataReceiverGroupTest {
         }
 
         @Override
+        public void dispatchSendMessage(ServerRequest serverRequest) {
+            LOGGER.debug("===================================== send {}", serverRequest);
+            sendLatch.countDown();
+        }
+
+        @Override
         public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
             LOGGER.debug("===================================== request {}", tBase);
             requestLatch.countDown();
             return new TResult();
         }
-    }
 
+        @Override
+        public TBase dispatchRequestMessage(ServerRequest serverRequest) {
+            LOGGER.debug("===================================== request {}", serverRequest);
+            requestLatch.countDown();
+            return new TResult();
+        }
+
+    }
 
 }

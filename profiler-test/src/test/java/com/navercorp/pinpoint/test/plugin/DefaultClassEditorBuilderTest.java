@@ -18,12 +18,10 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
 import org.junit.Test;
 
@@ -36,11 +34,9 @@ public class DefaultClassEditorBuilderTest {
     @Test
     public void test() throws Exception {
         InstrumentEngine instrumentEngine = mock(InstrumentEngine.class);
-        TraceContext traceContext = mock(TraceContext.class);
         InstrumentClass aClass = mock(InstrumentClass.class);
         InstrumentMethod aMethod = mock(InstrumentMethod.class);
         MethodDescriptor aDescriptor = mock(MethodDescriptor.class);
-        ApplicationContext applicationContext = mock(ApplicationContext.class);
         InstrumentContext context = mock(InstrumentContext.class);
         
         ClassLoader classLoader = getClass().getClassLoader();
@@ -50,8 +46,6 @@ public class DefaultClassEditorBuilderTest {
         Class<?>[] parameterTypes = new Class<?>[] { String.class };
         String[] parameterTypeNames = TypeUtils.toClassNames(parameterTypes);
         
-        when(applicationContext.getInstrumentEngine()).thenReturn(instrumentEngine);
-        when(applicationContext.getTraceContext()).thenReturn(traceContext);
         when(instrumentEngine.getClass(context, classLoader, className, classFileBuffer)).thenReturn(aClass);
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);

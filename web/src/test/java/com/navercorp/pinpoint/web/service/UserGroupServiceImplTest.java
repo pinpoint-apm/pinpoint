@@ -83,4 +83,27 @@ public class UserGroupServiceImplTest {
         assertEquals(phoneNumberList.get(1), "01022222222");
     }
 
+
+    @Test
+    public void selectPhoneNumberOfMember3Test() {
+        final String groupId = "test_group";
+        List<String> encodedPhoneNumberList = new ArrayList<>();
+        encodedPhoneNumberList.add("ASDFG@#$%T");
+        encodedPhoneNumberList.add("ASDF@#%$HG");
+
+        List<String> decodedPhoneNumberList = new ArrayList<>();
+        decodedPhoneNumberList.add("01011111111");
+        decodedPhoneNumberList.add("01022222222");
+
+        ReflectionTestUtils.setField(userGroupService, "userInfoDecoder", userInfoDecoder);
+        ReflectionTestUtils.setField(userGroupService, "userGroupDao", userGroupDao);
+        when(userGroupDao.selectPhoneNumberOfMember(groupId)).thenReturn(encodedPhoneNumberList);
+        when(userInfoDecoder.decodePhoneNumberList(encodedPhoneNumberList)).thenReturn(decodedPhoneNumberList);
+        List<String> phoneNumberList = userGroupService.selectPhoneNumberOfMember(groupId);
+
+        assertEquals(2, phoneNumberList.size());
+        assertEquals(phoneNumberList.get(0), "01011111111");
+        assertEquals(phoneNumberList.get(1), "01022222222");
+    }
+
 }

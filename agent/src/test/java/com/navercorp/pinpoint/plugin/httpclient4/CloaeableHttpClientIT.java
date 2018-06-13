@@ -47,7 +47,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author jaehong.kim
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({ "org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.4],[4.4.1],[4.5]", "org.nanohttpd:nanohttpd:2.3.1"})
+@Dependency({ "org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.3.6],[4.4],[4.4.1],[4.5],[4.5.1],[4.5.2],[4.5.3],[4.5.4],[4.3.5]", "org.nanohttpd:nanohttpd:2.3.1"})
 public class CloaeableHttpClientIT {
 
     private static WebServer webServer;

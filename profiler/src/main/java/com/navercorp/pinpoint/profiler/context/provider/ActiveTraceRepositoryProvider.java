@@ -20,11 +20,11 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Provider;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.EmptyActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.module.config.TraceAgentActiveThread;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 
 
@@ -33,18 +33,18 @@ import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeColle
  */
 public class ActiveTraceRepositoryProvider implements Provider<ActiveTraceRepository> {
 
-    private final ProfilerConfig profilerConfig;
+    private boolean isTraceAgentActiveThread;
     private final ResponseTimeCollector responseTimeCollector;
 
     @Inject
-    public ActiveTraceRepositoryProvider(ProfilerConfig profilerConfig, ResponseTimeCollector responseTimeCollector) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+    public ActiveTraceRepositoryProvider(@TraceAgentActiveThread boolean isTraceAgentActiveThread, ResponseTimeCollector responseTimeCollector) {
+        this.isTraceAgentActiveThread = isTraceAgentActiveThread;
         this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
 
     }
 
     public ActiveTraceRepository get() {
-        if (profilerConfig.isTraceAgentActiveThread()) {
+        if (isTraceAgentActiveThread) {
             return new DefaultActiveTraceRepository(responseTimeCollector);
         }
         ActiveTraceRepository emptyActiveTraceRepository = new EmptyActiveTraceRepository(responseTimeCollector);

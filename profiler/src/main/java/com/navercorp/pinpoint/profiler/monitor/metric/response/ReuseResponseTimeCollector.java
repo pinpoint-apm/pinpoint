@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.profiler.monitor.metric.response;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
+import com.navercorp.pinpoint.profiler.util.Counter;
+import com.navercorp.pinpoint.profiler.util.CounterFactory;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -56,14 +57,14 @@ public class ReuseResponseTimeCollector implements ResponseTimeCollector {
         return copy;
     }
 
-    private static class ResponseTimeCollector {
-        private final LongAdder totalValue;
-        private final LongAdder transactionCount;
+    private class ResponseTimeCollector {
+        private final Counter totalValue;
+        private final Counter transactionCount;
         private final AtomicLong maxValue = new AtomicLong(0);
 
         private ResponseTimeCollector() {
-            this.totalValue = new LongAdder();
-            this.transactionCount = new LongAdder();
+            this.totalValue = CounterFactory.newCounter();
+            this.transactionCount = CounterFactory.newCounter();
         }
 
         void add(long value) {
@@ -95,7 +96,6 @@ public class ReuseResponseTimeCollector implements ResponseTimeCollector {
         public long getTransactionCount() {
             return transactionCount.longValue();
         }
-
     }
 
     private static class ResponseTimeValue0 implements ResponseTimeValue {

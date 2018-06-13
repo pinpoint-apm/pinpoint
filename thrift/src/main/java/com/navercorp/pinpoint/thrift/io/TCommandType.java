@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.thrift.dto.command.*;
 import org.apache.thrift.TBase;
 
@@ -136,8 +138,7 @@ public enum TCommandType {
     public abstract TBase newObject();
 
     private static Header createHeader(short code) {
-        Header header = new Header();
-        header.setType(code);
+        Header header = new HeaderV1(code);
         return header;
     }
 

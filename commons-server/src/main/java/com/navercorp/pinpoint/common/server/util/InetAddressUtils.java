@@ -52,7 +52,7 @@ public final class InetAddressUtils {
 
     public static InetAddress[] toInetAddressArray(List<String> addressList) {
         final List<InetAddress> inetList = InetAddressUtils.toInetAddressList(addressList);
-        return inetList.toArray(new InetAddress[inetList.size()]);
+        return inetList.toArray(new InetAddress[0]);
     }
 
 }

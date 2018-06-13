@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestTrace;
 
 /**
  * @author jaehong.kim
@@ -35,8 +36,8 @@ public class ProxyHttpHeaderRecorder {
         this.enable = enable;
     }
 
-    public void record(final SpanRecorder recorder, final ProxyHttpHeaderHandler handler) {
-        if (recorder == null || handler == null) {
+    public void record(final SpanRecorder recorder, final RequestTrace requestTrace) {
+        if (recorder == null || requestTrace == null) {
             return;
         }
 
@@ -48,9 +49,9 @@ public class ProxyHttpHeaderRecorder {
         }
 
         try {
-            parseAndRecord(recorder, handler, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
-            parseAndRecord(recorder, handler, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
-            parseAndRecord(recorder, handler, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
+            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
+            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
+            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
         } catch (Exception e) {
             // for handler operations.
             if (isInfo) {
@@ -60,8 +61,8 @@ public class ProxyHttpHeaderRecorder {
     }
 
 
-    private void parseAndRecord(final SpanRecorder recorder, final ProxyHttpHeaderHandler handler, final String name, final int type) {
-        final String value = handler.read(name);
+    private void parseAndRecord(final SpanRecorder recorder, final RequestTrace requestTrace, final String name, final int type) {
+        final String value = requestTrace.getHeader(name);
         if (value == null || value.isEmpty()) {
             return;
         }

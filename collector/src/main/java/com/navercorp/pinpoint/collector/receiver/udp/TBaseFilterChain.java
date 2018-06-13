@@ -35,7 +35,7 @@ public class TBaseFilterChain<T> implements TBaseFilter<T> {
         }
 
         @SuppressWarnings("unchecked")
-        final TBaseFilter<T>[] newArray = (TBaseFilter<T>[]) new TBaseFilter[tBaseFilter.size()];
+        final TBaseFilter<T>[] newArray = (TBaseFilter<T>[]) new TBaseFilter[0];
         this.filterChain = tBaseFilter.toArray(newArray);
     }
 

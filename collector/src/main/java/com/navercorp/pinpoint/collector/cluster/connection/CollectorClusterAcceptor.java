@@ -20,19 +20,12 @@ package com.navercorp.pinpoint.collector.cluster.connection;
 import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.DefaultAddress;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import org.slf4j.Logger;
@@ -40,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Map;
 
 /**
  * @author Taejin Koo
@@ -71,7 +63,7 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
         ClusterOption clusterOption = new ClusterOption(true, option.getClusterId(), Role.ROUTER);
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor(clusterOption, ChannelFilter.BYPASS);
-        serverAcceptor.setMessageListener(new ClusterServerMessageListener(option.getClusterId(), option.getRouteMessageHandler()));
+        serverAcceptor.setMessageListenerFactory(new ClusterServerMessageListenerFactory(option.getClusterId(), option.getRouteMessageHandler()));
         serverAcceptor.setServerStreamChannelMessageListener(option.getRouteStreamMessageHandler());
         serverAcceptor.addStateChangeEventHandler(new WebClusterServerChannelStateChangeHandler());
         serverAcceptor.bind(bindAddress);
@@ -90,42 +82,6 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
         }
 
         logger.info("{} destroying completed.", name);
-    }
-
-    class ClusterServerMessageListener implements ServerMessageListener {
-
-        private final String clusterId;
-        private final MessageListener routeMessageListener;
-
-        public ClusterServerMessageListener(String clusterId, MessageListener routeMessageListener) {
-            this.clusterId = clusterId;
-            this.routeMessageListener = routeMessageListener;
-        }
-
-        @Override
-        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
-        }
-
-        @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
-
-            // TODO : need handle control message (looks like getClusterId, ..)
-            routeMessageListener.handleRequest(requestPacket, pinpointSocket);
-        }
-
-        @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.info("handle handShake {}", properties);
-            return HandshakeResponseCode.DUPLEX_COMMUNICATION;
-        }
-
-        @Override
-        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-            logger.info("ping received packet:{}, remote:{}", pingPacket, pinpointServer);
-        }
-
     }
 
     class WebClusterServerChannelStateChangeHandler implements ServerStateChangeEventHandler {

@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.common.service;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 import com.navercorp.pinpoint.common.trace.ServiceTypeRegistry;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.util.List;
 
@@ -36,20 +36,10 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
     private final TraceMetadataLoaderService typeLoaderService;
     private final ServiceTypeRegistry registry;
 
-    public DefaultServiceTypeRegistryService() {
-        this(new DefaultTraceMetadataLoaderService(), StdoutCommonLoggerFactory.INSTANCE);
-    }
-
-
     public DefaultServiceTypeRegistryService(TraceMetadataLoaderService typeLoaderService, CommonLoggerFactory commonLoggerFactory) {
-        if (typeLoaderService == null) {
-            throw new NullPointerException("typeLoaderService must not be null");
-        }
-        if (commonLoggerFactory == null) {
-            throw new NullPointerException("commonLoggerFactory must not be null");
-        }
+        Assert.requireNonNull(commonLoggerFactory, "commonLoggerFactory must not be null");
         this.logger = commonLoggerFactory.getLogger(DefaultServiceTypeRegistryService.class.getName());
-        this.typeLoaderService = typeLoaderService;
+        this.typeLoaderService = Assert.requireNonNull(typeLoaderService, "typeLoaderService must not be null");
         this.registry = buildServiceTypeRegistry();
     }
 

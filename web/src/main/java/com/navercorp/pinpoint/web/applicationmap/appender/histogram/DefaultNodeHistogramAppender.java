@@ -66,7 +66,7 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
             CompletableFuture<Void> nodeHistogramFuture = getNodeHistogramFuture(range, node, linkList);
             nodeHistogramFutures.add(nodeHistogramFuture);
         }
-        return nodeHistogramFutures.toArray(new CompletableFuture[nodeHistogramFutures.size()]);
+        return nodeHistogramFutures.toArray(new CompletableFuture[0]);
     }
 
     private CompletableFuture<Void> getNodeHistogramFuture(Range range, Node node, LinkList linkList) {

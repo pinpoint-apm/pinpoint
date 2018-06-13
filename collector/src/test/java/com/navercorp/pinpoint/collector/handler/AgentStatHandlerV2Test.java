@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -36,6 +38,8 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
+import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
+import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 import org.junit.Before;
@@ -86,6 +90,12 @@ public class AgentStatHandlerV2Test {
     @Mock
     private AgentStatDaoV2<DeadlockBo> deadlockDao;
 
+    @Mock
+    private AgentStatDaoV2<FileDescriptorBo> fileDescriptorDao;
+
+    @Mock
+    private AgentStatDaoV2<DirectBufferBo> directBufferDao;
+
     @InjectMocks
     private HBaseAgentStatService hBaseAgentStatService = new HBaseAgentStatService();
 
@@ -120,6 +130,8 @@ public class AgentStatHandlerV2Test {
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
         verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
+        verify(fileDescriptorDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getFileDescriptorBos());
+        verify(directBufferDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDirectBufferBos());
 
     }
 
@@ -143,6 +155,8 @@ public class AgentStatHandlerV2Test {
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
         verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
+        verify(fileDescriptorDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getFileDescriptorBos());
+        verify(directBufferDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDirectBufferBos());
     }
 
     @Test
@@ -163,6 +177,8 @@ public class AgentStatHandlerV2Test {
         verifyZeroInteractions(activeTraceDao);
         verifyZeroInteractions(dataSourceDao);
         verifyZeroInteractions(responseTimeDao);
+        verifyZeroInteractions(fileDescriptorDao);
+        verifyZeroInteractions(directBufferDao);
     }
 
     @Test
@@ -184,6 +200,8 @@ public class AgentStatHandlerV2Test {
         verifyZeroInteractions(activeTraceDao);
         verifyZeroInteractions(dataSourceDao);
         verifyZeroInteractions(responseTimeDao);
+        verifyZeroInteractions(fileDescriptorDao);
+        verifyZeroInteractions(directBufferDao);
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -217,6 +235,8 @@ public class AgentStatHandlerV2Test {
         agentStat.setDataSourceList(new TDataSourceList());
         agentStat.setResponseTime(new TResponseTime());
         agentStat.setDeadlock(new TDeadlock());
+        agentStat.setFileDescriptor(new TFileDescriptor());
+        agentStat.setDirectBuffer(new TDirectBuffer());
         return agentStat;
     }
 

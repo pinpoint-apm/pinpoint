@@ -59,6 +59,13 @@ struct TJvmGc {
     8: optional TJvmGcDetailed    jvmGcDetailed
 }
 
+struct TDirectBuffer {
+    1: optional i64 directCount
+    2: optional i64 directMemoryUsed
+    3: optional i64 mappedCount
+    4: optional i64 mappedMemoryUsed
+}
+
 struct TJvmGcDetailed {
     1: optional i64 jvmGcNewCount
     2: optional i64 jvmGcNewTime
@@ -114,6 +121,8 @@ struct TAgentStat {
     50: optional TDataSourceList dataSourceList
     60: optional TResponseTime responseTime
     70: optional TDeadlock deadlock
+    80: optional TFileDescriptor fileDescriptor
+    90: optional TDirectBuffer directBuffer
     200: optional string    metadata
 }
 
@@ -134,4 +143,8 @@ struct TDataSource {
 
 struct TDataSourceList {
     1: list<TDataSource> dataSourceList
+}
+
+struct TFileDescriptor {
+    1: i64                      openFileDescriptorCount
 }

@@ -19,7 +19,10 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
 import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,12 +57,13 @@ public class DispatchHandlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void throwExceptionTest1() {
-        testDispatchHandler.dispatchSendMessage(null);
+        TBase<?, ?> tBase = null;
+        testDispatchHandler.dispatchSendMessage(tBase);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void throwExceptionTest2() {
-        testDispatchHandler.dispatchRequestMessage(null);
+        testDispatchHandler.dispatchRequestMessage((TBase)null);
     }
 
     @Test
@@ -102,6 +106,15 @@ public class DispatchHandlerTest {
             return TEST_REQUEST_HANDLER;
         }
 
+        @Override
+        protected  List<SimpleHandler> getSimpleHandler(ServerRequest serverRequest) {
+            if (serverRequest instanceof ThriftRequest) {
+                return getSimpleHandler(((ThriftRequest)serverRequest).getData());
+            }
+
+            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
+        }
+
     }
 
     private static class TestSimpleHandler implements SimpleHandler {
@@ -111,6 +124,15 @@ public class DispatchHandlerTest {
         @Override
         public void handleSimple(TBase<?, ?> tbase) {
             executedCount++;
+        }
+
+        @Override
+        public void handleSimple(ServerRequest serverRequest) {
+            if (serverRequest instanceof ThriftRequest) {
+                handleSimple(((ThriftRequest)serverRequest).getData());
+            } else {
+                throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
+            }
         }
 
         public int getExecutedCount() {
@@ -125,6 +147,12 @@ public class DispatchHandlerTest {
 
         @Override
         public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+            executedCount++;
+            return new TResult();
+        }
+
+        @Override
+        public TBase<?, ?> handleRequest(ServerRequest thriftRequest) {
             executedCount++;
             return new TResult();
         }

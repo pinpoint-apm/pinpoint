@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,17 @@ public class DispatchHandlerWrapper implements DispatchHandler {
     }
 
     @Override
+    public void dispatchSendMessage(ServerRequest serverRequest) {
+        if (checkAvailable()) {
+            this.delegate.dispatchSendMessage(serverRequest);
+            return;
+        }
+
+        logger.debug("Handler is disabled. Skipping send message {}.", serverRequest);
+    }
+
+
+    @Override
     public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
         if (checkAvailable()) {
             return this.delegate.dispatchRequestMessage(tBase);
@@ -63,7 +75,20 @@ public class DispatchHandlerWrapper implements DispatchHandler {
         result.setMessage("Handler is disabled. Skipping request message.");
         return result;
     }
-    
+
+    @Override
+    public TBase dispatchRequestMessage(ServerRequest serverRequest) {
+        if (checkAvailable()) {
+            return delegate.dispatchRequestMessage(serverRequest);
+        }
+
+        logger.debug("Handler is disabled. Skipping request message {}.", serverRequest);
+
+        TResult result = new TResult(false);
+        result.setMessage("Handler is disabled. Skipping request message.");
+        return result;
+    }
+
     private boolean checkAvailable() {
         if (handlerManager.isEnable()) {
             return true;

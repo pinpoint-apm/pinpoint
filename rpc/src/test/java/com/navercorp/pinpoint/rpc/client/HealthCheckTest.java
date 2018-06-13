@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.PingSimplePacket;
 import com.navercorp.pinpoint.rpc.packet.PongPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.CountCheckServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Taejin Koo
@@ -53,14 +53,12 @@ public class HealthCheckTest {
 
     @Test
     public void legacyHealthCheckTest1() throws Exception {
-        final AtomicBoolean pingHandled = new AtomicBoolean(false);
+        final CountDownLatch pingLatch = new CountDownLatch(1);
 
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
-            @Override
-            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-                pingHandled.compareAndSet(false, true);
-            }
-        });
+        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
+        messageListenerFactory.setPingCountDownLatch(pingLatch);
+
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, messageListenerFactory);
 
         Socket socket = null;
         try {
@@ -71,19 +69,17 @@ public class HealthCheckTest {
             PinpointRPCTestUtils.close(serverAcceptor);
         }
 
-        Assert.assertFalse(pingHandled.get());
+        Assert.assertFalse(isSuccess(pingLatch));
     }
 
     @Test
     public void legacyHealthCheckTest2() throws Exception {
-        final AtomicBoolean pingHandled = new AtomicBoolean(false);
+        final CountDownLatch pingLatch = new CountDownLatch(1);
 
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
-            @Override
-            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-                pingHandled.compareAndSet(false, true);
-            }
-        });
+        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
+        messageListenerFactory.setPingCountDownLatch(pingLatch);
+
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, messageListenerFactory);
 
         Socket socket = null;
         try {
@@ -94,19 +90,24 @@ public class HealthCheckTest {
             PinpointRPCTestUtils.close(serverAcceptor);
         }
 
-        Assert.assertTrue(pingHandled.get());
+        Assert.assertTrue(isSuccess(pingLatch));
+    }
+
+    private boolean isSuccess(CountDownLatch latch) {
+        if (latch != null && latch.getCount() == 0) {
+            return true;
+        }
+        return false;
     }
 
     @Test
     public void healthCheckTest() throws Exception {
-        final AtomicBoolean pingHandled = new AtomicBoolean(false);
+        final CountDownLatch pingLatch = new CountDownLatch(1);
 
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
-            @Override
-            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-                pingHandled.compareAndSet(false, true);
-            }
-        });
+        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
+        messageListenerFactory.setPingCountDownLatch(pingLatch);
+
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, messageListenerFactory);
 
         Socket socket = null;
         try {
@@ -118,19 +119,17 @@ public class HealthCheckTest {
             PinpointRPCTestUtils.close(serverAcceptor);
         }
 
-        Assert.assertTrue(pingHandled.get());
+        Assert.assertTrue(isSuccess(pingLatch));
     }
 
     @Test
     public void healthCheckSimplePingTest() throws Exception {
-        final AtomicBoolean pingHandled = new AtomicBoolean(false);
+        final CountDownLatch pingLatch = new CountDownLatch(1);
 
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
-            @Override
-            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-                pingHandled.compareAndSet(false, true);
-            }
-        });
+        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
+        messageListenerFactory.setPingCountDownLatch(pingLatch);
+
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, messageListenerFactory);
 
         Socket socket = null;
         try {
@@ -143,19 +142,17 @@ public class HealthCheckTest {
             PinpointRPCTestUtils.close(serverAcceptor);
         }
 
-        Assert.assertFalse(pingHandled.get());
+        Assert.assertFalse(isSuccess(pingLatch));
     }
 
     @Test
     public void stateSyncFailTest() throws Exception {
-        final AtomicBoolean pingHandled = new AtomicBoolean(false);
+        final CountDownLatch pingLatch = new CountDownLatch(1);
 
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
-            @Override
-            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-                pingHandled.compareAndSet(false, true);
-            }
-        });
+        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
+        messageListenerFactory.setPingCountDownLatch(pingLatch);
+
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, messageListenerFactory);
 
         boolean isSuccess = false;
         Socket socket = null;
@@ -177,20 +174,18 @@ public class HealthCheckTest {
             PinpointRPCTestUtils.close(serverAcceptor);
         }
 
-        Assert.assertFalse(pingHandled.get());
+        Assert.assertFalse(isSuccess(pingLatch));
     }
 
     @Ignore
     @Test
     public void expiredHealthCheckTest() throws Exception {
-        final AtomicBoolean pingHandled = new AtomicBoolean(false);
+        final CountDownLatch pingLatch = new CountDownLatch(1);
 
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
-            @Override
-            public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-                pingHandled.compareAndSet(false, true);
-            }
-        });
+        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
+        messageListenerFactory.setPingCountDownLatch(pingLatch);
+
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, messageListenerFactory);
 
         Socket socket = null;
         try {
@@ -206,7 +201,7 @@ public class HealthCheckTest {
             PinpointRPCTestUtils.close(serverAcceptor);
         }
 
-        Assert.assertFalse(pingHandled.get());
+        Assert.assertFalse(isSuccess(pingLatch));
     }
 
     private void sendPingAndReceivePongPacket(Socket socket, Packet pingPacket) throws IOException, ProtocolException {

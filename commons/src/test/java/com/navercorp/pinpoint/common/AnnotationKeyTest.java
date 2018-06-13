@@ -16,18 +16,25 @@
 
 package com.navercorp.pinpoint.common;
 
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -38,8 +45,9 @@ public class AnnotationKeyTest {
 
     @Test
     public void getCode() {
-        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService();
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, StdoutCommonLoggerFactory.INSTANCE);
+        CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(Collections.<TraceMetadataProvider>emptyList(), loggerFactory);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, loggerFactory);
 
         AnnotationKey annotationKey = annotationKeyRegistryService.findAnnotationKey(AnnotationKey.API.getCode());
         Assert.assertEquals(annotationKey, AnnotationKey.API);
@@ -74,7 +82,9 @@ public class AnnotationKeyTest {
     
     @Test
     public void testValueOf() {
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
+        CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(Collections.<TraceMetadataProvider>emptyList(), loggerFactory);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, loggerFactory);
         annotationKeyRegistryService.findAnnotationKeyByName(AnnotationKey.ARGS0.getName());
 
         AnnotationKey valueof = annotationKeyRegistryService.findAnnotationKeyByName(AnnotationKey.ARGS0.getName());
