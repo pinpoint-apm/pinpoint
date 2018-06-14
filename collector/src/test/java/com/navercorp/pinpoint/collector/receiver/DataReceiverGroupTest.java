@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
@@ -268,11 +269,6 @@ public class DataReceiverGroupTest {
             return requestLatch;
         }
 
-        @Override
-        public void dispatchSendMessage(TBase<?, ?> tBase) {
-            LOGGER.debug("===================================== send {}", tBase);
-            sendLatch.countDown();
-        }
 
         @Override
         public void dispatchSendMessage(ServerRequest serverRequest) {
@@ -281,17 +277,12 @@ public class DataReceiverGroupTest {
         }
 
         @Override
-        public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
-            LOGGER.debug("===================================== request {}", tBase);
-            requestLatch.countDown();
-            return new TResult();
-        }
-
-        @Override
-        public TBase dispatchRequestMessage(ServerRequest serverRequest) {
+        public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
             LOGGER.debug("===================================== request {}", serverRequest);
             requestLatch.countDown();
-            return new TResult();
+            Object tResult = new TResult();
+
+            serverResponse.write(tResult);
         }
 
     }

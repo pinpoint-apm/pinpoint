@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.collector.handler;
 
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,17 +39,17 @@ public class ApiMetaDataHandler implements RequestResponseHandler {
     private ApiMetaDataDao sqlMetaDataDao;
 
     @Override
-    public TBase<?, ?> handleRequest(ServerRequest serverRequest) {
-        if (serverRequest instanceof ThriftRequest) {
-            return handleRequest(((ThriftRequest) serverRequest).getData());
+    public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
+        final Object data = serverRequest.getData();
+        if (data instanceof TBase) {
+            TBase<?, ?> tBase = handleRequest((TBase<?, ?>) data);
+            serverResponse.write(tBase);
+        } else {
+            logger.warn("invalid serverRequest:{}", serverRequest);
         }
-
-        logger.warn("invalid serverRequest:{}", serverRequest);
-        return null;
     }
 
-    @Override
-    public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+    private TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
         if (!(tbase instanceof TApiMetaData)) {
             logger.error("invalid tbase:{}", tbase);
             return null;

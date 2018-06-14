@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,13 +20,14 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.collector.TestAwaitUtils;
-import com.navercorp.pinpoint.collector.receiver.AbstractDispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
 import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -117,7 +118,7 @@ public class SpanStreamUDPSenderTest {
 
             awaitMessageReceived(2, messageHolder, TSpanChunk.class);
 
-            List<TBase> tBaseList = messageHolder.getMessageHolder();
+            List<ServerRequest> tBaseList = messageHolder.getMessageHolder();
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -137,7 +138,7 @@ public class SpanStreamUDPSenderTest {
 
             awaitMessageReceived(2, messageHolder, TSpan.class);
 
-            List<TBase> tBaseList = messageHolder.getMessageHolder();
+            List<ServerRequest> tBaseList = messageHolder.getMessageHolder();
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -159,7 +160,7 @@ public class SpanStreamUDPSenderTest {
             awaitMessageReceived(2, messageHolder, TSpan.class);
             awaitMessageReceived(1, messageHolder, TSpanChunk.class);
 
-            List<TBase> tBaseList = messageHolder.getMessageHolder();
+            List<ServerRequest> tBaseList = messageHolder.getMessageHolder();
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -188,11 +189,12 @@ public class SpanStreamUDPSenderTest {
         return spanChunk;
     }
     
-    private int getObjectCount(List<TBase> tbaseList, Class clazz) {
+    private int getObjectCount(List<ServerRequest> tbaseList, Class clazz) {
         int count = 0;
-        
-        for (TBase t : tbaseList) {
-            if (clazz.isInstance(t)) {
+
+
+        for (ServerRequest t : tbaseList) {
+            if (clazz.isInstance(t.getData())) {
                 count++;
             }
         }
@@ -241,7 +243,7 @@ public class SpanStreamUDPSenderTest {
         boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
             @Override
             public boolean checkCompleted() {
-                List<TBase> messageHolder = dispatchHandler.getMessageHolder();
+                List<ServerRequest> messageHolder = dispatchHandler.getMessageHolder();
                 int objectCount = getObjectCount(messageHolder, clazz);
                 return receivedCount == objectCount;
             }
@@ -262,16 +264,12 @@ public class SpanStreamUDPSenderTest {
 
     }
 
-    static class MessageHolderDispatchHandler extends AbstractDispatchHandler {
+    static class MessageHolderDispatchHandler implements DispatchHandler {
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        private List<TBase> messageHolder = new ArrayList<>();
+        private List<ServerRequest> messageHolder = new ArrayList<>();
 
-        @Override
-        public void dispatchSendMessage(TBase<?, ?> tBase) {
-            logger.debug("dispatchSendMessage");
-        }
 
         @Override
         public void dispatchSendMessage(ServerRequest serverRequest) {
@@ -279,12 +277,13 @@ public class SpanStreamUDPSenderTest {
         }
 
         @Override
-        public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
-            messageHolder.add(tBase);
-            return new TResult(true);
+        public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+            messageHolder.add(serverRequest);
+            TResult tResult = new TResult(true);
+            serverResponse.write(tResult);
         }
 
-        public List<TBase> getMessageHolder() {
+        public List<ServerRequest> getMessageHolder() {
             return messageHolder;
         }
 

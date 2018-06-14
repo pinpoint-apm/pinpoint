@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.navercorp.pinpoint.io.request.EmptyMessage;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -197,7 +199,8 @@ public class AgentInfoSender {
 
         private boolean getResult(ResponseMessage responseMessage) {
             byte[] message = responseMessage.getMessage();
-            TBase<?, ?> tbase = SerializationUtils.deserialize(message, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, null);
+            Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(message, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, EmptyMessage.INSTANCE);
+            TBase<?, ?> tbase = deserialize.getData();
             if (tbase == null) {
                 logger.warn("tbase is null");
                 return false;

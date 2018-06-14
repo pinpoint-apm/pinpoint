@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.flink.process;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import org.apache.flink.api.java.tuple.Tuple3;
+package com.navercorp.pinpoint.io.request;
 
-import java.util.List;
+import com.navercorp.pinpoint.io.header.Header;
 
 /**
- * @author minwoo.jung
+ * @author Woonduk Kang(emeroad)
  */
-public interface TBaseFlatMapperInterceptor {
+public class EmptyMessage<T> implements Message {
+    public static final Message INSTANCE = new EmptyMessage();
+    @Override
+    public Header getHeader() {
+        return null;
+    }
 
-    void before(ServerRequest serverRequest);
-
-    void after();
-
-    List<Tuple3<String,JoinStatBo,Long>> middle(List<Tuple3<String, JoinStatBo, Long>> outData);
+    @Override
+    public T getData() {
+        return null;
+    }
 }

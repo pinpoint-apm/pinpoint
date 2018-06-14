@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,9 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
+import com.navercorp.pinpoint.io.request.DefaultMessage;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
@@ -143,7 +146,8 @@ public class AgentEventServiceTest {
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
         when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
-        when(deserializer.deserialize(expectedThreadDumpResponseBody)).thenReturn((TBase)expectedThreadDumpResponse);
+        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short)1000), expectedThreadDumpResponse);
+        when(deserializer.deserialize(expectedThreadDumpResponseBody)).thenReturn(message);
         // when
         this.agentEventService.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);
         // then
@@ -176,7 +180,8 @@ public class AgentEventServiceTest {
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
         when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
-        when(deserializer.deserialize(mismatchingResponseBody)).thenReturn((TBase)mismatchingResponse);
+        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short)1000), mismatchingResponse);
+        when(deserializer.deserialize(mismatchingResponseBody)).thenReturn(message);
         // when
         this.agentEventService.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);
         // then

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -84,16 +86,16 @@ public class SpanStreamSendDataSerializerTest {
 
             byteBuffer.get(readBuffer);
 
-            Object o = deserializer.deserialize(readBuffer);
-
-            if (o == null) {
+            Message<TBase<?, ?>> message = deserializer.deserialize(readBuffer);
+            TBase<?, ?> data = message.getData();
+            if (data == null) {
                 Assert.fail();
             }
 
             if (i < spanEventSize) {
-                Assert.assertTrue(o instanceof TSpanEvent);
+                Assert.assertTrue(data instanceof TSpanEvent);
             } else {
-                Assert.assertTrue(o instanceof TSpanChunk);
+                Assert.assertTrue(data instanceof TSpanChunk);
             }
         }
     }
@@ -120,16 +122,16 @@ public class SpanStreamSendDataSerializerTest {
 
             byteBuffer.get(readBuffer);
 
-            Object o = deserializer.deserialize(readBuffer);
-
-            if (o == null) {
+            Message<TBase<?, ?>> message = deserializer.deserialize(readBuffer);
+            TBase<?, ?> data = message.getData();
+            if (data == null) {
                 Assert.fail();
             }
 
             if (i < spanEventSize) {
-                Assert.assertTrue(o instanceof TSpanEvent);
+                Assert.assertTrue(data instanceof TSpanEvent);
             } else {
-                Assert.assertTrue(o instanceof TSpan);
+                Assert.assertTrue(data instanceof TSpan);
             }
         }
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
@@ -153,7 +154,8 @@ public class AgentEventService {
         }
 
         try {
-            final TBase tBase = SerializationUtils.deserialize(payload, commandDeserializerFactory);
+            Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(payload, commandDeserializerFactory);
+            final TBase tBase = deserialize.getData();
             return tBase.getClass();
         } catch (TException e) {
             logger.warn("Error deserializing ResponseEvent payload", e);

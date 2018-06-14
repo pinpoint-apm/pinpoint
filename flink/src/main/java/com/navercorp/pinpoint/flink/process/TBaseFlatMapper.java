@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.flink.Bootstrap;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -66,17 +65,18 @@ public class TBaseFlatMapper extends RichFlatMapFunction<ServerRequest, Tuple3<S
 
     @Override
     public void flatMap(ServerRequest serverRequest, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
-        if (!(serverRequest instanceof ThriftRequest)) {
-            logger.error(serverRequest.getClass() + "is not support type : " + serverRequest);
+        final Object data = serverRequest.getData();
+        if (!(data instanceof TBase)) {
+            logger.error("data is not TBase type {}", data);
             return;
         }
 
-        ThriftRequest thriftRequest = (ThriftRequest) serverRequest;
+        TBase tBase = (TBase) data;
 
-        tBaseFlatMapperInterceptor.before(thriftRequest);
+        tBaseFlatMapperInterceptor.before(serverRequest);
 
         try {
-            List<Tuple3<String, JoinStatBo, Long>> outData = thriftRequestFlatMap(thriftRequest.getData());
+            List<Tuple3<String, JoinStatBo, Long>> outData = serverRequestFlatMap(tBase);
             if (outData.size() == 0) {
                 return;
             }
@@ -91,7 +91,7 @@ public class TBaseFlatMapper extends RichFlatMapFunction<ServerRequest, Tuple3<S
         }
     }
 
-    private List<Tuple3<String, JoinStatBo, Long>> thriftRequestFlatMap(TBase tBase) {
+    private List<Tuple3<String, JoinStatBo, Long>> serverRequestFlatMap(TBase tBase) {
         List<Tuple3<String, JoinStatBo, Long>> outData = new ArrayList<>(5);
 
         if (tBase instanceof TFAgentStatBatch) {

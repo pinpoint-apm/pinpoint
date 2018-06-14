@@ -14,36 +14,33 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.io.request;
 
-import java.util.Map;
+import com.navercorp.pinpoint.io.header.Header;
 
 /**
- * @since 1.7.2
  * @author Woonduk Kang(emeroad)
  */
-public final class MapUtils {
+public class DefaultMessage<T> implements Message<T> {
+    private final Header header;
+    private final T data;
 
-    private MapUtils() {
-    }
-
-    public static <T> boolean isEmpty(final Map<?, ?> map) {
-        return map == null || map.isEmpty();
-    }
-
-
-    public static boolean hasLength(final Map<?, ?> map) {
-        return map != null && !map.isEmpty();
-    }
-
-    public static <T> int nullSafeSize(final Map<?, ?> map) {
-        return nullSafeSize(map, 0);
-    }
-
-    public static <T> int nullSafeSize(final Map<?, ?> map, final int nullValue) {
-        if (map == null) {
-            return nullValue;
+    public DefaultMessage(Header header, T data) {
+        if (header == null) {
+            throw new NullPointerException("header must not be null");
         }
-        return map.size();
+
+        this.header = header;
+        this.data = data;
+    }
+
+    @Override
+    public Header getHeader() {
+        return header;
+    }
+
+    @Override
+    public T getData() {
+        return data;
     }
 }
