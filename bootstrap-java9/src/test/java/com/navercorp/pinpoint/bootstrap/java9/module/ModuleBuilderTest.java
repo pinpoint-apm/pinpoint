@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.java9.classloader.Java9ClassLoader;
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import jdk.internal.module.Modules;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class ModuleBuilderTest {
 
     @Test
     public void defineModuleTest() throws IOException, URISyntaxException, ClassNotFoundException {
-        URL testClassJar = LocationUtils.getLocation(slf4jClass);
+        URL testClassJar = CodeSourceUtils.getCodeLocation(slf4jClass);
         URL[] urls = {testClassJar};
 
         String moduleName = "slf4j.test";
@@ -74,7 +75,7 @@ public class ModuleBuilderTest {
 
     @Test
     public void moduleBuilderTest() throws IOException {
-        URL testClassJar = LocationUtils.getLocation(slf4jClass);
+        URL testClassJar = CodeSourceUtils.getCodeLocation(slf4jClass);
         URL[] urls = {testClassJar};
 
         String moduleName = "slf4j.test";

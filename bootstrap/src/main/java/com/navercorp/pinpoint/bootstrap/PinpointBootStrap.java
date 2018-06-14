@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
 import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 
 /**
  * @author emeroad
@@ -48,7 +49,7 @@ public class PinpointBootStrap {
         logger.info("classLoader:" + PinpointBootStrap.class.getClassLoader());
         logger.info("contextClassLoader:" + Thread.currentThread().getContextClassLoader());
         if (Object.class.getClassLoader() != PinpointBootStrap.class.getClassLoader()) {
-            final URL location = LocationUtils.getLocation(PinpointBootStrap.class);
+            final URL location = CodeSourceUtils.getCodeLocation(PinpointBootStrap.class);
             logger.warn("Invalid pinpoint-bootstrap.jar:" + location);
             return;
         }

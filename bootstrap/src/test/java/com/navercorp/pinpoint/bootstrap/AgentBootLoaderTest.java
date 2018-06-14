@@ -18,14 +18,14 @@ package com.navercorp.pinpoint.bootstrap;
 
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
+
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
@@ -50,9 +50,7 @@ public class AgentBootLoaderTest {
 
     private String getProjectLibDir() {
         // not really necessary, but useful for testing protectionDomain
-        ProtectionDomain protectionDomain = AgentBootLoader.class.getProtectionDomain();
-        CodeSource codeSource = protectionDomain.getCodeSource();
-        URL location = codeSource.getLocation();
+        URL location = CodeSourceUtils.getCodeLocation(AgentBootLoader.class);
 
         logger.debug("lib location:{}", location);
         String path = location.getPath();

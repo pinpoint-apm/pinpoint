@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util;
+package com.navercorp.pinpoint.common.util;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public final class LocationUtils {
+public class CodeSourceUtilsTest {
 
-    private LocationUtils() {
-    }
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static URL getLocation(ProtectionDomain protectionDomain) {
-        if (protectionDomain == null) {
-            return null;
-        }
+    @Test
+    public void getLocationTest() {
 
-        final CodeSource codeSource = protectionDomain.getCodeSource();
-        if (codeSource == null) {
-            return null;
-        }
-        return codeSource.getLocation();
+        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+        logger.debug("url:{}", location);
+
+        logger.debug("protocol:{}", location.getProtocol());
+
+        logger.debug("path:{}", location.getPath());
+        logger.debug("file:{}", location.getFile());
+
     }
 }

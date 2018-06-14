@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.java9.module;
+package com.navercorp.pinpoint.test.plugin;
 
 import java.net.URL;
 import java.security.CodeSource;
@@ -23,9 +23,9 @@ import java.security.ProtectionDomain;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public final class LocationUtils {
+class CodeSourceUtils {
 
-    public static URL getLocation(Class<?> clazz) {
+    static URL getCodeLocation(Class<?> clazz) {
         if (clazz == null) {
             throw new NullPointerException("clazz must not be null");
         }
@@ -37,5 +37,4 @@ public final class LocationUtils {
         }
         return codeSource.getLocation();
     }
-
 }

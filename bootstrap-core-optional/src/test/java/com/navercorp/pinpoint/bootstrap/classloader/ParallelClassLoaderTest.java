@@ -1,12 +1,29 @@
+/*
+ * Copyright 2018 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.bootstrap.classloader;
 
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
-import java.security.CodeSource;
+
 
 /**
  * @author Taejin Koo
@@ -28,9 +45,9 @@ public class ParallelClassLoaderTest {
      * TODO duplicate code
      */
     private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
-        URL testClassJar = getJarURL(testClass);
+        URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, Thread.currentThread().getContextClassLoader(), ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
         Assert.assertSame(cl.getClass(), classLoaderType);
 
         try {
@@ -46,16 +63,6 @@ public class ParallelClassLoaderTest {
         return cl;
     }
 
-    private URL getJarURL(Class clazz) {
-        try {
-            CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
-            URL location = codeSource.getLocation();
-            URL url = location.toURI().toURL();
-            return url;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
 
     private void close(ClassLoader classLoader) throws IOException {
         if (classLoader instanceof Closeable) {

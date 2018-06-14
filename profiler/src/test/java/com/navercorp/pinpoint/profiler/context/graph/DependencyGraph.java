@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
@@ -41,7 +42,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.security.CodeSource;
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
@@ -95,8 +95,8 @@ public class DependencyGraph {
     }
 
     private String currentWorkingDir() {
-        CodeSource codeSource = this.getClass().getProtectionDomain().getCodeSource();
-        URL location = codeSource.getLocation();
+        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+
         String dir = location.getPath();
         return dir;
     }

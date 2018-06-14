@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -43,7 +42,7 @@ public class JarPackageAnalyzerTest {
 
     @Test
     public void packageAnalyzer() throws IOException {
-        URL url = getURL(Logger.class);
+        URL url = CodeSourceUtils.getCodeLocation(Logger.class);
 
         JarFile jarFile = new JarFile(url.getFile());
         logger.debug("jarFile:{}", jarFile.getName());
@@ -59,7 +58,7 @@ public class JarPackageAnalyzerTest {
 
     @Test
     public void jarFileToURI() throws IOException {
-        URL url = getURL(Logger.class);
+        URL url = CodeSourceUtils.getCodeLocation(Logger.class);
         logger.debug("url:{}", url);
 
 
@@ -69,12 +68,6 @@ public class JarPackageAnalyzerTest {
         logger.debug("url1:{}", file.toURI());
     }
 
-    private URL getURL(Class clazz) {
-        ProtectionDomain protectionDomain = clazz.getProtectionDomain();
-        CodeSource codeSource = protectionDomain.getCodeSource();
-        return codeSource.getLocation();
-
-    }
 
     @Test
     public void filter_emptyPackage() {

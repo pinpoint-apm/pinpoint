@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
-import java.security.CodeSource;
+
 
 /**
  * @author emeroad
@@ -40,9 +41,9 @@ public class PinpointClassLoaderTest {
      * TODO duplicate code
      */
     private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
-        URL testClassJar = getJarURL(testClass);
+        URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, Thread.currentThread().getContextClassLoader(), ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
         Assert.assertSame(cl.getClass(), classLoaderType);
 
         try {
@@ -58,14 +59,4 @@ public class PinpointClassLoaderTest {
         return cl;
     }
 
-    private URL getJarURL(Class clazz) {
-        try {
-            CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
-            URL location = codeSource.getLocation();
-            URL url = location.toURI().toURL();
-            return url;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
 }
