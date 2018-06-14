@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,22 +19,19 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.handler.AgentInfoHandler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
-import com.navercorp.pinpoint.thrift.dto.*;
-import org.apache.thrift.TBase;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author emeroad
  * @author koo.taejin
  */
-public class TcpDispatchHandler extends AbstractDispatchHandler {
+public class TcpDispatchHandler implements DispatchHandler {
 
     @Autowired()
     @Qualifier("agentInfoHandler")
@@ -53,45 +50,48 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     private RequestResponseHandler stringMetaDataHandler;
 
 
-
     public TcpDispatchHandler() {
-        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
 
-    @Override
-    protected RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
-        if (tBase instanceof TSqlMetaData) {
+    protected RequestResponseHandler getRequestResponseHandler(ServerRequest serverRequest) {
+        final Header header = serverRequest.getHeader();
+        final short type = header.getType();
+        if (type == DefaultTBaseLocator.SQLMETADATA) {
             return sqlMetaDataHandler;
         }
-        if (tBase instanceof TApiMetaData) {
+        if (type == DefaultTBaseLocator.APIMETADATA) {
             return apiMetaDataHandler;
         }
-        if (tBase instanceof TStringMetaData) {
+        if (type == DefaultTBaseLocator.STRINGMETADATA) {
             return stringMetaDataHandler;
         }
-        if (tBase instanceof TAgentInfo) {
+        if (type == DefaultTBaseLocator.AGENT_INFO) {
             return agentInfoHandler;
         }
-        return null;
+        throw new UnsupportedOperationException("unsupported header:" + header);
+    }
+
+    private SimpleHandler getSimpleHandler(Header header) {
+        final short type = header.getType();
+        if (type == DefaultTBaseLocator.AGENT_INFO) {
+            return agentInfoHandler;
+        }
+
+        throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
     @Override
-    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
-        List<SimpleHandler> simpleHandlerList = new ArrayList<>();
-        if (tBase instanceof TAgentInfo) {
-            simpleHandlerList.add(agentInfoHandler);
-        }
-
-        return simpleHandlerList;
+    public void dispatchSendMessage(ServerRequest serverRequest) {
+        final Header header = serverRequest.getHeader();
+        SimpleHandler simpleHandler = getSimpleHandler(header);
+        simpleHandler.handleSimple(serverRequest);
     }
 
     @Override
-    protected  List<SimpleHandler> getSimpleHandler(ServerRequest serverRequest) {
-        if (serverRequest instanceof ThriftRequest) {
-            return getSimpleHandler(((ThriftRequest)serverRequest).getData());
-        }
-
-        throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
+    public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+        RequestResponseHandler requestResponseHandler = getRequestResponseHandler(serverRequest);
+        requestResponseHandler.handleRequest(serverRequest, serverResponse);
     }
+
 }

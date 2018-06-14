@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,36 +45,36 @@ public class DefaultTBaseLocator implements TBaseLocator {
     private static final short NETWORK_CHECK = 10;
     private static final Header NETWORK_CHECK_HEADER = createHeader(NETWORK_CHECK);
 
-    private static final short SPAN = 40;
+    public static final short SPAN = 40;
     private static final Header SPAN_HEADER = createHeader(SPAN);
 
-    private static final short AGENT_INFO = 50;
+    public static final short AGENT_INFO = 50;
     private static final Header AGENT_INFO_HEADER = createHeader(AGENT_INFO);
-    
-    private static final short AGENT_STAT = 55;
+
+    public static final short AGENT_STAT = 55;
     private static final Header AGENT_STAT_HEADER = createHeader(AGENT_STAT);
-    private static final short AGENT_STAT_BATCH = 56;
+    public static final short AGENT_STAT_BATCH = 56;
     private static final Header AGENT_STAT_BATCH_HEADER = createHeader(AGENT_STAT_BATCH);
 
-    private static final short SPANCHUNK = 70;
+    public static final short SPANCHUNK = 70;
     private static final Header SPANCHUNK_HEADER = createHeader(SPANCHUNK);
 
-    private static final short SPANEVENT = 80;
+    public static final short SPANEVENT = 80;
     private static final Header SPANEVENT_HEADER = createHeader(SPANEVENT);
-    
-    private static final short SQLMETADATA = 300;
+
+    public static final short SQLMETADATA = 300;
     private static final Header SQLMETADATA_HEADER = createHeader(SQLMETADATA);
 
-    private static final short APIMETADATA = 310;
+    public static final short APIMETADATA = 310;
     private static final Header APIMETADATA_HEADER = createHeader(APIMETADATA);
 
-    private static final short RESULT = 320;
+    public static final short RESULT = 320;
     private static final Header RESULT_HEADER = createHeader(RESULT);
 
-    private static final short STRINGMETADATA = 330;
+    public static final short STRINGMETADATA = 330;
     private static final Header STRINGMETADATA_HEADER = createHeader(STRINGMETADATA);
-    
-    private static final short CHUNK = 400;
+
+    public static final short CHUNK = 400;
     private static final Header CHUNK_HEADER = createHeader(CHUNK);
     
     @Override

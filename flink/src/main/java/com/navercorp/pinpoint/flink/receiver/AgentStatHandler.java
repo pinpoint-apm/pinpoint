@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +20,10 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
+import com.navercorp.pinpoint.io.request.DefaultMessage;
+import com.navercorp.pinpoint.io.request.DefaultServerRequest;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ import java.util.Objects;
  */
 public class AgentStatHandler implements SimpleHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(AgentStatHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final SourceContext sourceContext;
 
     public AgentStatHandler(SourceContext sourceContext) {
@@ -45,39 +46,36 @@ public class AgentStatHandler implements SimpleHandler {
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
-        if (!(serverRequest instanceof ThriftRequest)) {
-            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
+        final Object data = serverRequest.getData();
+        if (!(data instanceof TBase<?, ?>)) {
+            throw new UnsupportedOperationException("data is not support type : " + data);
         }
 
-        ThriftRequest thriftRequest = (ThriftRequest) serverRequest;
-        ThriftRequest copiedThriftRequest = copyThriftRequest(thriftRequest);
+        ServerRequest<TBase<?, ?>> copiedServerRequest = copyServerRequest(serverRequest);
 
-        if (copiedThriftRequest == null) {
-            logger.error("can not copy thriftRequest : " + thriftRequest);
-            return;
-        }
-
-        sourceContext.collect(copiedThriftRequest);
+        sourceContext.collect(copiedServerRequest);
     }
 
-    private ThriftRequest copyThriftRequest(ThriftRequest thriftRequest) {
-        Header header = thriftRequest.getHeader();
-        Header copiedHeader = null;
+    private ServerRequest<TBase<?, ?>> copyServerRequest(ServerRequest serverRequest) {
+        Header header = serverRequest.getHeader();
+        Header copiedHeader = copyHeader(header);
 
+        TBase<?, ?> data = (TBase<?, ?>) serverRequest.getData();
+        Message<TBase<?, ?>> message = new DefaultMessage<>(copiedHeader, data);
+        return new DefaultServerRequest<>(message);
+    }
+
+    private Header copyHeader(Header header) {
         if (header.getVersion() == HeaderV1.VERSION) {
-            copiedHeader = header;
-        } else if (header.getVersion() == HeaderV2.VERSION) {
-            copiedHeader = new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), new HashMap<>(header.getHeaderData()));
-        } else {
-            return null;
+            return header;
+        }
+        if (header.getVersion() == HeaderV2.VERSION) {
+            return new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), new HashMap<>(header.getHeaderData()));
         }
 
-        return new ThriftRequest(copiedHeader, thriftRequest.getData());
+        throw new IllegalStateException("unsupported header version " + header);
+
     }
 
-    @Override
-    public void handleSimple(TBase<?, ?> tBase) {
-        sourceContext.collect(tBase);
-    }
 
 }

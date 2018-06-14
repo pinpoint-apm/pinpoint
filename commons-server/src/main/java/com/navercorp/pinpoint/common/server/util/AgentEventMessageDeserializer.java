@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,13 +17,16 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,16 +34,13 @@ import java.util.List;
  */
 public class AgentEventMessageDeserializer {
 
-    private final List<DeserializerFactory> deserializerFactoryList;
+    private final List<DeserializerFactory<HeaderTBaseDeserializer>> deserializerFactoryList;
 
-    public AgentEventMessageDeserializer(DeserializerFactory deserializerFactory) {
-        List<DeserializerFactory> deserializerFactoryList = new ArrayList<DeserializerFactory>(1);
-        deserializerFactoryList.add(deserializerFactory);
-
-        this.deserializerFactoryList = deserializerFactoryList;
+    public AgentEventMessageDeserializer(DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
+        this.deserializerFactoryList = Collections.singletonList(deserializerFactory);
     }
 
-    public AgentEventMessageDeserializer(List<DeserializerFactory> deserializerFactoryList) {
+    public AgentEventMessageDeserializer(List<DeserializerFactory<HeaderTBaseDeserializer>> deserializerFactoryList) {
         this.deserializerFactoryList = deserializerFactoryList;
     }
 
@@ -53,9 +53,10 @@ public class AgentEventMessageDeserializer {
             return null;
         }
         if (TBase.class.isAssignableFrom(eventMessageType)) {
-            for (DeserializerFactory deserializerFactory : deserializerFactoryList) {
+            for (DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory : deserializerFactoryList) {
                 try {
-                    return SerializationUtils.deserialize(eventBody, deserializerFactory);
+                    Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(eventBody, deserializerFactory);
+                    return deserialize.getData();
                 } catch (TException e) {
                     // ignore
                 }

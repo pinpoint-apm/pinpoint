@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.io.header.ByteArrayHeaderReader;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderReader;
 import com.navercorp.pinpoint.io.header.InvalidHeaderException;
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.request.DefaultMessage;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -61,7 +61,7 @@ public class HeaderTBaseDeserializer {
      *
      * @param bytes   The array to read from
      */
-    public TBase<?, ?> deserialize(byte[] bytes) throws TException {
+    public Message<TBase<?, ?>> deserialize(byte[] bytes) throws TException {
 
         try {
             trans.reset(bytes, 0, bytes.length);
@@ -72,13 +72,14 @@ public class HeaderTBaseDeserializer {
         }
     }
 
-    private TBase<?, ?> readInternal() throws TException {
+    private Message<TBase<?, ?>> readInternal() throws TException {
 
-        Header header = readHeader();
+        final Header header = readHeader();
 
         TBase<?, ?> base = locator.tBaseLookup(header.getType());
         base.read(protocol);
-        return base;
+
+        return new DefaultMessage<TBase<?, ?>>(header, base);
     }
 
     private Header readHeader() throws TException {
@@ -107,16 +108,14 @@ public class HeaderTBaseDeserializer {
         }
     }
 
-    public List<TBase<?, ?>> deserializeList(byte[] buffer) throws TException {
-        final List<TBase<?, ?>> tBaseList = new ArrayList<TBase<?,?>>();
+    public List<Message<TBase<?, ?>>> deserializeList(byte[] buffer) throws TException {
+        final List<Message<TBase<?, ?>>> tBaseList = new ArrayList<Message<TBase<?, ?>>>();
 
         try {
             trans.reset(buffer, 0, buffer.length);
             while (trans.getBytesRemainingInBuffer() > 0) {
-
-                    final TBase<?, ?> tBase = readInternal();
-                    tBaseList.add(tBase);
-
+                final Message<TBase<?, ?>> tBase = readInternal();
+                tBaseList.add(tBase);
             }
         } finally {
             trans.clear();
@@ -124,27 +123,5 @@ public class HeaderTBaseDeserializer {
         }
         return tBaseList;
     }
-
-    public ServerRequest deserializeServerRequest(byte[] bytes) throws TException {
-
-        try {
-            trans.reset(bytes, 0, bytes.length);
-            return readServerRequest();
-        } finally {
-            trans.clear();
-            protocol.reset();
-        }
-    }
-
-    private ServerRequest readServerRequest() throws TException {
-        Header header = readHeader();
-
-        TBase<?, ?> base = locator.tBaseLookup(header.getType());
-        base.read(protocol);
-
-        return new ThriftRequest(header, base);
-    }
-
-
 
 }

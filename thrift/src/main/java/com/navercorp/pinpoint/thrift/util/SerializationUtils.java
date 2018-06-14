@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.thrift.util;
 
-import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.Message;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -71,20 +71,20 @@ public final class SerializationUtils {
         return defaultValue;
     }
 
-    public static TBase deserialize(byte[] objectData, DeserializerFactory<HeaderTBaseDeserializer> factory) throws TException {
+    public static Message<TBase<?, ?>> deserialize(byte[] objectData, DeserializerFactory<HeaderTBaseDeserializer> factory) throws TException {
         assertNotNull(factory, "DeserializerFactory may note be null.");
 
         return deserialize(objectData, factory.createDeserializer());
     }
 
-    public static TBase deserialize(byte[] objectData, HeaderTBaseDeserializer deserializer) throws TException {
+    public static Message<TBase<?, ?>> deserialize(byte[] objectData, HeaderTBaseDeserializer deserializer) throws TException {
         assertNotNull(objectData, "TBase may note be null.");
         assertNotNull(deserializer, "Deserializer may note be null.");
 
         return deserializer.deserialize(objectData);
     }
 
-    public static TBase deserialize(byte[] objectData, DeserializerFactory<HeaderTBaseDeserializer> factory, TBase defaultValue) {
+    public static Message<TBase<?, ?>> deserialize(byte[] objectData, DeserializerFactory<HeaderTBaseDeserializer> factory, Message<TBase<?, ?>> defaultValue) {
         try {
             return deserialize(objectData, factory);
         } catch (Exception e) {
@@ -96,7 +96,7 @@ public final class SerializationUtils {
         return defaultValue;
     }
 
-    public static TBase deserialize(byte[] objectData, HeaderTBaseDeserializer deserializer, TBase defaultValue) {
+    public static Message<TBase<?, ?>> deserialize(byte[] objectData, HeaderTBaseDeserializer deserializer, Message<TBase<?, ?>> defaultValue) {
         try {
             return deserialize(objectData, deserializer);
         } catch (Exception e) {
@@ -115,16 +115,4 @@ public final class SerializationUtils {
         }
     }
 
-    public static ServerRequest deserializeServerRequest(byte[] objectData, DeserializerFactory<HeaderTBaseDeserializer> factory) throws TException {
-        assertNotNull(factory, "DeserializerFactory may note be null.");
-
-        return deserializeServerRequest(objectData, factory.createDeserializer());
-    }
-
-    public static ServerRequest deserializeServerRequest(byte[] objectData, HeaderTBaseDeserializer deserializer) throws TException {
-        assertNotNull(objectData, "TBase may note be null.");
-        assertNotNull(deserializer, "Deserializer may note be null.");
-
-        return deserializer.deserializeServerRequest(objectData);
-    }
 }

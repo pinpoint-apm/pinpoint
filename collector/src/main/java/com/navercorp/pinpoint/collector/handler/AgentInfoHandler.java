@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,9 @@ package com.navercorp.pinpoint.collector.handler;
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,30 +45,28 @@ public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
-        if (serverRequest instanceof ThriftRequest) {
-            handleSimple(((ThriftRequest) serverRequest).getData());
+        final Object data = serverRequest.getData();
+        if (data instanceof TBase<?, ?>) {
+            handleRequest((TBase<?, ?>) data);
         } else {
-            throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
+            throw new UnsupportedOperationException("data is not support type : " + data);
         }
     }
 
-    @Override
-    public void handleSimple(TBase<?, ?> tbase) {
-        handleRequest(tbase);
-    }
 
     @Override
-    public TBase<?, ?> handleRequest(ServerRequest serverRequest) {
-        if (serverRequest instanceof ThriftRequest) {
-            return handleRequest(((ThriftRequest) serverRequest).getData());
+    public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
+        final Object data = serverRequest.getData();
+        if (data instanceof TBase<?, ?>) {
+            TBase<?, ?> tBase = handleRequest((TBase<?, ?>) data);
+
+            serverResponse.write(tBase);
+        } else {
+            logger.warn("invalid serverRequest:{}", serverRequest);
         }
-
-        logger.warn("invalid serverRequest:{}", serverRequest);
-        return null;
     }
 
-    @Override
-    public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+    private TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
         if (!(tbase instanceof TAgentInfo)) {
             logger.warn("invalid tbase:{}", tbase);
             // it happens to return null  not only at this BO(Business Object) but also at other BOs.

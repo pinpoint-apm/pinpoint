@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
@@ -77,7 +79,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Autowired
     @Qualifier("commandHeaderTBaseDeserializerFactory")
-    private DeserializerFactory commandDeserializerFactory;
+    private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
     @Value("#{pinpointWebProps['web.activethread.activeAgent.duration.days'] ?: 7}")
     private void setTimeDiffMs(int durationDays) {
@@ -352,12 +354,14 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public TBase<?, ?> deserializeResponse(byte[] objectData) throws TException {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory);
+        Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(objectData, commandDeserializerFactory);
+        return deserialize.getData();
     }
 
     @Override
-    public TBase<?, ?> deserializeResponse(byte[] objectData, TBase<?, ?> defaultValue) {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
+    public TBase<?, ?> deserializeResponse(byte[] objectData, Message<TBase<?, ?>> defaultValue) {
+        Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
+        return deserialize.getData();
     }
 
 }

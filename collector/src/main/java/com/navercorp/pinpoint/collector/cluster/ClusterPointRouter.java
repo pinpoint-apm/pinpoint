@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler;
 import com.navercorp.pinpoint.collector.cluster.route.RequestEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
+import com.navercorp.pinpoint.io.request.EmptyMessage;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
@@ -171,7 +173,8 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     }
 
     private TBase<?,?> deserialize(byte[] objectData) {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory, null);
+        Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(objectData, commandDeserializerFactory, EmptyMessage.INSTANCE);
+        return deserialize.getData();
     }
 
     private StreamCode convertToStreamCode(TRouteResult routeResult) {

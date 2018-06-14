@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,23 +17,22 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.UnSupportedServerRequestTypeException;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.ThriftRequest;
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author emeroad
  */
-public class SpanDispatchHandler extends AbstractDispatchHandler {
+public class SpanDispatchHandler implements DispatchHandler {
 
     @Autowired()
     @Qualifier("spanHandler")
@@ -44,30 +43,30 @@ public class SpanDispatchHandler extends AbstractDispatchHandler {
     private SimpleHandler spanChunkHandler;
 
     public SpanDispatchHandler() {
-        this.logger = LoggerFactory.getLogger(this.getClass());
+    }
+
+
+    private SimpleHandler getSimpleHandler(Header header) {
+        final short type = header.getType();
+        if (type == DefaultTBaseLocator.SPAN) {
+            return spanDataHandler;
+        }
+        if (type == DefaultTBaseLocator.SPANCHUNK) {
+            return spanChunkHandler;
+        }
+
+        throw new UnsupportedOperationException("unsupported header:" + header);
+    }
+
+    @Override
+    public void dispatchSendMessage(ServerRequest serverRequest) {
+        SimpleHandler simpleHandler = getSimpleHandler(serverRequest.getHeader());
+        simpleHandler.handleSimple(serverRequest);
     }
 
 
     @Override
-    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
-        List<SimpleHandler> simpleHandlerList = new ArrayList<>();
+    public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
 
-        if (tBase instanceof TSpan) {
-            simpleHandlerList.add(spanDataHandler);
-        }
-        if (tBase instanceof TSpanChunk) {
-            simpleHandlerList.add(spanChunkHandler);
-        }
-
-        return simpleHandlerList;
-    }
-
-    @Override
-    protected  List<SimpleHandler> getSimpleHandler(ServerRequest serverRequest) {
-        if (serverRequest instanceof ThriftRequest) {
-            return getSimpleHandler(((ThriftRequest)serverRequest).getData());
-        }
-
-        throw new UnSupportedServerRequestTypeException(serverRequest.getClass() + "is not support type : " + serverRequest);
     }
 }

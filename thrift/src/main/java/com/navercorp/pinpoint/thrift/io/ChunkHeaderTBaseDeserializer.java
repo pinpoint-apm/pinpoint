@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,9 @@ import com.navercorp.pinpoint.io.header.ByteArrayHeaderReader;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderReader;
 import com.navercorp.pinpoint.io.header.InvalidHeaderException;
+import com.navercorp.pinpoint.io.request.DefaultMessage;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -47,7 +50,7 @@ public class ChunkHeaderTBaseDeserializer {
         this.locator = locator;
     }
 
-    public List<TBase<?, ?>> deserialize(byte[] bytes, int offset, int length) throws TException {
+      public List<Message<TBase<?, ?>>> deserialize(byte[] bytes, int offset, int length) throws TException {
 
         try {
             trans.reset(bytes, offset, length);
@@ -56,22 +59,22 @@ public class ChunkHeaderTBaseDeserializer {
 
             if (locator.isChunkHeader(header.getType())) {
 
-                List<TBase<?, ?>> list = new ArrayList<TBase<?, ?>>();
+                List<Message<TBase<?, ?>>> list = new ArrayList<Message<TBase<?, ?>>>();
 
                 while (trans.getBytesRemainingInBuffer() > 0) {
-                    TBase<?, ?> base = readInternal();
-                    list.add(base);
+                    final Message<TBase<?, ?>> request = readInternal();
+                    list.add(request);
 
                 }
                 return list;
 
             } else {
-                final TBase<?, ?> base = readInternal();
-                if (base == null) {
+                final Message<TBase<?, ?>> request = readInternal();
+                if (request == null) {
                     return Collections.emptyList();
                 }
-                List<TBase<?, ?>> list = new ArrayList<TBase<?, ?>>();
-                list.add(base);
+                List<Message<TBase<?, ?>>> list = new ArrayList<Message<TBase<?, ?>>>();
+                list.add(request);
                 return list;
             }
         } finally {
@@ -81,12 +84,11 @@ public class ChunkHeaderTBaseDeserializer {
 
     }
 
-    private TBase<?, ?> readInternal() throws TException {
+    private Message<TBase<?, ?>> readInternal() throws TException {
         Header header = readHeader();
-
         TBase<?, ?> base = locator.tBaseLookup(header.getType());
         base.read(protocol);
-        return base;
+        return new DefaultMessage<TBase<?, ?>>(header, base);
     }
 
     private Header readHeader() throws TException {

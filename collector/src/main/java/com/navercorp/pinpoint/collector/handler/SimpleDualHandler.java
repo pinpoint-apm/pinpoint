@@ -17,14 +17,30 @@
 package com.navercorp.pinpoint.collector.handler;
 
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import org.apache.thrift.TBase;
+
 
 /**
- * @author emeroad
- * @author koo.taejin
+ * @author Woonduk Kang(emeroad)
  */
-public interface SimpleHandler {
+public class SimpleDualHandler implements SimpleHandler {
+    private final SimpleHandler one;
+    private final SimpleHandler two;
 
-    void handleSimple(ServerRequest serverRequest);
-    
+    public SimpleDualHandler(SimpleHandler one, SimpleHandler two) {
+        if (one == null) {
+            throw new NullPointerException("one must not be null");
+        }
+        if (two == null) {
+            throw new NullPointerException("two must not be null");
+        }
+        this.one = one;
+        this.two = two;
+
+    }
+
+    @Override
+    public void handleSimple(ServerRequest serverRequest) {
+        one.handleSimple(serverRequest);
+        two.handleSimple(serverRequest);
+    }
 }
