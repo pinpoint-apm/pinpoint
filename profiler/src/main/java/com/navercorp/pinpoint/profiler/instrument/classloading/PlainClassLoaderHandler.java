@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +47,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method DEFINE_CLASS;
     private final JarReader pluginJarReader;
 
     private final BootstrapPackage bootstrapPackage = new BootstrapPackage();
@@ -57,14 +54,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
     // TODO remove static field
     private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<ClassLoader, ClassLoaderAttachment>();
 
-    static {
-        try {
-            DEFINE_CLASS = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
-            DEFINE_CLASS.setAccessible(true);
-        } catch (Exception e) {
-            throw new PinpointException("Cannot access ClassLoader.defineClass(String, byte[], int, int)", e);
-        }
-    }
 
     private final PluginConfig pluginConfig;
 
@@ -153,8 +142,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
             logger.debug("Get input stream className:{} cl:{}", classPath, classLoader);
 
         }
-        final String pluginJarPath = pluginConfig.getPluginJarURLExternalForm();
-        final ClassLoaderAttachment attachment = getClassLoaderAttachment(classLoader, pluginJarPath);
         try {
             return pluginJarReader.getInputStream(classPath);
         } catch(Exception ex) {
@@ -208,7 +195,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             if (isDebug) {
                 logger.debug("loadClass:{}", className);
             }
-            return (Class<T>) Class.forName(className, false, classLoader);
+            return (Class<T>) classLoader.loadClass(className);
 
         } catch (ClassNotFoundException ex) {
             if (isDebug) {
@@ -303,26 +290,12 @@ public class PlainClassLoaderHandler implements ClassInjector {
         if (isDebug) {
             logger.debug("define class:{} cl:{}", classMetadata.getClassName(), classLoader);
         }
+
         // for debug
-        byte[] classBytes = classMetadata.getClassBinary();
-        final Integer offset = 0;
-        final Integer length = classBytes.length;
-        try {
-            return (Class<?>) DEFINE_CLASS.invoke(classLoader, classMetadata.getClassName(), classBytes, offset, length);
-        } catch (IllegalAccessException e) {
-            throw handleDefineClassFail(e, classLoader, classMetadata);
-        } catch (InvocationTargetException e) {
-            throw handleDefineClassFail(e, classLoader, classMetadata);
-        }
+        final String className = classMetadata.getClassName();
+        final byte[] classBytes = classMetadata.getClassBinary();
+        return DefineClassFactory.getDefineClass().defineClass(classLoader, className, classBytes);
     }
-
-    private RuntimeException handleDefineClassFail(Throwable throwable, ClassLoader classLoader, SimpleClassMetadata classMetadata) {
-
-        logger.warn("{} define fail classMetadata:{} cl:{} Caused by:{}", classMetadata.getClassName(), classMetadata, classLoader, throwable.getMessage(), throwable);
-
-        return new RuntimeException(classMetadata.getClassName() + " define fail Caused by:" + throwable.getMessage(), throwable);
-    }
-
 
     private boolean isSkipClass(final String className, final ClassLoadingChecker classLoadingChecker) {
         if (!isPluginPackage(className)) {
@@ -391,13 +364,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
             this.loaded = true;
         }
 
-    }
-
-    private static ClassLoader getClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return ClassLoader.getSystemClassLoader();
-        }
-        return classLoader;
     }
 
 }

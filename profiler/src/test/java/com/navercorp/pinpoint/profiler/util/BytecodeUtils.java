@@ -20,39 +20,13 @@ package com.navercorp.pinpoint.profiler.util;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 
 /**
  * // TODO duplicate BytecodeUtils : com.navercorp.pinpoint.test.util.BytecodeUtils
  */
 public final class BytecodeUtils {
 
-    private static final Method DEFINE_CLASS = getDefineClassMethod();
-
     private BytecodeUtils() {
-    }
-
-
-    private static Method getDefineClassMethod() {
-        try {
-            final Method method = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
-            method.setAccessible(true);
-            return method;
-        } catch (NoSuchMethodException e) {
-            // link error
-            throw new RuntimeException("defineClass not found. Error:" + e.getMessage(), e);
-        } catch (SecurityException e) {
-            // link error
-            throw new RuntimeException("defineClass error. Error:" + e.getMessage(), e);
-        }
-    }
-
-    public static Class<?> defineClass(ClassLoader classLoader, String className, byte[] classFile) {
-        try {
-            return (Class<?>) DEFINE_CLASS.invoke(classLoader, className, classFile, 0, classFile.length);
-        } catch (Throwable ex) {
-            throw new RuntimeException("defineClass error. Caused:" + ex.getMessage(), ex);
-        }
     }
 
     public static byte[] getClassFile(ClassLoader classLoader, String className) {
