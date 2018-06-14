@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.plugin;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class ServerPluginLoader implements PluginLoader {
     }
 
     private <T> Plugin<T> newPlugin(T plugin) {
-        URL pluginURL = LocationUtils.getLocation(plugin.getClass());
+        URL pluginURL = CodeSourceUtils.getCodeLocation(plugin.getClass());
 
         final File file = new File(pluginURL.getFile());
         if (file.isDirectory()) {

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.common.plugin.JarPlugin;
 import com.navercorp.pinpoint.common.plugin.Plugin;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginPackageFilter;
 import org.junit.Assert;
@@ -30,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.security.CodeSource;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -98,8 +98,8 @@ public class JarProfilerPluginClassInjectorTest {
     }
 
     private Plugin<?> getMockPlugin(Class<?> clazz) throws IOException {
-        final CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
-        final URL location = codeSource.getLocation();
+
+        final URL location = CodeSourceUtils.getCodeLocation(clazz);
 
         logger.debug("url:{}", location);
         JarFile jarFile = new JarFile(location.getPath());

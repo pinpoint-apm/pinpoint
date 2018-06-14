@@ -106,7 +106,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     }
 
     private String resolveTestClassLocation(Class<?> testClass) {
-        final URL testClassLocation = LocationUtils.getLocation(testClass);
+        final URL testClassLocation = CodeSourceUtils.getCodeLocation(testClass);
         if (testClassLocation == null) {
             throw new IllegalStateException(testClass + " url not found");
         }

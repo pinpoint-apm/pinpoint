@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.common.util;
 
 import java.net.URL;
 import java.security.CodeSource;
@@ -23,14 +23,24 @@ import java.security.ProtectionDomain;
 /**
  * @author Woonduk Kang(emeroad)
  */
-class LocationUtils {
+public final class CodeSourceUtils {
+    private CodeSourceUtils() {
+    }
 
-    static URL getLocation(Class<?> clazz) {
+    public static URL getCodeLocation(Class<?> clazz) {
         if (clazz == null) {
             throw new NullPointerException("clazz must not be null");
         }
-
         final ProtectionDomain protectionDomain = clazz.getProtectionDomain();
+        return getCodeLocation(protectionDomain);
+    }
+
+
+    public static URL getCodeLocation(ProtectionDomain protectionDomain) {
+        if (protectionDomain == null) {
+            return null;
+        }
+
         final CodeSource codeSource = protectionDomain.getCodeSource();
         if (codeSource == null) {
             return null;

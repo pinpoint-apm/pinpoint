@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.AgentDirGenerator;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -127,9 +128,8 @@ public class AgentDirBaseClassPathResolverTest {
     }
 
     private static String getClassLocation(Class<?> clazz) {
-        CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
-        URL location = codeSource.getLocation();
-        logger.debug("codeSource.getLocation:{}", location);
+        URL location = CodeSourceUtils.getCodeLocation(clazz);
+        logger.debug("codeSource.getCodeLocation:{}", location);
         File file = FileUtils.toFile(location);
         return file.getPath();
     }

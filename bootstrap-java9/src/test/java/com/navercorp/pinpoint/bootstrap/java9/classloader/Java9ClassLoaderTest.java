@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
-import com.navercorp.pinpoint.bootstrap.java9.module.LocationUtils;
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -55,9 +55,9 @@ public class Java9ClassLoaderTest {
      * TODO duplicate code
      */
     private ClassLoader onLoadTest(Class<?> classLoaderType, Class testClass) throws ClassNotFoundException {
-        URL testClassJar = LocationUtils.getLocation(testClass);
+        URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, Thread.currentThread().getContextClassLoader(), ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
         Assert.assertSame(cl.getClass(), classLoaderType);
 
         try {

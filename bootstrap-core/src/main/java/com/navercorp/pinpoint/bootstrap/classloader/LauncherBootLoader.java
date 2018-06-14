@@ -90,9 +90,14 @@ final class LauncherBootLoader implements BootLoader {
         try {
             return (Class<?>) FIND_BOOTSTRAP_CLASS_OR_NULL.invoke(classLoader, name);
         } catch (IllegalAccessException ex) {
-            throw new IllegalStateException("findBootstrapClassOrNull() access fail " + ex.getMessage(), ex);
+            throw new IllegalStateException(FIND_BOOTSTRAP_CLASS_OR_NULL.getName() + "() access fail " + ex.getMessage(), ex);
         } catch (InvocationTargetException ex) {
-            throw new IllegalStateException("findBootstrapClassOrNull() internal error " + ex.getMessage(), ex);
+            final Throwable cause = ex.getCause();
+            if (cause instanceof ClassNotFoundException) {
+                // fix openjdk6
+                return null;
+            }
+            throw new IllegalStateException(FIND_BOOTSTRAP_CLASS_OR_NULL.getName() + "() internal error " + ex.getMessage(), ex);
         }
     }
 
