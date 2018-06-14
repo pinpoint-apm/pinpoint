@@ -119,6 +119,9 @@ public class ModuleSupport {
         JavaModule baseModule = getJavaBaseModule();
         baseModule.addOpens("java.net", agentModule);
 
+        // for Java9DefineClass
+        baseModule.addExports("jdk.internal.misc", agentModule);
+
         final JavaModule instrumentModule = loadModule("java.instrument");
         agentModule.addReads(instrumentModule);
 
