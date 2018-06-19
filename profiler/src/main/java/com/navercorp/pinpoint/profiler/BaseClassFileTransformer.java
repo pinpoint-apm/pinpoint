@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler;
 
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import com.navercorp.pinpoint.profiler.util.LocationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class BaseClassFileTransformer {
         final String className = JavaAssistUtils.jvmNameToJavaName(classInternalName);
 
         if (isDebug) {
-            final URL url = LocationUtils.getLocation(protectionDomain);
+            final URL url = CodeSourceUtils.getCodeLocation(protectionDomain);
             final String transform = getTransformState(classBeingRedefined);
             logger.debug("[{}] classLoader:{} className:{} transformer:{} url:{}",
                     transform, classLoader, className, transformer.getClass().getName(), url);
@@ -60,7 +60,7 @@ public class BaseClassFileTransformer {
                 thread.setContextClassLoader(before);
             }
         } catch (Throwable e) {
-            final URL location = LocationUtils.getLocation(protectionDomain);
+            final URL location = CodeSourceUtils.getCodeLocation(protectionDomain);
             logger.error("Transformer:{} threw an exception. url:{} cl:{} ctxCl:{} agentCl:{} Cause:{}",
                     transformer.getClass().getName(), location, classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
             return null;

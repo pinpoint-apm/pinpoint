@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,8 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -38,7 +37,7 @@ public class Java9DefineClassTest {
 
     @Test
     public void defineClass() throws ClassNotFoundException, IOException {
-        URL location = getLocation(Logger.class);
+        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
         logger.debug("location:{}", location);
 
         URL[] empty = {};
@@ -64,10 +63,4 @@ public class Java9DefineClassTest {
 
     }
 
-
-    private URL getLocation(Class<?> clazz) {
-        ProtectionDomain protectionDomain = clazz.getProtectionDomain();
-        CodeSource codeSource = protectionDomain.getCodeSource();
-        return codeSource.getLocation();
-    }
 }

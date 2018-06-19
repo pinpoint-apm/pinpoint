@@ -45,7 +45,7 @@ public class Java9BootLoaderTest {
         Assert.assertNotNull(url);
     }
 
-    public static String getInternalName(Class<?> clazz) {
+    private static String getInternalName(Class<?> clazz) {
         String name = clazz.getName();
         return name.replace(".", "/") + ".class";
     }
