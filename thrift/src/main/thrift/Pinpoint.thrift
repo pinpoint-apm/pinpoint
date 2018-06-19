@@ -46,6 +46,8 @@ struct TAgentInfo {
     20: optional TServerMetaData   serverMetaData
 
     30: optional TJvmInfo   jvmInfo
+
+    40: optional bool container = false
 }
 
 struct TJvmGc {

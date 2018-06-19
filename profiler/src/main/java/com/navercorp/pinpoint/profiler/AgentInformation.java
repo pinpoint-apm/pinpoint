@@ -26,6 +26,8 @@ public interface AgentInformation {
 
     String getApplicationName();
 
+    boolean isContainer();
+
     long getStartTime();
 
     int getPid();

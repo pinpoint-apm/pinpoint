@@ -44,6 +44,8 @@ struct TFAgentInfo {
 	20: optional TFServerMetaData   serverMetaData
 
 	30: optional TFJvmInfo   jvmInfo
+
+    40: optional bool container = false
 }
 
 struct TFJvmGc {

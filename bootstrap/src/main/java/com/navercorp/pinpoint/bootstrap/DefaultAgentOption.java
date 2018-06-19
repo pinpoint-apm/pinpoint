@@ -31,12 +31,13 @@ public class DefaultAgentOption implements AgentOption {
 
     private final String agentId;
     private final String applicationName;
+    private final boolean isContainer;
 
     private final ProfilerConfig profilerConfig;
     private final List<String> pluginJars;
     private final List<String> bootstrapJarPaths;
 
-    public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
+    public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final boolean isContainer, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
@@ -55,6 +56,7 @@ public class DefaultAgentOption implements AgentOption {
         this.instrumentation = instrumentation;
         this.agentId = agentId;
         this.applicationName = applicationName;
+        this.isContainer = isContainer;
         this.profilerConfig = profilerConfig;
         this.pluginJars = pluginJars;
         if (bootstrapJarPaths == null) {
@@ -80,6 +82,11 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
+    public boolean isContainer() {
+        return isContainer;
+    }
+
+    @Override
     public List<String> getPluginJars() {
         return this.pluginJars;
     }
@@ -94,13 +101,13 @@ public class DefaultAgentOption implements AgentOption {
         return this.profilerConfig;
     }
 
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultAgentOption{");
         sb.append("instrumentation=").append(instrumentation);
         sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", applicationName='").append(applicationName).append('\'');
+        sb.append(", isContainer=").append(isContainer);
         sb.append(", profilerConfig=").append(profilerConfig);
         sb.append(", pluginJars=").append(pluginJars);
         sb.append(", bootstrapJarPaths=").append(bootstrapJarPaths);
