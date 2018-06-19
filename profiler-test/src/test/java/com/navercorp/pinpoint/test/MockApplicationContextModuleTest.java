@@ -49,7 +49,7 @@ public class MockApplicationContextModuleTest {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgent", "mockApplicationName", profilerConfig, Collections.<String>emptyList(),
+                "mockAgent", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
                 null);
 
         PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
@@ -67,7 +67,7 @@ public class MockApplicationContextModuleTest {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgent", "mockApplicationName", profilerConfig, Collections.<String>emptyList(),
+                "mockAgent", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
                 null);
 
         Module pluginModule = new PluginApplicationContextModule();

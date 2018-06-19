@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler.context.module;
 
-import java.lang.instrument.Instrumentation;
-import java.util.List;
+import com.google.inject.BindingAnnotation;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author emeroad
+ * @author HyunGil Jeong
  */
-public interface AgentOption {
-
-    Instrumentation getInstrumentation();
-
-    String getAgentId();
-
-    String getApplicationName();
-
-    boolean isContainer();
-
-    ProfilerConfig getProfilerConfig();
-
-    List<String> getPluginJars();
-
-    List<String> getBootstrapJarPaths();
-
+@BindingAnnotation
+@Target(PARAMETER)
+@Retention(RUNTIME)
+public @interface Container {
 }

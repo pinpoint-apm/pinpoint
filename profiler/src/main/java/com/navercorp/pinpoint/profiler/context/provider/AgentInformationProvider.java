@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
+import com.navercorp.pinpoint.profiler.context.module.Container;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 
 /**
@@ -39,11 +40,12 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
 
     private final String agentId;
     private final String applicationName;
+    private final boolean isContainer;
     private final long agentStartTime;
     private final ServiceType serverType;
 
     @Inject
-    public AgentInformationProvider(@AgentId String agentId, @ApplicationName String applicationName, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
+    public AgentInformationProvider(@AgentId String agentId, @ApplicationName String applicationName, @Container boolean isContainer, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -56,6 +58,7 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
 
         this.agentId = checkId("agentId", agentId);
         this.applicationName = checkId("applicationName", applicationName);
+        this.isContainer = isContainer;
         this.agentStartTime = agentStartTime;
         this.serverType = serverType;
 
@@ -72,7 +75,7 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
 
         final int pid = RuntimeMXBeanUtils.getPid();
         final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
-        return new DefaultAgentInformation(agentId, applicationName, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
+        return new DefaultAgentInformation(agentId, applicationName, isContainer, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
     }
 
     private String checkId(String keyName,String id) {
