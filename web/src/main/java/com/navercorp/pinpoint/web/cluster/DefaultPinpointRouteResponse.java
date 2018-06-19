@@ -49,7 +49,7 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
                 return;
             }
 
-            TBase<?, ?> object = deserialize(commandDeserializerFactory, payload, EmptyMessage.INSTANCE);
+            TBase<?, ?> object = deserialize(commandDeserializerFactory, payload, EmptyMessage.emptyMessage());
 
             if (object == null) {
                 routeResult = TRouteResult.NOT_SUPPORTED_RESPONSE;
@@ -62,7 +62,7 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
                     this.routeResult = routeResult;
                 }
 
-                response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), EmptyMessage.INSTANCE);
+                response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), EmptyMessage.emptyMessage());
             } else {
                 routeResult = TRouteResult.UNKNOWN;
                 response = object;

@@ -16,24 +16,35 @@
 
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.io.header.Header;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EmptyMessage<T> implements Message {
-    public static final Message INSTANCE = new EmptyMessage();
-    @Override
-    public Header getHeader() {
-        return null;
+public abstract class DefaultAttributeMap implements AttributeMap {
+
+    // lazy initialize
+    private Map<Object, Object> attribute;
+
+    protected Map<Object, Object> getAttributeMap() {
+        if (attribute == null) {
+            attribute = new HashMap<Object, Object>();
+        }
+        return attribute;
     }
 
     @Override
-    public T getData() {
-        return null;
+    public void setAttribute(Object key, Object value) {
+        Map<Object, Object> map = getAttributeMap();
+        map.put(key, value);
     }
 
-    public static <T> Message<T> emptyMessage() {
-        return INSTANCE;
+
+    @Override
+    public Object getAttribute(Object key) {
+        Map<Object, Object> map = getAttributeMap();
+        return map.get(key);
     }
+
 }

@@ -87,7 +87,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
         final byte[] payload = SerializationUtils.serialize(response, CommandSerializer.SERIALIZER_FACTORY, null);
         if (payload != null) {
-            pinpointSocket.response(requestPacket, payload);
+            pinpointSocket.response(requestPacket.getRequestId(), payload);
         }
     }
 

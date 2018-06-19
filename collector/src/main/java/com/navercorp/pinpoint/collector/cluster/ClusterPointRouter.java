@@ -130,12 +130,12 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     }
 
     private boolean handleRouteRequest(TCommandTransfer request, RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-        byte[] payload = ((TCommandTransfer)request).getPayload();
+        byte[] payload = request.getPayload();
         TBase<?,?> command = deserialize(payload);
 
-        RequestEvent event = new RequestEvent((TCommandTransfer) request, pinpointSocket.getRemoteAddress(), requestPacket.getRequestId(), command);
+        RequestEvent event = new RequestEvent(request, pinpointSocket.getRemoteAddress(), requestPacket.getRequestId(), command);
         TCommandTransferResponse response = routeHandler.onRoute(event);
-        pinpointSocket.response(requestPacket, serialize(response));
+        pinpointSocket.response(requestPacket.getRequestId(), serialize(response));
 
         return response.getRouteResult() == TRouteResult.OK;
     }
@@ -144,11 +144,11 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
         TResult tResult = new TResult(false);
         tResult.setMessage(message);
 
-        pinpointSocket.response(requestPacket, serialize(tResult));
+        pinpointSocket.response(requestPacket.getRequestId(), serialize(tResult));
     }
 
     private StreamCode handleStreamRouteCreate(TCommandTransfer request, StreamCreatePacket packet, ServerStreamChannelContext streamChannelContext) {
-        byte[] payload = ((TCommandTransfer)request).getPayload();
+        byte[] payload = request.getPayload();
         TBase<?,?> command = deserialize(payload);
         if (command == null) {
             return StreamCode.TYPE_UNKNOWN;
@@ -173,7 +173,7 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     }
 
     private TBase<?,?> deserialize(byte[] objectData) {
-        Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(objectData, commandDeserializerFactory, EmptyMessage.INSTANCE);
+        Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(objectData, commandDeserializerFactory, EmptyMessage.emptyMessage());
         return deserialize.getData();
     }
 
