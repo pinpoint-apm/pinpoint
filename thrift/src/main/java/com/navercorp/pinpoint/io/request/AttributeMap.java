@@ -16,24 +16,12 @@
 
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.io.header.Header;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EmptyMessage<T> implements Message {
-    public static final Message INSTANCE = new EmptyMessage();
-    @Override
-    public Header getHeader() {
-        return null;
-    }
+public interface AttributeMap {
 
-    @Override
-    public T getData() {
-        return null;
-    }
+    void setAttribute(Object key, Object value);
 
-    public static <T> Message<T> emptyMessage() {
-        return INSTANCE;
-    }
+    Object getAttribute(Object key);
 }

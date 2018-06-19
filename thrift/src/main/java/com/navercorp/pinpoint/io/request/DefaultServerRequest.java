@@ -18,18 +18,12 @@ package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.io.header.Header;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultServerRequest<T> implements ServerRequest<T> {
+public class DefaultServerRequest<T> extends DefaultAttributeMap implements ServerRequest {
 
     private final Message<T> message;
-
-    // lazy initialize
-    private Map<Object, Object> attribute;
 
     public DefaultServerRequest(Message<T> message) {
         if (message == null) {
@@ -49,22 +43,4 @@ public class DefaultServerRequest<T> implements ServerRequest<T> {
         return message.getData();
     }
 
-    @Override
-    public void setAttribute(Object key, Object value) {
-        Map<Object, Object> map = getAttributeMap();
-        map.put(key, value);
-    }
-
-    private Map<Object, Object> getAttributeMap() {
-        if (attribute == null) {
-            attribute = new HashMap<Object, Object>();
-        }
-        return attribute;
-    }
-
-    @Override
-    public Object getAttribute(Object key) {
-        Map<Object, Object> map = getAttributeMap();
-        return map.get(key);
-    }
 }

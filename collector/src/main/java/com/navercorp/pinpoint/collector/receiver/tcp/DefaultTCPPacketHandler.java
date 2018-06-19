@@ -91,33 +91,23 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
 
         final byte[] payload = getPayload(packet);
 
-        SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
         try {
             Message<TBase<?, ?>> message = SerializationUtils.deserialize(payload, deserializerFactory);
             ServerRequest<TBase<?, ?>> request = new DefaultServerRequest<>(message);
-            ServerResponse<TBase<?, ?>> response = new ServerResponse<TBase<?, ?>>() {
-                @Override
-                public void write(TBase<?, ?> message) {
-                    if (message == null) {
-                        throw new NullPointerException("message must not be null");
-                    }
-                    try {
-                        byte[] resultBytes = SerializationUtils.serialize(message, serializerFactory);
-                        pinpointSocket.response(packet, resultBytes);
-                    } catch (TException e) {
-                        handleTException(payload, remoteAddress, e);
-                    }
-                }
-            };
+            ServerResponse<TBase<?, ?>> response = new TCPServerResponse(serializerFactory, pinpointSocket, packet.getRequestId());
             dispatchHandler.dispatchRequestMessage(request, response);
+        } catch (TException e) {
+            SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
+            handleTException(payload, remoteAddress, e);
         } catch (Exception e) {
+            SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
             handleException(payload, remoteAddress, e);
         }
     }
 
     private void handleTException(byte[] payload, SocketAddress remoteAddress, TException e) {
         if (logger.isWarnEnabled()) {
-            logger.warn("packet serialize error. remote:{} cause:{}", remoteAddress, e.getMessage(), e);
+            logger.warn("packet deserialize error. remote:{} cause:{}", remoteAddress, e.getMessage(), e);
         }
         if (isDebug) {
             logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(payload));

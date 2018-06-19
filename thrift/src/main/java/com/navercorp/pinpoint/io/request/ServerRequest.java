@@ -20,12 +20,10 @@ import com.navercorp.pinpoint.io.header.Header;
 /**
  * @author minwoo.jung
  */
-public interface ServerRequest<T> {
+public interface ServerRequest<T> extends AttributeMap {
 
     Header getHeader();
 
     T getData();
 
-    void setAttribute(Object key, Object value);
-    Object getAttribute(Object key);
 }
