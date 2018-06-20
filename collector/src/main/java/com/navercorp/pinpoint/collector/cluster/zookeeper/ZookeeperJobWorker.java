@@ -47,7 +47,6 @@ public class ZookeeperJobWorker implements Runnable {
     private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
     private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
 
-    private static final String PATH_SEPARATOR = "/";
     private static final String PROFILER_SEPARATOR = "\r\n";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -68,7 +67,7 @@ public class ZookeeperJobWorker implements Runnable {
 
         this.workerState = new CommonStateContext();
 
-        this.collectorUniqPath = bindingPathAndZNode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
+        this.collectorUniqPath = ZookeeperUtils.bindingPathAndNode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
     }
 
     public void start() {
@@ -120,18 +119,6 @@ public class ZookeeperJobWorker implements Runnable {
 
         this.workerState.changeStateStopped();
         logger.info("stop() completed.");
-    }
-
-    private String bindingPathAndZNode(String path, String zNodeName) {
-        StringBuilder fullPath = new StringBuilder(StringUtils.length(path) + StringUtils.length(zNodeName) + 1);
-
-        fullPath.append(path);
-        if (!path.endsWith(PATH_SEPARATOR)) {
-            fullPath.append(PATH_SEPARATOR);
-        }
-        fullPath.append(zNodeName);
-
-        return fullPath.toString();
     }
 
     public void addPinpointServer(PinpointServer pinpointServer) {

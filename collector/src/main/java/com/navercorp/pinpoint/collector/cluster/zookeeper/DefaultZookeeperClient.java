@@ -190,12 +190,22 @@ public class DefaultZookeeperClient implements ZookeeperClient {
 
     @Override
     public String createNode(String zNodePath, byte[] data) throws PinpointZookeeperException, InterruptedException {
+        return createNode(zNodePath, data, false);
+    }
+
+    @Override
+    public String createNode(String zNodePath, byte[] data, boolean throwExceptionIfNodeExists) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
         ZooKeeper zookeeper = this.zookeeper;
         try {
             if (zookeeper.exists(zNodePath, false) != null) {
-                return zNodePath;
+                if (throwExceptionIfNodeExists) {
+                    KeeperException.NodeExistsException keeperException = new KeeperException.NodeExistsException(zNodePath);
+                    throw new BadOperationException(keeperException.getMessage(), keeperException);
+                } else {
+                    return zNodePath;
+                }
             }
 
             String pathName = zookeeper.create(zNodePath, data, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
