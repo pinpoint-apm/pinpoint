@@ -346,7 +346,7 @@
         <property name="queueCapacity" value="#{statReceiverConfig.workerQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-Stat-Worker-"/>
     </bean>
-    <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
+    <bean id="statUdpReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
         <property name="bindIp" value="#{statReceiverConfig.udpBindIp}"/>
         <property name="bindPort" value="#{statReceiverConfig.udpBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
@@ -360,7 +360,7 @@
     <bean id="statAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider">
         <property name="channelFilter" ref="channelFilter"/>
     </bean>
-    <bean id="tcpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
+    <bean id="statTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
         <property name="bindIp" value="#{statReceiverConfig.tcpBindIp}"/>
         <property name="bindPort" value="#{statReceiverConfig.tcpBindPort}"/>
         <property name="acceptorProvider" ref="statAcceptorProvider"/>
