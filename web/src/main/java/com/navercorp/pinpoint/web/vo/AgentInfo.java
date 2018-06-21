@@ -52,6 +52,7 @@ public class AgentInfo {
     private ServerMetaDataBo serverMetaData;
     private JvmInfoBo jvmInfo;
     private long initialStartTimestamp;
+    private boolean container;
     private AgentStatus status;
 
     public AgentInfo() {
@@ -70,6 +71,7 @@ public class AgentInfo {
         this.agentVersion = agentInfoBo.getAgentVersion();
         this.serverMetaData = agentInfoBo.getServerMetaData();
         this.jvmInfo = agentInfoBo.getJvmInfo();
+        this.container = agentInfoBo.isContainer();
     }
 
     public String getApplicationName() {
@@ -176,6 +178,14 @@ public class AgentInfo {
         this.initialStartTimestamp = initialStartTimestamp;
     }
 
+    public boolean isContainer() {
+        return container;
+    }
+
+    public void setContainer(boolean container) {
+        this.container = container;
+    }
+
     public AgentStatus getStatus() {
         return status;
     }
@@ -218,6 +228,7 @@ public class AgentInfo {
         sb.append(", agentVersion='").append(agentVersion).append('\'');
         sb.append(", jvmInfo=").append(jvmInfo);
         sb.append(", initialStartTimestamp=").append(initialStartTimestamp);
+        sb.append(", container=").append(container);
         sb.append(", status=").append(status);
         sb.append('}');
         return sb.toString();

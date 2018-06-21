@@ -78,6 +78,10 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
         if (buffer.hasRemaining()) {
             builder.setVmVersion(buffer.readPrefixedString());
         }
+        // FIXME - 2018.06 v1.8.0 added container (check for compatibility)
+        if (buffer.hasRemaining()) {
+            builder.isContainer(buffer.readBoolean());
+        }
         return builder;
     }
 }
