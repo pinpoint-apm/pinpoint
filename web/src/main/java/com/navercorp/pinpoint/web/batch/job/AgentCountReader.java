@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.batch.job;
 
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -33,21 +33,21 @@ import java.util.Queue;
 /**
  * @author Taejin Koo
  */
-public class AgentCountReader implements ItemReader<ApplicationAgentList>, StepExecutionListener {
+public class AgentCountReader implements ItemReader<ApplicationAgentsList>, StepExecutionListener {
 
     @Autowired
     private AgentInfoService agentInfoService;
 
-    private final Queue<ApplicationAgentList> queue = new LinkedList<>();
+    private final Queue<ApplicationAgentsList> queue = new LinkedList<>();
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        ApplicationAgentList applicationAgentList = agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME);
+        ApplicationAgentsList applicationAgentList = agentInfoService.getAllApplicationAgentsList();
         queue.add(applicationAgentList);
     }
 
     @Override
-    public ApplicationAgentList read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+    public ApplicationAgentsList read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
         return queue.poll();
     }
 

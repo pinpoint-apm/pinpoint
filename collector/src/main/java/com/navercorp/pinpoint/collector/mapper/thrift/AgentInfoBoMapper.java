@@ -41,6 +41,7 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         final long startTime = thriftObject.getStartTimestamp();
         final long endTimeStamp = thriftObject.getEndTimestamp();
         final int endStatus = thriftObject.getEndStatus();
+        final boolean container = thriftObject.isContainer();
         
         AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
         builder.setHostName(hostName);
@@ -55,6 +56,7 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         builder.setStartTime(startTime);
         builder.setEndTimeStamp(endTimeStamp);
         builder.setEndStatus(endStatus);
+        builder.isContainer(container);
 
         return builder.build();
     }
