@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
+import com.navercorp.pinpoint.io.util.BodyFactory;
+import com.navercorp.pinpoint.io.util.TypeLocator;
+import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -25,64 +28,30 @@ import org.apache.thrift.TException;
 /**
  * @author Taejin Koo
  */
-public class AgentEventTBaseLocator implements TBaseLocator {
+public class AgentEventTBaseLocator {
 
     private static final short DEADLOCK = 910;
-    private static final Header DEADLOCK_HEADER = createHeader(DEADLOCK);
 
-    private static Header createHeader(short type) {
-        return new HeaderV1(type);
+    private static final TypeLocator<TBase<?, ?>> typeLocator = build();
+
+    public static TypeLocator<TBase<?, ?>>build() {
+
+        TypeLocatorBuilder<TBase<?, ?>> builder = new TypeLocatorBuilder<TBase<?, ?>>();
+        addBodyFactory(builder);
+        return builder.build();
     }
 
-    @Override
-    public TBase<?, ?> tBaseLookup(short type) throws TException {
-        switch (type) {
-            case DEADLOCK:
+    public static void addBodyFactory(TypeLocatorBuilder<TBase<?, ?>> builder) {
+        builder.addBodyFactory(DEADLOCK, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TDeadlock();
-        }
-        throw new TException("Unsupported type:" + type);
+            }
+        });
+
     }
 
-    public Header headerLookup(TBase<?, ?> tbase) throws TException {
-        if (tbase == null) {
-            throw new IllegalArgumentException("tbase must not be null");
-        }
-        if (tbase instanceof TDeadlock) {
-            return DEADLOCK_HEADER;
-        }
-
-        throw new TException("Unsupported Type" + tbase.getClass());
+    public static TypeLocator<TBase<?, ?>> getTypeLocator() {
+        return typeLocator;
     }
-
-    @Override
-    public boolean isSupport(short type) {
-        try {
-            tBaseLookup(type);
-            return true;
-        } catch (TException ignore) {
-            // skip
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean isSupport(Class<? extends TBase> clazz) {
-            if (clazz.equals(TDeadlock.class)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public Header getChunkHeader() {
-        return null;
-    }
-
-    @Override
-    public boolean isChunkHeader(short type) {
-        return false;
-    }
-
 }

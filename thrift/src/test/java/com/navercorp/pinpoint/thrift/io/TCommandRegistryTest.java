@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
@@ -32,7 +33,7 @@ public class TCommandRegistryTest {
 
     @Test
     public void registryTest1() {
-        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.UNKNOWN);
+        TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.UNKNOWN);
 
         Assert.assertFalse(registry.isSupport(TCommandType.RESULT.getCode()));
         Assert.assertFalse(registry.isSupport(TCommandType.THREAD_DUMP.getCode()));
@@ -41,23 +42,21 @@ public class TCommandRegistryTest {
         Assert.assertFalse(registry.isSupport(TCommandThreadDump.class));
     }
 
-    @Test(expected = TException.class)
     public void registryTest2() throws TException {
-        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.UNKNOWN);
+        TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.UNKNOWN);
 
-        registry.headerLookup(new TResult());
+        Assert.assertNull(registry.headerLookup(new TResult()));
     }
 
-    @Test(expected = TException.class)
     public void registryTest3() throws TException {
-        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.UNKNOWN);
+        TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.UNKNOWN);
 
-        registry.tBaseLookup(TCommandType.RESULT.getCode());
+        Assert.assertNull(registry.bodyLookup(TCommandType.RESULT.getCode()));
     }
 
     @Test
     public void registryTest4() {
-        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
+        TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
         Assert.assertTrue(registry.isSupport(TCommandType.RESULT.getCode()));
         Assert.assertTrue(registry.isSupport(TCommandType.THREAD_DUMP.getCode()));
@@ -68,7 +67,7 @@ public class TCommandRegistryTest {
 
     @Test
     public void registryTest5() throws TException {
-        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
+        TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
         Header header = registry.headerLookup(new TResult());
         Assert.assertNotNull(header);
@@ -76,18 +75,18 @@ public class TCommandRegistryTest {
 
     @Test
     public void registryTest6() throws TException {
-        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
+        TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
-        TBase tBase = registry.tBaseLookup(TCommandType.RESULT.getCode());
+        TBase tBase = registry.bodyLookup(TCommandType.RESULT.getCode());
         Assert.assertEquals(tBase.getClass(), TResult.class);
 
-        tBase = registry.tBaseLookup(TCommandType.THREAD_DUMP.getCode());
+        tBase = registry.bodyLookup(TCommandType.THREAD_DUMP.getCode());
         Assert.assertEquals(tBase.getClass(), TCommandThreadDump.class);
     }
 
     @Test
     public void isSupportTest() throws TException {
-        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
+        TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
         boolean isSupport = registry.isSupport(TResult.class);
         Assert.assertTrue(isSupport);
@@ -98,7 +97,7 @@ public class TCommandRegistryTest {
 
 //    @Test
     public void isSupportTest_Inheritance() throws TException {
-        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
+        TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
         boolean isSupport = registry.isSupport(TResultEx.class);
         Assert.assertTrue(isSupport);

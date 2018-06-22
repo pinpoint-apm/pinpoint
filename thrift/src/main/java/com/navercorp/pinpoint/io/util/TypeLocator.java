@@ -14,30 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.thrift.io;
+package com.navercorp.pinpoint.io.util;
 
 import com.navercorp.pinpoint.io.header.Header;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 
 /**
- * @author emeroad
- * @author koo.taejin
+ * @author Woonduk Kang(emeroad)
  */
-public interface TBaseLocator {
-    TBase<?, ?> tBaseLookup(short type) throws TException;
+public interface TypeLocator<T> {
+    T bodyLookup(short type);
 
-//    short typeLookup(TBase<?, ?> tbase) throws TException;
+    Header headerLookup(T body);
 
-    Header headerLookup(TBase<?, ?> dto) throws TException;
+    Header headerLookup(short type);
 
     boolean isSupport(short type);
 
-    boolean isSupport(Class<? extends TBase> clazz);
+    boolean isSupport(Class<? extends T> clazz);
 
-    @Deprecated
-    Header getChunkHeader();
-
-    @Deprecated
-    boolean isChunkHeader(short type);
 }

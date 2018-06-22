@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandRegistry;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
+import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.junit.Test;
@@ -46,7 +48,7 @@ import static org.junit.Assert.assertEquals;
 public class AgentEventMessageSerDesTest {
 
     private final TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-    private final TCommandRegistry commandTbaseRegistry = new TCommandRegistry(Collections.singletonList(TCommandType.THREAD_DUMP_RESPONSE));
+    private final TypeLocator<TBase<?, ?>> commandTbaseRegistry = TCommandRegistry.build(Collections.singletonList(TCommandType.THREAD_DUMP_RESPONSE));
 
     private final SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true,
             HeaderTBaseSerializerFactory.DEFAULT_STREAM_SIZE, true, this.protocolFactory, this.commandTbaseRegistry);

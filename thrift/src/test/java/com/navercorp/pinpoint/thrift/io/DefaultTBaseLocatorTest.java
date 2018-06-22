@@ -16,28 +16,21 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
- * @author emeroad
- * @author koo.taejin
+ * @author Woonduk Kang(emeroad)
  */
-public interface TBaseLocator {
-    TBase<?, ?> tBaseLookup(short type) throws TException;
+public class DefaultTBaseLocatorTest {
 
-//    short typeLookup(TBase<?, ?> tbase) throws TException;
-
-    Header headerLookup(TBase<?, ?> dto) throws TException;
-
-    boolean isSupport(short type);
-
-    boolean isSupport(Class<? extends TBase> clazz);
-
-    @Deprecated
-    Header getChunkHeader();
-
-    @Deprecated
-    boolean isChunkHeader(short type);
+    @Test
+    public void getTypeLocator() {
+        TypeLocator<TBase<?, ?>> typeLocator = DefaultTBaseLocator.getTypeLocator();
+        Assert.assertNotNull(typeLocator.bodyLookup(DefaultTBaseLocator.SPAN));
+    }
 }
