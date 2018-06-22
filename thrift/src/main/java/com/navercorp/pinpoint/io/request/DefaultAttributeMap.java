@@ -25,26 +25,35 @@ import java.util.Map;
 public abstract class DefaultAttributeMap implements AttributeMap {
 
     // lazy initialize
-    private Map<Object, Object> attribute;
+    private Map<AttributeKey, Object> attribute;
 
-    protected Map<Object, Object> getAttributeMap() {
+    protected Map<AttributeKey, Object> getAttributeMap() {
         if (attribute == null) {
-            attribute = new HashMap<Object, Object>();
+            attribute = new HashMap<AttributeKey, Object>();
         }
         return attribute;
     }
 
     @Override
-    public void setAttribute(Object key, Object value) {
-        Map<Object, Object> map = getAttributeMap();
+    public <V> void setAttribute(AttributeKey<V> key, V value) {
+        Map<AttributeKey, Object> map = getAttributeMap();
         map.put(key, value);
     }
 
+    @Override
+    public <V> V getAttribute(AttributeKey<V> key) {
+        return getAttribute(key, key.getDefaultValue());
+    }
 
     @Override
-    public Object getAttribute(Object key) {
-        Map<Object, Object> map = getAttributeMap();
-        return map.get(key);
+    public <V> V getAttribute(AttributeKey<V> key, V defaultValue) {
+        Map<AttributeKey, Object> map = getAttributeMap();
+        Object value = map.get(key);
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return (V) value;
+        }
     }
 
 }
