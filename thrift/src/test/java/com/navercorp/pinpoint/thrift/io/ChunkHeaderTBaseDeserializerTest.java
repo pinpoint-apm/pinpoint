@@ -21,6 +21,7 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
@@ -29,7 +30,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
 public class ChunkHeaderTBaseDeserializerTest {
-    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    private static final TypeLocator<TBase<?, ?>> DEFAULT_TBASE_LOCATOR = DefaultTBaseLocator.getTypeLocator();
     private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
 
     @Test

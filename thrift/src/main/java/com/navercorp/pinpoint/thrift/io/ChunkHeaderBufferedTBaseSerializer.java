@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.thrift.io;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -43,7 +45,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
     // span event list serialized buffer
     private final TBaseStream eventStream;
     // header
-    private final TBaseLocator locator;
+    private final TypeLocator<TBase<?, ?>> locator;
     private final TProtocolFactory protocolFactory;
     private final ByteArrayOutputStreamTransport transport;
 
@@ -54,7 +56,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
     // flush handler
     private ChunkHeaderBufferedTBaseSerializerFlushHandler flushHandler;
 
-    public ChunkHeaderBufferedTBaseSerializer(final ByteArrayOutputStream out, final TProtocolFactory protocolFactory, final TBaseLocator locator) {
+    public ChunkHeaderBufferedTBaseSerializer(final ByteArrayOutputStream out, final TProtocolFactory protocolFactory, final TypeLocator<TBase<?, ?>> locator) {
         transport = new ByteArrayOutputStreamTransport(out);
         eventStream = new TBaseStream(protocolFactory);
 
@@ -125,8 +127,12 @@ public class ChunkHeaderBufferedTBaseSerializer {
         writeChunkHeader(protocol);
 
         // write header
-        HeaderUtils.writeHeader(protocol, locator.headerLookup(base));
-        if (list != null && !list.isEmpty()) {
+        final Header header = locator.headerLookup(base);
+        if (header == null) {
+            throw new TException("header must not be null base:" + base);
+        }
+        HeaderUtils.writeHeader(protocol, header);
+        if (CollectionUtils.hasLength(list)) {
             protocol.addReplaceField(fieldName, list);
         }
 
@@ -145,7 +151,11 @@ public class ChunkHeaderBufferedTBaseSerializer {
         writeChunkHeader(protocol);
 
         // write header
-        HeaderUtils.writeHeader(protocol, locator.headerLookup(base));
+        final Header header = locator.headerLookup(base);
+        if (header == null) {
+            throw new TException("header must not be null base:" + base);
+        }
+        HeaderUtils.writeHeader(protocol, header);
 
         base.write(protocol);
 
@@ -164,7 +174,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
         }
 
         // write chunk header
-        HeaderUtils.writeHeader(protocol, locator.getChunkHeader());
+        HeaderUtils.writeHeader(protocol, locator.headerLookup(DefaultTBaseLocator.CHUNK));
         writeChunkHeader = true;
     }
 

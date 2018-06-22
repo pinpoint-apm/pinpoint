@@ -439,7 +439,7 @@
         <constructor-arg index="1" ref="flinkHeaderDataGeneratorDelegator"/>
     </bean>
     <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
-        <constructor-arg index="0" ref="flinkTBaseLocator"/>
+        <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
     <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterConnectionManager">
         <constructor-arg index="0" ref="tcpDataSenderRepository"/>

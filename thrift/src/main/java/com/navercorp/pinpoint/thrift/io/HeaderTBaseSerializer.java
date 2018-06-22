@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.io.header.ByteArrayHeaderWriter;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderWriter;
 import com.navercorp.pinpoint.io.header.InvalidHeaderException;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -41,12 +42,12 @@ public class HeaderTBaseSerializer {
 
     private final ResettableByteArrayOutputStream baos;
     private final TProtocol protocol;
-    private final TBaseLocator locator;
+    private final TypeLocator<TBase<?, ?>> locator;
 
     /**
      * Create a new HeaderTBaseSerializer. 
      */
-    HeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TBaseLocator locator) {
+    HeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
         this.baos = bos;
         TIOStreamTransport transport = new TIOStreamTransport(bos);
         this.protocol = protocolFactory.getProtocol(transport);
@@ -72,6 +73,9 @@ public class HeaderTBaseSerializer {
     public void writeHeader(TBase<?, ?> base) {
         try {
             final Header header = locator.headerLookup(base);
+            if (header == null) {
+                throw new TException("header must not be null base:" + base);
+            }
             HeaderWriter headerWriter = new ByteArrayHeaderWriter(header);
             byte[] headerBytes = headerWriter.writeHeader();
             baos.write(headerBytes);

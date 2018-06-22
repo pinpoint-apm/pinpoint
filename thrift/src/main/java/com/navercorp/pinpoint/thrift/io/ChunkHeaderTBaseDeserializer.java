@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.io.header.InvalidHeaderException;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -42,9 +43,9 @@ import org.apache.thrift.transport.TMemoryInputTransport;
 public class ChunkHeaderTBaseDeserializer {
     private final TProtocol protocol;
     private final TMemoryInputTransport trans;
-    private final TBaseLocator locator;
+    private final TypeLocator<TBase<?, ?>> locator;
 
-    ChunkHeaderTBaseDeserializer(TProtocolFactory protocolFactory, TBaseLocator locator) {
+    ChunkHeaderTBaseDeserializer(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
         this.trans = new TMemoryInputTransport();
         this.protocol = protocolFactory.getProtocol(trans);
         this.locator = locator;
@@ -57,7 +58,7 @@ public class ChunkHeaderTBaseDeserializer {
 
             Header header = readHeader();
 
-            if (locator.isChunkHeader(header.getType())) {
+            if (locator.isSupport(header.getType())) {
 
                 List<Message<TBase<?, ?>>> list = new ArrayList<Message<TBase<?, ?>>>();
 
@@ -86,7 +87,10 @@ public class ChunkHeaderTBaseDeserializer {
 
     private Message<TBase<?, ?>> readInternal() throws TException {
         Header header = readHeader();
-        TBase<?, ?> base = locator.tBaseLookup(header.getType());
+        final TBase<?, ?> base = locator.bodyLookup(header.getType());
+        if (base == null) {
+            throw new TException("base must not be null type:" + header.getType());
+        }
         base.read(protocol);
         return new DefaultMessage<TBase<?, ?>>(header, base);
     }

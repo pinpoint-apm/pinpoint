@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
+import com.navercorp.pinpoint.io.util.BodyFactory;
 import com.navercorp.pinpoint.thrift.dto.command.*;
 import org.apache.thrift.TBase;
 
@@ -34,89 +35,90 @@ public enum TCommandType {
     // Using reflection would make code cleaner.
     // But it also makes it hard to handle exception, constructor and will show relatively low performance.
 
-    RESULT((short) 320, TResult.class) {
+    RESULT((short) 320, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TResult();
         }
-    },
-    TRANSFER((short) 700, TCommandTransfer.class) {
+    }),
+    TRANSFER((short) 700, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCommandTransfer();
         }
-    },
-    TRANSFER_RESPONSE((short) 701, TCommandTransferResponse.class) {
+    }),
+    TRANSFER_RESPONSE((short) 701, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCommandTransferResponse();
         }
-    },
-    ECHO((short) 710, TCommandEcho.class) {
+    }),
+    ECHO((short) 710, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCommandEcho();
         }
-    },
-    THREAD_DUMP((short) 720, TCommandThreadDump.class) {
+    }),
+    THREAD_DUMP((short) 720, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCommandThreadDump();
         }
-    },
-    THREAD_DUMP_RESPONSE((short) 721, TCommandThreadDumpResponse.class) {
+    }),
+    THREAD_DUMP_RESPONSE((short) 721, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCommandThreadDumpResponse();
         }
-    },
-    ACTIVE_THREAD_COUNT((short) 730, TCmdActiveThreadCount.class) {
+    }),
+    ACTIVE_THREAD_COUNT((short) 730, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCmdActiveThreadCount();
         }
-    },
-    ACTIVE_THREAD_COUNT_RESPONSE((short) 731, TCmdActiveThreadCountRes.class) {
+    }),
+    ACTIVE_THREAD_COUNT_RESPONSE((short) 731, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCmdActiveThreadCountRes();
         }
-    },
-    ACTIVE_THREAD_DUMP((short) 740, TCmdActiveThreadDump.class) {
+    }),
+    ACTIVE_THREAD_DUMP((short) 740, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCmdActiveThreadDump();
         }
-    },
-    ACTIVE_THREAD_DUMP_RESPONSE((short) 741, TCmdActiveThreadDumpRes.class) {
+    }),
+    ACTIVE_THREAD_DUMP_RESPONSE((short) 741, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCmdActiveThreadDumpRes();
         }
-    },
-    ACTIVE_THREAD_LIGHT_DUMP((short) 750, TCmdActiveThreadLightDump.class) {
+    }),
+    ACTIVE_THREAD_LIGHT_DUMP((short) 750, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCmdActiveThreadLightDump();
         }
-    },
-    ACTIVE_THREAD_LIGHT_DUMP_RESPONSE((short) 751, TCmdActiveThreadLightDumpRes.class) {
+    }),
+    ACTIVE_THREAD_LIGHT_DUMP_RESPONSE((short) 751, new BodyFactory<TBase<?, ?>>() {
         @Override
-        public TBase newObject() {
+        public TBase<?, ?> getObject() {
             return new TCmdActiveThreadLightDumpRes();
         }
-    };
+    });
 
     private final short code;
     private final Class<? extends TBase> clazz;
-    private final Header header;
+    private final BodyFactory<TBase<?, ?>> bodyFactory;
 
     private static final Set<TCommandType> TCOMMAND_TYPES = EnumSet.allOf(TCommandType.class);
 
-    private TCommandType(short code, Class<? extends TBase> clazz) {
+
+    private TCommandType(short code, BodyFactory<TBase<?, ?>> bodyFactory) {
         this.code = code;
-        this.clazz = clazz;
-        this.header = createHeader(code);
+        this.bodyFactory = bodyFactory;
+        this.clazz = bodyFactory.getObject().getClass();
     }
 
     public short getCode() {
@@ -131,15 +133,8 @@ public enum TCommandType {
         return this.clazz.isInstance(value);
     }
 
-    protected Header getHeader() {
-        return header;
-    }
-
-    public abstract TBase newObject();
-
-    private static Header createHeader(short code) {
-        Header header = new HeaderV1(code);
-        return header;
+    public BodyFactory<TBase<?, ?>> getBodyFactory() {
+        return bodyFactory;
     }
 
     public static TCommandType getType(Class<? extends TBase> clazz) {

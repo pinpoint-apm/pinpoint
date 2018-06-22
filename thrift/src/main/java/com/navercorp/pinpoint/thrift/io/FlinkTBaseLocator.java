@@ -19,6 +19,10 @@ import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderDataGenerator;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
+import com.navercorp.pinpoint.io.util.BodyFactory;
+import com.navercorp.pinpoint.io.util.HeaderFactory;
+import com.navercorp.pinpoint.io.util.TypeLocator;
+import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -30,13 +34,15 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
-public class FlinkTBaseLocator implements TBaseLocator {
+public class FlinkTBaseLocator {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final short AGENT_STAT_BATCH = 1000;
 
     private final byte version;
     private final HeaderDataGenerator headerDataGenerator;
+
+    private final TypeLocator<TBase<?, ?>> typeLocator;
 
     public FlinkTBaseLocator(byte version, HeaderDataGenerator headerDataGenerator) {
         if (version != HeaderV1.VERSION && version != HeaderV2.VERSION) {
@@ -48,73 +54,51 @@ public class FlinkTBaseLocator implements TBaseLocator {
             throw new NullPointerException("headerDataGenerator must not be null.");
         }
         this.headerDataGenerator = headerDataGenerator;
+        this.typeLocator = newTypeLocator();
     }
 
-    @Override
-    public TBase<?, ?> tBaseLookup(short type) throws TException {
-        switch (type) {
-            case AGENT_STAT_BATCH:
+    private TypeLocator<TBase<?, ?>> newTypeLocator() {
+        HeaderFactory headerFactory = new FlinkHeaderFactory();
+        TypeLocatorBuilder<TBase<?, ?>> typeLocatorBuilder = new TypeLocatorBuilder<TBase<?, ?>>(headerFactory);
+        typeLocatorBuilder.addBodyFactory(AGENT_STAT_BATCH, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TFAgentStatBatch();
-        }
-        throw new TException("Unsupported type:" + type);
+            }
+        });
+
+        return typeLocatorBuilder.build();
     }
 
-    @Override
-    public Header headerLookup(TBase<?, ?> tbase) throws TException {
-        if (tbase instanceof TFAgentStatBatch) {
-            return createHeader(AGENT_STAT_BATCH);
-        }
-
-        throw new TException("Unsupported Type" + tbase.getClass());
+    public TypeLocator<TBase<?, ?>> getTypeLocator() {
+        return typeLocator;
     }
 
-    @Override
-    public boolean isSupport(short type) {
-        try {
-            tBaseLookup(type);
-            return true;
-        } catch (TException ignore) {
-            logger.warn("{} is not support type", type);
+
+    public class FlinkHeaderFactory implements HeaderFactory {
+        @Override
+        public Header newHeader(short type) {
+            return createHeader(type);
         }
-
-        return false;
-    }
-
-    @Override
-    public boolean isSupport(Class<? extends TBase> clazz) {
-        if (clazz.equals(TFAgentStatBatch.class)) {
-            return true;
-        }
-
-        return false;
-    }
+    };
 
     private Header createHeader(short type) {
         if (version == HeaderV1.VERSION) {
-            return createHeaderv1(type);
+            return createHeaderV1(type);
         } else if (version == HeaderV2.VERSION) {
-            return createHeaderv2(type);
+            return createHeaderV2(type);
         }
 
         throw new IllegalArgumentException("unsupported Header version : " + version);
     }
 
-    private Header createHeaderv1(short type) {
+    private Header createHeaderV1(short type) {
         return new HeaderV1(type);
     }
 
-    private Header createHeaderv2(short type) {
+    private Header createHeaderV2(short type) {
         Map<String, String> data = headerDataGenerator.generate();
         return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type, data);
     }
 
-    @Override
-    public Header getChunkHeader() {
-        return null;
-    }
-
-    @Override
-    public boolean isChunkHeader(short type) {
-        return false;
-    }
 }
