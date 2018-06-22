@@ -35,6 +35,49 @@ public class ResponseHistogramsTest {
     private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
 
     @Test
+    public void empty() {
+        // Given
+        final Range range = new Range(1, 200000);
+        final String applicationName = "TEST_APP";
+        final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
+        final Application application = new Application(applicationName, serviceType);
+
+        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
+        ResponseHistograms responseHistograms = builder.build();
+
+        // When
+        List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(application);
+
+        // Then
+        Assert.assertTrue(responseTimeList.isEmpty());
+    }
+
+    @Test
+    public void nonExistentApplication() {
+        // Given
+        final Range range = new Range(1, 200000);
+        final String applicationName = "TEST_APP";
+        final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
+        final Application application = new Application(applicationName, serviceType);
+        SpanBo fastSpan = new TestTraceUtils.SpanBuilder(applicationName, "test-app").elapsed(500).build();
+
+        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
+        Iterator<Long> timeslotIterator = builder.getWindow().iterator();
+        long timeslot = timeslotIterator.next();
+        builder.addHistogram(application, fastSpan, timeslot);
+        ResponseHistograms responseHistograms = builder.build();
+
+        // When
+        final Application nonExistentApplication = new Application(applicationName + "_other", serviceType);
+        List<ResponseTime> properResponseTimeList = responseHistograms.getResponseTimeList(application);
+        List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(nonExistentApplication);
+
+        // Then
+        Assert.assertFalse(properResponseTimeList.isEmpty());
+        Assert.assertTrue(responseTimeList.isEmpty());
+    }
+
+    @Test
     public void timeslots() {
         // Given
         final Range range = new Range(1, 200000);

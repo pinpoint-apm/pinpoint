@@ -41,7 +41,7 @@ public class ResponseHistograms {
     }
 
     public List<ResponseTime> getResponseTimeList(Application application) {
-        List<ResponseTime> responseTimes = responseTimeMap.get(application);
+        List<ResponseTime> responseTimes = responseTimeMap.getOrDefault(application, Collections.emptyList());
         return Collections.unmodifiableList(responseTimes);
     }
 
