@@ -18,6 +18,10 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.io.request.DefaultServerRequest;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.BasicPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
@@ -63,8 +67,9 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
         final byte[] payload = getPayload(packet);
         SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
         try {
-            TBase<?, ?> tBase = SerializationUtils.deserialize(payload, deserializerFactory);
-            dispatchHandler.dispatchSendMessage(tBase);
+            Message<TBase<?, ?>> message = SerializationUtils.deserialize(payload, deserializerFactory);
+            ServerRequest<TBase<?, ?>> serverRequest = new DefaultServerRequest<TBase<?, ?>>(message);
+            dispatchHandler.dispatchSendMessage(serverRequest);
         } catch (TException e) {
             handleTException(payload, remoteAddress, e);
         } catch (Exception e) {
@@ -86,28 +91,28 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
 
         final byte[] payload = getPayload(packet);
 
-        SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
         try {
-            TBase<?, ?> tBase = SerializationUtils.deserialize(payload, deserializerFactory);
-            TBase result = dispatchHandler.dispatchRequestMessage(tBase);
-            if (result != null) {
-                byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
-                pinpointSocket.response(packet, resultBytes);
-            }
+            Message<TBase<?, ?>> message = SerializationUtils.deserialize(payload, deserializerFactory);
+            ServerRequest<TBase<?, ?>> request = new DefaultServerRequest<>(message);
+            ServerResponse<TBase<?, ?>> response = new TCPServerResponse(serializerFactory, pinpointSocket, packet.getRequestId());
+            dispatchHandler.dispatchRequestMessage(request, response);
         } catch (TException e) {
+            SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
             handleTException(payload, remoteAddress, e);
         } catch (Exception e) {
+            SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
             handleException(payload, remoteAddress, e);
         }
     }
 
     private void handleTException(byte[] payload, SocketAddress remoteAddress, TException e) {
         if (logger.isWarnEnabled()) {
-            logger.warn("packet serialize error. remote:{} cause:{}", remoteAddress, e.getMessage(), e);
+            logger.warn("packet deserialize error. remote:{} cause:{}", remoteAddress, e.getMessage(), e);
         }
         if (isDebug) {
             logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(payload));
         }
+        throw new RuntimeException("serialized fail ", e);
     }
 
     private void handleException(byte[] payload, SocketAddress remoteAddress, Exception e) {

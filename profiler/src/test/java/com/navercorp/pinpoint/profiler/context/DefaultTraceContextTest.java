@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,6 +37,8 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.mockito.Mockito.spy;
+
 /**
  * @author emeroad
  * @author HyunGil Jeong
@@ -43,12 +46,14 @@ import org.slf4j.LoggerFactory;
 public class DefaultTraceContextTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private MockApplicationContext applicationContext;
+    private DefaultApplicationContext applicationContext;
 
     @Before
     public void setUp() throws Exception {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        ProfilerConfig profilerConfig = getProfilerConfig();
+
         applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext.start();
     }
 
     @After
@@ -92,8 +97,11 @@ public class DefaultTraceContextTest {
         TraceContext traceContext = applicationContext.getTraceContext();
         Assert.assertNotNull(traceContext.newTraceObject());
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        MockApplicationContext applicationContext2 = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        ProfilerConfig profilerConfig = getProfilerConfig();
+
+        DefaultApplicationContext applicationContext2 = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext2.start();
+
         TraceContext traceContext2 = applicationContext2.getTraceContext();
         Trace notExist = traceContext2.currentRawTraceObject();
         applicationContext2.close();
@@ -109,13 +117,16 @@ public class DefaultTraceContextTest {
     public void transactionCountTest() {
         final int samplingRate = 5;
 
-        final ProfilerConfig profilerConfig = Mockito.spy(new DefaultProfilerConfig());
+        final ProfilerConfig profilerConfig = getProfilerConfig();
         Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
         Mockito.when((profilerConfig.getSamplingRate())).thenReturn(samplingRate);
         Mockito.when((profilerConfig.isSamplingEnable())).thenReturn(true);
 
 
-        MockApplicationContext customContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+
+        DefaultApplicationContext customContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        customContext.start();
+
         final TraceContext traceContext = customContext.getTraceContext();
         IdGenerator idGenerator = customContext.getInjector().getInstance(IdGenerator.class);
         final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
@@ -151,5 +162,11 @@ public class DefaultTraceContextTest {
         Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
         Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         Assert.assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
+    }
+
+    public ProfilerConfig getProfilerConfig() {
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        Mockito.when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+        return profilerConfig;
     }
 }

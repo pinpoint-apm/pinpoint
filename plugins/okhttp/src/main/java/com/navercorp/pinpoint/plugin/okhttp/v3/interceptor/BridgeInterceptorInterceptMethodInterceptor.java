@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.okhttp.v3.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -28,21 +27,14 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
-import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
-import okhttp3.HttpUrl;
+import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestTrace;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.net.URL;
 
 /**
  * @author jaehong.kim
@@ -55,10 +47,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
     private final MethodDescriptor methodDescriptor;
     private final InterceptorScope interceptorScope;
 
-    private final boolean param;
-    private final boolean cookie;
-    private final DumpType cookieDumpType;
-    private final SimpleSampler cookieSampler;
+    private final ClientRequestRecorder clientRequestRecorder;
 
     public BridgeInterceptorInterceptMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -66,14 +55,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
         this.interceptorScope = interceptorScope;
 
         final OkHttpPluginConfig config = new OkHttpPluginConfig(traceContext.getProfilerConfig());
-        this.param = config.isParam();
-        this.cookie = config.isCookie();
-        this.cookieDumpType = config.getCookieDumpType();
-        if (cookie) {
-            cookieSampler = SimpleSamplerFactory.createSampler(cookie, config.getCookieSamplingRate());
-        } else {
-            this.cookieSampler = null;
-        }
+        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
     }
 
     @Override
@@ -141,17 +123,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
             final Interceptor.Chain chain = (Interceptor.Chain) args[0];
             final Request request = chain.request();
             if (request != null) {
-                final HttpUrl httpUrl = request.url();
-                if (httpUrl != null) {
-                    try {
-                        recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpUrl.url().toString(), param));
-                        final String endpoint = getDestinationId(httpUrl.url());
-                        recorder.recordDestinationId(endpoint);
-                    } catch (Exception ignored) {
-                        logger.warn("Failed to invoke of request.url(). {}", ignored.getMessage());
-                    }
-                }
-                recordRequest(trace, request, throwable);
+                this.clientRequestRecorder.record(recorder, new OkHttpClientRequestTrace(request), throwable);
             }
 
             if (result instanceof Response) {
@@ -181,40 +153,10 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
         return true;
     }
 
-    private String getDestinationId(URL httpUrl) {
-        if (httpUrl == null || httpUrl.getHost() == null) {
-            return "UnknownHttpClient";
-        }
-        final int port = EndPointUtils.getPort(httpUrl.getPort(), httpUrl.getDefaultPort());
-        return HostAndPort.toHostAndPortString(httpUrl.getHost(), port);
-    }
-
     private Object getAttachment(InterceptorScopeInvocation invocation) {
         if (invocation == null) {
             return null;
         }
         return invocation.getAttachment();
-    }
-
-    private void recordRequest(Trace trace, Request request, Throwable throwable) {
-        final boolean isException = InterceptorUtils.isThrowable(throwable);
-        if (cookie) {
-            if (DumpType.ALWAYS == cookieDumpType) {
-                recordCookie(request, trace);
-            } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
-                recordCookie(request, trace);
-            }
-        }
-    }
-
-    private void recordCookie(Request request, Trace trace) {
-        for (String cookie : request.headers("Cookie")) {
-            if (cookieSampler.isSampling()) {
-                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(cookie, 1024));
-            }
-
-            return;
-        }
     }
 }

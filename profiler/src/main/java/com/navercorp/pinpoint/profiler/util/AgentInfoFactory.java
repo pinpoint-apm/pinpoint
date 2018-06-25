@@ -62,6 +62,7 @@ public class AgentInfoFactory {
         tAgentInfo.setPorts("");
         tAgentInfo.setAgentId(agentInformation.getAgentId());
         tAgentInfo.setApplicationName(agentInformation.getApplicationName());
+        tAgentInfo.setContainer(agentInformation.isContainer());
         tAgentInfo.setPid(agentInformation.getPid());
         tAgentInfo.setStartTimestamp(agentInformation.getStartTime());
         tAgentInfo.setServiceType(agentInformation.getServerType().getCode());

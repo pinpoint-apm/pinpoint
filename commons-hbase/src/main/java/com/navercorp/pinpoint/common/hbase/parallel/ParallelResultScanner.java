@@ -93,7 +93,7 @@ public class ParallelResultScanner implements ResultScanner {
             }
             List<ScanTask> scanTasks = new ArrayList<>(numParallelThreads);
             for (List<Scan> scanDistribution : scanDistributions) {
-                Scan[] scansForSingleTask = scanDistribution.toArray(new Scan[scanDistribution.size()]);
+                Scan[] scansForSingleTask = scanDistribution.toArray(new Scan[0]);
                 scanTasks.add(new ScanTask(scanTaskConfig, scansForSingleTask));
             }
             return scanTasks;
@@ -168,7 +168,7 @@ public class ParallelResultScanner implements ResultScanner {
                 break;
             }
         }
-        return resultSets.toArray(new Result[resultSets.size()]);
+        return resultSets.toArray(new Result[0]);
     }
 
     @Override

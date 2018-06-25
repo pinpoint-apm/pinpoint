@@ -20,13 +20,13 @@ package com.navercorp.pinpoint.test.classloader;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,9 +42,9 @@ public class DefaultTranslator implements Translator {
     private final ConcurrentMap<String, MatchableClassFileTransformer> transformerMap = new ConcurrentHashMap<String, MatchableClassFileTransformer>();
 
     private final ClassLoader loader;
-    private final ClassFileTransformerDispatcher dispatcher;
+    private final ClassFileTransformer dispatcher;
 
-    public DefaultTranslator(ClassLoader loader, ClassFileTransformerDispatcher defaultTransformer) {
+    public DefaultTranslator(ClassLoader loader, ClassFileTransformer defaultTransformer) {
         if (defaultTransformer == null) {
             throw new NullPointerException("dispatcher must not be null");
         }

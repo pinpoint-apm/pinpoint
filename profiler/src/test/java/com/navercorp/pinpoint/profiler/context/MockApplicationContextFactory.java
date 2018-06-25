@@ -19,17 +19,12 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.mockito.Mockito;
 
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
+import java.util.Collections;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -40,25 +35,12 @@ public class MockApplicationContextFactory {
     }
 
 
-    public MockApplicationContext of(ProfilerConfig config, InterceptorRegistryBinder binder, ModuleFactory moduleFactory) {
+    public DefaultApplicationContext build(ProfilerConfig config, ModuleFactory moduleFactory) {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
         String mockAgent = "mockAgent";
         String mockApplicationName = "mockApplicationName";
-        DefaultServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
-        DefaultAnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, new URL[0], null, serviceTypeRegistryService, annotationKeyRegistryService);
-        return new MockApplicationContext(agentOption, binder, moduleFactory);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, false, config, Collections.<String>emptyList(), null);
+        return new DefaultApplicationContext(agentOption, moduleFactory);
     }
-
-    public ApplicationContext newDefaultApplicationContext(ProfilerConfig config, InterceptorRegistryBinder binder, ModuleFactory moduleFactory) {
-        Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
-        String mockAgent = "mockAgent";
-        String mockApplicationName = "mockApplicationName";
-        DefaultServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
-        DefaultAnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, new URL[0], null, serviceTypeRegistryService, annotationKeyRegistryService);
-        return new DefaultApplicationContext(agentOption, binder, moduleFactory);
-    }
-
 
 }

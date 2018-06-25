@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.common.trace;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,10 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 /**
  * @author Jongho Moon
@@ -42,9 +39,6 @@ public class TraceMetadataLoader {
     private final List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
     private final AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
 
-    public TraceMetadataLoader() {
-        this(StdoutCommonLoggerFactory.INSTANCE);
-    }
 
     public TraceMetadataLoader(CommonLoggerFactory loggerFactory) {
         if (loggerFactory == null) {
@@ -53,24 +47,7 @@ public class TraceMetadataLoader {
         this.logger = loggerFactory.getLogger(TraceMetadataLoader.class.getName());
     }
 
-    public void load(URL[] urls) {
-        if (urls == null) {
-            throw new NullPointerException("urls must not be null");
-        }
 
-        List<TraceMetadataProvider> providers = PluginLoader.load(TraceMetadataProvider.class, urls);
-        load(providers);
-    }
-    
-    public void load(ClassLoader loader) {
-        if (loader == null) {
-            throw new NullPointerException("loader must not be null");
-        }
-
-        List<TraceMetadataProvider> providers = PluginLoader.load(TraceMetadataProvider.class, loader);
-        load(providers);
-    }
-    
     public void load(List<TraceMetadataProvider> providers) {
         if (providers == null) {
             throw new NullPointerException("providers must not be null");

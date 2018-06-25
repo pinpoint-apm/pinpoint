@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
+import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
@@ -68,6 +70,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
+
     private SimpleOrderedThreadPool webSocketFlushExecutor;
 
     private Timer flushTimer;
@@ -79,9 +82,12 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private final long healthCheckDelay;
 
     private Timer reactiveTimer;
-    
+
     @Autowired(required=false)
     ServerMapDataFilter serverMapDataFilter;
+
+    @Autowired(required = false)
+    private TimerTaskDecoratorFactory timerTaskDecoratorFactory = new PinpointWebSocketTimerTaskDecoratorFactory();
 
     public ActiveThreadCountHandler(AgentService agentService) {
         this(DEFAULT_REQUEST_MAPPING, agentService);
@@ -272,7 +278,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
         PinpointWebSocketResponseAggregator responseAggregator = aggregatorRepository.get(applicationName);
         if (responseAggregator == null) {
-            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentService, reactiveTimer);
+            TimerTaskDecorator timerTaskDecorator = timerTaskDecoratorFactory.createTimerTaskDecorator();
+            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentService, reactiveTimer, timerTaskDecorator);
             responseAggregator.start();
             aggregatorRepository.put(applicationName, responseAggregator);
         }

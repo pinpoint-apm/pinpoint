@@ -16,38 +16,28 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
+import java.util.List;
+
 /**
  * @author emeroad
  */
 public class ProfilerLibClass implements LibClass {
 
-    private static final String[] PINPOINT_PROFILER_CLASS = new String[] {
-            "com.navercorp.pinpoint.profiler",
-            "com.navercorp.pinpoint.thrift",
-            "com.navercorp.pinpoint.rpc",
-            /*
-             * @deprecated javassist
-             */
-            "javassist",
-            "org.objectweb.asm",
-            "org.slf4j",
-            "org.apache.thrift",
-            "org.jboss.netty",
-            "com.google.common",
-            // google guice
-            "com.google.inject",
-            "org.aopalliance",
+    private String[] profilerClass;
 
-            "org.apache.commons.lang",
-            "org.apache.log4j",
-            "com.nhncorp.nelo2"
-    };
+    public ProfilerLibClass(List<String> profilerClass) {
+        if (profilerClass == null) {
+            throw new NullPointerException("profilerClass must not be null");
+        }
+
+        this.profilerClass = profilerClass.toArray(new String[0]);
+    }
 
     @Override
     public boolean onLoadClass(String clazzName) {
-        final int length = PINPOINT_PROFILER_CLASS.length;
+        final int length = profilerClass.length;
         for (int i = 0; i < length; i++) {
-            if (clazzName.startsWith(PINPOINT_PROFILER_CLASS[i])) {
+            if (clazzName.startsWith(profilerClass[i])) {
                 return ON_LOAD_CLASS;
             }
         }

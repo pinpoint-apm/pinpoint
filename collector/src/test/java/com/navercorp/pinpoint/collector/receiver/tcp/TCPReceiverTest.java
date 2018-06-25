@@ -16,16 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.config.DeprecatedConfiguration;
-import com.navercorp.pinpoint.collector.receiver.AddressFilterAdaptor;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.common.server.util.AddressFilter;
-import com.navercorp.pinpoint.rpc.server.ChannelFilter;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -35,39 +27,12 @@ import org.springframework.util.SocketUtils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
-import java.util.concurrent.Executor;
 
 /**
  * @author emeroad
  */
 public class TCPReceiverTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Test
-    public void server() throws InterruptedException {
-        Executor executor = MoreExecutors.directExecutor();
-
-        ChannelFilter channelFilter = new AddressFilterAdaptor(AddressFilter.ALL);
-        PinpointServerAcceptor acceptor = new PinpointServerAcceptor(channelFilter);
-
-        AgentBaseDataReceiver tcpReceiver = new AgentBaseDataReceiver(createConfiguration(), executor, acceptor, new DispatchHandler() {
-
-            @Override
-            public void dispatchSendMessage(TBase<?, ?> tBase) {
-            }
-
-            @Override
-            public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
-                return new TResult(true);
-            }
-
-        });
-        try {
-            tcpReceiver.start();
-        } finally {
-            tcpReceiver.stop();
-        }
-    }
 
     @Test
     public void l4ip() throws UnknownHostException {

@@ -73,7 +73,7 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
             CompletableFuture<Void> serverInstanceListFuture = getServerInstanceListFuture(range, node, linkDataDuplexMap);
             serverInstanceListFutures.add(serverInstanceListFuture);
         }
-        return serverInstanceListFutures.toArray(new CompletableFuture[serverInstanceListFutures.size()]);
+        return serverInstanceListFutures.toArray(new CompletableFuture[0]);
     }
 
     private CompletableFuture<Void> getServerInstanceListFuture(Range range, Node node, LinkDataDuplexMap linkDataDuplexMap) {

@@ -29,7 +29,7 @@ public class TestProfilerPluginClassLoader implements ClassInjector {
     @Override
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
         try {
-            return (Class<? extends T>) targetClassLoader.loadClass(className);
+            return (Class<? extends T>) Class.forName(className, false, targetClassLoader);
         } catch (ClassNotFoundException e) {
             throw new PinpointException("Cannot find class: " + className, e);
         }

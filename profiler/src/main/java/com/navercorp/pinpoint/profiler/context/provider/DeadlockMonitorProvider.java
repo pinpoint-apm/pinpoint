@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.module.config.DeadlockMonitorEnable;
+import com.navercorp.pinpoint.profiler.context.module.config.DeadlockMonitorInterval;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockThreadRegistry;
 import com.navercorp.pinpoint.profiler.monitor.DefaultDeadlockMonitor;
@@ -29,19 +30,23 @@ import com.navercorp.pinpoint.profiler.monitor.DisabledDeadlockMonitor;
  */
 public class DeadlockMonitorProvider implements Provider<DeadlockMonitor> {
 
-    private final ProfilerConfig profilerConfig;
+    private final boolean deadlockMonitorEnable;
     private final DeadlockThreadRegistry deadlockThreadRegistry;
+    private final long deadlockMonitorInterval;
 
     @Inject
-    public DeadlockMonitorProvider(ProfilerConfig profilerConfig, DeadlockThreadRegistry deadlockThreadRegistry) {
-        this.profilerConfig = profilerConfig;
+    public DeadlockMonitorProvider(@DeadlockMonitorEnable boolean deadlockMonitorEnable,
+                                   @DeadlockMonitorInterval long deadlockMonitorInterval,
+                                   DeadlockThreadRegistry deadlockThreadRegistry) {
+        this.deadlockMonitorEnable = deadlockMonitorEnable;
         this.deadlockThreadRegistry = deadlockThreadRegistry;
+        this.deadlockMonitorInterval = deadlockMonitorInterval;
     }
 
     @Override
     public DeadlockMonitor get() {
-        if (profilerConfig.isDeadlockMonitorEnable()) {
-            return new DefaultDeadlockMonitor(deadlockThreadRegistry, profilerConfig.getDeadlockMonitorInterval());
+        if (deadlockMonitorEnable) {
+            return new DefaultDeadlockMonitor(deadlockThreadRegistry, deadlockMonitorInterval);
         } else {
             return new DisabledDeadlockMonitor();
         }

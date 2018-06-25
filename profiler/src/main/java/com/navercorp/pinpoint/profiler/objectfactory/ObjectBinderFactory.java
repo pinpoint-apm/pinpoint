@@ -22,9 +22,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
+import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 
 /**
@@ -35,26 +37,23 @@ public class ObjectBinderFactory {
     private final Provider<TraceContext> traceContextProvider;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
+    private final ExceptionHandlerFactory exceptionHandlerFactory;
 
-    public ObjectBinderFactory(ProfilerConfig profilerConfig, Provider<TraceContext> traceContextProvider, DataSourceMonitorRegistryService dataSourceMonitorRegistryService, Provider<ApiMetaDataService> apiMetaDataServiceProvider) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (traceContextProvider == null) {
-            throw new NullPointerException("traceContextProvider must not be null");
-        }
-        if (dataSourceMonitorRegistryService == null) {
-            throw new NullPointerException("dataSourceMonitorRegistryService must not be null");
-        }
-        if (apiMetaDataServiceProvider == null) {
-            throw new NullPointerException("apiMetaDataServiceProvider must not be null");
-        }
+    public ObjectBinderFactory(ProfilerConfig profilerConfig,
+                               Provider<TraceContext> traceContextProvider,
+                               DataSourceMonitorRegistryService dataSourceMonitorRegistryService,
+                               Provider<ApiMetaDataService> apiMetaDataServiceProvider,
+                               ExceptionHandlerFactory exceptionHandlerFactory) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.traceContextProvider = Assert.requireNonNull(traceContextProvider, "traceContextProvider must not be null");
 
-        this.profilerConfig = profilerConfig;
-        this.traceContextProvider = traceContextProvider;
-
+        Assert.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService must not be null");
         this.dataSourceMonitorRegistry = new DataSourceMonitorRegistryAdaptor(dataSourceMonitorRegistryService);
-        this.apiMetaDataServiceProvider = apiMetaDataServiceProvider;
+
+        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider must not be null");
+        this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory must not be null");
+
+
     }
 
     public AutoBindingObjectFactory newAutoBindingObjectFactory(InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
@@ -68,9 +67,9 @@ public class ObjectBinderFactory {
         return new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, instrumentClass);
     }
 
-    public AnnotatedInterceptorFactory newAnnotatedInterceptorFactory(InstrumentContext pluginContext, boolean exceptionHandle) {
+    public AnnotatedInterceptorFactory newAnnotatedInterceptorFactory(InstrumentContext pluginContext) {
         final TraceContext traceContext = this.traceContextProvider.get();
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandle);
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory);
     }
 }

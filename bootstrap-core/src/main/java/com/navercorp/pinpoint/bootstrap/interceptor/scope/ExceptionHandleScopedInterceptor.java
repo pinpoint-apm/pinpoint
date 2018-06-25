@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.interceptor.scope;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -32,8 +32,9 @@ public class ExceptionHandleScopedInterceptor implements AroundInterceptor {
     private final AroundInterceptor interceptor;
     private final InterceptorScope scope;
     private final ExecutionPolicy policy;
+    private final ExceptionHandler exceptionHandler;
 
-    public ExceptionHandleScopedInterceptor(AroundInterceptor interceptor, InterceptorScope scope, ExecutionPolicy policy) {
+    public ExceptionHandleScopedInterceptor(AroundInterceptor interceptor, InterceptorScope scope, ExecutionPolicy policy, ExceptionHandler exceptionHandler) {
         if (interceptor == null) {
             throw new NullPointerException("interceptor must not be null");
         }
@@ -43,9 +44,13 @@ public class ExceptionHandleScopedInterceptor implements AroundInterceptor {
         if (policy == null) {
             throw new NullPointerException("policy must not be null");
         }
+        if (exceptionHandler == null) {
+            throw new NullPointerException("exceptionHandler must not be null");
+        }
         this.interceptor = interceptor;
         this.scope = scope;
         this.policy = policy;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override
@@ -56,7 +61,7 @@ public class ExceptionHandleScopedInterceptor implements AroundInterceptor {
             try {
                 interceptor.before(target, args);
             } catch (Throwable t) {
-                InterceptorInvokerHelper.handleException(t);
+                exceptionHandler.handleException(t);
             }
         } else {
             if (debugEnabled) {
@@ -73,7 +78,7 @@ public class ExceptionHandleScopedInterceptor implements AroundInterceptor {
             try {
                 interceptor.after(target, args, result, throwable);
             } catch (Throwable t) {
-                InterceptorInvokerHelper.handleException(t);
+                exceptionHandler.handleException(t);
             } finally {
                 transaction.leave(policy);
             }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.netty;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
@@ -30,10 +31,14 @@ public class NettyConfig {
     private final boolean pluginEnable;
 
     private final boolean httpCodecEnable;
+    private final boolean param;
+    private final HttpDumpConfig httpDumpConfig;
 
     public NettyConfig(ProfilerConfig config) {
         pluginEnable = config.readBoolean(PLUGIN_ENABLE, false);
         httpCodecEnable = config.readBoolean(HTTP_CODEC_ENABLE, false);
+        param = config.readBoolean("profiler.netty.http.param", false);
+        httpDumpConfig = HttpDumpConfig.getDefault();
     }
 
     boolean isPluginEnable() {
@@ -44,4 +49,22 @@ public class NettyConfig {
         return httpCodecEnable;
     }
 
+    public boolean isParam() {
+        return param;
+    }
+
+    public HttpDumpConfig getHttpDumpConfig() {
+        return httpDumpConfig;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("NettyConfig{");
+        sb.append("pluginEnable=").append(pluginEnable);
+        sb.append(", httpCodecEnable=").append(httpCodecEnable);
+        sb.append(", param=").append(param);
+        sb.append(", httpDumpConfig=").append(httpDumpConfig);
+        sb.append('}');
+        return sb.toString();
+    }
 }

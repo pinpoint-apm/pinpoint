@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimelineBuilder;
@@ -56,8 +56,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author netspider
@@ -87,70 +85,45 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private AgentDownloadInfoDao agentDownloadInfoDao;
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key) {
-        return this.getApplicationAgentList(key, System.currentTimeMillis());
+    public ApplicationAgentsList getAllApplicationAgentsList() {
+        return getAllApplicationAgentsList(System.currentTimeMillis());
     }
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, long timestamp) {
-        ApplicationAgentList applicationAgentList = new ApplicationAgentList();
+    public ApplicationAgentsList getAllApplicationAgentsList(long timestamp) {
+        ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
+        ApplicationAgentsList applicationAgentList = new ApplicationAgentsList(groupBy);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
-            applicationAgentList.merge(this.getApplicationAgentList(key, application.getName(), timestamp));
+            applicationAgentList.merge(getApplicationAgentsList(groupBy, application.getName(), timestamp));
         }
         return applicationAgentList;
     }
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, String applicationName) {
-        return this.getApplicationAgentList(key, applicationName, System.currentTimeMillis());
+    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, String applicationName) {
+        return getApplicationAgentsList(groupBy, applicationName, System.currentTimeMillis());
     }
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key applicationAgentListKey, String applicationName, long timestamp) {
+    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, String applicationName, long timestamp) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
-        if (applicationAgentListKey == null) {
-            throw new NullPointerException("applicationAgentListKey must not be null");
+        if (groupBy == null) {
+            throw new NullPointerException("groupBy must not be null");
         }
-        final List<String> agentIdList = this.applicationIndexDao.selectAgentIds(applicationName);
+        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(groupBy);
+        Set<AgentInfo> agentInfos = getAgentsByApplicationName(applicationName, timestamp);
+        if (agentInfos.isEmpty()) {
+            logger.warn("agent list is empty for application:{}", applicationName);
+            return applicationAgentsList;
+        }
+        applicationAgentsList.addAll(agentInfos);
         if (logger.isDebugEnabled()) {
-            logger.debug("agentIdList={}", agentIdList);
+            logger.debug("getApplicationAgentsList={}", applicationAgentsList);
         }
-
-        if (CollectionUtils.isEmpty(agentIdList)) {
-            logger.debug("agentIdList is empty. applicationName={}", applicationName);
-            return new ApplicationAgentList(new TreeMap<String, List<AgentInfo>>());
-        }
-
-        // key = hostname
-        // value= list fo agentinfo
-        SortedMap<String, List<AgentInfo>> result = new TreeMap<>();
-
-        List<AgentInfo> agentInfos = this.agentInfoDao.getAgentInfos(agentIdList, timestamp);
-        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
-        for (AgentInfo agentInfo : agentInfos) {
-            if (agentInfo != null) {
-                String hostname = applicationAgentListKey.getKey(agentInfo);
-
-                if (result.containsKey(hostname)) {
-                    result.get(hostname).add(agentInfo);
-                } else {
-                    List<AgentInfo> list = new ArrayList<>();
-                    list.add(agentInfo);
-                    result.put(hostname, list);
-                }
-            }
-        }
-
-        for (List<AgentInfo> agentInfoList : result.values()) {
-            agentInfoList.sort(AgentInfo.AGENT_NAME_ASC_COMPARATOR);
-        }
-
-        logger.info("getApplicationAgentList={}", result);
-
-        return new ApplicationAgentList(result);
+        return applicationAgentsList;
     }
 
     @Override

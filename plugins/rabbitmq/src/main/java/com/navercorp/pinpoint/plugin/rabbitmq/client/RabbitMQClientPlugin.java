@@ -146,6 +146,15 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
                 return target.toBytecode();
             }
         });
+        // Envelope - for asynchrnous trace propagation for consumers
+        transformTemplate.transform("com.rabbitmq.client.Envelope", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(AsyncContextAccessor.class.getName());
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addAMQChannelEditor(final Filter<String> excludeExchangeFilter) {
@@ -187,7 +196,6 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
             return false;
         }
         handleDelivery.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.ConsumerHandleDeliveryInterceptor", RabbitMQClientConstants.RABBITMQ_CONSUMER_SCOPE);
-        target.addField(AsyncContextAccessor.class.getName());
         return true;
     }
 
@@ -393,6 +401,17 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
                 }
             });
             transformTemplate.transform("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$InternalConsumer", new TransformCallback() {
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                    if (addConsumerHandleDeliveryInterceptor(target)) {
+                        return target.toBytecode();
+                    }
+                    return null;
+                }
+            });
+            // Spring-rabbit 1.7.7+, 2.0.3+
+            transformTemplate.transform("org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$ConsumerDecorator", new TransformCallback() {
                 @Override
                 public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                     InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);

@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
@@ -32,6 +34,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
@@ -54,52 +59,65 @@ public class DispatchHandlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void throwExceptionTest1() {
-        testDispatchHandler.dispatchSendMessage(null);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void throwExceptionTest2() {
-        testDispatchHandler.dispatchRequestMessage(null);
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.getData()).thenReturn(null);
+        testDispatchHandler.dispatchSendMessage(request);
     }
 
     @Test
     public void dispatchSendMessageTest() {
-        testDispatchHandler.dispatchSendMessage(new TResult());
+        ServerRequest serverRequest = mock(ServerRequest.class);
+        when(serverRequest.getData()).thenReturn(new TResult());
+        testDispatchHandler.dispatchSendMessage(serverRequest);
 
         Assert.assertTrue(TEST_SIMPLE_HANDLER.getExecutedCount() > 0);
     }
 
     @Test
     public void dispatchRequestMessageTest() {
-        testDispatchHandler.dispatchRequestMessage(new TResult());
+        ServerRequest request = mock(ServerRequest.class);
+        when(request.getData()).thenReturn(new TResult());
+
+        ServerResponse response = mock(ServerResponse.class);
+        testDispatchHandler.dispatchRequestMessage(request, response);
 
         Assert.assertTrue(TEST_REQUEST_HANDLER.getExecutedCount() > 0);
     }
 
-    private static class TestDispatchHandler extends AbstractDispatchHandler {
+    private static class TestDispatchHandler implements DispatchHandler {
 
         @Override
-        protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
-            if (tBase == null) {
-                return Collections.emptyList();
-            }
-
-            int random = ThreadLocalRandom.current().nextInt(1, MAX_HANDLER_COUNT);
-            List<SimpleHandler> handlerList = new ArrayList<>(random);
-            for (int i = 0; i < random; i++) {
-                handlerList.add(TEST_SIMPLE_HANDLER);
-            }
-
-            return handlerList;
+        public void dispatchSendMessage(ServerRequest serverRequest) {
+            SimpleHandler simpleHandler = getSimpleHandler(serverRequest);
+            simpleHandler.handleSimple(serverRequest);
         }
 
         @Override
-        protected RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
+        public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+            RequestResponseHandler requestResponseHandler = getRequestResponseHandler(serverRequest);
+            requestResponseHandler.handleRequest(serverRequest, serverResponse);
+        }
+
+        private RequestResponseHandler getRequestResponseHandler(ServerRequest serverRequest) {
+            final Object data = serverRequest.getData();
+            return TEST_REQUEST_HANDLER;
+        }
+
+        private SimpleHandler getSimpleHandler(ServerRequest serverRequest) {
+            final Object data = serverRequest.getData();
+            if (data instanceof TBase<?, ?>) {
+                return getSimpleHandler((TBase<?, ?>) data);
+            }
+
+            throw new UnsupportedOperationException("data is not support type : " + data);
+        }
+
+        private SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
             if (tBase == null) {
                 return null;
             }
 
-            return TEST_REQUEST_HANDLER;
+            return TEST_SIMPLE_HANDLER;
         }
 
     }
@@ -108,9 +126,15 @@ public class DispatchHandlerTest {
 
         private int executedCount = 0;
 
+
         @Override
-        public void handleSimple(TBase<?, ?> tbase) {
-            executedCount++;
+        public void handleSimple(ServerRequest serverRequest) {
+            final Object data = serverRequest.getData();
+            if (data instanceof TBase<?, ?>) {
+                executedCount++;
+            } else {
+                throw new UnsupportedOperationException(serverRequest.getClass() + "is not support type : " + serverRequest);
+            }
         }
 
         public int getExecutedCount() {
@@ -124,10 +148,12 @@ public class DispatchHandlerTest {
         private int executedCount = 0;
 
         @Override
-        public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+        public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
             executedCount++;
-            return new TResult();
+            TResult tResult = new TResult();
+            serverResponse.write(tResult);
         }
+
 
         public int getExecutedCount() {
             return executedCount;

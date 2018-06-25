@@ -29,7 +29,7 @@ public class RejectedExecutionHandlerChain implements RejectedExecutionHandler {
 
     public static RejectedExecutionHandler build(List<RejectedExecutionHandler> chain) {
         Objects.requireNonNull(chain, "handlerChain must not be null");
-        RejectedExecutionHandler[] handlerChain = chain.toArray(new RejectedExecutionHandler[chain.size()]);
+        RejectedExecutionHandler[] handlerChain = chain.toArray(new RejectedExecutionHandler[0]);
         return new RejectedExecutionHandlerChain(handlerChain);
     }
 

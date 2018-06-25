@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2018 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -109,19 +125,19 @@
 
     <!-- DispatchHandler-related Beans -->
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
-    <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+    <bean id="tcpDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <constructor-arg ref="tcpDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
     <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler"/>
-    <bean id="statDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+    <bean id="statDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <constructor-arg ref="statDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
     <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler"/>
-    <bean id="spanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+    <bean id="spanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <constructor-arg ref="spanDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
@@ -264,7 +280,7 @@
         <constructor-arg ref="baseDataReceiverConfig"/>
         <constructor-arg ref="tcpReceiverExecutor"/>
         <constructor-arg ref="acceptor"/>
-        <constructor-arg ref="tcpDispatchHandlerWrapper"/>
+        <constructor-arg ref="tcpDispatchHandlerFactoryBean"/>
         <constructor-arg ref="clusterService"/>
     </bean>
 
@@ -302,18 +318,21 @@
         <property name="bindIp" value="#{spanReceiverConfig.udpBindIp}"/>
         <property name="bindPort" value="#{spanReceiverConfig.udpBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
-        <property name="dispatchHandler" ref="spanDispatchHandlerWrapper"/>
+        <property name="dispatchHandler" ref="spanDispatchHandlerFactoryBean"/>
         <property name="udpBufferSize" value="#{spanReceiverConfig.udpReceiveBufferSize}"/>
         <!-- TCP & UDP share threadpool for span -->
         <property name="executor" ref="spanReceiverExecutor"/>
         <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
         <property name="enable" value="#{spanReceiverConfig.isUdpEnable()}"/>
     </bean>
+    <bean id="spanAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider">
+        <property name="channelFilter" ref="channelFilter"/>
+    </bean>
     <bean id="spanTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
         <property name="bindIp" value="#{spanReceiverConfig.tcpBindIp}"/>
         <property name="bindPort" value="#{spanReceiverConfig.tcpBindPort}"/>
-        <property name="addressFilter" ref="addressFilter"/>
-        <property name="dispatchHandler" ref="spanDispatchHandlerWrapper"/>
+        <property name="acceptorProvider" ref="spanAcceptorProvider"/>
+        <property name="dispatchHandler" ref="spanDispatchHandlerFactoryBean"/>
         <!-- TCP & UDP share threadpool for span -->
         <property name="executor" ref="spanReceiverExecutor"/>
         <property name="enable" value="#{spanReceiverConfig.isTcpEnable()}"/>
@@ -327,22 +346,25 @@
         <property name="queueCapacity" value="#{statReceiverConfig.workerQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-Stat-Worker-"/>
     </bean>
-    <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
+    <bean id="statUdpReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
         <property name="bindIp" value="#{statReceiverConfig.udpBindIp}"/>
         <property name="bindPort" value="#{statReceiverConfig.udpBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
-        <property name="dispatchHandler" ref="statDispatchHandlerWrapper"/>
+        <property name="dispatchHandler" ref="statDispatchHandlerFactoryBean"/>
         <property name="udpBufferSize" value="#{statReceiverConfig.udpReceiveBufferSize}"/>
         <!-- TCP & UDP share threadpool for stat -->
         <property name="executor" ref="statReceiverExecutor"/>
         <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
         <property name="enable" value="#{statReceiverConfig.isUdpEnable()}"/>
     </bean>
-    <bean id="tcpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
+    <bean id="statAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider">
+        <property name="channelFilter" ref="channelFilter"/>
+    </bean>
+    <bean id="statTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
         <property name="bindIp" value="#{statReceiverConfig.tcpBindIp}"/>
         <property name="bindPort" value="#{statReceiverConfig.tcpBindPort}"/>
-        <property name="addressFilter" ref="addressFilter"/>
-        <property name="dispatchHandler" ref="statDispatchHandlerWrapper"/>
+        <property name="acceptorProvider" ref="statAcceptorProvider"/>
+        <property name="dispatchHandler" ref="statDispatchHandlerFactoryBean"/>
         <!-- TCP & UDP share threadpool for stat -->
         <property name="executor" ref="statReceiverExecutor"/>
         <property name="enable" value="#{statReceiverConfig.isTcpEnable()}"/>
@@ -385,8 +407,8 @@
     <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
     </bean>
 
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService">
-        <constructor-arg ref="slf4jCommonLoggerFactory"/>
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">
+        <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
     </bean>
 
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
@@ -394,9 +416,6 @@
         <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
 
-    <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
-        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
-    </bean>
 
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 
@@ -412,8 +431,19 @@
         <constructor-arg index="0" ref="sendAgentStatService"/>
     </bean>
 
+    <bean id="flinkHeaderDataGeneratorDelegator" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkHeaderDataGeneratorDelegator"/>
+    <bean id="flinkTBaseLocator" class="com.navercorp.pinpoint.thrift.io.FlinkTBaseLocator">
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.io.header.v2.HeaderV2.VERSION"/>
+        </constructor-arg>
+        <constructor-arg index="1" ref="flinkHeaderDataGeneratorDelegator"/>
+    </bean>
+    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
+        <constructor-arg index="0" ref="flinkTBaseLocator"/>
+    </bean>
     <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterConnectionManager">
         <constructor-arg index="0" ref="tcpDataSenderRepository"/>
+        <constructor-arg index="1" ref="flinkHeaderTBaseSerializerFactory"/>
     </bean>
 
     <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterService">

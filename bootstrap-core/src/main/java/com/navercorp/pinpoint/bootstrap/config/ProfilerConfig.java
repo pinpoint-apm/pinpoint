@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+
 import java.util.List;
 import java.util.Map;
 
@@ -100,6 +103,8 @@ public interface ProfilerConfig {
 
     String getProfilerJvmVendorName();
 
+    String getProfilerOSName();
+
     int getProfileJvmStatCollectIntervalMs();
 
     int getProfileJvmStatBatchSendCount();
@@ -107,6 +112,10 @@ public interface ProfilerConfig {
     boolean isProfilerJvmStatCollectDetailedMetrics();
 
     long getAgentInfoSendRetryInterval();
+
+    @InterfaceAudience.Private
+    @VisibleForTesting
+    boolean getStaticResourceCleanup();
 
 
     Filter<String> getProfilableClassFilter();
@@ -134,6 +143,8 @@ public interface ProfilerConfig {
     List<String> getHttpStatusCodeErrors();
 
     String getInjectionModuleFactoryClazzName();
+
+    String getApplicationNamespace();
 
     String readString(String propertyName, String defaultValue);
 

@@ -17,23 +17,19 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.Module;
-import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.Collections;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,9 +39,9 @@ public class MockApplicationContextFactory {
     public MockApplicationContextFactory() {
     }
 
-    public MockApplicationContext of(String configPath) {
-        ProfilerConfig profilerConfig = readProfilerConfig(configPath, MockApplicationContext.class.getClassLoader());
-        return of(profilerConfig);
+    public DefaultApplicationContext build(String configPath) {
+        ProfilerConfig profilerConfig = readProfilerConfig(configPath, this.getClass().getClassLoader());
+        return build(profilerConfig);
     }
 
     private ProfilerConfig readProfilerConfig(String configPath, ClassLoader classLoader) {
@@ -72,38 +68,28 @@ public class MockApplicationContextFactory {
         return resource.getPath();
     }
 
-    public MockApplicationContext of(ProfilerConfig config) {
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        binder.bind();
-        return of(config, binder, newModuleFactory());
+    public DefaultApplicationContext build(ProfilerConfig config) {
+        DefaultApplicationContext context = build(config, newModuleFactory());
+        return context;
     }
 
-    public MockApplicationContext of(ProfilerConfig config, InterceptorRegistryBinder binder, ModuleFactory moduleFactory) {
+    public DefaultApplicationContext build(ProfilerConfig config, ModuleFactory moduleFactory) {
         Instrumentation instrumentation = new DummyInstrumentation();
         String mockAgent = "mockAgent";
         String mockApplicationName = "mockApplicationName";
 
-        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
-
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, config, new URL[0],
-                null, serviceTypeRegistryService, annotationKeyRegistryService);
-        return new MockApplicationContext(agentOption, binder, moduleFactory);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, false, config, Collections.<String>emptyList(),
+                null);
+        return new DefaultApplicationContext(agentOption, moduleFactory);
     }
 
 
-    public ModuleFactory newModuleFactory() {
+    private ModuleFactory newModuleFactory() {
+        Module pluginModule = new MockApplicationContextModule();
 
-        ModuleFactory moduleFactory = new ModuleFactory() {
-            @Override
-            public Module newModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-
-                Module module = new ApplicationContextModule(agentOption, interceptorRegistryBinder);
-                Module pluginModule = new MockApplicationContextModule();
-
-                return Modules.override(module).with(pluginModule);
-            }
-        };
+        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
+        Module interceptorRegistryModule = InterceptorRegistryModule.wrap(binder);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(pluginModule, interceptorRegistryModule);
         return moduleFactory;
 
     }

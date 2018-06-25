@@ -151,6 +151,8 @@
                     function updateChart(data, yMax) {
 						if ( yMax ) {
 							oChart.config.options.scales.yAxes[0].ticks.max = yMax;
+						} else {
+							delete oChart.config.options.scales.yAxes[0].ticks.max;
 						}
                     	oChart.data.labels = data.keys;
 						oChart.data.datasets[0].data = data.values;
@@ -181,7 +183,11 @@
                     });
 
                     scope.$on("responseTimeSummaryChartDirective.updateData." + scope.namespace, function (event, data, yMax) {
-						updateChart( parseHistogram(data), yMax );
+                    	if ( scope.namespace === "forServerList" ) {
+							updateChart(parseHistogram(data), yMax);
+						} else {
+							updateChart(parseHistogram(data));
+						}
                     });
 
                 }

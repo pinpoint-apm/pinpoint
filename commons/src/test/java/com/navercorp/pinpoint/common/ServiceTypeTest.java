@@ -16,8 +16,16 @@
 
 package com.navercorp.pinpoint.common;
 
+import java.util.Collections;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
+import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -31,12 +39,16 @@ public class ServiceTypeTest {
     
     @Test
     public void findDesc() {
-        DefaultServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
+        CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
+
+        List<TraceMetadataProvider> providers = Collections.emptyList();
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(providers, loggerFactory);
+        DefaultServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(typeLoaderService, loggerFactory);
         String desc = "UNKNOWN_DB";
         List<ServiceType> serviceTypeList = serviceTypeRegistryService.findDesc(desc);
         boolean find = false;
         for (ServiceType serviceType : serviceTypeList) {
-            if(serviceType.getDesc().equals(desc)) {
+            if (serviceType.getDesc().equals(desc)) {
                 find = true;
             }
         }

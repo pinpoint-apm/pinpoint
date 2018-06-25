@@ -74,7 +74,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                final String[] names = methodNames.toArray(new String[methodNames.size()]);
+                final String[] names = methodNames.toArray(new String[0]);
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(names))) {
                     try {
                         method.addInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor");
@@ -99,7 +99,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
                 @Override
                 public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                     InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                    final String[] names = methodNames.toArray(new String[methodNames.size()]);
+                    final String[] names = methodNames.toArray(new String[0]);
                     for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(names))) {
                         try {
                             method.addInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.MQExternalClientHandlerInterceptor");

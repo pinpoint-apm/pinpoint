@@ -4,21 +4,122 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcInvocation;
 import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.dubbo.DubboConstants;
 
 /**
  * @author Jinkai.Ma
+ * @author Jiaqi Feng
  */
-public class DubboProviderInterceptor extends SpanSimpleAroundInterceptor {
+public class DubboProviderInterceptor implements AroundInterceptor {
+    private static final String SCOPE_NAME = "##DUBBO_PROVIDER_TRACE";
+    protected final PLogger logger;
+    protected final boolean isDebug;
+
+    protected final MethodDescriptor methodDescriptor;
+    protected final TraceContext traceContext;
 
     public DubboProviderInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor, DubboProviderInterceptor.class);
+        this.traceContext = traceContext;
+        this.methodDescriptor = descriptor;
+        this.logger = PLoggerFactory.getLogger(DubboProviderInterceptor.class);
+        this.isDebug = logger.isDebugEnabled();
     }
 
     @Override
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            trace = createTrace(target, args);
+            if (trace == null) {
+                return;
+            }
+
+            try {
+                final SpanRecorder recorder = trace.getSpanRecorder();
+                doInBeforeTrace(recorder, target, args);
+            } catch (Throwable th) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
+                }
+            }
+            return;
+        }
+
+        if(isDebug) {
+            logger.debug("Found trace {}, sampled={}.", trace, trace.canSampled());
+        }
+        // adding scope as flag for not closing the trace created by other interceptor
+        trace.addScope(SCOPE_NAME);
+
+        if (!trace.canSampled()) {
+            return;
+        }
+
+        RpcInvocation invocation = (RpcInvocation) args[0];
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(DubboConstants.DUBBO_PROVIDER_SERVICE_NO_STATISTICS_TYPE);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordAttribute(DubboConstants.DUBBO_RPC_ANNOTATION_KEY,
+                invocation.getInvoker().getInterface().getSimpleName() + ":" + invocation.getMethodName());
+    }
+
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args, result, throwable);
+        }
+
+        final Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        // TODO STATDISABLE this logic was added to disable statistics tracing
+        if (!trace.canSampled()) {
+            if (trace.getScope(SCOPE_NAME) == null) {
+                deleteTrace(trace);
+            }
+            return;
+        }
+
+        try {
+            if (trace.getScope(SCOPE_NAME) == null) {
+                final SpanRecorder recorder = trace.getSpanRecorder();
+                doInAfterTrace(recorder, target, args, result, throwable);
+            } else {
+                trace.traceBlockEnd();
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER. Caused:{}", th.getMessage(), th);
+            }
+        } finally {
+            if (trace.getScope(SCOPE_NAME) == null) {
+                deleteTrace(trace);
+            }
+        }
+    }
+
+    private void deleteTrace(final Trace trace) {
+        if (isDebug) {
+            logger.debug("Delete provider include trace={}, sampled={}", trace, trace.canSampled());
+        }
+        traceContext.removeTraceObject();
+        trace.close();
+    }
+
     protected Trace createTrace(Object target, Object[] args) {
         Invoker invoker = (Invoker) target;
 
@@ -52,8 +153,6 @@ public class DubboProviderInterceptor extends SpanSimpleAroundInterceptor {
         return traceContext.continueTraceObject(traceId);
     }
 
-
-    @Override
     protected void doInBeforeTrace(SpanRecorder recorder, Object target, Object[] args) {
         RpcInvocation invocation = (RpcInvocation) args[0];
         RpcContext rpcContext = RpcContext.getContext();
@@ -81,7 +180,6 @@ public class DubboProviderInterceptor extends SpanSimpleAroundInterceptor {
         }
     }
 
-    @Override
     protected void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         RpcInvocation invocation = (RpcInvocation) args[0];
 

@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
 /**
@@ -45,16 +47,22 @@ public class ThreadLocalRandomUtils {
             return new PinpointThreadLocalRandomFactory();
         } else if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
             try {
-                ClassLoader classLoader = getClassLoader(ThreadLocalRandomUtils.class.getClassLoader());
+                // @Nullable
+                final ClassLoader classLoader = ThreadLocalRandomUtils.class.getClassLoader();
 
                 final Class<? extends ThreadLocalRandomFactory> threadLocalRandomFactoryClass =
                         (Class<? extends ThreadLocalRandomFactory>) Class.forName(DEFAULT_THREAD_LOCAL_RANDOM_FACTORY, true, classLoader);
-                return threadLocalRandomFactoryClass.newInstance();
+                Constructor<? extends ThreadLocalRandomFactory> constructor = threadLocalRandomFactoryClass.getDeclaredConstructor();
+                return constructor.newInstance();
             } catch (ClassNotFoundException e) {
                 logError(e);
             } catch (InstantiationException e) {
                 logError(e);
             } catch (IllegalAccessException e) {
+                logError(e);
+            } catch (NoSuchMethodException e) {
+                logError(e);
+            } catch (InvocationTargetException e) {
                 logError(e);
             }
             return new PinpointThreadLocalRandomFactory();
@@ -64,15 +72,8 @@ public class ThreadLocalRandomUtils {
 
     }
 
-    private static ClassLoader getClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return ClassLoader.getSystemClassLoader();
-        }
-        return classLoader;
-    }
-
     private static void logError(Exception e) {
-        LOGGER.info("JdkThreadLocalRandomFactory not found.");
+        LOGGER.info("JdkThreadLocalRandomFactory not found. Caused by:{}", e.getMessage(), e);
     }
 
     public static Random current() {

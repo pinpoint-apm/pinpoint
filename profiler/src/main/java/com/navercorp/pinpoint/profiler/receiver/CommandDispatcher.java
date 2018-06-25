@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.receiver;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.io.request.EmptyMessage;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
@@ -61,7 +63,8 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
-        final TBase<?, ?> request = SerializationUtils.deserialize(requestPacket.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
+        final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(requestPacket.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, EmptyMessage.INSTANCE);
+        final TBase<?, ?> request = deserialize.getData();
         logger.debug("handleRequest request:{}, remote:{}", request, pinpointSocket.getRemoteAddress());
 
         TBase response;
@@ -84,7 +87,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
         final byte[] payload = SerializationUtils.serialize(response, CommandSerializer.SERIALIZER_FACTORY, null);
         if (payload != null) {
-            pinpointSocket.response(requestPacket, payload);
+            pinpointSocket.response(requestPacket.getRequestId(), payload);
         }
     }
 
@@ -92,7 +95,8 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
         logger.info("MessageReceived handleStreamCreate {} {}", packet, streamChannelContext);
 
-        final TBase<?, ?> request = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
+        final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, EmptyMessage.INSTANCE);
+        final TBase<?, ?> request = deserialize.getData();
         if (request == null) {
             return StreamCode.TYPE_UNKNOWN;
         }

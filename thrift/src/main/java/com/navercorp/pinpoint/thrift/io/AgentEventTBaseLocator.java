@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -29,9 +31,7 @@ public class AgentEventTBaseLocator implements TBaseLocator {
     private static final Header DEADLOCK_HEADER = createHeader(DEADLOCK);
 
     private static Header createHeader(short type) {
-        Header header = new Header();
-        header.setType(type);
-        return header;
+        return new HeaderV1(type);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class AgentEventTBaseLocator implements TBaseLocator {
 
     @Override
     public boolean isSupport(Class<? extends TBase> clazz) {
-        if (clazz.equals(TDeadlock.class)) {
+            if (clazz.equals(TDeadlock.class)) {
             return true;
         }
 

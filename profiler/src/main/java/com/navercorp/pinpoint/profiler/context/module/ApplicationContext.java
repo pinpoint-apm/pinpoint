@@ -16,32 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
-import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface ApplicationContext {
-
-    ProfilerConfig getProfilerConfig();
-
-    TraceContext getTraceContext();
-
-    InstrumentEngine getInstrumentEngine();
-
-
-    DynamicTransformTrigger getDynamicTransformTrigger();
-
-    ClassFileTransformerDispatcher getClassFileTransformerDispatcher();
-
-    AgentInformation getAgentInformation();
-
-
 
     void start();
 

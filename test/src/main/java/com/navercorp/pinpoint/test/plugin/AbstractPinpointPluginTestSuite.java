@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.test.plugin;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -108,9 +106,10 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     }
 
     private String resolveTestClassLocation(Class<?> testClass) {
-        CodeSource codeSource = testClass.getProtectionDomain().getCodeSource();
-        URL testClassLocation = codeSource.getLocation();
-
+        final URL testClassLocation = CodeSourceUtils.getCodeLocation(testClass);
+        if (testClassLocation == null) {
+            throw new IllegalStateException(testClass + " url not found");
+        }
         return toPathString(testClassLocation);
     }
 
@@ -118,14 +117,16 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         List<String> result = new ArrayList<String>();
         
         ClassLoader cl = getClass().getClassLoader();
-        
+
         while (true) {
             if (cl instanceof URLClassLoader) {
-                findRequiredLibraries(result, (URLClassLoader)cl);
+                URLClassLoader ucl = ((URLClassLoader) cl);
+                List<String> requiredLibraries = findRequiredLibraries(ucl.getURLs());
+                result.addAll(requiredLibraries);
             }
-            
+
             cl = cl.getParent();
-            
+
             if (cl == null) {
                 break;
             }
@@ -135,8 +136,10 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     }
 
 
-    private void findRequiredLibraries(List<String> result, URLClassLoader cl) {
-        outer: for (URL url : cl.getURLs()) {
+    private List<String> findRequiredLibraries(URL[] urls) {
+        final List<String> result = new ArrayList<String>();
+        outer:
+        for (URL url : urls) {
             for (String required : REQUIRED_CLASS_PATHS) {
                 if (url.getFile().contains(required)) {
                     result.add(toPathString(url));
@@ -145,14 +148,11 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
                 }
             }
         }
+        return result;
     }
 
     private String toPathString(URL url) {
-        try {
-            return new File(url.toURI()).getAbsolutePath();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("???", e);
-        }
+        return new File(url.getFile()).getAbsolutePath();
     }
 
     private String resolveAgentPath(PinpointAgent agent) {

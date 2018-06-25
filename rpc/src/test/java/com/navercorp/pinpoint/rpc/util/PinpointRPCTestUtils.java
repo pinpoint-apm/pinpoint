@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,14 +25,10 @@ import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +49,12 @@ public final class PinpointRPCTestUtils {
         return createPinpointServerFactory(bindPort, null);
     }
     
-    public static PinpointServerAcceptor createPinpointServerFactory(int bindPort, ServerMessageListener messageListener) {
+    public static PinpointServerAcceptor createPinpointServerFactory(int bindPort, ServerMessageListenerFactory messageListenerFactory) {
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.bind("127.0.0.1", bindPort);
         
-        if (messageListener != null) {
-            serverAcceptor.setMessageListener(messageListener);
+        if (messageListenerFactory != null) {
+            serverAcceptor.setMessageListenerFactory(messageListenerFactory);
         }
 
         return serverAcceptor;
@@ -119,10 +115,6 @@ public final class PinpointRPCTestUtils {
             }
         }
     }
-    
-    public static EchoServerListener createEchoServerListener() {
-        return new EchoServerListener();
-    }
 
     public static EchoClientListener createEchoClientListener() {
         return new EchoClientListener();
@@ -142,36 +134,6 @@ public final class PinpointRPCTestUtils {
         return properties;
     }
 
-    public static class EchoServerListener implements ServerMessageListener {
-        private final List<SendPacket> sendPacketRepository = new ArrayList<SendPacket>();
-        private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
-
-        @Override
-        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-            logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
-            sendPacketRepository.add(sendPacket);
-        }
-
-        @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
-
-            requestPacketRepository.add(requestPacket);
-            pinpointSocket.response(requestPacket, requestPacket.getPayload());
-        }
-
-        @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.debug("handle Handshake {}", properties);
-            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-        }
-
-        @Override
-        public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
-        }
-
-    }
-    
     public static class EchoClientListener implements MessageListener {
         private final List<SendPacket> sendPacketRepository = new ArrayList<SendPacket>();
         private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
@@ -191,7 +153,7 @@ public final class PinpointRPCTestUtils {
             byte[] payload = requestPacket.getPayload();
             logger.debug(new String(payload));
 
-            pinpointSocket.response(requestPacket, payload);
+            pinpointSocket.response(requestPacket.getRequestId(), payload);
         }
 
         public List<SendPacket> getSendPacketRepository() {

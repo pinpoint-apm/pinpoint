@@ -17,23 +17,22 @@
 package com.navercorp.pinpoint.web.vo.callstacks;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
-import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
-import com.navercorp.pinpoint.web.service.DefaultAnnotationKeyMatcherService;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -47,8 +46,10 @@ public class RecordFactoryTest {
                 return null;
             }
         };
-        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
+        CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(Collections.emptyList(), loggerFactory);
+        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(typeLoaderService, loggerFactory);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, loggerFactory);
         return new RecordFactory(annotationKeyMatcherService, serviceTypeRegistryService, annotationKeyRegistryService);
     }
 

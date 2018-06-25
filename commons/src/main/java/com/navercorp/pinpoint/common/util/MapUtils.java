@@ -35,4 +35,15 @@ public final class MapUtils {
     public static boolean hasLength(final Map<?, ?> map) {
         return map != null && !map.isEmpty();
     }
+
+    public static <T> int nullSafeSize(final Map<?, ?> map) {
+        return nullSafeSize(map, 0);
+    }
+
+    public static <T> int nullSafeSize(final Map<?, ?> map, final int nullValue) {
+        if (map == null) {
+            return nullValue;
+        }
+        return map.size();
+    }
 }

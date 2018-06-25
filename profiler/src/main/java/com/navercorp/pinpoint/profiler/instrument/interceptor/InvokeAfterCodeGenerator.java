@@ -56,8 +56,6 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
         //
         // throw e;
 
-        builder.append("try { ");
-
         if (!localVarsInitialized) {
             builder.format("%1$s = %2$s.getInterceptor(%3$d); ", getInterceptorVar(), getInterceptorRegistryClassName(), interceptorId);
         }
@@ -67,8 +65,6 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
             appendArguments(builder);
             builder.format(");");
         }
-
-        builder.format("} catch (java.lang.Throwable _$PINPOINT_EXCEPTION$_) { %1$s.handleException(_$PINPOINT_EXCEPTION$_); }", getInterceptorInvokerHelperClassName());
 
         if (catchClause) {
             builder.append(" throw $e;");

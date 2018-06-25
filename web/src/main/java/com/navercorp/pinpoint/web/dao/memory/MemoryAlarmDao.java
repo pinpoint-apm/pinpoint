@@ -85,7 +85,7 @@ public class MemoryAlarmDao implements AlarmDao {
         
         for (Entry<String, Rule> entry : alarmRule.entrySet()) {
             if (entry.getValue().getApplicationId().equals(applicationId)) {
-                alarmRule.remove(entry.getKey());
+                ruleList.add(entry.getValue());
             }
         }
         

@@ -20,11 +20,9 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -34,40 +32,15 @@ public class DefaultTraceMetadataLoaderService implements TraceMetadataLoaderSer
 
     private final TraceMetadataLoader loader;
 
-    public DefaultTraceMetadataLoaderService() {
-        this(ClassLoaderUtils.getDefaultClassLoader(), StdoutCommonLoggerFactory.INSTANCE);
-    }
-
-    public DefaultTraceMetadataLoaderService(CommonLoggerFactory commonLoggerFactory) {
-        this(ClassLoaderUtils.getDefaultClassLoader(), commonLoggerFactory);
-    }
-
-    public DefaultTraceMetadataLoaderService(URL[] jarLists, CommonLoggerFactory commonLoggerFactory) {
-        if (jarLists == null) {
-            throw new NullPointerException("jarLists must not be null");
-        }
-        this.loader = new TraceMetadataLoader(commonLoggerFactory);
-        loader.load(jarLists);
-
-    }
-
     public DefaultTraceMetadataLoaderService(List<TraceMetadataProvider> providers, CommonLoggerFactory commonLoggerFactory) {
-        if (providers == null) {
-            throw new NullPointerException("providers must not be null");
-        }
-        this.loader = new TraceMetadataLoader();
+        Assert.requireNonNull(commonLoggerFactory, "commonLoggerFactory must not be null");
+        this.loader = new TraceMetadataLoader(commonLoggerFactory);
+
+        Assert.requireNonNull(providers, "providers must not be null");
         loader.load(providers);
 
     }
 
-
-    public DefaultTraceMetadataLoaderService(ClassLoader classLoader, CommonLoggerFactory commonLoggerFactory) {
-        if (classLoader == null) {
-            throw new NullPointerException("classLoader must not be null");
-        }
-        this.loader = new TraceMetadataLoader(commonLoggerFactory);
-        loader.load(classLoader);
-    }
 
     @Override
     public List<ServiceTypeInfo> getServiceTypeInfos() {

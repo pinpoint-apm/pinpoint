@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.mapper.thrift.event.AgentEventMapper;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.apache.thrift.TBase;
@@ -49,7 +50,16 @@ public class AgentEventHandler implements SimpleHandler {
     private AgentEventService agentEventService;
 
     @Override
-    public void handleSimple(TBase<?, ?> tBase) {
+    public void handleSimple(ServerRequest serverRequest) {
+        final Object data = serverRequest.getData();
+        if (data instanceof TBase<?, ?>) {
+            handleSimple((TBase<?, ?>) data);
+        } else {
+            throw new UnsupportedOperationException("data is not support type : " + data);
+        }
+    }
+
+    private void handleSimple(TBase<?, ?> tBase) {
         // FIXME (2014.08) Legacy - TAgentStat should not be sent over the wire.
         if (tBase instanceof TAgentStat) {
             TAgentStat tAgentStat = (TAgentStat)tBase;

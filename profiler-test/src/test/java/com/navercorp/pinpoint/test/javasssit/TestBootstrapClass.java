@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -44,9 +43,10 @@ public class TestBootstrapClass {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void test() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, CannotCompileException {
+    public void test() throws IOException, CannotCompileException {
 
-        URLClassLoader classLoader = new URLClassLoader(new URL[]{});
+        TestClassLoader classLoader = new TestClassLoader(new URL[]{}, null);
+
         LoaderClassPath loaderClassPath = new LoaderClassPath(classLoader);
 
         ClassPool cp = new ClassPool();
@@ -56,10 +56,21 @@ public class TestBootstrapClass {
         byte[] bytes = ctClass.toBytecode();
 
         logger.debug(classLoader.getClass().getName());
-        Class<?> aClass = BytecodeUtils.defineClass(classLoader, TEST_CLASS_NAME, bytes);
+        Class<?> aClass = classLoader.defineClass(TEST_CLASS_NAME, bytes);
 
         logger.debug("{}", aClass.getName());
 
+    }
+
+    private class TestClassLoader extends URLClassLoader {
+        public TestClassLoader(URL[] urls, ClassLoader parent) {
+            super(urls, parent);
+        }
+
+
+        final Class<?> defineClass(String name, byte[] b) throws ClassFormatError {
+            return super.defineClass(name, b, 0, b.length);
+        }
     }
 
 

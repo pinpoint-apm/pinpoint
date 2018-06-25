@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat;
 
+
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -30,6 +33,8 @@ import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
+import com.navercorp.pinpoint.web.dao.stat.DirectBufferDao;
+import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
@@ -242,4 +247,51 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
         }
     }
 
+    @Repository("fileDescriptorDaoFactory")
+    public static class FileDescriptorDaoFactory extends AgentStatDaoFactory<FileDescriptorBo, FileDescriptorDao> implements FactoryBean<FileDescriptorDao> {
+
+        @Autowired
+        public void setV2(@Qualifier("fileDescriptorDaoV2") FileDescriptorDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public FileDescriptorDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return FileDescriptorDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+    }
+
+    @Repository("directBufferDaoFactory")
+    public static class DirectBufferDaoFactory extends AgentStatDaoFactory<DirectBufferBo, DirectBufferDao> implements FactoryBean<DirectBufferDao> {
+
+        @Autowired
+        public void setV2(@Qualifier("directBufferDaoV2") DirectBufferDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public DirectBufferDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return DirectBufferDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+    }
 }

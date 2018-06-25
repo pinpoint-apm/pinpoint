@@ -19,17 +19,16 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import com.google.inject.util.Modules;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
+import com.navercorp.pinpoint.profiler.context.module.OverrideModuleFactory;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 
@@ -38,39 +37,16 @@ import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
  */
 public class MockTraceContextFactory {
 
-    public static MockApplicationContext newMockApplicationContext(ProfilerConfig profilerConfig) {
-        ModuleFactory moduleFactory = new ModuleFactory() {
-            @Override
-            public Module newModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-                Module module = new ApplicationContextModule(agentOption, interceptorRegistryBinder);
+    public static DefaultApplicationContext newMockApplicationContext(ProfilerConfig profilerConfig) {
 
-                LoggingModule loggingModule = new LoggingModule();
-                return Modules.override(module).with(loggingModule);
-            }
-        };
+        Module loggingModule = new LoggingModule();
+
+        InterceptorRegistryBinder interceptorRegistryBinder = new EmptyInterceptorRegistryBinder();
+        Module interceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(loggingModule, interceptorRegistryModule);
+
         MockApplicationContextFactory factory = new MockApplicationContextFactory();
-        InterceptorRegistryBinder binder = new InterceptorRegistryBinder() {
-            @Override
-            public void bind() {
-
-            }
-
-            @Override
-            public void unbind() {
-
-            }
-
-            @Override
-            public InterceptorRegistryAdaptor getInterceptorRegistryAdaptor() {
-                return null;
-            }
-
-            @Override
-            public String getInterceptorRegistryClassName() {
-                return null;
-            }
-        };
-        return factory.of(profilerConfig, binder, moduleFactory);
+        return factory.build(profilerConfig, moduleFactory);
     }
 
     public static class LoggingModule extends AbstractModule {
@@ -81,4 +57,26 @@ public class MockTraceContextFactory {
             bind(EnhancedDataSender.class).toInstance(new LoggingDataSender());
         }
     }
+
+    private static class EmptyInterceptorRegistryBinder implements InterceptorRegistryBinder {
+        @Override
+        public void bind() {
+
+        }
+
+        @Override
+        public void unbind() {
+
+        }
+
+        @Override
+        public InterceptorRegistryAdaptor getInterceptorRegistryAdaptor() {
+            return null;
+        }
+
+        @Override
+        public String getInterceptorRegistryClassName() {
+            return null;
+        }
+    };
 }

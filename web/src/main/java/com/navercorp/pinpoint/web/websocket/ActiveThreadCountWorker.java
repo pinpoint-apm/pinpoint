@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.io.request.EmptyMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
@@ -38,6 +39,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -76,13 +79,12 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     }
 
     public ActiveThreadCountWorker(AgentService agentService, String applicationName, String agentId, PinpointWebSocketResponseAggregator webSocketResponseAggregator, WorkerActiveManager workerActiveManager) {
-        this.agentService = agentService;
+        this.agentService = Objects.requireNonNull(agentService, "agentService must not be null");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentId = Objects.requireNonNull(agentId, "agentId must not be null");
 
-        this.applicationName = applicationName;
-        this.agentId = agentId;
-
-        this.responseAggregator = webSocketResponseAggregator;
-        this.workerActiveManager = workerActiveManager;
+        this.responseAggregator = Objects.requireNonNull(webSocketResponseAggregator, "responseAggregator must not be null");
+        this.workerActiveManager = Objects.requireNonNull(workerActiveManager, "workerActiveManager must not be null");
 
         AgentActiveThreadCountFactory failResponseFactory = new AgentActiveThreadCountFactory();
         failResponseFactory.setAgentId(agentId);
@@ -211,7 +213,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
             LOGGING.handleStreamData(streamChannelContext, packet);
 
-            TBase response = agentService.deserializeResponse(packet.getPayload(), null);
+            TBase response = agentService.deserializeResponse(packet.getPayload(), EmptyMessage.emptyMessage());
             AgentActiveThreadCount activeThreadCount = getAgentActiveThreadCount(response);
             responseAggregator.response(activeThreadCount);
         }
@@ -225,7 +227,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         private AgentActiveThreadCount getAgentActiveThreadCount(TBase routeResponse) {
             if (routeResponse instanceof TCommandTransferResponse) {
                 byte[] payload = ((TCommandTransferResponse) routeResponse).getPayload();
-                TBase<?, ?> activeThreadCountResponse = agentService.deserializeResponse(payload, null);
+                TBase<?, ?> activeThreadCountResponse = agentService.deserializeResponse(payload, EmptyMessage.emptyMessage());
 
                 AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
                 factory.setAgentId(agentId);

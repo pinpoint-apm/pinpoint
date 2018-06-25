@@ -17,8 +17,13 @@
 package com.navercorp.pinpoint.thrift.io;
 
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import com.navercorp.pinpoint.io.header.ByteArrayHeaderWriter;
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderWriter;
+import com.navercorp.pinpoint.io.header.InvalidHeaderException;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -57,16 +62,26 @@ public class HeaderTBaseSerializer {
      * @return Serialized object in byte[] format
      */
     public byte[] serialize(TBase<?, ?> base) throws TException {
-        final Header header = locator.headerLookup(base);
         baos.reset();
-        writeHeader(header);
+
+        writeHeader(base);
         base.write(protocol);
         return baos.toByteArray();
     }
-    
+
+    public void writeHeader(TBase<?, ?> base) {
+        try {
+            final Header header = locator.headerLookup(base);
+            HeaderWriter headerWriter = new ByteArrayHeaderWriter(header);
+            byte[] headerBytes = headerWriter.writeHeader();
+            baos.write(headerBytes);
+        } catch (Exception e) {
+            throw new InvalidHeaderException("can not write header.", e);
+        }
+    }
+
     public byte[] continueSerialize(TBase<?, ?> base) throws TException {
-        final Header header = locator.headerLookup(base);
-        writeHeader(header);
+        writeHeader(base);
         base.write(protocol);
         return baos.toByteArray();
     }
@@ -83,14 +98,6 @@ public class HeaderTBaseSerializer {
         return baos.size();
     }
 
-    private void writeHeader(Header header) throws TException {
-        protocol.writeByte(header.getSignature());
-        protocol.writeByte(header.getVersion());
-        // fixed size regardless protocol
-        short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
-    }
 
     /**
      * Serialize the Thrift object into a Java string, using the UTF8
