@@ -36,10 +36,12 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.springframework.stereotype.Service;
 
 /**
  * @author minwoo.jung
  */
+@Service
 public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListener {
     
     @Autowired

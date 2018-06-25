@@ -49,18 +49,18 @@ public class TransactionInfoViewModel {
     private String logButtonName;
     private String logPageUrl;
     private String disableButtonMessage;
+    private String logEsIndexPrefix;
 
-    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
+    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage, String logEsIndexPrefix) {
         this.transactionId = transactionId;
         this.nodes = nodes;
         this.links = links;
-        this.recordSet = recordSet;
-        this.completeState = completeState;
-        this.logLinkEnable = logLinkEnable;
         this.logButtonName = logButtonName;
         this.logPageUrl = logPageUrl;
         this.disableButtonMessage = disableButtonMessage;
+        this.logEsIndexPrefix = logEsIndexPrefix;
     }
+
 
     @JsonProperty("applicationName")
     public String getApplicationName() {
@@ -104,7 +104,8 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("loggingTransactionInfo")
     public boolean isLoggingTransactionInfo() {
-        return recordSet.isLoggingTransactionInfo();
+//        return recordSet.isLoggingTransactionInfo();
+        return true;
     }
 
     @JsonProperty("logButtonName")
@@ -116,8 +117,10 @@ public class TransactionInfoViewModel {
     public String getLogPageUrl() {
         if (StringUtils.isNotEmpty(logPageUrl)) {
             StringBuilder sb = new StringBuilder();
-            sb.append("transactionId=").append(getTransactionId());
+            sb.append("agentId=").append(getAgentId());
+            sb.append("&transactionId=").append(getTransactionId());
             sb.append("&time=").append(recordSet.getStartTime());
+            sb.append("&logEsIndexPrefix=").append(logEsIndexPrefix);
             return logPageUrl + "?" + sb.toString();
         }
 

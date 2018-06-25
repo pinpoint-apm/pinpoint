@@ -25,14 +25,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.service.AlarmService;
+import org.springframework.stereotype.Service;
 
 /**
  * @author minwoo.jung
  */
+@Service
 public class AlarmWriter implements ItemWriter<AlarmChecker> {
 
-    @Autowired(required = false)
-    private AlarmMessageSender alarmMessageSender = new EmptyMessageSender();
+    @Autowired
+    private AlarmMessageSender alarmMessageSender;
 
     @Autowired
     private AlarmService alarmService;

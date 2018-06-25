@@ -15,15 +15,18 @@
                                          com.navercorp.pinpoint.web.filter,
                                          com.navercorp.pinpoint.web.config,
                                          com.navercorp.pinpoint.web.view,
+                                         com.navercorp.pinpoint.web.alarm,
                                          com.navercorp.pinpoint.web.applicationmap,
                                          com.navercorp.pinpoint.common.server.bo,
-                                         com.navercorp.pinpoint.common.server.util" />
+                                         com.navercorp.pinpoint.common.server.util,
+                                         com.navercorp.pinpoint.web.dao.elasticsearch" />
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
                 <value>classpath:jdbc.properties</value>
+                <value>classpath:es.properties</value>
             </list>
         </property>
     </bean>
@@ -39,6 +42,9 @@
     <import resource="classpath:applicationContext-cache.xml" />
     <import resource="classpath:applicationContext-websocket.xml" />
     <import resource="classpath:applicationContext-web-namespace.xml"/>
+    <!-- import init elastic setting -->
+    <import resource="classpath:applicationContext-es.xml" />
+
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
     </bean>
