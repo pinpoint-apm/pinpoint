@@ -17,14 +17,16 @@
 package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.ReceiverAttributeKey;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.io.request.AttributeMap;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Objects;
 
@@ -90,6 +93,8 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
                     return;
                 }
                 ServerRequest<TBase<?, ?>> request = new DefaultServerRequest<>(message);
+                setAttribute(request, socketAddress);
+
                 // dispatch signifies business logic execution
                 dispatchHandler.dispatchSendMessage(request);
             } catch (TException e) {
@@ -121,6 +126,12 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
                 return true;
             }
             return false;
+        }
+    }
+
+    private void setAttribute(AttributeMap attributeMap, SocketAddress socketAddress) {
+        if (socketAddress instanceof InetSocketAddress) {
+            attributeMap.setAttribute(ReceiverAttributeKey.REMOTE_ADDRESS, (InetSocketAddress) socketAddress);
         }
     }
 

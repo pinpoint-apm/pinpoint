@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.io.request;
+package com.navercorp.pinpoint.collector.receiver;
+
+import com.navercorp.pinpoint.io.request.AttributeKey;
+import com.navercorp.pinpoint.io.request.DefaultAttributeKey;
+
+import java.net.InetSocketAddress;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * @author Taejin Koo
  */
-public interface AttributeMap {
+public class ReceiverAttributeKey {
 
-    <V> void setAttribute(AttributeKey<V> key, V value);
-
-    // if value not exists, then get key's defaultValue
-    <V> V getAttribute(AttributeKey<V> key);
-
-    <V> V getAttribute(AttributeKey<V> key, V defaultValue);
+    public static final AttributeKey<InetSocketAddress> REMOTE_ADDRESS = new DefaultAttributeKey<>("REMOTE_ADDRESS", null);
 
 }

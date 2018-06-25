@@ -17,23 +17,30 @@
 package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.ReceiverAttributeKey;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.io.request.AttributeMap;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.thrift.io.*;
-
+import com.navercorp.pinpoint.thrift.io.ChunkHeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.ChunkHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 
 /**
  * Chunked UDP packet receiver
- * 
+ *
  * @author jaehong.kim
  */
 public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T> {
@@ -80,6 +87,8 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
                         return;
                     }
                     ServerRequest<TBase<?, ?>> request = new DefaultServerRequest<>(message);
+                    setAttribute(request, localSocket.getRemoteSocketAddress());
+
                     // dispatch signifies business logic execution
                     dispatchHandler.dispatchSendMessage(request);
                 }
@@ -98,6 +107,12 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
                 }
             }
+        }
+    }
+
+    private void setAttribute(AttributeMap attributeMap, SocketAddress socketAddress) {
+        if (socketAddress instanceof InetSocketAddress) {
+            attributeMap.setAttribute(ReceiverAttributeKey.REMOTE_ADDRESS, (InetSocketAddress) socketAddress);
         }
     }
 

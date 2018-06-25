@@ -16,16 +16,29 @@
 
 package com.navercorp.pinpoint.io.request;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 /**
- * @author Woonduk Kang(emeroad)
+ * @author Taejin Koo
  */
-public interface AttributeMap {
+public class DefaultAttributeKey<V> implements AttributeKey<V> {
 
-    <V> void setAttribute(AttributeKey<V> key, V value);
+    private final String name;
+    private final V defaultValue;
 
-    // if value not exists, then get key's defaultValue
-    <V> V getAttribute(AttributeKey<V> key);
+    public DefaultAttributeKey(String name, V defaultValue) {
+        this.name = Assert.requireNonNull(name, "name must not be null");
+        this.defaultValue = defaultValue;
+    }
 
-    <V> V getAttribute(AttributeKey<V> key, V defaultValue);
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public V getDefaultValue() {
+        return defaultValue;
+    }
 
 }

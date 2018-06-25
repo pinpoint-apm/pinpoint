@@ -17,15 +17,12 @@
 package com.navercorp.pinpoint.io.request;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * @author Taejin Koo
  */
-public interface AttributeMap {
+public interface AttributeKey<V> {
 
-    <V> void setAttribute(AttributeKey<V> key, V value);
+    String getName();
 
-    // if value not exists, then get key's defaultValue
-    <V> V getAttribute(AttributeKey<V> key);
-
-    <V> V getAttribute(AttributeKey<V> key, V defaultValue);
+    V getDefaultValue();
 
 }
