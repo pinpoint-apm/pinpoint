@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
-import com.navercorp.pinpoint.profiler.instrument.classloading.LegacyProfilerPluginClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
@@ -36,13 +35,6 @@ import java.lang.instrument.ClassFileTransformer;
  * @author Woonduk Kang(emeroad)
  */
 public class DebugTransformerRegistry implements TransformerRegistry {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    // TODO remove next release
-    private static final String DEBUG_INJECTOR_TYPE = "profiler.debug.injector.type";
-    private static final String LEGACY = "legacy";
-    private static final String DEBUG = "debug";
 
     private final Filter<String> debugTargetFilter;
     private final DebugTransformer debugTransformer;
@@ -63,25 +55,12 @@ public class DebugTransformerRegistry implements TransformerRegistry {
 
     private DebugTransformer newDebugTransformer(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
 
-        ClassInjector classInjector = newClassInjector(profilerConfig);
+        ClassInjector classInjector = new DebugTransformerClassInjector();
 
         ClassFileTransformerLoader transformerRegistry = new ClassFileTransformerLoader(profilerConfig, dynamicTransformTrigger);
         InstrumentContext debugContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, transformerRegistry);
 
         return new DebugTransformer(instrumentEngine, debugContext);
-    }
-
-    private ClassInjector newClassInjector(ProfilerConfig profilerConfig) {
-        // TODO remove next release
-        //  bug workaround for DebugTransformerClassInjector
-        final String debugInjectorType = profilerConfig.readString(DEBUG_INJECTOR_TYPE, DEBUG);
-        logger.info("{}:{}", DEBUG_INJECTOR_TYPE, debugInjectorType);
-        if (LEGACY.equals(debugInjectorType)) {
-            return new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
-        }
-        logger.info("newDebugTransformerClassInjector()");
-        return new DebugTransformerClassInjector();
-
     }
 
     @Override

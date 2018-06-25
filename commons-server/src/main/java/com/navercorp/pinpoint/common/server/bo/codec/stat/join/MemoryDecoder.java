@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import org.springframework.stereotype.Component;
 

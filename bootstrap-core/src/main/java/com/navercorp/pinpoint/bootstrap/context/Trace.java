@@ -28,11 +28,22 @@ public interface Trace extends StackOperation {
     // ----------------------------------------------
     // activeTrace related api
     // TODO extract interface???
+    @InterfaceAudience.Private
     long getId();
 
+    @InterfaceAudience.Private
     long getStartTime();
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link #getThreadId()}
+     * This API will be removed in 1.8.0
+     */
+    @Deprecated
+    @InterfaceAudience.Private
     Thread getBindThread();
+
+    @InterfaceAudience.Private
+    long getThreadId();
 
     //------------------------------------------------
 
@@ -54,7 +65,9 @@ public interface Trace extends StackOperation {
     SpanRecorder getSpanRecorder();
     
     SpanEventRecorder currentSpanEventRecorder();
-    
+
+    boolean isClosed();
+
     void close();
 
     TraceScope getScope(String name);

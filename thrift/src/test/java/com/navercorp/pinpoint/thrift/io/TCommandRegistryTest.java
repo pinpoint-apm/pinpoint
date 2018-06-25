@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
@@ -93,6 +94,20 @@ public class TCommandRegistryTest {
 
         isSupport = registry.isSupport(TCommandTransferResponse.class);
         Assert.assertFalse(isSupport);
+    }
+
+//    @Test
+    public void isSupportTest_Inheritance() throws TException {
+        TCommandRegistry registry = new TCommandRegistry(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
+
+        boolean isSupport = registry.isSupport(TResultEx.class);
+        Assert.assertTrue(isSupport);
+
+        isSupport = registry.isSupport(TCommandTransferResponse.class);
+        Assert.assertFalse(isSupport);
+    }
+
+    class TResultEx extends TResult {
     }
 
 }

@@ -27,11 +27,13 @@ import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.vo.UserGroup;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author minwoo.jung
  */
 @Service
+@Transactional(rollbackFor = {Exception.class})
 public class AlarmServiceImpl implements AlarmService {
 
     @Autowired
@@ -49,11 +51,13 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rule> selectRuleByUserGroupId(String userGroupId) {
         return alarmDao.selectRuleByUserGroupId(userGroupId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rule> selectRuleByApplicationId(String applicationId) {
         return alarmDao.selectRuleByApplicationId(applicationId);
     }
@@ -64,6 +68,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId) {
         Map<String, CheckerResult> checkerResults = new HashMap<>();
         List<CheckerResult> CheckerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);

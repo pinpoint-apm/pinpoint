@@ -21,6 +21,7 @@
 			this._nCalleeRange = UserConfigService.getCallee();
 	        this._nCallerRange = UserConfigService.getCaller();
 	        this._bBidirectional = UserConfigService.getBidirectional();
+	        this._bWasOnly = UserConfigService.getWasOnly();
 	        
 	        this._sHint = false;
 
@@ -74,6 +75,9 @@
 	        this.getBidirectional = function() {
 	        	return self._bBidirectional;
 			};
+	        this.getWasOnly = function() {
+	        	return self._bWasOnly;
+			};
 			this.setCalleeRange = function( calleeRange ) {
 				self._nCalleeRange = calleeRange;
 			};
@@ -82,7 +86,10 @@
 	        };
 	        this.setBidirectional = function( bidirectional ) {
 	        	self._bBidirectional = bidirectional;
-			}
+			};
+	        this.setWasOnly = function( wasOnly ) {
+	        	self._bWasOnly = wasOnly;
+			};
 	        this.setQueryStartTime = function (queryStartTime) {
 	            if (angular.isNumber(queryStartTime) && queryStartTime > 0) {
 	                self._nQueryStartTime = queryStartTime;

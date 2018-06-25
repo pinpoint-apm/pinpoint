@@ -58,11 +58,7 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     @Override
     public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
 
-        // TODO fix classLoader null case
-//        if (classLoader== null) {
-//            boot? ext? system?
-//            classLoader = ClassLoader.getSystemClassLoader();
-//        }
+
         final TransformerKey transformKey = createTransformKey(classLoader, targetClassName);
         add(transformKey, transformer);
 

@@ -79,7 +79,7 @@ public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterc
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
+            logger.afterInterceptor(target, args, result, throwable);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -114,5 +114,4 @@ public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterc
         }
         return invocation.getAttachment();
     }
-
 }

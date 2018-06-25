@@ -3,8 +3,8 @@
 		ID: "AGENT_INFO_DRTV_"
 	});
 
-	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
-		function ( cfg, $sce, $timeout, SystemConfigService, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
+	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "ResponseTimeChartDaoService", "ActiveThreadChartDaoService", "TPSChartDaoService", "CPULoadChartDaoService", "MemoryChartDaoService", "OpenFileDescriptorDaoService", "DirectBufferDaoService","AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
+		function ( cfg, $sce, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, ResponseTimeChartDaoService, ActiveThreadChartDaoService, TPSChartDaoService, CPULoadChartDaoService, MemoryChartDaoService, OpenFileDescriptorDaoService, DirectBufferDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
@@ -12,123 +12,102 @@
 				link: function postLink(scope, element, attrs) {
 					cfg.ID += CommonUtilService.getRandomNum();
 					scope.agent = {};
-					scope.hasAgentData = false;
 					scope.showEventInfo = false;
 					scope.showDetail = false;
 					scope.selectTime = -1;
 					scope.selectedDSIndex = 0;
-					scope.enableDataSourceChart = SystemConfigService.get("showInspectorDataSource") === true;
 					var timeSlider = null, bInitTooltip = false;
 					var oAlertService = new AlertsService();
-					var oProgressBarService = new ProgressBarService();
-
 
 					function initTime( time ) {
 						scope.targetPicker = moment( time ).format( "YYYY-MM-DD HH:mm:ss" );
 					}
-					function initTimeSlider( aSelectionFromTo, aFromTo ) {
+					function initTimeSlider( aSelectionFromTo, aFromTo, selectedTime ) {
 						if ( timeSlider !== null ) {
-							timeSlider.resetTimeSeriesAndSelectionZone( aSelectionFromTo, aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ) );
+							timeSlider.resetTimeSeriesAndSelectionZone( aSelectionFromTo, aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ), selectedTime );
+							getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 						} else {
-							timeSlider = new TimeSlider( "timeSlider-for-agent-info", {
+							timeSlider = new TimeSlider("timeSlider-for-agent-info", {
 								"width": $("#timeSlider-for-agent-info").get(0).getBoundingClientRect().width,
 								"height": 90,
 								"handleSrc": "images/handle.png",
-								"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ),
+								"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries(aSelectionFromTo),
 								"handleTimeSeries": aSelectionFromTo,
 								"selectTime": aSelectionFromTo[1],
 								"timelineData": {}
-							}).addEvent("clickEvent", function( aEvent ) {// [x, y, obj]
+							}).addEvent("clickEvent", function (aEvent) {// [x, y, obj]
 								loadEventInfo(aEvent[2]);
-							}).addEvent("selectTime", function( time ) {
+							}).addEvent("selectTime", function (time) {
 								scope.selectTime = time;
-								loadAgentInfo( time );
-								initTime( time );
-							}).addEvent("changeSelectionZone", function( aTime ) {
-								loadChartData( scope.agent.agentId, aTime, getPeriod(aTime[0], aTime[1] ), function() {});
-							}).addEvent("changeSliderTimeSeries", function( aEvents ) {});
+								loadAgentInfo(time);
+								initTime(time);
+								sendUpTimeSliderTimeInfo(timeSlider.getSliderTimeSeries(), timeSlider.getSelectionTimeSeries(), time);
+							}).addEvent("changeSelectionZone", function (aTime) {
+								loadChartData(scope.agent.agentId, aTime, getPeriod(aTime[0], aTime[1]), function () {
+								});
+								sendUpTimeSliderTimeInfo(timeSlider.getSliderTimeSeries(), aTime, timeSlider.getSelectTime());
+							}).addEvent("changeSliderTimeSeries", function (aEvents) {
+							});
+							getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 						}
+					}
+					function sendUpTimeSliderTimeInfo( sliderTimeSeries, sliderSelectionTimeSeries, sliderSelectedTime ) {
+						scope.$emit("up.changed.timeSliderOption", sliderTimeSeries, sliderSelectionTimeSeries, sliderSelectedTime );
 					}
 					function getPeriod( from, to ) {
 						return (to - from) / 1000 / 60;
 					}
-					function loadChartData( agentId, aFromTo, period, callback ) {
-						var hasError = false;
-						var responseCount = 0;
+					function loadChartData( agentId, aFromTo, period) {//, callback ) {
 						var oParam = {
 							"agentId": agentId,
 							"from": aFromTo[0],
 							"to": aFromTo[1],
 							"sampleRate": AgentDaoService.getSampleRate( period )
 						};
-						oProgressBarService.startLoading();
-						oProgressBarService.setLoading(20);
 
+						// showLoading();
 						AgentAjaxService.getJVMChartData( oParam, function (result) {
-							if ( checkResponse( result ) ) {
-								if (angular.isDefined(result.type) && result.type) {
-									scope.agent['jvmGcType'] = result.type;
-								}
-								showJvmChart(result);
+							if ( angular.isDefined(result.type) ) {
+								scope.agent["jvmGcType"] = result.type;
 							}
+							showJvmChart(result);
 						});
 						AgentAjaxService.getCpuLoadChartData( oParam, function (result) {
-							if ( checkResponse( result ) ) {
-								showCpuLoadChart(result);
-							}
+							showCpuLoadChart(result);
 						});
 						AgentAjaxService.getTPSChartData( oParam, function (result) {
-							if ( checkResponse( result ) ) {
-								showTpsChart(result);
-							}
+							showTpsChart(result);
 						});
 						AgentAjaxService.getActiveTraceChartData( oParam, function (result) {
-							if ( checkResponse( result ) ) {
-								showActiveTraceChart(result);
-							}
+							showActiveTraceChart(result);
 						});
 						AgentAjaxService.getResponseTimeChartData( oParam, function (result) {
-							if ( checkResponse( result ) ) {
-								showResponseTimeChart(result);
-							}
+							showResponseTimeChart(result);
 						});
 						AgentAjaxService.getDataSourceChartData( oParam, function (result) {
-							if ( checkResponse( result ) ) {
-								dataSourceChartData = result;
-								showDataSourceChart();
-							}
+							dataSourceChartData = result;
+							showDataSourceChart();
 						});
-						function checkResponse( result ) {
-							responseCount++;
-							oProgressBarService.setLoading(20 + (responseCount * 16) );
-							if ( responseCount >= 6 ) {
-								oProgressBarService.stopLoading();
-								if ( hasError ) {
-									oAlertService.showError('There is some error.');
-								}
-								callback();
-							}
-							if ( result.errorCode || result.status ) {
-								hasError = true;
-								return false;
-							}
-							return true;
-						}
+						AgentAjaxService.getOpenFileDescriptorChartData( oParam, function (result) {
+							showOpenFileDescriptorChart(result);
+						});
+						AgentAjaxService.getDirectBufferChartData( oParam, function (result) {
+							var refinedChartData = DirectBufferDaoService.parseData( result );
+							showDirectBufferCountChart(refinedChartData);
+							showDirectBufferMemoryChart(refinedChartData);
+							showMappedBufferCountChart(refinedChartData);
+							showMappedBufferMemoryChart(refinedChartData);
+						});
 					}
 					function loadAgentInfo( time ) {
-						oProgressBarService.startLoading();
-						oProgressBarService.setLoading(40);
 						AgentAjaxService.getAgentInfo({
 							"agentId": scope.agent.agentId,
 							"timestamp": time
 						}, function( result ) {
 							var jvmGcType = scope.agent.jvmGcType;
-							oProgressBarService.setLoading(80);
 							scope.agent = result;
 							scope.agent.jvmGcType = jvmGcType;
 							scope.currentServiceInfo = initServiceInfo(result);
-							oProgressBarService.setLoading(100);
-							oProgressBarService.stopLoading();
 						});
 					}
 					function loadEventInfo( oEvent ) {
@@ -162,13 +141,9 @@
 					}
 					function initTooltip() {
 						if ( bInitTooltip === false ) {
-							TooltipService.init( "heap" );
-							TooltipService.init( "permGen" );
-							TooltipService.init( "cpuUsage" );
-							TooltipService.init( "tps" );
-							TooltipService.init( "activeThread" );
-							TooltipService.init( "responseTime" );
-							TooltipService.init( "dataSource" );
+							["heap", "permGen", "cpuUsage", "tps", "activeThread", "responseTime", "dataSource", "openFileDescriptor", "directBufferCount", "directBufferMemory", "mappedBufferCount", "mappedBufferMemory"].forEach(function(value) {
+								TooltipService.init( value );
+							});
 							bInitTooltip = true;
 						}
 					}
@@ -182,56 +157,121 @@
 							}
 						}
 					}
+					// function showLoading() {
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-heap");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-non-heap");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-cpu-load");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-tps");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-active-thread");
+					// 	scope.$broadcast("agentInspectorChartDirective.showLoading.agent-response-time");
+					// 	scope.$broadcast("dsChartDirective.showLoading.agent-data-source");
+					// }
 					function showJvmChart( chartData ) {
-						var heap = {
-							id: 'heap',
-							title: 'Heap Usage',
-							line: [
-								{ id: 'JVM_MEMORY_HEAP_USED', key: 'Used', isFgc: false },
-								{ id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', isFgc: false },
-								{ id: 'fgc', key: 'FGC', isFgc: true }
-							]
-						};
-						var nonheap = {
-							id: 'nonheap',
-							title: 'PermGen Usage',
-							line: [
-								{ id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', isFgc: false },
-								{ id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', isFgc: false },
-								{ id: 'fgc', key: 'FGC', isFgc: true }
-							]
-						};
-						scope.memoryGroup = [ heap, nonheap ];
+						var refinedChartData = MemoryChartDaoService.parseHeapData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-heap",
+							refinedChartData,
+							MemoryChartDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
 
-						scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forHeap", AgentDaoService.parseMemoryChartDataForAmcharts(heap, chartData), '100%', '270px');
-						scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forNonHeap", AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, chartData), '100%', '270px');
+						var refinedChartData2 = MemoryChartDaoService.parseNonHeapData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-non-heap",
+							refinedChartData2,
+							MemoryChartDaoService.getChartOptions( refinedChartData2 ),
+							"100%",
+							"270px"
+						);
 
 					}
 					function showCpuLoadChart( chartData ) {
-						var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', isAvailable: false};
-						scope.cpuLoadChart = cpuLoad;
-
-						scope.$broadcast( "cpuLoadChartDirective.initAndRenderWithData.forCpuLoad", AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, chartData), '100%', '270px');
+						var refinedChartData = CPULoadChartDaoService.parseData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-cpu-load",
+							refinedChartData,
+							CPULoadChartDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
 					}
 					function showTpsChart( chartData ) {
-						var tps = { id: 'tps', title: 'Transactions Per Second', isAvailable: false };
-						scope.tpsChart = tps;
-
-						scope.$broadcast( "tpsChartDirective.initAndRenderWithData.forTps", AgentDaoService.parseTpsChartDataForAmcharts(tps, chartData), '100%', '270px');
+						var refinedChartData = TPSChartDaoService.parseData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-tps",
+							refinedChartData,
+							TPSChartDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
 					}
 					function showActiveTraceChart( chartData ) {
-						var activeTrace = { id: "activeTrace", title: "Active Thread", isAvailable: false};
-						scope.activeTraceChart = activeTrace;
-
-						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, chartData), '100%', '270px');
+						var refinedChartData = ActiveThreadChartDaoService.parseData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-active-thread",
+							refinedChartData,
+							ActiveThreadChartDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
 					}
 					function showResponseTimeChart( chartData ) {
-						var responseTime = { id: "responseTime", title: "Response Time", isAvailable: false};
-						scope.responseTimeChart = responseTime;
-
-						scope.$broadcast( "responseTimeChartDirective.initAndRenderWithData.forResponseTime", AgentDaoService.parseResponseTimeChartDataForAmcharts(responseTime, chartData), '100%', '270px');
+						var refinedChartData = ResponseTimeChartDaoService.parseData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-response-time",
+							refinedChartData,
+							ResponseTimeChartDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
 					}
-
+					function showOpenFileDescriptorChart( chartData ) {
+						var refinedChartData = OpenFileDescriptorDaoService.parseData( chartData );
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-open-file-descriptor",
+							refinedChartData,
+							OpenFileDescriptorDaoService.getChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showDirectBufferCountChart( refinedChartData ) {
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-direct-buffer-count",
+							refinedChartData,
+							DirectBufferDaoService.getDirectBufferCountChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showDirectBufferMemoryChart( refinedChartData ) {
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-direct-buffer-memory",
+							refinedChartData,
+							DirectBufferDaoService.getDirectBufferMemoryChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showMappedBufferCountChart( refinedChartData ) {
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-mapped-buffer-count",
+							refinedChartData,
+							DirectBufferDaoService.getMappedBufferCountChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
+					function showMappedBufferMemoryChart( refinedChartData ) {
+						scope.$broadcast(
+							"agentInspectorChartDirective.initAndRenderWithData.agent-mapped-buffer-memory",
+							refinedChartData,
+							DirectBufferDaoService.getMappedBufferMemoryChartOptions( refinedChartData ),
+							"100%",
+							"270px"
+						);
+					}
 					var dataSourceChartData = [];
 					var dataSourceIdPrefix = "source_";
 					scope.dataSourceChartKeys = [];
@@ -242,7 +282,7 @@
 					scope.changeDataSource = function( $event ) {
 						var tagName = $event.target.tagName.toUpperCase();
 						if ( tagName === "INPUT" ) {
-							scope.$broadcast( "dsChartDirective.toggleGraph.forDataSource", $event.target.value, $event.target.checked );
+							scope.$broadcast( "dsChartDirective.toggleGraph.agent-data-source", $event.target.value, $event.target.checked );
 						}
 					};
 					scope.selectAllDataSource = function() {
@@ -255,13 +295,10 @@
 								value: v.value
 							};
 						});
-						scope.$broadcast( "dsChartDirective.toggleGraphAll.forDataSource" );
+						scope.$broadcast( "dsChartDirective.toggleGraphAll.agent-data-source" );
 					};
 					scope.hasDataSource = function() {
-						return dataSourceChartData.length === 0 || dataSourceChartData[0].id === -1 ? false : true;
-					};
-					scope.emptyDataSource = function() {
-						return dataSourceChartData.length === 0 ? false : dataSourceChartData[0].id === -1 ? true : false;
+						return dataSourceChartData.length !== 0 && dataSourceChartData[0].charts.y["ACTIVE_CONNECTION_SIZE"].length !== 0;
 					};
 					function setDataSourceDetail( activeAvg, activeMax, totalMax, id, type, databaseName, jdbcUrl ) {
 						var bInit = arguments.length === 0 ? true : false;
@@ -275,18 +312,15 @@
 					}
 					function showDataSourceChart() {
 						scope.dataSourceChartCheckedKeys = {};
-						var description = { id: "dataSource", title: "Data Source", isAvailable: false };
 						scope.dataSourceChartKeys = dataSourceChartData.map(function(obj, index) {
 							var key = dataSourceIdPrefix + obj.id;
 							scope.dataSourceChartCheckedKeys[key] = index < 30 ? true : false;
 							return {
-								display: obj.databaseName ? obj.databaseName : obj.id,
+								display: obj["databaseName"] ? obj["databaseName"] : obj["id"],
 								value: key
 							};
 						});
-						scope.dataSourceChartDescription = description;
-
-						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(description, dataSourceChartData, dataSourceIdPrefix), scope.dataSourceChartCheckedKeys, '100%', '270px');
+						scope.$broadcast( "dsChartDirective.initAndRenderWithData.agent-data-source", AgentDaoService.parseDataSourceChartDataForAmcharts( dataSourceChartData, dataSourceIdPrefix ), scope.dataSourceChartCheckedKeys, "100%", "270px");
 					}
 					function showDataSourceDetailInfo( targetId, index ) {
 						var id = parseInt( targetId.split("_")[1] );
@@ -294,9 +328,9 @@
 							var oTarget = dataSourceChartData[i];
 							if ( oTarget.id == id ) {
 								setDataSourceDetail(
-									oTarget.charts["ACTIVE_CONNECTION_SIZE"].points[index].avgYVal,
-									oTarget.charts["ACTIVE_CONNECTION_SIZE"].points[index].maxYVal,
-									oTarget.charts["MAX_CONNECTION_SIZE"].points[index].maxYVal,
+									oTarget.charts.y["ACTIVE_CONNECTION_SIZE"][index][2],
+									oTarget.charts.y["ACTIVE_CONNECTION_SIZE"][index][1],
+									oTarget.charts.y["MAX_CONNECTION_SIZE"][index][1],
 									oTarget.id,
 									oTarget.serviceType,
 									oTarget.databaseName,
@@ -318,30 +352,8 @@
 							}
 						});
 					}
-					function broadcastToCpuLoadChart(e, event) {
-						if (scope.cpuLoadChart.isAvailable) {
-							scope.$broadcast("cpuLoadChartDirective.showCursorAt.forCpuLoad", event.index);
-						}
-					}
-					function broadcastToTpsChart(e, event) {
-						if (scope.tpsChart.isAvailable) {
-							scope.$broadcast("tpsChartDirective.showCursorAt.forTps", event.index);
-						}
-					}
-					function broadcastToActiveTraceChart(e, event) {
-						if (scope.activeTraceChart.isAvailable) {
-							scope.$broadcast("activeTraceChartDirective.showCursorAt.forActiveTrace", event.index);
-						}
-					}
-					function broadcastToResponseTimeChart(e, event) {
-						if (scope.responseTimeChart.isAvailable) {
-							scope.$broadcast("responseTimeChartDirective.showCursorAt.forResponseTime", event.index);
-						}
-					}
-					function broadcastToDataSourceChart(e, event) {
-						if (scope.dataSourceChartDescription.isAvailable) {
-							scope.$broadcast("dsChartDirective.showCursorAt.forDataSource", event.index);
-						}
+					function removePopover() {
+						$("._wrongApp").popover("destroy");
 					}
 					scope.toggleSourceSelectLayer = function() {
 						element.find("#data-source-chart .type-select-layer").toggle();
@@ -361,7 +373,7 @@
 					};
 
 					scope.formatDate = function( time ) {
-						return moment(time).format('YYYY.MM.DD HH:mm:ss');
+						return moment(time).format("YYYY.MM.DD HH:mm:ss");
 					};
 					scope.hideEventInfo = function() {
 						scope.showEventInfo = false;
@@ -424,10 +436,10 @@
 							return '';
 						}
 					};
-					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop ) {
+					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop, sliderTimeSeriesOption ) {
+						removePopover();
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {
-							scope.hasAgentData = false;
 							return;
 						}
 						// init data-source data
@@ -438,20 +450,25 @@
 						element.find(".type-select-layer").hide();
 						element.find(".ds-detail").hide();
 						scope.showEventInfo = false;
-						scope.hasAgentData = true;
 						scope.agent = agent;
 						scope.chartGroup = null;
 						scope.currentServiceInfo = initServiceInfo(agent);
 
-						var aFromTo, period, aSelectionFromTo = [];
+						var aFromTo, period, aSelectionFromTo = [], selectedTime;
 						if ( timeSlider === null || bInvokedByTop ) {
 							aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
 							aSelectionFromTo[1] = UrlVoService.getQueryEndTime();
 							period = UrlVoService.getPeriod();
 						} else {
-							aSelectionFromTo = timeSlider.getSelectionTimeSeries();
-							aFromTo = timeSlider.getSliderTimeSeries();
-							period = getPeriod(aSelectionFromTo[0], aSelectionFromTo[1]);
+							if ( sliderTimeSeriesOption === undefined || sliderTimeSeriesOption === null ) {
+								aSelectionFromTo = timeSlider.getSelectionTimeSeries();
+								aFromTo = timeSlider.getSliderTimeSeries();
+								period = UrlVoService.getPeriod();
+							} else {
+								aSelectionFromTo = sliderTimeSeriesOption["selectionTimeSeries"];
+								aFromTo = sliderTimeSeriesOption["timeSeries"];
+								selectedTime = sliderTimeSeriesOption["selectedTime"];
+							}
 						}
 						if ( scope.selectTime === -1 || bInvokedByTop ) {
 							scope.selectTime = UrlVoService.getQueryEndTime();
@@ -460,75 +477,27 @@
 								loadAgentInfo( scope.selectTime );
 							}
 						}
-						loadChartData(agent.agentId, aSelectionFromTo, period, function() {
-							initTimeSliderUI( aSelectionFromTo, aFromTo );
-						});
-
+						initTimeSliderUI( aSelectionFromTo, aFromTo, selectedTime || scope.selectTime );
+						loadChartData(agent["agentId"], aSelectionFromTo, period );
 						initTooltip();
-
 					});
-					function initTimeSliderUI( aSelectionFromTo, aFromTo ) {
-						initTime( scope.selectTime );
-						initTimeSlider( aSelectionFromTo, aFromTo );
-						getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
+					function initTimeSliderUI( aSelectionFromTo, aFromTo, selectedTime ) {
+						initTime( selectedTime );
+						initTimeSlider( aSelectionFromTo, aFromTo, selectedTime );
+						// getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
-
-					scope.$on("jvmMemoryChartDirective.cursorChanged.forHeap", function (e, event) {
-						scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
-						broadcastToCpuLoadChart(e, event);
-						broadcastToTpsChart(e, event);
-						broadcastToActiveTraceChart(e, event);
-						broadcastToResponseTimeChart(e, event);
-						broadcastToDataSourceChart(e, event);
+					scope.$on("agentInspectorChartDirective.cursorChanged", function (e, sourceTarget, event) {
+						if ( typeof event.index === "undefined" ) {
+							timeSlider.hideFocus();
+						} else {
+							timeSlider.showFocus( moment(event.target.chart.dataProvider[event.index].time).valueOf() );
+						}
+						scope.$broadcast( "agentInspectorChartDirective.showCursorAt", sourceTarget, event.index );
+						scope.$broadcast( "dsChartDirective.showCursorAt.agent-data-source", event.index);
 					});
-					scope.$on("jvmMemoryChartDirective.cursorChanged.forNonHeap", function (e, event) {
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
-						broadcastToCpuLoadChart(e, event);
-						broadcastToTpsChart(e, event);
-						broadcastToActiveTraceChart(e, event);
-						broadcastToResponseTimeChart(e, event);
-						broadcastToDataSourceChart(e, event);
-					});
-					scope.$on("cpuLoadChartDirective.cursorChanged.forCpuLoad", function (e, event) {
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", event.index);
-						broadcastToTpsChart(e, event);
-						broadcastToActiveTraceChart(e, event);
-						broadcastToResponseTimeChart(e, event);
-						broadcastToDataSourceChart(e, event);
-					});
-					scope.$on("tpsChartDirective.cursorChanged.forTps", function (e, event) {
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", event.index);
-						broadcastToCpuLoadChart(e, event);
-						broadcastToActiveTraceChart(e, event);
-						broadcastToResponseTimeChart(e, event);
-						broadcastToDataSourceChart(e, event);
-					});
-					scope.$on("activeTraceChartDirective.cursorChanged.forActiveTrace", function (e, event) {
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", event.index);
-						broadcastToCpuLoadChart(e, event);
-						broadcastToTpsChart(e, event);
-						broadcastToResponseTimeChart(e, event);
-						broadcastToDataSourceChart(e, event);
-					});
-					scope.$on("responseTimeChartDirective.cursorChanged.forResponseTime", function (e, event) {
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", event.index);
-						broadcastToCpuLoadChart(e, event);
-						broadcastToTpsChart(e, event);
-						broadcastToActiveTraceChart(e, event);
-						broadcastToDataSourceChart(e, event);
-					});
-					scope.$on("dsChartDirective.cursorChanged.forDataSource", function (e, targetId, index) {
-						var o = { "index": index };
+					scope.$on("dsChartDirective.cursorChanged.agent-data-source", function (e, targetId, index) {
 						showDataSourceDetailInfo( targetId, index );
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", index);
-						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", index);
-						broadcastToCpuLoadChart(e, o);
-						broadcastToTpsChart(e, o);
-						broadcastToActiveTraceChart(e, o);
+						scope.$broadcast( "agentInspectorChartDirective.showCursorAt", "agent-data-source", index );
 					});
 				}
 			};

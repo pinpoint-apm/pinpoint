@@ -15,15 +15,12 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 
 import static org.junit.Assert.*;
 

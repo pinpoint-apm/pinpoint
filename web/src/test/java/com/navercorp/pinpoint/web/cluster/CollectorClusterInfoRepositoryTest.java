@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -43,8 +42,8 @@ public class CollectorClusterInfoRepositoryTest {
         final String agent2 = "app:agent2:1";
         final String profilerInfo = agent1 + PROFILER_SEPARATOR + agent2;
 
-        byte[] profilterInfoBytes = profilerInfo.getBytes(StandardCharsets.UTF_8);
-        info.put("collectorA", profilterInfoBytes);
+        byte[] profilerInfoBytes = profilerInfo.getBytes(StandardCharsets.UTF_8);
+        info.put("collectorA", profilerInfoBytes);
 
         List<String> collectorList = info.get("app", "agent1", 0);
         logger.debug("{}", collectorList);

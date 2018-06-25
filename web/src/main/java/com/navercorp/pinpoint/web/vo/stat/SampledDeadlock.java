@@ -17,21 +17,33 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class SampledDeadlock implements SampledAgentStatDataPoint {
 
-    private Point<Long, Integer> deadlockedThreadCount;
+    public static final int UNCOLLECTED_COUNT = -1;
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
+        @Override
+        public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
+            return new AgentStatPoint<>(xVal, UNCOLLECTED_COUNT);
+        }
+    };
 
-    public Point<Long, Integer> getDeadlockedThreadCount() {
+    private final AgentStatPoint<Integer> deadlockedThreadCount;
+
+    public SampledDeadlock(AgentStatPoint<Integer> deadlockedThreadCount) {
+        this.deadlockedThreadCount = Objects.requireNonNull(deadlockedThreadCount, "deadlockedThreadCount must not be null");
+    }
+
+    public AgentStatPoint<Integer> getDeadlockedThreadCount() {
         return deadlockedThreadCount;
     }
 
-    public void setDeadlockedThreadCount(Point<Long, Integer> deadlockedThreadCount) {
-        this.deadlockedThreadCount = deadlockedThreadCount;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -41,7 +53,6 @@ public class SampledDeadlock implements SampledAgentStatDataPoint {
         SampledDeadlock that = (SampledDeadlock) o;
 
         return deadlockedThreadCount != null ? deadlockedThreadCount.equals(that.deadlockedThreadCount) : that.deadlockedThreadCount == null;
-
     }
 
     @Override
@@ -56,5 +67,4 @@ public class SampledDeadlock implements SampledAgentStatDataPoint {
         sb.append('}');
         return sb.toString();
     }
-
 }

@@ -24,7 +24,7 @@
     </logger>
 
     <logger name="com.navercorp.pinpoint.collector.dao" additivity="false">
-        <level value="TRACE"/>
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
 

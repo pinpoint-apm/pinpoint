@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.rpc.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.DefaultPinpointServer;
+import com.navercorp.pinpoint.rpc.server.EchoServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.jboss.netty.channel.Channel;
@@ -70,7 +71,7 @@ public class PinpointClientStateTest {
         PinpointClientFactory clientSocketFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
             clientSocketFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientSocketFactory);
@@ -91,7 +92,7 @@ public class PinpointClientStateTest {
         PinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientFactory);
@@ -112,7 +113,7 @@ public class PinpointClientStateTest {
         PinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientFactory);
@@ -133,7 +134,7 @@ public class PinpointClientStateTest {
         PinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientFactory);
@@ -174,7 +175,6 @@ public class PinpointClientStateTest {
 
         Channel channel = channelConnectFuture.getChannel();
         PinpointClientHandler pinpointClientHandler = (PinpointClientHandler) channel.getPipeline().getLast();
-        pinpointClientHandler.setConnectSocketAddress(address);
 
         return pinpointClientHandler;
     }

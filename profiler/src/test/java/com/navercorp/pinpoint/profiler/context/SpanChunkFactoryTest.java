@@ -21,7 +21,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,10 +34,15 @@ import java.util.List;
  * @author emeroad
  */
 public class SpanChunkFactoryTest {
+
+    private final String agentId = "agentId";
+    private final long agentStartTime = System.currentTimeMillis();
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+
     @Test
     public void create() {
 
-        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
+        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
         TraceRoot internalTraceId = newInternalTraceId();
         try {
             spanChunkFactory.create(internalTraceId, new ArrayList<SpanEvent>());
@@ -58,7 +65,7 @@ public class SpanChunkFactoryTest {
     }
 
     private TraceRoot newInternalTraceId() {
-        TraceId traceId = new DefaultTraceId("agentId", 0, 100);
-        return new DefaultTraceRoot(traceId, "agentId", System.currentTimeMillis(), 0);
+        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 100);
+        return new DefaultTraceRoot(traceId, agentId, agentStartTime, 0);
     }
 }

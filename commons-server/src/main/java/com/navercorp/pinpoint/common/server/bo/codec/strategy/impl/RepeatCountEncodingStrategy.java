@@ -76,7 +76,7 @@ public abstract class RepeatCountEncodingStrategy<T extends Number> implements E
             while (totalCount < numValues) {
                 int count = buffer.readVInt();
                 T value = this.bufferHandler.readV(buffer);
-                for (int i = 0; i < count; ++i) {
+                for (int i = 0; i < count; i++) {
                     values.add(value);
                     totalCount++;
                 }

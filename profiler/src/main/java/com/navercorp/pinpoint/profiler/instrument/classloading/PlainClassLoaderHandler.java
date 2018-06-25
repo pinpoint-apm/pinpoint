@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +47,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method DEFINE_CLASS;
     private final JarReader pluginJarReader;
 
     private final BootstrapPackage bootstrapPackage = new BootstrapPackage();
@@ -57,14 +54,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
     // TODO remove static field
     private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<ClassLoader, ClassLoaderAttachment>();
 
-    static {
-        try {
-            DEFINE_CLASS = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
-            DEFINE_CLASS.setAccessible(true);
-        } catch (Exception e) {
-            throw new PinpointException("Cannot access ClassLoader.defineClass(String, byte[], int, int)", e);
-        }
-    }
 
     private final PluginConfig pluginConfig;
 
@@ -79,10 +68,14 @@ public class PlainClassLoaderHandler implements ClassInjector {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
+        if (classLoader == Object.class.getClassLoader()) {
+            throw new IllegalStateException("BootStrapClassLoader");
+        }
+
         try {
             if (bootstrapPackage.isBootstrapPackage(className)) {
-                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-                return loadClass(systemClassLoader, className);
+                final ClassLoader bootstrapClassLoader = Object.class.getClassLoader();
+                return loadClass(bootstrapClassLoader, className);
             }
             if (!isPluginPackage(className)) {
                 return loadClass(classLoader, className);
@@ -99,21 +92,13 @@ public class PlainClassLoaderHandler implements ClassInjector {
         try {
             String name = JavaAssistUtils.jvmNameToJavaName(classPath);
             if (bootstrapPackage.isBootstrapPackage(name)) {
-                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-                if (systemClassLoader != null) {
-                    return systemClassLoader.getResourceAsStream(classPath);
-                }
-                return null;
+                // TODO search from BootStrapClassLoader
+                return ClassLoader.getSystemResourceAsStream(classPath);
             }
             if (!isPluginPackage(name)) {
                 return targetClassLoader.getResourceAsStream(classPath);
             }
-            final int fileExtensionPosition = name.lastIndexOf(".class");
-            if (fileExtensionPosition != -1) {
-                name = name.substring(0, fileExtensionPosition);
-            }
-
-            final InputStream inputStream = getInputStream(targetClassLoader, name);
+            final InputStream inputStream = getInputStream(targetClassLoader, classPath);
             if (inputStream == null) {
                 if (logger.isInfoEnabled()) {
                     logger.info("can not find resource : {} {} ", classPath, pluginConfig.getPluginJarURLExternalForm());
@@ -134,7 +119,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
 
 
-    private Class<?> injectClass0(ClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private Class<?> injectClass0(ClassLoader classLoader, String className) throws IllegalArgumentException {
         if (isDebug) {
             logger.debug("Inject class className:{} cl:{}", className, classLoader);
         }
@@ -152,13 +137,11 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     }
 
-    private InputStream getInputStream(ClassLoader classLoader, String classPath) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private InputStream getInputStream(ClassLoader classLoader, String classPath) throws IllegalArgumentException {
         if (isDebug) {
             logger.debug("Get input stream className:{} cl:{}", classPath, classLoader);
 
         }
-        final String pluginJarPath = pluginConfig.getPluginJarURLExternalForm();
-        final ClassLoaderAttachment attachment = getClassLoaderAttachment(classLoader, pluginJarPath);
         try {
             return pluginJarReader.getInputStream(classPath);
         } catch(Exception ex) {
@@ -181,6 +164,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 //        }
 
         final PluginLock pluginLock = attachment.getPluginLock(pluginJarPath);
+//        not recommended pluginLock.isLoaded() check
         synchronized (pluginLock) {
             if (!pluginLock.isLoaded()) {
                 pluginLock.setLoaded();
@@ -211,8 +195,11 @@ public class PlainClassLoaderHandler implements ClassInjector {
             if (isDebug) {
                 logger.debug("loadClass:{}", className);
             }
-            return (Class<T>) classLoader.loadClass(className);
-
+            if (classLoader == Object.class.getClassLoader()) {
+                return (Class<T>) Class.forName(className, false, classLoader);
+            } else {
+                return (Class<T>) classLoader.loadClass(className);
+            }
         } catch (ClassNotFoundException ex) {
             if (isDebug) {
                 logger.debug("ClassNotFound {} cl:{}", ex.getMessage(), classLoader);
@@ -262,7 +249,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         return classMetadata;
     }
 
-    private void define0(ClassLoader classLoader, ClassLoaderAttachment attachment, SimpleClassMetadata currentClass, Map<String, SimpleClassMetadata> classMetaMap, ClassLoadingChecker classLoadingChecker) {
+    private void define0(final ClassLoader classLoader, ClassLoaderAttachment attachment, SimpleClassMetadata currentClass, Map<String, SimpleClassMetadata> classMetaMap, ClassLoadingChecker classLoadingChecker) {
         if ("java.lang.Object".equals(currentClass.getClassName())) {
             return;
         }
@@ -302,30 +289,16 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     private Class<?> defineClass(ClassLoader classLoader, SimpleClassMetadata classMetadata) {
-        classLoader = getClassLoader(classLoader);
+
         if (isDebug) {
             logger.debug("define class:{} cl:{}", classMetadata.getClassName(), classLoader);
         }
+
         // for debug
-        byte[] classBytes = classMetadata.getClassBinary();
-        final Integer offset = 0;
-        final Integer length = classBytes.length;
-        try {
-            return (Class<?>) DEFINE_CLASS.invoke(classLoader, classMetadata.getClassName(), classBytes, offset, length);
-        } catch (IllegalAccessException e) {
-            throw handleDefineClassFail(e, classLoader, classMetadata);
-        } catch (InvocationTargetException e) {
-            throw handleDefineClassFail(e, classLoader, classMetadata);
-        }
+        final String className = classMetadata.getClassName();
+        final byte[] classBytes = classMetadata.getClassBinary();
+        return DefineClassFactory.getDefineClass().defineClass(classLoader, className, classBytes);
     }
-
-    private RuntimeException handleDefineClassFail(Throwable throwable, ClassLoader classLoader, SimpleClassMetadata classMetadata) {
-
-        logger.warn("{} define fail classMetadata:{} cl:{} Caused by:{}", classMetadata.getClassName(), classMetadata, classLoader, throwable.getMessage(), throwable);
-
-        return new RuntimeException(classMetadata.getClassName() + " define fail Caused by:" + throwable.getMessage(), throwable);
-    }
-
 
     private boolean isSkipClass(final String className, final ClassLoadingChecker classLoadingChecker) {
         if (!isPluginPackage(className)) {
@@ -394,13 +367,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
             this.loaded = true;
         }
 
-    }
-
-    private static ClassLoader getClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return ClassLoader.getSystemClassLoader();
-        }
-        return classLoader;
     }
 
 }

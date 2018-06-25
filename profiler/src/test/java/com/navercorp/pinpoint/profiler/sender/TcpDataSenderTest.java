@@ -16,26 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.packet.*;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.CountCheckServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -50,36 +43,14 @@ public class TcpDataSenderTest {
     public static final String HOST = "127.0.0.1";
 
     private PinpointServerAcceptor serverAcceptor;
-    private CountDownLatch sendLatch;
 
-    @Before
-    public void serverStart() {
+    public void serverStart(CountDownLatch sendLatch) {
         serverAcceptor = new PinpointServerAcceptor();
-        serverAcceptor.setMessageListener(new ServerMessageListener() {
 
-            @Override
-            public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-                logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
-                if (sendLatch != null) {
-                    sendLatch.countDown();
-                }
-            }
+        CountCheckServerMessageListenerFactory countCheckServerMessageListenerFactory = new CountCheckServerMessageListenerFactory();
+        countCheckServerMessageListenerFactory.setSendCountDownLatch(sendLatch);
 
-            @Override
-            public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-                logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
-            }
-
-            @Override
-            public HandshakeResponseCode handleHandshake(Map arg0) {
-                return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-            }
-
-            @Override
-            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-                logger.debug("ping received {} {} ", pingPacket, pinpointServer);
-            }
-        });
+        serverAcceptor.setMessageListenerFactory(countCheckServerMessageListenerFactory);
         serverAcceptor.bind(HOST, PORT);
     }
 
@@ -92,13 +63,13 @@ public class TcpDataSenderTest {
 
     @Test
     public void connectAndSend() throws InterruptedException {
-        this.sendLatch = new CountDownLatch(2);
+        CountDownLatch sendLatch = new CountDownLatch(2);
+
+        serverStart(sendLatch);
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        
-        PinpointClient client = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
-        
-        TcpDataSender sender = new TcpDataSender(client);
+
+        TcpDataSender sender = new TcpDataSender(this.getClass().getName(), HOST, PORT, clientFactory);
         try {
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
@@ -109,10 +80,6 @@ public class TcpDataSenderTest {
         } finally {
             sender.stop();
             
-            if (client != null) {
-                client.close();
-            }
-            
             if (clientFactory != null) {
                 clientFactory.release();
             }
@@ -122,7 +89,7 @@ public class TcpDataSenderTest {
     private PinpointClientFactory createPinpointClientFactory() {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setTimeoutMillis(1000 * 5);
-        clientFactory.setProperties(Collections.EMPTY_MAP);
+        clientFactory.setProperties(Collections.<String, Object>emptyMap());
 
         return clientFactory;
     }

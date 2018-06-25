@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
 /**
  * readable class of MethodType
@@ -32,6 +33,17 @@ public enum MethodTypeEnum {
 
     private final int code;
 
+    private static final IntHashMap<MethodTypeEnum> METHOD_TYPE_MAP = toMethodTypeMap();
+
+    private static IntHashMap<MethodTypeEnum> toMethodTypeMap() {
+        IntHashMap<MethodTypeEnum> methodTypeEnumMap = new IntHashMap<MethodTypeEnum>();
+        for (MethodTypeEnum methodType : values()) {
+            methodTypeEnumMap.put(methodType.getCode(), methodType);
+        }
+        return methodTypeEnumMap;
+    }
+
+
     MethodTypeEnum(int code) {
         this.code = code;
     }
@@ -41,11 +53,10 @@ public enum MethodTypeEnum {
     }
 
     public static MethodTypeEnum valueOf(int code) {
-        for (MethodTypeEnum methodType : values()) {
-            if (methodType.getCode() == code) {
-                return methodType;
-            }
+        final MethodTypeEnum methodTypeEnum = METHOD_TYPE_MAP.get(code);
+        if (methodTypeEnum == null) {
+            throw new IllegalStateException("unknown MethodType:" + code);
         }
-        throw new IllegalStateException("unknown MethodType:" + code);
+        return methodTypeEnum;
     }
 }

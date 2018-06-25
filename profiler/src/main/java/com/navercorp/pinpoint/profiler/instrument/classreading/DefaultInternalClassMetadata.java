@@ -35,22 +35,26 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
         this.classInternalName = classInternalName;
         this.superClassInternalName = superClassInternalName;
 
-        if (interfaceInternalNames == null) {
-            this.interfaceInternalNames = Collections.EMPTY_LIST;
-        } else {
-            this.interfaceInternalNames = Collections.unmodifiableList(interfaceInternalNames);
-        }
-
-        if (annotationInternalNames == null) {
-            this.annotationInternalNames = Collections.EMPTY_LIST;
-        } else {
-            this.annotationInternalNames = Collections.unmodifiableList(annotationInternalNames);
-        }
+        this.interfaceInternalNames = defaultInterfaceName(interfaceInternalNames);
+        this.annotationInternalNames = defaultAnnotationName(annotationInternalNames);
 
         this.isInterface = isInterface;
         this.isAnnotation = isAnnotation;
         this.isSynthetic = isSynthetic;
         this.isInnerClass = isInnerClass;
+    }
+
+    private List<String> defaultInterfaceName(List<String> interfaceInternalNames) {
+        if (interfaceInternalNames == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(interfaceInternalNames);
+    }
+    private List<String> defaultAnnotationName(List<String> annotationInternalNames) {
+        if (annotationInternalNames == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(annotationInternalNames);
     }
 
     @Override

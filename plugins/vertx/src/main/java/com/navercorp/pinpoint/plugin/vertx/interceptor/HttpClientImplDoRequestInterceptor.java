@@ -20,15 +20,17 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
+import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestTrace;
 import io.vertx.core.http.HttpClientRequest;
 
 /**
  * @author jaehong.kim
  */
 public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
-
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -69,14 +71,16 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             return;
         }
 
-        HttpClientRequest request = null;
+        HttpClientRequest resultToRequest = null;
         if (validate(result)) {
-            request = (HttpClientRequest) result;
+            resultToRequest = (HttpClientRequest) result;
         }
+        final HttpClientRequest request = resultToRequest;
 
         if (!trace.canSampled()) {
             if (request != null) {
-                request.putHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestTrace(request));
+                requestTraceWriter.write();
             }
             return;
         }
@@ -87,10 +91,17 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             recorder.recordException(throwable);
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
 
+            final String hostAndPort = toHostAndPort(args);
+            if (hostAndPort != null) {
+                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
+                if (isDebug) {
+                    logger.debug("Set hostAndPort {}", hostAndPort);
+                }
+            }
+
             if (request != null) {
                 // make asynchronous trace-id
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-
                 ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
                     logger.debug("Set asyncContext {}", asyncContext);
@@ -117,5 +128,27 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
         }
 
         return true;
+    }
+
+    private String toHostAndPort(final Object[] args) {
+        if (args != null && (args.length == 5 || args.length == 6)) {
+            if (args[1] instanceof String && args[2] instanceof Integer) {
+                final String host = (String) args[1];
+                final int port = (Integer) args[2];
+                return HostAndPort.toHostAndPortString(host, port);
+            }
+        } else if (args != null && args.length == 7) {
+            // 3.4.2 - HttpMethod method, String host, int port, Boolean ssl, String relativeURI, MultiMap headers
+            if (args[2] instanceof String && args[3] instanceof Integer) {
+                final String host = (String) args[2];
+                final int port = (Integer) args[3];
+                return HostAndPort.toHostAndPortString(host, port);
+            }
+        }
+
+        if (isDebug) {
+            logger.debug("Invalid args[]. args={}.", args);
+        }
+        return null;
     }
 }

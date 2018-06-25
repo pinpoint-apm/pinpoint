@@ -19,12 +19,10 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AsyncTrace implements Trace {
-    private static final int BEGIN_STACKID = 1;
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
@@ -33,67 +31,42 @@ public class AsyncTrace implements Trace {
 
     private final TraceRoot traceRoot;
     private final DefaultTrace trace;
-    private final boolean entryPoint;
 
-    private int asyncId;
-    private short asyncSequence;
-    private AsyncState asyncState;
+    private final AsyncState asyncState;
 
     public AsyncTrace(final AsyncContextFactory asyncContextFactory, final TraceRoot traceRoot, final DefaultTrace trace, final AsyncState asyncState) {
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.trace = Assert.requireNonNull(trace, "trace must not be null");
         this.asyncState = Assert.requireNonNull(asyncState, "asyncState must not be null");
-        this.entryPoint = true;
     }
 
-    public AsyncTrace(final AsyncContextFactory asyncContextFactory, final TraceRoot traceRoot, final DefaultTrace trace, final int asyncId, final short asyncSequence) {
-        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        this.trace = Assert.requireNonNull(trace, "trace must not be null");
-        this.asyncId = asyncId;
-        this.asyncSequence = asyncSequence;
-
-        this.asyncState = null;
-        this.entryPoint = false;
-
-        traceBlockBegin(BEGIN_STACKID);
-    }
-
-    public int getAsyncId() {
-        return asyncId;
-    }
 
     @Override
     public long getId() {
-        if (this.entryPoint) {
-            return this.trace.getId();
-        }
+        return traceRoot.getLocalTransactionId();
 
-        return -1;
     }
 
     @Override
     public long getStartTime() {
-        if (this.entryPoint) {
-            return this.trace.getStartTime();
-        }
-
-        return 0;
+        return this.traceRoot.getTraceStartTime();
     }
 
     @Override
     public Thread getBindThread() {
-        if (this.entryPoint) {
-            return this.trace.getBindThread();
-        }
-
         return null;
     }
 
     @Override
+    public long getThreadId() {
+         return this.traceRoot.getShared().getThreadId();
+
+    }
+
+    @Override
     public TraceId getTraceId() {
-        return trace.getTraceId();
+        return this.traceRoot.getTraceId();
     }
 
     @Override
@@ -103,29 +76,17 @@ public class AsyncTrace implements Trace {
 
     @Override
     public boolean isRoot() {
-        return trace.isRoot();
+        return this.traceRoot.getTraceId().isRoot();
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin() {
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
-        if (this.entryPoint) {
-            return recorder;
-        }
-        recorder.recordAsyncId(asyncId);
-        recorder.recordAsyncSequence(asyncSequence);
-        return recorder;
+        return trace.traceBlockBegin();
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin(int stackId) {
-        final SpanEventRecorder recorder = trace.traceBlockBegin(stackId);
-        if (this.entryPoint) {
-            return recorder;
-        }
-        recorder.recordAsyncId(asyncId);
-        recorder.recordAsyncSequence(asyncSequence);
-        return recorder;
+        return trace.traceBlockBegin(stackId);
     }
 
     @Override
@@ -140,41 +101,31 @@ public class AsyncTrace implements Trace {
 
     @Override
     public boolean isAsync() {
-        if (this.entryPoint) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
     @Override
     public boolean isRootStack() {
-        if (this.entryPoint) {
-            return this.trace.isRootStack();
-        }
-        return trace.getCallStackFrameId() == BEGIN_STACKID;
+        return this.trace.isRootStack();
     }
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link SpanEventRecorder#recordNextAsyncContext()}
+     * This API will be removed in 1.8.0
+     */
+    @Deprecated
     @Override
     public AsyncTraceId getAsyncTraceId() {
         return asyncContextFactory.newAsyncTraceId(traceRoot);
     }
 
     @Override
-    public void close() {
-        if (this.entryPoint) {
-            closeOrFlush();
-        } else {
-            traceBlockEnd(BEGIN_STACKID);
-            trace.close();
-        }
+    public boolean isClosed() {
+        return this.trace.isClosed();
     }
 
-    private void closeOrFlush() {
-        final AsyncState asyncState = this.asyncState;
-        if (asyncState == null) {
-            return;
-        }
-
+    @Override
+    public void close() {
         if (asyncState.await()) {
             // flush.
             this.trace.flush();
@@ -222,9 +173,6 @@ public class AsyncTrace implements Trace {
         return "AsyncTrace{" +
                 "traceRoot=" + traceRoot +
                 ", trace=" + trace +
-                ", entryPoint=" + entryPoint +
-                ", asyncId=" + asyncId +
-                ", asyncSequence=" + asyncSequence +
                 ", asyncState=" + asyncState +
                 '}';
     }

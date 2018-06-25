@@ -171,7 +171,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
         List<String> maxSysCpuAgentIds = this.codec.decodeValues(valueBuffer, maxSysCpuAgentIdEncodingStrategy, numValues);
 
         List<JoinStatBo> joinCpuLoadBoList = new ArrayList<JoinStatBo>(numValues);
-        for (int i = 0; i < numValues; ++i) {
+        for (int i = 0; i < numValues; i++) {
             JoinCpuLoadBo joinCpuLoadBo = new JoinCpuLoadBo();
             joinCpuLoadBo.setId(id);
             joinCpuLoadBo.setTimestamp(timestamps.get(i));

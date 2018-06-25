@@ -90,7 +90,7 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
             }
         }
         // Reverse sort as timestamp is stored in a reversed order.
-        Collections.sort(dataPoints, REVERSE_TIMESTAMP_COMPARATOR);
+        dataPoints.sort(REVERSE_TIMESTAMP_COMPARATOR);
         return dataPoints;
     }
 

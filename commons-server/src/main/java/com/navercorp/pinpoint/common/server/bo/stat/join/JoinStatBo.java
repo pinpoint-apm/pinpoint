@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
  * @author minwoo.jung
  */
 public interface JoinStatBo {
-    public static final String UNKNOWN_AGENT = "unknown_agent_id";
-    public static final String UNKNOWN_ID = "unknown_id";
+    String UNKNOWN_AGENT = "unknown_agent_id";
+    String UNKNOWN_ID = "unknown_id";
 
     long getTimestamp();
     String getId();

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import com.navercorp.pinpoint.rpc.codec.TestCodec;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
@@ -27,8 +28,6 @@ import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
@@ -60,7 +58,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListener(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
@@ -85,7 +83,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListener(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
@@ -116,39 +114,24 @@ public class EventHandlerTest {
 
     private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
         byte[] payload = ControlMessageEncodingUtils.encode(properties);
-        ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
 
-        ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-        IOUtils.write(outputStream, bb.array());
+        byte[] packet = TestCodec.encodePacket(new ControlHandshakePacket(1, payload));
+        IOUtils.write(outputStream, packet);
     }
 
     private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
-        RequestPacket packet = new RequestPacket(new byte[0]);
-        packet.setRequestId(10);
-
-        ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-        IOUtils.write(outputStream, bb.array());
+        byte[] packet = TestCodec.encodePacket(new RequestPacket(10, new byte[0]));
+        IOUtils.write(outputStream, packet);
     }
 
     private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
-
         byte[] payload = IOUtils.read(inputStream, 50, 3000);
-        ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
-
-        short packetType = cb.readShort();
-
-        ControlHandshakeResponsePacket packet = ControlHandshakeResponsePacket.readBuffer(packetType, cb);
-        return packet;
+        return (ControlHandshakeResponsePacket) TestCodec.decodePacket(payload);
     }
 
     private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
         byte[] payload = IOUtils.read(inputStream, 50, 3000);
-        ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
-
-        short packetType = cb.readShort();
-
-        ResponsePacket packet = ResponsePacket.readBuffer(packetType, cb);
-        return packet;
+        return (ResponsePacket) TestCodec.decodePacket(payload);
     }
 
     class EventHandler implements ServerStateChangeEventHandler {

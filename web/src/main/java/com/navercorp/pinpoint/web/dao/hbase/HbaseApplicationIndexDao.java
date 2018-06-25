@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
@@ -48,6 +50,9 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
+    private TableNameProvider tableNameProvider;
+
+    @Autowired
     @Qualifier("applicationNameMapper")
     private RowMapper<List<Application>> applicationNameMapper;
 
@@ -59,7 +64,9 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     public List<Application> selectAllApplicationNames() {
         Scan scan = new Scan();
         scan.setCaching(30);
-        List<List<Application>> results = hbaseOperations2.find(HBaseTables.APPLICATION_INDEX, scan, applicationNameMapper);
+
+        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        List<List<Application>> results = hbaseOperations2.find(applicationIndexTableName, scan, applicationNameMapper);
         List<Application> applications = new ArrayList<>();
         for (List<Application> result : results) {
             applications.addAll(result);
@@ -77,14 +84,17 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         Get get = new Get(rowKey);
         get.addFamily(HBaseTables.APPLICATION_INDEX_CF_AGENTS);
 
-        return hbaseOperations2.get(HBaseTables.APPLICATION_INDEX, get, agentIdMapper);
+        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        return hbaseOperations2.get(applicationIndexTableName, get, agentIdMapper);
     }
 
     @Override
     public void deleteApplicationName(String applicationName) {
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
-        hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
+
+        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        hbaseOperations2.delete(applicationIndexTableName, delete);
     }
 
     @Override
@@ -112,7 +122,9 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
                 deletes.add(delete);
             }
         }
-        hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, deletes);
+
+        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        hbaseOperations2.delete(applicationIndexTableName, deletes);
     }
 
     @Override
@@ -127,6 +139,8 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         Delete delete = new Delete(rowKey);
         byte[] qualifier = Bytes.toBytes(agentId);
         delete.addColumns(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
-        hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
+
+        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        hbaseOperations2.delete(applicationIndexTableName, delete);
     }
 }

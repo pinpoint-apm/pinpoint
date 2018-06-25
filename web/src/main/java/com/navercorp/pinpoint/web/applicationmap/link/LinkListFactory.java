@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
-import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
@@ -59,7 +58,7 @@ public class LinkListFactory {
 
             // rpc client missing
             if (toNode == null) {
-                logger.warn("toNode rcp client not found:{}", toApplicationId);
+                logger.warn("toNode rpc client not found:{}", toApplicationId);
                 continue;
             }
 
@@ -91,7 +90,7 @@ public class LinkListFactory {
 
             // rpc client missing
             if (fromNode == null) {
-                logger.warn("fromNode rcp client not found:{}", toApplicationId);
+                logger.warn("fromNode rpc client not found:{}", toApplicationId);
                 continue;
             }
 
@@ -114,7 +113,7 @@ public class LinkListFactory {
     }
 
     private static Link addLink(LinkType linkType, LinkList linkList, Node fromNode, Node toNode, CreateType createType, Range range) {
-        final Link link = LinkFactory.createLink(createType, fromNode, toNode, range, linkType);
+        final Link link = new Link(linkType, createType, fromNode, toNode, range);
         if (linkList.addLink(link)) {
             return link;
         } else {

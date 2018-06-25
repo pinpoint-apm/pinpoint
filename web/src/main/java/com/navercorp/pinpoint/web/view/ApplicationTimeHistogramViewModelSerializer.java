@@ -33,7 +33,7 @@ public class ApplicationTimeHistogramViewModelSerializer extends JsonSerializer<
     public void serialize(ApplicationTimeHistogramViewModel value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
 
-        writeSummary(value.getSummuryList(), jgen);
+        writeSummary(value.getSummaryList(), jgen);
         writeTimeSeries(value.getTimeSeriesViewModel(), jgen);
 
         jgen.writeEndObject();

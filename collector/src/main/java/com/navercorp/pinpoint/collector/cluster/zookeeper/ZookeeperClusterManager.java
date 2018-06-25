@@ -17,17 +17,15 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionManager;
-import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
-import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.collector.util.Address;
+import com.navercorp.pinpoint.collector.util.AddressParser;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -216,19 +214,20 @@ public class ZookeeperClusterManager {
                 }
 
                 List<String> childNodeList = client.getChildrenNode(zNodePath, true);
-                List<InetSocketAddress> clusterAddressList = NetUtils.toInetSocketAddressLIst(childNodeList);
+                List<Address> clusterAddressList = AddressParser.parseAddressLIst(childNodeList);
 
-                List<SocketAddress> addressList = clusterConnectionManager.getConnectedAddressList();
+
+                List<Address> addressList = clusterConnectionManager.getConnectedAddressList();
 
                 logger.info("Handle register and remove Task. Current Address List = {}, Cluster Address List = {}", addressList, clusterAddressList);
 
-                for (InetSocketAddress clusterAddress : clusterAddressList) {
+                for (Address clusterAddress : clusterAddressList) {
                     if (!addressList.contains(clusterAddress)) {
                         clusterConnectionManager.connectPointIfAbsent(clusterAddress);
                     }
                 }
 
-                for (SocketAddress address : addressList) {
+                for (Address address : addressList) {
                     //noinspection SuspiciousMethodCalls,SuspiciousMethodCalls
                     if (!clusterAddressList.contains(address)) {
                         clusterConnectionManager.disconnectPoint(address);

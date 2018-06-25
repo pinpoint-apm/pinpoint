@@ -99,7 +99,7 @@
 //			});
 		}
 		function retrieve(url, data, callback) {
-			$http.get( url + "?" + $.param( data ) ).then(function(result) {
+			$http.get( url + "?" + $.param( data || {} ) ).then(function(result) {
 				callback(result.data);
 			}, function(error) {
 				callback(error);

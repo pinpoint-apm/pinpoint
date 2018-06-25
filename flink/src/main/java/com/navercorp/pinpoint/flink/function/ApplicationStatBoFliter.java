@@ -22,18 +22,15 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-
 /**
  * @author minwoo.jung
  */
 public class ApplicationStatBoFliter implements FilterFunction<Tuple3<String, JoinStatBo, Long>> {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public boolean filter(Tuple3<String, JoinStatBo, Long> value) throws Exception {
         if (value.f1 instanceof JoinApplicationStatBo) {
-            logger.info("1-1 " + "(" + new Date(value.f1.getTimestamp()) + ")" + value.f1.toString());
             return true;
         }
 

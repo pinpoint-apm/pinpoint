@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,23 +16,31 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.collector.TestAwaitUtils;
-import com.navercorp.pinpoint.collector.receiver.AbstractDispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DataReceiver;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
+import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
+import com.navercorp.pinpoint.collector.util.ObjectPool;
+import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamUdpSender;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.thrift.TBase;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -44,9 +52,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import static org.mockito.Mockito.mock;
 
@@ -56,7 +67,7 @@ import static org.mockito.Mockito.mock;
 public class SpanStreamUDPSenderTest {
 
     private static MessageHolderDispatchHandler messageHolder;
-    private static DataReceiver receiver = null;
+    private static UDPReceiver receiver = null;
 
     private static int port;
 
@@ -66,13 +77,16 @@ public class SpanStreamUDPSenderTest {
     public static void setUp() throws IOException {
         port = SocketUtils.findAvailableUdpPort(21111);
 
-        try {
-            messageHolder = new MessageHolderDispatchHandler();
-            receiver = new TestUDPReceiver("test", new SpanStreamUDPPacketHandlerFactory<>(messageHolder, new TestTBaseFilter()), "127.0.0.1",
-                    port, 1024, 1, 10);
-            receiver.start();
-        } catch (Exception ignored) {
-        }
+        messageHolder = new MessageHolderDispatchHandler();
+
+        Executor executor = MoreExecutors.directExecutor();
+        InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", port);
+        PacketHandlerFactory<DatagramPacket> packetHandlerFactory = new SpanStreamUDPPacketHandlerFactory<>(messageHolder, new TestTBaseFilter());
+
+        ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
+        ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, 10);
+        receiver = new UDPReceiver("test", packetHandlerFactory, executor, 1024, inetSocketAddress, pool);
+        receiver.start();
     }
 
     @AfterClass
@@ -86,6 +100,9 @@ public class SpanStreamUDPSenderTest {
         final TraceRoot traceRoot = mock(TraceRoot.class);
         TraceId traceId = mock(TraceId.class);
         Mockito.when(traceRoot.getTraceId()).thenReturn(traceId);
+
+        Shared shared = mock(Shared.class);
+        Mockito.when(traceRoot.getShared()).thenReturn(shared);
         return traceRoot;
     }
 
@@ -101,7 +118,7 @@ public class SpanStreamUDPSenderTest {
 
             awaitMessageReceived(2, messageHolder, TSpanChunk.class);
 
-            List<TBase> tBaseList = messageHolder.getMessageHolder();
+            List<ServerRequest> tBaseList = messageHolder.getMessageHolder();
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -121,7 +138,7 @@ public class SpanStreamUDPSenderTest {
 
             awaitMessageReceived(2, messageHolder, TSpan.class);
 
-            List<TBase> tBaseList = messageHolder.getMessageHolder();
+            List<ServerRequest> tBaseList = messageHolder.getMessageHolder();
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -143,7 +160,7 @@ public class SpanStreamUDPSenderTest {
             awaitMessageReceived(2, messageHolder, TSpan.class);
             awaitMessageReceived(1, messageHolder, TSpanChunk.class);
 
-            List<TBase> tBaseList = messageHolder.getMessageHolder();
+            List<ServerRequest> tBaseList = messageHolder.getMessageHolder();
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -162,19 +179,22 @@ public class SpanStreamUDPSenderTest {
     }
 
     private SpanChunk createSpanChunk(TraceRoot traceRoot, int spanEventSize) throws InterruptedException {
-
-        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
+        final String agentId = "agentId";
+        final long agentStartTime = System.currentTimeMillis();
+        final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, transactionIdEncoder);
 
         List<SpanEvent> originalSpanEventList = createSpanEventList(traceRoot, spanEventSize);
         SpanChunk spanChunk = spanChunkFactory.create(traceRoot, originalSpanEventList);
         return spanChunk;
     }
     
-    private int getObjectCount(List<TBase> tbaseList, Class clazz) {
+    private int getObjectCount(List<ServerRequest> tbaseList, Class clazz) {
         int count = 0;
-        
-        for (TBase t : tbaseList) {
-            if (clazz.isInstance(t)) {
+
+
+        for (ServerRequest t : tbaseList) {
+            if (clazz.isInstance(t.getData())) {
                 count++;
             }
         }
@@ -223,7 +243,7 @@ public class SpanStreamUDPSenderTest {
         boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
             @Override
             public boolean checkCompleted() {
-                List<TBase> messageHolder = dispatchHandler.getMessageHolder();
+                List<ServerRequest> messageHolder = dispatchHandler.getMessageHolder();
                 int objectCount = getObjectCount(messageHolder, clazz);
                 return receivedCount == objectCount;
             }
@@ -244,24 +264,26 @@ public class SpanStreamUDPSenderTest {
 
     }
 
-    static class MessageHolderDispatchHandler extends AbstractDispatchHandler {
+    static class MessageHolderDispatchHandler implements DispatchHandler {
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        private List<TBase> messageHolder = new ArrayList<>();
+        private List<ServerRequest> messageHolder = new ArrayList<>();
+
 
         @Override
-        public void dispatchSendMessage(TBase<?, ?> tBase) {
+        public void dispatchSendMessage(ServerRequest serverRequest) {
             logger.debug("dispatchSendMessage");
         }
 
         @Override
-        public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
-            messageHolder.add(tBase);
-            return new TResult(true);
+        public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+            messageHolder.add(serverRequest);
+            TResult tResult = new TResult(true);
+            serverResponse.write(tResult);
         }
 
-        public List<TBase> getMessageHolder() {
+        public List<ServerRequest> getMessageHolder() {
             return messageHolder;
         }
 

@@ -16,10 +16,15 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.thrift.dto.command.*;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.thrift.dto.TResult;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * @author koo.taejin
@@ -106,6 +111,8 @@ public enum TCommandType {
     private final Class<? extends TBase> clazz;
     private final Header header;
 
+    private static final Set<TCommandType> TCOMMAND_TYPES = EnumSet.allOf(TCommandType.class);
+
     private TCommandType(short code, Class<? extends TBase> clazz) {
         this.code = code;
         this.clazz = clazz;
@@ -116,7 +123,7 @@ public enum TCommandType {
         return code;
     }
 
-    public Class getClazz() {
+    public Class<? extends TBase> getClazz() {
         return clazz;
     }
 
@@ -131,14 +138,12 @@ public enum TCommandType {
     public abstract TBase newObject();
 
     private static Header createHeader(short code) {
-        Header header = new Header();
-        header.setType(code);
+        Header header = new HeaderV1(code);
         return header;
     }
 
     public static TCommandType getType(Class<? extends TBase> clazz) {
-        TCommandType[] commandTypes = values();
-        for (TCommandType commandType : commandTypes) {
+        for (TCommandType commandType : TCOMMAND_TYPES) {
             if (commandType.getClazz() == clazz) {
                 return commandType;
             }
@@ -148,8 +153,7 @@ public enum TCommandType {
     }
 
     public static TCommandType getType(short code) {
-        TCommandType[] commandTypes = values();
-        for (TCommandType commandType : commandTypes) {
+        for (TCommandType commandType : TCOMMAND_TYPES) {
             if (commandType.getCode() == code) {
                 return commandType;
             }

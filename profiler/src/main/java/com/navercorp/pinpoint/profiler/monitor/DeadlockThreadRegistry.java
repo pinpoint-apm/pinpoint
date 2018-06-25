@@ -16,31 +16,40 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Taejin Koo
  */
 public class DeadlockThreadRegistry implements DeadlockThreadLocator {
 
-    private final Set<Long> deadlockedThreadIdSet = new HashSet<Long>();
+    private static final Object DUMMY_VALUE = new Object();
+
+    private final ConcurrentMap<Long, Object> deadlockedThreadIdMap = new ConcurrentHashMap<Long, Object>();
 
     boolean addDeadlockedThread(long threadId) {
-        return deadlockedThreadIdSet.add(threadId);
+        Object oldValue = deadlockedThreadIdMap.putIfAbsent(threadId, DUMMY_VALUE);
+        return oldValue == null;
     }
 
     @Override
     public Set<Long> getDeadlockedThreadIdSet() {
-        Set<Long> copied = new HashSet<Long>(deadlockedThreadIdSet.size());
-        copied.addAll(deadlockedThreadIdSet);
-        return copied;
+        final ConcurrentMap<Long, Object> deadlockedThreadIdMap = this.deadlockedThreadIdMap;
+        if (deadlockedThreadIdMap.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return new HashSet<Long>(deadlockedThreadIdMap.keySet());
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DeadlockThreadRegistry{");
-        sb.append("deadlockedThreadIdSet=").append(deadlockedThreadIdSet);
+        sb.append("deadlockedThreadIdSet=").append(deadlockedThreadIdMap.keySet());
         sb.append('}');
         return sb.toString();
     }

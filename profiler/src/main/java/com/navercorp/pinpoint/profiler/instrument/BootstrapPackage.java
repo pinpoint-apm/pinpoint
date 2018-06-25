@@ -24,7 +24,11 @@ import java.util.List;
  */
 public class BootstrapPackage {
 
-    private static final List<String> BOOTSTRAP_PACKAGE_LIST = Arrays.asList("com.navercorp.pinpoint.bootstrap", "com.navercorp.pinpoint.common", "com.navercorp.pinpoint.exception");
+    private static final String[] BOOTSTRAP_PACKAGE_LIST = {
+            "com.navercorp.pinpoint.bootstrap",
+            "com.navercorp.pinpoint.common",
+            "com.navercorp.pinpoint.exception"
+    };
 
     public boolean isBootstrapPackage(String className) {
         for (String bootstrapPackage : BOOTSTRAP_PACKAGE_LIST) {

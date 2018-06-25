@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
+    private TableNameProvider tableNameProvider;
+
+    @Autowired
     private AgentEventValueMapper valueMapper;
 
     @Override
@@ -64,7 +69,8 @@ public class HbaseAgentEventDao implements AgentEventDao {
         final AgentEventType eventType = agentEventBo.getEventType();
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
 
-        this.hbaseTemplate.put(HBaseTables.AGENT_EVENT, rowKey, HBaseTables.AGENT_EVENT_CF_EVENTS, qualifier, agentEventBo, this.valueMapper);
+        TableName agentEventTableName = tableNameProvider.getTableName(HBaseTables.AGENT_EVENT_STR);
+        this.hbaseTemplate.put(agentEventTableName, rowKey, HBaseTables.AGENT_EVENT_CF_EVENTS, qualifier, agentEventBo, this.valueMapper);
     }
 
     byte[] createRowKey(String agentId, long eventTimestamp) {

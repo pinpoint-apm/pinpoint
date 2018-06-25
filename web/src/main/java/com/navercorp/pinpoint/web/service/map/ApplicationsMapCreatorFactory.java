@@ -16,19 +16,12 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.web.service.LinkDataMapService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * @author HyunGil Jeong
@@ -36,51 +29,14 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class ApplicationsMapCreatorFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private final String mode;
-
-    private final LinkDataMapService linkDataMapService;
-
-    private final HostApplicationMapDao hostApplicationMapDao;
-
-    private final ExecutorService executorService;
+    private final Executor executor;
 
     @Autowired
-    public ApplicationsMapCreatorFactory(
-            @Value("#{pinpointWebProps['web.servermap.creator.mode'] ?: 'serial'}") String mode,
-            @Value("#{pinpointWebProps['web.servermap.creator.parallel.maxthreads'] ?: '16'}") int threadCount,
-            HostApplicationMapDao hostApplicationMapDao,
-            LinkDataMapService linkDataMapService) {
-        logger.info("ApplicationsMapCreatorFactory mode : {}", mode);
-        this.mode = mode;
-        this.linkDataMapService = linkDataMapService;
-        this.hostApplicationMapDao = hostApplicationMapDao;
-        if (this.mode.equalsIgnoreCase("parallel")) {
-            this.executorService = Executors.newFixedThreadPool(threadCount, new PinpointThreadFactory("Pinpoint-parallel-link-selector", true));
-        } else {
-            this.executorService = null;
-        }
+    public ApplicationsMapCreatorFactory(@Qualifier("applicationsMapCreateExecutor") Executor executor) {
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
     }
 
-    public ApplicationsMapCreator create(VirtualLinkMarker virtualLinkMarker) {
-        RpcCallReplacer rpcCallReplacer = new RpcCallReplacer(hostApplicationMapDao, virtualLinkMarker);
-        ApplicationMapCreator applicationMapCreator = new DefaultApplicationMapCreator(linkDataMapService, rpcCallReplacer);
-        if (mode.equalsIgnoreCase("parallel")) {
-            return new ParallelApplicationsMapCreator(applicationMapCreator, executorService);
-        }
-        return new SerialApplicationsMapCreator(applicationMapCreator);
-    }
-
-    @PreDestroy
-    public void preDestroy() {
-        if (executorService != null) {
-            executorService.shutdown();
-            try {
-                executorService.awaitTermination(10, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
+    public ApplicationsMapCreator create(ApplicationMapCreator applicationMapCreator) {
+        return new DefaultApplicationsMapCreator(applicationMapCreator, executor);
     }
 }

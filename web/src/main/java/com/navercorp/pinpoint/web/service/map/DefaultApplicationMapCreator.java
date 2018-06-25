@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
+import com.navercorp.pinpoint.web.service.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
@@ -34,17 +35,23 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
 
     private final LinkDataMapService linkDataMapService;
 
-    private final RpcCallReplacer rpcCallReplacer;
+    private final LinkDataMapProcessor callerLinkDataMapProcessor;
 
-    DefaultApplicationMapCreator(LinkDataMapService linkDataMapService, RpcCallReplacer rpcCallReplacer) {
+    private final LinkDataMapProcessor calleeLinkDataMapProcessor;
+
+    public DefaultApplicationMapCreator(LinkDataMapService linkDataMapService, LinkDataMapProcessor callerLinkDataMapProcessor, LinkDataMapProcessor calleeLinkDataMapProcessor) {
         if (linkDataMapService == null) {
             throw new NullPointerException("linkDataMapService must not be null");
         }
-        if (rpcCallReplacer == null) {
-            throw new NullPointerException("rpcCallReplacer must not be null");
+        if (callerLinkDataMapProcessor == null) {
+            throw new NullPointerException("callerLinkDataMapProcessor must not be null");
+        }
+        if (calleeLinkDataMapProcessor == null) {
+            throw new NullPointerException("calleeLinkDataMapProcessor must not be null");
         }
         this.linkDataMapService = linkDataMapService;
-        this.rpcCallReplacer = rpcCallReplacer;
+        this.callerLinkDataMapProcessor = callerLinkDataMapProcessor;
+        this.calleeLinkDataMapProcessor = calleeLinkDataMapProcessor;
     }
 
     @Override
@@ -59,8 +66,8 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
             final LinkDataMap callerLinkDataMap = linkDataMapService.selectCallerLinkDataMap(application, range);
             logger.debug("Found Caller. count={}, caller={}, depth={}", callerLinkDataMap.size(), application, linkSelectContext.getCallerDepth());
 
-            final LinkDataMap replacedCallerLinkDataMap = rpcCallReplacer.replaceRpcCalls(callerLinkDataMap, range);
-            for (LinkData callerLinkData : replacedCallerLinkDataMap.getLinkDataList()) {
+            final LinkDataMap processedCallerLinkDataMap = callerLinkDataMapProcessor.processLinkDataMap(callerLinkDataMap, range);
+            for (LinkData callerLinkData : processedCallerLinkDataMap.getLinkDataList()) {
                 searchResult.addSourceLinkData(callerLinkData);
                 final Application toApplication = callerLinkData.getToApplication();
                 // skip if nextApplication is a terminal or an unknown cloud
@@ -77,7 +84,8 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
             final LinkDataMap calleeLinkDataMap = linkDataMapService.selectCalleeLinkDataMap(application, range);
             logger.debug("Found Callee. count={}, callee={}, depth={}", calleeLinkDataMap.size(), application, linkSelectContext.getCalleeDepth());
 
-            for (LinkData calleeLinkData : calleeLinkDataMap.getLinkDataList()) {
+            final LinkDataMap processedCalleeLinkDataMap = calleeLinkDataMapProcessor.processLinkDataMap(calleeLinkDataMap, range);
+            for (LinkData calleeLinkData : processedCalleeLinkDataMap.getLinkDataList()) {
                 searchResult.addTargetLinkData(calleeLinkData);
                 final Application fromApplication = calleeLinkData.getFromApplication();
                 linkSelectContext.addNextApplication(fromApplication);

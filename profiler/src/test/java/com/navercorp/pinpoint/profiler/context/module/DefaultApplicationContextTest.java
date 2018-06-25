@@ -19,17 +19,13 @@ package com.navercorp.pinpoint.profiler.context.module;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Scope;
+import com.google.inject.Module;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.google.inject.internal.BindingImpl;
-import com.google.inject.internal.Scoping;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
@@ -38,10 +34,12 @@ import org.junit.Test;
 
 import java.lang.annotation.Annotation;
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -86,13 +84,18 @@ public class DefaultApplicationContextTest {
     }
 
     private DefaultApplicationContext newApplicationContext() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
 
-        return new DefaultApplicationContext(agentOption, binder);
+        Instrumentation instrumentation = mock(Instrumentation.class);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", false,
+                profilerConfig, Collections.<String>emptyList(), null);
+
+        InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
+        Module interceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(interceptorRegistryModule);
+
+        return new DefaultApplicationContext(agentOption, moduleFactory);
     }
 
 }

@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.collector.cluster.connection;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.navercorp.pinpoint.collector.util.Address;
+
 import java.util.List;
 
 /**
@@ -27,9 +27,9 @@ public interface ClusterConnectionManager {
 
     void stop();
 
-    void connectPointIfAbsent(InetSocketAddress address);
+    void connectPointIfAbsent(Address address);
 
-    public void disconnectPoint(SocketAddress address);
+    void disconnectPoint(Address address);
 
-    public List<SocketAddress> getConnectedAddressList();
+    List<Address> getConnectedAddressList();
 }

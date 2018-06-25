@@ -203,6 +203,23 @@
 	margin-left: 280px;
 	margin-right: 6px;
 }
+div.agent-chart-list .paging {
+    color: #FFF;
+    height: 28px;
+    margin: 1px 0px 4px 4px;
+    padding: 4px 4px;
+    background-color: #6F6F6F;
+    font-family: sans-serif;
+}
+div.agent-chart-list .paging span.page {
+    float: right;
+    color: #FFF;
+    margin: 2px;
+    cursor: pointer;
+    padding: 1px 4px 0px 4px;
+    font-size: 12px;
+    text-decoration: underline;
+}
 .realtime .agent-chart {
 	float: left;
     position:relative;

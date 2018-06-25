@@ -38,7 +38,7 @@ public class SendAgentStatService implements AgentStatService {
     private final boolean flinkClusterEnable;
     private final TFAgentStatBatchMapper tFAgentStatBatchMapper = new TFAgentStatBatchMapper();
 
-    private volatile List<TcpDataSender> flinkServerList = new CopyOnWriteArrayList();
+    private volatile List<TcpDataSender> flinkServerList = new CopyOnWriteArrayList<>();
     private AtomicInteger callCount = new AtomicInteger(1);
 
     public SendAgentStatService(CollectorConfiguration config) {
@@ -60,15 +60,19 @@ public class SendAgentStatService implements AgentStatService {
             }
 
             TFAgentStatBatch tFAgentStatBatch = tFAgentStatBatchMapper.map(agentStatBo);
-            logger.info("send to flinkserver : " + tFAgentStatBatch);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("send to flinkserver : {}", tFAgentStatBatch);
+            }
+
             tcpDataSender.send(tFAgentStatBatch);
         } catch (Exception e) {
             logger.error("Error sending to flink server. Caused:{}", e.getMessage(), e);
         }
     }
 
-    public TcpDataSender roundRobinTcpDataSender() {
-        if (flinkServerList.size() == 0) {
+    private TcpDataSender roundRobinTcpDataSender() {
+        if (flinkServerList.isEmpty()) {
             return null;
         }
 
@@ -90,6 +94,6 @@ public class SendAgentStatService implements AgentStatService {
     }
 
     public void replaceFlinkServerList(List<TcpDataSender> flinkServerList) {
-        this.flinkServerList = new CopyOnWriteArrayList(flinkServerList);
+        this.flinkServerList = new CopyOnWriteArrayList<>(flinkServerList);
     }
 }

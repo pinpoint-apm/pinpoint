@@ -15,21 +15,23 @@
  */
 package com.navercorp.pinpoint.flink;
 
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer;
+import com.navercorp.pinpoint.collector.receiver.TCPReceiverBean;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
-import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
-import com.navercorp.pinpoint.flink.process.TbaseFlatMapper;
+import com.navercorp.pinpoint.flink.dao.hbase.*;
+import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindowInterceptor;
+import com.navercorp.pinpoint.flink.process.ApplicationCache;
+import com.navercorp.pinpoint.flink.process.DefaultTBaseFlatMapperInterceptor;
+import com.navercorp.pinpoint.flink.process.TBaseFlatMapper;
+import com.navercorp.pinpoint.flink.process.TBaseFlatMapperInterceptor;
 import com.navercorp.pinpoint.flink.receiver.AgentStatHandler;
-import com.navercorp.pinpoint.flink.receiver.TCPReceiver;
 import com.navercorp.pinpoint.flink.receiver.TcpDispatchHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
-import org.apache.thrift.TBase;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -42,22 +44,49 @@ public class Bootstrap {
 
     private final StatisticsDao statisticsDao;
 
-    private final ApplicationContext applicationContext;
+    private final ClassPathXmlApplicationContext applicationContext;
 
-    private final TbaseFlatMapper tbaseFlatMapper;
+    private final TBaseFlatMapper tbaseFlatMapper;
     private final FlinkConfiguration flinkConfiguration;
     private final TcpDispatchHandler tcpDispatchHandler;
     private final TcpSourceFunction tcpSourceFunction;
-    private Bootstrap() {
-        String[] SPRING_CONFIG_XML = new String[]{"applicationContext-flink.xml", "applicationContext-cache.xml"};
-        applicationContext = new ClassPathXmlApplicationContext(SPRING_CONFIG_XML);
+    private final ApplicationCache applicationCache;
+    private final CpuLoadDao cpuLoadDao;
+    private final MemoryDao memoryDao;
+    private final TransactionDao transactionDao;
+    private final ActiveTraceDao activeTraceDao;
+    private final ResponseTimeDao responseTimeDao;
+    private final DataSourceDao dataSourceDao;
+    private final FileDescriptorDao fileDescriptorDao;
+    private final DirectBufferDao directBufferDao;
+    private final TBaseFlatMapperInterceptor tBaseFlatMapperInterceptor;
+    private final StatisticsDaoInterceptor statisticsDaoInterceptor;
+    private final ApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor;
 
-        tbaseFlatMapper = applicationContext.getBean("tbaseFlatMapper", TbaseFlatMapper.class);
+    private Bootstrap() {
+        applicationContext = new ClassPathXmlApplicationContext("applicationContext-flink.xml");
+
+        tbaseFlatMapper = applicationContext.getBean("tbaseFlatMapper", TBaseFlatMapper.class);
         flinkConfiguration = applicationContext.getBean("flinkConfiguration", FlinkConfiguration.class);
         tcpDispatchHandler = applicationContext.getBean("tcpDispatchHandler", TcpDispatchHandler.class);
         tcpSourceFunction = applicationContext.getBean("tcpSourceFunction", TcpSourceFunction.class);
+        applicationCache = applicationContext.getBean("applicationCache", ApplicationCache.class);
         statisticsDao = applicationContext.getBean("statisticsDao", StatisticsDao.class);
+        cpuLoadDao = applicationContext.getBean("cpuLoadDao", CpuLoadDao.class);
+        memoryDao = applicationContext.getBean("memoryDao", MemoryDao.class);
+        transactionDao = applicationContext.getBean("transactionDao", TransactionDao.class);
+        activeTraceDao = applicationContext.getBean("activeTraceDao", ActiveTraceDao.class);
+        responseTimeDao = applicationContext.getBean("responseTimeDao", ResponseTimeDao.class);
+        dataSourceDao = applicationContext.getBean("dataSourceDao", DataSourceDao.class);
+        fileDescriptorDao = applicationContext.getBean("fileDescriptorDao", FileDescriptorDao.class);
+        directBufferDao = applicationContext.getBean("directBufferDao", DirectBufferDao.class);
+        tBaseFlatMapperInterceptor = applicationContext.getBean("tBaseFlatMapperInterceptor", TBaseFlatMapperInterceptor.class);
+        statisticsDaoInterceptor =  applicationContext.getBean("statisticsDaoInterceptor", StatisticsDaoInterceptor.class);
+        applicationStatBoWindowInterceptor = applicationContext.getBean("applicationStatBoWindowInterceptor", ApplicationStatBoWindowInterceptor.class);
+    }
 
+    public FileDescriptorDao getFileDescriptorDao() {
+        return fileDescriptorDao;
     }
 
     public static Bootstrap getInstance() {
@@ -72,8 +101,40 @@ public class Bootstrap {
         return statisticsDao;
     }
 
-    public TbaseFlatMapper getTbaseFlatMapper() {
+    public CpuLoadDao getCpuLoadDao() {
+        return cpuLoadDao;
+    }
+
+    public MemoryDao getMemoryDao() {
+        return memoryDao;
+    }
+
+    public TransactionDao getTransactionDao() {
+        return transactionDao;
+    }
+
+    public ActiveTraceDao getActiveTraceDao() {
+        return activeTraceDao;
+    }
+
+    public ResponseTimeDao getResponseTimeDao() {
+        return responseTimeDao;
+    }
+
+    public DataSourceDao getDataSourceDao() {
+        return dataSourceDao;
+    }
+
+    public DirectBufferDao getDirectBufferDao() {
+        return directBufferDao;
+    }
+
+    public TBaseFlatMapper getTbaseFlatMapper() {
         return tbaseFlatMapper;
+    }
+
+    public ApplicationCache getApplicationCache() {
+        return applicationCache;
     }
 
     public FlinkConfiguration getFlinkConfiguration() {
@@ -82,7 +143,9 @@ public class Bootstrap {
 
     public StreamExecutionEnvironment createStreamExecutionEnvironment() {
         if (flinkConfiguration.isLocalforFlinkStreamExecutionEnvironment()) {
-            return StreamExecutionEnvironment.createLocalEnvironment();
+            LocalStreamEnvironment localEnvironment = StreamExecutionEnvironment.createLocalEnvironment();
+            localEnvironment.setParallelism(1);
+            return localEnvironment;
         } else {
             return StreamExecutionEnvironment.getExecutionEnvironment();
         }
@@ -93,7 +156,7 @@ public class Bootstrap {
         rawData.setParallelism(parallel);
     }
 
-    public void setStatHandlerTcpDispatchHandler(SourceContext<TBase> sourceContext) {
+    public void setStatHandlerTcpDispatchHandler(SourceContext<ServerRequest> sourceContext) {
         AgentStatHandler agentStatHandler = new AgentStatHandler(sourceContext);
         tcpDispatchHandler.setAgentStatHandler(agentStatHandler);
     }
@@ -102,11 +165,24 @@ public class Bootstrap {
         return applicationContext.getBean("flinkServerRegister", FlinkServerRegister.class);
     }
 
-    public TCPReceiver initTcpReceiver() {
-        return applicationContext.getBean("tcpReceiver", TCPReceiver.class);
+    public void initTcpReceiver() {
+        // lazy init
+        applicationContext.getBean("tcpReceiver", TCPReceiverBean.class);
     }
 
-    public TcpSourceFunction getTcpSourceFuncation() {
+    public TcpSourceFunction getTcpSourceFunction() {
         return tcpSourceFunction;
+    }
+
+    public TBaseFlatMapperInterceptor getTbaseFlatMapperInterceptor() {
+        return tBaseFlatMapperInterceptor;
+    }
+
+    public StatisticsDaoInterceptor getStatisticsDaoInterceptor() {
+        return statisticsDaoInterceptor;
+    }
+
+    public ApplicationStatBoWindowInterceptor getApplicationStatBoWindowInterceptor() {
+        return applicationStatBoWindowInterceptor;
     }
 }

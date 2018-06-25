@@ -13,12 +13,16 @@
 
 		this.send = function( category, name, label, count, options ) {
 			if ( typeof ga !== "undefined" ) {
-				if (SystemConfigService.get("sendUsage") !== true) return;
-				if (arguments.length == 1) {
-					ga("send", "pageview", arguments[0]);
-				} else {
-					ga("send", "event", category, name, label, count, options);
-				}
+				SystemConfigService.getConfig().then(function(config) {
+					if ( config["sendUsage"] !== true ) {
+						return;
+					}
+					if (arguments.length == 1) {
+						ga("send", "pageview", arguments[0]);
+					} else {
+						ga("send", "event", category, name, label, count, options);
+					}
+				});
 			}
 		};
 		this.sendMain = function( name, label, count, options ) {
@@ -31,6 +35,7 @@
 		this.CONST.CALLSTACK = "CallStack";
 		this.CONST.MIXEDVIEW = "MixedView";
 		this.CONST.INSPECTOR = "Inspector";
+		this.CONST.REALTIME = "RealTime";
 
 		this.CONST.VERSION = "Version";
 		this.CONST.CLK_APPLICATION = "ClickApplication";

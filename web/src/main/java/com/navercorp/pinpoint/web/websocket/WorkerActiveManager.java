@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class WorkerActiveManager {
 
     private static final long DEFAULT_RECONNECT_DELAY = 5000;
-    private static final long DEFAULT_AGENT_CHECk_DELAY = 10000;
+    private static final long DEFAULT_AGENT_CHECK_DELAY = 10000;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -49,6 +51,7 @@ public class WorkerActiveManager {
     private final AgentService agentService;
 
     private final Timer timer;
+    private final TimerTaskDecorator timerTaskDecorator;
 
     private final AtomicBoolean isStopped = new AtomicBoolean();
 
@@ -60,13 +63,14 @@ public class WorkerActiveManager {
     private final AtomicBoolean onAgentCheckTimerTask = new AtomicBoolean(false);
     private final List<String> defaultAgentIdList = new CopyOnWriteArrayList<>();
 
-    public WorkerActiveManager(PinpointWebSocketResponseAggregator responseAggregator, AgentService agentService, Timer timer) {
-        this.responseAggregator = responseAggregator;
+    public WorkerActiveManager(PinpointWebSocketResponseAggregator responseAggregator, AgentService agentService, Timer timer, TimerTaskDecorator timerTaskDecorator) {
+        this.responseAggregator = Objects.requireNonNull(responseAggregator, "responseAggregator must not be null");
+        this.agentService = Objects.requireNonNull(agentService, "agentService must not be null");
 
-        this.applicationName = responseAggregator.getApplicationName();
-        this.agentService = agentService;
+        this.timer = Objects.requireNonNull(timer, "timer must not be null");
+        this.timerTaskDecorator = Objects.requireNonNull(timerTaskDecorator, "timerTaskDecorator must not be null");
 
-        this.timer = timer;
+        this.applicationName = this.responseAggregator.getApplicationName();
     }
 
     public void close() {
@@ -100,7 +104,8 @@ public class WorkerActiveManager {
             boolean turnOn = onReconnectTimerTask.compareAndSet(false, true);
             logger.info("addReactiveWorker turnOn:{}", turnOn);
             if (turnOn) {
-                timer.schedule(new ReactiveTimerTask(), DEFAULT_RECONNECT_DELAY);
+                TimerTask reactiveTimerTask = timerTaskDecorator.decorate(new ReactiveTimerTask());
+                timer.schedule(reactiveTimerTask, DEFAULT_RECONNECT_DELAY);
             }
         }
     }
@@ -110,7 +115,8 @@ public class WorkerActiveManager {
 
         boolean turnOn = onAgentCheckTimerTask.compareAndSet(false, true);
         if (turnOn) {
-            timer.schedule(new AgentCheckTimerTask(), DEFAULT_AGENT_CHECk_DELAY);
+            TimerTask agentCheckTimerTask = timerTaskDecorator.decorate(new AgentCheckTimerTask());
+            timer.schedule(agentCheckTimerTask, DEFAULT_AGENT_CHECK_DELAY);
         }
     }
 
@@ -170,7 +176,8 @@ public class WorkerActiveManager {
                 }
             } finally {
                 if (timer != null && onAgentCheckTimerTask.get() && !isStopped.get()) {
-                    timer.schedule(new AgentCheckTimerTask(), DEFAULT_AGENT_CHECk_DELAY);
+                    TimerTask agentCheckTimerTask = timerTaskDecorator.decorate(new AgentCheckTimerTask());
+                    timer.schedule(agentCheckTimerTask, DEFAULT_AGENT_CHECK_DELAY);
                 }
             }
         }

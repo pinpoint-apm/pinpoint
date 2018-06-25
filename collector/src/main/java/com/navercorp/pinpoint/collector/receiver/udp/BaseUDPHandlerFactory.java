@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,9 +18,14 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
-import com.navercorp.pinpoint.thrift.io.*;
-
-import org.apache.commons.lang3.StringUtils;
+import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.io.request.DefaultServerRequest;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -30,9 +35,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -51,45 +54,12 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
 
     private final PacketHandler<T> dispatchPacket = new DispatchPacket();
     
-    private final InetAddress[] ignoreAddresses;
+    private final AddressFilter ignoreAddressFilter;
 
-    public BaseUDPHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress> filter, List<String> l4IpList) {
-        if (dispatchHandler == null) {
-            throw new NullPointerException("dispatchHandler must not be null");
-        }
-        if (filter == null) {
-            throw new NullPointerException("filter must not be null");
-        }
-        this.dispatchHandler = dispatchHandler;
-        this.filter = filter;
-        this.ignoreAddresses = setIgnoreAddressList(l4IpList);
-    }
-    
-    private InetAddress[] setIgnoreAddressList(List<String> l4IpList) {
-        if (l4IpList == null) {
-            return null;
-        }
-        try {
-            List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
-            for (int i = 0; i < l4IpList.size(); i++) {
-                String l4Ip = l4IpList.get(i);
-                if (StringUtils.isBlank(l4Ip)) {
-                    continue;
-                }
-
-                InetAddress address = InetAddress.getByName(l4Ip);
-                if (address != null) {
-                    inetAddressList.add(address);
-                }
-            }
-            
-            InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
-            return inetAddressList.toArray(inetAddressArray);
-        } catch (UnknownHostException e) {
-            logger.warn("l4ipList error {}", l4IpList, e);
-        }
-        
-        return null;
+    public BaseUDPHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress> filter, AddressFilter ignoreAddressFilter) {
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        this.filter = Objects.requireNonNull(filter, "filter must not be null");
+        this.ignoreAddressFilter = Objects.requireNonNull(ignoreAddressFilter, "ignoreAddressFilter must not be null");
     }
 
     @Override
@@ -111,15 +81,17 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
             
             final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
             SocketAddress socketAddress = packet.getSocketAddress();
-            TBase<?, ?> tBase = null;
-            
+            Message<TBase<?, ?>> message = null;
             try {
-                tBase = deserializer.deserialize(packet.getData());
-                if (filter.filter(localSocket, tBase, socketAddress) == TBaseFilter.BREAK) {
+                message = deserializer.deserialize(packet.getData());
+                TBase<?, ?> data = message.getData();
+
+                if (filter.filter(localSocket, data, socketAddress) == TBaseFilter.BREAK) {
                     return;
                 }
+                ServerRequest<TBase<?, ?>> request = new DefaultServerRequest<>(message);
                 // dispatch signifies business logic execution
-                dispatchHandler.dispatchSendMessage(tBase);
+                dispatchHandler.dispatchSendMessage(request);
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", socketAddress, e.getMessage(), e);
@@ -130,7 +102,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
             } catch (Exception e) {
                 // there are cases where invalid headers are received
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} tBase:{}", socketAddress, e.getMessage(), tBase, e);
+                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} message:{}", socketAddress, e.getMessage(), message, e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
@@ -139,19 +111,14 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
         }
         
         private boolean isIgnoreAddress(InetAddress remoteAddress) {
-            if (ignoreAddresses == null) {
-                return false;
-            }
             if (remoteAddress == null) {
                 return false;
             }
-            for (InetAddress ignore : ignoreAddresses) {
-                if (ignore.equals(remoteAddress)) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("UDP Connected ignore address. IP : " + remoteAddress.getHostAddress());
-                    }
-                    return true;
+            if (!ignoreAddressFilter.accept(remoteAddress)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("UDP Connected ignore address. IP : " + remoteAddress.getHostAddress());
                 }
+                return true;
             }
             return false;
         }

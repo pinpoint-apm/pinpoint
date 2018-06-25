@@ -23,9 +23,6 @@ import java.util.Arrays;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.transport.TMemoryBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -148,22 +145,7 @@ public class BytesUtilsTest {
         Assert.assertEquals(value, decode);
     }
 
-    @Test
-    public void compactProtocolVint() throws TException {
-        TMemoryBuffer tMemoryBuffer = writeVInt32(BytesUtils.zigzagToInt(64));
-        logger.trace("length:{}", tMemoryBuffer.length());
 
-        TMemoryBuffer tMemoryBuffer2 = writeVInt32(64);
-        logger.trace("length:{}", tMemoryBuffer2.length());
-
-    }
-
-    private TMemoryBuffer writeVInt32(int i) throws TException {
-        TMemoryBuffer tMemoryBuffer = new TMemoryBuffer(10);
-        TCompactProtocol tCompactProtocol = new TCompactProtocol(tMemoryBuffer);
-        tCompactProtocol.writeI32(i);
-        return tMemoryBuffer;
-    }
 
     @Test
     public void testWriteBytes1() {

@@ -19,11 +19,12 @@ package com.navercorp.pinpoint.web.service.map;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SearchOption;
+
+import java.util.List;
 
 /**
  * @author emeroad
  */
 public interface LinkSelector {
-    LinkDataDuplexMap select(Application sourceApplication, Range range, SearchOption searchOption);
+    LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth);
 }

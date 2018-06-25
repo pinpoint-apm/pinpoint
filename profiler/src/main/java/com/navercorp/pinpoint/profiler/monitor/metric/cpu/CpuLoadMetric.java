@@ -16,25 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.cpu;
 
-import com.codahale.metrics.Gauge;
-import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-
 /**
  * @author HyunGil Jeong
  */
 public interface CpuLoadMetric {
 
-    Gauge<Double> UNSUPPORTED_GAUGE = new MetricMonitorValues.EmptyGauge<Double>(-1D);
+    double UNCOLLECTED_USAGE = -1D;
 
     CpuLoadMetric UNSUPPORTED_CPU_LOAD_METRIC = new CpuLoadMetric() {
-        @Override
-        public Double jvmCpuLoad() {
-            return null;
-        }
+
+        private final CpuLoadMetricSnapshot uncollectedSnapshot = new CpuLoadMetricSnapshot(UNCOLLECTED_USAGE, UNCOLLECTED_USAGE);
 
         @Override
-        public Double systemCpuLoad() {
-            return null;
+        public CpuLoadMetricSnapshot getSnapshot() {
+            return uncollectedSnapshot;
         }
 
         @Override
@@ -43,7 +38,5 @@ public interface CpuLoadMetric {
         }
     };
 
-    Double jvmCpuLoad();
-
-    Double systemCpuLoad();
+    CpuLoadMetricSnapshot getSnapshot();
 }

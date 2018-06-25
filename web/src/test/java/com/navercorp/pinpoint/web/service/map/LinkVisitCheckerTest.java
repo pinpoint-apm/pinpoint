@@ -75,7 +75,7 @@ public class LinkVisitCheckerTest {
         VisitJobContext jobContext = new VisitJobContext(linkVisitor, visitedLatch, submitLatch, firstVisitCount, alreadyVisitedCount);
         final Application testApplication = new Application("test1", ServiceType.STAND_ALONE);
 
-        for (int i = 0; i < concurrency; ++i) {
+        for (int i = 0; i < concurrency; i++) {
             executorService.submit(new VisitJob(jobContext, testApplication));
         }
         submitLatch.countDown();
@@ -101,7 +101,7 @@ public class LinkVisitCheckerTest {
         final Application testApplication2 = new Application("test2", ServiceType.STAND_ALONE);
         final Application testApplication3 = new Application("test3", ServiceType.STAND_ALONE);
 
-        for (int i = 0; i < concurrency; ++i) {
+        for (int i = 0; i < concurrency; i++) {
             if (i % 3 == 0) {
                 executorService.submit(new VisitJob(jobContext, testApplication1));
             } else if (i % 3 == 1) {

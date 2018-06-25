@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,14 +24,48 @@ import java.util.List;
  */
 public class JoinAgentStatBo implements JoinStatBo {
     public static final JoinAgentStatBo EMPTY_JOIN_AGENT_STAT_BO = new JoinAgentStatBo();
-    private static final List<JoinCpuLoadBo>  EMPTY_JOIN_CPU_LOAD_BO_LIST = new ArrayList<JoinCpuLoadBo>(0);
-    private static final List<JoinMemoryBo> EMPTY_JOIN_MEMORY_BO_LIST = new ArrayList<JoinMemoryBo>();
+
 
     private String agentId = UNKNOWN_AGENT;
     private long agentStartTimestamp = Long.MIN_VALUE;
     private long timestamp = Long.MIN_VALUE;
-    private List<JoinCpuLoadBo> joinCpuLoadBoList = EMPTY_JOIN_CPU_LOAD_BO_LIST;
-    private List<JoinMemoryBo> joinMemoryBoList = EMPTY_JOIN_MEMORY_BO_LIST;
+    private List<JoinCpuLoadBo> joinCpuLoadBoList = Collections.emptyList();
+    private List<JoinMemoryBo> joinMemoryBoList = Collections.emptyList();
+    private List<JoinTransactionBo> joinTransactionBoList = Collections.emptyList();
+    private List<JoinActiveTraceBo> joinActiveTraceBoList = Collections.emptyList();
+    private List<JoinResponseTimeBo> joinResponseTimeBoList = Collections.emptyList();
+    private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
+    private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
+    private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
+
+    protected JoinAgentStatBo(JoinAgentStatBo joinAgentStatBo) {
+        if (joinAgentStatBo == null) {
+            throw new IllegalArgumentException("joinAgentStatBo cannot be null");
+        }
+
+        this.agentId = joinAgentStatBo.getId();
+        this.agentStartTimestamp = joinAgentStatBo.getAgentStartTimestamp();
+        this.timestamp = joinAgentStatBo.getTimestamp();
+        this.joinCpuLoadBoList = joinAgentStatBo.getJoinCpuLoadBoList();
+        this.joinMemoryBoList = joinAgentStatBo.getJoinMemoryBoList();
+        this.joinTransactionBoList = joinAgentStatBo.getJoinTransactionBoList();
+        this.joinActiveTraceBoList = joinAgentStatBo.getJoinActiveTraceBoList();
+        this.joinResponseTimeBoList = joinAgentStatBo.getJoinResponseTimeBoList();
+        this.joinDataSourceListBoList = joinAgentStatBo.getJoinDataSourceListBoList();
+        this.joinFileDescriptorBoList = joinAgentStatBo.getJoinFileDescriptorBoList();
+        this.joinDirectBufferBoList = joinAgentStatBo.getJoinDirectBufferBoList();
+    }
+
+    public JoinAgentStatBo() {
+    }
+
+    public List<JoinResponseTimeBo> getJoinResponseTimeBoList() {
+        return joinResponseTimeBoList;
+    }
+
+    public void setJoinResponseTimeBoList(List<JoinResponseTimeBo> joinResponseTimeBoList) {
+        this.joinResponseTimeBoList = joinResponseTimeBoList;
+    }
 
     public void setId(String id) {
         this.agentId = id;
@@ -38,6 +73,10 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public void setJoinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList) {
         this.joinCpuLoadBoList = joinCpuLoadBoList;
+    }
+
+    public void setJoinDataSourceListBoList(List<JoinDataSourceListBo> joinDataSourceListBoList) {
+        this.joinDataSourceListBoList = joinDataSourceListBoList;
     }
 
     public String getId() {
@@ -52,8 +91,24 @@ public class JoinAgentStatBo implements JoinStatBo {
         return timestamp;
     }
 
+    public List<JoinFileDescriptorBo> getJoinFileDescriptorBoList() {
+        return joinFileDescriptorBoList;
+    }
+
+    public void setJoinFileDescriptorBoList(List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
+        this.joinFileDescriptorBoList = joinFileDescriptorBoList;
+    }
+
     public List<JoinCpuLoadBo> getJoinCpuLoadBoList() {
         return joinCpuLoadBoList;
+    }
+
+    public List<JoinDirectBufferBo> getJoinDirectBufferBoList() {
+        return joinDirectBufferBoList;
+    }
+
+    public void setJoinDirectBufferBoList(List<JoinDirectBufferBo> joinDirectBufferBoList) {
+        this.joinDirectBufferBoList = joinDirectBufferBoList;
     }
 
     public long getAgentStartTimestamp() {
@@ -93,5 +148,42 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public List<JoinMemoryBo> getJoinMemoryBoList() {
         return joinMemoryBoList;
+    }
+
+    public void setJoinTransactionBoList(List<JoinTransactionBo> joinTransactionBoList) {
+        this.joinTransactionBoList = joinTransactionBoList;
+    }
+
+    public List<JoinTransactionBo> getJoinTransactionBoList() {
+        return joinTransactionBoList;
+    }
+
+    public void setJoinActiveTraceBoList(List<JoinActiveTraceBo> joinActiveTraceBoList) {
+        this.joinActiveTraceBoList = joinActiveTraceBoList;
+    }
+
+    public List<JoinActiveTraceBo> getJoinActiveTraceBoList() {
+        return joinActiveTraceBoList;
+    }
+
+    public List<JoinDataSourceListBo> getJoinDataSourceListBoList() {
+        return joinDataSourceListBoList;
+    }
+
+    @Override
+    public String toString() {
+        return "JoinAgentStatBo{" +
+            "agentId='" + agentId + '\'' +
+            ", agentStartTimestamp=" + agentStartTimestamp +
+            ", timestamp=" + timestamp +
+            ", joinCpuLoadBoList=" + joinCpuLoadBoList +
+            ", joinMemoryBoList=" + joinMemoryBoList +
+            ", joinTransactionBoList=" + joinTransactionBoList +
+            ", joinActiveTraceBoList=" + joinActiveTraceBoList +
+            ", joinResponseTimeBoList=" + joinResponseTimeBoList +
+            ", joinDataSourceListBoList=" + joinDataSourceListBoList +
+            ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
+            ", joinDirectBufferBoList=" + joinDirectBufferBoList +
+            '}';
     }
 }

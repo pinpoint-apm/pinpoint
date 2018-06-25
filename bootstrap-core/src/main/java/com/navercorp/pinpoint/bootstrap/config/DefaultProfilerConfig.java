@@ -18,13 +18,14 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Deprecated
     public static final String INSTRUMENT_ENGINE_JAVASSIST = "JAVASSIST";
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
+
+    public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
+    public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
 
     public interface ValueResolver {
         String resolve(String value, Properties properties);
@@ -93,7 +97,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean instrumentMatcherEnable = true;
     private InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
 
-    private int interceptorRegistrySize = 1024*8;
+    private int interceptorRegistrySize = 1024 * 8;
+
+    @VisibleForTesting
+    private boolean staticResourceCleanup = false;
 
     private String collectorSpanServerIp = DEFAULT_IP;
     private int collectorSpanServerPort = 9996;
@@ -108,12 +115,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int spanDataSenderSocketTimeout = 1000 * 3;
     private int spanDataSenderChunkSize = 1024 * 16;
+    private String spanDataSenderTransportType = "UDP";
     private String spanDataSenderSocketType = "OIO";
 
     private int statDataSenderWriteQueueSize = 1024 * 5;
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
     private int statDataSenderChunkSize = 1024 * 16;
+    private String statDataSenderTransportType = "UDP";
     private String statDataSenderSocketType = "OIO";
 
     private boolean tcpDataSenderCommandAcceptEnable = false;
@@ -144,9 +153,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean ioBufferingEnable;
     private int ioBufferingBufferSize;
 
-    private int profileJvmCollectInterval;
     private String profileJvmVendorName;
-    private boolean profilerJvmCollectDetailedMetrics;
+    private String profileOsName;
+    private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
+    private int profileJvmStatBatchSendCount = DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
+    private boolean profilerJvmStatCollectDetailedMetrics;
 
     private Filter<String> profilableClassFilter = new SkipFilter<String>();
 
@@ -159,6 +170,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean propagateInterceptorException = false;
     private boolean supportLambdaExpressions = true;
+
+    private boolean proxyHttpHeaderEnable = true;
+
+    private List<String> httpStatusCodeErrors = Collections.emptyList();
+
+    private String injectionModuleFactoryClazzName = null;
+    private String applicationNamespace = "";
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -225,6 +243,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public String getStatDataSenderSocketType() {
         return statDataSenderSocketType;
+    }
+
+    @Override
+    public String getStatDataSenderTransportType() {
+        return statDataSenderTransportType;
     }
 
     @Override
@@ -298,6 +321,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public String getSpanDataSenderTransportType() {
+        return spanDataSenderTransportType;
+    }
+
+    @Override
     public int getSpanDataSenderChunkSize() {
         return spanDataSenderChunkSize;
     }
@@ -349,18 +377,28 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public int getProfileJvmCollectInterval() {
-        return profileJvmCollectInterval;
-    }
-
-    @Override
     public String getProfilerJvmVendorName() {
         return profileJvmVendorName;
     }
 
     @Override
-    public boolean isProfilerJvmCollectDetailedMetrics() {
-        return profilerJvmCollectDetailedMetrics;
+    public String getProfilerOSName() {
+        return profileOsName;
+    }
+
+    @Override
+    public int getProfileJvmStatCollectIntervalMs() {
+        return profileJvmStatCollectIntervalMs;
+    }
+
+    @Override
+    public int getProfileJvmStatBatchSendCount() {
+        return profileJvmStatBatchSendCount;
+    }
+
+    @Override
+    public boolean isProfilerJvmStatCollectDetailedMetrics() {
+        return profilerJvmStatCollectDetailedMetrics;
     }
 
     @Override
@@ -368,17 +406,26 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return agentInfoSendRetryInterval;
     }
 
+    @Override
+    public boolean getStaticResourceCleanup() {
+        return staticResourceCleanup;
+    }
+
+    public void setStaticResourceCleanup(boolean staticResourceCleanup) {
+        this.staticResourceCleanup = staticResourceCleanup;
+    }
+
 
     @Override
     public Filter<String> getProfilableClassFilter() {
         return profilableClassFilter;
     }
-    
+
     @Override
     public List<String> getApplicationTypeDetectOrder() {
         return applicationTypeDetectOrder;
     }
-    
+
     @Override
     public List<String> getDisabledPlugins() {
         return disabledPlugins;
@@ -401,7 +448,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public void setCallStackMaxDepth(int callStackMaxDepth) {
         this.callStackMaxDepth = callStackMaxDepth;
     }
-    
+
     @Override
     public boolean isPropagateInterceptorException() {
         return propagateInterceptorException;
@@ -427,6 +474,26 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return instrumentMatcherCacheConfig;
     }
 
+    @Override
+    public boolean isProxyHttpHeaderEnable() {
+        return proxyHttpHeaderEnable;
+    }
+
+    @Override
+    public List<String> getHttpStatusCodeErrors() {
+        return httpStatusCodeErrors;
+    }
+
+    @Override
+    public String getInjectionModuleFactoryClazzName() {
+        return injectionModuleFactoryClazzName;
+    }
+
+    @Override
+    public String getApplicationNamespace() {
+        return applicationNamespace;
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
@@ -443,7 +510,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.instrumentMatcherCacheConfig.setSuperCacheSize(readInt("profiler.instrument.matcher.super.cache.size", 4));
         this.instrumentMatcherCacheConfig.setSuperCacheEntrySize(readInt("profiler.instrument.matcher.super.cache.entry.size", 4));
 
-        this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
+        this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024 * 8);
 
         this.collectorSpanServerIp = readString("profiler.collector.span.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorSpanServerPort = readInt("profiler.collector.span.port", 9996);
@@ -459,12 +526,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.spanDataSenderSocketTimeout = readInt("profiler.spandatasender.socket.timeout", 1000 * 3);
         this.spanDataSenderChunkSize = readInt("profiler.spandatasender.chunk.size", 1024 * 16);
         this.spanDataSenderSocketType = readString("profiler.spandatasender.socket.type", "OIO");
+        this.spanDataSenderTransportType = readString("profiler.spandatasender.transport.type", "UDP");
 
         this.statDataSenderWriteQueueSize = readInt("profiler.statdatasender.write.queue.size", 1024 * 5);
         this.statDataSenderSocketSendBufferSize = readInt("profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.statDataSenderSocketTimeout = readInt("profiler.statdatasender.socket.timeout", 1000 * 3);
         this.statDataSenderChunkSize = readInt("profiler.statdatasender.chunk.size", 1024 * 16);
         this.statDataSenderSocketType = readString("profiler.statdatasender.socket.type", "OIO");
+        this.statDataSenderTransportType = readString("profiler.statdatasender.transport.type", "UDP");
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
         this.tcpDataSenderCommandActiveThreadEnable = readBoolean("profiler.tcpdatasender.command.activethread.enable", false);
@@ -485,7 +554,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         if (this.callStackMaxDepth < 2) {
             this.callStackMaxDepth = 2;
         }
-        
+
         // JDBC
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
         this.traceSqlBindValue = readBoolean("profiler.jdbc.tracesqlbindvalue", false);
@@ -500,10 +569,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
         this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
 
+        //OS
+        this.profileOsName = readString("profiler.os.name", null);
+
         // JVM
-        this.profileJvmCollectInterval = readInt("profiler.jvm.collect.interval", 1000);
         this.profileJvmVendorName = readString("profiler.jvm.vendor.name", null);
-        this.profilerJvmCollectDetailedMetrics = readBoolean("profiler.jvm.collect.detailed.metrics", false);
+        this.profileJvmStatCollectIntervalMs = readInt("profiler.jvm.stat.collect.interval", DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS);
+        this.profileJvmStatBatchSendCount = readInt("profiler.jvm.stat.batch.send.count", DEFAULT_NUM_AGENT_STAT_BATCH_SEND);
+        this.profilerJvmStatCollectDetailedMetrics = readBoolean("profiler.jvm.stat.collect.detailed.metrics", false);
 
         this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 
@@ -512,9 +585,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // application type detector order
         this.applicationTypeDetectOrder = readList("profiler.type.detect.order");
-        
+
         this.disabledPlugins = readList("profiler.plugin.disable");
-        
+
         // TODO have to remove        
         // profile package included in order to test "call stack view".
         // this config must not be used in service environment because the size of  profiling information will get heavy.
@@ -523,9 +596,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         if (!profilableClass.isEmpty()) {
             this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
         }
-        
+
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
         this.supportLambdaExpressions = readBoolean("profiler.lambda.expressions.support", true);
+
+        // proxy http header names
+        this.proxyHttpHeaderEnable = readBoolean("profiler.proxy.http.header.enable", true);
+
+        this.httpStatusCodeErrors = readList("profiler.http.status.code.errors");
+
+        this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
+
+        this.applicationNamespace = readString("profiler.application.namespace", "");
 
         logger.info("configuration loaded successfully.");
     }
@@ -590,11 +672,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public List<String> readList(String propertyName) {
         String value = properties.getProperty(propertyName);
-        if (value == null) {
+        if (StringUtils.isEmpty(value)) {
             return Collections.emptyList();
         }
-        String[] orders = value.trim().split(",");
-        return Arrays.asList(orders);
+        return StringUtils.tokenizeToStringList(value, ",");
     }
 
     @Override
@@ -630,8 +711,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(1024);
-        sb.append("{");
+        final StringBuilder sb = new StringBuilder("DefaultProfilerConfig{");
         sb.append("properties=").append(properties);
         sb.append(", propertyPlaceholderHelper=").append(propertyPlaceholderHelper);
         sb.append(", profileEnable=").append(profileEnable);
@@ -649,11 +729,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
         sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
         sb.append(", spanDataSenderChunkSize=").append(spanDataSenderChunkSize);
+        sb.append(", spanDataSenderTransportType='").append(spanDataSenderTransportType).append('\'');
         sb.append(", spanDataSenderSocketType='").append(spanDataSenderSocketType).append('\'');
         sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
         sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
         sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
         sb.append(", statDataSenderChunkSize=").append(statDataSenderChunkSize);
+        sb.append(", statDataSenderTransportType='").append(statDataSenderTransportType).append('\'');
         sb.append(", statDataSenderSocketType='").append(statDataSenderSocketType).append('\'');
         sb.append(", tcpDataSenderCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
         sb.append(", tcpDataSenderCommandActiveThreadEnable=").append(tcpDataSenderCommandActiveThreadEnable);
@@ -673,9 +755,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", samplingRate=").append(samplingRate);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
         sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
-        sb.append(", profileJvmCollectInterval=").append(profileJvmCollectInterval);
+        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
-        sb.append(", profilerJvmCollectDetailedMetrics=").append(profilerJvmCollectDetailedMetrics);
+        sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
+        sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
+        sb.append(", profilerJvmStatCollectDetailedMetrics=").append(profilerJvmStatCollectDetailedMetrics);
         sb.append(", profilableClassFilter=").append(profilableClassFilter);
         sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
@@ -684,6 +768,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", disabledPlugins=").append(disabledPlugins);
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
+        sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
+        sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
+        sb.append(", injectionModuleFactoryClazzName='").append(injectionModuleFactoryClazzName).append('\'');
+        sb.append(", applicationNamespace='").append(applicationNamespace).append('\'');
         sb.append('}');
         return sb.toString();
     }

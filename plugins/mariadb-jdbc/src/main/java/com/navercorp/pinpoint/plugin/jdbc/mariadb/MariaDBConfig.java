@@ -49,8 +49,7 @@ public class MariaDBConfig extends JdbcConfig {
 
     @Override
     public String toString() {
-        return "MariaDBConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit
-                + ", profileRollback=" + profileRollback + "]";
+        return "MariaDBConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
     }
 
 }

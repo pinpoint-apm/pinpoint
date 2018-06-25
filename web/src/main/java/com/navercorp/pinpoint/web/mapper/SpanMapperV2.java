@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -52,7 +51,6 @@ import java.util.List;
 /**
  * @author emeroad
  */
-@Beta
 @Component
 public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
@@ -156,7 +154,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     private void sortSpanEvent(List<SpanBo> spanBoList) {
         for (SpanBo spanBo : spanBoList) {
             List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
-            Collections.sort(spanEventBoList, SpanEventComparator.INSTANCE);
+            spanEventBoList.sort(SpanEventComparator.INSTANCE);
         }
     }
 

@@ -20,9 +20,12 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
@@ -51,6 +54,8 @@ public class TraceTest {
     private final long agentStartTime = System.currentTimeMillis();
     private final long traceStartTime = agentStartTime + 100;
 
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+
     @Mock
     private AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
     @Mock
@@ -77,7 +82,7 @@ public class TraceTest {
 
         SpanStorage storage = mock(SpanStorage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder);
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
         trace.traceBlockBegin();
 
         // get data form db
@@ -111,7 +116,7 @@ public class TraceTest {
 
         SpanStorage storage = mock(SpanStorage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder);
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
 
         trace.close();
 
@@ -134,7 +139,7 @@ public class TraceTest {
     }
 
     private Span newSpan(TraceRoot traceRoot) {
-        final SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, agentStartTime, ServiceType.STAND_ALONE);
+        final SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
         return spanFactory.newSpan(traceRoot);
     }
 

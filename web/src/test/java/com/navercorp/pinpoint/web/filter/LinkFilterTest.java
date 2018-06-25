@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
+import com.navercorp.pinpoint.web.TestTraceUtils;
 import org.apache.hadoop.hbase.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,45 +19,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
+import static com.navercorp.pinpoint.web.TestTraceUtils.*;
 
 /**
  * @author emeroad
  */
 public class LinkFilterTest {
 
-    private static final short UNKNOWN_TYPE_CODE = ServiceType.UNKNOWN.getCode();
-    private static final String UNKNOWN_TYPE_NAME = ServiceType.UNKNOWN.getName();
-    private static final short USER_TYPE_CODE = ServiceType.USER.getCode();
-    private static final String USER_TYPE_NAME = ServiceType.USER.getName();
-    private static final short TOMCAT_TYPE_CODE = 1010;
-    private static final String TOMCAT_TYPE_NAME = "TOMCAT";
-    private static final short RPC_TYPE_CODE = 9999;
-    private static final String RPC_TYPE_NAME = "RPC";
-    private static final short BACKEND_TYPE_CODE = 2100;
-    private static final String BACKEND_TYPE_NAME = "BACKEND";
-    private static final short MESSAGE_QUEUE_TYPE_CODE = 8310;
-    private static final String MESSAGE_QUEUE_TYPE_NAME = "MESSAGE_QUEUE";
-
     private static final int RPC_ANNOTATION_CODE = -1;
     private static final String RPC_ANNOTATION_NAME = "rpc.url";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final ServiceTypeRegistryService serviceTypeRegistryService = mockServiceTypeRegistryService();
+    private final ServiceTypeRegistryService serviceTypeRegistryService = TestTraceUtils.mockServiceTypeRegistryService();
     private final AnnotationKeyRegistryService annotationKeyRegistryService = mockAnnotationKeyRegistryService();
-
-    private ServiceTypeRegistryService mockServiceTypeRegistryService() {
-
-        ServiceTypeRegistryMockFactory mockFactory = new ServiceTypeRegistryMockFactory();
-        mockFactory.addServiceTypeMock(UNKNOWN_TYPE_CODE, UNKNOWN_TYPE_NAME, RECORD_STATISTICS);
-        mockFactory.addServiceTypeMock(USER_TYPE_CODE, USER_TYPE_NAME, RECORD_STATISTICS);
-        mockFactory.addServiceTypeMock(TOMCAT_TYPE_CODE, TOMCAT_TYPE_NAME, RECORD_STATISTICS);
-        mockFactory.addServiceTypeMock(RPC_TYPE_CODE, RPC_TYPE_NAME, RECORD_STATISTICS);
-        mockFactory.addServiceTypeMock(BACKEND_TYPE_CODE, BACKEND_TYPE_NAME, TERMINAL, INCLUDE_DESTINATION_ID);
-        mockFactory.addServiceTypeMock(MESSAGE_QUEUE_TYPE_CODE, MESSAGE_QUEUE_TYPE_NAME, QUEUE, RECORD_STATISTICS);
-
-        return mockFactory.createMockServiceTypeRegistryService();
-    }
 
     private AnnotationKeyRegistryService mockAnnotationKeyRegistryService() {
         final AnnotationKey rpcUrlAnnotationKey = AnnotationKeyFactory.of(RPC_ANNOTATION_CODE, RPC_ANNOTATION_NAME);

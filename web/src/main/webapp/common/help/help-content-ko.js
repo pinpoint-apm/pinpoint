@@ -1,11 +1,5 @@
 (function(){ 
 	'use strict';
-	/**
-	 * (en)한국어 Tooltip 
-	 * @ko 한국어 Tooltip
-	 * @group Config
-	 * @name pinpointApp#helpContent-ko
-	 */
 	var oHelp = {
 		configuration: {
 			general: {
@@ -53,20 +47,25 @@
 						desc: "heap의 사용률이 임계치를 초과한 경우 알람이 전송된다."
 					},{
 						name: "JVM CPU USAGE RATE",
-						desc: "applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다."
+						desc: "application의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다."
 					},{
 						name: "DATASOURCE CONNECTION USAGE RATE",
-						desc: "applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다."
+						desc: "application의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다."
 					}, {
 						name: "DEADLOCK OCCURRENCE",
-						desc: "applicaiton에서 데드락 상태가 탐지되면 알람이 전송된다."
+						desc: "application에서 데드락 상태가 탐지되면 알람이 전송된다."
 					}]
 				}]
+			},
+			installation: {
+				desc: "* Application Name 과 Agent Id의 중복 여부를 확인 할 수 있습니다.",
+				lengthGuide: "1 ~ {{MAX_CHAR}}자의 문자를 입력하세요."
 			}
 		},
 		navbar : {
 			searchPeriod : {
-				guide: "한번에 검색 할 수 있는 최대 기간은 {{day}}일 입니다."
+				guideDateMax: "한번에 검색 할 수 있는 최대 기간은 {{day}}일 입니다.",
+				guideDateOrder: "날짜 및 시간을 잘못 설정 하였습니다."
 			},
 			applicationSelector: {
 				mainStyle: "",
@@ -458,6 +457,9 @@
 				category: [{
 					title: "[범례]",
 					items: [{
+						name: "<span class='glyphicon glyphicon-home'></span>",
+						desc: "물리서버 호스트 이름"
+					},{
 						name: "<span class='glyphicon glyphicon-hdd'></span>",
 						desc: "물리서버에 설치된 서버 인스턴스에서 동작중인 Pinpoint의 agentId입니다."
 					}]
@@ -507,6 +509,7 @@
 			}
 		},
 		inspector: {
+			noDataCollected: "No data collected",
 			list: {
 				mainStyle: "",
 				title: "Agent 리스트",
@@ -554,16 +557,16 @@
 			},
 			permGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "JVM의 PermGen 정보와 full garbage collection 소요 시간",
+				title: "Non-Heap",
+				desc: "JVM의 non-heap 정보와 full garbage collection 소요 시간",
 				category: [{
 					title: "[범례]",
 					items: [{
 						name: "Max",
-						desc: "최대 heap 사이즈"
+						desc: "최대 non-heap 사이즈"
 					},{
 						name: "Used",
-						desc: "현재 사용 중인 heap 사이즈"
+						desc: "현재 사용 중인 non-heap 사이즈"
 					},{
 						name: "FGC",
 						desc: "Full garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
@@ -663,6 +666,66 @@
 					}]
 				}]
 			},
+			openFileDescriptor: {
+				mainStyle: "",
+				title: "File Descriptor",
+				desc: "에이전트의 File Descriptor 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Open File Descriptor",
+						desc: "현재 열려있는 File Descriptor 개수"
+					}]
+				}]
+			},
+			directBufferCount: {
+				mainStyle: "",
+				title: "Direct Buffer",
+				desc: "에이전트의 Direct Buffer 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Direct Buffer Count",
+						desc: "현재 Direct Buffer 의 개수"
+					}]
+				}]
+			},
+			directBufferMemory: {
+				mainStyle: "",
+				title: "Direct Buffer Memory",
+				desc: "에이전트의 Direct Buffer Memory 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Direct Buffer Memory Used",
+						desc: "현재 Direct Buffer 가 사용중인 메모리"
+					}]
+				}]
+			},
+			mappedBufferCount: {
+				mainStyle: "",
+				title: "Mapped Buffer",
+				desc: "에이전트의 Mapped Buffer 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Mapped Buffer Count",
+						desc: "현재 Mapped Buffer 의 개수"
+					}]
+				}]
+			},
+			mappedBufferMemory: {
+				mainStyle: "",
+				title: "Mapped Buffer Memory",
+				desc: "에이전트의 Mapped Buffer Memory 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Mapped Buffer Memory Used",
+						desc: "현재 Mapped Buffer 가 사용중인 메모리"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>해당 agent는 {{application1}}이 아닌 {{application2}}에 포함되어 있습니다.<br>",
 				"원인은 다음 중 하나입니다.<hr>",
@@ -691,19 +754,19 @@
 			},
 			statPermGen: {
 				mainStyle: "",
-				title: "PermGen",
-				desc: "Agent들이 사용하는 JVM Permgen 사이즈 정보",
+				title: "Non-Heap",
+				desc: "Agent들이 사용하는 JVM non-heap 사이즈 정보",
 				category: [{
 					title: "[범례]",
 					items: [{
 						name: "MAX",
-						desc: "Agent들이 사용하는 perm 중 가장 큰 값"
+						desc: "Agent들이 사용하는 non-heap 중 가장 큰 값"
 					},{
 						name: "AVG",
-						desc: "Agent들이 사용하는 perm의 평균값"
+						desc: "Agent들이 사용하는 non-heap의 평균값"
 					},{
 						name: "MIN",
-						desc: "Agent들이 사용하는 perm 중 가장 작은 값"
+						desc: "Agent들이 사용하는 non-heap 중 가장 작은 값"
 					}]
 				}]
 			},
@@ -740,9 +803,177 @@
 					},{
 						name: "MIN",
 						desc: "Agent 서버들의 시스템 cpu 사용량 중 가장 작은 값"
+					}]
+				},{
+					title: "[참고]",
+					items: [{
+						name: "Java 1.6",
+						desc: "시스템 CPU 사용량은 수집되지 않습니다."
 					},{
-						name: "",
-						desc: "<span style='color:#2ca02c'>Java1.6 시스템 CPU 사용량은 수집되지 않습니다.<br>Java1.7+ 시스템 CPU 사용량이 수집됩니다.</span>"
+						name: "Java 1.7+",
+						desc: "Java1.7+ 시스템 CPU 사용량이 수집됩니다."
+					}]
+				}]
+			},
+			statTPS: {
+				mainStyle: "",
+				title: "TPS",
+				desc: "Agent들에 인입된 초당 트랜잭션 수",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들의 트랜잭션 수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들의 트랙잭션 수의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들의 트랜잭션 수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statActiveThread: {
+				mainStyle: "",
+				title: "Active Thread",
+				desc: "사용자의 request를 처리하는 active thread 수",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들의 active thread 수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들의 active thread 수의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들의 active thread 수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statResponseTime: {
+				mainStyle: "",
+				title: "Response Time",
+				desc: "Agent들의 평균 Response Time(단위: millisecond)",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "agent들의 평균 Response Time 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "agent들의 평균 Response Time의 평균값"
+					},{
+						name: "MIN",
+						desc: "agent들의 평균 Response Time 중 가장 작은 값"
+					}]
+				}]
+			},
+			statDataSource: {
+				mainStyle: "",
+				title: "Data Source",
+				desc: "Agent들의 DataSource 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "agent들의 DataSource connection 개수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "agent들의 DataSource connection 개수의 평균값"
+					},{
+						name: "MIN",
+						desc: "agent들의 DataSource connection 개수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statOpenFileDescriptor: {
+				mainStyle: "",
+				title: "File Descriptor",
+				desc: "에이전트들의 File Descriptor 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 열고 있는 File Descriptor 개수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 열고 있는 File Descriptor 개수의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 열고 있는 File Descriptor 개수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statDirectBufferCount: {
+				mainStyle: "",
+				title: "Direct Buffer",
+				desc: "Agent들의 Direct Buffer 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 사용 중인 Direct Buffer 개수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 사용 중인 Direct Buffer 개수의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 사용 중인 Direct Buffer 개수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statDirectBufferMemory: {
+				mainStyle: "",
+				title: "Direct Buffer Memory",
+				desc: "Agent들의 Direct Buffer Memory 사용 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 사용 중인 Direct Buffer Memory 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 사용 중인 Direct Buffer Memory 의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 사용 중인 Direct Buffer Memory 중 가장 작은 값"
+					}]
+				}]
+			},
+			statMappedBufferCount: {
+				mainStyle: "",
+				title: "Mapped Buffer",
+				desc: "Agent들의 Mapped Buffer 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 사용 중인 Mapped Buffer 개수 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 사용 중인 Mapped Buffer 개수의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 사용 중인 Mapped Buffer 개수 중 가장 작은 값"
+					}]
+				}]
+			},
+			statMappedBufferMemory: {
+				mainStyle: "",
+				title: "Mapped Buffer Memory",
+				desc: "Agent들의 Mapped Buffer Memory 사용 현황",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 가 사용 중인 Mapped Buffer Memory 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 가 사용 중인 Mapped Buffer Memory 의 평균 값"
+					},{
+						name: "MIN",
+						desc: "Agent 가 사용 중인 Mapped Buffer Memory 중 가장 작은 값"
 					}]
 				}]
 			}
@@ -784,7 +1015,9 @@
 				noParent: "부모 윈도우의 scatter chart 정보가 변경되어 더 이상 transaction 정보를 표시할 수 없습니다.",
 				noData: "부모 윈도우에 {{application}} scatter chart 정보가 없습니다."
 			}
-		}
+		},
+		applicationInspectorGuideMessage: "Application Inspector 기능이 활성화 되어 있지 않습니다.<br>" +
+		"Application Inspector 기능을 사용하려면 <a href='https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md' target='blank'>링크 <span class='glyphicon glyphicon-new-window'></span></a>를 참고하세요."
 	};
 	pinpointApp.constant('helpContent-ko', oHelp );
 })();

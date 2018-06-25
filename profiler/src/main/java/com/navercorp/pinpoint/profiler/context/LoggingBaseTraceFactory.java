@@ -63,14 +63,6 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
         return baseTraceFactory.continueTraceObject(traceId);
     }
 
-    @Override
-    public Trace continueTraceObject(Trace trace) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("continueTraceObject(trace:{})", trace);
-        }
-
-        return baseTraceFactory.continueTraceObject(trace);
-    }
 
     @Override
     @InterfaceAudience.LimitedPrivate("vert.x")

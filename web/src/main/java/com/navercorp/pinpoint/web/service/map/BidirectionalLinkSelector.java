@@ -21,13 +21,11 @@ import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.SearchDepth;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Breadth-first link search
@@ -43,7 +41,7 @@ public class BidirectionalLinkSelector implements LinkSelector {
 
     private final ApplicationsMapCreator applicationsMapCreator;
 
-    private final VirtualLinkProcessor virtualLinkProcessor;
+    private final VirtualLinkHandler virtualLinkHandler;
 
     private final ServerMapDataFilter serverMapDataFilter;
 
@@ -51,36 +49,27 @@ public class BidirectionalLinkSelector implements LinkSelector {
 
     BidirectionalLinkSelector(
             ApplicationsMapCreator applicationsMapCreator,
-            VirtualLinkProcessor virtualLinkProcessor,
+            VirtualLinkHandler virtualLinkHandler,
             ServerMapDataFilter serverMapDataFilter) {
         if (applicationsMapCreator == null) {
             throw new NullPointerException("applicationsMapCreator must not be null");
         }
-        if (virtualLinkProcessor == null) {
-            throw new NullPointerException("virtualLinkProcessor must not be null");
+        if (virtualLinkHandler == null) {
+            throw new NullPointerException("virtualLinkHandler must not be null");
         }
         this.applicationsMapCreator = applicationsMapCreator;
-        this.virtualLinkProcessor = virtualLinkProcessor;
+        this.virtualLinkHandler = virtualLinkHandler;
         this.serverMapDataFilter = serverMapDataFilter;
     }
 
     @Override
-    public LinkDataDuplexMap select(Application sourceApplication, Range range, SearchOption searchOption) {
-        if (searchOption == null) {
-            throw new NullPointerException("searchOption must not be null");
-        }
-
-        logger.debug("Creating link data map for {}", sourceApplication);
-        final SearchDepth callerDepth = new SearchDepth(searchOption.getCallerSearchDepth());
-        final SearchDepth calleeDepth = new SearchDepth(searchOption.getCalleeSearchDepth());
+    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
+        logger.debug("Creating link data map for {}", sourceApplications);
+        final SearchDepth callerDepth = new SearchDepth(callerSearchDepth);
+        final SearchDepth calleeDepth = new SearchDepth(calleeSearchDepth);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-        List<Application> applications;
-        if (!filter(sourceApplication)) {
-            applications = Collections.emptyList();
-        } else {
-            applications = Collections.singletonList(sourceApplication);
-        }
+        List<Application> applications = filterApplications(sourceApplications);
         LinkSelectContext linkSelectContext = new LinkSelectContext(range, callerDepth, calleeDepth, linkVisitChecker);
 
         while (!applications.isEmpty()) {
@@ -92,20 +81,22 @@ public class BidirectionalLinkSelector implements LinkSelector {
             linkDataDuplexMap.addLinkDataDuplexMap(levelData);
 
             List<Application> nextApplications = linkSelectContext.getNextApplications();
-            applications = nextApplications
-                    .stream()
-                    .filter(this::filter)
-                    .collect(Collectors.toList());
+            applications = filterApplications(nextApplications);
             linkSelectContext = linkSelectContext.advance();
         }
-        return virtualLinkProcessor.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, range);
+        return virtualLinkHandler.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, range);
     }
 
-    private boolean filter(Application targetApplication) {
-        if (serverMapDataFilter != null && serverMapDataFilter.filter(targetApplication)) {
-            return false;
+    private List<Application> filterApplications(List<Application> applications) {
+        if (serverMapDataFilter == null) {
+            return applications;
         }
-        return true;
+        List<Application> filteredApplications = new ArrayList<>();
+        for (Application application : applications) {
+            if (!serverMapDataFilter.filter(application)) {
+                filteredApplications.add(application);
+            }
+        }
+        return filteredApplications;
     }
-
 }

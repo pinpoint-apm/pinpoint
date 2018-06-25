@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.mapper.AgentEventResultsExtractor;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
@@ -55,6 +57,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
+
+    @Autowired
+    private TableNameProvider tableNameProvider;
 
     @Autowired
     @Qualifier("agentEventMapper")
@@ -88,7 +93,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
             }
             scan.setFilter(filterList);
         }
-        List<AgentEventBo> agentEvents = this.hbaseOperations2.find(HBaseTables.AGENT_EVENT, scan, agentEventResultsExtractor);
+
+        TableName agentEventTableName = tableNameProvider.getTableName(HBaseTables.AGENT_EVENT_STR);
+        List<AgentEventBo> agentEvents = this.hbaseOperations2.find(agentEventTableName, scan, agentEventResultsExtractor);
         logger.debug("agentEvents found. {}", agentEvents);
         return agentEvents;
     }
@@ -107,7 +114,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
         final byte[] rowKey = createRowKey(agentId, eventTimestamp);
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
-        List<AgentEventBo> events = this.hbaseOperations2.get(HBaseTables.AGENT_EVENT, rowKey,
+
+        TableName agentEventTableName = tableNameProvider.getTableName(HBaseTables.AGENT_EVENT_STR);
+        List<AgentEventBo> events = this.hbaseOperations2.get(agentEventTableName, rowKey,
                 HBaseTables.AGENT_EVENT_CF_EVENTS, qualifier, this.agentEventMapper);
         if (CollectionUtils.isEmpty(events)) {
             return null;

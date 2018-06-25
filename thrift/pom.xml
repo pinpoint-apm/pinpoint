@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.7.0-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-thrift</artifactId>
@@ -12,6 +12,10 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
@@ -92,6 +96,13 @@
                                             <arg value="-o" />
                                             <arg value="${basedir}/generated-sources/thrift" />
                                             <arg value="${basedir}/src/main/thrift/Command.thrift" />
+                                        </exec>
+                                        <exec executable="${thrift.executable}" failonerror="true">
+                                            <arg value="--gen" />
+                                            <arg value="java:beans" />
+                                            <arg value="-o" />
+                                            <arg value="${basedir}/generated-sources/thrift" />
+                                            <arg value="${basedir}/src/main/thrift/Flink.thrift" />
                                         </exec>
                                         <copy todir="src/main/java" overwrite="true">
                                             <fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />

@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -209,7 +208,7 @@ public class ScatterChartController {
 
         boolean requestComplete = transactionIdList.size() < limit;
 
-        Collections.sort(transactionIdList, TransactionIdComparator.INSTANCE);
+        transactionIdList.sort(TransactionIdComparator.INSTANCE);
         Filter filter = filterBuilder.build(filterText);
 
         ModelAndView mv;

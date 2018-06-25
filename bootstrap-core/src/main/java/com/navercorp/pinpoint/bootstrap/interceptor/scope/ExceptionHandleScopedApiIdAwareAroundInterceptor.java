@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.interceptor.scope;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -32,8 +32,9 @@ public class ExceptionHandleScopedApiIdAwareAroundInterceptor implements ApiIdAw
     private final ApiIdAwareAroundInterceptor delegate;
     private final InterceptorScope scope;
     private final ExecutionPolicy policy;
+    private final ExceptionHandler exceptionHandler;
 
-    public ExceptionHandleScopedApiIdAwareAroundInterceptor(ApiIdAwareAroundInterceptor delegate, InterceptorScope scope, ExecutionPolicy policy) {
+    public ExceptionHandleScopedApiIdAwareAroundInterceptor(ApiIdAwareAroundInterceptor delegate, InterceptorScope scope, ExecutionPolicy policy, ExceptionHandler exceptionHandler) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
@@ -43,9 +44,13 @@ public class ExceptionHandleScopedApiIdAwareAroundInterceptor implements ApiIdAw
         if (policy == null) {
             throw new NullPointerException("policy must not be null");
         }
+        if (exceptionHandler == null) {
+            throw new NullPointerException("exceptionHandler must not be null");
+        }
         this.delegate = delegate;
         this.scope = scope;
         this.policy = policy;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override
@@ -56,7 +61,7 @@ public class ExceptionHandleScopedApiIdAwareAroundInterceptor implements ApiIdAw
             try {
                 this.delegate.before(target, apiId, args);
             } catch (Throwable t) {
-                InterceptorInvokerHelper.handleException(t);
+                exceptionHandler.handleException(t);
             }
         } else {
             if (debugEnabled) {
@@ -73,7 +78,7 @@ public class ExceptionHandleScopedApiIdAwareAroundInterceptor implements ApiIdAw
             try {
                 this.delegate.after(target, apiId, args, result, throwable);
             } catch (Throwable t) {
-                InterceptorInvokerHelper.handleException(t);
+                exceptionHandler.handleException(t);
             } finally {
                 transaction.leave(policy);
             }

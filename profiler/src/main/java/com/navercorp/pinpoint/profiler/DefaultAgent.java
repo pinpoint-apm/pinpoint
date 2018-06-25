@@ -20,16 +20,16 @@ import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolver;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
@@ -50,15 +50,12 @@ public class DefaultAgent implements Agent {
 
     private final ProfilerConfig profilerConfig;
 
-    private final  ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
 
     private final Object agentStatusLock = new Object();
     private volatile AgentStatus agentStatus;
 
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
-    
 
     static {
         // Preload classes related to pinpoint-rpc module.
@@ -66,23 +63,6 @@ public class DefaultAgent implements Agent {
     }
 
     public DefaultAgent(AgentOption agentOption) {
-        this(agentOption, createInterceptorRegistry(agentOption));
-    }
-
-    public static InterceptorRegistryBinder createInterceptorRegistry(AgentOption agentOption) {
-        final int interceptorSize = getInterceptorSize(agentOption);
-        return new DefaultInterceptorRegistryBinder(interceptorSize);
-    }
-
-    private static int getInterceptorSize(AgentOption agentOption) {
-        if (agentOption == null) {
-            return DefaultInterceptorRegistryBinder.DEFAULT_MAX;
-        }
-        final ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
-        return profilerConfig.getInterceptorRegistrySize();
-    }
-
-    public DefaultAgent(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {
         if (agentOption == null) {
             throw new NullPointerException("agentOption must not be null");
         }
@@ -92,21 +72,11 @@ public class DefaultAgent implements Agent {
         if (agentOption.getProfilerConfig() == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        if (agentOption.getServiceTypeRegistryService() == null) {
-            throw new NullPointerException("serviceTypeRegistryService must not be null");
-        }
 
-        if (interceptorRegistryBinder == null) {
-            throw new NullPointerException("interceptorRegistryBinder must not be null");
-        }
         logger.info("AgentOption:{}", agentOption);
 
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
-
-        this.interceptorRegistryBinder = interceptorRegistryBinder;
-        interceptorRegistryBinder.bind();
-        this.serviceTypeRegistryService = agentOption.getServiceTypeRegistryService();
 
         dumpSystemProperties();
         dumpConfig(agentOption.getProfilerConfig());
@@ -115,16 +85,18 @@ public class DefaultAgent implements Agent {
 
         this.profilerConfig = agentOption.getProfilerConfig();
 
-        this.applicationContext = newApplicationContext(agentOption, interceptorRegistryBinder);
+        this.applicationContext = newApplicationContext(agentOption);
 
-        
-        InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
     }
 
-    protected ApplicationContext newApplicationContext(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-        return new DefaultApplicationContext(agentOption, interceptorRegistryBinder);
-    }
+    protected ApplicationContext newApplicationContext(AgentOption agentOption) {
+        Assert.requireNonNull(agentOption, "agentOption must not be null");
+        ProfilerConfig profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
 
+        ModuleFactoryResolver moduleFactoryResolver = new DefaultModuleFactoryResolver(profilerConfig.getInjectionModuleFactoryClazzName());
+        ModuleFactory moduleFactory = moduleFactoryResolver.resolve();
+        return new DefaultApplicationContext(agentOption, moduleFactory);
+    }
 
     protected ApplicationContext getApplicationContext() {
         return applicationContext;
@@ -159,10 +131,6 @@ public class DefaultAgent implements Agent {
     }
 
 
-    public ServiceTypeRegistryService getServiceTypeRegistryService() {
-        return serviceTypeRegistryService;
-    }
-    
     @Override
     public void start() {
         synchronized (agentStatusLock) {
@@ -180,10 +148,6 @@ public class DefaultAgent implements Agent {
 
     @Override
     public void stop() {
-        stop(false);
-    }
-
-    public void stop(boolean staticResourceCleanup) {
         synchronized (agentStatusLock) {
             if (this.agentStatus == AgentStatus.RUNNING) {
                 changeStatus(AgentStatus.STOPPED);
@@ -196,9 +160,8 @@ public class DefaultAgent implements Agent {
         this.applicationContext.close();
 
         // for testcase
-        if (staticResourceCleanup) {
+        if (profilerConfig.getStaticResourceCleanup()) {
             PLoggerFactory.unregister(this.binder);
-            this.interceptorRegistryBinder.unbind();
         }
     }
 

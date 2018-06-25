@@ -168,7 +168,7 @@ class StringUtils {
         if (collection == null) {
             return null;
         }
-        return collection.toArray(new String[collection.size()]);
+        return collection.toArray(new String[0]);
     }
 
 }

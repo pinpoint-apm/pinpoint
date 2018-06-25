@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -134,7 +133,7 @@ public class ASMMethodVariablesTest {
         final MethodNode methodNode = ASMClassNodeLoader.get(className, "argByteType");
         String[] exceptions = null;
         if (methodNode.exceptions != null) {
-            exceptions = methodNode.exceptions.toArray(new String[methodNode.exceptions.size()]);
+            exceptions = methodNode.exceptions.toArray(new String[0]);
         }
 
         final ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter("foo", new MethodNode(methodNode.access, methodNode.name, methodNode.desc, methodNode.signature, exceptions));

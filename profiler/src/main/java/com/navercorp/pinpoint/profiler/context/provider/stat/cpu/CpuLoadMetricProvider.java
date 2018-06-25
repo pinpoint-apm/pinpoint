@@ -26,6 +26,11 @@ import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.Constructor;
+
 /**
  * @author HyunGil Jeong
  */
@@ -80,16 +85,31 @@ public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
         if (classToLoad == null) {
             return CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
         }
-        CpuLoadMetric cpuLoadMetric;
+        OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        if (operatingSystemMXBean == null) {
+            return CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
+        }
         try {
             @SuppressWarnings("unchecked")
             Class<CpuLoadMetric> cpuLoadMetricClass = (Class<CpuLoadMetric>) Class.forName(classToLoad);
-            cpuLoadMetric = cpuLoadMetricClass.newInstance();
+            try {
+                // Create CpuLoadMetric for Java 7+
+                Constructor<CpuLoadMetric> cpuLoadMetricConstructor = cpuLoadMetricClass.getConstructor(OperatingSystemMXBean.class);
+                return cpuLoadMetricConstructor.newInstance(operatingSystemMXBean);
+            } catch (NoSuchMethodException e1) {
+                try {
+                    // Create CpuLoadMetric for Java 6
+                    RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+                    Constructor<CpuLoadMetric> cpuLoadMetricConstructor = cpuLoadMetricClass.getConstructor(OperatingSystemMXBean.class, RuntimeMXBean.class);
+                    return cpuLoadMetricConstructor.newInstance(operatingSystemMXBean, runtimeMXBean);
+                } catch (NoSuchMethodException e2) {
+                    logger.warn("Unknown CpuLoadMetric : {}", classToLoad);
+                    return CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
+                }
+            }
         } catch (Exception e) {
             logger.warn("Error creating CpuLoadMetric [" + classToLoad + "]", e);
-            cpuLoadMetric = CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
+            return CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
         }
-        return cpuLoadMetric;
-
     }
 }

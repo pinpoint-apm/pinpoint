@@ -200,10 +200,10 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         indexValueSet.add(indexValue);
     }
 
-    class IndexValue {
-        final MatcherOperand operand;
-        final ClassFileTransformer transformer;
-        final AtomicLong accumulatorTimeMillis = new AtomicLong(0);
+    static class IndexValue {
+        private final MatcherOperand operand;
+        private final ClassFileTransformer transformer;
+        private final AtomicLong accumulatorTimeMillis = new AtomicLong(0);
 
         public IndexValue(final MatcherOperand operand, final ClassFileTransformer transformer) {
             this.operand = operand;

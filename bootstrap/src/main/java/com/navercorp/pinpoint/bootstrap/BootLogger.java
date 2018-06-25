@@ -61,7 +61,7 @@ public final class BootLogger {
         this.err = err;
     }
 
-    static BootLogger getLogger(String loggerName) {
+    public static BootLogger getLogger(String loggerName) {
         return new BootLogger(loggerName);
     }
 

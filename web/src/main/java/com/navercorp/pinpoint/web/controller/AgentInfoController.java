@@ -16,12 +16,17 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentInstallationInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
+import com.navercorp.pinpoint.web.vo.CodeResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +45,9 @@ import java.util.List;
 @Controller
 public class AgentInfoController {
 
+    private static final int CODE_SUCCESS = 0;
+    private static final int CODE_FAIL = -1;
+
     @Autowired
     private AgentInfoService agentInfoService;
 
@@ -48,50 +56,50 @@ public class AgentInfoController {
 
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application"})
     @ResponseBody
-    public ApplicationAgentList getAgentList() {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME);
+    public ApplicationAgentsList getAgentList() {
+        return this.agentInfoService.getAllApplicationAgentsList();
     }
 
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application", "from", "to"})
     @ResponseBody
-    public ApplicationAgentList getAgentList(
+    public ApplicationAgentsList getAgentList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME, to);
+        return this.agentInfoService.getAllApplicationAgentsList(to);
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application", "timestamp"})
     @ResponseBody
-    public ApplicationAgentList getAgentList(
+    public ApplicationAgentsList getAgentList(
             @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME, timestamp);
+        return this.agentInfoService.getAllApplicationAgentsList(timestamp);
     }
 
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application"})
     @ResponseBody
-    public ApplicationAgentList getAgentList(
+    public ApplicationAgentsList getAgentList(
             @RequestParam("application") String applicationName) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName);
+        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, applicationName);
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application", "from", "to"})
     @ResponseBody
-    public ApplicationAgentList getAgentList(
+    public ApplicationAgentsList getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName, to);
+        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, applicationName, to);
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application", "timestamp"})
     @ResponseBody
-    public ApplicationAgentList getAgentList(
+    public ApplicationAgentsList getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName, timestamp);
+        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, applicationName, timestamp);
     }
 
     @RequestMapping(value = "/getAgentInfo", method = RequestMethod.GET)
@@ -153,4 +161,34 @@ public class AgentInfoController {
         Range range = new Range(from, to);
         return agentInfoService.getAgentStatusTimeline(agentId, range, excludeEventTypeCodes);
     }
+
+    @RequestMapping(value = "/isAvailableAgentId")
+    @ResponseBody
+    public CodeResult isAvailableAgentId(@RequestParam("agentId") String agentId) {
+        if (!IdValidateUtils.checkLength(agentId, PinpointConstants.AGENT_NAME_MAX_LEN)) {
+            return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
+        }
+
+        if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_NAME_MAX_LEN)) {
+            return new CodeResult(CODE_FAIL, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+        }
+
+        if (agentInfoService.isExistAgentId(agentId)) {
+            return new CodeResult(CODE_FAIL, "already exist agentId");
+        }
+
+        return new CodeResult(CODE_SUCCESS, "OK");
+    }
+
+    @RequestMapping(value = "/getAgentInstallationInfo")
+    @ResponseBody
+    public CodeResult getAgentDownloadUrl() {
+        AgentDownloadInfo latestStableAgentDownloadInfo = agentInfoService.getLatestStableAgentDownloadInfo();
+        if (latestStableAgentDownloadInfo != null) {
+            return new CodeResult(0, new AgentInstallationInfo(latestStableAgentDownloadInfo));
+        }
+
+        return new CodeResult(-1, "can't find suitable download url");
+    }
+
 }

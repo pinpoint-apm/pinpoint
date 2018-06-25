@@ -16,80 +16,73 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import java.io.IOException;
+import java.util.Objects;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
 
 /**
  * @author emeroad
+ * @author HyunGil Jeong
  */
 public class HBaseAdminTemplate {
 
-    private final Admin admin;
-    private final Connection connection;
+    private final AdminFactory adminFactory;
 
-    public HBaseAdminTemplate(Configuration configuration) {
-        try {
-            connection = ConnectionFactory.createConnection(configuration);
-            admin = connection.getAdmin();
-        } catch (Exception e) {
-            throw new HbaseSystemException(e);
-        }
+    public HBaseAdminTemplate(AdminFactory adminFactory) {
+        this.adminFactory = Objects.requireNonNull(adminFactory, "adminFactory must not be null");
     }
 
-    public boolean createTableIfNotExist(HTableDescriptor htd) {
-        try {
-            if (!admin.tableExists(htd.getTableName())) {
-                this.admin.createTable(htd);
+    public boolean createTableIfNotExists(HTableDescriptor htd) {
+        return execute(admin -> {
+            TableName tableName = htd.getTableName();
+            if (!admin.tableExists(tableName)) {
+                admin.createTable(htd);
                 return true;
             }
             return false;
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
-        }
+        });
     }
 
     public boolean tableExists(TableName tableName) {
-        try {
-            return admin.tableExists(tableName);
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
-        }
+        return execute(admin -> admin.tableExists(tableName));
     }
 
-    public boolean dropTableIfExist(TableName tableName) {
-        try {
+    public boolean dropTableIfExists(TableName tableName) {
+        return execute(admin -> {
             if (admin.tableExists(tableName)) {
-                this.admin.disableTable(tableName);
-                this.admin.deleteTable(tableName);
+                admin.disableTable(tableName);
+                admin.deleteTable(tableName);
                 return true;
             }
             return false;
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
-        }
+        });
     }
 
     public void dropTable(TableName tableName) {
-        try {
-            this.admin.disableTable(tableName);
-            this.admin.deleteTable(tableName);
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
-        }
+        execute((AdminCallback<Void>) admin -> {
+            admin.disableTable(tableName);
+            admin.deleteTable(tableName);
+            return null;
+        });
     }
 
-    public void close() {
+    public final <T> T execute(AdminCallback<T> action) {
+        Objects.requireNonNull(action, "action must not be null");
+        Admin admin = adminFactory.getAdmin();
         try {
-            this.admin.close();
-            this.connection.close();
-        } catch (IOException e) {
-            throw new HbaseSystemException(e);
+            return action.doInAdmin(admin);
+        } catch (Throwable e) {
+            if (e instanceof Error) {
+                throw (Error) e;
+            }
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new HbaseSystemException((Exception) e);
+        } finally {
+            adminFactory.releaseAdmin(admin);
         }
     }
 }

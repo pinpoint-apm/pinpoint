@@ -31,8 +31,6 @@ public interface BaseTraceFactory {
     // picked as sampling target at remote
     Trace continueTraceObject(TraceId traceId);
 
-    Trace continueTraceObject(Trace trace);
-
     @InterfaceAudience.LimitedPrivate("vert.x")
     Trace continueAsyncTraceObject(TraceId traceId);
 

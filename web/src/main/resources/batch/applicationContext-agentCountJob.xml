@@ -13,21 +13,31 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.web.batch.job" />
                                          
-    <job id="agentCountJob" xmlns="http://www.springframework.org/schema/batch" >
-        <step id="agentCountStep">
-            <tasklet>
-                <chunk reader="agentCountReader" processor="agentCountProcessor" writer="agentCountWriter" commit-interval="1" retry-limit="2">
-                    <retryable-exception-classes>
-                        <batch:include class="org.springframework.batch.core.JobExecutionException" />
-                    </retryable-exception-classes>
-                </chunk>
-            </tasklet>
-        </step>
-    </job>
+    <batch:job id="agentCountJob">
+        <batch:step id="agentCountPartitionStep">
+            <batch:partition step="agentCountStep" partitioner="agentCountPartitioner">
+                <batch:handler task-executor="agentCountPoolTaskExecutorForPartition" />
+            </batch:partition>
+        </batch:step>
+        <batch:listeners>
+            <batch:listener ref="jobFailListener"/>
+        </batch:listeners>
+    </batch:job>
 
-    <bean id="alarmPartitioner" class="com.navercorp.pinpoint.web.alarm.AlarmPartitioner"/>
+    <batch:step id="agentCountStep">
+        <batch:tasklet>
+            <batch:chunk reader="agentCountReader" processor="agentCountProcessor" writer="agentCountWriter" commit-interval="1" retry-limit="2">
+                <batch:retryable-exception-classes>
+                    <batch:include class="org.springframework.batch.core.JobExecutionException" />
+                </batch:retryable-exception-classes>
+            </batch:chunk>
+        </batch:tasklet>
+    </batch:step>
+
+    <bean id="agentCountPartitioner" class="com.navercorp.pinpoint.web.batch.job.AgentCountPartitioner"/>
     <bean id="agentCountReader" class="com.navercorp.pinpoint.web.batch.job.AgentCountReader" scope="step"/>
     <bean id="agentCountProcessor" class="com.navercorp.pinpoint.web.batch.job.AgentCountProcessor" scope="step"/>
     <bean id="agentCountWriter" class="com.navercorp.pinpoint.web.batch.job.AgentCountWriter" scope="step"/>
-    
+
+    <task:executor id="agentCountPoolTaskExecutorForPartition" pool-size="1" />
 </beans>

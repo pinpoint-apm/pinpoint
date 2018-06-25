@@ -10,7 +10,6 @@
 				templateUrl: "features/groupedApplicationList/groupedApplicationList.html?v=" + G_BUILD_TIME,
 				link: function postLink( scope ) {
 					var savedNavbarVoService;
-					var savedScatterData;
 					scope.node;
 					scope.selectedNode = null;
 					scope.selectedLink = null;
@@ -37,12 +36,17 @@
 					scope.onSelectNodeApplication = function( node ) {
 						AnalyticsService.send(AnalyticsService.CONST.CLK_NODE_IN_GROUPED_VIEW);
 						scope.selectedNode = node;
-						$rootScope.$broadcast("nodeInfoDetailsDirective.initialize", node, savedScatterData, savedNavbarVoService, null, "");
+						$rootScope.$broadcast("nodeInfoDetailsDirective.initialize", node, savedNavbarVoService, true);
 					};
 					scope.onSelectLinkApplication = function( link ) {
 						AnalyticsService.send(AnalyticsService.CONST.CLK_LINK_IN_GROUPED_VIEW);
 						scope.selectedLink = link;
-						$rootScope.$broadcast("linkInfoDetailsDirective.initialize", link, savedScatterData, savedNavbarVoService);
+						$rootScope.$broadcast("nodeInfoDetailsDirective.initialize", {
+							from: "",
+							to: "",
+							histogram: link.histogram,
+							timeSeriesHistogram: link.timeSeriesHistogram
+						}, savedNavbarVoService, true);
 					};
 
 					scope.openFilteredMapWindow = function( link ) {
@@ -63,36 +67,39 @@
 						$window.open(filteredMapUtilService.getFilteredMapUrlWithFilterVo( savedNavbarVoService, oServerMapFilterVoService, oServerMapHintVoService ), "");
 					};
 					scope.openFilterWizard = function( link ) {
-						scope.$emit("linkInfoDetailsDirective.openFilterWizard", link);
+						scope.$emit("main.controller.openFilterWizard", link);
 					};
 					scope.$on("groupedApplicationListDirective.hide", function() {
 						scope.isGroupedNode = false;
 						scope.isGroupedLink = false;
 					});
-					scope.$on("groupedApplicationListDirective.initialize", function (event, thing, scatterData, navbarVoService) {
+					scope.$on("groupedApplicationListDirective.initialize", function (event, target, navbarVoService) {
 						scope.selectedNode = null;
 						scope.selectedLink = null;
 						scope.searchKeyword = {};
-						if ( thing["unknownNodeGroup"] && thing["unknownNodeGroup"].length > 0 ) {
+						if ( target["unknownNodeGroup"] && target["unknownNodeGroup"].length > 0 ) {
 							AnalyticsService.send(AnalyticsService.CONST.CLK_SHOW_GROUPED_NODE_VIEW);
 							savedNavbarVoService = navbarVoService;
-							savedScatterData = scatterData;
-							scope.node = thing;
-							scope.totalCount = thing["totalCount"];
-							scope.groupedApplicationList = thing["unknownNodeGroup"];
+							scope.node = target;
+							scope.totalCount = target["totalCount"];
+							scope.groupedApplicationList = target["unknownNodeGroup"];
 							scope.isGroupedNode = true;
 							scope.isGroupedLink = false;
-						} else if ( thing["unknownLinkGroup"] && thing["unknownLinkGroup"].length > 0 ) {
+						} else if ( target["unknownLinkGroup"] && target["unknownLinkGroup"].length > 0 ) {
 							AnalyticsService.send(AnalyticsService.CONST.CLK_SHOW_GROUPED_LINK_VIEW);
 							savedNavbarVoService = navbarVoService;
-							savedScatterData = scatterData;
-							scope.totalCount = thing["totalCount"];
-							scope.groupedApplicationList = thing["unknownLinkGroup"];
+							scope.totalCount = target["totalCount"];
+							scope.groupedApplicationList = target["unknownLinkGroup"];
 							scope.isGroupedNode = false;
 							scope.isGroupedLink = true;
 						} else {
 							scope.isGroupedNode = false;
 							scope.isGroupedLink = false;
+						}
+						if (!(scope.$$phase == "$apply" || scope.$$phase == "$digest") ) {
+							if (!(scope.$root.$$phase == "$apply" || scope.$root.$$phase == "$digest") ) {
+								scope.$digest();
+							}
 						}
 					});
 				}

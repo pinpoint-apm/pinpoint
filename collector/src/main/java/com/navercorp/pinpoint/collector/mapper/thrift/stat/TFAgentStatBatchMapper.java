@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class TFAgentStatBatchMapper {
             TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch(agentStatBo.getAgentId(), startTimestamp, tFAgentstatList);
             return tFAgentStatBatch;
         } catch (Exception e) {
-            logger.error("not create thrift object to send flink server.", e);
+            logger.error("not create thrift object to send flink server. : " + agentStatBo, e);
         }
 
         return null;
@@ -47,7 +48,7 @@ public class TFAgentStatBatchMapper {
     private long getStartTimestamp(AgentStatBo agentStatBo) {
         List<CpuLoadBo> cpuLoadBos = agentStatBo.getCpuLoadBos();
 
-        if (cpuLoadBos != null) {
+        if (CollectionUtils.isEmpty(cpuLoadBos) == false) {
             CpuLoadBo cpuLoadBo = cpuLoadBos.get(0);
 
             if (cpuLoadBo != null) {

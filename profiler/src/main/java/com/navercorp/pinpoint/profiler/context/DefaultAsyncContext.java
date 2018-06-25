@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
@@ -25,42 +26,35 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultAsyncContext implements InternalAsyncContext {
+public class DefaultAsyncContext implements AsyncContext {
 
-    private static final AtomicIntegerFieldUpdater<DefaultAsyncContext> ASYNC_SEQUENCE_UPDATER
-            = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncContext.class, "asyncSequence");
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncContext.class);
 
     private final TraceRoot traceRoot;
-    private final int asyncId;
+    private final AsyncId asyncId;
 
     private final AsyncTraceContext asyncTraceContext;
-
-    @SuppressWarnings("unused")
-    private volatile int asyncSequence = 0;
 
     private final int asyncMethodApiId;
 
 
-    public DefaultAsyncContext(AsyncTraceContext asyncTraceContext, TraceRoot traceRoot, int asyncId, int asyncMethodApiId) {
+    public DefaultAsyncContext(AsyncTraceContext asyncTraceContext, TraceRoot traceRoot, AsyncId asyncId, int asyncMethodApiId) {
         this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContext must not be null");
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        this.asyncId = asyncId;
+        this.asyncId = Assert.requireNonNull(asyncId, "asyncId must not be null");
+
 
         this.asyncMethodApiId = asyncMethodApiId;
     }
 
-    @Override
-    public int getAsyncId() {
-        return asyncId;
-    }
 
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
+    }
 
     @Override
     public Trace continueAsyncTraceObject() {
@@ -79,7 +73,8 @@ public class DefaultAsyncContext implements InternalAsyncContext {
     }
 
     private Trace newAsyncTrace(Reference<Trace> reference) {
-        final short asyncSequence = nextAsyncSequence();
+        final int asyncId = this.asyncId.getAsyncId();
+        final short asyncSequence = this.asyncId.nextAsyncSequence();
         final Trace asyncTrace = asyncTraceContext.newAsyncTraceObject(traceRoot, asyncId, asyncSequence);
 
 
@@ -113,7 +108,7 @@ public class DefaultAsyncContext implements InternalAsyncContext {
     }
 
     private void bind(Reference<Trace> reference, Trace asyncTrace) {
-        Assert.state(reference.get() == null, "traceReference is not null");
+        Assert.state(reference.get() == null, "traceReference is  null");
 
         reference.set(asyncTrace);
     }
@@ -123,11 +118,6 @@ public class DefaultAsyncContext implements InternalAsyncContext {
     public Trace currentAsyncTraceObject() {
         final Reference<Trace> reference = asyncTraceContext.currentTraceObject();
         return reference.get();
-    }
-
-
-    private short nextAsyncSequence() {
-        return (short) ASYNC_SEQUENCE_UPDATER.incrementAndGet(this);
     }
 
 
@@ -141,7 +131,6 @@ public class DefaultAsyncContext implements InternalAsyncContext {
         return "DefaultAsyncContext{" +
                 "traceRoot=" + traceRoot +
                 ", asyncId=" + asyncId +
-                ", asyncSequence=" + asyncSequence +
                 '}';
     }
 

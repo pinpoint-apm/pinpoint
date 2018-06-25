@@ -17,13 +17,13 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -36,7 +36,8 @@ public class JarReaderTest {
 
     @Test
     public void read() throws Exception {
-        URL location = Logger.class.getProtectionDomain().getCodeSource().getLocation();
+        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+
         JarFile jarFile = new JarFile(location.getPath());
 
         logger.debug("jarFile:{}", jarFile.getName());
@@ -52,7 +53,8 @@ public class JarReaderTest {
 
     @Test
     public void getInputStream() throws Exception {
-        URL location = Logger.class.getProtectionDomain().getCodeSource().getLocation();
+        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+
         JarFile jarFile = new JarFile(location.getPath());
         JarReader jarReader = new JarReader(jarFile);
         Assert.assertNotNull(jarReader.getInputStream("org/slf4j/Logger.class"));

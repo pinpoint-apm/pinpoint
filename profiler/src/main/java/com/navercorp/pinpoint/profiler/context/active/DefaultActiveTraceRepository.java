@@ -18,11 +18,18 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.navercorp.pinpoint.profiler.monitor.metric.response.ReuseResponseTimeCollector;
-import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -33,71 +40,196 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
 
     // memory leak defense threshold
     private static final int DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+
     // oom safe cache
-    private final ConcurrentMap<Long, ActiveTrace> activeTraceInfoMap;
+    private final ConcurrentMap<ActiveTraceHandle, ActiveTrace> activeTraceInfoMap;
 
-    private final ReuseResponseTimeCollector reuseResponseTimeCollector = new ReuseResponseTimeCollector();
+    private final ResponseTimeCollector responseTimeCollector;
 
-    public DefaultActiveTraceRepository() {
-        this(DEFAULT_MAX_ACTIVE_TRACE_SIZE);
+    private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
+    private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(histogramSchema);
+
+    public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector) {
+        this(responseTimeCollector, DEFAULT_MAX_ACTIVE_TRACE_SIZE);
     }
 
-    public DefaultActiveTraceRepository(int maxActiveTraceSize) {
+    public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector, int maxActiveTraceSize) {
+        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
         this.activeTraceInfoMap = createCache(maxActiveTraceSize);
     }
 
-    private ConcurrentMap<Long, ActiveTrace> createCache(int maxActiveTraceSize) {
+    private ConcurrentMap<ActiveTraceHandle, ActiveTrace> createCache(int maxActiveTraceSize) {
         final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
         cacheBuilder.concurrencyLevel(64);
         cacheBuilder.initialCapacity(maxActiveTraceSize);
         cacheBuilder.maximumSize(maxActiveTraceSize);
-        // OOM defense
-        cacheBuilder.weakValues();
 
-        final Cache<Long, ActiveTrace> localCache = cacheBuilder.build();
+        final Cache<ActiveTraceHandle, ActiveTrace> localCache = cacheBuilder.build();
         return localCache.asMap();
     }
 
-    @Override
-    public void put(ActiveTrace activeTrace) {
-        this.activeTraceInfoMap.put(activeTrace.getId(), activeTrace);
+
+    private void remove(ActiveTraceHandle key, long purgeTime) {
+        if (isDebug) {
+            logger.debug("remove ActiveTrace key:{}", key);
+        }
+        final ActiveTrace activeTrace = this.activeTraceInfoMap.remove(key);
+        if (activeTrace != null) {
+            final long responseTime = purgeTime - activeTrace.getStartTime();
+            responseTimeCollector.add(responseTime);
+        }
     }
 
     @Override
-    public ActiveTrace remove(Long key) {
-        ActiveTrace activeTrace = this.activeTraceInfoMap.remove(key);
-        if (activeTrace != null) {
-            long responseTime = System.currentTimeMillis() - activeTrace.getStartTime();
-            reuseResponseTimeCollector.add(responseTime);
-        }
-        return activeTrace;
+    public ActiveTraceHandle register(TraceRoot traceRoot) {
+        final ActiveTrace activeTrace = newSampledActiveTrace(traceRoot);
+        return register0(activeTrace);
     }
+
+    private ActiveTrace newSampledActiveTrace(TraceRoot traceRoot) {
+        return new SampledActiveTrace(traceRoot);
+    }
+
+    @Override
+    public ActiveTraceHandle register(long localTransactionId, long startTime, long threadId) {
+        final ActiveTrace activeTrace = newUnsampledActiveTrace(localTransactionId, startTime, threadId);
+        return register0(activeTrace);
+    }
+
+    private ActiveTrace newUnsampledActiveTrace(long localTransactionId, long startTime, long threadId) {
+        return new UnsampledActiveTrace(localTransactionId, startTime, threadId);
+    }
+
+    private ActiveTraceHandle register0(ActiveTrace activeTrace) {
+        if (isDebug) {
+            logger.debug("register ActiveTrace key:{}", activeTrace);
+        }
+
+        final long id = activeTrace.getId();
+        final ActiveTraceHandle handle = new DefaultActiveTraceHandle(id);
+        final ActiveTrace old = this.activeTraceInfoMap.put(handle, activeTrace);
+        if (old != null) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("old activeTrace exist:{}", old);
+            }
+        }
+        return handle;
+    }
+
 
     // @ThreadSafe
     @Override
-    public List<ActiveTraceInfo> collect() {
-        final Collection<ActiveTrace> copied = this.activeTraceInfoMap.values();
-        List<ActiveTraceInfo> collectData = new ArrayList<ActiveTraceInfo>(copied.size());
-        for (ActiveTrace trace : copied) {
+    public List<ActiveTraceSnapshot> snapshot() {
+        if (this.activeTraceInfoMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
+        final List<ActiveTraceSnapshot> collectData = new ArrayList<ActiveTraceSnapshot>(activeTraceCollection.size());
+
+        for (ActiveTrace trace : activeTraceCollection) {
             final long startTime = trace.getStartTime();
             // not started
-            if (startTime > 0) {
-                if (trace.isSampled()) {
-                    ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime, trace.getBindThread(), true, trace.getTransactionId(), trace.getEntryPoint());
-                    collectData.add(activeTraceInfo);
-                } else {
-                    // clear Trace reference
-                    ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime, trace.getBindThread());
-                    collectData.add(activeTraceInfo);
-                }
+            if (!isStarted(startTime)) {
+                continue;
             }
+            final ActiveTraceSnapshot snapshot = trace.snapshot();
+            collectData.add(snapshot);
+        }
+        if (isDebug) {
+            logger.debug("activeTraceSnapshot size:{}", collectData.size());
         }
         return collectData;
     }
 
+
+    // @ThreadSafe
     @Override
-    public ResponseTimeValue getLatestCompletedActiveTraceResponseTimeValue() {
-        return reuseResponseTimeCollector.resetAndGetValue();
+    public List<Long> getThreadIdList() {
+        if (this.activeTraceInfoMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
+        final List<Long> collectData = new ArrayList<Long>(activeTraceCollection.size());
+
+        for (ActiveTrace trace : activeTraceCollection) {
+            final long startTime = trace.getStartTime();
+            // not started
+            if (!isStarted(startTime)) {
+                continue;
+            }
+            final ActiveTraceSnapshot snapshot = trace.snapshot();
+            collectData.add(snapshot.getThreadId());
+        }
+        if (isDebug) {
+            logger.debug("activeTraceSnapshot size:{}", collectData.size());
+        }
+        return collectData;
+    }
+
+    // @ThreadSafe
+    @Override
+    public ActiveTraceHistogram getActiveTraceHistogram(long currentTime) {
+        if (this.activeTraceInfoMap.isEmpty()) {
+            return emptyActiveTraceHistogram;
+        }
+        final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
+
+
+        final DefaultActiveTraceHistogram histogram = new DefaultActiveTraceHistogram(histogramSchema);
+        for (ActiveTrace activeTraceInfo : activeTraceCollection) {
+            final long startTime = activeTraceInfo.getStartTime();
+            if (!isStarted(startTime)) {
+                continue;
+            }
+            final int elapsedTime = (int) (currentTime - startTime);
+            final HistogramSlot slot = histogramSchema.findHistogramSlot(elapsedTime, false);
+            histogram.increment(slot);
+        }
+
+        return histogram;
+    }
+
+    private boolean isStarted(long startTime) {
+        return startTime > 0;
+    }
+
+
+    private class DefaultActiveTraceHandle implements ActiveTraceHandle {
+        private final long id;
+
+        DefaultActiveTraceHandle(long id) {
+            this.id = id;
+        }
+
+        @Override
+        public void purge(long purgeTime) {
+            remove(this, purgeTime);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            DefaultActiveTraceHandle that = (DefaultActiveTraceHandle) o;
+
+            return id == that.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return (int) (id ^ (id >>> 32));
+        }
+
+        @Override
+        public String toString() {
+            return "DefaultActiveTraceHandle{" +
+                    "id=" + id +
+                    '}';
+        }
     }
 
 }

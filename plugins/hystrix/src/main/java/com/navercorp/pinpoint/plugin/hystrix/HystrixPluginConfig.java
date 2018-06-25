@@ -23,26 +23,13 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class HystrixPluginConfig {
 
-    private static final int DEFAULT_NUM_HYSTRIX_COMMAND_ANONYMOUS_INNER_CLASS = 3;
-
     private final boolean traceHystrix;
-    private final int numHystrixCommandAnonymousInnerClass;
 
     public HystrixPluginConfig(ProfilerConfig src) {
-        this.traceHystrix = src.readBoolean("profiler.hystrix", true);
-        int numHystrixCommandAnonymousInnerClass = src.readInt("profiler.hystrix.command.num.anonymousInnerClass", 3);
-        if (numHystrixCommandAnonymousInnerClass < 0) {
-            this.numHystrixCommandAnonymousInnerClass = DEFAULT_NUM_HYSTRIX_COMMAND_ANONYMOUS_INNER_CLASS;
-        } else {
-            this.numHystrixCommandAnonymousInnerClass = numHystrixCommandAnonymousInnerClass;
-        }
+        this.traceHystrix = src.readBoolean("profiler.hystrix", false);
     }
 
     public boolean isTraceHystrix() {
         return traceHystrix;
-    }
-
-    public int getNumHystrixCommandAnonymousInnerClass() {
-        return numHystrixCommandAnonymousInnerClass;
     }
 }

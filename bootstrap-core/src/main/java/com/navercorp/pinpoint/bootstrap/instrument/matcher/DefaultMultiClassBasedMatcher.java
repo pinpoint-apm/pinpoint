@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,24 +35,39 @@ public class DefaultMultiClassBasedMatcher implements MultiClassBasedMatcher {
     }
 
     DefaultMultiClassBasedMatcher(final List<String> baseClassNames, final MatcherOperand additional) {
-        Assert.requireNonNull(baseClassNames, "baseClassNames must not be null");
-        this.baseClassNames = Collections.unmodifiableList(baseClassNames);
+        if (CollectionUtils.isEmpty(baseClassNames)) {
+            throw new IllegalArgumentException("basePackageNames must not be empty");
+        }
+        this.baseClassNames = baseClassNames;
 
+        this.matcherOperand = getMatcherOperand(baseClassNames, additional);
+    }
+
+    private MatcherOperand getMatcherOperand(List<String> baseClassNames, MatcherOperand additional) {
+        MatcherOperand operand = joinOr(baseClassNames);
+        if (operand == null) {
+            throw new IllegalStateException("operand is null");
+        }
+        if (additional == null) {
+            return operand;
+        }
+        // (class OR ...) AND additional
+        operand = operand.and(additional);
+        return operand;
+    }
+
+    private MatcherOperand joinOr(List<String> baseClassNames) {
         MatcherOperand operand = null;
-        for (String baseClassName : this.baseClassNames) {
-            final MatcherOperand classMatcherOperand = new ClassInternalNameMatcherOperand(baseClassName);
+        for (String baseClassName : baseClassNames) {
             if (operand == null) {
-                operand = classMatcherOperand;
+                operand = new ClassInternalNameMatcherOperand(baseClassName);
             } else {
                 // class OR ...
+                final MatcherOperand classMatcherOperand = new ClassInternalNameMatcherOperand(baseClassName);
                 operand = operand.or(classMatcherOperand);
             }
         }
-        if (additional != null) {
-            // (class OR ...) AND additional
-            operand = operand.and(additional);
-        }
-        this.matcherOperand = operand;
+        return operand;
     }
 
     @Override

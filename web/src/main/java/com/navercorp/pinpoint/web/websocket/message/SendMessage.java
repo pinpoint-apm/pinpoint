@@ -16,27 +16,30 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
-public class SendMessage extends AbstractPinpointWebSocketMessage {
+@JsonPropertyOrder({"type", "command", "parameters"})
+public class SendMessage implements PinpointWebSocketMessage {
 
     private final String command;
-    private final Map params;
+    private final Map parameters;
 
-    public SendMessage(String command, Map params) {
+    public SendMessage(String command, Map parameters) {
         this.command = command;
-        this.params = params;
+        this.parameters = parameters;
     }
 
     public String getCommand() {
         return command;
     }
 
-    public Map getParams() {
-        return params;
+    public Map getParameters() {
+        return parameters;
     }
 
     @Override

@@ -9,8 +9,7 @@
 	 */
 	pinpointApp.constant( "CommonAjaxServiceConfig", {
 		"serverTimeUrl" : "serverTime.pinpoint",
-		"applicationListUrl": "applications.pinpoint",
-		"realtimeSummaryNLoadDataUrl": "getResponseTimeHistogramData.pinpoint"
+		"applicationListUrl": "applications.pinpoint"
 	});
 	
 	pinpointApp.service( "CommonAjaxService", [ "CommonAjaxServiceConfig", "$http", function( cfg, $http ) {
@@ -67,22 +66,5 @@
 				cbSuccess( appList );
 			}
 		};
-		this.getResponseTimeHistogramData = function( oRequestData, cbSuccess, cbFail ) {
-			$http( {
-				"url": cfg.realtimeSummaryNLoadDataUrl + "?" + getParam( oRequestData ),
-				"method": "GET"
-			}).then(function ( oResult ) {
-				cbSuccess( oResult.data );
-			}, function () {
-				cbFail();
-			});
-		};
-		function getParam( obj ) {
-			var aParam = [];
-			for( var p in obj ) {
-				aParam.push( p + "=" + obj[p] );
-			}
-			return aParam.join("&");
-		}
 	}]);
 })();

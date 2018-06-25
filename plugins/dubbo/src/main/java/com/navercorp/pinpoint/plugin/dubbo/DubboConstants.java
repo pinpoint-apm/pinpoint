@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
 /**
@@ -14,8 +15,10 @@ public interface DubboConstants {
 
     ServiceType DUBBO_PROVIDER_SERVICE_TYPE = ServiceTypeFactory.of(1110, "DUBBO_PROVIDER", RECORD_STATISTICS);
     ServiceType DUBBO_CONSUMER_SERVICE_TYPE = ServiceTypeFactory.of(9110, "DUBBO_CONSUMER", RECORD_STATISTICS);
+    ServiceType DUBBO_PROVIDER_SERVICE_NO_STATISTICS_TYPE = ServiceTypeFactory.of(9111, "DUBBO");
     AnnotationKey DUBBO_ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(90, "dubbo.args");
     AnnotationKey DUBBO_RESULT_ANNOTATION_KEY = AnnotationKeyFactory.of(91, "dubbo.result");
+    AnnotationKey DUBBO_RPC_ANNOTATION_KEY = AnnotationKeyFactory.of(92, "dubbo.rpc", VIEW_IN_RECORD_SET);
 
     String META_DO_NOT_TRACE = "_DUBBO_DO_NOT_TRACE";
     String META_TRANSACTION_ID = "_DUBBO_TRASACTION_ID";

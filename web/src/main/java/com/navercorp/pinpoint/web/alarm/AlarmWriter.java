@@ -30,26 +30,26 @@ import com.navercorp.pinpoint.web.service.AlarmService;
  * @author minwoo.jung
  */
 public class AlarmWriter implements ItemWriter<AlarmChecker> {
-    
-    @Autowired(required=false)
+
+    @Autowired(required = false)
     private AlarmMessageSender alarmMessageSender = new EmptyMessageSender();
-    
+
     @Autowired
     private AlarmService alarmService;
-    
+
     @Override
     public void write(List<? extends AlarmChecker> checkers) throws Exception {
         Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(checkers.get(0).getRule().getApplicationId());
 
-        for(AlarmChecker checker : checkers) {
+        for (AlarmChecker checker : checkers) {
             CheckerResult beforeCheckerResult = beforeCheckerResults.get(checker.getRule().getCheckerName());
-            
+
             if (beforeCheckerResult == null) {
-                beforeCheckerResult = new CheckerResult(checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0 , 1);
+                beforeCheckerResult = new CheckerResult(checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1);
             }
-            
+
             if (checker.isDetected()) {
-                    sendAlarmMessage(beforeCheckerResult, checker);
+                sendAlarmMessage(beforeCheckerResult, checker);
             }
 
             alarmService.updateBeforeCheckerResult(beforeCheckerResult, checker);
@@ -65,20 +65,20 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
                 alarmMessageSender.sendEmail(checker, beforeCheckerResult.getSequenceCount() + 1);
             }
         }
-        
+
     }
 
     private boolean isTurnToSendAlarm(CheckerResult beforeCheckerResult) {
-        if(!beforeCheckerResult.isDetected()) {
+        if (!beforeCheckerResult.isDetected()) {
             return true;
         }
-        
+
         int sequenceCount = beforeCheckerResult.getSequenceCount() + 1;
-        
+
         if (sequenceCount == beforeCheckerResult.getTimingCount()) {
-                return true;
+            return true;
         }
-        
+
         return false;
     }
 }

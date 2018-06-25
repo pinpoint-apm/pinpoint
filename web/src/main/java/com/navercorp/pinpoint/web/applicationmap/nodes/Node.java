@@ -30,26 +30,38 @@ import org.slf4j.LoggerFactory;
  *
  * @author netspider
  * @author emeroad
+ * @author HyunGil Jeong
  */
 @JsonSerialize(using = NodeSerializer.class)
 public class Node {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final String NODE_DELIMITER = "^";
+    private static final String NODE_DELIMITER = "^";
+
+    private final NodeType nodeType;
 
     private final Application application;
+
     // avoid NPE
     private ServerInstanceList serverInstanceList = new ServerInstanceList();
 
     private NodeHistogram nodeHistogram;
     
     private boolean authorized = true;
-    
+
     public Node(Application application) {
+        this(NodeType.DETAILED, application);
+    }
+    
+    public Node(NodeType nodeType, Application application) {
+        if (nodeType == null) {
+            throw new NullPointerException("nodeType must not be null");
+        }
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
+        this.nodeType = nodeType;
         this.application = application;
     }
 
@@ -57,6 +69,7 @@ public class Node {
         if (copyNode == null) {
             throw new NullPointerException("copyNode must not be null");
         }
+        this.nodeType = copyNode.nodeType;
         this.application = copyNode.application;
     }
 
@@ -66,6 +79,10 @@ public class Node {
         } else {
             return application.getName();
         }
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
     }
 
     // TODO remove setter
@@ -85,8 +102,11 @@ public class Node {
         return application;
     }
 
-
     public String getNodeName() {
+        return createNodeName(application);
+    }
+
+    public static String createNodeName(Application application) {
         return application.getName() + NODE_DELIMITER + application.getServiceType();
     }
 

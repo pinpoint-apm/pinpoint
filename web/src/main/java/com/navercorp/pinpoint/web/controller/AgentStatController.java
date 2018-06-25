@@ -17,11 +17,14 @@
 package com.navercorp.pinpoint.web.controller;
 
 
+
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -36,6 +39,10 @@ import com.navercorp.pinpoint.web.service.stat.DataSourceChartService;
 import com.navercorp.pinpoint.web.service.stat.DataSourceService;
 import com.navercorp.pinpoint.web.service.stat.DeadlockChartService;
 import com.navercorp.pinpoint.web.service.stat.DeadlockService;
+import com.navercorp.pinpoint.web.service.stat.DirectBufferChartService;
+import com.navercorp.pinpoint.web.service.stat.DirectBufferService;
+import com.navercorp.pinpoint.web.service.stat.FileDescriptorChartService;
+import com.navercorp.pinpoint.web.service.stat.FileDescriptorService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcChartService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedChartService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedService;
@@ -48,7 +55,7 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.stat.chart.AgentStatChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -89,7 +96,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/chart", method = RequestMethod.GET)
     @ResponseBody
-    public AgentStatChartGroup getAgentStatChart(
+    public StatChart getAgentStatChart(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -101,7 +108,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/chart", method = RequestMethod.GET, params = {"interval"})
     @ResponseBody
-    public AgentStatChartGroup getAgentStatChart(
+    public StatChart getAgentStatChart(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
@@ -121,7 +128,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/chartList", method = RequestMethod.GET)
     @ResponseBody
-    public List<AgentStatChartGroup> getAgentStatChartList(
+    public List<StatChart> getAgentStatChartList(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -133,7 +140,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/chartList", method = RequestMethod.GET, params = {"interval"})
     @ResponseBody
-    public List<AgentStatChartGroup> getAgentStatChartList(
+    public List<StatChart> getAgentStatChartList(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
@@ -222,4 +229,21 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
         }
     }
 
+    @Controller
+    @RequestMapping("/getAgentStat/fileDescriptor")
+    public static class FileDescriptorController extends AgentStatController<FileDescriptorBo> {
+        @Autowired
+        public FileDescriptorController(FileDescriptorService fileDescriptorService, FileDescriptorChartService fileDescriptorChartService) {
+            super(fileDescriptorService, fileDescriptorChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/directBuffer")
+    public static class DirectBufferController extends AgentStatController<DirectBufferBo> {
+        @Autowired
+        public DirectBufferController(DirectBufferService directBufferService, DirectBufferChartService directBufferChartService) {
+            super(directBufferService, directBufferChartService);
+        }
+    }
 }

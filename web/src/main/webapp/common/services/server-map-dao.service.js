@@ -7,26 +7,39 @@
 	 * @name ServerMapDaoService
 	 * @class
 	 */
-	pinpointApp.constant('serverMapDaoServiceConfig', {
-	    serverMapDataUrl: 'getServerMapData.pinpoint',
-	    filteredServerMapDataUrl: 'getFilteredServerMapDataMadeOfDotGroup.pinpoint',
-	    filtermapUrl: 'filtermap.pinpoint',
-	    lastTransactionListUrl: 'lastTransactionList.pinpoint',
-	    transactionListUrl: 'transactionList.pinpoint',
-	    FILTER_DELIMETER: "^",
-	    FILTER_ENTRY_DELIMETER: "|",
+	pinpointApp.constant("serverMapDaoServiceConfig", {
+	    serverMapDataUrl: "getServerMapDataV2.pinpoint",
+	    filteredServerMapDataUrl: "getFilteredServerMapDataMadeOfDotGroup.pinpoint",
+	    lastTransactionListUrl: "lastTransactionList.pinpoint",
+	    transactionListUrl: "transactionList.pinpoint",
 	    FILTER_FETCH_LIMIT: 5000,
 		MAX_DISPLAY_COUNT_GROUP_LIST: 3
 	});
 	
-	pinpointApp.service('ServerMapDaoService', [ 'serverMapDaoServiceConfig', function(cfg) {
+	pinpointApp.service("ServerMapDaoService", [ "serverMapDaoServiceConfig", function(cfg) {
 	
 	    var self = this;
+	    var serverMapData;
 	
 	    this.abort = function() {
 			if ( this._oAjax ) {
 				this._oAjax.abort();
 			}
+		};
+	    this.getFromToData = function( nodeKey ) {
+			var linkedNodeData = {
+				from: [],
+				to: []
+			};
+			for( var i = 0 ; i < serverMapData.applicationMapData.linkDataArray.length ; i++ ) {
+				var link = serverMapData.applicationMapData.linkDataArray[i];
+				if ( link.from === nodeKey ) {
+					linkedNodeData.to.push([link.targetInfo.applicationName, link.targetInfo.serviceTypeCode]);
+				} else if ( link.to === nodeKey ) {
+					linkedNodeData.from.push([link.sourceInfo.applicationName, link.sourceInfo.serviceTypeCode]);
+				}
+			}
+			return linkedNodeData;
 		};
 
 		this.getServerMapData = function (query, cb) {
@@ -36,7 +49,8 @@
 	            to: query.to,
 	            callerRange: query.callerRange,
 	            calleeRange: query.calleeRange,
-				bidirectional: query.bidirectional
+				bidirectional: query.bidirectional,
+				wasOnly: query.wasOnly
 	        };
 	    	if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
 	    		data.serviceTypeName = query.serviceTypeName; 
@@ -44,12 +58,13 @@
 	    		data.serviceTypeCode = query.serviceTypeName;
 	    	}
 	        this._oAjax = jQuery.ajax({
-	            type: 'GET',
+	            type: "GET",
 	            url: cfg.serverMapDataUrl,
 	            cache: false,
 	            dataType: 'json',
 	            data: data,
 	            success: function (result) {
+	            	serverMapData = result;
 	                if (angular.isFunction(cb)) {
 	                    cb(null, query, result);
 	                }
@@ -152,7 +167,7 @@
 	     */
 	    this.findExistingNodeKeyFromLastMapData = function (applicationMapData, node) {
 	        for (var key in applicationMapData.nodeDataArray) {
-	            if (applicationMapData.nodeDataArray[key].applicationName === node.applicationName && applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
+				if (applicationMapData.nodeDataArray[key].key === node.key) {
 	                return key;
 	            }
 	        }

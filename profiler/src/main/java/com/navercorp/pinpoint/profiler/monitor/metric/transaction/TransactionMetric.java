@@ -16,31 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.transaction;
 
-
 /**
  * @author HyunGil Jeong
  */
 public interface TransactionMetric {
 
+    long UNCOLLECTED = -1L;
+
     TransactionMetric UNSUPPORTED_TRANSACTION_METRIC = new TransactionMetric() {
-        @Override
-        public Long sampledNew() {
-            return null;
-        }
+
+        private final TransactionMetricSnapshot uncollectedSnaphot = new TransactionMetricSnapshot(UNCOLLECTED, UNCOLLECTED, UNCOLLECTED, UNCOLLECTED);
 
         @Override
-        public Long sampledContinuation() {
-            return null;
-        }
-
-        @Override
-        public Long unsampledNew() {
-            return null;
-        }
-
-        @Override
-        public Long unsampledContinuation() {
-            return null;
+        public TransactionMetricSnapshot getSnapshot() {
+            return uncollectedSnaphot;
         }
 
         @Override
@@ -49,11 +38,5 @@ public interface TransactionMetric {
         }
     };
 
-    Long sampledNew();
-
-    Long sampledContinuation();
-
-    Long unsampledNew();
-
-    Long unsampledContinuation();
+    TransactionMetricSnapshot getSnapshot();
 }

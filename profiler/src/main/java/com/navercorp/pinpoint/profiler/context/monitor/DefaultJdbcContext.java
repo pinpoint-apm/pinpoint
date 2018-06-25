@@ -20,7 +20,6 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 
 
 /**

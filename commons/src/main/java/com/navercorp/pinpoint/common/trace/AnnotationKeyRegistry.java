@@ -28,7 +28,7 @@ public class AnnotationKeyRegistry {
 
     private final IntHashMap<AnnotationKey> codeLookupTable;
 
-    private final HashMap<String, AnnotationKey> nameLookupTable;
+    private final Map<String, AnnotationKey> nameLookupTable;
 
     private final IntHashMap<AnnotationKey> apiErrorLookupTable;
 
@@ -41,7 +41,7 @@ public class AnnotationKeyRegistry {
         this.apiErrorLookupTable = buildApiMetaDataError(buildMap.values());
     }
 
-    private HashMap<String, AnnotationKey> buildNameTable(Collection<AnnotationKey> buildMap) {
+    private Map<String, AnnotationKey> buildNameTable(Collection<AnnotationKey> buildMap) {
 
         final HashMap<String, AnnotationKey> nameLookupTable = new HashMap<String, AnnotationKey>();
 

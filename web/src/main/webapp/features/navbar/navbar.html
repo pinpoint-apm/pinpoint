@@ -47,11 +47,14 @@
 
                             </div>
                         </div>
-                    </li>	
-                    <li class="divider-vertical"></li>
+                    </li>
+					<li ng-hide="bIsInspector">
+						<button class="btn btn-default btn-xs {{wasOnly ? 'btn-info': ''}}" style="height:30px;font-size:11px;line-height:1;{{wasOnly ? 'color:none': 'color:#DDD'}}" ng-click="checkWasOnly($event)">WAS<br>ONLY</button>
+					</li>
+					<li class="divider-vertical"></li>
                     <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
-                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:386px;float:left;">
+                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:342px;float:left;">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
 								<button type="button" class="btn btn-default" ng-click="setRealtime()" ng-hide="bIsInspector" ng-disabled="periodDelay" ng-class="isRealtime() ? 'btn-info' : ''" style="padding-top:3px;padding-bottom:3px;line-height:1.1;font-size:10px">REAL<br/>TIME</button>
                                 <button type="button" class="btn btn-default" ng-repeat="period in aReadablePeriodList" ng-class="getPeriodClass( period )" ng-click="setPeriod(period)" ng-disabled="periodDelay">{{period == "5m" ? "Last " + period : period}}</button>
@@ -105,7 +108,7 @@
         <div id="to-picker" ></div>
         <div class="btn-group btn-group-justified" style="padding-top:6px;">
             <div class="btn-group" role="group" ng-repeat="period in aReadablePeriodList" >
-                <button type="button" class="btn btn-default btn-sm" ng-class="getPeriodClassInCalendar( period )" ng-click="setPeriodForCalendar(period)">{{period}}</button>
+				<button type="button" class="btn btn-default btn-sm" ng-click="setPeriodForCalendar(period)">{{period}}</button>
             </div>
         </div>
         <div class="guide"></div>

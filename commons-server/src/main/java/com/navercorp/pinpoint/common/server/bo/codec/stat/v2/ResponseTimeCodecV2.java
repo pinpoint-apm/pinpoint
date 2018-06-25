@@ -19,104 +19,124 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
 @Component("responseTimeCodecV2")
-public class ResponseTimeCodecV2 implements AgentStatCodec<ResponseTimeBo> {
-
-    private static final byte VERSION = 2;
-
-    private final AgentStatDataPointCodec codec;
+public class ResponseTimeCodecV2 extends AgentStatCodecV2<ResponseTimeBo> {
 
     @Autowired
     public ResponseTimeCodecV2(AgentStatDataPointCodec codec) {
-        Assert.notNull(codec, "agentStatDataPointCodec must not be null");
-        this.codec = codec;
+        super(new ResponseTimeFactory(codec));
     }
 
-    @Override
-    public byte getVersion() {
-        return VERSION;
-    }
+    private static class ResponseTimeFactory implements CodecFactory<ResponseTimeBo> {
 
-    @Override
-    public void encodeValues(Buffer valueBuffer, List<ResponseTimeBo> responseTimeBos) {
-        if (CollectionUtils.isEmpty(responseTimeBos)) {
-            throw new IllegalArgumentException("responseTimeBos must not be empty");
+        private final AgentStatDataPointCodec codec;
+
+        private ResponseTimeFactory(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
         }
-        final int numValues = responseTimeBos.size();
-        valueBuffer.putVInt(numValues);
 
-        List<Long> startTimestamps = new ArrayList<Long>(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
-        UnsignedLongEncodingStrategy.Analyzer.Builder avgAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        for (ResponseTimeBo responseTimeBo : responseTimeBos) {
-            startTimestamps.add(responseTimeBo.getStartTimestamp());
-            timestamps.add(responseTimeBo.getTimestamp());
-            avgAnalyzerBuilder.addValue(responseTimeBo.getAvg());
+        @Override
+        public AgentStatDataPointCodec getCodec() {
+            return codec;
         }
-        this.codec.encodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, startTimestamps);
-        this.codec.encodeTimestamps(valueBuffer, timestamps);
-        this.encodeDataPoints(valueBuffer, avgAnalyzerBuilder.build());
+
+        @Override
+        public CodecEncoder<ResponseTimeBo> createCodecEncoder() {
+            return new ResponseTimeCodecEncoder(codec);
+        }
+
+        @Override
+        public CodecDecoder<ResponseTimeBo> createCodecDecoder() {
+            return new ResponseTimeCodecDecoder(codec);
+        }
     }
 
-    private void encodeDataPoints(Buffer valueBuffer, StrategyAnalyzer<Long> avgStrategyAnalyzer) {
-        // encode header
-        AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
-        headerEncoder.addCode(avgStrategyAnalyzer.getBestStrategy().getCode());
+    private static class ResponseTimeCodecEncoder implements AgentStatCodec.CodecEncoder<ResponseTimeBo> {
 
-        final byte[] header = headerEncoder.getHeader();
-        valueBuffer.putPrefixedBytes(header);
-        // encode values
-        this.codec.encodeValues(valueBuffer, avgStrategyAnalyzer.getBestStrategy(), avgStrategyAnalyzer.getValues());
+        private final AgentStatDataPointCodec codec;
+        private final UnsignedLongEncodingStrategy.Analyzer.Builder avgAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        private final UnsignedLongEncodingStrategy.Analyzer.Builder maxAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+
+        public ResponseTimeCodecEncoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public void addValue(ResponseTimeBo agentStatDataPoint) {
+            avgAnalyzerBuilder.addValue(agentStatDataPoint.getAvg());
+            maxAnalyzerBuilder.addValue(agentStatDataPoint.getMax());
+        }
+
+        @Override
+        public void encode(Buffer valueBuffer) {
+            StrategyAnalyzer<Long> avgStrategyAnalyzer = avgAnalyzerBuilder.build();
+            StrategyAnalyzer<Long> maxStrategyAnalyzer = maxAnalyzerBuilder.build();
+
+            // encode header
+            AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
+            headerEncoder.addCode(avgStrategyAnalyzer.getBestStrategy().getCode());
+            headerEncoder.addCode(maxStrategyAnalyzer.getBestStrategy().getCode());
+
+            final byte[] header = headerEncoder.getHeader();
+            valueBuffer.putPrefixedBytes(header);
+            // encode values
+            codec.encodeValues(valueBuffer, avgStrategyAnalyzer.getBestStrategy(), avgStrategyAnalyzer.getValues());
+            codec.encodeValues(valueBuffer, maxStrategyAnalyzer.getBestStrategy(), maxStrategyAnalyzer.getValues());
+        }
+
     }
 
-    @Override
-    public List<ResponseTimeBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
-        final String agentId = decodingContext.getAgentId();
-        final long baseTimestamp = decodingContext.getBaseTimestamp();
-        final long timestampDelta = decodingContext.getTimestampDelta();
-        final long initialTimestamp = baseTimestamp + timestampDelta;
+    private static class ResponseTimeCodecDecoder implements AgentStatCodec.CodecDecoder<ResponseTimeBo> {
 
-        int numValues = valueBuffer.readVInt();
-        List<Long> startTimestamps = this.codec.decodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, numValues);
-        List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
+        private final AgentStatDataPointCodec codec;
+        private List<Long> avgs;
+        private List<Long> maxs;
 
-        // decode headers
-        final byte[] header = valueBuffer.readPrefixedBytes();
-        AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
-        EncodingStrategy<Long> avgEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        // decode values
-        List<Long> avgs = this.codec.decodeValues(valueBuffer, avgEncodingStrategy, numValues);
+        public ResponseTimeCodecDecoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
 
-        List<ResponseTimeBo> responseTimeBos = new ArrayList<ResponseTimeBo>(numValues);
-        for (int i = 0; i < numValues; ++i) {
+        @Override
+        public void decode(Buffer valueBuffer, AgentStatHeaderDecoder headerDecoder, int valueSize) {
+            EncodingStrategy<Long> avgEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+            EncodingStrategy<Long> maxEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+
+            this.avgs = codec.decodeValues(valueBuffer, avgEncodingStrategy, valueSize);
+            if (valueBuffer.hasRemaining()) {
+                this.maxs = codec.decodeValues(valueBuffer, maxEncodingStrategy, valueSize);
+            }
+        }
+
+        @Override
+        public ResponseTimeBo getValue(int index) {
             ResponseTimeBo responseTimeBo = new ResponseTimeBo();
-            responseTimeBo.setAgentId(agentId);
-            responseTimeBo.setStartTimestamp(startTimestamps.get(i));
-            responseTimeBo.setTimestamp(timestamps.get(i));
-            responseTimeBo.setAvg(avgs.get(i));
-            responseTimeBos.add(responseTimeBo);
+            responseTimeBo.setAvg(avgs.get(index));
+            if (maxs != null) {
+                responseTimeBo.setMax(maxs.get(index));
+            }
+            return responseTimeBo;
         }
-        return responseTimeBos;
+
     }
 
 }

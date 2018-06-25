@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 import java.util.ArrayList;
@@ -24,37 +25,29 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class ASMMethodInsnNodeRemapper {
-    private List<Filter> filters = new ArrayList<Filter>();
-    private String owner;
-    private String name;
-    private String desc;
+    private final Filter[] filters;
+    private final String owner;
+    private final String name;
+    private final String desc;
 
-    public void addFilter(final String ownerClassInternalName, final String name, final String desc) {
-        this.filters.add(new Filter(ownerClassInternalName, name, desc));
-    }
-
-    public void setOwner(final String ownerClassInternalName) {
-        this.owner = ownerClassInternalName;
-    }
-
-    private String mapOwner(final String ownerClassInternalName) {
-        return this.owner != null ? this.owner : ownerClassInternalName;
-    }
-
-    public void setName(final String name) {
+    private ASMMethodInsnNodeRemapper(Filter[] filters, String owner, String name, String desc) {
+        this.filters = filters;
+        this.owner = owner;
         this.name = name;
-    }
-
-    private String mapName(final String name) {
-        return this.name != null ? this.name : name;
-    }
-
-    public void setDesc(final String desc) {
         this.desc = desc;
     }
 
+    private String mapOwner(final String ownerClassInternalName) {
+        return StringUtils.defaultString(this.owner, ownerClassInternalName);
+    }
+
+    private String mapName(final String name) {
+        return StringUtils.defaultString(this.name, name);
+    }
+
+
     private String mapDesc(final String desc) {
-        return this.desc != null ? this.desc : desc;
+        return StringUtils.defaultString(this.desc, desc);
     }
 
     public void mapping(final MethodInsnNode methodInsnNode) {
@@ -64,6 +57,34 @@ public class ASMMethodInsnNodeRemapper {
                 methodInsnNode.name = mapName(methodInsnNode.name);
                 methodInsnNode.desc = mapDesc(methodInsnNode.desc);
             }
+        }
+    }
+
+    public static class Builder {
+        private List<Filter> filters = new ArrayList<Filter>();
+        private String owner;
+        private String name;
+        private String desc;
+
+        public void addFilter(final String ownerClassInternalName, final String name, final String desc) {
+            this.filters.add(new Filter(ownerClassInternalName, name, desc));
+        }
+
+        public void setOwner(final String ownerClassInternalName) {
+            this.owner = ownerClassInternalName;
+        }
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public void setDesc(final String desc) {
+            this.desc = desc;
+        }
+
+        public ASMMethodInsnNodeRemapper build() {
+            Filter[] copyFilter = this.filters.toArray(new Filter[0]);
+            return new ASMMethodInsnNodeRemapper(copyFilter, owner, name, desc);
         }
     }
 

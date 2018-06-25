@@ -82,10 +82,12 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
         nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
 
         // for Terminal nodes, create AgentLevel histogram
-        if (terminalApplication.getServiceType().isTerminal() || terminalApplication.getServiceType().isQueue()) {
+        if (terminalApplication.getServiceType().isTerminal()) {
+            LinkCallDataMap mergeSource = new LinkCallDataMap();
             final Map<String, Histogram> agentHistogramMap = new HashMap<>();
             for (Link link : toLinkList) {
                 LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
+                mergeSource.addLinkDataMap(sourceLinkCallDataMap);
                 AgentHistogramList targetList = sourceLinkCallDataMap.getTargetList();
                 for (AgentHistogram histogram : targetList.getAgentHistogramList()) {
                     Histogram find = agentHistogramMap.get(histogram.getId());
@@ -97,17 +99,11 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
                 }
                 nodeHistogram.setAgentHistogramMap(agentHistogramMap);
             }
-        }
 
-        LinkCallDataMap mergeSource = new LinkCallDataMap();
-        for (Link link : toLinkList) {
-            LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-            mergeSource.addLinkDataMap(sourceLinkCallDataMap);
+            AgentTimeHistogramBuilder agentTimeBuilder = new AgentTimeHistogramBuilder(terminalApplication, range);
+            AgentTimeHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeSource);
+            nodeHistogram.setAgentTimeHistogram(agentTimeHistogram);
         }
-
-        AgentTimeHistogramBuilder agentTimeBuilder = new AgentTimeHistogramBuilder(terminalApplication, range);
-        AgentTimeHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeSource);
-        nodeHistogram.setAgentTimeHistogram(agentTimeHistogram);
 
         return nodeHistogram;
     }
@@ -134,14 +130,36 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
 
     @Override
     public NodeHistogram createQueueNodeHistogram(Application queueApplication, Range range, LinkList linkList) {
-        if (linkList.findToLink(queueApplication).isEmpty()) {
-            final NodeHistogram nodeHistogram = new NodeHistogram(queueApplication, range);
-            final List<Link> fromLinks = linkList.findFromLink(queueApplication);
-            logger.info("fromLink : {}", fromLinks);
-            return nodeHistogram;
-        } else {
-            return createTerminalNodeHistogram(queueApplication, range, linkList);
+        final List<Link> toLinkList = linkList.findToLink(queueApplication);
+        if (toLinkList.isEmpty()) {
+            return new NodeHistogram(queueApplication, range);
         }
+
+        final NodeHistogram nodeHistogram = new NodeHistogram(queueApplication, range);
+
+        // create applicationHistogram
+        final Histogram applicationHistogram = new Histogram(queueApplication.getServiceType());
+        for (Link link : toLinkList) {
+            applicationHistogram.add(link.getHistogram());
+        }
+        nodeHistogram.setApplicationHistogram(applicationHistogram);
+
+        // create applicationTimeHistogram
+        LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
+        for (Link link : toLinkList) {
+            LinkCallDataMap linkCallDataMapToUse = link.getSourceLinkCallDataMap();
+            // queues, unlike terminal nodes, could have targetLinkCallDataMap instead of sourceLinkCallDataMap
+            // depending on whether the link has been generated with the queue node as the caller, or the callee.
+            if (linkCallDataMapToUse.getLinkDataList().isEmpty()) {
+                linkCallDataMapToUse = link.getTargetLinkCallDataMap();
+            }
+            linkCallDataMap.addLinkDataMap(linkCallDataMapToUse);
+        }
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(queueApplication, range);
+        ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataList());
+        nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
+
+        return nodeHistogram;
     }
 
     @Override

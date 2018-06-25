@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -50,7 +51,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
     @Autowired
     private AlarmService alarmService;
     
-    private final Queue<AlarmChecker> checkers = new LinkedList<>();
+    private final Queue<AlarmChecker> checkers = new ConcurrentLinkedDeque<>();
 
     public AlarmReader() {
     }
@@ -68,21 +69,9 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
     @Override
     public void beforeStep(StepExecution stepExecution) {
         List<Application> applicationList = applicationIndexDao.selectAllApplicationNames();
-        int appSize = applicationList.size();
-        int partitionNumber = (Integer) stepExecution.getExecutionContext().get(AlarmPartitioner.PARTITION_NUMBER);
-        int from = (partitionNumber - 1) * AlarmPartitioner.APP_COUNT;
-        int to = partitionNumber * AlarmPartitioner.APP_COUNT;
-        
-        if (appSize < from) {
-            return;
-        }
-        if (appSize < to) {
-            to = appSize;
-        }
 
-        
-        for(int i = from; i < to; i++) {
-            addChecker(applicationList.get(i));
+        for (Application application : applicationList) {
+            addChecker(application);
         }
     }
 
@@ -94,8 +83,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
         for (Rule rule : rules) {
             CheckerCategory checkerCategory = CheckerCategory.getValue(rule.getCheckerName());
             DataCollector collector = collectorMap.get(checkerCategory.getDataCollectorCategory());
-            
-            if(collector == null) {
+            if (collector == null) {
                 collector = dataCollectorFactory.createDataCollector(checkerCategory, application, timeSlotEndTime);
                 collectorMap.put(collector.getDataCollectorCategory(), collector);
             }

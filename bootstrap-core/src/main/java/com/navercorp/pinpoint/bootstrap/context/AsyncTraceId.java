@@ -15,6 +15,10 @@
  */
 package com.navercorp.pinpoint.bootstrap.context;
 
+/**
+ * @deprecated Since 1.7.0
+ */
+@Deprecated
 public interface AsyncTraceId extends TraceId {
 
     int getAsyncId();

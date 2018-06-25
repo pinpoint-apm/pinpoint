@@ -18,29 +18,21 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.AsyncId;
 
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * @author jaehong.kim
  */
 public class DefaultAsyncTraceId implements AsyncTraceId, TraceRootSupport {
 
-    private static final AtomicIntegerFieldUpdater<DefaultAsyncTraceId> ASYNC_SEQUENCE_UPDATER
-            = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncTraceId.class, "asyncSequence");
-
     private final TraceRoot traceRoot;
-    private final int asyncId;
+    private final AsyncId asyncId;
 
-    @SuppressWarnings("unused")
-    private volatile int asyncSequence = 0;
-
-    public DefaultAsyncTraceId(final TraceRoot traceRoot, final int asyncId) {
-        if (traceRoot == null) {
-            throw new IllegalArgumentException("traceRoot must not be null.");
-        }
-        this.traceRoot = traceRoot;
-        this.asyncId = asyncId;
+    public DefaultAsyncTraceId(final TraceRoot traceRoot, final AsyncId asyncId) {
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.asyncId = Assert.requireNonNull(asyncId, "asyncId must not be null");
     }
 
     private TraceId getTraceId0() {
@@ -48,11 +40,11 @@ public class DefaultAsyncTraceId implements AsyncTraceId, TraceRootSupport {
     }
 
     public int getAsyncId() {
-        return asyncId;
+        return asyncId.getAsyncId();
     }
 
     public short nextAsyncSequence() {
-        return (short) ASYNC_SEQUENCE_UPDATER.incrementAndGet(this);
+        return asyncId.nextAsyncSequence();
     }
 
     @Override
@@ -121,7 +113,6 @@ public class DefaultAsyncTraceId implements AsyncTraceId, TraceRootSupport {
         return "DefaultAsyncTraceId{" +
                 "traceRoot=" + traceRoot +
                 ", asyncId=" + asyncId +
-                ", asyncSequence=" + asyncSequence +
                 '}';
     }
 }

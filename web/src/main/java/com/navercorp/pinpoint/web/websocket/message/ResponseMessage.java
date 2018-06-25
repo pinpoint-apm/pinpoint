@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
-public class ResponseMessage extends AbstractPinpointWebSocketMessage {
+@JsonPropertyOrder({"type", "command", "result"})
+public class ResponseMessage implements PinpointWebSocketMessage {
 
     private final String command;
     private final Map result;

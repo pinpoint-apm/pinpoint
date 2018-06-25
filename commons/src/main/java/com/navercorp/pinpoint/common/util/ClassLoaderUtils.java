@@ -33,17 +33,22 @@ public final class ClassLoaderUtils {
     private static final ClassLoader BOOT_CLASS_LOADER;
 
     static {
-        SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
-        if (SYSTEM_CLASS_LOADER != null) {
-            EXT_CLASS_LOADER = SYSTEM_CLASS_LOADER.getParent();
-        } else {
-            EXT_CLASS_LOADER = null;
+        BOOT_CLASS_LOADER = Object.class.getClassLoader();
+        // SystemClassLoader can be changed by "java.system.class.loader"
+        // https://docs.oracle.com/javase/8/docs/api/java/lang/ClassLoader.html
+        // If the system property "java.system.class.loader" is defined when this method is first invoked
+        // then the value of that property is taken to be the name of a class that will be returned as the system class loader.
+        final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+        EXT_CLASS_LOADER = findChildClassLoader(BOOT_CLASS_LOADER, systemClassLoader);
+        SYSTEM_CLASS_LOADER = findChildClassLoader(EXT_CLASS_LOADER, systemClassLoader);
+    }
+
+    private static ClassLoader findChildClassLoader(ClassLoader parent, ClassLoader searchTarget) {
+        ClassLoader prev = searchTarget;
+        while (parent != prev.getParent()) {
+            prev = prev.getParent();
         }
-        if (EXT_CLASS_LOADER != null) {
-            BOOT_CLASS_LOADER = EXT_CLASS_LOADER.getParent();
-        } else {
-            BOOT_CLASS_LOADER = null;
-        }
+        return prev;
     }
 
     private ClassLoaderUtils() {

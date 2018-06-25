@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 /**
  * @author emeroad
  */
-public enum  ServerType {
+public enum ServerType {
     Logical, Physical
 }

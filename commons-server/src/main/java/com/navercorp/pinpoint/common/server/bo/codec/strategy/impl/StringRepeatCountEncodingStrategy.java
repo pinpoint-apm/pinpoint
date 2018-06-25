@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.strategy.impl;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.StringTypedBufferHandler;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,23 +44,23 @@ public class StringRepeatCountEncodingStrategy implements EncodingStrategy<Strin
 
     @Override
     public void encodeValues(Buffer buffer, List<String> values) {
-        String previousValue = null;
+        StringReference previousValueReference = null;
         int count = 0;
         for (String value : values) {
-            if (!value.equals(previousValue)) {
-                if (previousValue != null) {
+            if (previousValueReference == null || !StringUtils.equals(value, previousValueReference.get())) {
+                if (previousValueReference != null) {
                     buffer.putVInt(count);
-                    this.bufferHandler.put(buffer, previousValue);
+                    this.bufferHandler.put(buffer, previousValueReference.get());
                 }
-                previousValue = value;
+                previousValueReference = new StringReference(value);
                 count = 1;
             } else {
                 count++;
             }
         }
-        if (count > 0) {
+        if (count > 0 && previousValueReference != null) {
             buffer.putVInt(count);
-            this.bufferHandler.put(buffer, previousValue);
+            this.bufferHandler.put(buffer, previousValueReference.get());
         }
     }
 
@@ -70,12 +71,26 @@ public class StringRepeatCountEncodingStrategy implements EncodingStrategy<Strin
         while (totalCount < numValues) {
             int count = buffer.readVInt();
             String value = this.bufferHandler.read(buffer);
-            for (int i = 0; i < count; ++i) {
+            for (int i = 0; i < count; i++) {
                 values.add(value);
                 totalCount++;
             }
         }
         return values;
+    }
+
+    private static class StringReference {
+
+        private final String value;
+
+        public StringReference(String value) {
+            this.value = value;
+        }
+
+        public String get() {
+            return value;
+        }
+
     }
 
 }

@@ -19,7 +19,6 @@ import java.io.InputStream;
 
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.BootstrapPackage;
-import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,13 +33,13 @@ public class DebugTransformerClassInjector implements ClassInjector {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
-
-        ClassLoader targetClassLoader = getClassLoader(classLoader);
-
-        targetClassLoader = filterBootstrapPackage(targetClassLoader, className);
+        ClassLoader targetClassLoader = classLoader;
+        if (bootstrapPackage.isBootstrapPackage(className)) {
+            targetClassLoader = Object.class.getClassLoader();
+        }
 
         try {
-            return (Class<? extends T>) targetClassLoader.loadClass(className);
+            return (Class<? extends T>) Class.forName(className, false, targetClassLoader);
         } catch (ClassNotFoundException e) {
             throw new PinpointException("ClassNo class " + className + " with classLoader " + classLoader, e);
         }

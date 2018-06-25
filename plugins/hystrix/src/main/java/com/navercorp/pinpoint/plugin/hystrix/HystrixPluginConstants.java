@@ -30,13 +30,14 @@ public interface HystrixPluginConstants {
     ServiceType HYSTRIX_INTERNAL_SERVICE_TYPE = ServiceTypeFactory.of(9121, "HYSTRIX_COMMAND_INTERNAL", "HYSTRIX_COMMAND");
 
     AnnotationKey HYSTRIX_COMMAND_ANNOTATION_KEY = AnnotationKeyFactory.of(110, "hystrix.command", VIEW_IN_RECORD_SET);
-    AnnotationKey HYSTRIX_COMMAND_EXECUTION_ANNOTATION_KEY = AnnotationKeyFactory.of(111, "hystrix.command.execution", VIEW_IN_RECORD_SET);
+    @Deprecated AnnotationKey HYSTRIX_COMMAND_EXECUTION_ANNOTATION_KEY = AnnotationKeyFactory.of(111, "hystrix.command.execution", VIEW_IN_RECORD_SET);
     AnnotationKey HYSTRIX_FALLBACK_CAUSE_ANNOTATION_KEY = AnnotationKeyFactory.of(112, "hystrix.command.fallback.cause", VIEW_IN_RECORD_SET);
+    AnnotationKey HYSTRIX_FALLBACK_EXCEPTION_ANNOTATION_KEY = AnnotationKeyFactory.of(113, "hystrix.command.exception", VIEW_IN_RECORD_SET);
+
+    AnnotationKey HYSTRIX_COMMAND_KEY_ANNOTATION_KEY = AnnotationKeyFactory.of(115, "hystrix.command.key", VIEW_IN_RECORD_SET);
+    AnnotationKey HYSTRIX_COMMAND_GROUP_KEY_ANNOTATION_KEY = AnnotationKeyFactory.of(116, "hystrix.command.group.key", VIEW_IN_RECORD_SET);
+    AnnotationKey HYSTRIX_THREAD_POOL_KEY_ANNOTATION_KEY = AnnotationKeyFactory.of(117, "hystrix.thread.pool.key", VIEW_IN_RECORD_SET);
+    AnnotationKey HYSTRIX_COLLAPSER_KEY_ANNOTATION_KEY = AnnotationKeyFactory.of(118, "hystrix.collapser.key", VIEW_IN_RECORD_SET);
 
     String HYSTRIX_COMMAND_EXECUTION_SCOPE = "HystrixCommandExecutionScope";
-
-    String HYSTRIX_COMMAND_GET_EXECUTION_EXCEPTION_METHOD_NAME = "getExecutionException";
-
-    String EXECUTION_TYPE_EXECUTION = "run";
-    String EXECUTION_TYPE_FALLBACK = "fallback";
 }

@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.bootstrap.instrument.matcher.operator;
 
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
 import org.junit.Test;
 

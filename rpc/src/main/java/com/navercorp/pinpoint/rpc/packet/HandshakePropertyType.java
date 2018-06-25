@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.rpc.packet;
 
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -43,6 +45,8 @@ public enum HandshakePropertyType {
     private final Class clazzType;
     private final boolean isRequired;
 
+    private static final Set<HandshakePropertyType> HANDSHAKE_PROPERTY_TYPE = EnumSet.allOf(HandshakePropertyType.class);
+
     HandshakePropertyType(String name, Class clazzType) {
         this(name, clazzType, true);
     }
@@ -62,7 +66,7 @@ public enum HandshakePropertyType {
     }
 
     public static boolean hasRequiredKeys(Map properties) {
-        for (HandshakePropertyType type : HandshakePropertyType.values()) {
+        for (HandshakePropertyType type : HANDSHAKE_PROPERTY_TYPE) {
             if (!type.isRequired) {
                 continue;
             }

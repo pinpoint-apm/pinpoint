@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
@@ -32,13 +33,13 @@ import java.util.Set;
  */
 public interface AgentInfoService {
 
-    ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key);
+    ApplicationAgentsList getAllApplicationAgentsList();
 
-    ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, String applicationName);
+    ApplicationAgentsList getAllApplicationAgentsList(long timestamp);
 
-    ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, long timestamp);
+    ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy key, String applicationName);
 
-    ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, String applicationName, long timestamp);
+    ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy key, String applicationName, long timestamp);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit);
 
@@ -55,4 +56,9 @@ public interface AgentInfoService {
     void populateAgentStatuses(Collection<AgentInfo> agentInfos, long timestamp);
 
     InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes);
+
+    boolean isExistAgentId(String agentId);
+
+    AgentDownloadInfo getLatestStableAgentDownloadInfo();
+
 }

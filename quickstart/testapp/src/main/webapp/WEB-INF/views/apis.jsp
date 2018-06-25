@@ -16,7 +16,7 @@
                         <h5>${apiMapping.key}</h5>
                         <dl>
                             <c:forEach items="${apiMapping.value}" var="api">
-                            <dt><a href="${api.mappedUri}.pinpoint">${api.mappedUri}</a></dt>
+                            <dt><a href="${pageContext.request.contextPath}${api.mappedUri}.pinpoint">${api.mappedUri}</a></dt>
                             <dd><small>${api.description}</small></dd>
                             </c:forEach>
                         </dl>

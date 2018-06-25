@@ -26,10 +26,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
+import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,21 +58,30 @@ public class ActiveTraceRepositoryTest {
     private TransactionCounter transactionCounter;
     private ActiveTraceRepository activeTraceRepository;
 
+    private DefaultApplicationContext applicationContext;
+
     @Before
     public void setUp() {
 
-
-        final ProfilerConfig profilerConfig = Mockito.mock(ProfilerConfig.class);
+        ProfilerConfig profilerConfig = Mockito.spy(new DefaultProfilerConfig());
         Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
 
         Mockito.when(profilerConfig.isSamplingEnable()).thenReturn(true);
         Mockito.when(profilerConfig.getSamplingRate()).thenReturn(SAMPLING_RATE);
 
-        MockTraceContextFactory mockTraceContextFactory = MockTraceContextFactory.newTestTraceContextFactory(profilerConfig);
+        this.applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext.start();
 
-        this.traceContext = mockTraceContextFactory.getTraceContext();
-        this.transactionCounter = new DefaultTransactionCounter(mockTraceContextFactory.getIdGenerator());
-        this.activeTraceRepository = mockTraceContextFactory.getActiveTraceRepository();
+        this.traceContext = applicationContext.getTraceContext();
+        this.transactionCounter = new DefaultTransactionCounter(applicationContext.getInjector().getInstance(IdGenerator.class));
+        this.activeTraceRepository = applicationContext.getInjector().getInstance(ActiveTraceRepository.class);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (applicationContext != null) {
+            applicationContext.close();
+        }
     }
 
     @Test
@@ -87,7 +101,7 @@ public class ActiveTraceRepositoryTest {
         // When
         ListenableFuture<List<TraceThreadTuple>> futures = executeTransactions(awaitLatch, executeLatch, newTransactionCount, expectedSampledContinuationCount, expectedUnsampledContinuationCount);
         executeLatch.await();
-        List<ActiveTraceInfo> activeTraceInfos = this.activeTraceRepository.collect();
+        List<ActiveTraceSnapshot> activeTraceInfos = this.activeTraceRepository.snapshot();
         awaitLatch.countDown();
         List<TraceThreadTuple> executedTraces = futures.get();
         Map<Long, TraceThreadTuple> executedTraceMap = new HashMap<Long, TraceThreadTuple>(executedTraces.size());
@@ -102,11 +116,11 @@ public class ActiveTraceRepositoryTest {
         assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
         
-        for (ActiveTraceInfo activeTraceInfo : activeTraceInfos) {
-            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTraceId());
-            assertEquals(executedTrace.id, activeTraceInfo.getLocalTraceId());
-            assertEquals(executedTrace.startTime, activeTraceInfo.getStartTime());
-            assertEquals(executedTrace.thread, activeTraceInfo.getThread());
+        for (ActiveTraceSnapshot activeTraceInfo : activeTraceInfos) {
+            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTransactionId());
+            assertEquals(executedTrace.getId(), activeTraceInfo.getLocalTransactionId());
+            assertEquals(executedTrace.getStartTime(), activeTraceInfo.getStartTime());
+            assertEquals(executedTrace.getThreadId(), activeTraceInfo.getThreadId());
         }
     }
 
@@ -114,31 +128,33 @@ public class ActiveTraceRepositoryTest {
         final int totalTransactionCount = newTransactionCount + sampledContinuationCount + unsampledContinuationCount;
         final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(totalTransactionCount));
         final List<ListenableFuture<TraceThreadTuple>> futures = new ArrayList<ListenableFuture<TraceThreadTuple>>();
-        for (int i = 0; i < newTransactionCount; ++i) {
+        for (int i = 0; i < newTransactionCount; i++) {
             futures.add(executeNewTrace(executor, awaitLatch, executeLatch));
         }
-        for (int i = 0; i < sampledContinuationCount; ++i) {
+        for (int i = 0; i < sampledContinuationCount; i++) {
             futures.add(executeSampledContinuedTrace(executor, awaitLatch, executeLatch, i));
         }
-        for (int i = 0; i < unsampledContinuationCount; ++i) {
+        for (int i = 0; i < unsampledContinuationCount; i++) {
             futures.add(executeUnsampledContinuedTrace(executor, awaitLatch, executeLatch));
         }
         return Futures.allAsList(futures);
     }
 
     private ListenableFuture<TraceThreadTuple> executeNewTrace(ListeningExecutorService executorService, final CountDownLatch awaitLatch, final CountDownLatch executeLatch) {
-        return executorService.submit(new Callable<TraceThreadTuple>() {
+        Callable<TraceThreadTuple> task = new Callable<TraceThreadTuple>() {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
-                    return new TraceThreadTuple(traceContext.newTraceObject(), Thread.currentThread());
+                    long id = Thread.currentThread().getId();
+                    return new TraceThreadTuple(traceContext.newTraceObject(), id);
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
                     traceContext.removeTraceObject();
                 }
             }
-        });
+        };
+        return (ListenableFuture<TraceThreadTuple>) executorService.submit(task);
     }
 
     private ListenableFuture<TraceThreadTuple> executeSampledContinuedTrace(ListeningExecutorService executorService, final CountDownLatch awaitLatch, final CountDownLatch executeLatch, final long id) {
@@ -146,7 +162,9 @@ public class ActiveTraceRepositoryTest {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
-                    return new TraceThreadTuple(traceContext.continueTraceObject(new DefaultTraceId("agentId", 0L, id)), Thread.currentThread());
+                    TraceId agentId1 = new DefaultTraceId("agentId", 0L, id);
+                    Trace agentId = traceContext.continueTraceObject(agentId1);
+                    return new TraceThreadTuple(agentId, Thread.currentThread().getId());
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
@@ -161,7 +179,8 @@ public class ActiveTraceRepositoryTest {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
-                    return new TraceThreadTuple(traceContext.disableSampling(), Thread.currentThread());
+                    long id = Thread.currentThread().getId();
+                    return new TraceThreadTuple(traceContext.disableSampling(), id);
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
@@ -174,15 +193,27 @@ public class ActiveTraceRepositoryTest {
     private static class TraceThreadTuple {
         private final long id;
         private final long startTime;
-        private final Thread thread;
+        private final long threadId;
 
-        private TraceThreadTuple(Trace trace, Thread thread) {
+        private TraceThreadTuple(Trace trace, long threadId) {
             if (trace == null) {
                 throw new NullPointerException("trace must not be null");
             }
             this.id = trace.getId();
             this.startTime = trace.getStartTime();
-            this.thread = thread;
+            this.threadId = threadId;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public long getThreadId() {
+            return threadId;
         }
     }
 

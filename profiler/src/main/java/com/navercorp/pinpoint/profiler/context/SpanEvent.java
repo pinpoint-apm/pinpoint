@@ -38,13 +38,14 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
     private long startTime;
     private long afterTime;
 
+    private AsyncId asyncIdObject;
+
     public SpanEvent(TraceRoot traceRoot) {
         if (traceRoot == null) {
             throw new NullPointerException("traceRoot must not be null");
         }
         this.traceRoot = traceRoot;
     }
-
 
     public TraceRoot getTraceRoot() {
         return traceRoot;
@@ -54,21 +55,13 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         this.addToAnnotations(annotation);
     }
 
-    public void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
-        setExceptionInfo(exceptionClassId, exceptionMessage);
-        if (markError) {
-            traceRoot.maskErrorCode(1);
-        }
-    }
-
-    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+    public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
         if (StringUtils.hasLength(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);
         }
         super.setExceptionInfo(exceptionInfo);
     }
-
 
     public void markStartTime() {
         this.startTime = System.currentTimeMillis();
@@ -80,7 +73,6 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
 
     public void markAfterTime() {
         this.afterTime = System.currentTimeMillis();
-
     }
 
     public long getAfterTime() {
@@ -120,5 +112,13 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         final Object delete = this.frameObject;
         this.frameObject = null;
         return delete;
+    }
+
+    public void setAsyncIdObject(AsyncId asyncIdObject) {
+        this.asyncIdObject = asyncIdObject;
+    }
+
+    public AsyncId getAsyncIdObject() {
+        return asyncIdObject;
     }
 }

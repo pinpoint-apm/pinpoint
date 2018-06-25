@@ -42,12 +42,6 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
     /** The transform template. */
     private TransformTemplate transformTemplate;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin#setup(com.navercorp.pinpoint.bootstrap.plugin.
-     * ProfilerPluginSetupContext)
-     */
     @Override
     public void setup(final ProfilerPluginSetupContext context) {
         final JbossConfig jbossConfig = new JbossConfig(context.getConfig());
@@ -86,9 +80,27 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
         if (jbossConfig.isJbossTraceEjb()) {
             addMethodInvocationMessageHandlerEditor();
         } else {
+            if(jbossConfig.isJbossHidePinpointHeader()) {
+                requestFacade();
+            }
             addStandardHostValveEditor();
             addContextInvocationEditor();
         }
+    }
+
+    private void requestFacade() {
+        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                if (target != null) {
+                    target.weave("com.navercorp.pinpoint.plugin.jboss.aspect.RequestFacadeAspect");
+                    return target.toBytecode();
+                }
+
+                return null;
+            }
+        });
     }
 
     /**

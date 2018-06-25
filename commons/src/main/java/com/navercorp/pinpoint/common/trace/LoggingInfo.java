@@ -62,17 +62,18 @@ public enum LoggingInfo {
         return desc;
     }
     
-    private final static IntHashMap<LoggingInfo> loggingInfoByCode = new IntHashMap<LoggingInfo>();
+    private final static IntHashMap<LoggingInfo> LOGGING_INFO_MAP = toLoggingInfoByCodeMap();
     
-    static {
+    private static IntHashMap<LoggingInfo> toLoggingInfoByCodeMap() {
+        final IntHashMap<LoggingInfo> loggingInfoMap = new IntHashMap<LoggingInfo>();
         for (LoggingInfo loggingInfo : LoggingInfo.values()) {
-            loggingInfoByCode.put(loggingInfo.getCode(), loggingInfo);
+            loggingInfoMap.put(loggingInfo.getCode(), loggingInfo);
         }
-        
+        return loggingInfoMap;
     }
-    
+
     public static LoggingInfo searchByCode(byte code) {
-        return loggingInfoByCode.get(code);
+        return LOGGING_INFO_MAP.get(code);
         
     }
     

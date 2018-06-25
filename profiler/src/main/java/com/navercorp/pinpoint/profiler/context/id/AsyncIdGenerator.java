@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import com.navercorp.pinpoint.profiler.context.AsyncId;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -24,4 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public interface AsyncIdGenerator {
 
     int nextAsyncId();
+
+    AsyncId newAsyncId();
 }

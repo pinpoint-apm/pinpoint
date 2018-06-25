@@ -43,7 +43,7 @@ public class URLClassLoaderHandler implements ClassInjector {
             ADD_URL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
             ADD_URL.setAccessible(true);
         } catch (Exception e) {
-            throw new PinpointException("Cannot access URLClassLoader.addURL(URL)", e);
+            throw new IllegalStateException("Cannot access URLClassLoader.addURL(URL)", e);
         }
     }
 
@@ -89,7 +89,7 @@ public class URLClassLoaderHandler implements ClassInjector {
         return null;
     }
 
-    private void addPluginURLIfAbsent(URLClassLoader classLoader) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+    private void addPluginURLIfAbsent(URLClassLoader classLoader) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         final URL[] urls = classLoader.getURLs();
         if (urls != null) {
             final boolean hasPluginJar = hasPluginJar(urls);

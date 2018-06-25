@@ -16,53 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.memory;
 
-import com.codahale.metrics.Metric;
-
-import java.util.Map;
-
 /**
- * Unknown memory metrics
- *
  * @author HyunGil Jeong
  */
-public class UnknownMemoryMetric extends CommonMemoryMetric {
+public class UnknownMemoryMetric implements MemoryMetric {
 
-    public UnknownMemoryMetric(Map<String, Metric> memoryUsageMetrics) {
-        super(memoryUsageMetrics);
-    }
+    private static final MemoryMetricSnapshot UNSUPPORTED_SNAPSHOT = new MemoryMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
 
     @Override
-    public Double newGenUsage() {
-        return EMPTY_DOUBLE_GAUGE.getValue();
-    }
-
-    @Override
-    public Double oldGenUsage() {
-        return EMPTY_DOUBLE_GAUGE.getValue();
-    }
-
-    @Override
-    public Double codeCacheUsage() {
-        return EMPTY_DOUBLE_GAUGE.getValue();
-    }
-
-    @Override
-    public Double survivorUsage() {
-        return EMPTY_DOUBLE_GAUGE.getValue();
-    }
-
-    @Override
-    public Double permGenUsage() {
-        return EMPTY_DOUBLE_GAUGE.getValue();
-    }
-
-    @Override
-    public Double metaspaceUsage() {
-        return EMPTY_DOUBLE_GAUGE.getValue();
+    public MemoryMetricSnapshot getSnapshot() {
+        return UNSUPPORTED_SNAPSHOT;
     }
 
     @Override
     public String toString() {
-        return "Unknown memory metrics";
+        return "Unknown memory metric";
     }
 }

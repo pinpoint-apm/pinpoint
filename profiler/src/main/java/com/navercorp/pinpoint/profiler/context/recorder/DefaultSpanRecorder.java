@@ -34,8 +34,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  *
  */
 public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorder {
-    private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private static final boolean isDebug = logger.isDebugEnabled();
     
     private final Span span;
     private final boolean isRoot;
@@ -58,12 +58,14 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
 
     @Override
-    void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
+    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         span.setExceptionInfo(exceptionClassId, exceptionMessage);
-        if (markError) {
-            final TraceRoot internalTraceId = span.getTraceRoot();
-            internalTraceId.maskErrorCode(1);
-        }
+    }
+
+    @Override
+    void maskErrorCode(final int errorCode) {
+        final TraceRoot traceRoot = span.getTraceRoot();
+        traceRoot.getShared().maskErrorCode(errorCode);
     }
 
     @Override
@@ -88,6 +90,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordRpcName(String rpc) {
         span.setRpc(rpc);
+        span.getTraceRoot().getShared().setRpcName(rpc);
     }
 
     @Override
@@ -98,7 +101,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordEndPoint(String endPoint) {
         span.setEndPoint(endPoint);
-        span.getTraceRoot().setEndPoint(endPoint);
+        span.getTraceRoot().getShared().setEndPoint(endPoint);
     }
 
     @Override
@@ -130,15 +133,15 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     
     @Override
     public void recordLogging(LoggingInfo loggingInfo) {
-        final TraceRoot internalTraceId = span.getTraceRoot();
-        internalTraceId.setLoggingInfo(loggingInfo.getCode());
+        final TraceRoot traceRoot = span.getTraceRoot();
+        traceRoot.getShared().setLoggingInfo(loggingInfo.getCode());
     }
     
     @Override
-    public void recordTime(boolean time) {
-        span.setTimeRecording(time);
-        if (time) {
-            if(!span.isSetStartTime()) {
+    public void recordTime(boolean autoTimeRecoding) {
+        span.setTimeRecording(autoTimeRecoding);
+        if (autoTimeRecoding) {
+            if (!span.isSetStartTime()) {
                 span.markBeforeTime();
             }
         } else {
@@ -163,5 +166,10 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public Object detachFrameObject() {
         return span.detachFrameObject();
+    }
+
+    @Override
+    public void recordStatusCode(int statusCode) {
+        span.getTraceRoot().getShared().setStatusCode(statusCode);
     }
 }

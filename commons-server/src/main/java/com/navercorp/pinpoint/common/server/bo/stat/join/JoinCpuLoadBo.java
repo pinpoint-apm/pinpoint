@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import java.net.ProtocolException;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +24,6 @@ import java.util.List;
 public class JoinCpuLoadBo implements JoinStatBo {
     public static final JoinCpuLoadBo EMPTY_JOIN_CPU_LOAD_BO = new JoinCpuLoadBo();
     public static final double UNCOLLECTED_VALUE = -1;
-    private static final byte version = 1;
 
     private String id = UNKNOWN_ID;
     private long timestamp = Long.MIN_VALUE;
@@ -63,25 +61,25 @@ public class JoinCpuLoadBo implements JoinStatBo {
     public static JoinCpuLoadBo joinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList, Long timestamp) {
         int boCount = joinCpuLoadBoList.size();
 
-        if (joinCpuLoadBoList.size() == 0) {
+        if (joinCpuLoadBoList.isEmpty()) {
             return EMPTY_JOIN_CPU_LOAD_BO;
         }
 
         JoinCpuLoadBo newJoinCpuLoadBo = new JoinCpuLoadBo();
-        JoinCpuLoadBo initCpuLoadBo = joinCpuLoadBoList.get(0);
-        newJoinCpuLoadBo.setId(initCpuLoadBo.getId());
+        JoinCpuLoadBo initJoinCpuLoadBo = joinCpuLoadBoList.get(0);
+        newJoinCpuLoadBo.setId(initJoinCpuLoadBo.getId());
         newJoinCpuLoadBo.setTimestamp(timestamp);
 
         double sumJvmCpuLoad = 0D;
-        String maxJvmCpuAgentId = initCpuLoadBo.getMaxJvmCpuAgentId();
-        double maxJvmCpuLoad = initCpuLoadBo.getMaxJvmCpuLoad();
-        String minJvmCpuAgentId = initCpuLoadBo.getMinJvmCpuAgentId();
-        double minJvmCpuLoad = initCpuLoadBo.getMinJvmCpuLoad();
+        String maxJvmCpuAgentId = initJoinCpuLoadBo.getMaxJvmCpuAgentId();
+        double maxJvmCpuLoad = initJoinCpuLoadBo.getMaxJvmCpuLoad();
+        String minJvmCpuAgentId = initJoinCpuLoadBo.getMinJvmCpuAgentId();
+        double minJvmCpuLoad = initJoinCpuLoadBo.getMinJvmCpuLoad();
         double sumSystemCpuLoad = 0D;
-        String maxSysCpuAgentId = initCpuLoadBo.getMaxSysCpuAgentId();
-        double maxSystemCpuLoad = initCpuLoadBo.getMaxSystemCpuLoad();
-        String minSysCpuAgentId = initCpuLoadBo.getMinSysCpuAgentId();
-        double minSystemCpuLoad = initCpuLoadBo.getMinSystemCpuLoad();
+        String maxSysCpuAgentId = initJoinCpuLoadBo.getMaxSysCpuAgentId();
+        double maxSystemCpuLoad = initJoinCpuLoadBo.getMaxSystemCpuLoad();
+        String minSysCpuAgentId = initJoinCpuLoadBo.getMinSysCpuAgentId();
+        double minSystemCpuLoad = initJoinCpuLoadBo.getMinSystemCpuLoad();
 
         for (JoinCpuLoadBo joinCpuLoadBo : joinCpuLoadBoList) {
             sumJvmCpuLoad += joinCpuLoadBo.getJvmCpuLoad();
@@ -216,11 +214,6 @@ public class JoinCpuLoadBo implements JoinStatBo {
         return minSystemCpuLoad;
     }
 
-    public byte getVersion() {
-        return version;
-    }
-
-
     @Override
     public String toString() {
         return "JoinCpuLoadBo{" +
@@ -246,18 +239,43 @@ public class JoinCpuLoadBo implements JoinStatBo {
 
         JoinCpuLoadBo that = (JoinCpuLoadBo) o;
 
-        if (version != that.version) return false;
+        if (timestamp != that.timestamp) return false;
         if (Double.compare(that.jvmCpuLoad, jvmCpuLoad) != 0) return false;
         if (Double.compare(that.maxJvmCpuLoad, maxJvmCpuLoad) != 0) return false;
         if (Double.compare(that.minJvmCpuLoad, minJvmCpuLoad) != 0) return false;
         if (Double.compare(that.systemCpuLoad, systemCpuLoad) != 0) return false;
         if (Double.compare(that.maxSystemCpuLoad, maxSystemCpuLoad) != 0) return false;
         if (Double.compare(that.minSystemCpuLoad, minSystemCpuLoad) != 0) return false;
-        if (timestamp != that.timestamp) return false;
         if (!id.equals(that.id)) return false;
         if (!maxJvmCpuAgentId.equals(that.maxJvmCpuAgentId)) return false;
         if (!minJvmCpuAgentId.equals(that.minJvmCpuAgentId)) return false;
         if (!maxSysCpuAgentId.equals(that.maxSysCpuAgentId)) return false;
         return minSysCpuAgentId.equals(that.minSysCpuAgentId);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = id.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        temp = Double.doubleToLongBits(jvmCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + maxJvmCpuAgentId.hashCode();
+        temp = Double.doubleToLongBits(maxJvmCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + minJvmCpuAgentId.hashCode();
+        temp = Double.doubleToLongBits(minJvmCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(systemCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + maxSysCpuAgentId.hashCode();
+        temp = Double.doubleToLongBits(maxSystemCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + minSysCpuAgentId.hashCode();
+        temp = Double.doubleToLongBits(minSystemCpuLoad);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

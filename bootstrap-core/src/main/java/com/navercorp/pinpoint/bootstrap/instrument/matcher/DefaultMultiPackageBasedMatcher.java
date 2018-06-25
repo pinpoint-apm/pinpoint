@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,34 +38,56 @@ public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher
     }
 
     DefaultMultiPackageBasedMatcher(final List<String> basePackageNames, final MatcherOperand additional) {
-        Assert.requireNonNull(basePackageNames, "basePackageNames must not be null");
-        final List<String> list = new ArrayList<String>();
+        if (CollectionUtils.isEmpty(basePackageNames)) {
+            throw new IllegalArgumentException("basePackageNames must not be empty");
+        }
+
+        final List<String> buildBasePackageName = buildBasePackageNameList(basePackageNames);
+        final MatcherOperand operand = joinOr(buildBasePackageName);
+        if (operand == null) {
+            throw new IllegalStateException("operand is null");
+        }
+        this.matcherOperand = addOr(operand, additional);
+
+        this.basePackageNames = Collections.unmodifiableList(buildBasePackageName);
+    }
+
+    private MatcherOperand addOr(MatcherOperand operand, MatcherOperand additional) {
+        if (additional == null) {
+            return operand;
+        }
+        // (package OR ...) AND additional
+        operand = operand.and(additional);
+        return operand;
+    }
+
+    private MatcherOperand joinOr(List<String> basePackageNames) {
+        if (basePackageNames.isEmpty()) {
+            throw new IllegalArgumentException("basePackageNames must not be empty ");
+        }
+
+        MatcherOperand operandGroup = null;
+        for (String basePackageName : basePackageNames) {
+            if (operandGroup == null) {
+                operandGroup = new PackageInternalNameMatcherOperand(basePackageName);
+            } else {
+                // package OR ...
+                final MatcherOperand packageMatcherOperand = new PackageInternalNameMatcherOperand(basePackageName);
+                operandGroup = operandGroup.or(packageMatcherOperand);
+            }
+        }
+        return operandGroup;
+    }
+
+    private List<String> buildBasePackageNameList(List<String> basePackageNames) {
+        final List<String> list = new ArrayList<String>(basePackageNames.size());
         for (String basePackageName : basePackageNames) {
             // skip null and empty.
-            if (basePackageName != null && !basePackageName.isEmpty()) {
+            if (StringUtils.hasText(basePackageName)) {
                 list.add(basePackageName);
             }
         }
-        if (list.isEmpty()) {
-            throw new IllegalArgumentException("basePackageNames must not be empty " + basePackageNames);
-        }
-        this.basePackageNames = Collections.unmodifiableList(list);
-
-        MatcherOperand operand = null;
-        for (String basePackageName : this.basePackageNames) {
-            final MatcherOperand packageMatcherOperand = new PackageInternalNameMatcherOperand(basePackageName);
-            if (operand == null) {
-                operand = packageMatcherOperand;
-            } else {
-                // package OR ...
-                operand = operand.or(packageMatcherOperand);
-            }
-        }
-        if (additional != null) {
-            // (package OR ...) AND additional
-            operand = operand.and(additional);
-        }
-        this.matcherOperand = operand;
+        return list;
     }
 
     @Override

@@ -32,14 +32,14 @@ import javax.servlet.http.HttpServletResponse;
  * 
  */
 public class NoCacheFilter implements Filter {
-    private FilterConfig filterConfig = null;
+
 
     public void init(FilterConfig filterConfig) {
-        this.filterConfig = filterConfig;
+
     }
 
     public void destroy() {
-        this.filterConfig = null;
+
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {

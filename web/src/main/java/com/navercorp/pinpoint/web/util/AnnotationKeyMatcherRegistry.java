@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author emeroad
@@ -41,15 +40,6 @@ public class AnnotationKeyMatcherRegistry {
         }
         this.annotationMatcherMap = annotationMatcherMap;
     }
-
-    private IntHashMap<AnnotationKeyMatcher> copy(HashMap<Short, AnnotationKeyMatcher> annotationMatcherMap) {
-        final IntHashMap<AnnotationKeyMatcher> copy = new IntHashMap<>();
-        for (Map.Entry<Short, AnnotationKeyMatcher> entry : annotationMatcherMap.entrySet()) {
-            copy.put(entry.getKey(), entry.getValue());
-        }
-        return copy;
-    }
-
 
     public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
         return annotationMatcherMap.get(serviceType);

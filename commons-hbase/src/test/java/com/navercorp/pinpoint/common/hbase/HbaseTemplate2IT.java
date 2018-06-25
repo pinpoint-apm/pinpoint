@@ -23,6 +23,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.TableNotFoundException;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -38,6 +40,7 @@ import com.navercorp.pinpoint.common.util.PropertyUtils;
  * @author minwoo.jung
  */
 public class HbaseTemplate2IT {
+    private static Connection connection;
     private static HbaseTemplate2 hbaseTemplate2;
 
     @BeforeClass
@@ -47,10 +50,11 @@ public class HbaseTemplate2IT {
         Configuration cfg = HBaseConfiguration.create();
         cfg.set("hbase.zookeeper.quorum", properties.getProperty("hbase.client.host"));
         cfg.set("hbase.zookeeper.property.clientPort", properties.getProperty("hbase.client.port"));
-        
+
+        connection = ConnectionFactory.createConnection(cfg);
         hbaseTemplate2 = new HbaseTemplate2();
         hbaseTemplate2.setConfiguration(cfg);
-        hbaseTemplate2.setTableFactory(new PooledHTableFactory(cfg));
+        hbaseTemplate2.setTableFactory(new HbaseTableFactory(connection));
         hbaseTemplate2.afterPropertiesSet();
     }
 
@@ -58,6 +62,9 @@ public class HbaseTemplate2IT {
     public static void afterClass() throws Exception {
         if (hbaseTemplate2 != null) {
             hbaseTemplate2.destroy();
+        }
+        if (connection != null) {
+            connection.close();
         }
     }
 

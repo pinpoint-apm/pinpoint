@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -49,7 +48,7 @@ public class LinkSerializerTest {
         Node node1 = new Node(new Application("test1", ServiceType.STAND_ALONE));
         Node node2 = new Node(new Application("test1", ServiceType.STAND_ALONE));
 
-        Link link = LinkFactory.createLink(CreateType.Source, node1, node2, new Range(0, 1));
+        Link link = new Link(CreateType.Source, node1, node2, new Range(0, 1));
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
         String s = objectWriter.writeValueAsString(link);
 

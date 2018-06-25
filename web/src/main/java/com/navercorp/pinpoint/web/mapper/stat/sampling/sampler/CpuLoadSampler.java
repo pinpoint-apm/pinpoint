@@ -17,15 +17,15 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author HyunGil Jeong
@@ -34,36 +34,44 @@ import java.util.List;
 public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoad> {
 
     private static final int NUM_DECIMAL_PLACES = 1;
-    public static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(CpuLoadBo.UNCOLLECTED_VALUE, NUM_DECIMAL_PLACES);
+    private static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(SampledCpuLoad.UNCOLLECTED_PERCENTAGE, NUM_DECIMAL_PLACES);
 
     @Override
     public SampledCpuLoad sampleDataPoints(int timeWindowIndex, long timestamp, List<CpuLoadBo> dataPoints, CpuLoadBo previousDataPoint) {
-        List<Double> jvmCpuLoads = new ArrayList<>(dataPoints.size());
-        List<Double> systemCpuLoads = new ArrayList<>(dataPoints.size());
-        for (CpuLoadBo cpuLoadBo : dataPoints) {
-            if (cpuLoadBo.getJvmCpuLoad() != CpuLoadBo.UNCOLLECTED_VALUE) {
-                jvmCpuLoads.add(cpuLoadBo.getJvmCpuLoad() * 100);
-            }
-            if (cpuLoadBo.getSystemCpuLoad() != CpuLoadBo.UNCOLLECTED_VALUE) {
-                systemCpuLoads.add(cpuLoadBo.getSystemCpuLoad() * 100);
-            }
-        }
-        SampledCpuLoad sampledCpuLoad = new SampledCpuLoad();
-        sampledCpuLoad.setJvmCpuLoad(createPoint(timestamp, jvmCpuLoads));
-        sampledCpuLoad.setSystemCpuLoad(createPoint(timestamp, systemCpuLoads));
+        final AgentStatPoint<Double> jvmCpuLoad = newAgentStatPoint(timestamp, dataPoints, CpuLoadBo::getJvmCpuLoad);
+        final AgentStatPoint<Double> systemCpuLoad = newAgentStatPoint(timestamp, dataPoints, CpuLoadBo::getSystemCpuLoad);
+
+        SampledCpuLoad sampledCpuLoad = new SampledCpuLoad(jvmCpuLoad, systemCpuLoad);
         return sampledCpuLoad;
     }
 
-    private Point<Long, Double> createPoint(long timestamp, List<Double> values) {
-        if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, CpuLoadBo.UNCOLLECTED_VALUE);
-        } else {
-            return new Point<>(
-                    timestamp,
-                    DOUBLE_DOWN_SAMPLER.sampleMin(values),
-                    DOUBLE_DOWN_SAMPLER.sampleMax(values),
-                    DOUBLE_DOWN_SAMPLER.sampleAvg(values),
-                    DOUBLE_DOWN_SAMPLER.sampleSum(values));
+    private AgentStatPoint<Double> newAgentStatPoint(long timestamp, List<CpuLoadBo> dataPoints, ToDoubleFunction<CpuLoadBo> filter) {
+        List<Double> jvmCpuLoads = filter(dataPoints, filter);
+        return createPoint(timestamp, jvmCpuLoads);
+    }
+
+    private List<Double> filter(List<CpuLoadBo> dataPoints, ToDoubleFunction<CpuLoadBo> filter) {
+        final List<Double> result = new ArrayList<>(dataPoints.size());
+        for (CpuLoadBo cpuLoadBo : dataPoints) {
+            final double apply = filter.applyAsDouble(cpuLoadBo);
+            if (apply != CpuLoadBo.UNCOLLECTED_VALUE) {
+                result.add(apply * 100);
+            }
         }
+        return result;
+    }
+
+    private AgentStatPoint<Double> createPoint(long timestamp, List<Double> values) {
+        if (values.isEmpty()) {
+            return SampledCpuLoad.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
+        }
+
+        return new AgentStatPoint<>(
+                timestamp,
+                DOUBLE_DOWN_SAMPLER.sampleMin(values),
+                DOUBLE_DOWN_SAMPLER.sampleMax(values),
+                DOUBLE_DOWN_SAMPLER.sampleAvg(values),
+                DOUBLE_DOWN_SAMPLER.sampleSum(values));
+
     }
 }

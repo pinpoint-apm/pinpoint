@@ -21,13 +21,12 @@ import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.SearchDepth;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author HyunGil Jeong
@@ -38,7 +37,7 @@ public class UnidirectionalLinkSelector implements LinkSelector {
 
     private final ApplicationsMapCreator applicationsMapCreator;
 
-    private final VirtualLinkProcessor virtualLinkProcessor;
+    private final VirtualLinkHandler virtualLinkHandler;
 
     private final ServerMapDataFilter serverMapDataFilter;
 
@@ -46,36 +45,28 @@ public class UnidirectionalLinkSelector implements LinkSelector {
 
     UnidirectionalLinkSelector(
             ApplicationsMapCreator applicationsMapCreator,
-            VirtualLinkProcessor virtualLinkProcessor,
+            VirtualLinkHandler virtualLinkHandler,
             ServerMapDataFilter serverMapDataFilter) {
         if (applicationsMapCreator == null) {
             throw new NullPointerException("applicationsMapCreator must not be null");
         }
-        if (virtualLinkProcessor == null) {
+        if (virtualLinkHandler == null) {
             throw new NullPointerException("virtualLinkProcessor must not be null");
         }
         this.applicationsMapCreator = applicationsMapCreator;
-        this.virtualLinkProcessor = virtualLinkProcessor;
+        this.virtualLinkHandler = virtualLinkHandler;
         this.serverMapDataFilter = serverMapDataFilter;
     }
 
     @Override
-    public LinkDataDuplexMap select(Application sourceApplication, Range range, SearchOption searchOption) {
-        if (searchOption == null) {
-            throw new NullPointerException("searchOption must not be null");
-        }
-
-        logger.debug("Creating link data map for {}", sourceApplication);
-        final SearchDepth callerDepth = new SearchDepth(searchOption.getCallerSearchDepth());
-        final SearchDepth calleeDepth = new SearchDepth(searchOption.getCalleeSearchDepth());
+    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
+        logger.debug("Creating link data map for {}", sourceApplications);
+        final SearchDepth callerDepth = new SearchDepth(callerSearchDepth);
+        final SearchDepth calleeDepth = new SearchDepth(calleeSearchDepth);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-        List<Application> applications;
-        if (!filter(sourceApplication)) {
-            applications = Collections.emptyList();
-        } else {
-            applications = Collections.singletonList(sourceApplication);
-        }
+        List<Application> applications = filterApplications(sourceApplications);
+
         List<Application> outboundApplications = Collections.unmodifiableList(applications);
         LinkSelectContext outboundLinkSelectContext = new LinkSelectContext(range, callerDepth, new SearchDepth(0), linkVisitChecker);
         List<Application> inboundApplications = Collections.unmodifiableList(applications);
@@ -83,33 +74,36 @@ public class UnidirectionalLinkSelector implements LinkSelector {
 
         while (!outboundApplications.isEmpty() || !inboundApplications.isEmpty()) {
 
-            logger.info("depth search start. callerDepth:{}, calleeDepth:{}, size:{}, nodes:{}", outboundLinkSelectContext.getCallerDepth(), inboundLinkSelectContext.getCalleeDepth(), applications.size(), applications);
+            logger.info("outbound depth search start. callerDepth:{}, calleeDepth:{}, size:{}, nodes:{}", outboundLinkSelectContext.getCallerDepth(), outboundLinkSelectContext.getCalleeDepth(), outboundApplications.size(), outboundApplications);
             LinkDataDuplexMap outboundMap = applicationsMapCreator.createLinkDataDuplexMap(outboundApplications, outboundLinkSelectContext);
+            logger.info("outbound depth search end. callerDepth:{}, calleeDepth:{}", outboundLinkSelectContext.getCallerDepth(), outboundLinkSelectContext.getCalleeDepth());
+
+            logger.info("inbound depth search start. callerDepth:{}, calleeDepth:{}, size:{}, nodes:{}", inboundLinkSelectContext.getCallerDepth(), inboundLinkSelectContext.getCalleeDepth(), inboundApplications.size(), inboundApplications);
             LinkDataDuplexMap inboundMap = applicationsMapCreator.createLinkDataDuplexMap(inboundApplications, inboundLinkSelectContext);
-            logger.info("depth search end. callerDepth:{}, calleeDepth:{}", outboundLinkSelectContext.getCallerDepth(), inboundLinkSelectContext.getCalleeDepth());
+            logger.info("inbound depth search end. callerDepth:{}, calleeDepth:{}", inboundLinkSelectContext.getCallerDepth(), inboundLinkSelectContext.getCalleeDepth());
 
             linkDataDuplexMap.addLinkDataDuplexMap(outboundMap);
             linkDataDuplexMap.addLinkDataDuplexMap(inboundMap);
 
-            outboundApplications = outboundLinkSelectContext.getNextApplications()
-                    .stream()
-                    .filter(this::filter)
-                    .collect(Collectors.toList());
-            inboundApplications = inboundLinkSelectContext.getNextApplications()
-                    .stream()
-                    .filter(this::filter)
-                    .collect(Collectors.toList());
+            outboundApplications = filterApplications(outboundLinkSelectContext.getNextApplications());
+            inboundApplications = filterApplications(inboundLinkSelectContext.getNextApplications());
 
             outboundLinkSelectContext = outboundLinkSelectContext.advance();
             inboundLinkSelectContext = inboundLinkSelectContext.advance();
         }
-        return virtualLinkProcessor.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, range);
+        return virtualLinkHandler.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, range);
     }
 
-    private boolean filter(Application targetApplication) {
-        if (serverMapDataFilter != null && serverMapDataFilter.filter(targetApplication)) {
-            return false;
+    private List<Application> filterApplications(List<Application> applications) {
+        if (serverMapDataFilter == null) {
+            return applications;
         }
-        return true;
+        List<Application> filteredApplications = new ArrayList<>();
+        for (Application application : applications) {
+            if (!serverMapDataFilter.filter(application)) {
+                filteredApplications.add(application);
+            }
+        }
+        return filteredApplications;
     }
 }

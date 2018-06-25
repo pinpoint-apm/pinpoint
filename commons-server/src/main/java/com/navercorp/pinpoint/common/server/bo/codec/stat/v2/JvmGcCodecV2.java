@@ -70,60 +70,16 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
 
         List<Long> startTimestamps = new ArrayList<Long>(numValues);
         List<Long> timestamps = new ArrayList<Long>(numValues);
-        UnsignedLongEncodingStrategy.Analyzer.Builder heapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder heapMaxAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder nonHeapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder nonHeapMaxAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder gcOldCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder gcOldTimeAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        JvmGcCodecEncoder jvmGcCodecEncoder = new JvmGcCodecEncoder(codec);
         for (JvmGcBo jvmGcBo : jvmGcBos) {
             startTimestamps.add(jvmGcBo.getStartTimestamp());
             timestamps.add(jvmGcBo.getTimestamp());
-            heapUsedAnalyzerBuilder.addValue(jvmGcBo.getHeapUsed());
-            heapMaxAnalyzerBuilder.addValue(jvmGcBo.getHeapMax());
-            nonHeapUsedAnalyzerBuilder.addValue(jvmGcBo.getNonHeapUsed());
-            nonHeapMaxAnalyzerBuilder.addValue(jvmGcBo.getNonHeapMax());
-            gcOldCountAnalyzerBuilder.addValue(jvmGcBo.getGcOldCount());
-            gcOldTimeAnalyzerBuilder.addValue(jvmGcBo.getGcOldTime());
+            jvmGcCodecEncoder.addValue(jvmGcBo);
         }
 
         this.codec.encodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, startTimestamps);
         this.codec.encodeTimestamps(valueBuffer, timestamps);
-        this.encodeDataPoints(
-                valueBuffer,
-                heapUsedAnalyzerBuilder.build(),
-                heapMaxAnalyzerBuilder.build(),
-                nonHeapUsedAnalyzerBuilder.build(),
-                nonHeapMaxAnalyzerBuilder.build(),
-                gcOldCountAnalyzerBuilder.build(),
-                gcOldTimeAnalyzerBuilder.build());
-    }
-
-    private void encodeDataPoints(
-            Buffer valueBuffer,
-            StrategyAnalyzer<Long> heapUsedStrategyAnalyzer,
-            StrategyAnalyzer<Long> heapMaxStrategyAnalyzer,
-            StrategyAnalyzer<Long> nonHeapUsedStrategyAnalyzer,
-            StrategyAnalyzer<Long> nonHeapMaxStrategyAnalyzer,
-            StrategyAnalyzer<Long> gcOldCountStrategyAnalyzer,
-            StrategyAnalyzer<Long> gcOldTimeStrategyAnalyzer) {
-        // encode header
-        AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
-        headerEncoder.addCode(heapUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(heapMaxStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(nonHeapUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(nonHeapMaxStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(gcOldCountStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(gcOldTimeStrategyAnalyzer.getBestStrategy().getCode());
-        final byte[] header = headerEncoder.getHeader();
-        valueBuffer.putPrefixedBytes(header);
-        // encode values
-        this.codec.encodeValues(valueBuffer, heapUsedStrategyAnalyzer.getBestStrategy(), heapUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, heapMaxStrategyAnalyzer.getBestStrategy(), heapMaxStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, nonHeapUsedStrategyAnalyzer.getBestStrategy(), nonHeapUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, nonHeapMaxStrategyAnalyzer.getBestStrategy(), nonHeapMaxStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, gcOldCountStrategyAnalyzer.getBestStrategy(), gcOldCountStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, gcOldTimeStrategyAnalyzer.getBestStrategy(), gcOldTimeStrategyAnalyzer.getValues());
+        jvmGcCodecEncoder.encode(valueBuffer);
     }
 
     @Override
@@ -141,35 +97,120 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
         // decode headers
         final byte[] header = valueBuffer.readPrefixedBytes();
         AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
-        EncodingStrategy<Long> heapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> heapMaxEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> nonHeapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> nonHeapMaxEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> gcOldCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> gcOldTimeEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        // decode values
-        List<Long> heapUseds = this.codec.decodeValues(valueBuffer, heapUsedEncodingStrategy, numValues);
-        List<Long> heapMaxes = this.codec.decodeValues(valueBuffer, heapMaxEncodingStrategy, numValues);
-        List<Long> nonHeapUseds = this.codec.decodeValues(valueBuffer, nonHeapUsedEncodingStrategy, numValues);
-        List<Long> nonHeapMaxes = this.codec.decodeValues(valueBuffer, nonHeapMaxEncodingStrategy, numValues);
-        List<Long> gcOldCounts = this.codec.decodeValues(valueBuffer, gcOldCountEncodingStrategy,  numValues);
-        List<Long> gcOldTimes = this.codec.decodeValues(valueBuffer, gcOldTimeEncodingStrategy, numValues);
+
+        JvmGcCodecDecoder decoder = new JvmGcCodecDecoder(codec);
+        decoder.decode(valueBuffer, headerDecoder, numValues);
 
         List<JvmGcBo> jvmGcBos = new ArrayList<JvmGcBo>(numValues);
-        for (int i = 0; i < numValues; ++i) {
-            JvmGcBo jvmGcBo = new JvmGcBo();
+        for (int i = 0; i < numValues; i++) {
+            JvmGcBo jvmGcBo = decoder.getValue(i);
             jvmGcBo.setAgentId(agentId);
             jvmGcBo.setStartTimestamp(startTimestamps.get(i));
             jvmGcBo.setTimestamp(timestamps.get(i));
             jvmGcBo.setGcType(gcType);
-            jvmGcBo.setHeapUsed(heapUseds.get(i));
-            jvmGcBo.setHeapMax(heapMaxes.get(i));
-            jvmGcBo.setNonHeapUsed(nonHeapUseds.get(i));
-            jvmGcBo.setNonHeapMax(nonHeapMaxes.get(i));
-            jvmGcBo.setGcOldCount(gcOldCounts.get(i));
-            jvmGcBo.setGcOldTime(gcOldTimes.get(i));
             jvmGcBos.add(jvmGcBo);
         }
         return jvmGcBos;
     }
+
+    public static class JvmGcCodecEncoder implements AgentStatCodec.CodecEncoder<JvmGcBo> {
+
+        private final AgentStatDataPointCodec codec;
+        UnsignedLongEncodingStrategy.Analyzer.Builder heapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        UnsignedLongEncodingStrategy.Analyzer.Builder heapMaxAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        UnsignedLongEncodingStrategy.Analyzer.Builder nonHeapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        UnsignedLongEncodingStrategy.Analyzer.Builder nonHeapMaxAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        UnsignedLongEncodingStrategy.Analyzer.Builder gcOldCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        UnsignedLongEncodingStrategy.Analyzer.Builder gcOldTimeAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+
+        public JvmGcCodecEncoder(AgentStatDataPointCodec codec) {
+            this.codec = codec;
+        }
+
+        @Override
+        public void addValue(JvmGcBo jvmGcBo) {
+            heapUsedAnalyzerBuilder.addValue(jvmGcBo.getHeapUsed());
+            heapMaxAnalyzerBuilder.addValue(jvmGcBo.getHeapMax());
+            nonHeapUsedAnalyzerBuilder.addValue(jvmGcBo.getNonHeapUsed());
+            nonHeapMaxAnalyzerBuilder.addValue(jvmGcBo.getNonHeapMax());
+            gcOldCountAnalyzerBuilder.addValue(jvmGcBo.getGcOldCount());
+            gcOldTimeAnalyzerBuilder.addValue(jvmGcBo.getGcOldTime());
+        }
+
+        @Override
+        public void encode(Buffer valueBuffer) {
+            StrategyAnalyzer<Long> heapUsedStrategyAnalyzer = heapUsedAnalyzerBuilder.build();
+            StrategyAnalyzer<Long> heapMaxStrategyAnalyzer = heapMaxAnalyzerBuilder.build();
+            StrategyAnalyzer<Long> nonHeapUsedStrategyAnalyzer = nonHeapUsedAnalyzerBuilder.build();
+            StrategyAnalyzer<Long> nonHeapMaxStrategyAnalyzer = nonHeapMaxAnalyzerBuilder.build();
+            StrategyAnalyzer<Long> gcOldCountStrategyAnalyzer = gcOldCountAnalyzerBuilder.build();
+            StrategyAnalyzer<Long> gcOldTimeStrategyAnalyzer = gcOldTimeAnalyzerBuilder.build();
+            // encode header
+            AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
+            headerEncoder.addCode(heapUsedStrategyAnalyzer.getBestStrategy().getCode());
+            headerEncoder.addCode(heapMaxStrategyAnalyzer.getBestStrategy().getCode());
+            headerEncoder.addCode(nonHeapUsedStrategyAnalyzer.getBestStrategy().getCode());
+            headerEncoder.addCode(nonHeapMaxStrategyAnalyzer.getBestStrategy().getCode());
+            headerEncoder.addCode(gcOldCountStrategyAnalyzer.getBestStrategy().getCode());
+            headerEncoder.addCode(gcOldTimeStrategyAnalyzer.getBestStrategy().getCode());
+            final byte[] header = headerEncoder.getHeader();
+            valueBuffer.putPrefixedBytes(header);
+            // encode values
+            this.codec.encodeValues(valueBuffer, heapUsedStrategyAnalyzer.getBestStrategy(), heapUsedStrategyAnalyzer.getValues());
+            this.codec.encodeValues(valueBuffer, heapMaxStrategyAnalyzer.getBestStrategy(), heapMaxStrategyAnalyzer.getValues());
+            this.codec.encodeValues(valueBuffer, nonHeapUsedStrategyAnalyzer.getBestStrategy(), nonHeapUsedStrategyAnalyzer.getValues());
+            this.codec.encodeValues(valueBuffer, nonHeapMaxStrategyAnalyzer.getBestStrategy(), nonHeapMaxStrategyAnalyzer.getValues());
+            this.codec.encodeValues(valueBuffer, gcOldCountStrategyAnalyzer.getBestStrategy(), gcOldCountStrategyAnalyzer.getValues());
+            this.codec.encodeValues(valueBuffer, gcOldTimeStrategyAnalyzer.getBestStrategy(), gcOldTimeStrategyAnalyzer.getValues());
+        }
+
+    }
+
+    public static class JvmGcCodecDecoder implements AgentStatCodec.CodecDecoder<JvmGcBo> {
+
+        private final AgentStatDataPointCodec codec;
+        private List<Long> heapUseds;
+        private List<Long> heapMaxes;
+        private List<Long> nonHeapUseds;
+        private List<Long> nonHeapMaxes;
+        private List<Long> gcOldCounts;
+        private List<Long> gcOldTimes;
+
+        public JvmGcCodecDecoder(AgentStatDataPointCodec codec) {
+            Assert.notNull(codec, "codec must not be null");
+            this.codec = codec;
+        }
+
+        @Override
+        public void decode(Buffer valueBuffer, AgentStatHeaderDecoder headerDecoder, int valueSize) {
+            EncodingStrategy<Long> heapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+            EncodingStrategy<Long> heapMaxEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+            EncodingStrategy<Long> nonHeapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+            EncodingStrategy<Long> nonHeapMaxEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+            EncodingStrategy<Long> gcOldCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+            EncodingStrategy<Long> gcOldTimeEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+            // decode values
+            this.heapUseds = this.codec.decodeValues(valueBuffer, heapUsedEncodingStrategy, valueSize);
+            this.heapMaxes = this.codec.decodeValues(valueBuffer, heapMaxEncodingStrategy, valueSize);
+            this.nonHeapUseds = this.codec.decodeValues(valueBuffer, nonHeapUsedEncodingStrategy, valueSize);
+            this.nonHeapMaxes = this.codec.decodeValues(valueBuffer, nonHeapMaxEncodingStrategy, valueSize);
+            this.gcOldCounts = this.codec.decodeValues(valueBuffer, gcOldCountEncodingStrategy,  valueSize);
+            this.gcOldTimes = this.codec.decodeValues(valueBuffer, gcOldTimeEncodingStrategy, valueSize);
+        }
+
+        @Override
+        public JvmGcBo getValue(int index) {
+            JvmGcBo jvmGcBo = new JvmGcBo();
+            jvmGcBo.setHeapUsed(heapUseds.get(index));
+            jvmGcBo.setHeapMax(heapMaxes.get(index));
+            jvmGcBo.setNonHeapUsed(nonHeapUseds.get(index));
+            jvmGcBo.setNonHeapMax(nonHeapMaxes.get(index));
+            jvmGcBo.setGcOldCount(gcOldCounts.get(index));
+            jvmGcBo.setGcOldTime(gcOldTimes.get(index));
+            return jvmGcBo;
+        }
+
+    }
+
+
 }

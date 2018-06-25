@@ -21,7 +21,7 @@
     <parent>
         <artifactId>pinpoint</artifactId>
         <groupId>com.navercorp.pinpoint</groupId>
-        <version>1.7.0-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,29 +39,22 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
-            <version>1.2.1</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>netty</artifactId>
-                    <groupId>org.jboss.netty</groupId>
-                </exclusion>
-            </exclusions>
+            <version>1.3.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_2.10</artifactId>
-            <version>1.2.1</version>
+            <version>1.3.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients_2.10</artifactId>
-            <version>1.2.1</version>
+            <version>1.3.1</version>
+            <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap-core</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-hbase</artifactId>
@@ -76,13 +69,33 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-rpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-web</artifactId>
             <classifier>classes</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
             <classifier>classes</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -99,12 +112,13 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-
-        <!-- 라이브러리가 있긴 한데 쓸모 없음. 쓸만한 class가 없네...-->
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-hbase</artifactId>
-            <version>0.10.2</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
         </dependency>
 
         <!-- Logging depedencies -->
@@ -126,6 +140,18 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jvm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-servlets</artifactId>
         </dependency>
     </dependencies>
 
@@ -186,28 +212,11 @@
                                     <mainClass>com.navercorp.pinpoint.flink.StatStreamingVer2Job</mainClass>
                                 </transformer>
                             </transformers>
-                            <finalName>pinpoint-flink-job-2.0</finalName>
+                            <finalName>pinpoint-flink-job-${project.version}</finalName>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>build-second</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.navercorp.pinpoint.flink.SocketServer</mainClass>
-                                </transformer>
-                            </transformers>
-                            <finalName>server-1.0</finalName>
-                        </configuration>
-                    </execution>
-
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>

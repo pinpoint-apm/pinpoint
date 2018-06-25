@@ -228,6 +228,11 @@ public class ZookeeperJobWorkerTest {
 
         @Override
         public synchronized String createNode(String zNodePath, byte[] data) throws PinpointZookeeperException, InterruptedException {
+            return createNode(zNodePath, data, false);
+        }
+
+        @Override
+        public String createNode(String zNodePath, byte[] data, boolean throwExceptionIfNodeExists) throws PinpointZookeeperException, InterruptedException {
             contents.put(zNodePath, data);
             return "";
         }

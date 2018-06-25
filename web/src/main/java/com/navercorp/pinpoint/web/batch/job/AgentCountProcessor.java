@@ -18,35 +18,33 @@ package com.navercorp.pinpoint.web.batch.job;
 
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import org.springframework.batch.item.ItemProcessor;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
-public class AgentCountProcessor implements ItemProcessor<ApplicationAgentList, AgentCountStatistics> {
+public class AgentCountProcessor implements ItemProcessor<ApplicationAgentsList, AgentCountStatistics> {
 
     @Override
-    public AgentCountStatistics process(ApplicationAgentList item) throws Exception {
+    public AgentCountStatistics process(ApplicationAgentsList item) throws Exception {
         if (item == null) {
             return null;
         }
 
-        int agentCount = getAgentCount(item.getApplicationAgentList());
+        int agentCount = getAgentCount(item.getApplicationAgentLists());
         AgentCountStatistics agentCountStatistics = new AgentCountStatistics(agentCount, DateUtils.timestampToMidNight(System.currentTimeMillis()));
         return agentCountStatistics;
     }
 
-    private int getAgentCount(Map<String, List<AgentInfo>> applicationAgentListMap) {
+    private int getAgentCount(List<ApplicationAgentList> applicationAgentLists) {
         int agentCount = 0;
-        for (Map.Entry<String, List<AgentInfo>> eachApplicationAgentList : applicationAgentListMap.entrySet()) {
-            agentCount += eachApplicationAgentList.getValue().size();
+        for (ApplicationAgentList applicationAgentList : applicationAgentLists) {
+            agentCount += applicationAgentList.getAgentInfos().size();
         }
-
         return agentCount;
     }
 

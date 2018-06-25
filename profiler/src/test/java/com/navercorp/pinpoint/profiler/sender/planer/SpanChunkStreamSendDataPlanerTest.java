@@ -1,14 +1,34 @@
+/*
+ * Copyright 2018 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.profiler.sender.planer;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.sender.HeaderTBaseSerializerPoolFactory;
 import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendData;
@@ -35,7 +55,10 @@ import static org.mockito.Mockito.mock;
 
 public class SpanChunkStreamSendDataPlanerTest {
 
-    private String agentId = "agentId";
+    private final String agentId = "agentId";
+    private final long agentStartTime = System.currentTimeMillis();
+    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+
     private SpanChunkFactory spanChunkFactory;
     private TraceRoot traceRoot;
 
@@ -48,7 +71,7 @@ public class SpanChunkStreamSendDataPlanerTest {
         HeaderTBaseSerializerPoolFactory serializerFactory = new HeaderTBaseSerializerPoolFactory(true, 1000, true);
         this.objectPool = new ObjectPool<HeaderTBaseSerializer>(serializerFactory, 16);
 
-        this.spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, 0, ServiceType.STAND_ALONE);
+        this.spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
         this.traceRoot = newTraceRoot();
     }
 
@@ -152,9 +175,10 @@ public class SpanChunkStreamSendDataPlanerTest {
             bb.get(component);
 
             HeaderTBaseDeserializer deserialize = new HeaderTBaseDeserializerFactory().createDeserializer();
-            List<TBase<?, ?>> value = deserialize.deserializeList(component);
+            List<Message<TBase<?, ?>>> value = deserialize.deserializeList(component);
 
-            for (TBase<?, ?> tbase : value) {
+            for (Message<TBase<?, ?>> request : value) {
+                TBase<?, ?> tbase = request.getData();
                 if (tbase instanceof TSpanEvent) {
                     eventList.add((TSpanEvent) tbase);
                 }

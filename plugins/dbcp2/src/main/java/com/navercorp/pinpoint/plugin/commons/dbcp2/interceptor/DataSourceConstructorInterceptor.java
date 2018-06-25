@@ -44,12 +44,19 @@ public class DataSourceConstructorInterceptor implements AroundInterceptor {
             return;
         }
 
-        if ((target instanceof DataSourceMonitorAccessor) && (target instanceof BasicDataSource)) {
-            Dbcp2DataSourceMonitor dbcpDataSourceMonitor = new Dbcp2DataSourceMonitor((BasicDataSource)target);
-            dataSourceMonitorRegistry.register(dbcpDataSourceMonitor);
-
-            ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(dbcpDataSourceMonitor);
+        final BasicDataSource basicDataSource = getBasicDataSource(target);
+        if (basicDataSource instanceof DataSourceMonitorAccessor) {
+            final Dbcp2DataSourceMonitor dbcpDataSourceMonitor = new Dbcp2DataSourceMonitor(basicDataSource);
+            this.dataSourceMonitorRegistry.register(dbcpDataSourceMonitor);
+            ((DataSourceMonitorAccessor) basicDataSource)._$PINPOINT$_setDataSourceMonitor(dbcpDataSourceMonitor);
         }
+    }
+
+    private BasicDataSource getBasicDataSource(Object target) {
+        if (target instanceof BasicDataSource) {
+            return (BasicDataSource)target;
+        }
+        return null;
     }
 
 }

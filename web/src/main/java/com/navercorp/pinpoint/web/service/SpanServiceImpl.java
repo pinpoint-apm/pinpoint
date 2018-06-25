@@ -36,7 +36,7 @@ import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.CallTree;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
-import com.navercorp.pinpoint.web.calltree.span.SpanAligner2;
+import com.navercorp.pinpoint.web.calltree.span.SpanAligner;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
@@ -92,7 +92,7 @@ public class SpanServiceImpl implements SpanService {
 
         final List<SpanBo> spans = traceDao.selectSpan(transactionId);
         if (CollectionUtils.isEmpty(spans)) {
-            return new SpanResult(SpanAligner2.FAIL_MATCH, new CallTreeIterator(null));
+            return new SpanResult(SpanAligner.ERROR_MATCH, new CallTreeIterator(null));
         }
 
         final SpanResult result = order(spans, selectedSpanHint);
@@ -402,11 +402,10 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
-        SpanAligner2 spanAligner = new SpanAligner2(spans, selectedSpanHint);
-        final CallTree callTree = spanAligner.sort();
+        SpanAligner spanAligner = new SpanAligner(spans, selectedSpanHint);
+        final CallTree callTree = spanAligner.align();
 
         return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
     }
-
 }
 

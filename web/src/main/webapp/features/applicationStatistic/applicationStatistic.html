@@ -26,22 +26,94 @@
 			<div class="row">
 				<div class="col-md-6">
 					<h4><span class="glyphicon glyphicon-question-sign statHeapTooltip" style="cursor:pointer;float:right;"></span> Heap Usage</h4>
-					<statistic-chart-directive namespace="heap"></statistic-chart-directive>
+					<statistic-chart-directive namespace="application-heap"></statistic-chart-directive>
 				</div>
 				<div class="col-md-6">
-					<h4><span class="glyphicon glyphicon-question-sign statPermGenTooltip" style="cursor:pointer;float:right;"></span> PermGen Usage</h4>
-					<statistic-chart-directive namespace="non-heap"></statistic-chart-directive>
+					<h4><span class="glyphicon glyphicon-question-sign statPermGenTooltip" style="cursor:pointer;float:right;"></span> Non-Heap Usage</h4>
+					<statistic-chart-directive namespace="application-non-heap"></statistic-chart-directive>
 				</div>
 			</div>
 			<hr/>
 			<div class="row">
 				<div class="col-md-6">
 					<h4><span class="glyphicon glyphicon-question-sign statJVMCpuTooltip" style="cursor:pointer;float:right;"></span> JVM Cpu Usage</h4>
-					<statistic-chart-directive namespace="jvm"></statistic-chart-directive>
+					<statistic-chart-directive namespace="application-jvm"></statistic-chart-directive>
 				</div>
 				<div class="col-md-6">
 					<h4><span class="glyphicon glyphicon-question-sign statSystemCpuTooltip" style="cursor:pointer;float:right;"></span> System Cpu Usage</h4>
-					<statistic-chart-directive namespace="system"></statistic-chart-directive>
+					<statistic-chart-directive namespace="application-system"></statistic-chart-directive>
+				</div>
+			</div>
+			<hr/>
+			<div class="row">
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statTPSTooltip" style="cursor:pointer;float:right;"></span> Transactions Per Second</h4>
+					<statistic-chart-directive namespace="application-tps"></statistic-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statActiveThreadTooltip" style="cursor:pointer;float:right;"></span> Active Thread</h4>
+					<statistic-chart-directive namespace="application-active-thread"></statistic-chart-directive>
+				</div>
+			</div>
+			<hr/>
+			<div class="row">
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statResponseTimeTooltip" style="cursor:pointer;float:right;"></span> Response Time</h4>
+					<statistic-chart-directive namespace="application-response-time"></statistic-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statOpenFileDescriptorTooltip" style="cursor:pointer;float:right;"></span> Open File Descriptor</h4>
+					<statistic-chart-directive namespace="application-open-file-descriptor"></statistic-chart-directive>
+				</div>
+			</div>
+			<hr/>
+			<div class="row">
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statDirectBufferCountTooltip" style="cursor:pointer;float:right;"></span> Direct Buffer Count</h4>
+					<statistic-chart-directive namespace="application-direct-buffer-count"></statistic-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statMappedBufferCountTooltip" style="cursor:pointer;float:right;"></span> Mapped Buffer Count</h4>
+					<statistic-chart-directive namespace="application-mapped-buffer-count"></statistic-chart-directive>
+				</div>
+			</div>
+			<hr/>
+			<div class="row">
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statDirectBufferMemoryTooltip" style="cursor:pointer;float:right;"></span> Direct Buffer Memory</h4>
+					<statistic-chart-directive namespace="application-direct-buffer-memory"></statistic-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign statMappedBufferMemoryTooltip" style="cursor:pointer;float:right;"></span> Mapped Buffer Memory</h4>
+					<statistic-chart-directive namespace="application-mapped-buffer-memory"></statistic-chart-directive>
+				</div>
+			</div>
+			<hr/>
+			<div class="row">
+				<div class="col-md-6">
+					<h4>Data Source</h4>
+					<statistic-chart-directive namespace="application-data-source"></statistic-chart-directive>
+				</div>
+				<div class="col-md-6">
+					<h4>+ Data Source List <span class="glyphicon glyphicon-question-sign statDataSourceTooltip" style="cursor:pointer;float:right;"></span></h4>
+					<div class="data-source-detail" ng-if="!emptyDataSource()">
+						<table>
+							<tbody ng-click="selectDataSource($event)">
+								<tr ng-repeat="source in dataSourceData" data-source="{{$index}}" class="{{$index == dataSourceSelectedIndex ? 'selected': ''}}">
+									<td><span class="glyphicon glyphicon-chevron-left"></span></td>
+									<td>
+										<div>{{source.jdbcUrl}}</div>
+										<div><span class="label label-info">{{source.serviceType}}</span></div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div style="height:270px; width: 100%;" ng-if="emptyDataSource()">
+						<div class="no-data">
+							<span>{{noDataCollected}}</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

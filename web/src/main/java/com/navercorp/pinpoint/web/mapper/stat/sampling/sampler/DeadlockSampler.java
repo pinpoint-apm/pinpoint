@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,33 +32,38 @@ import java.util.List;
 @Component
 public class DeadlockSampler implements AgentStatSampler<DeadlockBo, SampledDeadlock> {
 
-    public static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(DeadlockBo.UNCOLLECTED_INT_VALUE);
+    private static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(SampledDeadlock.UNCOLLECTED_COUNT);
 
     @Override
     public SampledDeadlock sampleDataPoints(int index, long timestamp, List<DeadlockBo> deadlockBoList, DeadlockBo previousDataPoint) {
+        List<Integer> deadlockedThreadCountList = filter(deadlockBoList);
+
+        AgentStatPoint<Integer> point = createPoint(timestamp, deadlockedThreadCountList);
+        SampledDeadlock sampledDeadlock = new SampledDeadlock(point);
+
+        return sampledDeadlock;
+    }
+
+    public List<Integer> filter(List<DeadlockBo> deadlockBoList) {
         List<Integer> deadlockedThreadCountList = new ArrayList<>(deadlockBoList.size());
 
         for (DeadlockBo deadlockBo : deadlockBoList) {
             deadlockedThreadCountList.add(deadlockBo.getDeadlockedThreadCount());
         }
-
-        SampledDeadlock sampledDeadlock = new SampledDeadlock();
-        sampledDeadlock.setDeadlockedThreadCount(createPoint(timestamp, deadlockedThreadCountList));
-
-        return sampledDeadlock;
+        return deadlockedThreadCountList;
     }
 
-    private Point<Long, Integer> createPoint(long timestamp, List<Integer> values) {
+    private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
         if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, DeadlockBo.UNCOLLECTED_INT_VALUE);
-        } else {
-            return new Point<>(
-                    timestamp,
-                    INTEGER_DOWN_SAMPLER.sampleMin(values),
-                    INTEGER_DOWN_SAMPLER.sampleMax(values),
-                    INTEGER_DOWN_SAMPLER.sampleAvg(values),
-                    INTEGER_DOWN_SAMPLER.sampleSum(values));
+            return SampledDeadlock.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
+
+        return new AgentStatPoint<>(
+                timestamp,
+                INTEGER_DOWN_SAMPLER.sampleMin(values),
+                INTEGER_DOWN_SAMPLER.sampleMax(values),
+                INTEGER_DOWN_SAMPLER.sampleAvg(values),
+                INTEGER_DOWN_SAMPLER.sampleSum(values));
     }
 
 }

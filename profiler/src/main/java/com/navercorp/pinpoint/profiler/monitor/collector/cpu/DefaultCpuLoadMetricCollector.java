@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.cpu;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 
 /**
@@ -36,8 +37,9 @@ public class DefaultCpuLoadMetricCollector implements CpuLoadMetricCollector {
     @Override
     public TCpuLoad collect() {
         TCpuLoad cpuLoad = new TCpuLoad();
-        cpuLoad.setJvmCpuLoad(cpuLoadMetric.jvmCpuLoad());
-        cpuLoad.setSystemCpuLoad(cpuLoadMetric.systemCpuLoad());
+        CpuLoadMetricSnapshot snapshot = cpuLoadMetric.getSnapshot();
+        cpuLoad.setJvmCpuLoad(snapshot.getJvmCpuUsage());
+        cpuLoad.setSystemCpuLoad(snapshot.getSystemCpuUsage());
         return cpuLoad;
     }
 

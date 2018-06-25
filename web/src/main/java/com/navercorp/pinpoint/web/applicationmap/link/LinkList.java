@@ -98,6 +98,10 @@ public class LinkList {
         return this.linkMap.put(linkId, link) == null;
     }
 
+    public Link getLink(LinkKey linkKey) {
+        return linkMap.get(linkKey);
+    }
+
     public boolean containsNode(Link link) {
         if (link == null) {
             throw new NullPointerException("linkKey must not be null");

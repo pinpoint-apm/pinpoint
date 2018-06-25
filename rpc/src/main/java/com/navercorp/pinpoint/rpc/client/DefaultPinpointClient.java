@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,14 +47,8 @@ public class DefaultPinpointClient implements PinpointClient {
 
     private List<PinpointClientReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointClientReconnectEventListener>();
 
-    public DefaultPinpointClient() {
-        this(new ReconnectStateClientHandler());
-    }
-
-    public DefaultPinpointClient(PinpointClientHandler pinpointClientHandler) {
-        Assert.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
-
-        this.pinpointClientHandler = pinpointClientHandler;
+     public DefaultPinpointClient(PinpointClientHandler pinpointClientHandler) {
+        this.pinpointClientHandler = Assert.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
         pinpointClientHandler.setPinpointClient(this);
     }
 
@@ -129,10 +123,6 @@ public class DefaultPinpointClient implements PinpointClient {
         return pinpointClientHandler.request(bytes);
     }
 
-    @Override
-    public void response(RequestPacket requestPacket, byte[] payload) {
-        response(requestPacket.getRequestId(), payload);
-    }
 
     @Override
     public void response(int requestId, byte[] payload) {

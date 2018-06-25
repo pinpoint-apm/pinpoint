@@ -18,22 +18,24 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.net.URL;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
+import java.util.Collections;
+
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,55 +44,38 @@ public class MockApplicationContextModuleTest {
 
     @Test
     public void test() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+        Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
-        AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
-                "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+        AgentOption agentOption = new DefaultAgentOption(instrumentation,
+                "mockAgent", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
+                null);
 
-        final PluginApplicationContextModule pluginApplicationContextModule = new PluginApplicationContextModule();
-        PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption) {
-            @Override
-            protected ApplicationContext newApplicationContext(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-
-
-                ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, interceptorRegistryBinder) {
-
-                    @Override
-                    protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-                        Module applicationContextModule = super.newApplicationContextModule(agentOption, interceptorRegistryBinder);
-//                        PluginApplicationContextModule pluginApplicationContextModule = new PluginApplicationContextModule();
-                        return Modules.override(applicationContextModule).with(pluginApplicationContextModule);
-                    }
-                };
-
-
-                return applicationContext;
-            }
-        };
+        PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
         try {
             pluginTestAgent.start();
         } finally {
-            pluginTestAgent.stop(true);
+            pluginTestAgent.stop();
         }
     }
 
     @Test
     public void testMockApplicationContext() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
-                "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
-                null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
-        DefaultApplicationContext applicationContext = new DefaultApplicationContext(agentOption, binder) {
-            @Override
-            protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-                Module module = super.newApplicationContextModule(agentOption, interceptorRegistryBinder);
-                PluginApplicationContextModule pluginApplicationContextModule = new PluginApplicationContextModule();
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+        Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
-                return Modules.override(module).with(pluginApplicationContextModule);
-            }
-        };
+        AgentOption agentOption = new DefaultAgentOption(instrumentation,
+                "mockAgent", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
+                null);
+
+        Module pluginModule = new PluginApplicationContextModule();
+        InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
+        Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(pluginModule, testInterceptorRegistryModule);
+
+        DefaultApplicationContext applicationContext = new DefaultApplicationContext(agentOption, moduleFactory);
 
         Injector injector = applicationContext.getInjector();
         // singleton check
@@ -98,7 +83,9 @@ public class MockApplicationContextModuleTest {
         AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
         Assert.assertSame(instance1, instance2);
 
-        ClassFileTransformerDispatcher instance4 = injector.getInstance(ClassFileTransformerDispatcher.class);
+        ClassFileTransformer instance4 = injector.getInstance(ClassFileTransformer.class);
+
+        applicationContext.close();
     }
 
 

@@ -17,19 +17,18 @@
 package com.navercorp.pinpoint.rpc.client;
 
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.Map;
-
-import org.jboss.netty.channel.ChannelFuture;
-
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import org.jboss.netty.channel.ChannelFuture;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -61,16 +60,28 @@ public interface PinpointClientFactory {
 
     PinpointClient connect(String host, int port) throws PinpointSocketException;
 
+    PinpointClient connect(SocketAddressProvider socketAddressProvider) throws PinpointSocketException;
+
+    /**
+     * @deprecated Since 1.7.2 Use {@link #connect(String, int)}
+     */
+    @Deprecated
     PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException;
-
-    PinpointClient reconnect(String host, int port) throws PinpointSocketException;
-
 
     PinpointClient scheduledConnect(String host, int port);
 
+    PinpointClient scheduledConnect(SocketAddressProvider socketAddressProvider);
+
+    /**
+     * @deprecated Since 1.7.2 Use {@link #scheduledConnect(String, int)}
+     */
+    @Deprecated
     PinpointClient scheduledConnect(InetSocketAddress connectAddress);
 
-
+    /**
+     * @deprecated Since 1.7.2 Use {@link #scheduledConnect(String, int)}
+     */
+    @Deprecated
     ChannelFuture reconnect(final SocketAddress remoteAddress);
 
 
@@ -102,8 +113,5 @@ public interface PinpointClientFactory {
 
     void addStateChangeEventListener(StateChangeEventListener stateChangeEventListener);
 
-//    boolean isReleased();
-//
-//    int issueNewSocketId();
 
 }

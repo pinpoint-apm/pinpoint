@@ -44,11 +44,13 @@ public class ActiveThreadService implements ProfilerCommandServiceGroup {
         if (profilerConfig.isTcpDataSenderCommandActiveThreadCountEnable()) {
             serviceList.add(new ActiveThreadCountService(activeTraceRepository));
         }
+
+        ActiveThreadDumpCoreService activeThreadDump = new ActiveThreadDumpCoreService(activeTraceRepository);
         if (profilerConfig.isTcpDataSenderCommandActiveThreadLightDumpEnable()) {
-            serviceList.add(new ActiveThreadLightDumpService(activeTraceRepository));
+            serviceList.add(new ActiveThreadLightDumpService(activeThreadDump));
         }
         if (profilerConfig.isTcpDataSenderCommandActiveThreadDumpEnable()) {
-            serviceList.add(new ActiveThreadDumpService(activeTraceRepository));
+            serviceList.add(new ActiveThreadDumpService(activeThreadDump));
         }
     }
 

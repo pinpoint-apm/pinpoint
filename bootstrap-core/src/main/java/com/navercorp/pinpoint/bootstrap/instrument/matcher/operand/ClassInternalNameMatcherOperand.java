@@ -36,10 +36,10 @@ public class ClassInternalNameMatcherOperand extends AbstractMatcherOperand {
     }
 
     public boolean match(final String classInternalName) {
-        if (classInternalName != null) {
-            return this.classInternalName.equals(classInternalName);
+        if (classInternalName == null) {
+            return false;
         }
-        return false;
+        return this.classInternalName.equals(classInternalName);
     }
 
     @Override

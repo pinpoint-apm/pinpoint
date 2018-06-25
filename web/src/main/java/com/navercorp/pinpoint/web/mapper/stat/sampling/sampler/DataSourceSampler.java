@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ import java.util.List;
 @Component
 public class DataSourceSampler implements AgentStatSampler<DataSourceBo, SampledDataSource> {
 
-    public static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(DataSourceBo.UNCOLLECTED_INT_VALUE);
+    private static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(SampledDataSource.UNCOLLECTED_VALUE);
 
     @Override
     public SampledDataSource sampleDataPoints(int timeWindowIndex, long timestamp, List<DataSourceBo> dataSourceBoList, DataSourceBo previousDataSourceBo) {
@@ -88,11 +87,11 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
         return sampledDataSource;
     }
 
-    private Point<Long, Integer> createPoint(long timestamp, List<Integer> values) {
+    private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
         if (values.isEmpty()) {
-            return new UncollectedPoint<>(timestamp, DataSourceBo.UNCOLLECTED_INT_VALUE);
+            return SampledDataSource.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
-            return new Point<>(
+            return new AgentStatPoint<>(
                     timestamp,
                     INTEGER_DOWN_SAMPLER.sampleMin(values),
                     INTEGER_DOWN_SAMPLER.sampleMax(values),

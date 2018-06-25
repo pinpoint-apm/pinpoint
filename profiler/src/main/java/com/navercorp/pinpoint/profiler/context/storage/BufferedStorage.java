@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.*;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -48,19 +49,10 @@ public class BufferedStorage implements Storage {
 
 
     public BufferedStorage(TraceRoot traceRoot, DataSender dataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory, int bufferSize) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
-        }
-        if (spanPostProcessor == null) {
-            throw new NullPointerException("spanPostProcessor must not be null");
-        }
-        if (spanChunkFactory == null) {
-            throw new NullPointerException("spanChunkFactory must not be null");
-        }
-        this.traceRoot = traceRoot;
-        this.dataSender = dataSender;
-        this.spanPostProcessor = spanPostProcessor;
-        this.spanChunkFactory = spanChunkFactory;
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.dataSender = Assert.requireNonNull(dataSender, "dataSender must not be null");
+        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor must not be null");
+        this.spanChunkFactory = Assert.requireNonNull(spanChunkFactory, "spanChunkFactory must not be null");
         this.bufferSize = bufferSize;
         this.storage = allocateBuffer();
     }
@@ -107,9 +99,7 @@ public class BufferedStorage implements Storage {
     @Override
     public void store(Span span) {
         final List<SpanEvent> storage = clearBuffer();
-        if (CollectionUtils.hasLength(storage)) {
-            span = spanPostProcessor.postProcess(span, storage);
-        }
+        span = spanPostProcessor.postProcess(span, storage);
         dataSender.send(span);
 
         if (isDebug) {

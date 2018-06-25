@@ -167,7 +167,7 @@ public class SampledAgentStatResultExtractorTest {
 
     private List<TestAgentStatDataPoint> createDataPoints(long finalTimestamp, long timeInterval, int numDataPoints) {
         List<TestAgentStatDataPoint> dataPoints = new ArrayList<>(numDataPoints);
-        for (int i = 0; i < numDataPoints; ++i) {
+        for (int i = 0; i < numDataPoints; i++) {
             TestAgentStatDataPoint dataPoint = new TestAgentStatDataPoint();
             dataPoint.setTimestamp(finalTimestamp - (timeInterval * i));
             dataPoint.setValue(i);

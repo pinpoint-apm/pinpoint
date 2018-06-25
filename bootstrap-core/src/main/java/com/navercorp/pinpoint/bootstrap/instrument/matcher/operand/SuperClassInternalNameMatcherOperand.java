@@ -44,10 +44,10 @@ public class SuperClassInternalNameMatcherOperand extends AbstractMatcherOperand
     }
 
     public boolean match(final String superClassInternalName) {
-        if (superClassInternalName != null) {
-            return this.superClassInternalName.equals(superClassInternalName);
+        if (superClassInternalName == null) {
+            return false;
         }
-        return false;
+        return this.superClassInternalName.equals(superClassInternalName);
     }
 
     public boolean isJavaPackage() {

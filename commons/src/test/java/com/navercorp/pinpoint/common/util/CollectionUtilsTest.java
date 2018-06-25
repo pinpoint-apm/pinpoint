@@ -30,7 +30,7 @@ import java.util.Collections;
 public class CollectionUtilsTest {
 
     @Test
-    public void nullSafeSize() throws Exception {
+    public void nullSafeSize() {
         Assert.assertEquals(CollectionUtils.nullSafeSize(Lists.newArrayList(123)), 1);
 
         Assert.assertEquals(CollectionUtils.nullSafeSize(Collections.emptyList()), 0);
@@ -38,20 +38,20 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void nullSafeSize_nullValue() throws Exception {
+    public void nullSafeSize_nullValue() {
         Assert.assertEquals(CollectionUtils.nullSafeSize(null, -1), -1);
     }
 
     @Test
-    public void isEmpty() throws Exception {
+    public void isEmpty() {
         Assert.assertTrue(CollectionUtils.isEmpty(null));
         Assert.assertTrue(CollectionUtils.isEmpty(Collections.emptyList()));
     }
 
     @Test
-    public void isNotEmpty() throws Exception {
-        Assert.assertFalse(CollectionUtils.hasLength(Collections.emptyList()));
+    public void isNotEmpty() {
         Assert.assertFalse(CollectionUtils.hasLength(null));
+        Assert.assertFalse(CollectionUtils.hasLength(Collections.emptyList()));
     }
 
 }

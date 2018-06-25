@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
@@ -40,9 +42,7 @@ public class Span extends TSpan implements FrameAttachment {
         if (traceRoot == null) {
             throw new NullPointerException("traceRoot must not be null");
         }
-
         this.traceRoot = traceRoot;
-        this.setTransactionId(traceRoot.getCompactTransactionId());
 
         final TraceId traceId = traceRoot.getTraceId();
         this.setSpanId(traceId.getSpanId());
@@ -63,7 +63,11 @@ public class Span extends TSpan implements FrameAttachment {
     }
 
     public void markAfterTime() {
-        final int after = (int)(System.currentTimeMillis() - this.getStartTime());
+        markAfterTime(System.currentTimeMillis());
+    }
+
+    public void markAfterTime(long currentTime) {
+        final int after = (int)(currentTime - this.getStartTime());
 
         // TODO  have to change int to long
         if (after != 0) {
@@ -129,10 +133,14 @@ public class Span extends TSpan implements FrameAttachment {
 
     public void finish() {
         // snapshot last image
-        final int errorCode = traceRoot.getErrorCode();
+        final Shared shared = traceRoot.getShared();
+        final int errorCode = shared.getErrorCode();
         this.setErrCode(errorCode);
+        if (shared.getStatusCode() != 0) {
+            this.addAnnotation(new Annotation(AnnotationKey.HTTP_STATUS_CODE.getCode(), shared.getStatusCode()));
+        }
 
-        final byte loggingInfo = traceRoot.getLoggingInfo();
+        final byte loggingInfo = shared.getLoggingInfo();
         this.setLoggingTransactionInfo(loggingInfo);
     }
 }

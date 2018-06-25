@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 /**
  * @author HyunGil Jeong
  */
-public class HystrixCommandGetFallbackOrThrowExceptionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public abstract class HystrixCommandGetFallbackOrThrowExceptionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public HystrixCommandGetFallbackOrThrowExceptionInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -40,17 +40,25 @@ public class HystrixCommandGetFallbackOrThrowExceptionInterceptor extends SpanEv
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordException(throwable);
-        // R getFallbackOrThrowException(HystrixEventType, FailureType, String, Exception)
-        if (args != null && args.length == 4) {
-            Object exception = args[3];
-            if (exception != null) {
-                recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_FALLBACK_CAUSE_ANNOTATION_KEY, exception.toString());
-            } else {
-                Object message = args[2];
-                if (message != null) {
-                    recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_FALLBACK_CAUSE_ANNOTATION_KEY, message.toString());
-                }
-            }
+        Attributes attributes = getAttributes(args);
+        Object message = attributes.getMessage();
+        if (message == null) {
+            message = attributes.getFailureType();
+        }
+        if (message != null) {
+            recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_FALLBACK_CAUSE_ANNOTATION_KEY, message.toString());
+        }
+        Object exception = attributes.getException();
+        if (exception != null) {
+            recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_FALLBACK_EXCEPTION_ANNOTATION_KEY, exception.toString());
         }
     }
+
+    protected interface Attributes {
+        Object getFailureType();
+        Object getMessage();
+        Object getException();
+    }
+
+    protected abstract Attributes getAttributes(Object[] args);
 }

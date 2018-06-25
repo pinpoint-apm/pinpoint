@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -108,5 +109,20 @@ public class DefaultProfilerConfigTest {
         Assert.assertTrue(profilerConfig.isTcpDataSenderCommandAcceptEnable());
     }
 
+    @Test
+    public void readList() throws IOException {
+        Properties properties = new Properties();
+        properties.setProperty("profiler.test.list1", "foo,bar");
+        properties.setProperty("profiler.test.list2", "foo, bar");
+        properties.setProperty("profiler.test.list3", " foo,bar");
+        properties.setProperty("profiler.test.list4", "foo,bar ");
+        properties.setProperty("profiler.test.list5", "    foo,    bar   ");
 
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+
+        Assert.assertThat(profilerConfig.readList("profiler.test.list1"), CoreMatchers.hasItems("foo", "bar"));
+        Assert.assertThat(profilerConfig.readList("profiler.test.list2"), CoreMatchers.hasItems("foo", "bar"));
+        Assert.assertThat(profilerConfig.readList("profiler.test.list3"), CoreMatchers.hasItems("foo", "bar"));
+        Assert.assertThat(profilerConfig.readList("profiler.test.list4"), CoreMatchers.hasItems("foo", "bar"));
+    }
 }

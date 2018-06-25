@@ -44,8 +44,6 @@
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:batch/applicationContext-batch.xml" />
 
-    <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper"/>
-
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
 
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>

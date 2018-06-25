@@ -19,15 +19,14 @@
 			}
 		}
 	});
-	pinpointApp.directive( "agentListDirective", [ "agentListDirectiveConfig", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AgentAjaxService", "PreferenceService", "TooltipService", "AnalyticsService",
-		function ( cfg, SystemConfigService, CommonUtilService, UrlVoService, AgentAjaxService, PreferenceService, TooltipService, AnalyticsService ) {
+	pinpointApp.directive( "agentListDirective", [ "agentListDirectiveConfig", "CommonUtilService", "UrlVoService", "AgentAjaxService", "PreferenceService", "TooltipService", "AnalyticsService",
+		function ( cfg, CommonUtilService, UrlVoService, AgentAjaxService, PreferenceService, TooltipService, AnalyticsService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
 				templateUrl: 'features/agentList/agentList.html?v=' + G_BUILD_TIME,
 				link: function postLink( scope ) {
 					cfg.ID += CommonUtilService.getRandomNum();
-
 					init();
 					function init() {
 						TooltipService.init( "agentList" );
@@ -48,7 +47,7 @@
 								if ( bApplicationChange ) {
 									// scope.$emit( "up.changed.agent", cfg.ID, { agentId: "" }, true );
 									scope.currentAgent = null;
-									scope.$emit( "up.select.application", cfg.ID );
+									// scope.$emit( "up.select.application", cfg.ID );
 								} else {
 									scope.currentAgent = findAgentByAgentId(UrlVoService.getAgentId());
 									if ( scope.currentAgent === null ) {
@@ -76,7 +75,6 @@
 						scope.currentAgent = agent;
 						scope.$emit( "up.changed.agent", cfg.ID, agent, bInvokedByTop );
 					}
-					scope.showStatistic = SystemConfigService.get("showApplicationStat");
 					scope.getApplicationName = function() {
 						return UrlVoService.getApplicationName();
 					};

@@ -25,12 +25,19 @@ import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.mockito.Mockito.spy;
 
 /**
  * @author emeroad
@@ -38,7 +45,24 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultTraceContextTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
+    private DefaultApplicationContext applicationContext;
+
+    @Before
+    public void setUp() throws Exception {
+        ProfilerConfig profilerConfig = getProfilerConfig();
+
+        applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext.start();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (applicationContext != null) {
+            applicationContext.close();
+        }
+    }
+
     @Test
     public void parseTest() {
         String agent= "test";
@@ -58,8 +82,8 @@ public class DefaultTraceContextTest {
 
     @Test
     public void disableTrace() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
+
+        TraceContext traceContext = applicationContext.getTraceContext();
         Trace trace = traceContext.disableSampling();
         Assert.assertNotNull(trace);
         Assert.assertFalse(trace.canSampled());
@@ -69,13 +93,19 @@ public class DefaultTraceContextTest {
 
     @Test
     public void threadLocalBindTest() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
 
-        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
+        TraceContext traceContext = applicationContext.getTraceContext();
         Assert.assertNotNull(traceContext.newTraceObject());
 
-        TraceContext traceContext2 = MockTraceContextFactory.newTestTraceContext(profilerConfig);
+        ProfilerConfig profilerConfig = getProfilerConfig();
+
+        DefaultApplicationContext applicationContext2 = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        applicationContext2.start();
+
+        TraceContext traceContext2 = applicationContext2.getTraceContext();
         Trace notExist = traceContext2.currentRawTraceObject();
+        applicationContext2.close();
+
         Assert.assertNull(notExist);
 
         Assert.assertNotNull(traceContext.currentRawTraceObject());
@@ -87,37 +117,44 @@ public class DefaultTraceContextTest {
     public void transactionCountTest() {
         final int samplingRate = 5;
 
-        final ProfilerConfig profilerConfig = Mockito.mock(ProfilerConfig.class);
+        final ProfilerConfig profilerConfig = getProfilerConfig();
         Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
         Mockito.when((profilerConfig.getSamplingRate())).thenReturn(samplingRate);
         Mockito.when((profilerConfig.isSamplingEnable())).thenReturn(true);
 
-        MockTraceContextFactory mockTraceContextFactory = MockTraceContextFactory.newTestTraceContextFactory(profilerConfig);
-        final TraceContext traceContext = mockTraceContextFactory.getTraceContext();
-        final TransactionCounter transactionCounter = new DefaultTransactionCounter(mockTraceContextFactory.getIdGenerator());
+
+
+        DefaultApplicationContext customContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
+        customContext.start();
+
+        final TraceContext traceContext = customContext.getTraceContext();
+        IdGenerator idGenerator = customContext.getInjector().getInstance(IdGenerator.class);
+        final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
 
 
         final long newTransactionCount = 22L;
         @SuppressWarnings("unused")
         final long expectedSampledNewCount = newTransactionCount / samplingRate + (newTransactionCount % samplingRate > 0 ? 1 : 0);
         final long expectedUnsampledNewCount = newTransactionCount - expectedSampledNewCount;
-        for (int i = 0; i < newTransactionCount; ++i) {
+        for (int i = 0; i < newTransactionCount; i++) {
             traceContext.newTraceObject();
             traceContext.removeTraceObject();
         }
         
         final long expectedSampledContinuationCount = 5L;
-        for (int i = 0; i < expectedSampledContinuationCount; ++i) {
+        for (int i = 0; i < expectedSampledContinuationCount; i++) {
             traceContext.continueTraceObject(new DefaultTraceId("agentId", 0L, i));
             traceContext.removeTraceObject();
         }
         
         final long expectedUnsampledContinuationCount = 10L;
-        for (int i = 0; i < expectedUnsampledContinuationCount; ++i) {
+        for (int i = 0; i < expectedUnsampledContinuationCount; i++) {
             traceContext.disableSampling();
             traceContext.removeTraceObject();
         }
-        
+
+        customContext.close();
+
         final long expectedTotalTransactionCount = expectedSampledNewCount + expectedUnsampledNewCount + expectedSampledContinuationCount + expectedUnsampledContinuationCount;
 
         Assert.assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
@@ -125,5 +162,11 @@ public class DefaultTraceContextTest {
         Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
         Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         Assert.assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
+    }
+
+    public ProfilerConfig getProfilerConfig() {
+        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        Mockito.when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+        return profilerConfig;
     }
 }

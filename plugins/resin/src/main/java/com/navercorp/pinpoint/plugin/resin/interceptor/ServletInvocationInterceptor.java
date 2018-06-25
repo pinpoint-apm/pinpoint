@@ -6,43 +6,41 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.resin.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.resin.HttpServletRequestGetter;
 import com.navercorp.pinpoint.plugin.resin.ResinConfig;
 import com.navercorp.pinpoint.plugin.resin.ResinConstants;
+import com.navercorp.pinpoint.plugin.resin.ResinServerRequestTrace;
 import com.navercorp.pinpoint.plugin.resin.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.resin.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.resin.TraceAccessor;
 import com.navercorp.pinpoint.plugin.resin.VersionAccessor;
 
 /**
- * 
  * @author huangpengjie@fang.com
- *
  */
 public class ServletInvocationInterceptor implements AroundInterceptor {
 
@@ -67,9 +65,11 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
     private final SimpleSampler cookieSampler;
 
     private final DumpType cookieDumpType;
+    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
+    private final ServerRequestRecorder serverRequestRecorder = new ServerRequestRecorder();
+    private final RequestTraceReader requestTraceReader;
 
     public ServletInvocationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super();
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
 
@@ -87,6 +87,8 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         this.isTraceCookies = resinConfig.isTraceCookies();
         this.cookieSampler = SimpleSamplerFactory.createSampler(isTraceCookies, resinConfig.getCookieSamplingRate());
         this.cookieDumpType = resinConfig.getCookieDumpType();
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
+        this.requestTraceReader = new RequestTraceReader(traceContext);
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -220,6 +222,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         if (currentRawTraceObject != null) {
             return currentRawTraceObject;
         }
+
         final String requestURI = request.getRequestURI();
         if (excludeUrlFilter.filter(requestURI)) {
             if (isDebug) {
@@ -228,51 +231,19 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
             return null;
         }
 
-        // check sampling flag from client. If the flag is false, do not sample this request.
-        final boolean sampling = samplingEnable(request);
-        if (!sampling) {
-            // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
-            // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
-            final Trace trace = traceContext.disableSampling();
-            if (isDebug) {
-                logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
-            }
-            return trace;
+        final ServerRequestTrace serverRequestTrace = new ResinServerRequestTrace(request, this.remoteAddressResolver);
+        final Trace trace = this.requestTraceReader.read(serverRequestTrace);
+        if (trace.canSampled()) {
+            SpanRecorder recorder = trace.getSpanRecorder();
+            // root
+            recorder.recordServiceType(ResinConstants.RESIN);
+            recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+            this.serverRequestRecorder.record(recorder, serverRequestTrace);
+            // record proxy HTTP headers.
+            this.proxyHttpHeaderRecorder.record(recorder, serverRequestTrace);
+            setTraceMetadata(request, trace);
         }
-
-        final TraceId traceId = populateTraceIdFromRequest(request);
-        if (traceId != null) {
-            // TODO Maybe we should decide to trace or not even if the sampling  flag is true to prevent too many requests are traced.
-            final Trace trace = traceContext.continueTraceObject(traceId);
-            if (trace.canSampled()) {
-                SpanRecorder recorder = trace.getSpanRecorder();
-                recordRootSpan(recorder, request);
-                setTraceMetadata(request, trace);
-                if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
-                }
-            }
-            return trace;
-        } else {
-            final Trace trace = traceContext.newTraceObject();
-            if (trace.canSampled()) {
-                SpanRecorder recorder = trace.getSpanRecorder();
-                recordRootSpan(recorder, request);
-                setTraceMetadata(request, trace);
-                if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{} , traceId:{}", request.getRequestURI(), request.getRemoteAddr(), trace.getTraceId());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
-                }
-            }
-            return trace;
-        }
+        return trace;
     }
 
     private void setTraceMetadata(final HttpServletRequest request, final Trace trace) {
@@ -310,75 +281,6 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         return getAsyncMetadata(request);
     }
 
-    private void recordRootSpan(final SpanRecorder recorder, final HttpServletRequest request) {
-        // root
-        recorder.recordServiceType(ResinConstants.RESIN);
-
-        final String requestURL = request.getRequestURI();
-        recorder.recordRpcName(requestURL);
-
-        final int port = request.getServerPort();
-        final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
-        recorder.recordEndPoint(endPoint);
-
-        final String remoteAddr = remoteAddressResolver.resolve(request);
-        recorder.recordRemoteAddress(remoteAddr);
-
-        if (!recorder.isRoot()) {
-            recordParentInfo(recorder, request);
-        }
-        recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
-    }
-
-    private void recordParentInfo(SpanRecorder recorder, HttpServletRequest request) {
-        String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
-        if (parentApplicationName != null) {
-            final String host = request.getHeader(Header.HTTP_HOST.toString());
-            if (host != null) {
-                recorder.recordAcceptorHost(host);
-            } else {
-                recorder.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
-            }
-            final String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
-            final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
-            recorder.recordParentApplication(parentApplicationName, parentApplicationType);
-        }
-    }
-
-    /**
-     * Populate source trace from HTTP Header.
-     *
-     * @param request
-     * @return TraceId when it is possible to get a transactionId from Http header. if not possible return null
-     */
-    private TraceId populateTraceIdFromRequest(HttpServletRequest request) {
-
-        String transactionId = request.getHeader(Header.HTTP_TRACE_ID.toString());
-        if (transactionId != null) {
-
-            long parentSpanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
-            long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
-            short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
-
-            final TraceId id = traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
-            if (isDebug) {
-                logger.debug("TraceID exist. continue trace. {}", id);
-            }
-            return id;
-        } else {
-            return null;
-        }
-    }
-
-    private boolean samplingEnable(HttpServletRequest request) {
-        // optional value
-        final String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
-        if (isDebug) {
-            logger.debug("SamplingFlag:{}", samplingFlag);
-        }
-        return SamplingFlagUtils.isSamplingFlag(samplingFlag);
-    }
-
     private static class Bypass<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
         @Override
@@ -387,7 +289,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         }
     }
 
-    private class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+    private static class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
         public static final String X_FORWARDED_FOR = "x-forwarded-for";
         @SuppressWarnings("unused")
@@ -456,17 +358,16 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
     private void recordCookie(HttpServletRequest request, Trace trace) {
         if (cookieSampler.isSampling()) {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            Map<String, Object> cookies = ReadCookieMap(request);
+            Map<String, Object> cookies = readCookieMap(request);
             recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, cookies);
         }
-        return;
     }
 
-    public Map<String, Object> ReadCookieMap(HttpServletRequest request) {
+    public Map<String, Object> readCookieMap(HttpServletRequest request) {
         Map<String, Object> params = new HashMap<String, Object>();
         try {
             Cookie[] cookies = request.getCookies();
-            if (null != cookies && cookies.length > 0) {
+            if (ArrayUtils.hasLength(cookies)) {
                 for (Cookie cookie : cookies) {
                     params.put(cookie.getName(), cookie.getValue());
                 }

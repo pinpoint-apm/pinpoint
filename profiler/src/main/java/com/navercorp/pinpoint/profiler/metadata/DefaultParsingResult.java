@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.profiler.metadata.ParsingResultInternal;
 
 /**
  * @author emeroad
