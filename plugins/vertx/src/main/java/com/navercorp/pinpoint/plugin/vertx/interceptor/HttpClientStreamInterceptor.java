@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
-import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestTrace;
+import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestWrapper;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 
@@ -74,7 +74,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
 
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestTrace(request, host));
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestWrapper(request, host));
             requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
@@ -130,7 +130,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             }
 
             final String host = (String) args[1];
-            this.clientRequestRecorder.record(recorder, new VertxHttpClientRequestTrace(request, host), throwable);
+            this.clientRequestRecorder.record(recorder, new VertxHttpClientRequestWrapper(request, host), throwable);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", t.getMessage(), t);

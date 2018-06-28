@@ -18,21 +18,21 @@ package com.navercorp.pinpoint.plugin.okhttp.v3;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.util.Assert;
 import okhttp3.Request;
 
 /**
  * @author jaehong.kim
  */
-public class OkHttpClientRequestBuilderTrace implements ClientRequestTrace {
+public class OkHttpClientRequestBuilderWrapper implements ClientRequestWrapper {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final Request.Builder builder;
     private final String host;
 
-    public OkHttpClientRequestBuilderTrace(final Request.Builder builder, final String host) {
+    public OkHttpClientRequestBuilderWrapper(final Request.Builder builder, final String host) {
         this.builder = Assert.requireNonNull(builder, "builder must not be null");
         this.host = host;
     }

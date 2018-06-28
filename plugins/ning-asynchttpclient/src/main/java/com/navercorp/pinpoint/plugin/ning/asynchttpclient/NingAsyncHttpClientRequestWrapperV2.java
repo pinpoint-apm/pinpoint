@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -36,14 +36,14 @@ import java.util.List;
 /**
  * @author jaehong.kim
  */
-public class NingAsyncHttpClientRequestTraceV2 implements ClientRequestTrace {
+public class NingAsyncHttpClientRequestWrapperV2 implements ClientRequestWrapper {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final int MAX_READ_SIZE = 1024;
     private final Request httpRequest;
 
-    public NingAsyncHttpClientRequestTraceV2(final Request httpRequest) {
+    public NingAsyncHttpClientRequestWrapperV2(final Request httpRequest) {
         this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest must not be null");
     }
 

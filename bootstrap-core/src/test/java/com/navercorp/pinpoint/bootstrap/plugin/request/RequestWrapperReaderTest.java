@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 /**
  * @author jaehong.kim
  */
-public class RequestTraceReaderTest {
+public class RequestWrapperReaderTest {
 
     @Test
     public void read() throws Exception {
@@ -63,20 +63,20 @@ public class RequestTraceReaderTest {
         final RequestTraceReader reader = new RequestTraceReader(traceContext);
 
         // sampling flag is true
-        ServerRequestTrace samplingFlagServerRequestTrace = mock(ServerRequestTrace.class);
-        when(samplingFlagServerRequestTrace.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("s0");
-        assertEquals(disableTrace, reader.read(samplingFlagServerRequestTrace));
+        ServerRequestWrapper samplingFlagServerRequestWrapper = mock(ServerRequestWrapper.class);
+        when(samplingFlagServerRequestWrapper.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("s0");
+        assertEquals(disableTrace, reader.read(samplingFlagServerRequestWrapper));
 
         // continue trace
-        ServerRequestTrace continueServerRequestTrace = mock(ServerRequestTrace.class);
-        when(continueServerRequestTrace.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn("avcrawler01.ugedit^1517877953952^1035131");
-        when(continueServerRequestTrace.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn("1");
-        when(continueServerRequestTrace.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("1");
-        when(continueServerRequestTrace.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("1");
-        assertEquals(continueTrace, reader.read(continueServerRequestTrace));
+        ServerRequestWrapper continueServerRequestWrapper = mock(ServerRequestWrapper.class);
+        when(continueServerRequestWrapper.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn("avcrawler01.ugedit^1517877953952^1035131");
+        when(continueServerRequestWrapper.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn("1");
+        when(continueServerRequestWrapper.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("1");
+        when(continueServerRequestWrapper.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("1");
+        assertEquals(continueTrace, reader.read(continueServerRequestWrapper));
 
         // new trace
-        ServerRequestTrace newServerRequestTrace = mock(ServerRequestTrace.class);
-        assertEquals(newTrace, reader.read(newServerRequestTrace));
+        ServerRequestWrapper newServerRequestWrapper = mock(ServerRequestWrapper.class);
+        assertEquals(newTrace, reader.read(newServerRequestWrapper));
     }
 }

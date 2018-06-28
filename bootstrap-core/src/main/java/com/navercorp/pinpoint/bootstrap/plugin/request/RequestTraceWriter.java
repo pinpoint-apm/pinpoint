@@ -30,17 +30,17 @@ public class RequestTraceWriter {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ClientRequestTrace clientRequestTrace;
+    private final ClientRequestWrapper clientRequestWrapper;
 
-    public RequestTraceWriter(final ClientRequestTrace clientRequestTrace) {
-        this.clientRequestTrace = Assert.requireNonNull(clientRequestTrace, "clientRequestTrace must not be null");
+    public RequestTraceWriter(final ClientRequestWrapper clientRequestWrapper) {
+        this.clientRequestWrapper = Assert.requireNonNull(clientRequestWrapper, "clientRequestWrapper must not be null");
     }
 
     public void write() {
         if (isDebug) {
             logger.debug("Set request header that is not to be sampled.");
         }
-        this.clientRequestTrace.setHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+        this.clientRequestWrapper.setHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
     }
 
     // Set transaction information in the request.
@@ -50,20 +50,20 @@ public class RequestTraceWriter {
         if (isDebug) {
             logger.debug("Set request header. traceId={}, applicationName={}, serverTypeCode={}, applicationNamespace={}", traceId, applicationName, serverTypeCode, applicationNamespace);
         }
-        this.clientRequestTrace.setHeader(Header.HTTP_TRACE_ID.toString(), traceId.getTransactionId());
-        this.clientRequestTrace.setHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(traceId.getSpanId()));
-        this.clientRequestTrace.setHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(traceId.getParentSpanId()));
-        this.clientRequestTrace.setHeader(Header.HTTP_FLAGS.toString(), String.valueOf(traceId.getFlags()));
-        this.clientRequestTrace.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
-        this.clientRequestTrace.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
+        this.clientRequestWrapper.setHeader(Header.HTTP_TRACE_ID.toString(), traceId.getTransactionId());
+        this.clientRequestWrapper.setHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(traceId.getSpanId()));
+        this.clientRequestWrapper.setHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(traceId.getParentSpanId()));
+        this.clientRequestWrapper.setHeader(Header.HTTP_FLAGS.toString(), String.valueOf(traceId.getFlags()));
+        this.clientRequestWrapper.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
+        this.clientRequestWrapper.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
 
         if (applicationNamespace != null) {
-            this.clientRequestTrace.setHeader(Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), applicationNamespace);
+            this.clientRequestWrapper.setHeader(Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), applicationNamespace);
         }
 
-        final String host = this.clientRequestTrace.getHost();
+        final String host = this.clientRequestWrapper.getHost();
         if (host != null) {
-            this.clientRequestTrace.setHeader(Header.HTTP_HOST.toString(), host);
+            this.clientRequestWrapper.setHeader(Header.HTTP_HOST.toString(), host);
         }
     }
 }

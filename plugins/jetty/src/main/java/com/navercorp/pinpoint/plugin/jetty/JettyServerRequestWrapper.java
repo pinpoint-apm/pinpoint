@@ -14,32 +14,35 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.websphere;
+package com.navercorp.pinpoint.plugin.jetty;
 
-import com.ibm.websphere.servlet.request.IRequest;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.Assert;
+import org.eclipse.jetty.server.Request;
 
 /**
  * @author jaehong.kim
  */
-public class WebsphereServerRequestTrace implements ServerRequestTrace {
-    private final IRequest request;
+public abstract class JettyServerRequestWrapper implements ServerRequestWrapper {
+    private final Request request;
 
-    public WebsphereServerRequestTrace(final IRequest request) {
-        this.request = Assert.requireNonNull(request, "");
+    public JettyServerRequestWrapper(Request request) {
+        this.request = Assert.requireNonNull(request, "request must not be null");
     }
+
+    public abstract String _getHeader(String name);
 
     @Override
     public String getHeader(String name) {
-        return request.getHeader(name);
+        return _getHeader(name);
     }
 
     @Override
     public String getRpcName() {
-        return this.request.getRequestURI();
+        final String requestURL = request.getRequestURI();
+        return requestURL;
     }
 
     @Override
@@ -51,11 +54,12 @@ public class WebsphereServerRequestTrace implements ServerRequestTrace {
 
     @Override
     public String getRemoteAddress() {
-        return request.getRemoteAddr();
+        final String remoteAddr = request.getRemoteAddr();
+        return remoteAddr;
     }
 
     @Override
     public String getAcceptorHost() {
-        return NetworkUtils.getHostFromURL(request.getRequestURI());
+        return NetworkUtils.getHostFromURL(request.getRequestURL().toString());
     }
 }

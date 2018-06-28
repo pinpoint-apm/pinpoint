@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.jdk.http;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.util.Assert;
 
 import java.net.HttpURLConnection;
@@ -27,13 +27,13 @@ import java.net.URL;
 /**
  * @author jaehong.kim
  */
-public class JdkHttpClientRequestTrace implements ClientRequestTrace {
+public class JdkHttpClientRequestWrapper implements ClientRequestWrapper {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     final HttpURLConnection httpURLConnection;
 
-    public JdkHttpClientRequestTrace(final HttpURLConnection httpURLConnection) {
+    public JdkHttpClientRequestWrapper(final HttpURLConnection httpURLConnection) {
         this.httpURLConnection = Assert.requireNonNull(httpURLConnection, "httpURLConnection must not be null");
     }
 

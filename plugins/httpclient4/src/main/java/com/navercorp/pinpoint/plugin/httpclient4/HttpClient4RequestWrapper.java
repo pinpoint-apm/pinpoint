@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -36,7 +36,7 @@ import java.io.IOException;
 /**
  * @author jaehong.kim
  */
-public class HttpClient4RequestTrace implements ClientRequestTrace {
+public class HttpClient4RequestWrapper implements ClientRequestWrapper {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -44,7 +44,7 @@ public class HttpClient4RequestTrace implements ClientRequestTrace {
     private final String hostName;
     private final int port;
 
-    public HttpClient4RequestTrace(final HttpRequest httpRequest, final String hostName, final int port) {
+    public HttpClient4RequestWrapper(final HttpRequest httpRequest, final String hostName, final int port) {
         this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest must not be null");
         this.hostName = hostName;
         this.port = port;

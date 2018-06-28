@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.vertx;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -28,7 +28,7 @@ import io.vertx.core.http.HttpClientRequest;
 /**
  * @author jaehong.kim
  */
-public class VertxHttpClientRequestTrace implements ClientRequestTrace {
+public class VertxHttpClientRequestWrapper implements ClientRequestWrapper {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -36,13 +36,13 @@ public class VertxHttpClientRequestTrace implements ClientRequestTrace {
     private final HttpRequest httpRequest;
     private final String host;
 
-    public VertxHttpClientRequestTrace(final HttpClientRequest httpClientRequest) {
+    public VertxHttpClientRequestWrapper(final HttpClientRequest httpClientRequest) {
         this.httpClientRequest = Assert.requireNonNull(httpClientRequest, "request must not be null");
         this.httpRequest = null;
         this.host = null;
     }
 
-    public VertxHttpClientRequestTrace(final HttpRequest httpRequest, final String host) {
+    public VertxHttpClientRequestWrapper(final HttpRequest httpRequest, final String host) {
         this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest must not be null");
         this.httpClientRequest = null;
         this.host = host;

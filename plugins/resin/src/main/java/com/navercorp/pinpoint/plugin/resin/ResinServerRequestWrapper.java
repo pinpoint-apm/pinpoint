@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.plugin.resin;
 
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -27,11 +27,11 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class ResinServerRequestTrace implements ServerRequestTrace {
+public class ResinServerRequestWrapper implements ServerRequestWrapper {
     private final HttpServletRequest request;
     private final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
 
-    public ResinServerRequestTrace(final HttpServletRequest request, final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver) {
+    public ResinServerRequestWrapper(final HttpServletRequest request, final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver) {
         this.request = Assert.requireNonNull(request, "request must not be null");
         this.remoteAddressResolver = Assert.requireNonNull(remoteAddressResolver, "remoteAddressResolver must not be null");
     }

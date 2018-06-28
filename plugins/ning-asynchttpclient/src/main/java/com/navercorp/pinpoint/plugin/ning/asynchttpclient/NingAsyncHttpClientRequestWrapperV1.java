@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
 import com.ning.http.client.Request;
@@ -33,13 +33,13 @@ import java.util.List;
 /**
  * @author jaehong.kim
  */
-public class NingAsyncHttpClientRequestTraceV1 implements ClientRequestTrace {
+public class NingAsyncHttpClientRequestWrapperV1 implements ClientRequestWrapper {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final Request request;
 
-    public NingAsyncHttpClientRequestTraceV1(final Request request) {
+    public NingAsyncHttpClientRequestWrapperV1(final Request request) {
         this.request = Assert.requireNonNull(request, "request must not be null");
     }
 

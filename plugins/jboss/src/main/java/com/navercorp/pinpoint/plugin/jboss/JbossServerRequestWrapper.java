@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.tomcat;
+package com.navercorp.pinpoint.plugin.jboss;
 
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -27,11 +27,11 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class TomcatServerRequestTrace implements ServerRequestTrace {
+public class JbossServerRequestWrapper implements ServerRequestWrapper {
     private final HttpServletRequest request;
     private final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
 
-    public TomcatServerRequestTrace(final HttpServletRequest request, final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver) {
+    public JbossServerRequestWrapper(final HttpServletRequest request, final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver) {
         this.request = Assert.requireNonNull(request, "request must not be null");
         this.remoteAddressResolver = Assert.requireNonNull(remoteAddressResolver, "remoteAddressResolver must not be null");
     }
@@ -43,7 +43,8 @@ public class TomcatServerRequestTrace implements ServerRequestTrace {
 
     @Override
     public String getRpcName() {
-        return this.request.getRequestURI();
+        final String requestURL = request.getRequestURI();
+        return requestURL;
     }
 
     @Override
@@ -55,7 +56,7 @@ public class TomcatServerRequestTrace implements ServerRequestTrace {
 
     @Override
     public String getRemoteAddress() {
-        final String remoteAddress = this.remoteAddressResolver.resolve(request);
+        final String remoteAddress = remoteAddressResolver.resolve(request);
         return remoteAddress;
     }
 

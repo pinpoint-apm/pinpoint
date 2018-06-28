@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-import com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpClientRequestBuilderTrace;
+import com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpClientRequestBuilderWrapper;
 import com.squareup.okhttp.Request;
 
 /**
@@ -68,7 +68,7 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
             if (!trace.canSampled()) {
                 if (builder != null) {
                     final String host = toHost(target);
-                    final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderTrace(builder, host));
+                    final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderWrapper(builder, host));
                     requestTraceWriter.write();
                 }
                 return;
@@ -85,7 +85,7 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
 
             final TraceId nextId = (TraceId) attachment;
             final String host = toHost(target);
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderTrace(builder, host));
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderWrapper(builder, host));
             requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);

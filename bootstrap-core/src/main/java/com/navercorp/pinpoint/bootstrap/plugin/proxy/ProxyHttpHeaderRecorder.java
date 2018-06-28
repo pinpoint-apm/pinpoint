@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
 
 /**
  * @author jaehong.kim
@@ -36,8 +36,8 @@ public class ProxyHttpHeaderRecorder {
         this.enable = enable;
     }
 
-    public void record(final SpanRecorder recorder, final RequestTrace requestTrace) {
-        if (recorder == null || requestTrace == null) {
+    public void record(final SpanRecorder recorder, final RequestWrapper requestWrapper) {
+        if (recorder == null || requestWrapper == null) {
             return;
         }
 
@@ -49,9 +49,9 @@ public class ProxyHttpHeaderRecorder {
         }
 
         try {
-            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
-            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
-            parseAndRecord(recorder, requestTrace, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
+            parseAndRecord(recorder, requestWrapper, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
+            parseAndRecord(recorder, requestWrapper, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
+            parseAndRecord(recorder, requestWrapper, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
         } catch (Exception e) {
             // for handler operations.
             if (isInfo) {
@@ -61,8 +61,8 @@ public class ProxyHttpHeaderRecorder {
     }
 
 
-    private void parseAndRecord(final SpanRecorder recorder, final RequestTrace requestTrace, final String name, final int type) {
-        final String value = requestTrace.getHeader(name);
+    private void parseAndRecord(final SpanRecorder recorder, final RequestWrapper requestWrapper, final String name, final int type) {
+        final String value = requestWrapper.getHeader(name);
         if (value == null || value.isEmpty()) {
             return;
         }
