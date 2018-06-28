@@ -31,46 +31,46 @@ public class ServerRequestRecorder {
     private final boolean isDebug = logger.isDebugEnabled();
 
     // Records the server's request information.
-    public void record(final SpanRecorder recorder, final ServerRequestTrace serverRequestTrace) {
-        if (recorder == null || serverRequestTrace == null) {
+    public void record(final SpanRecorder recorder, final ServerRequestWrapper serverRequestWrapper) {
+        if (recorder == null || serverRequestWrapper == null) {
             return;
         }
-        final String rpcName = serverRequestTrace.getRpcName();
+        final String rpcName = serverRequestWrapper.getRpcName();
         recorder.recordRpcName(rpcName);
         if (isDebug) {
             logger.debug("Record rpcName={}", rpcName);
         }
 
-        final String endPoint = serverRequestTrace.getEndPoint();
+        final String endPoint = serverRequestWrapper.getEndPoint();
         recorder.recordEndPoint(endPoint);
         if (isDebug) {
             logger.debug("Record endPoint={}", endPoint);
         }
 
-        final String remoteAddress = serverRequestTrace.getRemoteAddress();
+        final String remoteAddress = serverRequestWrapper.getRemoteAddress();
         recorder.recordRemoteAddress(remoteAddress);
         if (isDebug) {
             logger.debug("Record remoteAddress={}", remoteAddress);
         }
 
         if (!recorder.isRoot()) {
-            recordParentInfo(recorder, serverRequestTrace);
+            recordParentInfo(recorder, serverRequestWrapper);
         }
     }
 
-    private void recordParentInfo(final SpanRecorder recorder, final ServerRequestTrace serverRequestTrace) {
-        final String parentApplicationName = serverRequestTrace.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
+    private void recordParentInfo(final SpanRecorder recorder, final ServerRequestWrapper serverRequestWrapper) {
+        final String parentApplicationName = serverRequestWrapper.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
-            String host = serverRequestTrace.getHeader(Header.HTTP_HOST.toString());
+            String host = serverRequestWrapper.getHeader(Header.HTTP_HOST.toString());
             if (host == null) {
-                host = serverRequestTrace.getAcceptorHost();
+                host = serverRequestWrapper.getAcceptorHost();
             }
             recorder.recordAcceptorHost(host);
             if (isDebug) {
                 logger.debug("Record acceptorHost={}", host);
             }
 
-            final String type = serverRequestTrace.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+            final String type = serverRequestWrapper.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
             final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
             recorder.recordParentApplication(parentApplicationName, parentApplicationType);
             if (isDebug) {

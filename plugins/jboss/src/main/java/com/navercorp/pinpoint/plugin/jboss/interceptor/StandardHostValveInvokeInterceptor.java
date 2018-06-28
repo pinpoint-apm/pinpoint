@@ -32,14 +32,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.jboss.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
-import com.navercorp.pinpoint.plugin.jboss.JbossServerRequestTrace;
+import com.navercorp.pinpoint.plugin.jboss.JbossServerRequestWrapper;
 import com.navercorp.pinpoint.plugin.jboss.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.TraceAccessor;
@@ -298,16 +298,16 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             return null;
         }
 
-        final ServerRequestTrace serverRequestTrace = new JbossServerRequestTrace(request, this.remoteAddressResolver);
-        final Trace trace = this.requestTraceReader.read(serverRequestTrace);
+        final ServerRequestWrapper serverRequestWrapper = new JbossServerRequestWrapper(request, this.remoteAddressResolver);
+        final Trace trace = this.requestTraceReader.read(serverRequestWrapper);
         if (trace.canSampled()) {
             final SpanRecorder recorder = trace.getSpanRecorder();
             // root
             recorder.recordServiceType(JbossConstants.JBOSS);
             recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
-            this.serverRequestRecorder.record(recorder, serverRequestTrace);
+            this.serverRequestRecorder.record(recorder, serverRequestWrapper);
             // record proxy HTTP headers.
-            this.proxyHttpHeaderRecorder.record(recorder, serverRequestTrace);
+            this.proxyHttpHeaderRecorder.record(recorder, serverRequestWrapper);
             setTraceMetadata(request, trace);
         }
         return trace;

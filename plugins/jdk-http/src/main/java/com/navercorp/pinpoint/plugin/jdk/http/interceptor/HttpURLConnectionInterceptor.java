@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter;
-import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientRequestTrace;
+import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientRequestWrapper;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
 
@@ -85,7 +85,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if (request != null) {
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new JdkHttpClientRequestTrace(request));
+                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new JdkHttpClientRequestWrapper(request));
                 requestTraceWriter.write();
             }
             return;
@@ -99,7 +99,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
         recorder.recordNextSpanId(nextId.getSpanId());
 
         if (request != null) {
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new JdkHttpClientRequestTrace(request));
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new JdkHttpClientRequestWrapper(request));
             requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         }
     }
@@ -127,7 +127,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
             recorder.recordException(throwable);
             final HttpURLConnection request = (HttpURLConnection) target;
             if (request != null) {
-                this.clientRequestRecorder.record(recorder, new JdkHttpClientRequestTrace(request), throwable);
+                this.clientRequestRecorder.record(recorder, new JdkHttpClientRequestWrapper(request), throwable);
             }
         } finally {
             trace.traceBlockEnd();

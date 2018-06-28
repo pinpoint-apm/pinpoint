@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 /**
  * @author jaehong.kim
  */
-public interface RequestTrace {
+public interface RequestWrapper {
     String getHeader(String name);
 }

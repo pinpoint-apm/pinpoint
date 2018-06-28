@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
-import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestTrace;
+import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestWrapper;
 import com.navercorp.pinpoint.plugin.okhttp.v3.UserRequestGetter;
 import com.navercorp.pinpoint.plugin.okhttp.v3.UserResponseGetter;
 import okhttp3.Request;
@@ -139,7 +139,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             // typeCheck validate();
             final Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
-                this.clientRequestRecorder.record(recorder, new OkHttpClientRequestTrace(request), throwable);
+                this.clientRequestRecorder.record(recorder, new OkHttpClientRequestWrapper(request), throwable);
             }
         } finally {
             trace.traceBlockEnd();

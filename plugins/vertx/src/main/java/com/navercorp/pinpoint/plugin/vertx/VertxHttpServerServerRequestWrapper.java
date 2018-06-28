@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.plugin.vertx;
 
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 import io.vertx.core.http.HttpServerRequest;
@@ -25,11 +25,11 @@ import io.vertx.core.http.HttpServerRequest;
 /**
  * @author jaehong.kim
  */
-public class VertxHttpServerServerRequestTrace implements ServerRequestTrace {
+public class VertxHttpServerServerRequestWrapper implements ServerRequestWrapper {
     private final HttpServerRequest request;
     private final RemoteAddressResolver<HttpServerRequest> remoteAddressResolver;
 
-    public VertxHttpServerServerRequestTrace(final HttpServerRequest request, final RemoteAddressResolver<HttpServerRequest> remoteAddressResolver) {
+    public VertxHttpServerServerRequestWrapper(final HttpServerRequest request, final RemoteAddressResolver<HttpServerRequest> remoteAddressResolver) {
         this.request = Assert.requireNonNull(request, "request must not be null");
         this.remoteAddressResolver = Assert.requireNonNull(remoteAddressResolver, "remoteAddressResolver must not be null");
     }

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.netty;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.util.Assert;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,14 +29,14 @@ import io.netty.handler.codec.http.HttpRequest;
 /**
  * @author jaehong.kim
  */
-public class NettyClientRequestTrace implements ClientRequestTrace {
+public class NettyClientRequestWrapper implements ClientRequestWrapper {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final HttpMessage httpMessage;
     private final ChannelHandlerContext channelHandlerContext;
 
-    public NettyClientRequestTrace(final HttpMessage httpMessage, final ChannelHandlerContext channelHandlerContext) {
+    public NettyClientRequestWrapper(final HttpMessage httpMessage, final ChannelHandlerContext channelHandlerContext) {
         this.httpMessage = Assert.requireNonNull(httpMessage, "httpMessage must not be null");
         this.channelHandlerContext = channelHandlerContext;
     }

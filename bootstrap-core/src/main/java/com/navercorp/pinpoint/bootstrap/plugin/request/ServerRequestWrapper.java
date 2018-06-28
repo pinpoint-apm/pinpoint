@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
-import com.navercorp.pinpoint.bootstrap.plugin.RequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
 
 /**
  * @author jaehong.kim
  */
-public interface ServerRequestTrace extends RequestTrace {
+public interface ServerRequestWrapper extends RequestWrapper {
     /**
      * Procedure name(optional)
      *

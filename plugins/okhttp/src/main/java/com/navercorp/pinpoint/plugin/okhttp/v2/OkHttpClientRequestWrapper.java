@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.okhttp.v3;
+package com.navercorp.pinpoint.plugin.okhttp.v2;
 
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
+import com.squareup.okhttp.Request;
 
 import java.net.URL;
 
 /**
  * @author jaehong.kim
  */
-public class OkHttpClientRequestTrace implements ClientRequestTrace {
+public class OkHttpClientRequestWrapper implements ClientRequestWrapper {
     private final Request request;
 
-    public OkHttpClientRequestTrace(final Request request) {
-        this.request = request;
+    public OkHttpClientRequestWrapper(final Request request) {
+        this.request = Assert.requireNonNull(request, "request must not be null");
     }
 
     @Override
     public void setHeader(final String name, final String value) {
+        throw new UnsupportedOperationException("Must be used only in the HttpEngineSendRequestMethodInterceptor class");
     }
 
     @Override
@@ -46,24 +47,17 @@ public class OkHttpClientRequestTrace implements ClientRequestTrace {
 
     @Override
     public String getDestinationId() {
-        final HttpUrl httpUrl = request.url();
-        if (httpUrl != null) {
-            URL url = httpUrl.url();
-            if (url != null && url.getHost() != null) {
-                final int port = EndPointUtils.getPort(url.getPort(), url.getDefaultPort());
-                return HostAndPort.toHostAndPortString(url.getHost(), port);
-            }
+        final URL httpUrl = request.url();
+        if (httpUrl == null || httpUrl.getHost() == null) {
+            return "Unknown";
         }
-        return "Unknown";
+        final int port = EndPointUtils.getPort(httpUrl.getPort(), httpUrl.getDefaultPort());
+        return HostAndPort.toHostAndPortString(httpUrl.getHost(), port);
     }
 
     @Override
     public String getUrl() {
-        final HttpUrl httpUrl = request.url();
-        if (httpUrl != null) {
-            return httpUrl.url().toString();
-        }
-        return null;
+        return this.request.urlString();
     }
 
     @Override

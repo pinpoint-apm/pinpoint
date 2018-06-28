@@ -16,17 +16,17 @@
 
 package com.navercorp.pinpoint.plugin.weblogic;
 
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import weblogic.servlet.internal.ServletRequestImpl;
 
 /**
  * @author jaehong.kim
  */
-public class WeblogicServerRequestTrace implements ServerRequestTrace {
+public class WeblogicServerRequestWrapper implements ServerRequestWrapper {
     private final ServletRequestImpl request;
 
-    public WeblogicServerRequestTrace(final ServletRequestImpl request) {
+    public WeblogicServerRequestWrapper(final ServletRequestImpl request) {
         this.request = request;
     }
 

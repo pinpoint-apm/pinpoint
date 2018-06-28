@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-import com.navercorp.pinpoint.plugin.netty.NettyClientRequestTrace;
+import com.navercorp.pinpoint.plugin.netty.NettyClientRequestWrapper;
 import com.navercorp.pinpoint.plugin.netty.NettyConfig;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
 import com.navercorp.pinpoint.plugin.netty.field.accessor.AsyncStartFlagFieldAccessor;
@@ -86,7 +86,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
     private void before0(Trace trace, Object target, Object[] args) {
         if (!trace.canSampled()) {
             final HttpMessage httpMessage = (HttpMessage) args[1];
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NettyClientRequestTrace(httpMessage, null));
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NettyClientRequestWrapper(httpMessage, null));
             requestTraceWriter.write();
             return;
         }
@@ -130,7 +130,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
         final ChannelHandlerContext channelHandlerContext = (ChannelHandlerContext) args[0];
         final HttpMessage httpMessage = (HttpMessage) args[1];
-        final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NettyClientRequestTrace(httpMessage, channelHandlerContext));
+        final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NettyClientRequestWrapper(httpMessage, channelHandlerContext));
         requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
     }
 
@@ -210,7 +210,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         recorder.recordException(throwable);
         final ChannelHandlerContext channelHandlerContext = (ChannelHandlerContext) args[0];
         final HttpMessage httpMessage = (HttpMessage) args[1];
-        this.clientRequestRecorder.record(recorder, new NettyClientRequestTrace(httpMessage, channelHandlerContext), throwable);
+        this.clientRequestRecorder.record(recorder, new NettyClientRequestWrapper(httpMessage, channelHandlerContext), throwable);
     }
 
     protected AsyncContext getAsyncContext(Object target) {

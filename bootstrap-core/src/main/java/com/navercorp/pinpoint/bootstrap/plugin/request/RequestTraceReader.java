@@ -50,32 +50,32 @@ public class RequestTraceReader {
     }
 
     // Read the transaction information from the request.
-    public Trace read(final ServerRequestTrace serverRequestTrace) {
-        Assert.requireNonNull(serverRequestTrace, "serverRequestTrace must not be n ull");
+    public Trace read(final ServerRequestWrapper serverRequestWrapper) {
+        Assert.requireNonNull(serverRequestWrapper, "serverRequestWrapper must not be n ull");
 
         // Check sampling flag from client. If the flag is false, do not sample this request.
-        final boolean sampling = samplingEnable(serverRequestTrace);
+        final boolean sampling = samplingEnable(serverRequestWrapper);
         if (!sampling) {
             // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
             // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
             final Trace trace = this.traceContext.disableSampling();
             if (isDebug) {
-                logger.debug("Remote call sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", serverRequestTrace.getRpcName(), serverRequestTrace.getRemoteAddress());
+                logger.debug("Remote call sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
             }
             return trace;
         }
 
-        final TraceId traceId = populateTraceIdFromRequest(serverRequestTrace);
+        final TraceId traceId = populateTraceIdFromRequest(serverRequestWrapper);
         if (traceId != null) {
             // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
             final Trace trace = continueTrace(traceId);
             if (trace.canSampled()) {
                 if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, serverRequestTrace.getRpcName(), serverRequestTrace.getRemoteAddress());
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, serverRequestTrace.getRpcName(), serverRequestTrace.getRemoteAddress());
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
                 }
             }
             return trace;
@@ -83,19 +83,19 @@ public class RequestTraceReader {
             final Trace trace = newTrace();
             if (trace.canSampled()) {
                 if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", serverRequestTrace.getRpcName(), serverRequestTrace.getRemoteAddress());
+                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", serverRequestTrace.getRpcName(), serverRequestTrace.getRemoteAddress());
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
                 }
             }
             return trace;
         }
     }
 
-    private boolean samplingEnable(final ServerRequestTrace serverRequestTrace) {
-        final String samplingFlag = serverRequestTrace.getHeader(Header.HTTP_SAMPLED.toString());
+    private boolean samplingEnable(final ServerRequestWrapper serverRequestWrapper) {
+        final String samplingFlag = serverRequestWrapper.getHeader(Header.HTTP_SAMPLED.toString());
         if (isDebug) {
             logger.debug("SamplingFlag={}", samplingFlag);
         }
@@ -103,8 +103,8 @@ public class RequestTraceReader {
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 
-    private TraceId populateTraceIdFromRequest(final ServerRequestTrace serverRequestTrace) {
-        final String parentApplicationNamespace = serverRequestTrace.getHeader(Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString());
+    private TraceId populateTraceIdFromRequest(final ServerRequestWrapper serverRequestWrapper) {
+        final String parentApplicationNamespace = serverRequestWrapper.getHeader(Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString());
         // If parentApplicationNamespace is null, it is ignored for backwards compatibility.
         if (parentApplicationNamespace != null) {
             if (!this.applicationNamespace.equals(parentApplicationNamespace)) {
@@ -116,11 +116,11 @@ public class RequestTraceReader {
             }
         }
 
-        final String transactionId = serverRequestTrace.getHeader(Header.HTTP_TRACE_ID.toString());
+        final String transactionId = serverRequestWrapper.getHeader(Header.HTTP_TRACE_ID.toString());
         if (transactionId != null) {
-            final long parentSpanId = NumberUtils.parseLong(serverRequestTrace.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
-            final long spanId = NumberUtils.parseLong(serverRequestTrace.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
-            final short flags = NumberUtils.parseShort(serverRequestTrace.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
+            final long parentSpanId = NumberUtils.parseLong(serverRequestWrapper.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
+            final long spanId = NumberUtils.parseLong(serverRequestWrapper.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
+            final short flags = NumberUtils.parseShort(serverRequestWrapper.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
             final TraceId id = this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
             return id;
         }

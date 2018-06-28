@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.plugin.jetty.interceptor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestTrace;
-import com.navercorp.pinpoint.plugin.jetty.JettyServerRequestTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
+import com.navercorp.pinpoint.plugin.jetty.JettyServerRequestWrapper;
 import org.eclipse.jetty.server.AbstractHttpConnection;
 import org.eclipse.jetty.server.Request;
 
@@ -52,8 +52,8 @@ public class Jetty8xServerHandleInterceptor extends AbstractServerHandleIntercep
     }
 
     @Override
-    ServerRequestTrace getServerRequestTrace(final Request request) {
-        return new JettyServerRequestTrace(request) {
+    ServerRequestWrapper getServerRequestWrapper(final Request request) {
+        return new JettyServerRequestWrapper(request) {
             @Override
             public String _getHeader(String name) {
                 if (request != null) {

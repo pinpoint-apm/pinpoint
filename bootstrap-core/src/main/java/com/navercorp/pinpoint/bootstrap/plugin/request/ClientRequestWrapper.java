@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.request;
 /**
  * @author jaehong.kim
  */
-public interface ClientRequestTrace {
+public interface ClientRequestWrapper {
     void setHeader(String name, String value);
 
     /**

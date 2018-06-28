@@ -41,14 +41,14 @@ public class ServerRequestRecorderTest {
         // SpanRecorder
         SpanRecorder spanRecorder = mock(SpanRecorder.class);
 
-        recorder.record(spanRecorder, new MockServerRequestTrace());
+        recorder.record(spanRecorder, new MockServerRequestWrapper());
         verify(spanRecorder).recordRpcName(RPC_NAME);
         verify(spanRecorder).recordEndPoint(END_POINT);
         verify(spanRecorder).recordRemoteAddress(REMOTE_ADDRESS);
         verify(spanRecorder).recordAcceptorHost(GET_HEADER);
     }
 
-    private class MockServerRequestTrace implements ServerRequestTrace {
+    private class MockServerRequestWrapper implements ServerRequestWrapper {
 
         @Override
         public String getRpcName() {

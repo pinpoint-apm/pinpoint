@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.v3.HttpUrlGetter;
-import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestBuilderTrace;
+import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestBuilderWrapper;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
@@ -69,7 +69,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             final String host = getHost(target);
             if (!trace.canSampled()) {
                 if (builder != null) {
-                    final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderTrace(builder, null));
+                    final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderWrapper(builder, null));
                     requestTraceWriter.write();
                 }
                 return;
@@ -85,7 +85,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             }
 
             final TraceId nextId = (TraceId) attachment;
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderTrace(builder, host));
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderWrapper(builder, host));
             requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
