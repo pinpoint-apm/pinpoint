@@ -34,11 +34,10 @@ import org.springframework.stereotype.Service;
 public class SqlMetaDataHandler implements RequestResponseHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    @Autowired
     private SqlMetaDataDao sqlMetaDataDao;
 
-    @Autowired
-    public SqlMetaDataHandler(SqlMetaDataDao sqlMetaDataDao) {
-        this.sqlMetaDataDao = sqlMetaDataDao;
+    public SqlMetaDataHandler() {
     }
 
     @Override
