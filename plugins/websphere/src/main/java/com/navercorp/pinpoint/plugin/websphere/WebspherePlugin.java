@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 package com.navercorp.pinpoint.plugin.websphere;
-
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 import java.security.ProtectionDomain;
 
@@ -25,33 +23,85 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+/**
+ * @author sjmittal
+ * @author jaehong.kim
+ */
 public class WebspherePlugin implements ProfilerPlugin, TransformTemplateAware {
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addApplicationTypeDetector(new WebsphereDetector());
-        WebsphereConfiguration config = new WebsphereConfiguration(context.getConfig());
-        
-        addServerInterceptor(config);
+        final WebsphereConfiguration config = new WebsphereConfiguration(context.getConfig());
+        if (!config.isEnable()) {
+            logger.info("WebspherePlugin disabled");
+            return;
+        }
+        logger.info("WebspherePlugin config:{}", config);
+
+        context.addApplicationTypeDetector(new WebsphereDetector(config.getBootstrapMains()));
+
+        // Add servlet request listener. Servlet 2.4
+        addWebAppImpl();
+        // Add async listener. Servlet 3.0
+        addSRTServletRequest(config);
+        // Remove bind trace
+        addWSWebContainer();
     }
 
-    private void addServerInterceptor(final WebsphereConfiguration config){
-        transformTemplate.transform("com.ibm.ws.webcontainer.WSWebContainer",  new TransformCallback() {
+    private void addWebAppImpl() {
+        transformTemplate.transform("com.ibm.ws.webcontainer.webapp.WebAppImpl", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handleRequest", "com.ibm.websphere.servlet.request.IRequest", "com.ibm.websphere.servlet.response.IResponse");
+                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                // Add servlet request listener. Servlet 2.4
+                final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("registerWebAppListeners");
                 if (handleMethodEditorBuilder != null) {
-                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.websphere.interceptor.ServerHandleInterceptor", va(config.getWebsphereExcludeUrlFilter()));
-                    return target.toBytecode();
+                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.websphere.interceptor.WebAppImplRegisterWebAppListenersInterceptor");
+                }
+                return target.toBytecode();
+            }
+        });
+    }
+
+    private void addSRTServletRequest(final WebsphereConfiguration config) {
+        transformTemplate.transform("com.ibm.ws.webcontainer.srt.SRTServletRequest", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                if (config.isHidePinpointHeader()) {
+                    // Hide pinpoint headers
+                    target.weave("com.navercorp.pinpoint.plugin.websphere.aspect.SRTServletRequestAspect");
                 }
 
+                // Add async listener. Servlet 3.0
+                final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+                if (startAsyncMethodEditor != null) {
+                    startAsyncMethodEditor.addInterceptor("com.navercorp.pinpoint.plugin.websphere.interceptor.WCCRequestImplStartAsyncInterceptor");
+                }
+                return target.toBytecode();
+            }
+        });
+    }
+
+    private void addWSWebContainer() {
+        transformTemplate.transform("com.ibm.ws.webcontainer.WSWebContainer", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                // Clear remained trace - defense code
+                final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handleRequest", "com.ibm.websphere.servlet.request.IRequest", "com.ibm.websphere.servlet.response.IResponse");
+                if (handleMethodEditorBuilder != null) {
+                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.websphere.interceptor.WSWebContainerHandleRequestInterceptor");
+                    return target.toBytecode();
+                }
                 return target.toBytecode();
             }
         });

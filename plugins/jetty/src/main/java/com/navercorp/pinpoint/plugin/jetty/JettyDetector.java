@@ -22,6 +22,9 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author Chaein Jung
+ */
 public class JettyDetector implements ApplicationTypeDetector {
 
     private static final String DEFAULT_BOOTSTRAP_MAIN = "org.eclipse.jetty.start.Main";

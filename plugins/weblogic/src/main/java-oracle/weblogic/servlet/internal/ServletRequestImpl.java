@@ -44,4 +44,9 @@ public class ServletRequestImpl {
     public String getRemoteAddr() {
         return "";
     }
+
+    // Dummy
+    public ServletResponseImpl getResponse() {
+        return null;
+    }
 }

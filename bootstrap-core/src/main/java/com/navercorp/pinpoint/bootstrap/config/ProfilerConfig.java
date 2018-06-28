@@ -140,7 +140,7 @@ public interface ProfilerConfig {
 
     boolean isProxyHttpHeaderEnable();
 
-    List<String> getHttpStatusCodeErrors();
+    HttpStatusCodeErrors getHttpStatusCodeErrors();
 
     String getInjectionModuleFactoryClazzName();
 

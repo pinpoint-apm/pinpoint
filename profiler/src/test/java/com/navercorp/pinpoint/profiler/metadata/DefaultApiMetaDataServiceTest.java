@@ -35,8 +35,8 @@ public class DefaultApiMetaDataServiceTest {
         EnhancedDataSender dataSender = mock(EnhancedDataSender.class);
         ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService("agentId", System.currentTimeMillis(), dataSender);
 
-        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method", null, null);
-
+        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method", new String[]{"javax.servlet.ServletRequestEvent"}, new String[]{"event"});
+        System.out.println(methodDescriptor);
         int first = apiMetaDataService.cacheApi(methodDescriptor);
 
         Assert.assertNotEquals("not exist", first, 0);

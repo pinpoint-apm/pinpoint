@@ -100,6 +100,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <h3>Library (5000 ~ 7499)</h3>
  * <table>
  * <tr><td>5000</td><td>INTERNAL_METHOD</td></tr>
+ * <tr><td>5004</td><td>SERVLET</td></tr>
  * <tr><td>5005</td><td>JSP</td></tr>
  * <tr><td>5010</td><td>GSON</td></tr>
  * <tr><td>5011</td><td>JACKSON</td></tr>
@@ -257,7 +258,7 @@ public interface ServiceType {
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.
     ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD");
-    
+    ServiceType SERVLET = of(5004, "SERVLET");
 
     // Spring framework
     ServiceType SPRING = of(5050, "SPRING");

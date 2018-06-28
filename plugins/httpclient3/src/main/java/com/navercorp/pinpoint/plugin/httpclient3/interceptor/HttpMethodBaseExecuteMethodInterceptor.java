@@ -18,24 +18,12 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3RequestTrace;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3RequestWrapper;
 import org.apache.commons.httpclient.HttpConnection;
-import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.protocol.Protocol;
 
-import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -46,10 +34,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
-import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
-import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
@@ -108,7 +92,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             if (target instanceof HttpMethod) {
                 final HttpMethod httpMethod = (HttpMethod) target;
                 final HttpConnection httpConnection = getHttpConnection(args);
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient3RequestTrace(httpMethod, httpConnection));
+                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient3RequestWrapper(httpMethod, httpConnection));
                 requestTraceWriter.write();
             }
             return;
@@ -123,7 +107,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         if (target instanceof HttpMethod) {
             final HttpMethod httpMethod = (HttpMethod) target;
             final HttpConnection httpConnection = getHttpConnection(args);
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient3RequestTrace(httpMethod, httpConnection));
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient3RequestWrapper(httpMethod, httpConnection));
             requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         }
 
@@ -156,7 +140,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             if (target instanceof HttpMethod) {
                 final HttpMethod httpMethod = (HttpMethod) target;
                 final HttpConnection httpConnection = getHttpConnection(args);
-                this.clientRequestRecorder.record(recorder, new HttpClient3RequestTrace(httpMethod, httpConnection), throwable);
+                this.clientRequestRecorder.record(recorder, new HttpClient3RequestWrapper(httpMethod, httpConnection), throwable);
             }
 
             if (result != null) {

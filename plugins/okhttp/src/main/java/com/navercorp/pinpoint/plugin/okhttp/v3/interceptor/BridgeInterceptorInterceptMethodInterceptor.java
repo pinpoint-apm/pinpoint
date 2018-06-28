@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
-import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestTrace;
+import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestWrapper;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -123,7 +123,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
             final Interceptor.Chain chain = (Interceptor.Chain) args[0];
             final Request request = chain.request();
             if (request != null) {
-                this.clientRequestRecorder.record(recorder, new OkHttpClientRequestTrace(request), throwable);
+                this.clientRequestRecorder.record(recorder, new OkHttpClientRequestWrapper(request), throwable);
             }
 
             if (result instanceof Response) {

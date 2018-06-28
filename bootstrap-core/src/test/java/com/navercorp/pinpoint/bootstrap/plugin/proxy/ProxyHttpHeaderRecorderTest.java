@@ -17,13 +17,15 @@
 package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestTrace;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -50,19 +52,14 @@ public class ProxyHttpHeaderRecorderTest {
         // SpanRecorder
         SpanRecorder spanRecorder = mock(SpanRecorder.class);
 
-        ProxyHttpHeaderRecorder recorder = new ProxyHttpHeaderRecorder(true);
-        recorder.record(spanRecorder, new RequestTrace() {
-            @Override
-            public String getHeader(String name) {
-                return name;
-            }
-        });
+        Map<String, String> proxyHeaderMap = new HashMap<String, String>();
+        // apache
+        final long currentTimeMillis = System.currentTimeMillis();
+        String value = "t=" + currentTimeMillis + "999" + " D=12345 i=99 b=1";
+        proxyHeaderMap.put(Header.HTTP_PROXY_APACHE.toString(), value);
 
-        recorder.record(spanRecorder, new RequestTrace() {
-            @Override
-            public String getHeader(String name) {
-                throw new NullPointerException();
-            }
-        });
+
+        ProxyHttpHeaderRecorder recorder = new ProxyHttpHeaderRecorder(true);
+        recorder.record(spanRecorder, proxyHeaderMap);
     }
 }

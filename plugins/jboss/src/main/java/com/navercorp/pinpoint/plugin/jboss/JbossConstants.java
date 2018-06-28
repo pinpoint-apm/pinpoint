@@ -31,5 +31,5 @@ public final class JbossConstants {
 
     /** The Constant JBOSS_METHOD. */
     public static final ServiceType JBOSS_METHOD = ServiceTypeFactory.of(1041, "JBOSS_METHOD");
-
+    public static final String STATUS_CODE_ACCESSOR = "com.navercorp.pinpoint.plugin.jboss.StatusCodeAccessor";
 }

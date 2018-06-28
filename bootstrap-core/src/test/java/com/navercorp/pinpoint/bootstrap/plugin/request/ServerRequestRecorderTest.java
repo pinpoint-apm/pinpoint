@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -41,14 +43,13 @@ public class ServerRequestRecorderTest {
         // SpanRecorder
         SpanRecorder spanRecorder = mock(SpanRecorder.class);
 
-        recorder.record(spanRecorder, new MockServerRequestTrace());
+        recorder.record(spanRecorder, new MockServerRequestWrapper());
         verify(spanRecorder).recordRpcName(RPC_NAME);
         verify(spanRecorder).recordEndPoint(END_POINT);
         verify(spanRecorder).recordRemoteAddress(REMOTE_ADDRESS);
-        verify(spanRecorder).recordAcceptorHost(GET_HEADER);
     }
 
-    private class MockServerRequestTrace implements ServerRequestTrace {
+    private class MockServerRequestWrapper implements ServerRequestWrapper {
 
         @Override
         public String getRpcName() {
@@ -71,8 +72,63 @@ public class ServerRequestRecorderTest {
         }
 
         @Override
-        public String getHeader(String name) {
-            return GET_HEADER;
+        public String getMethod() {
+            return null;
+        }
+
+        @Override
+        public String getParameters() {
+            return null;
+        }
+
+        @Override
+        public String getParentApplicationName() {
+            return null;
+        }
+
+        @Override
+        public String getHost() {
+            return null;
+        }
+
+        @Override
+        public String getParentApplicationType() {
+            return null;
+        }
+
+        @Override
+        public String getSamplingFlag() {
+            return null;
+        }
+
+        @Override
+        public String getParentApplicationNamespace() {
+            return null;
+        }
+
+        @Override
+        public String getTransactionId() {
+            return null;
+        }
+
+        @Override
+        public long getParentSpanId() {
+            return 0;
+        }
+
+        @Override
+        public long getSpanId() {
+            return 0;
+        }
+
+        @Override
+        public short getFlags() {
+            return 0;
+        }
+
+        @Override
+        public Map<String, String> getProxyHeaderMap() {
+            return null;
         }
     }
 }

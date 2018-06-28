@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
-import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4RequestTrace;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4RequestWrapper;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -83,7 +83,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if (httpRequest != null) {
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestTrace(httpRequest, host.getName(), host.getValue()));
+                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()));
                 requestTraceWriter.write();
             }
             return;
@@ -94,7 +94,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
         if (httpRequest != null) {
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestTrace(httpRequest, host.getName(), host.getValue()));
+            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()));
             requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
         }
 
@@ -138,7 +138,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             final HttpRequest httpRequest = getHttpRequest(args);
             final NameIntValuePair<String> host = getHost();
             if (httpRequest != null) {
-                this.clientRequestRecorder.record(recorder, new HttpClient4RequestTrace(httpRequest, host.getName(), host.getValue()), throwable);
+                this.clientRequestRecorder.record(recorder, new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()), throwable);
             }
 
             if (statusCode) {

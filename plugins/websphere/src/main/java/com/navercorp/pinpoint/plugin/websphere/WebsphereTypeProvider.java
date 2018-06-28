@@ -17,6 +17,9 @@ package com.navercorp.pinpoint.plugin.websphere;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
+/**
+ * @author sjmittal
+ */
 public class WebsphereTypeProvider implements TraceMetadataProvider {
 
     @Override

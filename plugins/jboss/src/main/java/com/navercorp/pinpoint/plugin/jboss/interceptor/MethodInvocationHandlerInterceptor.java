@@ -166,13 +166,14 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
         if (!trace.canSampled()) {
             traceContext.removeTraceObject();
+            trace.close();
             return;
         }
         try {
@@ -189,5 +190,4 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
             traceContext.removeTraceObject();
         }
     }
-
 }
