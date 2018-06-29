@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Objects;
 
@@ -75,26 +76,28 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
 
         @Override
         public void receive(DatagramSocket localSocket, T packet) {
-            if (isIgnoreAddress(packet.getAddress())) {
+            final InetSocketAddress remoteSocketAddress = (InetSocketAddress) packet.getSocketAddress();
+            final InetAddress remoteAddress = remoteSocketAddress.getAddress();
+            if (isIgnoreAddress(remoteAddress)) {
                 return;
             }
             
             final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
-            SocketAddress socketAddress = packet.getSocketAddress();
+
             Message<TBase<?, ?>> message = null;
             try {
                 message = deserializer.deserialize(packet.getData());
                 TBase<?, ?> data = message.getData();
 
-                if (filter.filter(localSocket, data, socketAddress) == TBaseFilter.BREAK) {
+                if (filter.filter(localSocket, data, remoteSocketAddress) == TBaseFilter.BREAK) {
                     return;
                 }
-                ServerRequest<TBase<?, ?>> request = new DefaultServerRequest<>(message);
+                ServerRequest<TBase<?, ?>> request = newServerRequest(message, remoteSocketAddress);
                 // dispatch signifies business logic execution
                 dispatchHandler.dispatchSendMessage(request);
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
-                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", socketAddress, e.getMessage(), e);
+                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteSocketAddress, e.getMessage(), e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
@@ -102,7 +105,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
             } catch (Exception e) {
                 // there are cases where invalid headers are received
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} message:{}", socketAddress, e.getMessage(), message, e);
+                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} message:{}", remoteAddress, e.getMessage(), message, e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
@@ -122,6 +125,13 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
             }
             return false;
         }
+    }
+
+    private ServerRequest<TBase<?, ?>> newServerRequest(Message<TBase<?, ?>> message, InetSocketAddress remoteSocketAddress) {
+        final String remoteAddress = remoteSocketAddress.getAddress().getHostAddress();
+        final int remotePort = remoteSocketAddress.getPort();
+
+        return new DefaultServerRequest<>(message, remoteAddress, remotePort);
     }
 
 }

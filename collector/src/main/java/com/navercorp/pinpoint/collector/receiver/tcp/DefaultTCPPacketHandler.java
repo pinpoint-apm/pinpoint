@@ -36,6 +36,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Objects;
 
@@ -65,10 +66,10 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
         Objects.requireNonNull(pinpointSocket, "pinpointSocket must not be null");
 
         final byte[] payload = getPayload(packet);
-        SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
+        final InetSocketAddress remoteAddress = (InetSocketAddress) pinpointSocket.getRemoteAddress();
         try {
             Message<TBase<?, ?>> message = SerializationUtils.deserialize(payload, deserializerFactory);
-            ServerRequest<TBase<?, ?>> serverRequest = new DefaultServerRequest<TBase<?, ?>>(message);
+            ServerRequest<TBase<?, ?>> serverRequest = newServerRequest(message, remoteAddress);
             dispatchHandler.dispatchSendMessage(serverRequest);
         } catch (TException e) {
             handleTException(payload, remoteAddress, e);
@@ -76,6 +77,12 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
             // there are cases where invalid headers are received
             handleException(payload, remoteAddress, e);
         }
+    }
+
+    private ServerRequest<TBase<?, ?>> newServerRequest(Message<TBase<?, ?>> message, InetSocketAddress remoteSocketAddress) {
+        final String remoteAddress = remoteSocketAddress.getAddress().getHostAddress();
+        final int remotePort = remoteSocketAddress.getPort();
+        return new DefaultServerRequest<TBase<?, ?>>(message, remoteAddress, remotePort);
     }
 
     public byte[] getPayload(BasicPacket packet) {
@@ -90,17 +97,16 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
         Objects.requireNonNull(pinpointSocket, "pinpointSocket must not be null");
 
         final byte[] payload = getPayload(packet);
+        final InetSocketAddress remoteAddress = (InetSocketAddress) pinpointSocket.getRemoteAddress();
 
         try {
             Message<TBase<?, ?>> message = SerializationUtils.deserialize(payload, deserializerFactory);
-            ServerRequest<TBase<?, ?>> request = new DefaultServerRequest<>(message);
+            ServerRequest<TBase<?, ?>> request = newServerRequest(message, remoteAddress);
             ServerResponse<TBase<?, ?>> response = new TCPServerResponse(serializerFactory, pinpointSocket, packet.getRequestId());
             dispatchHandler.dispatchRequestMessage(request, response);
         } catch (TException e) {
-            SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
             handleTException(payload, remoteAddress, e);
         } catch (Exception e) {
-            SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
             handleException(payload, remoteAddress, e);
         }
     }

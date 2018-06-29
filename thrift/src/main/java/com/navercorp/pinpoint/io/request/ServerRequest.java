@@ -26,4 +26,7 @@ public interface ServerRequest<T> extends AttributeMap {
 
     T getData();
 
+    String getRemoteAddress();
+
+    int getRemotePort();
 }

@@ -75,11 +75,12 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
                     return;
                 }
 
+                final InetSocketAddress remoteAddress = (InetSocketAddress) packet.getSocketAddress();
                 for (Message<TBase<?, ?>> message : list) {
-                    if (filter.filter(localSocket, message.getData(), packet.getSocketAddress()) == TBaseFilter.BREAK) {
+                    if (filter.filter(localSocket, message.getData(), remoteAddress) == TBaseFilter.BREAK) {
                         return;
                     }
-                    ServerRequest<TBase<?, ?>> request = new DefaultServerRequest<>(message);
+                    ServerRequest<TBase<?, ?>> request = newServerRequest(message, remoteAddress);;
                     // dispatch signifies business logic execution
                     dispatchHandler.dispatchSendMessage(request);
                 }
@@ -100,5 +101,14 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
             }
         }
     }
+
+    private ServerRequest<TBase<?, ?>> newServerRequest(Message<TBase<?, ?>> message, InetSocketAddress remoteSocketAddress) {
+        final String remoteAddress = remoteSocketAddress.getAddress().getHostAddress();
+        final int remotePort = remoteSocketAddress.getPort();
+
+        ServerRequest<TBase<?, ?>> tBaseDefaultServerRequest = new DefaultServerRequest<>(message, remoteAddress, remotePort);
+        return tBaseDefaultServerRequest;
+    }
+
 
 }
