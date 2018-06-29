@@ -21,15 +21,22 @@ import com.navercorp.pinpoint.io.header.Header;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultServerRequest<T> extends DefaultAttributeMap implements ServerRequest {
+public class DefaultServerRequest<T> extends DefaultAttributeMap implements ServerRequest<T> {
 
     private final Message<T> message;
+    private final String remoteAddress;
+    private final int remotePort;
 
-    public DefaultServerRequest(Message<T> message) {
+    public DefaultServerRequest(Message<T> message, String remoteAddress, int remotePort) {
         if (message == null) {
             throw new NullPointerException("message must not be null");
         }
+        if (remoteAddress == null) {
+            throw new NullPointerException("remoteAddress must not be null");
+        }
         this.message = message;
+        this.remoteAddress = remoteAddress;
+        this.remotePort = remotePort;
     }
 
 
@@ -43,4 +50,13 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
         return message.getData();
     }
 
+    @Override
+    public String getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    @Override
+    public int getRemotePort() {
+        return remotePort;
+    }
 }

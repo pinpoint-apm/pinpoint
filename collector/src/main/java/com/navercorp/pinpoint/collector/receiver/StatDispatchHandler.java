@@ -62,7 +62,7 @@ public class StatDispatchHandler implements DispatchHandler {
     @Override
     public void dispatchSendMessage(ServerRequest serverRequest) {
         SimpleHandler simpleHandler = getSimpleHandler(serverRequest.getHeader());
-        simpleHandler.handleSimple(serverRequest);;
+        simpleHandler.handleSimple(serverRequest);
     }
 
     @Override

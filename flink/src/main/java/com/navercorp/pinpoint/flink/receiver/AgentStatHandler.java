@@ -62,7 +62,7 @@ public class AgentStatHandler implements SimpleHandler {
 
         TBase<?, ?> data = (TBase<?, ?>) serverRequest.getData();
         Message<TBase<?, ?>> message = new DefaultMessage<>(copiedHeader, data);
-        return new DefaultServerRequest<>(message);
+        return new DefaultServerRequest<>(message, serverRequest.getRemoteAddress(), serverRequest.getRemotePort());
     }
 
     private Header copyHeader(Header header) {

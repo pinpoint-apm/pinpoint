@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
 
             byte version = requestBuffer.get();
             int chunkSize = 0xff & requestBuffer.get();
-            SocketAddress socketAddress = packet.getSocketAddress();
+            InetSocketAddress remoteSocketAddress = (InetSocketAddress) packet.getSocketAddress();
             
             try {
                 for (int i = 0; i < chunkSize; i++) {
@@ -117,7 +118,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     }
                     
                     if (requestList.size() == 1) {
-                        if (filter.filter(localSocket, requestList.get(0).getData(), socketAddress) == TBaseFilter.BREAK) {
+                        if (filter.filter(localSocket, requestList.get(0).getData(), remoteSocketAddress) == TBaseFilter.BREAK) {
                             continue;
                         }
                     }
@@ -132,7 +133,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                         ((TSpanChunk) tBase).setSpanEventList(spanEventList);
                     }
                     Message<TBase<?, ?>> message = new DefaultMessage<>(lastMessage.getHeader(), tBase);
-                    ServerRequest mergedRequest = new DefaultServerRequest(message);
+                    ServerRequest<TBase<?, ?>> mergedRequest = newServerRequest(message, remoteSocketAddress);
 
                     dispatchHandler.dispatchRequestMessage(mergedRequest, fake);
                 }
@@ -140,6 +141,13 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                 logger.warn("Failed to handle receive packet.", e);
             }
         }
+    }
+
+    private ServerRequest<TBase<?, ?>> newServerRequest(Message<TBase<?, ?>> message, InetSocketAddress remoteSocketAddress) {
+        final String remoteAddress = remoteSocketAddress.getAddress().getHostAddress();
+        final int remotePort = remoteSocketAddress.getPort();
+
+        return new DefaultServerRequest<>(message, remoteAddress, remotePort);
     }
 
     private byte[] getComponentData(ByteBuffer buffer, HeaderTBaseDeserializer deserializer) {
