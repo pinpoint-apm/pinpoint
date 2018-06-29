@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.http;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -33,7 +33,8 @@ public class HttpStatusCodeRecorderTest {
     public void record() throws Exception {
         final SpanRecorder spanRecorder = mock(SpanRecorder.class);
 
-        HttpStatusCodeRecorder recorder = new HttpStatusCodeRecorder(Arrays.asList("5xx"));
+        HttpStatusCodeErrors errors = new HttpStatusCodeErrors(Arrays.asList("5xx", "401", "402"));
+        HttpStatusCodeRecorder recorder = new HttpStatusCodeRecorder(errors);
 
         recorder.record(spanRecorder, 500);
         recorder.record(spanRecorder, 200);
@@ -44,28 +45,5 @@ public class HttpStatusCodeRecorderTest {
         recorder.record(spanRecorder, 0);
         recorder.record(spanRecorder, -1);
         recorder.record(spanRecorder, 999);
-    }
-
-    @Test
-    public void isFailed() throws Exception {
-        HttpStatusCodeRecorder recorder = new HttpStatusCodeRecorder(Arrays.asList("5xx", "401", "402"));
-
-        assertTrue(recorder.isFailed(500));
-        assertTrue(recorder.isFailed(501));
-        assertTrue(recorder.isFailed(401));
-        assertTrue(recorder.isFailed(402));
-
-        assertFalse(recorder.isFailed(100));
-        assertFalse(recorder.isFailed(200));
-        assertFalse(recorder.isFailed(201));
-        assertFalse(recorder.isFailed(300));
-        assertFalse(recorder.isFailed(400));
-        assertFalse(recorder.isFailed(404));
-
-        // out of range
-        assertFalse(recorder.isFailed(0));
-        assertFalse(recorder.isFailed(999));
-        assertFalse(recorder.isFailed(-1));
-        assertFalse(recorder.isFailed(99));
     }
 }
