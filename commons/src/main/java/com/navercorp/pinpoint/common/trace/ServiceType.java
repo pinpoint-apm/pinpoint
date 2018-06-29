@@ -257,6 +257,7 @@ public interface ServiceType {
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.
     ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD");
+    ServiceType SERVLET = of(5004, "SERVLET");
     
 
     // Spring framework
