@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.rxjava;
+package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+
 /**
- * @author HyunGil Jeong
+ * @author Woonduk Kang(emeroad)
  */
-public final class RxJavaPluginConstants {
-    private RxJavaPluginConstants() {
+public final class NingAsyncHttpClientConstants {
+    private NingAsyncHttpClientConstants() {
     }
 
-    public static final ServiceType RX_JAVA = ServiceTypeFactory.of(6500, "RX_JAVA");
-    public static ServiceType RX_JAVA_INTERNAL = ServiceTypeFactory.of(6501, "RX_JAVA_INTERNAL", "RX_JAVA");
-
-    public static String RX_JAVA_SUBSCRIBE_SCOPE = "RxJavaObservableSubscribeScope";
-    public static String RX_JAVA_OBSERVABLE_SCOPE = "RxJavaObservableScope";
+    public static final ServiceType ASYNC_HTTP_CLIENT = ServiceTypeFactory.of(9056, "ASYNC_HTTP_CLIENT", RECORD_STATISTICS);
+    public static final ServiceType ASYNC_HTTP_CLIENT_INTERNAL = ServiceTypeFactory.of(9057, "ASYNC_HTTP_CLIENT_INTERNAL", "ASYNC_HTTP_CLIENT");
 }

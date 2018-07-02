@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.rxjava;
+package com.navercorp.pinpoint.plugin.ibatis;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
- * @author HyunGil Jeong
+ * @author Woonduk Kang(emeroad)
  */
-public final class RxJavaPluginConstants {
-    private RxJavaPluginConstants() {
+public final class IBatisConstants {
+    private IBatisConstants() {
     }
 
-    public static final ServiceType RX_JAVA = ServiceTypeFactory.of(6500, "RX_JAVA");
-    public static ServiceType RX_JAVA_INTERNAL = ServiceTypeFactory.of(6501, "RX_JAVA_INTERNAL", "RX_JAVA");
-
-    public static String RX_JAVA_SUBSCRIBE_SCOPE = "RxJavaObservableSubscribeScope";
-    public static String RX_JAVA_OBSERVABLE_SCOPE = "RxJavaObservableScope";
+    public static final ServiceType IBATIS = ServiceTypeFactory.of(5500, "IBATIS");
+    public static final ServiceType IBATIS_SPRING = ServiceTypeFactory.of(5501, "IBATIS_SPRING", "IBATIS");
 }

@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.rxjava;
+package com.navercorp.pinpoint.plugin.spring.web;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
- * @author HyunGil Jeong
+ * @author Woonduk Kang(emeroad)
  */
-public final class RxJavaPluginConstants {
-    private RxJavaPluginConstants() {
+public final class SpringWebMvcConstants {
+    private SpringWebMvcConstants() {
     }
 
-    public static final ServiceType RX_JAVA = ServiceTypeFactory.of(6500, "RX_JAVA");
-    public static ServiceType RX_JAVA_INTERNAL = ServiceTypeFactory.of(6501, "RX_JAVA_INTERNAL", "RX_JAVA");
-
-    public static String RX_JAVA_SUBSCRIBE_SCOPE = "RxJavaObservableSubscribeScope";
-    public static String RX_JAVA_OBSERVABLE_SCOPE = "RxJavaObservableScope";
+    public static final ServiceType SPRING_MVC = ServiceTypeFactory.of(5051, "SPRING_MVC", "SPRING");
 }
