@@ -65,12 +65,13 @@ public class ConnectFuture {
     }
 
     public void awaitUninterruptibly() {
-        while (true) {
+        while (getResult() == null) {
             try {
                 await();
                 return;
             } catch (InterruptedException e) {
                 logger.debug(e.getMessage(), e);
+                Thread.currentThread().interrupt();
             }
         }
     }
