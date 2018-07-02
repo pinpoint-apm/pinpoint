@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,10 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 /**
  * @author jaehong.kim
  */
-public class VertxConstants {
+public final class VertxConstants {
+    private VertxConstants() {
+    }
+
     public static final ServiceType VERTX = ServiceTypeFactory.of(1050, "VERTX", ServiceTypeProperty.RECORD_STATISTICS);
     public static final ServiceType VERTX_INTERNAL = ServiceTypeFactory.of(1051, "VERTX_INTERNAL", "VERTX");
     public static final ServiceType VERTX_HTTP_SERVER = ServiceTypeFactory.of(1052, "VERTX_HTTP_SERVER", ServiceTypeProperty.RECORD_STATISTICS);

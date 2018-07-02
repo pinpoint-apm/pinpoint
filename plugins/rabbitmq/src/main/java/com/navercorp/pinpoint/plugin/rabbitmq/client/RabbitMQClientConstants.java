@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,27 +29,30 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
  * @author Jinkai.Ma
  * @author HyunGil Jeong
  */
-public interface RabbitMQClientConstants {
-    ServiceType RABBITMQ_CLIENT = ServiceTypeFactory.of(8300, "RABBITMQ_CLIENT", QUEUE, RECORD_STATISTICS);
-    ServiceType RABBITMQ_CLIENT_INTERNAL = ServiceTypeFactory.of(8301, "RABBITMQ_CLIENT_INTERNAL", "RABBITMQ_CLIENT");
+public final class RabbitMQClientConstants {
+    private RabbitMQClientConstants() {
+    }
 
-    String RABBITMQ_SCOPE = "rabbitmqScope";
-    String RABBITMQ_CONSUMER_SCOPE = "rabbitmqConsumerScope";
-    String RABBITMQ_FRAME_HANDLER_CREATION_SCOPE = "rabbitmqFrameHandlerCreationScope";
-    String RABBITMQ_TEMPLATE_API_SCOPE = "rabbitmqTemplateApiScope";
+    public static final ServiceType RABBITMQ_CLIENT = ServiceTypeFactory.of(8300, "RABBITMQ_CLIENT", QUEUE, RECORD_STATISTICS);
+    public static final ServiceType RABBITMQ_CLIENT_INTERNAL = ServiceTypeFactory.of(8301, "RABBITMQ_CLIENT_INTERNAL", "RABBITMQ_CLIENT");
 
-    AnnotationKey RABBITMQ_EXCHANGE_ANNOTATION_KEY = AnnotationKeyFactory.of(130, "rabbitmq.exchange", VIEW_IN_RECORD_SET);
-    AnnotationKey RABBITMQ_ROUTINGKEY_ANNOTATION_KEY = AnnotationKeyFactory.of(131, "rabbitmq.routingkey", VIEW_IN_RECORD_SET);
-    AnnotationKey RABBITMQ_PROPERTIES_ANNOTATION_KEY = AnnotationKeyFactory.of(132, "rabbitmq.properties");
-    AnnotationKey RABBITMQ_BODY_ANNOTATION_KEY = AnnotationKeyFactory.of(133, "rabbitmq.body");
+    public static final String RABBITMQ_SCOPE = "rabbitmqScope";
+    public static final String RABBITMQ_CONSUMER_SCOPE = "rabbitmqConsumerScope";
+    public static final String RABBITMQ_FRAME_HANDLER_CREATION_SCOPE = "rabbitmqFrameHandlerCreationScope";
+    public static final String RABBITMQ_TEMPLATE_API_SCOPE = "rabbitmqTemplateApiScope";
 
-    String UNKNOWN = "Unknown";
+    public static final AnnotationKey RABBITMQ_EXCHANGE_ANNOTATION_KEY = AnnotationKeyFactory.of(130, "rabbitmq.exchange", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey RABBITMQ_ROUTINGKEY_ANNOTATION_KEY = AnnotationKeyFactory.of(131, "rabbitmq.routingkey", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey RABBITMQ_PROPERTIES_ANNOTATION_KEY = AnnotationKeyFactory.of(132, "rabbitmq.properties");
+    public static final AnnotationKey RABBITMQ_BODY_ANNOTATION_KEY = AnnotationKeyFactory.of(133, "rabbitmq.body");
 
-    String META_TRACE_ID = "Pinpoint-TraceID";
-    String META_SPAN_ID = "Pinpoint-SpanID";
-    String META_PARENT_SPAN_ID = "Pinpoint-pSpanID";
-    String META_SAMPLED = "Pinpoint-Sampled";
-    String META_FLAGS = "Pinpoint-Flags";
-    String META_PARENT_APPLICATION_NAME = "Pinpoint-pAppName";
-    String META_PARENT_APPLICATION_TYPE = "Pinpoint-pAppType";
+    public static final String UNKNOWN = "Unknown";
+
+    public static final String META_TRACE_ID = "Pinpoint-TraceID";
+    public static final String META_SPAN_ID = "Pinpoint-SpanID";
+    public static final String META_PARENT_SPAN_ID = "Pinpoint-pSpanID";
+    public static final String META_SAMPLED = "Pinpoint-Sampled";
+    public static final String META_FLAGS = "Pinpoint-Flags";
+    public static final String META_PARENT_APPLICATION_NAME = "Pinpoint-pAppName";
+    public static final String META_PARENT_APPLICATION_TYPE = "Pinpoint-pAppType";
 }

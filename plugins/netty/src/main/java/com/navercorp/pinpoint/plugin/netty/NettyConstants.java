@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,9 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
 /**
  * @author Taejin Koo
  */
-public class NettyConstants {
+public final class NettyConstants {
+    private NettyConstants() {
+    }
 
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(9150, "NETTY");
     public static final ServiceType SERVICE_TYPE_INTERNAL = ServiceTypeFactory.of(9151, "NETTY_INTERNAL");
