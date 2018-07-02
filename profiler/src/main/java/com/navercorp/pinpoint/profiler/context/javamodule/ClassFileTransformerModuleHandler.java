@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import com.navercorp.pinpoint.common.util.ClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -35,6 +37,7 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
     private final ClassFileTransformer delegate;
     private final JavaModuleFactory javaModuleFactory;
     private final JavaModule bootstrapModule;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public ClassFileTransformerModuleHandler(Instrumentation instrumentation, ClassFileTransformer delegate) {
@@ -63,11 +66,17 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
 
             final JavaModule javaModule = javaModuleFactory.wrapFromModule(instrumentation, module);
             if (!javaModule.canRead(bootstrapModule)) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("addReads module:{} target:{}", javaModule, bootstrapModule);
+                }
                 javaModule.addReads(bootstrapModule);
             }
             final String packageName = getPackageName(className);
             if (packageName != null) {
                 if (!javaModule.isExported(packageName, bootstrapModule)) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("addExports module:{} pkg:{} target:{}", javaModule, packageName, bootstrapModule);
+                    }
                     javaModule.addExports(packageName, bootstrapModule);
                 }
                 // need open?
