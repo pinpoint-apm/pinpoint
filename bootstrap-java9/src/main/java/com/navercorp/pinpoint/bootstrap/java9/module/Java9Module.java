@@ -27,7 +27,7 @@ import java.util.Set;
  */
 public class Java9Module implements JavaModule {
 
-    private final ModuleLogger logger = ModuleLogger.getLogger(Java9Module.class.getName());
+//    private final ModuleLogger logger = ModuleLogger.getLogger(Java9Module.class.getName());
     private final Instrumentation instrumentation;
     private final Module module;
 
@@ -60,7 +60,7 @@ public class Java9Module implements JavaModule {
     public void addReads(JavaModule targetJavaModule) {
         final Java9Module target = checkJavaModule(targetJavaModule);
 
-        logger.info("addReads module:" + module.getName() +" target:" + target);
+//        logger.info("addReads module:" + module.getName() +" target:" + target);
         // for debug
         final Set<Module> readModules = Set.of(target.module);
         RedefineModuleUtils.addReads(instrumentation, module, readModules);
@@ -73,7 +73,7 @@ public class Java9Module implements JavaModule {
         }
          final Java9Module target = checkJavaModule(targetJavaModule);
 
-        logger.info("addExports module:" + module.getName() + " pkg:" + packageName + " target:" + target);
+//        logger.info("addExports module:" + module.getName() + " pkg:" + packageName + " target:" + target);
         final Map<String, Set<Module>> extraModules = Map.of(packageName, Set.of(target.module));
         RedefineModuleUtils.addExports(instrumentation, module, extraModules);
     }
@@ -95,7 +95,7 @@ public class Java9Module implements JavaModule {
         }
         final Java9Module target = checkJavaModule(javaModule);
 
-        logger.info("addExports module:" + module.getName() + " pkg:" + packageName + " target:" + target);
+//        logger.info("addExports module:" + module.getName() + " pkg:" + packageName + " target:" + target);
 
         final Map<String, Set<Module>> extraOpens = Map.of(packageName, Set.of(target.module));
         RedefineModuleUtils.addOpens(instrumentation, module, extraOpens);
@@ -107,7 +107,7 @@ public class Java9Module implements JavaModule {
         if (target == null) {
             throw new NullPointerException("target must not be null");
         }
-        logger.info("addUses module:" + module.getName() +" target:" + target);
+//        logger.info("addUses module:" + module.getName() +" target:" + target);
         // for debug
         final Set<Class<?>> extraUses = Set.of(target);
         RedefineModuleUtils.addUses(instrumentation, module, extraUses);

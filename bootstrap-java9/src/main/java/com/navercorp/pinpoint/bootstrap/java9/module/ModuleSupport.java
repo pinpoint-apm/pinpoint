@@ -157,6 +157,7 @@ public class ModuleSupport {
 
     private JavaModule loadModule(String moduleName) {
         // force base-module loading
+        logger.info("loadModule:" + moduleName);
         final Module module = Modules.loadModule(moduleName);
         return wrapJavaModule(module);
 
