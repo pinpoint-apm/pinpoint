@@ -6,8 +6,8 @@ sidebar: mydoc_sidebar
 tags:
 ---
 
-Having hard time installing pinpoint?
-Pinpoint has started to support Docker.
+Having hard time installing pinpoint?  
+Pinpoint has started to support Docker.  
 
-Visit [Official Pinpoint-Docker repository](https://github.com/naver/pinpoint-docker) for more information.
+Visit our Official Pinpoint-Docker repository(https://github.com/naver/pinpoint-docker) for more information.
 

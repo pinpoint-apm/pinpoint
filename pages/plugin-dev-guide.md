@@ -10,6 +10,8 @@ disqus: true
 
 You can write Pinpoint profiler plugins to extend profiling target coverage. It is highly advisable to look into the trace data recorded by pinpoint plugins before jumping into plugin development.
 
+ * There is a [fast auto pinpoint agent plugin generate tool](https://github.com/bbossgroups/pinpoint-plugin-generate) from a 3rd party for creating a simple plug-in, if you'd like to check out.
+
 ## I. Trace Data
 In Pinpoint, a transaction consists of a group of `Spans`. Each `Span` represents a trace of a single logical node where the transaction had gone through. 
 
