@@ -132,7 +132,7 @@ public class ServletRequestListenerInterceptorHelper {
 
     public void destroyed(final Throwable throwable, final int statusCode) {
         if (isDebug) {
-            logger.debug("Destroyed servletRequestEvent. throwable={}", throwable);
+            logger.debug("Destroyed servletRequestEvent. throwable={}, statusCode={}", throwable, statusCode);
         }
 
         final Trace trace = this.traceContext.currentRawTraceObject();

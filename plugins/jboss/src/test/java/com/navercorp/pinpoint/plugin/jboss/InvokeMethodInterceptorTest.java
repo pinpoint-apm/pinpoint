@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.plugin.jboss;
 
 import java.util.Enumeration;
 
+import javax.servlet.DispatcherType;
+import javax.servlet.ServletRequestEvent;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -57,6 +59,9 @@ public class InvokeMethodInterceptorTest {
     /** The response. */
     @Mock
     public HttpServletResponse response;
+
+    @Mock
+    public ServletRequestEvent servletRequestEvent;
 
     /** The descriptor. */
     private final MethodDescriptor descriptor = new DefaultMethodDescriptor("org.apache.catalina.core.StandardHostValve", "invoke", new String[] {
@@ -104,7 +109,6 @@ public class InvokeMethodInterceptorTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testHeaderNOTExists() {
-
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
         when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn(null);
@@ -112,21 +116,25 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn(null);
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn(null);
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn(null);
+
         final Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
+        when(request.isAsyncStarted()).thenReturn(Boolean.FALSE);
+        when(request.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
+
+        when(servletRequestEvent.getServletRequest()).thenReturn(request);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
+        JbossServletRequestListener servletRequestListener = new JbossServletRequestListener(traceContext);
+        servletRequestListener.requestInitialized(servletRequestEvent);
+        servletRequestListener.requestDestroyed(servletRequestEvent);
 
-        interceptor.before("target", new Object[] { request, response });
-        interceptor.after("target", new Object[] { request, response }, new Object(), null);
+        verify(traceContext, times(1)).newAsyncTraceObject();
 
-        verify(traceContext, times(1)).newTraceObject();
+        servletRequestListener.requestInitialized(servletRequestEvent);
+        servletRequestListener.requestDestroyed(servletRequestEvent);
 
-        interceptor.before("target", new Object[] { request, response });
-        interceptor.after("target", new Object[] { request, response }, new Object(), null);
-
-        verify(traceContext, times(2)).newTraceObject();
+        verify(traceContext, times(2)).newAsyncTraceObject();
     }
 
     /**
@@ -135,7 +143,6 @@ public class InvokeMethodInterceptorTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testInvalidHeaderExists() {
-
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
         when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn("TRACEID");
@@ -145,23 +152,26 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
         final Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
+        when(request.isAsyncStarted()).thenReturn(Boolean.FALSE);
+        when(request.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
+
+        when(servletRequestEvent.getServletRequest()).thenReturn(request);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
-        interceptor.before("target", new Object[] { request, response });
-        interceptor.after("target", new Object[] { request, response }, new Object(), null);
+        JbossServletRequestListener servletRequestListener = new JbossServletRequestListener(traceContext);
+        servletRequestListener.requestInitialized(servletRequestEvent);
+        servletRequestListener.requestDestroyed(servletRequestEvent);
 
-        verify(traceContext, never()).newTraceObject();
+        verify(traceContext, never()).newAsyncTraceObject();
         verify(traceContext, never()).disableSampling();
-        verify(traceContext, never()).continueTraceObject(any(TraceId.class));
+        verify(traceContext, never()).continueAsyncTraceObject(any(TraceId.class));
 
+        servletRequestListener.requestInitialized(servletRequestEvent);
+        servletRequestListener.requestDestroyed(servletRequestEvent);
 
-        interceptor.before("target", new Object[] { request, response });
-        interceptor.after("target", new Object[] { request, response }, new Object(), null);
-
-        verify(traceContext, never()).newTraceObject();
+        verify(traceContext, never()).newAsyncTraceObject();
         verify(traceContext, never()).disableSampling();
-        verify(traceContext, never()).continueTraceObject(any(TraceId.class));
+        verify(traceContext, never()).continueAsyncTraceObject(any(TraceId.class));
     }
 
     /**
@@ -170,11 +180,10 @@ public class InvokeMethodInterceptorTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testValidHeaderExists() {
-
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
 
-        TraceId  traceId = new DefaultTraceId("agentTest", System.currentTimeMillis(), 1);
+        TraceId traceId = new DefaultTraceId("agentTest", System.currentTimeMillis(), 1);
         when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn(traceId.getTransactionId());
         when(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn("PARENTSPANID");
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");
@@ -182,18 +191,22 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
         final Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
+        when(request.isAsyncStarted()).thenReturn(Boolean.FALSE);
+        when(request.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
+
+        when(servletRequestEvent.getServletRequest()).thenReturn(request);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
+        JbossServletRequestListener servletRequestListener = new JbossServletRequestListener(traceContext);
 
-        interceptor.before("target", new Object[] { request, response });
-        interceptor.after("target", new Object[] { request, response }, new Object(), null);
+        servletRequestListener.requestInitialized(servletRequestEvent);
+        servletRequestListener.requestDestroyed(servletRequestEvent);
 
-        verify(traceContext, times(1)).continueTraceObject(any(TraceId.class));
+        verify(traceContext, times(1)).continueAsyncTraceObject(any(TraceId.class));
 
-        interceptor.before("target", new Object[] { request, response });
-        interceptor.after("target", new Object[] { request, response }, new Object(), null);
+        servletRequestListener.requestInitialized(servletRequestEvent);
+        servletRequestListener.requestDestroyed(servletRequestEvent);
 
-        verify(traceContext, times(2)).continueTraceObject(any(TraceId.class));
+        verify(traceContext, times(2)).continueAsyncTraceObject(any(TraceId.class));
     }
 }

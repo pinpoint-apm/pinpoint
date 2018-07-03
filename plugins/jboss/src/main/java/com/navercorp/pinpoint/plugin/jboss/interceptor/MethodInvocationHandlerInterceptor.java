@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.plugin.jboss.util.JbossUtility;
  * The Class MethodInvocationHandlerInterceptor.
  *
  * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
+ * @author jaehong.kim
  */
 public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
 
@@ -173,6 +174,7 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
 
         if (!trace.canSampled()) {
             traceContext.removeTraceObject();
+            trace.close();
             return;
         }
         try {

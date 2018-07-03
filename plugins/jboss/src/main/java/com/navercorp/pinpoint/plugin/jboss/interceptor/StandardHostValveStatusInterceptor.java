@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Pinpoint contributors and NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,19 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
+import org.apache.catalina.connector.Response;
 
 /**
- * The Class StandardHostValveInvokeInterceptor.
- *
- * @author emeroad
  * @author jaehong.kim
  */
-public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
+public class StandardHostValveStatusInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
+    private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     /**
      * Instantiates a new standard host valve invoke interceptor.
@@ -42,37 +42,27 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param traceContext the trace context
      * @param descriptor   the descriptor
      */
-    public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
+    public StandardHostValveStatusInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#before(java.lang.Object, java.lang.Object[])
-     */
     @Override
     public void before(final Object target, final Object[] args) {
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#after(java.lang.Object, java.lang.Object[],
-     * java.lang.Object, java.lang.Throwable)
-     */
-    @Override
-    public void after(final Object target, final Object[] args, final Object result, final Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
-        // Only remove bind trace
-        traceContext.removeTraceObject();
+
+        // args[0] = org.apache.catalina.connector.Request, args[1] = org.apache.catalina.connector.Response
+        if (args != null && args.length >= 2 && args[1] instanceof Response) {
+            final Response response = (Response) args[1];
+            httpStatusCodeRecorder.record(trace.getSpanRecorder(), response.getStatus());
+        }
+    }
+
+    @Override
+    public void after(final Object target, final Object[] args, final Object result, final Throwable throwable) {
     }
 }
