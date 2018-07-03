@@ -77,8 +77,11 @@ public abstract class AbstractDataSender implements DataSender {
     }
 
     protected TBase<?, ?> deserialize(HeaderTBaseDeserializer deserializer, ResponseMessage responseMessage) {
-        byte[] message = responseMessage.getMessage();
-        Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(message, deserializer, null);
+        final byte[] message = responseMessage.getMessage();
+        final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(message, deserializer, null);
+        if (deserialize == null) {
+            return null;
+        }
         return deserialize.getData();
     }
 

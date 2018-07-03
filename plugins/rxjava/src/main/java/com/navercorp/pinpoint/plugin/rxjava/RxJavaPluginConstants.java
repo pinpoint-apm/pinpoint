@@ -27,8 +27,8 @@ public final class RxJavaPluginConstants {
     }
 
     public static final ServiceType RX_JAVA = ServiceTypeFactory.of(6500, "RX_JAVA");
-    public static ServiceType RX_JAVA_INTERNAL = ServiceTypeFactory.of(6501, "RX_JAVA_INTERNAL", "RX_JAVA");
+    public static final ServiceType RX_JAVA_INTERNAL = ServiceTypeFactory.of(6501, "RX_JAVA_INTERNAL", "RX_JAVA");
 
-    public static String RX_JAVA_SUBSCRIBE_SCOPE = "RxJavaObservableSubscribeScope";
-    public static String RX_JAVA_OBSERVABLE_SCOPE = "RxJavaObservableScope";
+    public static final String RX_JAVA_SUBSCRIBE_SCOPE = "RxJavaObservableSubscribeScope";
+    public static final String RX_JAVA_OBSERVABLE_SCOPE = "RxJavaObservableScope";
 }

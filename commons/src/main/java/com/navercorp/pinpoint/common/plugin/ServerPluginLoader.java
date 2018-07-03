@@ -55,7 +55,10 @@ public class ServerPluginLoader implements PluginLoader {
     }
 
     private <T> Plugin<T> newPlugin(T plugin) {
-        URL pluginURL = CodeSourceUtils.getCodeLocation(plugin.getClass());
+        final URL pluginURL = CodeSourceUtils.getCodeLocation(plugin.getClass());
+        if (pluginURL == null) {
+            throw new IllegalStateException("pluginURL not found plugin:" + plugin.getClass());
+        }
 
         final File file = new File(pluginURL.getFile());
         if (file.isDirectory()) {
