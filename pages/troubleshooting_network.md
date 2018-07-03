@@ -2,7 +2,7 @@
 title: Checking network configuration 
 tags:
 keywords: troubleshooting
-last_updated: Apr 10, 2018
+last_updated: May 17, 2018
 sidebar: mydoc_sidebar
 permalink: troubleshooting_network.html
 disqus: true
@@ -11,7 +11,7 @@ disqus: true
 We provide a simple tool that can check your network configurations.  
 This tool checks the network status between Pinpoint-Agent and Pinpoint-Collector
 
-## Pinpoint from v1.8.0 and above
+## Pinpoint from v1.7.3 and above
 
 ### Testing with binary release
  
