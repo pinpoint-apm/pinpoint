@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
  * The Class JbossConstants.
  *
  * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
+ * @author jaehong.kim
  */
 public final class JbossConstants {
     private JbossConstants() {
@@ -33,5 +34,4 @@ public final class JbossConstants {
 
     /** The Constant JBOSS_METHOD. */
     public static final ServiceType JBOSS_METHOD = ServiceTypeFactory.of(1041, "JBOSS_METHOD");
-
 }
