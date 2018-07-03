@@ -433,6 +433,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         if (currentStateCode == SocketStateCode.BEING_CONNECT) {
             // removed stackTrace when reconnect. so many logs.
             logger.info("{} exceptionCaught() occurred. state:{}, caused:{}.", objectUniqName, currentStateCode, cause.getMessage());
+        } else if (currentStateCode == SocketStateCode.NONE) {
+            // If an exception occurs in the execute channel open operation. (caused : netty's resource is already shut downed. then connectFuture never can't set value.)
+            // it will rarely happen but it is likely to happen at the end of the process.
+            logger.warn("{} exceptionCaught() occurred. state:{}. Caused:{}", objectUniqName, currentStateCode, cause.getMessage(), cause);
+            connectFuture.setResult(Result.FAIL);
         } else {
             logger.warn("{} exceptionCaught() occurred. state:{}. Caused:{}", objectUniqName, currentStateCode, cause.getMessage(), cause);
         }
