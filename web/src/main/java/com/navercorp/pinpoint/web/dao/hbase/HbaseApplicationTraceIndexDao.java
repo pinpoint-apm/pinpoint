@@ -232,8 +232,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         scan.setCaching(this.scanCacheSize);
 
         byte[] bApplicationName = Bytes.toBytes(applicationName);
-        byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bApplicationName, range.getFrom());
-        byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bApplicationName, range.getTo());
+        byte[] traceIndexStartKey = SpanUtils.getApplicationTraceIndexRowKey(bApplicationName, range.getFrom());
+        byte[] traceIndexEndKey = SpanUtils.getApplicationTraceIndexRowKey(bApplicationName, range.getTo());
 
         if (scanBackward) {
             // start key is replaced by end key because key has been reversed
