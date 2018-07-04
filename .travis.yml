@@ -7,16 +7,13 @@ addons:
       - openjdk-6-jdk
 
 jdk:
- - openjdk7
+ - oraclejdk8
 
 env:
  - JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64
    JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
    JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
    JAVA_9_HOME=/usr/lib/jvm/java-9-oracle
-
-before_install:
-  - sudo sed -i 's/security.provider.9/#security.provider.9/g' $JAVA_HOME/jre/lib/security/java.security
 
 install:
  - set -o pipefail
@@ -31,7 +28,7 @@ install:
  - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V | grep -Fv '[copy'
 
 script:
- - jdk_switcher use openjdk7
+ - jdk_switcher use oraclejdk8
  - ./mvnw clover:setup test -Ptest clover:aggregate clover:clover -e | grep -Fv 'DEBUG' | grep -Fv '[copy'
 
 after_success:
