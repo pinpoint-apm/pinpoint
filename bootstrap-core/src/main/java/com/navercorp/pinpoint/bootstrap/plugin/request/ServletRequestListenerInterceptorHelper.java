@@ -131,6 +131,10 @@ public class ServletRequestListenerInterceptorHelper {
     }
 
     public void destroyed(final Throwable throwable, final int statusCode) {
+        destroyed(throwable, statusCode, true);
+    }
+
+    public void destroyed(final Throwable throwable, final int statusCode, final boolean close) {
         if (isDebug) {
             logger.debug("Destroyed servletRequestEvent. throwable={}, statusCode={}", throwable, statusCode);
         }
@@ -152,9 +156,11 @@ public class ServletRequestListenerInterceptorHelper {
             recorder.recordException(throwable);
             this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), statusCode);
         } finally {
-            this.traceContext.removeTraceObject();
             trace.traceBlockEnd();
-            trace.close();
+            if (close) {
+                this.traceContext.removeTraceObject();
+                trace.close();
+            }
         }
     }
 }

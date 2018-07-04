@@ -9,12 +9,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletRequestListener;
+
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.resin.ResinServletRequestListener;
 
 /**
  * 
@@ -27,10 +30,11 @@ public class WebAppInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
+    private final ServletRequestListener servletRequestListener;
 
     public WebAppInterceptor(TraceContext traceContext) {
-        super();
         this.traceContext = traceContext;
+        this.servletRequestListener = new ResinServletRequestListener(traceContext);
     }
 
     @Override
@@ -40,25 +44,29 @@ public class WebAppInterceptor implements AroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (target instanceof ServletContext) {
-            ServletContext servletContext = (ServletContext) target;
-            try {
-                String contextKey = extractContextKey(servletContext);
-                List<String> loadedJarNames = extractLibJars(servletContext);
+        try {
+            if (target instanceof ServletContext) {
+                final ServletContext servletContext = (ServletContext) target;
+                final String contextKey = extractContextKey(servletContext);
+                final List<String> loadedJarNames = extractLibJars(servletContext);
                 if (isDebug) {
                     logger.debug("{}  jars : {}", contextKey, Arrays.toString(loadedJarNames.toArray()));
                 }
                 dispatchLibJars(contextKey, loadedJarNames, servletContext);
-            } catch (Exception e) {
-                logger.warn(e.getMessage(), e);
+                // Add servlet request listener. Servlet 2.4
+                servletContext.addListener(this.servletRequestListener);
+                if (isDebug) {
+                    logger.debug("Add servlet request listener. servletRequestListener={}", this.servletRequestListener);
+                }
+            } else {
+                logger.warn("Webapp loader is not an instance of javax.servlet.ServletContext , target={}", target);
             }
-        } else {
-            logger.warn("Webapp loader is not an instance of javax.servlet.ServletContext , Found [{}]", target.getClass().toString());
+        } catch (Exception e) {
+            logger.warn("Failed to add servlet request listener. servletRequestListener={}", this.servletRequestListener, e);
         }
     }
 
@@ -123,5 +131,4 @@ public class WebAppInterceptor implements AroundInterceptor {
             return Collections.emptyList();
         }
     }
-
 }

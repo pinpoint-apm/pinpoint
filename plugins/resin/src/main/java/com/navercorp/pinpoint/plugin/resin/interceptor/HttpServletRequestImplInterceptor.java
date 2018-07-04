@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.plugin.resin.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -9,16 +7,18 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.resin.AsyncAccessor;
+import com.navercorp.pinpoint.plugin.resin.ResinAsyncListener;
 import com.navercorp.pinpoint.plugin.resin.ResinConstants;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncListener;
+import javax.servlet.http.HttpServletRequest;
+
 /**
- * 
  * @author huangpengjie@fang.com
- *
+ * @author jaehong.kim
  */
 public class HttpServletRequestImplInterceptor implements AroundInterceptor {
-
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private boolean isDebug = logger.isDebugEnabled();
 
@@ -33,7 +33,7 @@ public class HttpServletRequestImplInterceptor implements AroundInterceptor {
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, "", descriptor.getMethodName(), "", args);
+            logger.beforeInterceptor(target, args);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -46,7 +46,7 @@ public class HttpServletRequestImplInterceptor implements AroundInterceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, "", descriptor.getMethodName(), "", args);
+            logger.afterInterceptor(target, args, result, throwable);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -55,19 +55,15 @@ public class HttpServletRequestImplInterceptor implements AroundInterceptor {
         }
 
         try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (validate(target, result, throwable)) {
-                ((AsyncAccessor) target)._$PINPOINT$_setAsync(Boolean.TRUE);
-
-                // make asynchronous trace-id
-                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                // result is BasicFuture type check validate()
-                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+                final AsyncContext asyncContext = (AsyncContext) result;
+                final AsyncListener asyncListener = new ResinAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
+                asyncContext.addListener(asyncListener);
                 if (isDebug) {
-                    logger.debug("Set AsyncContext  {}", asyncContext);
+                    logger.debug("Add async listener {}", asyncListener);
                 }
             }
-
             recorder.recordServiceType(ResinConstants.RESIN_METHOD);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
@@ -83,17 +79,19 @@ public class HttpServletRequestImplInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(target instanceof AsyncAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", AsyncAccessor.class.getName());
+        if (!(target instanceof HttpServletRequest)) {
+            if (isDebug) {
+                logger.debug("Invalid target object, The javax.servlet.http.HttpServletRequest interface is not implemented. target={}", target);
+            }
             return false;
         }
 
-        if (!(result instanceof AsyncContextAccessor)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
+        if (!(result instanceof AsyncContext)) {
+            if (isDebug) {
+                logger.debug("Invalid result object, The javax.servlet.AsyncContext interface is not implemented. result={}.", result);
+            }
             return false;
         }
-
         return true;
     }
-
 }

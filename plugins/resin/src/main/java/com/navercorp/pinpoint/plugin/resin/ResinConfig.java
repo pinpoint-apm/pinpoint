@@ -1,39 +1,31 @@
 package com.navercorp.pinpoint.plugin.resin;
 
-import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
 import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * 
  * @author huangpengjie@fang.com
- *
  */
 public class ResinConfig {
 
-    private final boolean resinEnable;
+    private final boolean enable;
 
-    private final String resinBootstrapMains;
+    private final String bootstrapMains;
 
-    private final boolean resinHidePinpointHeader;
+    private final boolean hidePinpointHeader;
 
-    private final boolean resinTraceRequestParam;
+    private final boolean traceRequestParam;
 
-    private final Filter<String> resinExcludeUrlFilter;
+    private final Filter<String> excludeUrlFilter;
 
-    private final String resinRealIpHeader;
+    private final String realIpHeader;
 
-    private final String resinRealIpEmptyValue;
+    private final String realIpEmptyValue;
 
-    private final Filter<String> resinExcludeProfileMethodFilter;
+    private final Filter<String> excludeProfileMethodFilter;
 
-    private final boolean isTraceCookies;
-
-    private final int cookieSamplingRate;
-
-    private final DumpType cookieDumpType;
 
     public ResinConfig(ProfilerConfig config) {
 
@@ -42,74 +34,73 @@ public class ResinConfig {
         }
 
         // plugin
-        this.resinEnable = config.readBoolean("profiler.resin.enable", true);
-        this.resinBootstrapMains = config.readString("profiler.resin.bootstrap.main", "");
+        this.enable = config.readBoolean("profiler.resin.enable", true);
+        this.bootstrapMains = config.readString("profiler.resin.bootstrap.main", "");
 
         // runtime
-        this.resinTraceRequestParam = config.readBoolean("profiler.resin.tracerequestparam", true);
+        this.traceRequestParam = config.readBoolean("profiler.resin.tracerequestparam", true);
         final String resinExcludeURL = config.readString("profiler.resin.excludeurl", "");
         if (!resinExcludeURL.isEmpty()) {
-            this.resinExcludeUrlFilter = new ExcludePathFilter(resinExcludeURL);
+            this.excludeUrlFilter = new ExcludePathFilter(resinExcludeURL);
         } else {
-            this.resinExcludeUrlFilter = new ExcludePathFilter("");
+            this.excludeUrlFilter = new ExcludePathFilter("");
         }
-        this.resinRealIpHeader = config.readString("profiler.resin.realipheader", null);
-        this.resinRealIpEmptyValue = config.readString("profiler.resin.realipemptyvalue", null);
+        this.realIpHeader = config.readString("profiler.resin.realipheader", null);
+        this.realIpEmptyValue = config.readString("profiler.resin.realipemptyvalue", null);
 
         final String resinExcludeProfileMethod = config.readString("profiler.resin.excludemethod", "");
         if (!resinExcludeProfileMethod.isEmpty()) {
-            this.resinExcludeProfileMethodFilter = new ExcludeMethodFilter(resinExcludeProfileMethod);
+            this.excludeProfileMethodFilter = new ExcludeMethodFilter(resinExcludeProfileMethod);
         } else {
-            this.resinExcludeProfileMethodFilter = new ExcludeMethodFilter("");
+            this.excludeProfileMethodFilter = new ExcludeMethodFilter("");
         }
-        this.resinHidePinpointHeader = config.readBoolean("profiler.resin.hidepinpointheader", true);
-        this.isTraceCookies = config.readBoolean("profiler.resin.tracecookies", true);
-        this.cookieSamplingRate = config.readInt("profiler.resin.cookie.sampling.rate", 10);
-        this.cookieDumpType = config.readDumpType("profiler.resin.cookie.dumptype", DumpType.ALWAYS);
+        this.hidePinpointHeader = config.readBoolean("profiler.resin.hidepinpointheader", true);
     }
 
-    public boolean isResinEnable() {
-        return resinEnable;
+    public boolean isEnable() {
+        return enable;
     }
 
-    public String getResinBootstrapMains() {
-        return resinBootstrapMains;
+    public String getBootstrapMains() {
+        return bootstrapMains;
     }
 
-    public boolean isResinTraceRequestParam() {
-        return resinTraceRequestParam;
+    public boolean isTraceRequestParam() {
+        return traceRequestParam;
     }
 
-    public Filter<String> getResinExcludeUrlFilter() {
-        return resinExcludeUrlFilter;
+    public Filter<String> getExcludeUrlFilter() {
+        return excludeUrlFilter;
     }
 
-    public String getResinRealIpHeader() {
-        return resinRealIpHeader;
+    public String getRealIpHeader() {
+        return realIpHeader;
     }
 
-    public String getResinRealIpEmptyValue() {
-        return resinRealIpEmptyValue;
+    public String getRealIpEmptyValue() {
+        return realIpEmptyValue;
     }
 
-    public Filter<String> getResinExcludeProfileMethodFilter() {
-        return resinExcludeProfileMethodFilter;
+    public Filter<String> getExcludeProfileMethodFilter() {
+        return excludeProfileMethodFilter;
     }
 
-    public boolean isResinHidePinpointHeader() {
-        return resinHidePinpointHeader;
+    public boolean isHidePinpointHeader() {
+        return hidePinpointHeader;
     }
 
-    public boolean isTraceCookies() {
-        return isTraceCookies;
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ResinConfig{");
+        sb.append("enable=").append(enable);
+        sb.append(", bootstrapMains='").append(bootstrapMains).append('\'');
+        sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
+        sb.append(", traceRequestParam=").append(traceRequestParam);
+        sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
+        sb.append(", realIpHeader='").append(realIpHeader).append('\'');
+        sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
+        sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
+        sb.append('}');
+        return sb.toString();
     }
-
-    public int getCookieSamplingRate() {
-        return cookieSamplingRate;
-    }
-
-    public DumpType getCookieDumpType() {
-        return cookieDumpType;
-    }
-
 }
