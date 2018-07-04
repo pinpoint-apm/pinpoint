@@ -82,14 +82,11 @@ There are two options:
     * JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
     * JDK 8 installed
     * JDK 9 installed
-	* JAVA_HOME environment variable set to JDK 7+ home directory.
+	* JAVA_HOME environment variable set to JDK 8 home directory.
 	* JAVA_6_HOME environment variable set to JDK 6 home directory.
 	* JAVA_7_HOME environment variable set to JDK 7 home directory.
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
 	* JAVA_9_HOME environment variable set to JDK 9 home directory.
-
-	JDK 7+ and JAVA_7_HOME, JAVA_8_HOME environment variable are required to build **profiler-optional**.
-	JDK 9+ and JAVA_9_HOME environment variable are required to build **bootstrap-java9**.
 
 	Additionally, the required Java version to run each Pinpoint component is given below:
 
