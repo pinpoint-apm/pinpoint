@@ -7,7 +7,7 @@ addons:
       - openjdk-6-jdk
 
 jdk:
- - openjdk7
+ - oraclejdk8
 
 env: JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64 JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64 JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
 
