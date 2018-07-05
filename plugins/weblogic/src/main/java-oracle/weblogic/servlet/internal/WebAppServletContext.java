@@ -16,37 +16,16 @@
 
 package weblogic.servlet.internal;
 
+import java.util.EventListener;
+
 /**
  * @author jaehong.kim
  */
-public class ServletRequestImpl {
-
-    public String getRequestURI() {
-        return "";
+public class WebAppServletContext {
+    public <T extends EventListener> void addListener(T t) {
     }
 
-    public String getHeader(String var1) {
-        return "";
-    }
-
-    public String getQueryString() {
-        return "";
-    }
-
-    public int getServerPort() {
-        return 0;
-    }
-
-    public String getServerName() {
-        return "";
-    }
-
-    public String getRemoteAddr() {
-        return "";
-    }
-
-    // Dummy
-    public ServletResponseImpl getResponse() {
+    public EventsManager getEventsManager() {
         return null;
     }
 }

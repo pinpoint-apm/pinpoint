@@ -27,15 +27,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 public final class WeblogicConstants {
     private WeblogicConstants() {
     }
-
-    public static final String TYPE_NAME = "WEBLOGIC";
-
     public static final ServiceType WEBLOGIC = ServiceTypeFactory.of(1070, "WEBLOGIC", RECORD_STATISTICS);
     public static final ServiceType WEBLOGIC_METHOD = ServiceTypeFactory.of(1071, "WEBLOGIC_METHOD");
-
-    public static final String METADATA_TRACE = "trace";
-    public static final String METADATA_ASYNC = "async";
-    public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";
-
-    public static final String ATTRIBUTE_PINPOINT_TRACE = "PINPOINT_TRACE";
 }
