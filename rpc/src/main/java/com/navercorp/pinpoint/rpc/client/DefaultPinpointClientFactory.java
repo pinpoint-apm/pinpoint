@@ -141,14 +141,25 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         this.clientOptionBuilder.setEnableWorkerPacketDelay(enableWorkerPacketDelay);
     }
 
-    public long getTimeoutMillis() {
-        return this.clientOptionBuilder.getTimeoutMillis();
+    @Override
+    public long getWriteTimeoutMillis() {
+        return this.clientOptionBuilder.getWriteTimeoutMillis();
     }
 
-    public void setTimeoutMillis(long timeoutMillis) {
-        this.clientOptionBuilder.setTimeoutMillis(timeoutMillis);
+    @Override
+    public void setWriteTimeoutMillis(long writeTimeoutMillis) {
+        this.clientOptionBuilder.setWriteTimeoutMillis(writeTimeoutMillis);
     }
 
+    @Override
+    public long getRequestTimeoutMillis() {
+        return this.clientOptionBuilder.getRequestTimeoutMillis();
+    }
+
+    @Override
+    public void setRequestTimeoutMillis(long requestTimeoutMillis) {
+        this.clientOptionBuilder.setRequestTimeoutMillis(requestTimeoutMillis);
+    }
 
     public PinpointClient connect(String host, int port) throws PinpointSocketException {
         SocketAddressProvider socketAddressProvider = new DnsSocketAddressProvider(host, port);

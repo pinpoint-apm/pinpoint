@@ -91,7 +91,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
 
         this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer must not be null");
-        this.requestManager = new RequestManager(channelTimer, clientOption.getTimeoutMillis());
+        this.requestManager = new RequestManager(channelTimer, clientOption.getRequestTimeoutMillis());
         this.clientOption = Assert.requireNonNull(clientOption, "clientOption must not be null");
 
 
@@ -236,7 +236,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     @Override
     public Future sendAsync(byte[] bytes) {
         ChannelFuture channelFuture = send0(bytes);
-        final ChannelWriteCompleteListenableFuture future = new ChannelWriteCompleteListenableFuture(clientOption.getTimeoutMillis());
+        final ChannelWriteCompleteListenableFuture future = new ChannelWriteCompleteListenableFuture(clientOption.getWriteTimeoutMillis());
         channelFuture.addListener(future);
         return future;
     }
@@ -269,7 +269,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private void await(ChannelFuture channelFuture) {
         try {
-            channelFuture.await(clientOption.getTimeoutMillis(), TimeUnit.MILLISECONDS);
+            channelFuture.await(clientOption.getWriteTimeoutMillis(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -323,7 +323,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         }
         final int requestId = this.requestManager.nextRequestId();
         final RequestPacket request = new RequestPacket(requestId, bytes);
-        final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request.getRequestId(), clientOption.getTimeoutMillis());
+        final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request.getRequestId(), clientOption.getRequestTimeoutMillis());
 
         write0(request, messageFuture);
         return messageFuture;

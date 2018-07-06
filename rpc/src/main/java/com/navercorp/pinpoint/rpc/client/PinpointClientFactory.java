@@ -53,10 +53,13 @@ public interface PinpointClientFactory {
 
     void setEnableWorkerPacketDelay(long enableWorkerPacketDelay);
 
-    long getTimeoutMillis();
+    long getWriteTimeoutMillis();
 
-    void setTimeoutMillis(long timeoutMillis);
+    void setWriteTimeoutMillis(long writeTimeoutMillis);
 
+    long getRequestTimeoutMillis();
+
+    void setRequestTimeoutMillis(long requestTimeoutMillis);
 
     PinpointClient connect(String host, int port) throws PinpointSocketException;
 

@@ -54,7 +54,8 @@ public class ClusterConnector implements ClusterConnectionProvider {
     public void start() {
         logger.info("start() started.");
 
-        clientFactory.setTimeoutMillis(1000 * 5);
+        clientFactory.setWriteTimeoutMillis(1000 * 3);
+        clientFactory.setRequestTimeoutMillis(1000 * 5);
         clientFactory.setMessageListener(UnsupportOperationMessageListener.getInstance());
         clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
         clientFactory.setProperties(Collections.emptyMap());

@@ -88,7 +88,8 @@ public class TcpDataSenderTest {
     
     private PinpointClientFactory createPinpointClientFactory() {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
-        clientFactory.setTimeoutMillis(1000 * 5);
+        clientFactory.setWriteTimeoutMillis(1000 * 3);
+        clientFactory.setRequestTimeoutMillis(1000 * 5);
         clientFactory.setProperties(Collections.<String, Object>emptyMap());
 
         return clientFactory;

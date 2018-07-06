@@ -56,7 +56,8 @@ public class ReconnectTest {
         clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setReconnectDelay(200);
         clientFactory.setPingDelay(100);
-        clientFactory.setTimeoutMillis(200);
+        clientFactory.setWriteTimeoutMillis(200);
+        clientFactory.setRequestTimeoutMillis(200);
     }
     
     @AfterClass
