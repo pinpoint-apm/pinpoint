@@ -65,6 +65,16 @@ public interface ProfilerConfig {
 
     boolean isTcpDataSenderCommandActiveThreadLightDumpEnable();
 
+    long getTcpDataSenderPinpointClientWriteTimeout();
+
+    long getTcpDataSenderPinpointClientRequestTimeout();
+
+    long getTcpDataSenderPinpointClientReconnectInterval();
+
+    long getTcpDataSenderPinpointClientPingInterval();
+
+    long getTcpDataSenderPinpointClientHandshakeInterval();
+
     boolean isTraceAgentActiveThread();
 
     boolean isTraceAgentDataSource();
