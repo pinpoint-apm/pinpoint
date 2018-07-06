@@ -46,7 +46,8 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
 
     private PinpointClientFactory newPointClientFactory() {
         PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory();
-        pinpointClientFactory.setTimeoutMillis(1000 * 5);
+        pinpointClientFactory.setWriteTimeoutMillis(1000 * 3);
+        pinpointClientFactory.setRequestTimeoutMillis(1000 * 5);
         return pinpointClientFactory;
     }
 

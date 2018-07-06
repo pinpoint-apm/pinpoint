@@ -53,7 +53,8 @@ public class CollectorClusterConnector implements CollectorClusterConnectionProv
 
         this.clientFactory = new DefaultPinpointClientFactory();
 
-        this.clientFactory.setTimeoutMillis(1000 * 5);
+        this.clientFactory.setWriteTimeoutMillis(1000 * 3);
+        this.clientFactory.setRequestTimeoutMillis(1000 * 5);
         this.clientFactory.setMessageListener(option.getRouteMessageHandler());
         this.clientFactory.setServerStreamChannelMessageListener(option.getRouteStreamMessageHandler());
         this.clientFactory.setClusterOption(clusterOption);

@@ -61,7 +61,8 @@ public class PinpointClientFactoryProvider implements Provider<PinpointClientFac
 
     public PinpointClientFactory get() {
         PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory(connectionFactoryProvider.get());
-        pinpointClientFactory.setTimeoutMillis(1000 * 5);
+        pinpointClientFactory.setWriteTimeoutMillis(1000 * 3);
+        pinpointClientFactory.setRequestTimeoutMillis(1000 * 5);
 
         AgentInformation agentInformation = this.agentInformation.get();
         Map<String, Object> properties = toMap(agentInformation);

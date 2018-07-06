@@ -52,7 +52,8 @@ public class SpanStatClientFactoryProvider implements Provider<PinpointClientFac
             return null;
         } else {
             PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory(1, workerCount);
-            pinpointClientFactory.setTimeoutMillis(1000 * 5);
+            pinpointClientFactory.setWriteTimeoutMillis(1000 * 3);
+            pinpointClientFactory.setRequestTimeoutMillis(1000 * 5);
             return pinpointClientFactory;
         }
     }
