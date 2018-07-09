@@ -35,7 +35,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addTransformers() {
-        transformTemplate.transform("com.alibaba.dubbo.rpc.cluster.support.AbstractClusterInvoker", new TransformCallback() {
+        transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractInvoker", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
