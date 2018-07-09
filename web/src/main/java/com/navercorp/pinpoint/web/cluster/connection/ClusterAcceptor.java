@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.ServerOption;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.web.util.WebUtils;
 import org.slf4j.Logger;
@@ -46,7 +47,11 @@ public class ClusterAcceptor implements ClusterConnectionProvider {
         this.bindPort = port;
 
         ClusterOption clusterOption = new ClusterOption(true, WebUtils.getServerIdentifier(), Role.CALLER);
-        this.serverAcceptor = new PinpointServerAcceptor(clusterOption, ChannelFilter.BYPASS);
+
+        ServerOption.Builder serverOptionBuilder = new ServerOption.Builder();
+        serverOptionBuilder.setClusterOption(clusterOption);
+
+        this.serverAcceptor = new PinpointServerAcceptor(serverOptionBuilder.build(), ChannelFilter.BYPASS);
     }
 
     @Override

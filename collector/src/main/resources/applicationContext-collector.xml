@@ -261,7 +261,15 @@
         <constructor-arg ref="addressFilter"/>
     </bean>
 
+    <bean id="baseAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
+        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.base.request.timeout']}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.closewait.timeout']}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.ping.interval']}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.pingwait.timeout']}"/>
+    </bean>
+    <bean id="baseAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="baseAcceptorOptionBuilder" factory-method="build"/>
     <bean id="acceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor">
+        <constructor-arg ref="baseAcceptorOption"/>
         <constructor-arg ref="channelFilter"/>
     </bean>
 
@@ -325,9 +333,19 @@
         <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
         <property name="enable" value="#{spanReceiverConfig.isUdpEnable()}"/>
     </bean>
+
+    <bean id="spanAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
+        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.span.tcp.request.timeout']}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.closewait.timeout']}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.ping.interval']}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.pingwait.timeout']}"/>
+    </bean>
+    <bean id="spanAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="spanAcceptorOptionBuilder" factory-method="build"/>
     <bean id="spanAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider">
+        <property name="serverOption"  ref="spanAcceptorOption"/>
         <property name="channelFilter" ref="channelFilter"/>
     </bean>
+
     <bean id="spanTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
         <property name="bindIp" value="#{spanReceiverConfig.tcpBindIp}"/>
         <property name="bindPort" value="#{spanReceiverConfig.tcpBindPort}"/>
@@ -357,9 +375,19 @@
         <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
         <property name="enable" value="#{statReceiverConfig.isUdpEnable()}"/>
     </bean>
+
+    <bean id="statAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
+        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.request.timeout']}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.closewait.timeout']}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.ping.interval']}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.pingwait.timeout']}"/>
+    </bean>
+    <bean id="statAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="statAcceptorOptionBuilder" factory-method="build"/>
     <bean id="statAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.PinpointServerAcceptorProvider">
+        <property name="serverOption"  ref="statAcceptorOption"/>
         <property name="channelFilter" ref="channelFilter"/>
     </bean>
+
     <bean id="statTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.TCPReceiverBean">
         <property name="bindIp" value="#{statReceiverConfig.tcpBindIp}"/>
         <property name="bindPort" value="#{statReceiverConfig.tcpBindPort}"/>
