@@ -65,9 +65,6 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final long DEFAULT_TIMEOUT_MILLIS = 3 * 1000;
-    private static final long CHANNEL_CLOSE_MAXIMUM_WAITING_TIME_MILLIS = 3 * 1000;
-    private static final int HEALTH_CHECK_INTERVAL_TIME_MILLIS = 5 * 60 * 1000;
     private static final int WORKER_COUNT = CpuUtils.workerCount();
 
     private volatile boolean released;
@@ -91,43 +88,43 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final Timer requestManagerTimer;
 
-    private final ClusterOption clusterOption;
+    private final ServerOption serverOption;
 
     private final PipelineFactory pipelineFactory;
-
-    private long defaultRequestTimeout = DEFAULT_TIMEOUT_MILLIS;
 
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();
     }
 
     public PinpointServerAcceptor() {
-        this(ClusterOption.DISABLE_CLUSTER_OPTION, ChannelFilter.BYPASS);
+        this(ServerOption.getDefaultServerOption(), ChannelFilter.BYPASS);
     }
 
     public PinpointServerAcceptor(ChannelFilter channelConnectedFilter) {
-        this(ClusterOption.DISABLE_CLUSTER_OPTION, channelConnectedFilter);
+        this(ServerOption.getDefaultServerOption(), channelConnectedFilter);
     }
 
     public PinpointServerAcceptor(ChannelFilter channelConnectedFilter, PipelineFactory pipelineFactory) {
-        this(ClusterOption.DISABLE_CLUSTER_OPTION, channelConnectedFilter, pipelineFactory);
+        this(ServerOption.getDefaultServerOption(), channelConnectedFilter, pipelineFactory);
     }
 
-    public PinpointServerAcceptor(ClusterOption clusterOption, ChannelFilter channelConnectedFilter) {
-        this(clusterOption, channelConnectedFilter, new ServerCodecPipelineFactory());
+    public PinpointServerAcceptor(ServerOption serverOption, ChannelFilter channelConnectedFilter) {
+        this(serverOption, channelConnectedFilter, new ServerCodecPipelineFactory());
     }
 
-    public PinpointServerAcceptor(ClusterOption clusterOption, ChannelFilter channelConnectedFilter, PipelineFactory pipelineFactory) {
+    public PinpointServerAcceptor(ServerOption serverOption, ChannelFilter channelConnectedFilter, PipelineFactory pipelineFactory) {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
         setOptions(bootstrap);
         this.bootstrap = bootstrap;
 
+        this.serverOption = Assert.requireNonNull(serverOption, "serverOption must not be null");
+        logger.info("serverOption : {}", serverOption);
+
         this.healthCheckTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-HealthCheckTimer", 50, TimeUnit.MILLISECONDS, 512);
-        this.healthCheckManager = new HealthCheckManager(healthCheckTimer, channelGroup);
+        this.healthCheckManager = new HealthCheckManager(healthCheckTimer, serverOption.getHealthCheckPacketWaitTimeMillis(), channelGroup);
 
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
 
-        this.clusterOption = clusterOption;
         this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter must not be null");
 
         this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
@@ -207,7 +204,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         logger.info("bind() {}", bindAddress);
         this.serverChannel = bootstrap.bind(bindAddress);
-        healthCheckManager.start(HEALTH_CHECK_INTERVAL_TIME_MILLIS);
+        healthCheckManager.start(serverOption.getHealthCheckIntervalTimeMillis());
     }
 
     private DefaultPinpointServer createPinpointServer(Channel channel) {
@@ -217,13 +214,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     @Override
     public long getDefaultRequestTimeout() {
-        return defaultRequestTimeout;
+        return serverOption.getRequestTimeoutMillis();
     }
-
-    public void setDefaultRequestTimeout(long defaultRequestTimeout) {
-        this.defaultRequestTimeout = defaultRequestTimeout;
-    }
-
 
     @Override
     public ServerMessageListener getMessageListener() {
@@ -263,7 +255,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     @Override
     public ClusterOption getClusterOption() {
-        return clusterOption;
+        return serverOption.getClusterOption();
     }
 
     public void close() {
@@ -280,7 +272,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         if (serverChannel != null) {
             ChannelFuture close = serverChannel.close();
-            close.awaitUninterruptibly(CHANNEL_CLOSE_MAXIMUM_WAITING_TIME_MILLIS, TimeUnit.MILLISECONDS);
+            close.awaitUninterruptibly(serverOption.getServerCloseWaitTimeoutMillis(), TimeUnit.MILLISECONDS);
             serverChannel = null;
         }
         if (bootstrap != null) {

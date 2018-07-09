@@ -22,22 +22,23 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerCodecPipelineFactory;
+import com.navercorp.pinpoint.rpc.server.ServerOption;
 
 /**
  * @author Taejin Koo
  */
 public class PinpointServerAcceptorProvider {
 
-    private ClusterOption clusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
+    private ServerOption serverOption = ServerOption.getDefaultServerOption();
     private ChannelFilter channelFilter = ChannelFilter.BYPASS;
     private PipelineFactory pipelineFactory = new ServerCodecPipelineFactory();
 
     public PinpointServerAcceptor get() {
-        return new PinpointServerAcceptor(clusterOption, channelFilter, pipelineFactory);
+        return new PinpointServerAcceptor(serverOption, channelFilter, pipelineFactory);
     }
 
-    public void setClusterOption(ClusterOption clusterOption) {
-        this.clusterOption = Assert.requireNonNull(clusterOption, "clusterOption must not be null");
+    public void setServerOption(ServerOption serverOption) {
+        this.serverOption = Assert.requireNonNull(serverOption, "serverOption must not be null");
     }
 
     public void setChannelFilter(ChannelFilter channelFilter) {
