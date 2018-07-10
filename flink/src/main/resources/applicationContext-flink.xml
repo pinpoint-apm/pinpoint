@@ -180,10 +180,10 @@
         <constructor-arg index="1" ref="flinkHeaderDataGeneratorDelegator"/>
     </bean>
     <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
-        <constructor-arg index="0" ref="flinkTBaseLocator"/>
+        <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
     <bean id="flinkHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory">
-        <constructor-arg index="0" ref="flinkTBaseLocator"/>
+        <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
     <bean id="flinkPacketHandlerFactory" class="com.navercorp.pinpoint.flink.receiver.FlinkPacketHandlerFactory">
         <constructor-arg index="0" ref="flinkHeaderTBaseSerializerFactory"/>
