@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-package weblogic.servlet.internal;
+package com.ibm.ws.webcontainer.channel;
+
+import com.ibm.wsspi.http.channel.HttpResponseMessage;
 
 /**
  * @author jaehong.kim
  */
-public class EventsManager {
+public class WCCResponseImpl {
+    // Dummy
+    public HttpResponseMessage getHttpResponse() {
+        return null;
+    }
 }

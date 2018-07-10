@@ -49,27 +49,10 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         logger.info("Enable JettyPlugin. version range=[8.0, 9.4], config={}", config);
         context.addApplicationTypeDetector(new JettyDetector(config.getBootstrapMains()));
 
-        // Add servlet request listener. Servlet 2.4
-        contextHandler();
         // Add async listener. Servlet 3.0
         requestAspect(config);
-        // clear bind trace.
+        // Entry Point
         addServerInterceptor();
-    }
-
-    private void contextHandler() {
-        transformTemplate.transform("org.eclipse.jetty.server.handler.ContextHandler", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add servlet request listener. Servlet 2.4
-                final InstrumentMethod doStartMethod = target.getDeclaredMethod("doStart");
-                if (doStartMethod != null) {
-                    doStartMethod.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ContextHandlerDoStartInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
     }
 
     private void requestAspect(final JettyConfiguration config) {
@@ -100,23 +83,22 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Clear bind trace
                 // 9.x
                 final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpChannel");
                 if (handleMethodEditorBuilder != null) {
-                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor");
+                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty9xServerHandleInterceptor");
                     return target.toBytecode();
                 }
                 // 8.0
                 final InstrumentMethod jetty80HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpConnection");
                 if (jetty80HandleMethodEditorBuilder != null) {
-                    jetty80HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor");
+                    jetty80HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty80ServerHandleInterceptor");
                     return target.toBytecode();
                 }
                 // 8.1, 8.2
                 final InstrumentMethod jetty82HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.AbstractHttpConnection");
                 if (jetty82HandleMethodEditorBuilder != null) {
-                    jetty82HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor");
+                    jetty82HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8xServerHandleInterceptor");
                     return target.toBytecode();
                 }
 

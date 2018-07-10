@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.weblogic.interceptor;
+package com.navercorp.pinpoint.plugin.websphere.interceptor;
 
+import com.ibm.websphere.servlet.request.IRequest;
+import com.ibm.websphere.servlet.response.IResponse;
+import com.ibm.ws.webcontainer.channel.WCCResponseImpl;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -25,33 +28,31 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
-import com.navercorp.pinpoint.plugin.weblogic.ParameterRecorderFactory;
-import com.navercorp.pinpoint.plugin.weblogic.WeblogicConfiguration;
-import com.navercorp.pinpoint.plugin.weblogic.WeblogicConstants;
-import weblogic.servlet.internal.ServletRequestImpl;
-import weblogic.servlet.internal.ServletResponseImpl;
+import com.navercorp.pinpoint.plugin.websphere.ParameterRecorderFactory;
+import com.navercorp.pinpoint.plugin.websphere.StatusCodeAccessor;
+import com.navercorp.pinpoint.plugin.websphere.WebsphereConfiguration;
+import com.navercorp.pinpoint.plugin.websphere.WebsphereConstants;
 
 /**
- * @author andyspan
+ * @author sjmittal
  * @author jaehong.kim
  */
-public class WebAppServletContextExecuteInterceptor implements AroundInterceptor {
+public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
+    private final ServletRequestListenerInterceptorHelper<IRequest> servletRequestListenerInterceptorHelper;
 
-    public WebAppServletContextExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public WebContainerHandleRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
-        final WeblogicConfiguration config = new WeblogicConfiguration(traceContext.getProfilerConfig());
-        RequestAdaptor<ServletRequestImpl> requestAdaptor = new ServletRequestImplAdaptor();
+        this.methodDescriptor = descriptor;
+        final WebsphereConfiguration config = new WebsphereConfiguration(traceContext.getProfilerConfig());
+        RequestAdaptor<IRequest> requestAdaptor = new IRequestAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
-        ParameterRecorder<ServletRequestImpl> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<ServletRequestImpl>(WeblogicConstants.WEBLOGIC, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
+        final ParameterRecorder<IRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<IRequest>(WebsphereConstants.WEBSPHERE, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
@@ -65,12 +66,10 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
         }
 
         try {
-            final ServletRequestImpl request = (ServletRequestImpl) args[0];
-            this.servletRequestListenerInterceptorHelper.initialized(request, WeblogicConstants.WEBLOGIC_METHOD, this.methodDescriptor);
+            final IRequest request = (IRequest) args[0];
+            this.servletRequestListenerInterceptorHelper.initialized(request, WebsphereConstants.WEBSPHERE_METHOD, this.methodDescriptor);
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 
@@ -85,8 +84,8 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
         }
 
         try {
-            final ServletRequestImpl request = (ServletRequestImpl) args[0];
-            final ServletResponseImpl response = (ServletResponseImpl) args[1];
+            final IRequest request = (IRequest) args[0];
+            final IResponse response = (IResponse) args[1];
             final int statusCode = getStatusCode(response);
             this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
@@ -99,25 +98,31 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
             return false;
         }
 
-        if (!(args[0] instanceof ServletRequestImpl)) {
+        if (!(args[0] instanceof IRequest)) {
             if (isDebug) {
-                logger.debug("Invalid args[0] object, Not implemented of weblogic.servlet.internal.ServletRequestImpl. args[0]={}", args[0]);
+                logger.debug("Invalid args[0] object, Not implemented of com.ibm.websphere.servlet.request.IRequest. args[0]={}", args[0]);
             }
             return false;
         }
 
-        if (!(args[1] instanceof ServletResponseImpl)) {
+        if (!(args[1] instanceof IResponse)) {
             if (isDebug) {
-                logger.debug("Invalid args[1] object, Not implemented of weblogic.servlet.internal.ServletResponseImpl. args[1]={}.", args[1]);
+                logger.debug("Invalid args[1] object, Not implemented of com.ibm.websphere.servlet.request.IResponse. args[1]={}.", args[1]);
             }
             return false;
         }
         return true;
     }
 
-    private int getStatusCode(final ServletResponseImpl response) {
+    private int getStatusCode(final IResponse response) {
         try {
-            return response.getStatus();
+            if (response instanceof StatusCodeAccessor) {
+                final StatusCodeAccessor accessor = (StatusCodeAccessor) response;
+                return accessor._$PINPOINT$_getStatusCode();
+            } else if (response instanceof WCCResponseImpl) {
+                WCCResponseImpl r = (WCCResponseImpl) response;
+                return r.getHttpResponse().getStatusCodeAsInt();
+            }
         } catch (Exception ignored) {
         }
         return 0;

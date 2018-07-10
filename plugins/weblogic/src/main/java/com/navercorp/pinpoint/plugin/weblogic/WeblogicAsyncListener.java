@@ -25,7 +25,7 @@ import weblogic.servlet.internal.ServletResponseImpl;
 
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletResponse;
 import java.io.IOException;
 
 /**
@@ -67,6 +67,22 @@ public class WeblogicAsyncListener implements AsyncListener {
 
     @Override
     public void onTimeout(AsyncEvent asyncEvent) throws IOException {
+        if (isDebug) {
+            logger.debug("Timeout asynchronous operation. event={}", asyncEvent);
+        }
+
+        if (asyncEvent == null) {
+            if (isDebug) {
+                logger.debug("Invalid event. event is null");
+            }
+            return;
+        }
+
+        try {
+            this.asyncListenerInterceptorHelper.timeout(asyncEvent.getThrowable());
+        } catch (Throwable t) {
+            logger.info("Failed to async event handle. event={}", asyncEvent, t);
+        }
     }
 
     @Override
@@ -83,9 +99,7 @@ public class WeblogicAsyncListener implements AsyncListener {
         }
 
         try {
-            // TODO Can not get final status
-            final int statusCode = getStatusCode(asyncEvent);
-            this.asyncListenerInterceptorHelper.error(asyncEvent.getThrowable(), statusCode);
+            this.asyncListenerInterceptorHelper.error(asyncEvent.getThrowable());
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to async event handle. event={}", asyncEvent, t);
@@ -99,10 +113,11 @@ public class WeblogicAsyncListener implements AsyncListener {
 
     private int getStatusCode(final AsyncEvent asyncEvent) {
         try {
-            if (asyncEvent.getSuppliedResponse() instanceof HttpServletResponse) {
-                return ((HttpServletResponse) asyncEvent.getSuppliedResponse()).getStatus();
-            } else if (asyncEvent.getAsyncContext() != null && asyncEvent.getAsyncContext().getResponse() instanceof ServletResponseImpl) {
-                return ((ServletResponseImpl) asyncEvent.getAsyncContext().getResponse()).getStatus();
+            if (asyncEvent.getAsyncContext() instanceof ResponseGetter) {
+                final ServletResponse response = ((ResponseGetter) asyncEvent.getAsyncContext())._$PINPOINT$_getResponse();
+                if (response instanceof ServletResponseImpl) {
+                    return ((ServletResponseImpl) response).getStatus();
+                }
             }
         } catch (Exception ignored) {
             // Expected exception: java.lang.IllegalStateException: [HTTP:101402]Cannot get Request or Response when the current state is completed or dispatched

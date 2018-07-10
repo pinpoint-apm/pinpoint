@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Pinpoint contributors and NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jboss.interceptor;
+package com.navercorp.pinpoint.plugin.jetty.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -27,22 +26,20 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
-import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
-import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
+import com.navercorp.pinpoint.plugin.jetty.JettyConfiguration;
+import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * The Class StandardHostValveInvokeInterceptor.
- *
- * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
- * @author emeroad
+ * @author Chaein Jung
  * @author jaehong.kim
  */
-public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+public abstract class AbstractServerHandleInterceptor implements AroundInterceptor {
+    protected PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
@@ -50,62 +47,50 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
 
-    /**
-     * Instantiates a new standard host valve invoke interceptor.
-     *
-     * @param traceContext the trace context
-     * @param descriptor   the descriptor
-     */
-    public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
+    public AbstractServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-        final JbossConfig config = new JbossConfig(traceContext.getProfilerConfig());
-        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
-        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+        final JettyConfiguration config = new JettyConfiguration(traceContext.getProfilerConfig());
+        RequestAdaptor<HttpServletRequest> requestRequestAdaptor = new HttpServletRequestAdaptor();
+        requestRequestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestRequestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(JbossConstants.JBOSS, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(JettyConstants.JETTY, traceContext, requestRequestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
+    abstract HttpServletRequest toHttpServletRequest(Object[] args);
+
+    abstract HttpServletResponse toHttpServletResponse(Object[] args);
+
     @Override
-    public void before(final Object target, final Object[] args) {
+    public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!validate(args)) {
-            return;
-        }
-
         try {
-            final HttpServletRequest request = (HttpServletRequest) args[0];
-            if (request.isAsyncStarted() || request.getDispatcherType() == DispatcherType.ASYNC) {
+            final HttpServletRequest request = toHttpServletRequest(args);
+            if (request.getDispatcherType() == DispatcherType.ASYNC || request.getDispatcherType() == DispatcherType.ERROR) {
                 if (isDebug) {
                     logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
                 }
                 return;
             }
-            this.servletRequestListenerInterceptorHelper.initialized(request, JbossConstants.JBOSS_METHOD, this.methodDescriptor);
+            this.servletRequestListenerInterceptorHelper.initialized(request, JettyConstants.JETTY_METHOD, this.methodDescriptor);
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 
     @Override
-    public void after(final Object target, final Object[] args, final Object result, final Throwable throwable) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!validate(args)) {
-            return;
-        }
-
         try {
-            final HttpServletRequest request = (HttpServletRequest) args[0];
-            final HttpServletResponse response = (HttpServletResponse) args[1];
-            if (request.getDispatcherType() == DispatcherType.ASYNC) {
+            final HttpServletRequest request = toHttpServletRequest(args);
+            final HttpServletResponse response = toHttpServletResponse(args);
+            if (request.getDispatcherType() == DispatcherType.ASYNC || request.getDispatcherType() == DispatcherType.ERROR) {
                 if (isDebug) {
                     logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
                 }
@@ -118,28 +103,6 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 logger.info("Failed to servlet request event handle.", t);
             }
         }
-    }
-
-    private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
-            if (isDebug) {
-                logger.debug("Invalid args, args={}", args);
-            }
-            return false;
-        }
-        if (!(args[0] instanceof HttpServletRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object, The javax.servlet.http.HttpServletRequest interface is not implemented. args[0]={}", args[0]);
-            }
-            return false;
-        }
-        if (!(args[1] instanceof HttpServletResponse)) {
-            if (isDebug) {
-                logger.debug("Invalid args[1] object, The javax.servlet.http.HttpServletResponse interface is not implemented. args[1]={}", args[1]);
-            }
-            return false;
-        }
-        return true;
     }
 
     private int getStatusCode(final HttpServletResponse response) {

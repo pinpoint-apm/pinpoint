@@ -13,47 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.jetty.interceptor;
+
+package com.navercorp.pinpoint.plugin.websphere.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.plugin.websphere.StatusCodeAccessor;
 
-/**
- * @author Taejin Koo
- * @author jaehong.kim
- */
-public class ServerHandleInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+public class WCCResponseImplInterceptor implements AroundInterceptor {
+    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private boolean isDebug = logger.isDebugEnabled();
 
-    private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
+    private MethodDescriptor descriptor;
 
-    public ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
+    public WCCResponseImplInterceptor(TraceContext context, MethodDescriptor descriptor) {
+        this.traceContext = context;
+        this.descriptor = descriptor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        if (target instanceof StatusCodeAccessor) {
+            if (args[0] instanceof Integer) {
+                final int statusCode = (Integer) args[0];
+                final StatusCodeAccessor accessor = (StatusCodeAccessor) target;
+                accessor._$PINPOINT$_setStatusCode(statusCode);
+            }
+        }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = this.traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-        // Only remove bind trace
-        // Defense code(important)
-        this.traceContext.removeTraceObject();
     }
 }
