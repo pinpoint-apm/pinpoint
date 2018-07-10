@@ -14,43 +14,13 @@
  * limitations under the License.
  */
 
-package weblogic.servlet.internal;
+package com.navercorp.pinpoint.plugin.websphere;
+
+import com.ibm.wsspi.webcontainer.servlet.IExtendedResponse;
 
 /**
  * @author jaehong.kim
  */
-public class ServletRequestImpl {
-
-    public String getMethod() {
-        return "";
-    }
-
-    public String getRequestURI() {
-        return "";
-    }
-
-    public String getHeader(String var1) {
-        return "";
-    }
-
-    public String getQueryString() {
-        return "";
-    }
-
-    public int getServerPort() {
-        return 0;
-    }
-
-    public String getServerName() {
-        return "";
-    }
-
-    public String getRemoteAddr() {
-        return "";
-    }
-
-    // Dummy
-    public ServletResponseImpl getResponse() {
-        return null;
-    }
+public interface InitResponseGetter {
+    IExtendedResponse _$PINPOINT$_getInitResponse();
 }

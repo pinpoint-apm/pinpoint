@@ -23,6 +23,12 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-common-servlet</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -38,7 +44,6 @@
                         <configuration>
                             <sources>
                                 <source>src/main/java-ibm</source>
-                                <source>src/main/java-oracle</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -53,6 +58,30 @@
                         <include>META-INF/**/*</include>
                     </includes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.navercorp.pinpoint.plugin.common.servlet</pattern>
+                                    <shadedPattern>com.navercorp.pinpoint.plugin.websphere.common.servlet</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <dependencyReducedPomLocation>
+                                ${project.build.directory}/dependency-reduced-pom.xml
+                            </dependencyReducedPomLocation>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

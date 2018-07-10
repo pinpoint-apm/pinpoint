@@ -33,5 +33,4 @@ public final class TomcatConstants {
 
     public static final String TOMCAT_SERVLET_ASYNC_SCOPE = "TomcatServletAsyncScope";
     public static final String TOMCAT_SERVLET_REQUEST_TRACE = "com.navercorp.pinpoint.trace";
-    public static final String STATUS_CODE_ACCESSOR = "com.navercorp.pinpoint.plugin.tomcat.StatusCodeAccessor";
 }

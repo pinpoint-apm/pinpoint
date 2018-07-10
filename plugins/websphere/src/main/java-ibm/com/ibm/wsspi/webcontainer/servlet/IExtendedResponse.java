@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.tomcat;
+package com.ibm.wsspi.webcontainer.servlet;
 
 /**
  * @author jaehong.kim
  */
-public interface StatusCodeAccessor {
-    // For tomcat 6/8/9
-    void _$PINPOINT$_setStatusCode(int statusCode);
-
-    int _$PINPOINT$_getStatusCode();
+public interface IExtendedResponse {
+    int getStatusCode();
 }

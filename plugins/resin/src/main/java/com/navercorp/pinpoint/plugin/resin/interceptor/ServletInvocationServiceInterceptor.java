@@ -16,15 +16,23 @@
 
 package com.navercorp.pinpoint.plugin.resin.interceptor;
 
-import com.caucho.server.http.HttpServletRequestImpl;
-import com.caucho.server.http.HttpServletResponseImpl;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.plugin.resin.ResinConfig;
+import com.navercorp.pinpoint.plugin.resin.ResinConstants;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author jaehong.kim
@@ -32,19 +40,47 @@ import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 public class ServletInvocationServiceInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+    private final boolean isInfo = logger.isInfoEnabled();
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
-    private HttpStatusCodeRecorder httpStatusCodeRecorder;
+    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
 
     public ServletInvocationServiceInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
+        final ResinConfig config = new ResinConfig(traceContext.getProfilerConfig());
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(ResinConstants.RESIN, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
     public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        if (!validate(args)) {
+            return;
+        }
+
+        try {
+            final HttpServletRequest request = (HttpServletRequest) args[0];
+            if (request.getDispatcherType() == DispatcherType.ASYNC) {
+                if (isDebug) {
+                    logger.debug("Skip async servlet Request. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
+                }
+                return;
+            }
+
+            this.servletRequestListenerInterceptorHelper.initialized(request, ResinConstants.RESIN_METHOD, this.methodDescriptor);
+        } catch (Throwable t) {
+            if (isInfo) {
+                logger.info("Failed to servlet request event handle.", t);
+            }
+        }
     }
 
     @Override
@@ -53,20 +89,26 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = this.traceContext.currentRawTraceObject();
-        if (trace == null) {
+        if (!validate(args)) {
             return;
         }
 
         try {
-            if (trace.canSampled() && validate(args)) {
-                final HttpServletResponseImpl response = (HttpServletResponseImpl) args[1];
-                this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), response.getStatus());
+            final HttpServletRequest request = (HttpServletRequest) args[0];
+            final HttpServletResponse response = (HttpServletResponse) args[1];
+            if (request.getDispatcherType() == DispatcherType.ASYNC) {
+                if (isDebug) {
+                    logger.debug("Skip async servlet Request. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
+                }
+                return;
             }
-        } finally {
-            // Close, Defense code(important)
-            this.traceContext.removeTraceObject();
-            trace.close();
+
+            int statusCode = getStatusCode(response);
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
+        } catch (Throwable t) {
+            if (isInfo) {
+                logger.info("Failed to servlet request event handle.", t);
+            }
         }
     }
 
@@ -75,19 +117,28 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(args[0] instanceof HttpServletRequestImpl)) {
+        if (!(args[0] instanceof HttpServletRequest)) {
             if (isDebug) {
-                logger.debug("Invalid args[0] object, Not implemented of com.caucho.server.http.HttpServletRequestImpl. args[0]={}", args[0]);
+                logger.debug("Invalid args[0] object, The javax.servlet.http.HttpServletRequest interface is not implemented. args[0]={}", args[0]);
             }
+            // AsyncRequest is asynchronous operation request.
             return false;
         }
 
-        if (!(args[1] instanceof HttpServletResponseImpl)) {
+        if (!(args[1] instanceof HttpServletResponse)) {
             if (isDebug) {
-                logger.debug("Invalid args[1] object, Not implemented of com.caucho.server.http.HttpServletResponseImpl. args[1]={}.", args[1]);
+                logger.debug("Invalid args[1] object, The javax.servlet.http.HttpServletResponse interface is not implemented. args[1]={}", args[1]);
             }
             return false;
         }
         return true;
+    }
+
+    private int getStatusCode(final HttpServletResponse response) {
+        try {
+            return response.getStatus();
+        } catch (Exception ignored) {
+        }
+        return 0;
     }
 }

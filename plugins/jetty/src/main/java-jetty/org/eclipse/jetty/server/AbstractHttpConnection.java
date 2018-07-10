@@ -22,8 +22,11 @@ package org.eclipse.jetty.server;
  * for 1.8.1, 1.8.2
  */
 public abstract class AbstractHttpConnection {
-
     public Request getRequest() {
+        return null;
+    }
+
+    public Response getResponse() {
         return null;
     }
 }

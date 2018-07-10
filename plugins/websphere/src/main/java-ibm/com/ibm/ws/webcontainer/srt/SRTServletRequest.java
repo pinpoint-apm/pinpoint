@@ -14,43 +14,16 @@
  * limitations under the License.
  */
 
-package weblogic.servlet.internal;
+package com.ibm.ws.webcontainer.srt;
+
+import com.ibm.wsspi.webcontainer.servlet.IExtendedResponse;
 
 /**
  * @author jaehong.kim
  */
-public class ServletRequestImpl {
-
-    public String getMethod() {
-        return "";
-    }
-
-    public String getRequestURI() {
-        return "";
-    }
-
-    public String getHeader(String var1) {
-        return "";
-    }
-
-    public String getQueryString() {
-        return "";
-    }
-
-    public int getServerPort() {
-        return 0;
-    }
-
-    public String getServerName() {
-        return "";
-    }
-
-    public String getRemoteAddr() {
-        return "";
-    }
-
+public class SRTServletRequest {
     // Dummy
-    public ServletResponseImpl getResponse() {
+    public IExtendedResponse getResponse() {
         return null;
     }
 }

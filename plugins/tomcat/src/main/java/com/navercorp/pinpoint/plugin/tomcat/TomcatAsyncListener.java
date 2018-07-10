@@ -66,6 +66,22 @@ public class TomcatAsyncListener implements AsyncListener {
 
     @Override
     public void onTimeout(AsyncEvent asyncEvent) throws IOException {
+        if (isDebug) {
+            logger.debug("Timeout asynchronous operation. event={}", asyncEvent);
+        }
+
+        if (asyncEvent == null) {
+            if (isDebug) {
+                logger.debug("Invalid event. event is null");
+            }
+            return;
+        }
+
+        try {
+            this.asyncListenerInterceptorHelper.timeout(asyncEvent.getThrowable());
+        } catch (Throwable t) {
+            logger.info("Failed to async event handle. event={}", asyncEvent, t);
+        }
     }
 
     @Override
@@ -82,8 +98,7 @@ public class TomcatAsyncListener implements AsyncListener {
         }
 
         try {
-            final int statusCode = getStatusCode(asyncEvent);
-            this.asyncListenerInterceptorHelper.error(asyncEvent.getThrowable(), statusCode);
+            this.asyncListenerInterceptorHelper.error(asyncEvent.getThrowable());
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to async event handle. event={}", asyncEvent, t);

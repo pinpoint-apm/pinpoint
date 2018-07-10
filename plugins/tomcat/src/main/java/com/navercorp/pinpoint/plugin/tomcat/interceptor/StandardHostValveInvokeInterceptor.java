@@ -21,6 +21,18 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.plugin.tomcat.TomcatConfig;
+import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
+import org.apache.catalina.connector.Response;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author emeroad
@@ -29,17 +41,49 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+    private final boolean isInfo = logger.isInfoEnabled();
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
+    private final ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
+
 
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
+        final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(TomcatConstants.TOMCAT, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
     public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        if (!validate(args)) {
+            return;
+        }
+
+        try {
+            final HttpServletRequest request = (HttpServletRequest) args[0];
+            final Trace asyncTrace = (Trace) request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
+            if (asyncTrace != null) {
+                if (isDebug) {
+                    logger.debug("Skip async servlet request event.");
+                }
+                // skip
+                return;
+            }
+            this.servletRequestListenerInterceptorHelper.initialized(request, TomcatConstants.TOMCAT_METHOD, this.methodDescriptor);
+        } catch (Throwable t) {
+            if (isInfo) {
+                logger.info("Failed to servlet request event handle.", t);
+            }
+        }
     }
 
     @Override
@@ -48,11 +92,55 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = this.traceContext.currentRawTraceObject();
-        if (trace == null) {
+        if (!validate(args)) {
             return;
         }
-        // Only remove bind trace
-        this.traceContext.removeTraceObject();
+
+        try {
+            final HttpServletRequest request = (HttpServletRequest) args[0];
+            final HttpServletResponse response = (HttpServletResponse) args[1];
+            int statusCode = getStatusCode(response);
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
+        } catch (Throwable t) {
+            if (isInfo) {
+                logger.info("Failed to servlet request event handle.", t);
+            }
+        }
+    }
+
+    private boolean validate(final Object[] args) {
+        if (args == null || args.length < 2) {
+            if (isDebug) {
+                logger.debug("Invalid args, args={}", args);
+            }
+            return false;
+        }
+        if (!(args[0] instanceof HttpServletRequest)) {
+            if (isDebug) {
+                logger.debug("Invalid args[0] object, The javax.servlet.http.HttpServletRequest interface is not implemented. args[0]={}", args[0]);
+            }
+            return false;
+        }
+        if (!(args[1] instanceof HttpServletResponse)) {
+            if (isDebug) {
+                logger.debug("Invalid args[1] object, The javax.servlet.http.HttpServletResponse interface is not implemented. args[1]={}", args[1]);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private int getStatusCode(final HttpServletResponse response) {
+        try {
+            // Tomcat 6
+            if (response instanceof Response) {
+                final Response r = (Response) response;
+                return r.getStatus();
+            } else {
+                response.getStatus();
+            }
+        } catch (Exception ignored) {
+        }
+        return 0;
     }
 }
