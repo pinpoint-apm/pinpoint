@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolver;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapperFactory;
@@ -28,6 +30,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.catalina.connector.Request;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +50,8 @@ public class TomcatServletRequestListener implements ServletRequestListener {
     public TomcatServletRequestListener(final TraceContext traceContext) {
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
         final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());
-        this.servletServerRequestWrapperFactory = new ServletServerRequestWrapperFactory(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        this.servletServerRequestWrapperFactory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
         this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper(traceContext, config.getExcludeUrlFilter(), config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
     }
 
@@ -63,22 +67,23 @@ public class TomcatServletRequestListener implements ServletRequestListener {
             }
             return;
         }
+        final ServletRequest servletRequest = servletRequestEvent.getServletRequest();
+        if (!(servletRequest instanceof HttpServletRequest)) {
+            if (isInfo) {
+                logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequest);
+            }
+            return;
+        }
 
         try {
-            if (servletRequestEvent.getServletRequest() instanceof HttpServletRequest) {
-                final HttpServletRequest request = (HttpServletRequest) servletRequestEvent.getServletRequest();
-                final ServletServerRequestWrapper serverRequestWrapper = this.servletServerRequestWrapperFactory.get(new RequestWrapper() {
-                    @Override
-                    public String getHeader(String name) {
-                        return request.getHeader(name);
-                    }
-                }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
-                this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, TomcatConstants.TOMCAT);
-            } else {
-                if (isInfo) {
-                    logger.info("Invalid request. event={}, request={}", servletRequestEvent, servletRequestEvent.getServletRequest());
+            final HttpServletRequest request = (HttpServletRequest) servletRequest;
+            final ServletServerRequestWrapper serverRequestWrapper = this.servletServerRequestWrapperFactory.get(new RequestWrapper() {
+                @Override
+                public String getHeader(String name) {
+                    return request.getHeader(name);
                 }
-            }
+            }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
+            this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, TomcatConstants.TOMCAT);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -98,31 +103,29 @@ public class TomcatServletRequestListener implements ServletRequestListener {
             }
             return;
         }
+        final ServletRequest servletRequest = servletRequestEvent.getServletRequest();
+        if (!(servletRequest instanceof HttpServletRequest)) {
+            if (isInfo) {
+                logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequest);
+            }
+            return;
+        }
 
         try {
-            if (servletRequestEvent.getServletRequest() instanceof HttpServletRequest) {
-                final HttpServletRequest request = (HttpServletRequest) servletRequestEvent.getServletRequest();
-                final Trace asyncTrace = (Trace) request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
-                if (asyncTrace != null) {
-                    // Asynchronous operation
-                    // clear attribute, It is done by Request.recycle() but is defensive.
-                    request.removeAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
 
-                    // Check bind asyncTrace
-                    final Trace currentTrace = this.traceContext.currentRawTraceObject();
-                    if (currentTrace == null) {
-                        // Set continue asyncTrace
-                        this.traceContext.continueTraceObject(asyncTrace);
-                    }
-                }
-                final Throwable throwable = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
-                int statusCode = getStatusCode(servletRequestEvent);
-                this.servletRequestListenerInterceptorHelper.destroyed(throwable, statusCode);
-            } else {
-                if (isInfo) {
-                    logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequestEvent.getServletRequest());
+            final HttpServletRequest request = (HttpServletRequest) servletRequest;
+            final Trace asyncTrace = (Trace) getTrace(request);
+            if (asyncTrace != null) {
+                // Check bind asyncTrace
+                final Trace currentTrace = this.traceContext.currentRawTraceObject();
+                if (currentTrace == null) {
+                    // Set continue asyncTrace
+                    this.traceContext.continueTraceObject(asyncTrace);
                 }
             }
+            final Throwable throwable = getException(request);
+            int statusCode = getStatusCode(request);
+            this.servletRequestListenerInterceptorHelper.destroyed(throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -130,15 +133,33 @@ public class TomcatServletRequestListener implements ServletRequestListener {
         }
     }
 
-    private int getStatusCode(final ServletRequestEvent servletRequestEvent) {
+    private Throwable getException(ServletRequest request) {
+        final Object exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+        if (exception instanceof Throwable) {
+            return (Throwable) exception;
+        }
+        return null;
+    }
+
+    private Object getTrace(ServletRequest request) {
+        // Asynchronous operation
+        // clear attribute, It is done by Request.recycle() but is defensive.
+        final Object trace = request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
+        if (trace != null) {
+            request.removeAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
+        }
+        return trace;
+    }
+
+    private int getStatusCode(final ServletRequest httpServletRequest) {
         try {
-            if (servletRequestEvent.getServletRequest() instanceof StatusCodeAccessor) {
+            if (httpServletRequest instanceof StatusCodeAccessor) {
                 // tomcat 6/8/9
-                return ((StatusCodeAccessor) servletRequestEvent.getServletRequest())._$PINPOINT$_getStatusCode();
+                return ((StatusCodeAccessor) httpServletRequest)._$PINPOINT$_getStatusCode();
             }
-            if (servletRequestEvent.getServletRequest() instanceof Request) {
+            if (httpServletRequest instanceof Request) {
                 // tomcat 7
-                return ((Request) servletRequestEvent.getServletRequest()).getResponse().getStatus();
+                return ((Request) httpServletRequest).getResponse().getStatus();
             }
         } catch (Exception ignored) {
         }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,7 +35,8 @@ public class ServletServerRequestWrapperFactoryTest {
 
     @Test
     public void getRemoteAddress0() throws Exception {
-        final ServletServerRequestWrapperFactory factory = new ServletServerRequestWrapperFactory("x-forwarded-for", "unknown");
+        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver("x-forwarded-for", "unknown");
+        final ServletServerRequestWrapperFactory factory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
         final RequestWrapper requestWrapper = mock(RequestWrapper.class);
         when(requestWrapper.getHeader(X_FORWARDED_FOR)).thenReturn("127.0.0.1");
 
@@ -47,7 +48,8 @@ public class ServletServerRequestWrapperFactoryTest {
 
     @Test
     public void getRemoteAddress1() throws Exception {
-        final ServletServerRequestWrapperFactory factory = new ServletServerRequestWrapperFactory("x-forwarded-for", "unknown");
+        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver("x-forwarded-for", "unknown");
+        final ServletServerRequestWrapperFactory factory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
         final RequestWrapper requestWrapper = mock(RequestWrapper.class);
         when(requestWrapper.getHeader(X_FORWARDED_FOR)).thenReturn("127.0.0.1, proxy1, proxy2");
 
@@ -59,7 +61,8 @@ public class ServletServerRequestWrapperFactoryTest {
 
     @Test
     public void getRemoteAddress2() throws Exception {
-        final ServletServerRequestWrapperFactory factory = new ServletServerRequestWrapperFactory("x-forwarded-for", "unknown");
+        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver("x-forwarded-for", "unknown");
+        final ServletServerRequestWrapperFactory factory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
         final RequestWrapper requestWrapper = mock(RequestWrapper.class);
 
         final String remoteAddr = "127.0.0.2";

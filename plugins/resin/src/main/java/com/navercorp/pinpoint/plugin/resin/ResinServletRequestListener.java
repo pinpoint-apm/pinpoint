@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,14 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolver;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapperFactory;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
 import javax.servlet.http.HttpServletRequest;
@@ -38,14 +41,13 @@ public class ResinServletRequestListener implements ServletRequestListener {
     private boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private final TraceContext traceContext;
     private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
     private ServletServerRequestWrapperFactory serverRequestTraceFactory;
 
     public ResinServletRequestListener(TraceContext traceContext) {
-        this.traceContext = traceContext;
         final ResinConfig config = new ResinConfig(traceContext.getProfilerConfig());
-        this.serverRequestTraceFactory = new ServletServerRequestWrapperFactory(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        this.serverRequestTraceFactory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
         this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper(traceContext, config.getExcludeUrlFilter(), config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
     }
 
@@ -62,21 +64,24 @@ public class ResinServletRequestListener implements ServletRequestListener {
             return;
         }
 
-        try {
-            if (servletRequestEvent.getServletRequest() instanceof HttpServletRequest) {
-                final HttpServletRequest request = (HttpServletRequest) servletRequestEvent.getServletRequest();
-                final ServletServerRequestWrapper serverRequestWrapper = this.serverRequestTraceFactory.get(new RequestWrapper() {
-                    @Override
-                    public String getHeader(String name) {
-                        return request.getHeader(name);
-                    }
-                }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
-                this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, ResinConstants.RESIN);
-            } else {
-                if (isInfo) {
-                    logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequestEvent.getServletRequest());
-                }
+        final ServletRequest servletRequest = servletRequestEvent.getServletRequest();
+        if (!(servletRequest instanceof HttpServletRequest)) {
+            if (isInfo) {
+                logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequest);
             }
+            return;
+        }
+
+        try {
+            final HttpServletRequest request = (HttpServletRequest) servletRequest;
+            final ServletServerRequestWrapper serverRequestWrapper = this.serverRequestTraceFactory.get(new RequestWrapper() {
+                @Override
+                public String getHeader(String name) {
+                    return request.getHeader(name);
+                }
+            }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
+            this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, ResinConstants.RESIN);
+
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -96,19 +101,21 @@ public class ResinServletRequestListener implements ServletRequestListener {
             }
             return;
         }
-
-        try {
-            if (servletRequestEvent.getServletRequest() instanceof HttpServletRequest) {
-                final HttpServletRequest request = (HttpServletRequest) servletRequestEvent.getServletRequest();
-                final Throwable throwable = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
-                final int statusCode = getStatusCode(servletRequestEvent);
-                // Do not trace close
-                this.servletRequestListenerInterceptorHelper.destroyed(throwable, statusCode, false);
-            } else {
+        final ServletRequest servletRequest = servletRequestEvent.getServletRequest();
+        if (!(servletRequest instanceof HttpServletRequest)) {
+            if (isInfo) {
                 if (isInfo) {
-                    logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequestEvent.getServletRequest());
+                    logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequest);
                 }
             }
+            return;
+        }
+        try {
+            final HttpServletRequest request = (HttpServletRequest) servletRequest;
+            final Throwable throwable = getException(request);
+            final int statusCode = getStatusCode(request);
+            // Do not trace close
+            this.servletRequestListenerInterceptorHelper.destroyed(throwable, statusCode, false);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -116,13 +123,21 @@ public class ResinServletRequestListener implements ServletRequestListener {
         }
     }
 
-    private int getStatusCode(final ServletRequestEvent servletRequestEvent) {
+    private int getStatusCode(final HttpServletRequest httpServletRequest) {
         try {
-            if (servletRequestEvent.getServletRequest() instanceof HttpServletRequestImpl) {
-                return ((HttpServletRequestImpl) servletRequestEvent.getServletRequest()).getResponse().getStatus();
+            if (httpServletRequest instanceof HttpServletRequestImpl) {
+                return ((HttpServletRequestImpl) httpServletRequest).getResponse().getStatus();
             }
         } catch (Exception ignored) {
         }
         return 0;
+    }
+
+    private Throwable getException(ServletRequest request) {
+        final Object exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+        if (exception instanceof Throwable) {
+            return (Throwable) exception;
+        }
+        return null;
     }
 }
