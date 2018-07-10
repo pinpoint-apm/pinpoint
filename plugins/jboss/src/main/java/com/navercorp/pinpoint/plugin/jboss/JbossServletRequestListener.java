@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,12 +20,15 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolver;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapperFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +46,8 @@ public class JbossServletRequestListener implements ServletRequestListener {
 
     public JbossServletRequestListener(TraceContext traceContext) {
         final JbossConfig config = new JbossConfig(traceContext.getProfilerConfig());
-        this.servletServerRequestWrapperFactory = new ServletServerRequestWrapperFactory(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        this.servletServerRequestWrapperFactory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
         this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper(traceContext, config.getExcludeUrlFilter(), config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
     }
 
@@ -59,28 +63,29 @@ public class JbossServletRequestListener implements ServletRequestListener {
             }
             return;
         }
+        final ServletRequest servletRequest = servletRequestEvent.getServletRequest();
+        if (!(servletRequest instanceof HttpServletRequest)) {
+            if (isInfo) {
+                logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequest);
+            }
+            return;
+        }
 
         try {
-            if (servletRequestEvent.getServletRequest() instanceof HttpServletRequest) {
-                final HttpServletRequest request = (HttpServletRequest) servletRequestEvent.getServletRequest();
-                if (request.isAsyncStarted() || request.getDispatcherType() == DispatcherType.ASYNC) {
-                    if (isDebug) {
-                        logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
-                    }
-                    return;
+            final HttpServletRequest request = (HttpServletRequest) servletRequest;
+            if (request.isAsyncStarted() || request.getDispatcherType() == DispatcherType.ASYNC) {
+                if (isDebug) {
+                    logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
                 }
-                final ServletServerRequestWrapper serverRequestWrapper = this.servletServerRequestWrapperFactory.get(new RequestWrapper() {
-                    @Override
-                    public String getHeader(String name) {
-                        return request.getHeader(name);
-                    }
-                }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
-                this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, JbossConstants.JBOSS);
-            } else {
-                if (isInfo) {
-                    logger.info("Invalid request. event={}, request={}", servletRequestEvent, servletRequestEvent.getServletRequest());
-                }
+                return;
             }
+            final ServletServerRequestWrapper serverRequestWrapper = this.servletServerRequestWrapperFactory.get(new RequestWrapper() {
+                @Override
+                public String getHeader(String name) {
+                    return request.getHeader(name);
+                }
+            }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
+            this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, JbossConstants.JBOSS);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -101,26 +106,36 @@ public class JbossServletRequestListener implements ServletRequestListener {
             return;
         }
 
-        try {
-            if (servletRequestEvent.getServletRequest() instanceof HttpServletRequest) {
-                final HttpServletRequest request = (HttpServletRequest) servletRequestEvent.getServletRequest();
-                if (request.getDispatcherType() == DispatcherType.ASYNC) {
-                    if (isDebug) {
-                        logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
-                    }
-                    return;
-                }
-                final Throwable throwable = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
-                this.servletRequestListenerInterceptorHelper.destroyed(throwable, 0);
-            } else {
-                if (isInfo) {
-                    logger.info("Invalid request. event={}, request={}", servletRequestEvent, servletRequestEvent.getServletRequest());
-                }
+        final ServletRequest servletRequest = servletRequestEvent.getServletRequest();
+        if (!(servletRequest instanceof HttpServletRequest)) {
+            if (isInfo) {
+                logger.info("Invalid request. Request must implement the javax.servlet.http.HttpServletRequest interface. event={}, request={}", servletRequestEvent, servletRequest);
             }
+            return;
+        }
+
+        try {
+            final HttpServletRequest request = (HttpServletRequest) servletRequest;
+            if (request.getDispatcherType() == DispatcherType.ASYNC) {
+                if (isDebug) {
+                    logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
+                }
+                return;
+            }
+            final Throwable throwable = getException(request);
+            this.servletRequestListenerInterceptorHelper.destroyed(throwable, 0);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
             }
         }
+    }
+
+    private Throwable getException(ServletRequest request) {
+        final Object exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+        if (exception instanceof Throwable) {
+            return (Throwable) exception;
+        }
+        return null;
     }
 }

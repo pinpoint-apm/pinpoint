@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,13 +22,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
  * @author jaehong.kim
  */
 public class ServletServerRequestWrapper implements ServerRequestWrapper {
-    private String rpcName;
-    private String endPoint;
-    private String remoteAddress;
-    private String acceptorHost;
-    private String method;
-    private String parameters;
-    private RequestWrapper requestWrapper;
+    private final String rpcName;
+    private final String endPoint;
+    private final String remoteAddress;
+    private final String acceptorHost;
+    private final String method;
+    private final String parameters;
+    private final RequestWrapper requestWrapper;
 
     public ServletServerRequestWrapper(final RequestWrapper requestWrapper, final String rpcName, final String endPoint, final String remoteAddr, final String acceptorHost, final String method, final String parameters) {
         this.requestWrapper = requestWrapper;

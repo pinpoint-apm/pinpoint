@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Map;
@@ -31,43 +32,22 @@ public class ServletServerRequestWrapperFactory {
     public static final int PARAMETER_EACH_LIMIT = 64;
     public static final int PARAMETER_TOTAL_LIMIT = 512;
 
-    private final String realIpHeaderName;
-    private final String realIpHeaderEmptyValue;
+    private final RemoteAddressResolver remoteAddressResolver;
 
-    public ServletServerRequestWrapperFactory(String realIpHeaderName, String realIpHeaderEmptyValue) {
-        this.realIpHeaderName = realIpHeaderName;
-        this.realIpHeaderEmptyValue = realIpHeaderEmptyValue;
+    public ServletServerRequestWrapperFactory(RemoteAddressResolver remoteAddressResolver) {
+        this.remoteAddressResolver = Assert.requireNonNull(remoteAddressResolver, "remoteAddressResolver must not be null");
     }
 
     public ServletServerRequestWrapper get(final RequestWrapper requestWrapper, final String uri, final String serverName, final int serverPort, final String remoteAddr, final StringBuffer url, final String method, final Map<String, String[]> parameterMap) {
         final String endPoint = HostAndPort.toHostAndPortString(serverName, serverPort);
-        final String remoteAddress = getRemoteAddress(this.realIpHeaderName, this.realIpHeaderEmptyValue, requestWrapper, remoteAddr);
+
+        final String remoteAddress = remoteAddressResolver.getRemoteAddress(requestWrapper, remoteAddr);
         final String acceptorHost = url != null ? NetworkUtils.getHostFromURL(url.toString()) : null;
         final String parameters = getRequestParameter(parameterMap, PARAMETER_EACH_LIMIT, PARAMETER_TOTAL_LIMIT);
 
         return new ServletServerRequestWrapper(requestWrapper, uri, endPoint, remoteAddress, acceptorHost, method, parameters);
     }
 
-    private static String getRemoteAddress(final String realIpHeaderName, final String realIpHeaderEmptyValue, final RequestWrapper requestWrapper, final String remoteAddr) {
-        if (!StringUtils.hasLength(realIpHeaderName)) {
-            return remoteAddr;
-        }
-        final String realIp = requestWrapper.getHeader(realIpHeaderName);
-        if (StringUtils.isEmpty(realIp)) {
-            return remoteAddr;
-        }
-
-        if (realIpHeaderEmptyValue != null && realIpHeaderEmptyValue.equalsIgnoreCase(realIp)) {
-            return remoteAddr;
-        }
-
-        final int firstIndex = realIp.indexOf(',');
-        if (firstIndex == -1) {
-            return realIp;
-        } else {
-            return realIp.substring(0, firstIndex);
-        }
-    }
 
     private static String getRequestParameter(final Map<String, String[]> parameterMap, final int eachLimit, final int totalLimit) {
         final StringBuilder params = new StringBuilder(64);
