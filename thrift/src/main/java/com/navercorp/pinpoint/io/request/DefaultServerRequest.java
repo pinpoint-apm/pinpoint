@@ -59,4 +59,9 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
     public int getRemotePort() {
         return remotePort;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultServerRequest{" + "message=" + message + ", remoteAddress='" + remoteAddress + '\'' + ", remotePort=" + remotePort + '}';
+    }
 }

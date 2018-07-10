@@ -25,11 +25,10 @@ import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.Collections;
 
 /**
  * @author minwoo.jung
@@ -41,7 +40,6 @@ public class FlinkTBaseLocator {
 
     private final byte version;
     private final HeaderDataGenerator headerDataGenerator;
-
     private final TypeLocator<TBase<?, ?>> typeLocator;
 
     public FlinkTBaseLocator(byte version, HeaderDataGenerator headerDataGenerator) {
@@ -67,13 +65,58 @@ public class FlinkTBaseLocator {
             }
         });
 
-        return typeLocatorBuilder.build();
+        TypeLocator<TBase<?, ?>> typeLocator = typeLocatorBuilder.build();
+
+        if (version == HeaderV2.VERSION) {
+            typeLocator = new FlinkTypeLocator(typeLocator);
+        }
+
+        return typeLocator;
     }
 
     public TypeLocator<TBase<?, ?>> getTypeLocator() {
         return typeLocator;
     }
 
+    public class FlinkTypeLocator implements TypeLocator<TBase<?, ?>> {
+
+        private final TypeLocator<TBase<?, ?>> delegate;
+
+        public FlinkTypeLocator(TypeLocator<TBase<?, ?>> original) {
+            if (original == null) {
+                throw new NullPointerException("TypeLocator must not be null");
+            }
+
+            delegate = original;
+        }
+
+        @Override
+        public TBase<?, ?> bodyLookup(short type) {
+            return delegate.bodyLookup(type);
+        }
+
+        @Override
+        public Header headerLookup(TBase<?, ?> body) {
+            Header header = delegate.headerLookup(body);
+            return new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), headerDataGenerator.generate());
+        }
+
+        @Override
+        public Header headerLookup(short type) {
+            Header header = delegate.headerLookup(type);
+            return new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), headerDataGenerator.generate());
+        }
+
+        @Override
+        public boolean isSupport(short type) {
+            return delegate.isSupport(type);
+        }
+
+        @Override
+        public boolean isSupport(Class<? extends TBase<?, ?>> clazz) {
+            return delegate.isSupport(clazz);
+        }
+    }
 
     public class FlinkHeaderFactory implements HeaderFactory {
         @Override
@@ -97,8 +140,7 @@ public class FlinkTBaseLocator {
     }
 
     private Header createHeaderV2(short type) {
-        Map<String, String> data = headerDataGenerator.generate();
-        return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type, data);
+        return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type, Collections.EMPTY_MAP);
     }
 
 }
