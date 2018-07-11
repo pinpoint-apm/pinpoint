@@ -27,7 +27,7 @@ public class ServerOption {
     private static final long DEFAULT_REQUEST_TIMEOUT_MILLIS = 3 * 1000;
     private static final long DEFAULT_SERVER_CLOSE_WAIT_TIMEOUT_MILLIS = 3 * 1000;
     private static final long DEFAULT_HEALTH_CHECK_INTERVAL_TIME_MILLIS = 5 * 60 * 1000;
-    private static final long DEFAULT_HEALTH_CHECK_PACKET_WAIT_TIME_MILLIS = 3 * 1000;
+    private static final long DEFAULT_HEALTH_CHECK_PACKET_WAIT_TIME_MILLIS = 30 * 60 * 1000;
     private static final ClusterOption DEFAULT_CLUSTER_OPTION = ClusterOption.DISABLE_CLUSTER_OPTION;
 
     private static final ServerOption DEFAULT_INSTANCE = new ServerOption.Builder().build();
