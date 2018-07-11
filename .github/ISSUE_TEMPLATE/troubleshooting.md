@@ -10,8 +10,8 @@ master/v1.7.3/v1.7.2 etc.
 **Describe your problem**
 A clear and concise description of what is not working.
 
-**How can we reproduce?**
-Steps to reproduce, for example:
+**What have you done?**
+Steps you have taken to trigger the problem, for example:
 1. Launched '...' with agent
 2. Tried tracing '...' (see agent log below)
 3. Collector outputs trace log (see collector log below)
@@ -21,7 +21,7 @@ Steps to reproduce, for example:
 If applicable, add screenshots to help explain your problem.
 
 **Logs**
-If applicable, please attach agent/collector/web DEBUG log that includes the code execution that led to the bug. In case of agents, including the start-up log may be of great help.
+If applicable, please attach agent/collector/web DEBUG log that includes the part where you have encountered the problem. In case of agents, including the start-up log may be of great help.
 
 **Additional context**
 Add any other context about the problem here, such as affected library for agents, how your collector/web/hbase is set up if applicable.
