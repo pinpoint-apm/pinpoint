@@ -71,8 +71,6 @@ public class AkkaHttpConfig {
         }
 
         this.transformTargetName = config.readString(KEY_TRANSFORM_TARGET_NAME, DEFAULT_TRANSFORM_TARGET_NAME);
-
-        // profiler.akka.http.transform.targetparameter=scala.Function1,scala.Function1,akka.http.scaladsl.server.RequestContext
         this.transformParameters = config.readList(KEY_TRANSFORM_PARAMETERS);
     }
 
