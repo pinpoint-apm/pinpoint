@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,38 +14,36 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.vertx;
+package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.net.SocketAddress;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public class VertxHttpServerServerRequestWrapper implements ServerRequestWrapper {
-    private final HttpServerRequest request;
-    private final RemoteAddressResolver<HttpServerRequest> remoteAddressResolver;
+public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerRequest> {
 
-    public VertxHttpServerServerRequestWrapper(final HttpServerRequest request, final RemoteAddressResolver<HttpServerRequest> remoteAddressResolver) {
-        this.request = Assert.requireNonNull(request, "request must not be null");
-        this.remoteAddressResolver = Assert.requireNonNull(remoteAddressResolver, "remoteAddressResolver must not be null");
+    public HttpServerRequestAdaptor() {
     }
 
     @Override
-    public String getHeader(String name) {
-        return this.request.getHeader(name);
+    public String getHeader(HttpServerRequest request, String name) {
+        return request.getHeader(name);
+    }
+
+
+    @Override
+    public String getRpcName(HttpServerRequest request) {
+        return request.path();
     }
 
     @Override
-    public String getRpcName() {
-        return this.request.path();
-    }
-
-    @Override
-    public String getEndPoint() {
+    public String getEndPoint(HttpServerRequest request) {
         if (request.localAddress() != null) {
             final int port = request.localAddress().port();
             if (port <= 0) {
@@ -58,13 +56,16 @@ public class VertxHttpServerServerRequestWrapper implements ServerRequestWrapper
     }
 
     @Override
-    public String getRemoteAddress() {
-        final String remoteAddr = this.remoteAddressResolver.resolve(request);
-        return remoteAddr;
+    public String getRemoteAddress(HttpServerRequest request) {
+        final SocketAddress socketAddress = request.remoteAddress();
+        if (socketAddress != null) {
+            return socketAddress.toString();
+        }
+        return "unknown";
     }
 
     @Override
-    public String getAcceptorHost() {
+    public String getAcceptorHost(HttpServerRequest request) {
         return NetworkUtils.getHostFromURL(request.uri().toString());
     }
 }

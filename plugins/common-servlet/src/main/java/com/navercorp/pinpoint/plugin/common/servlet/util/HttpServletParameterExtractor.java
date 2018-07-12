@@ -14,42 +14,42 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.plugin.common.servlet.util;
 
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
-import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterExtractor;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public class ServletServerRequestWrapperFactory {
+public class HttpServletParameterExtractor implements ParameterExtractor<HttpServletRequest> {
+
     public static final int PARAMETER_EACH_LIMIT = 64;
     public static final int PARAMETER_TOTAL_LIMIT = 512;
 
-    private final RemoteAddressResolver remoteAddressResolver;
+    private final int eachLimit;
+    private final int totalLimit;
 
-    public ServletServerRequestWrapperFactory(RemoteAddressResolver remoteAddressResolver) {
-        this.remoteAddressResolver = Assert.requireNonNull(remoteAddressResolver, "remoteAddressResolver must not be null");
+    public HttpServletParameterExtractor() {
+        this(PARAMETER_EACH_LIMIT, PARAMETER_TOTAL_LIMIT);
     }
 
-    public ServletServerRequestWrapper get(final RequestWrapper requestWrapper, final String uri, final String serverName, final int serverPort, final String remoteAddr, final StringBuffer url, final String method, final Map<String, String[]> parameterMap) {
-        final String endPoint = HostAndPort.toHostAndPortString(serverName, serverPort);
-
-        final String remoteAddress = remoteAddressResolver.getRemoteAddress(requestWrapper, remoteAddr);
-        final String acceptorHost = url != null ? NetworkUtils.getHostFromURL(url.toString()) : null;
-        final String parameters = getRequestParameter(parameterMap, PARAMETER_EACH_LIMIT, PARAMETER_TOTAL_LIMIT);
-
-        return new ServletServerRequestWrapper(requestWrapper, uri, endPoint, remoteAddress, acceptorHost, method, parameters);
+    public HttpServletParameterExtractor(int eachLimit, int totalLimit) {
+        this.eachLimit = eachLimit;
+        this.totalLimit = totalLimit;
     }
 
+    @Override
+    public String extractParameter(HttpServletRequest httpServletRequest) {
 
-    private static String getRequestParameter(final Map<String, String[]> parameterMap, final int eachLimit, final int totalLimit) {
+        final Map<String, String[]> parameterMap = httpServletRequest.getParameterMap();
+        if (parameterMap.isEmpty()) {
+            return null;
+        }
         final StringBuilder params = new StringBuilder(64);
         for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
             if (params.length() != 0) {

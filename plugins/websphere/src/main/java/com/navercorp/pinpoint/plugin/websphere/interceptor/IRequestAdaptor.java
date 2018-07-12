@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,48 +14,41 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.websphere;
+package com.navercorp.pinpoint.plugin.websphere.interceptor;
 
 import com.ibm.websphere.servlet.request.IRequest;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.Assert;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public class WebsphereServerRequestWrapper implements ServerRequestWrapper {
-    private final IRequest request;
-
-    public WebsphereServerRequestWrapper(final IRequest request) {
-        this.request = Assert.requireNonNull(request, "");
-    }
-
+public class IRequestAdaptor implements RequestAdaptor<IRequest> {
     @Override
-    public String getHeader(String name) {
+    public String getHeader(IRequest request, String name) {
         return request.getHeader(name);
     }
 
     @Override
-    public String getRpcName() {
-        return this.request.getRequestURI();
+    public String getRpcName(IRequest request) {
+        return request.getRequestURI();
     }
 
     @Override
-    public String getEndPoint() {
+    public String getEndPoint(IRequest request) {
         final int port = request.getServerPort();
         final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
         return endPoint;
     }
 
     @Override
-    public String getRemoteAddress() {
+    public String getRemoteAddress(IRequest request) {
         return request.getRemoteAddr();
     }
 
     @Override
-    public String getAcceptorHost() {
+    public String getAcceptorHost(IRequest request) {
         return NetworkUtils.getHostFromURL(request.getRequestURI());
     }
 }

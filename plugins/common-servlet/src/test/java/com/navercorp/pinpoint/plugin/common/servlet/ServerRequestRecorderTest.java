@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.plugin.common.servlet;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapperAdaptor;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
@@ -35,8 +38,8 @@ public class ServerRequestRecorderTest {
 
     @Test
     public void record() throws Exception {
-        final ServerRequestRecorder recorder = new ServerRequestRecorder();
-        TraceContext traceContext = mock(TraceContext.class);
+        RequestAdaptor<ServerRequestWrapper> requestAdaptor = new ServerRequestWrapperAdaptor();
+        final ServerRequestRecorder<ServerRequestWrapper> recorder = new ServerRequestRecorder<ServerRequestWrapper>(requestAdaptor);
 
         // SpanRecorder
         SpanRecorder spanRecorder = mock(SpanRecorder.class);

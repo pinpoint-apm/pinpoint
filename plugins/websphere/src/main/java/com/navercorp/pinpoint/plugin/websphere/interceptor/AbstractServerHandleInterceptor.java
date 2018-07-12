@@ -1,10 +1,11 @@
-/**
- * Copyright 2014 NAVER Corp.
+/*
+ * Copyright 2018 NAVER Corp.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,13 +31,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereConstants;
-import com.navercorp.pinpoint.plugin.websphere.WebsphereServerRequestWrapper;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereSyncMethodDescriptor;
 
 public abstract class AbstractServerHandleInterceptor implements AroundInterceptor {
@@ -49,16 +49,18 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
     private final Filter<String> excludeUrlFilter;
-    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
-    private final RequestTraceReader requestTraceReader;
-    private final ServerRequestRecorder serverRequestRecorder = new ServerRequestRecorder();
+    private final ProxyHttpHeaderRecorder<IRequest> proxyHttpHeaderRecorder;
+    private final RequestTraceReader<IRequest> requestTraceReader;
+    private final ServerRequestRecorder<IRequest> serverRequestRecorder;
 
     public AbstractServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
-        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
-        this.requestTraceReader = new RequestTraceReader(traceContext);
+        RequestAdaptor<IRequest> requestAdaptor = new IRequestAdaptor();
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder<IRequest>(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+        this.requestTraceReader = new RequestTraceReader<IRequest>(traceContext, requestAdaptor);
+        this.serverRequestRecorder = new ServerRequestRecorder<IRequest>(requestAdaptor);
 
         traceContext.cacheApi(WEBSPHERE_SYNC_API_TAG);
     }
@@ -101,16 +103,15 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             return null;
         }
 
-        final ServerRequestWrapper serverRequestWrapper = new WebsphereServerRequestWrapper(request);
-        final Trace trace = this.requestTraceReader.read(serverRequestWrapper);
+        final Trace trace = this.requestTraceReader.read(request);
         if (trace.canSampled()) {
             SpanRecorder recorder = trace.getSpanRecorder();
             // root
             recorder.recordServiceType(WebsphereConstants.WEBSPHERE);
             recorder.recordApi(WEBSPHERE_SYNC_API_TAG);
-            this.serverRequestRecorder.record(recorder, serverRequestWrapper);
+            this.serverRequestRecorder.record(recorder, request);
             // record proxy HTTP headers.
-            this.proxyHttpHeaderRecorder.record(recorder, serverRequestWrapper);
+            this.proxyHttpHeaderRecorder.record(recorder, request);
         }
         return trace;
     }

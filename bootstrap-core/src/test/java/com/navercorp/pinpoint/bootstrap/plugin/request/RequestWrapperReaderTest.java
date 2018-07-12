@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.sun.corba.se.spi.activation.Server;
 import org.junit.Test;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -59,8 +60,8 @@ public class RequestWrapperReaderTest {
 
         TraceId traceId = mock(TraceId.class);
         when(traceContext.createTraceId(anyString(), anyLong(), anyLong(), anyShort())).thenReturn(traceId);
-
-        final RequestTraceReader reader = new RequestTraceReader(traceContext);
+        RequestAdaptor<ServerRequestWrapper> serverRequestWrapperAdaptor = new ServerRequestWrapperAdaptor();
+        final RequestTraceReader<ServerRequestWrapper> reader = new RequestTraceReader<ServerRequestWrapper>(traceContext, serverRequestWrapperAdaptor);
 
         // sampling flag is true
         ServerRequestWrapper samplingFlagServerRequestWrapper = mock(ServerRequestWrapper.class);

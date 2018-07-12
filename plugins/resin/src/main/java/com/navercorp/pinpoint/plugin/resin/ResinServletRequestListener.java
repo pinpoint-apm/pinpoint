@@ -20,12 +20,12 @@ import com.caucho.server.http.HttpServletRequestImpl;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapperFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletRequest;
@@ -41,14 +41,16 @@ public class ResinServletRequestListener implements ServletRequestListener {
     private boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
-    private ServletServerRequestWrapperFactory serverRequestTraceFactory;
+    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
     public ResinServletRequestListener(TraceContext traceContext) {
         final ResinConfig config = new ResinConfig(traceContext.getProfilerConfig());
-        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        this.serverRequestTraceFactory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper(traceContext, config.getExcludeUrlFilter(), config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
@@ -74,13 +76,8 @@ public class ResinServletRequestListener implements ServletRequestListener {
 
         try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
-            final ServletServerRequestWrapper serverRequestWrapper = this.serverRequestTraceFactory.get(new RequestWrapper() {
-                @Override
-                public String getHeader(String name) {
-                    return request.getHeader(name);
-                }
-            }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
-            this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, ResinConstants.RESIN);
+
+            this.servletRequestListenerInterceptorHelper.initialized(request, ResinConstants.RESIN);
 
         } catch (Throwable t) {
             if (isInfo) {
@@ -115,7 +112,7 @@ public class ResinServletRequestListener implements ServletRequestListener {
             final Throwable throwable = getException(request);
             final int statusCode = getStatusCode(request);
             // Do not trace close
-            this.servletRequestListenerInterceptorHelper.destroyed(throwable, statusCode, false);
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode, false);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);

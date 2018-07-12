@@ -19,13 +19,14 @@ package com.navercorp.pinpoint.plugin.weblogic;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolverFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapperFactory;
+
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
+import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import weblogic.servlet.internal.ServletRequestImpl;
 
 import javax.servlet.RequestDispatcher;
@@ -42,15 +43,15 @@ public class WeblogicServletRequestListener implements ServletRequestListener {
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
-    private ServletServerRequestWrapperFactory servletServerRequestWrapperFactory;
+    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
     public WeblogicServletRequestListener(TraceContext traceContext) {
         Assert.requireNonNull(traceContext, "traceContext must not be null");
         final WeblogicConfiguration config = new WeblogicConfiguration(traceContext.getProfilerConfig());
-        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        this.servletServerRequestWrapperFactory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper(traceContext, config.getExcludeUrlFilter(), config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
@@ -75,13 +76,7 @@ public class WeblogicServletRequestListener implements ServletRequestListener {
         }
         try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
-            final ServletServerRequestWrapper serverRequestWrapper = this.servletServerRequestWrapperFactory.get(new RequestWrapper() {
-                @Override
-                public String getHeader(String name) {
-                    return request.getHeader(name);
-                }
-            }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
-            this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, WeblogicConstants.WEBLOGIC);
+            this.servletRequestListenerInterceptorHelper.initialized(request, WeblogicConstants.WEBLOGIC);
 
         } catch (Throwable t) {
             if (isInfo) {
@@ -113,7 +108,7 @@ public class WeblogicServletRequestListener implements ServletRequestListener {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
             final Throwable throwable = getException(request);
             final int statusCode = getStatusCode(request);
-            this.servletRequestListenerInterceptorHelper.destroyed(throwable, statusCode, false);
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode, false);
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
         }

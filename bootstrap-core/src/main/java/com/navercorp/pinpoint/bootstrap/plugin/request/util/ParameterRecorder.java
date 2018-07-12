@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class BypassRemoteAddressResolver implements RemoteAddressResolver {
-
-    BypassRemoteAddressResolver() {
-    }
-
-    @Override
-    public String getRemoteAddress(RequestWrapper requestWrapper, String remoteAddr) {
-        return remoteAddr;
-    }
+public interface ParameterRecorder<T> {
+    void recordParameter(SpanEventRecorder spanRecorder, T request);
 }

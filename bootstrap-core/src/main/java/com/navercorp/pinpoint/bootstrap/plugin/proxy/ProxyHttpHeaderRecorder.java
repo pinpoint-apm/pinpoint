@@ -20,25 +20,28 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author jaehong.kim
  */
-public class ProxyHttpHeaderRecorder {
+public class ProxyHttpHeaderRecorder<T> {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
     private final ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
     private final boolean enable;
+    private final RequestAdaptor<T> requestAdaptor;
 
-    public ProxyHttpHeaderRecorder(final boolean enable) {
+    public ProxyHttpHeaderRecorder(final boolean enable, RequestAdaptor<T> requestAdaptor) {
         this.enable = enable;
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
     }
 
-    public void record(final SpanRecorder recorder, final RequestWrapper requestWrapper) {
-        if (recorder == null || requestWrapper == null) {
+    public void record(final SpanRecorder recorder, final T request) {
+        if (recorder == null || request == null) {
             return;
         }
 
@@ -50,9 +53,9 @@ public class ProxyHttpHeaderRecorder {
         }
 
         try {
-            parseAndRecord(recorder, requestWrapper, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
-            parseAndRecord(recorder, requestWrapper, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
-            parseAndRecord(recorder, requestWrapper, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
+            parseAndRecord(recorder, request, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
+            parseAndRecord(recorder, request, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
+            parseAndRecord(recorder, request, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
         } catch (Exception e) {
             // for handler operations.
             if (isInfo) {
@@ -62,8 +65,8 @@ public class ProxyHttpHeaderRecorder {
     }
 
 
-    private void parseAndRecord(final SpanRecorder recorder, final RequestWrapper requestWrapper, final String name, final int type) {
-        final String value = requestWrapper.getHeader(name);
+    private void parseAndRecord(final SpanRecorder recorder, final T request, final String name, final int type) {
+        final String value = requestAdaptor.getHeader(request, name);
         if (StringUtils.isEmpty(value)) {
             return;
         }

@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapperFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.catalina.connector.Request;
 
@@ -44,15 +44,16 @@ public class TomcatServletRequestListener implements ServletRequestListener {
     private final boolean isInfo = logger.isInfoEnabled();
 
     private final TraceContext traceContext;
-    private final ServletServerRequestWrapperFactory servletServerRequestWrapperFactory;
-    private final ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
+    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
     public TomcatServletRequestListener(final TraceContext traceContext) {
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
         final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());
-        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        this.servletServerRequestWrapperFactory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper(traceContext, config.getExcludeUrlFilter(), config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
@@ -77,13 +78,7 @@ public class TomcatServletRequestListener implements ServletRequestListener {
 
         try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
-            final ServletServerRequestWrapper serverRequestWrapper = this.servletServerRequestWrapperFactory.get(new RequestWrapper() {
-                @Override
-                public String getHeader(String name) {
-                    return request.getHeader(name);
-                }
-            }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
-            this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, TomcatConstants.TOMCAT);
+            this.servletRequestListenerInterceptorHelper.initialized(request, TomcatConstants.TOMCAT);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -125,7 +120,7 @@ public class TomcatServletRequestListener implements ServletRequestListener {
             }
             final Throwable throwable = getException(request);
             int statusCode = getStatusCode(request);
-            this.servletRequestListenerInterceptorHelper.destroyed(throwable, statusCode);
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -151,15 +146,15 @@ public class TomcatServletRequestListener implements ServletRequestListener {
         return trace;
     }
 
-    private int getStatusCode(final ServletRequest httpServletRequest) {
+    private int getStatusCode(final ServletRequest servletRequest) {
         try {
-            if (httpServletRequest instanceof StatusCodeAccessor) {
+            if (servletRequest instanceof StatusCodeAccessor) {
                 // tomcat 6/8/9
-                return ((StatusCodeAccessor) httpServletRequest)._$PINPOINT$_getStatusCode();
+                return ((StatusCodeAccessor) servletRequest)._$PINPOINT$_getStatusCode();
             }
-            if (httpServletRequest instanceof Request) {
+            if (servletRequest instanceof Request) {
                 // tomcat 7
-                return ((Request) httpServletRequest).getResponse().getStatus();
+                return ((Request) servletRequest).getResponse().getStatus();
             }
         } catch (Exception ignored) {
         }

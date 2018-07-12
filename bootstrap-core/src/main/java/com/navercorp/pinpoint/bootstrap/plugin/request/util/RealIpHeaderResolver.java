@@ -14,33 +14,38 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
+import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class RealIpHeaderResolver implements RemoteAddressResolver {
+public class RealIpHeaderResolver<T> implements RemoteAddressResolver<T> {
 
     private final String realIpHeaderName;
     private final String realIpHeaderEmptyValue;
+    private final RequestAdaptor<T> requestAdaptor;
 
-    RealIpHeaderResolver(final String realIpHeaderName, final String realIpHeaderEmptyValue) {
+    public RealIpHeaderResolver(final RequestAdaptor<T> requestAdaptor, final String realIpHeaderName, final String realIpHeaderEmptyValue) {
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
         this.realIpHeaderName = Assert.requireNonNull(realIpHeaderName, "realIpHeaderName must not be null");
         this.realIpHeaderEmptyValue = realIpHeaderEmptyValue;
     }
 
-    public String getRemoteAddress(final RequestWrapper requestWrapper, final String remoteAddr) {
-        final String realIp = requestWrapper.getHeader(realIpHeaderName);
+    @Override
+    public String resolve(T request) {
+        final String realIp = requestAdaptor.getHeader(request, realIpHeaderName);;
         if (StringUtils.isEmpty(realIp)) {
-            return remoteAddr;
+            return requestAdaptor.getRemoteAddress(request);
         }
 
         if (realIpHeaderEmptyValue != null && realIpHeaderEmptyValue.equalsIgnoreCase(realIp)) {
-            return remoteAddr;
+            return requestAdaptor.getRemoteAddress(request);
         }
 
         final int firstIndex = realIp.indexOf(',');
@@ -50,4 +55,5 @@ public class RealIpHeaderResolver implements RemoteAddressResolver {
             return realIp.substring(0, firstIndex);
         }
     }
+
 }

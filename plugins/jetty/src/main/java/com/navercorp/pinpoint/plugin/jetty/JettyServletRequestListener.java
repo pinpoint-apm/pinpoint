@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.plugin.jetty;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapperFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import org.eclipse.jetty.server.Request;
 
 import javax.servlet.DispatcherType;
@@ -43,14 +43,17 @@ public class JettyServletRequestListener implements ServletRequestListener {
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
-    private ServletServerRequestWrapperFactory servletServerRequestWrapperFactory;
+    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
     public JettyServletRequestListener(TraceContext traceContext) {
         final JettyConfiguration config = new JettyConfiguration(traceContext.getProfilerConfig());
-        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        this.servletServerRequestWrapperFactory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper(traceContext, config.getExcludeUrlFilter(), config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+
+
+        RequestAdaptor<HttpServletRequest> requestRequestAdaptor = new HttpServletRequestAdaptor();
+        requestRequestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestRequestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(traceContext, requestRequestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
@@ -83,13 +86,7 @@ public class JettyServletRequestListener implements ServletRequestListener {
                 return;
             }
 
-            final ServletServerRequestWrapper serverRequestWrapper = this.servletServerRequestWrapperFactory.get(new RequestWrapper() {
-                @Override
-                public String getHeader(String name) {
-                    return request.getHeader(name);
-                }
-            }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
-            this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, JettyConstants.JETTY);
+            this.servletRequestListenerInterceptorHelper.initialized(request, JettyConstants.JETTY);
 
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -120,10 +117,10 @@ public class JettyServletRequestListener implements ServletRequestListener {
             if (request.getDispatcherType() == DispatcherType.ASYNC || request.getDispatcherType() == DispatcherType.ERROR) {
                 return;
             }
-            final Throwable throwable = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+            final Throwable throwable = getException(request);
             // TODO Can not get HTTP status code value in jetty-9.4.8
             final int statusCode = getStatusCode(request);
-            this.servletRequestListenerInterceptorHelper.destroyed(throwable, statusCode);
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -139,5 +136,13 @@ public class JettyServletRequestListener implements ServletRequestListener {
         } catch (Exception ignored) {
         }
         return 0;
+    }
+
+    private Throwable getException(ServletRequest request) {
+        final Object exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+        if (exception instanceof Throwable) {
+            return (Throwable) exception;
+        }
+        return null;
     }
 }
