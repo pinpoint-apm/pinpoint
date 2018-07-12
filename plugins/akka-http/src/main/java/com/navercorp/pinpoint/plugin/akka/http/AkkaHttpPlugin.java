@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.security.ProtectionDomain;
 import java.util.Arrays;
+import java.util.List;
 
 
 public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
@@ -52,6 +53,8 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         final String transformTargetName = config.getTransformTargetName();
+        final List<String> transformTargetParameters = config.getTransformTargetParameters();
+
         if (StringUtils.isEmpty(transformTargetName)) {
             logger.warn("Not found 'profiler.akka.http.transform.targetname' in config");
         } else {
@@ -60,7 +63,7 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                 final String methodName = toMethodName(transformTargetName);
                 logger.info("Add request handler method for Akka HTTP Server. class={}, method={}", className, methodName);
 
-                transformDirectives(className, methodName);
+                transformDirectives(className, methodName, transformTargetParameters);
                 transformRequestContext();
                 transformHttpRequest();
             } catch (IllegalArgumentException e) {
@@ -87,16 +90,17 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         return fullQualifiedMethodName.substring(methodBeginPosition + 1).trim();
     }
 
-    private void transformDirectives(String clazzName, String methodName) {
+    private void transformDirectives(String clazzName, String methodName, List<String> methodParameters) {
         transformTemplate.transform(clazzName, new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodName))) {
-                    if (checkSuitableMethod(method)) {
+                    if (checkSuitableMethod(method, methodParameters)) {
+                        logger.info("addInterceptor={}", Arrays.asList(method.getParameterTypes()));
                         method.addInterceptor(AkkaHttpConstants.DIRECTIVE_INTERCEPTOR);
                     } else {
-                        logger.info("params:", Arrays.asList(method.getParameterTypes()));
+                        logger.info("params={}", Arrays.asList(method.getParameterTypes()));
                     }
                 }
                 return target.toBytecode();
@@ -104,26 +108,22 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private boolean checkSuitableMethod(InstrumentMethod method) {
+    private boolean checkSuitableMethod(InstrumentMethod method, List<String> parameters) {
         if (method == null) {
             return false;
         }
 
         String[] parameterTypes = method.getParameterTypes();
-        if (ArrayUtils.getLength(parameterTypes) != 3) {
-            return false;
-        }
+        int parameterSize = parameters.size();
 
-        if (!parameterTypes[0].equals("scala.Function1")) {
+        if (ArrayUtils.getLength(parameterTypes) != parameterSize) {
             return false;
         }
-        if (!parameterTypes[1].equals("scala.Function1")) {
-            return false;
+        for (int i = 0; i < parameterSize; i++) {
+            if (!parameterTypes[i].equals(parameters.get(i))) {
+                return false;
+            }
         }
-        if (!parameterTypes[2].equals("akka.http.scaladsl.server.RequestContext")) {
-            return false;
-        }
-
         return true;
     }
 

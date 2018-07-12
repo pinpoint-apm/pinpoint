@@ -23,6 +23,9 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author Taejin Koo
  */
@@ -33,6 +36,7 @@ public class AkkaHttpConfig {
     private static final String KEY_IP_HEADER = "profiler.akka.http.realipheader";
     private static final String KEY_EXCLUDE_HTTP_METHOD = "profiler.akka.http.excludemethod";
     static final String KEY_TRANSFORM_TARGET_NAME = "profiler.akka.http.transform.targetname";
+    static final String KEY_TRANSFORM_PARAMETERS = "profiler.akka.http.transform.targetparameter";
 
     private static final boolean DEFAULT_ENABLE = false;
     private static final String DEFAULT_TRANSFORM_TARGET_NAME = "akka.http.scaladsl.server.directives.BasicDirectives.$anonfun$mapRequestContext$2";
@@ -43,6 +47,7 @@ public class AkkaHttpConfig {
     private final Filter<String> excludeUrlFilter;
     private final Filter<String> excludeHttpMethodFilter;
     private final String transformTargetName;
+    private final List<String> transformParameters;
 
     public AkkaHttpConfig(ProfilerConfig config) {
         Assert.requireNonNull(config, "config must not be null");
@@ -66,6 +71,9 @@ public class AkkaHttpConfig {
         }
 
         this.transformTargetName = config.readString(KEY_TRANSFORM_TARGET_NAME, DEFAULT_TRANSFORM_TARGET_NAME);
+
+        // profiler.akka.http.transform.targetparameter=scala.Function1,scala.Function1,akka.http.scaladsl.server.RequestContext
+        this.transformParameters = config.readList(KEY_TRANSFORM_PARAMETERS);
     }
 
     public boolean isEnable() {
@@ -87,5 +95,7 @@ public class AkkaHttpConfig {
     public String getTransformTargetName() {
         return transformTargetName;
     }
+
+    public List<String> getTransformTargetParameters() { return transformParameters; }
 
 }
