@@ -41,12 +41,10 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConfig;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
 import com.navercorp.pinpoint.plugin.akka.http.resolver.HeaderResolver;
-import scala.Function1;
 
 import java.util.Optional;
 
@@ -88,7 +86,8 @@ public class DirectivesInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!validate(args)) {
+        int requestContextIndex = getArgsIndexOfRequestContext(args);
+        if (requestContextIndex == -1) {
             return;
         }
 
@@ -96,7 +95,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
             return;
         }
 
-        RequestContextImpl requestContext = (RequestContextImpl) args[2];
+        RequestContextImpl requestContext = (RequestContextImpl) args[requestContextIndex];
         if (!(requestContext instanceof AsyncContextAccessor)) {
             if (isDebug) {
                 logger.debug("Invalid requestContext. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
@@ -120,20 +119,11 @@ public class DirectivesInterceptor implements AroundInterceptor {
         }
     }
 
-    private boolean validate(Object[] args) {
-        if (ArrayUtils.getLength(args) != 3) {
-            return false;
+    private int getArgsIndexOfRequestContext(Object[] args) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof RequestContextImpl) return i;
         }
-
-        if (!(args[0] instanceof Function1)) {
-            return false;
-        }
-
-        if (!(args[1] instanceof Function1)) {
-            return false;
-        }
-
-        return args[2] instanceof RequestContextImpl;
+        return -1;
     }
 
     private Trace createTrace(final HttpRequest request) {
@@ -269,7 +259,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!validate(args)) {
+        if (getArgsIndexOfRequestContext(args) == -1) {
             return;
         }
 
