@@ -384,20 +384,24 @@ public class DefaultPinpointServer implements PinpointServer {
         logger.info("{} handleHandshake() started. requestId:{}, data:{}", objectUniqName, requestId, handshakeData);
 
         HandshakeResponseCode responseCode = messageListener.handleHandshake(handshakeData);
-        boolean isFirst = setChannelProperties(handshakeData);
-        if (isFirst) {
-            if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
-                this.remoteClusterOption = getClusterOption(handshakeData);
-                state.toRunDuplex();
-            } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode || HandshakeResponseCode.SUCCESS == responseCode) {
-                state.toRunSimplex();
+        if (responseCode != null) {
+            boolean isFirst = setChannelProperties(handshakeData);
+            if (isFirst) {
+                if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
+                    this.remoteClusterOption = getClusterOption(handshakeData);
+                    state.toRunDuplex();
+                } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode || HandshakeResponseCode.SUCCESS == responseCode) {
+                    state.toRunSimplex();
+                }
             }
-        }
 
-        Map<String, Object> responseData = createHandshakeResponse(responseCode, isFirst);
-        sendHandshakeResponse0(requestId, responseData);
-        
-        logger.info("{} handleHandshake() completed(isFirst:{}). requestId:{}, responseCode:{}", objectUniqName, isFirst, requestId, responseCode);
+            Map<String, Object> responseData = createHandshakeResponse(responseCode, isFirst);
+            sendHandshakeResponse0(requestId, responseData);
+
+            logger.info("{} handleHandshake() completed(isFirst:{}). requestId:{}, responseCode:{}", objectUniqName, isFirst, requestId, responseCode);
+        } else {
+            logger.info("{} to execute handleHandshake() is not ready", objectUniqName);
+        }
     }
 
     private ClusterOption getClusterOption(Map handshakeResponse) {
