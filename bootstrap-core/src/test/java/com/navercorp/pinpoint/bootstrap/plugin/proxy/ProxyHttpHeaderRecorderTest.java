@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapperAdaptor;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -49,19 +52,60 @@ public class ProxyHttpHeaderRecorderTest {
 
         // SpanRecorder
         SpanRecorder spanRecorder = mock(SpanRecorder.class);
+        RequestAdaptor<ServerRequestWrapper> requestWrapperAdaptor = new ServerRequestWrapperAdaptor();
+        ProxyHttpHeaderRecorder<ServerRequestWrapper> recorder = new ProxyHttpHeaderRecorder(true, requestWrapperAdaptor);
 
-        ProxyHttpHeaderRecorder recorder = new ProxyHttpHeaderRecorder(true);
-        recorder.record(spanRecorder, new RequestWrapper() {
+        recorder.record(spanRecorder, new ServerRequestWrapper() {
             @Override
             public String getHeader(String name) {
                 return name;
             }
+
+            @Override
+            public String getRpcName() {
+                return null;
+            }
+
+            @Override
+            public String getEndPoint() {
+                return null;
+            }
+
+            @Override
+            public String getRemoteAddress() {
+                return null;
+            }
+
+            @Override
+            public String getAcceptorHost() {
+                return null;
+            }
         });
 
-        recorder.record(spanRecorder, new RequestWrapper() {
+        recorder.record(spanRecorder, new ServerRequestWrapper() {
             @Override
             public String getHeader(String name) {
                 throw new NullPointerException();
+            }
+
+            @Override
+            public String getRpcName() {
+                return null;
+            }
+
+            @Override
+            public String getEndPoint() {
+                return null;
+            }
+
+            @Override
+            public String getRemoteAddress() {
+                return null;
+            }
+
+            @Override
+            public String getAcceptorHost() {
+                return null;
             }
         });
     }

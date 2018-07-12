@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,52 +30,54 @@ import com.navercorp.pinpoint.common.util.Assert;
 /**
  * @author jaehong.kim
  */
-public class RequestTraceReader {
+public class RequestTraceReader<T> {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
+    private final RequestAdaptor<T> requestAdaptor;
     private final boolean async;
     private final String applicationNamespace;
 
 
-    public RequestTraceReader(final TraceContext traceContext) {
-        this(traceContext, false);
+    public RequestTraceReader(final TraceContext traceContext, RequestAdaptor<T> requestAdaptor) {
+        this(traceContext, requestAdaptor, false);
     }
 
-    public RequestTraceReader(final TraceContext traceContext, final boolean async) {
+    public RequestTraceReader(final TraceContext traceContext, RequestAdaptor<T> requestAdaptor, final boolean async) {
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
         this.async = async;
         this.applicationNamespace = traceContext.getProfilerConfig().getApplicationNamespace();
     }
 
     // Read the transaction information from the request.
-    public Trace read(final ServerRequestWrapper serverRequestWrapper) {
-        Assert.requireNonNull(serverRequestWrapper, "serverRequestWrapper must not be n ull");
+    public Trace read(T request) {
+        Assert.requireNonNull(request, "request must not be n ull");
 
         // Check sampling flag from client. If the flag is false, do not sample this request.
-        final boolean sampling = samplingEnable(serverRequestWrapper);
+        final boolean sampling = samplingEnable(request);
         if (!sampling) {
             // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
             // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
             final Trace trace = this.traceContext.disableSampling();
             if (isDebug) {
-                logger.debug("Remote call sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
+                logger.debug("Remote call sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", requestAdaptor.getRpcName(request), requestAdaptor.getRemoteAddress(request));
             }
             return trace;
         }
 
-        final TraceId traceId = populateTraceIdFromRequest(serverRequestWrapper);
+        final TraceId traceId = populateTraceIdFromRequest(request);
         if (traceId != null) {
             // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
             final Trace trace = continueTrace(traceId);
             if (trace.canSampled()) {
                 if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, requestAdaptor.getRpcName(request), requestAdaptor.getRemoteAddress(request));
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, requestAdaptor.getRpcName(request), requestAdaptor.getRemoteAddress(request));
                 }
             }
             return trace;
@@ -83,19 +85,19 @@ public class RequestTraceReader {
             final Trace trace = newTrace();
             if (trace.canSampled()) {
                 if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
+                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", requestAdaptor.getRpcName(request), requestAdaptor.getRemoteAddress(request));
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", serverRequestWrapper.getRpcName(), serverRequestWrapper.getRemoteAddress());
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", requestAdaptor.getRpcName(request), requestAdaptor.getRemoteAddress(request));
                 }
             }
             return trace;
         }
     }
 
-    private boolean samplingEnable(final ServerRequestWrapper serverRequestWrapper) {
-        final String samplingFlag = serverRequestWrapper.getHeader(Header.HTTP_SAMPLED.toString());
+    private boolean samplingEnable(final T request) {
+        final String samplingFlag = requestAdaptor.getHeader(request, Header.HTTP_SAMPLED.toString());
         if (isDebug) {
             logger.debug("SamplingFlag={}", samplingFlag);
         }
@@ -103,8 +105,8 @@ public class RequestTraceReader {
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 
-    private TraceId populateTraceIdFromRequest(final ServerRequestWrapper serverRequestWrapper) {
-        final String parentApplicationNamespace = serverRequestWrapper.getHeader(Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString());
+    private TraceId populateTraceIdFromRequest(final T request) {
+        final String parentApplicationNamespace = requestAdaptor.getHeader(request, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString());
         // If parentApplicationNamespace is null, it is ignored for backwards compatibility.
         if (parentApplicationNamespace != null) {
             if (!this.applicationNamespace.equals(parentApplicationNamespace)) {
@@ -116,11 +118,11 @@ public class RequestTraceReader {
             }
         }
 
-        final String transactionId = serverRequestWrapper.getHeader(Header.HTTP_TRACE_ID.toString());
+        final String transactionId = requestAdaptor.getHeader(request, Header.HTTP_TRACE_ID.toString());
         if (transactionId != null) {
-            final long parentSpanId = NumberUtils.parseLong(serverRequestWrapper.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
-            final long spanId = NumberUtils.parseLong(serverRequestWrapper.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
-            final short flags = NumberUtils.parseShort(serverRequestWrapper.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
+            final long parentSpanId = NumberUtils.parseLong(requestAdaptor.getHeader(request, Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
+            final long spanId = NumberUtils.parseLong(requestAdaptor.getHeader(request, Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
+            final short flags = NumberUtils.parseShort(requestAdaptor.getHeader(request, Header.HTTP_FLAGS.toString()), (short) 0);
             final TraceId id = this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
             return id;
         }

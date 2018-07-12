@@ -1,22 +1,21 @@
 /*
- *  Copyright 2018 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.plugin.akka.http.interceptor;
 
-import akka.http.javadsl.model.HttpHeader;
 import akka.http.javadsl.model.HttpMethod;
 import akka.http.javadsl.model.HttpRequest;
 import akka.http.scaladsl.server.RequestContextImpl;
@@ -25,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
@@ -35,8 +33,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
@@ -44,7 +42,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConfig;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
-import com.navercorp.pinpoint.plugin.akka.http.resolver.HeaderResolver;
+import com.navercorp.pinpoint.plugin.akka.http.HttpRequestAdaptor;
 
 import java.util.Optional;
 
@@ -59,9 +57,9 @@ public class DirectivesInterceptor implements AroundInterceptor {
     private final MethodDescriptor descriptor;
     private static final AkkaHttpServerMethodDescriptor AKKA_HTTP_SERVER_METHOD_DESCRIPTOR = new AkkaHttpServerMethodDescriptor();
 
-    private final RemoteAddressResolver<HttpRequest> remoteAddressResolver;
-    private final ProxyHttpHeaderRecorder proxyHttpHeaderRecorder;
+    private final ProxyHttpHeaderRecorder<HttpRequest> proxyHttpHeaderRecorder;
 
+    private final RequestAdaptor<HttpRequest> requestAdaptor;
     private final Filter<String> excludeHttpMethodFilter;
     private final Filter<String> excludeUrlFilter;
 
@@ -73,12 +71,12 @@ public class DirectivesInterceptor implements AroundInterceptor {
         final AkkaHttpConfig config = new AkkaHttpConfig(traceContext.getProfilerConfig());
         this.excludeUrlFilter = config.getExcludeUrlFilter();
         this.excludeHttpMethodFilter = config.getExcludeHttpMethodFilter();
-
-        this.remoteAddressResolver = new HeaderResolver<>(config);
-        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable());
+        this.requestAdaptor = new HttpRequestAdaptor(config);
+        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder<HttpRequest>(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
 
         traceContext.cacheApi(AKKA_HTTP_SERVER_METHOD_DESCRIPTOR);
     }
+
 
     @Override
     public void before(Object target, Object[] args) {
@@ -189,7 +187,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
 
     private boolean samplingEnable(HttpRequest request) {
         // optional value
-        final String samplingFlag = getHeaderValue(request, Header.HTTP_SAMPLED.toString());
+        final String samplingFlag = requestAdaptor.getHeader(request, Header.HTTP_SAMPLED.toString());
         if (isDebug) {
             logger.debug("SamplingFlag={}", samplingFlag);
         }
@@ -197,11 +195,11 @@ public class DirectivesInterceptor implements AroundInterceptor {
     }
 
     private TraceId populateTraceIdFromRequest(final HttpRequest request) {
-        final String transactionId = getHeaderValue(request, Header.HTTP_TRACE_ID.toString());
+        final String transactionId = requestAdaptor.getHeader(request, Header.HTTP_TRACE_ID.toString());
         if (transactionId != null) {
-            final long parentSpanID = NumberUtils.parseLong(getHeaderValue(request, Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
-            final long spanID = NumberUtils.parseLong(getHeaderValue(request, Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
-            final short flags = NumberUtils.parseShort(getHeaderValue(request, Header.HTTP_FLAGS.toString()), (short) 0);
+            final long parentSpanID = NumberUtils.parseLong(requestAdaptor.getHeader(request, Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
+            final long spanID = NumberUtils.parseLong(requestAdaptor.getHeader(request, Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
+            final short flags = NumberUtils.parseShort(requestAdaptor.getHeader(request, Header.HTTP_FLAGS.toString()), (short) 0);
             final TraceId id = traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
             if (isDebug) {
                 logger.debug("TraceID exist. continue trace. {}", id);
@@ -214,22 +212,17 @@ public class DirectivesInterceptor implements AroundInterceptor {
 
     private void recordRootSpan(final SpanRecorder recorder, final HttpRequest request) {
         recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER);
-        final String requestURL = String.valueOf(request.getUri());
+        final String requestURL = requestAdaptor.getRpcName(request);
         if (StringUtils.hasLength(requestURL)) {
             recorder.recordRpcName(requestURL);
         }
 
-        String remoteAddress = remoteAddressResolver.resolve(request);
+        String remoteAddress = requestAdaptor.getRemoteAddress(request);
         if (StringUtils.hasLength(remoteAddress)) {
             recorder.recordRemoteAddress(remoteAddress);
         }
 
-        this.proxyHttpHeaderRecorder.record(recorder, new RequestWrapper() {
-            @Override
-            public String getHeader(String name) {
-                return getHeaderValue(request, name);
-            }
-        });
+        this.proxyHttpHeaderRecorder.record(recorder, request);
 
         if (!recorder.isRoot()) {
             recordParentInfo(recorder, request);
@@ -238,16 +231,16 @@ public class DirectivesInterceptor implements AroundInterceptor {
     }
 
     private void recordParentInfo(SpanRecorder recorder, final HttpRequest request) {
-        String parentApplicationName = getHeaderValue(request, Header.HTTP_PARENT_APPLICATION_NAME.toString());
+        String parentApplicationName = requestAdaptor.getHeader(request, Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
-            final String host = getHeaderValue(request, Header.HTTP_HOST.toString());
+            final String host = requestAdaptor.getAcceptorHost(request);
             if (host != null) {
                 recorder.recordAcceptorHost(host);
             } else {
                 String requestURL = String.valueOf(request.getUri());
                 recorder.recordAcceptorHost(NetworkUtils.getHostFromURL(requestURL));
             }
-            final String type = getHeaderValue(request, Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+            final String type = requestAdaptor.getHeader(request, Header.HTTP_PARENT_APPLICATION_TYPE.toString());
             final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
             recorder.recordParentApplication(parentApplicationName, parentApplicationType);
         }
@@ -292,31 +285,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
         trace.close();
     }
 
-    private String getHeaderValue(final HttpRequest request, final String name) {
-        return getHeaderValue(request, name, null);
-    }
 
-    private String getHeaderValue(final HttpRequest request, final String name, String defaultValue) {
-        if (request == null) {
-            return defaultValue;
-        }
 
-        Optional<HttpHeader> optional = request.getHeader(name);
-        if (optional == null) {
-            return defaultValue;
-        }
-
-        HttpHeader header = optional.orElse(null);
-        if (header == null) {
-            return defaultValue;
-        }
-
-        String value = header.value();
-        if (value == null) {
-            return defaultValue;
-        }
-
-        return value;
-    }
 
 }

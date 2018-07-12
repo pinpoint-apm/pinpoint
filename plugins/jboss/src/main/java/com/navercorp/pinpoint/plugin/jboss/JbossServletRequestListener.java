@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.plugin.jboss;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolver;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletServerRequestWrapperFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
@@ -41,14 +41,16 @@ public class JbossServletRequestListener implements ServletRequestListener {
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
-    private ServletServerRequestWrapperFactory servletServerRequestWrapperFactory;
+    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
     public JbossServletRequestListener(TraceContext traceContext) {
         final JbossConfig config = new JbossConfig(traceContext.getProfilerConfig());
-        final RemoteAddressResolver remoteAddressResolver = RemoteAddressResolverFactory.newRemoteAddressResolver(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        this.servletServerRequestWrapperFactory = new ServletServerRequestWrapperFactory(remoteAddressResolver);
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper(traceContext, config.getExcludeUrlFilter(), config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
@@ -79,13 +81,7 @@ public class JbossServletRequestListener implements ServletRequestListener {
                 }
                 return;
             }
-            final ServletServerRequestWrapper serverRequestWrapper = this.servletServerRequestWrapperFactory.get(new RequestWrapper() {
-                @Override
-                public String getHeader(String name) {
-                    return request.getHeader(name);
-                }
-            }, request.getRequestURI(), request.getServerName(), request.getServerPort(), request.getRemoteAddr(), request.getRequestURL(), request.getMethod(), request.getParameterMap());
-            this.servletRequestListenerInterceptorHelper.initialized(serverRequestWrapper, JbossConstants.JBOSS);
+            this.servletRequestListenerInterceptorHelper.initialized(request, JbossConstants.JBOSS);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);
@@ -123,7 +119,7 @@ public class JbossServletRequestListener implements ServletRequestListener {
                 return;
             }
             final Throwable throwable = getException(request);
-            this.servletRequestListenerInterceptorHelper.destroyed(throwable, 0);
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, 0);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle. event={}", servletRequestEvent, t);

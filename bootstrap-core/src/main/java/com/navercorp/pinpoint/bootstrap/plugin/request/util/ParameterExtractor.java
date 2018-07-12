@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
-
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class RemoteAddressResolverFactory {
+public interface ParameterExtractor<T> {
 
-
-    public static final RemoteAddressResolver newRemoteAddressResolver(final String realIpHeaderName, final String realIpHeaderEmptyValue) {
-        if(!StringUtils.hasLength(realIpHeaderEmptyValue)) {
-            return new BypassRemoteAddressResolver();
-        }
-
-        return new RealIpHeaderResolver(realIpHeaderName, realIpHeaderEmptyValue);
-    }
+    String extractParameter(T request);
 }
