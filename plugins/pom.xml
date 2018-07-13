@@ -60,6 +60,7 @@
         <module>weblogic</module>
         <module>php</module>
         <module>akka-http</module>
+        <module>openwhisk</module>
     </modules>
 
     <dependencies>
@@ -301,6 +302,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-php-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-openwhisk-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
