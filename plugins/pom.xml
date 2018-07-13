@@ -57,12 +57,9 @@
         <module>jsp</module>
         <module>rxjava</module>
         <module>rabbitmq</module>
-<<<<<<< HEAD
         <module>weblogic</module>
         <module>php</module>
-=======
         <module>akka-http</module>
->>>>>>> add akka-http plugin
     </modules>
 
     <dependencies>
