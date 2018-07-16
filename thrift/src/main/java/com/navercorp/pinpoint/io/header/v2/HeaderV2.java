@@ -28,27 +28,19 @@ final public class HeaderV2 implements Header {
 
     public static final byte VERSION = 0x20;
 
-    public static final int HEADER_DATA_MAX_SIZE = 64;
-    public static final int HEADER_DATA_STRING_MAX_LANGTH = 1024;
+    public static final int HEADER_ENTITY_COUNT_MAX_SIZE = 64;
+    public static final int HEADER_ENTITY_STRING_MAX_LANGTH = 1024;
 
-    //    skip constant field
-//    private final byte signature;
-//    private final byte version;
     private final short type;
-    private final Map<String, String> data;
 
-    public HeaderV2(byte signature, byte version, short type, Map<String, String> data) {
+    public HeaderV2(byte signature, byte version, short type) {
         if (signature != Header.SIGNATURE) {
             throw new IllegalArgumentException("invalid signature " + signature);
         }
         if (version != VERSION){
             throw new IllegalArgumentException("invalid version " + version);
         }
-        if (data == null) {
-            throw new NullPointerException("data must not be null.");
-        }
         this.type = type;
-        this.data = data;
     }
 
     @Override
@@ -67,17 +59,11 @@ final public class HeaderV2 implements Header {
     }
 
     @Override
-    public Map<String, String> getHeaderData() {
-        return this.data;
-    }
-
-    @Override
     public String toString() {
         return "HeaderV2{" +
             "signature=" + SIGNATURE +
             ", version=" + VERSION +
             ", type=" + type +
-            ", data=" + data +
             '}';
     }
 }

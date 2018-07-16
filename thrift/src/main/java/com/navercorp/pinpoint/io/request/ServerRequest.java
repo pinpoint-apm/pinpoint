@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
 
 /**
  * @author minwoo.jung
@@ -23,6 +24,8 @@ import com.navercorp.pinpoint.io.header.Header;
 public interface ServerRequest<T> extends AttributeMap {
 
     Header getHeader();
+
+    HeaderEntity getHeaderEntity();
 
     T getData();
 

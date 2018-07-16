@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.flink.process;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.flink.vo.RawData;
 import org.apache.flink.api.java.tuple.Tuple3;
 
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public interface TBaseFlatMapperInterceptor {
 
-    void before(ServerRequest serverRequest);
+    void before(RawData rawData);
 
     void after();
 

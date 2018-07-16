@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private final RetryQueue retryQueue = new RetryQueue();
 
-    private AsyncQueueingExecutor<Object> executor;
+    protected AsyncQueueingExecutor<Object> executor;
 
     /**
      * @deprecated Since 1.7.2 Use {@link #TcpDataSender(String, String, int, PinpointClientFactory)}
@@ -222,7 +222,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         }
     }
 
-    private void doSend(byte[] copy) {
+    protected void doSend(byte[] copy) {
         Future write = this.client.sendAsync(copy);
         write.setListener(writeFailFutureListener);
     }

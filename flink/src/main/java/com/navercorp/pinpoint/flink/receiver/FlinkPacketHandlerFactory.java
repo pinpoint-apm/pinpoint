@@ -20,14 +20,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.tcp.DefaultTCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.tcp.TCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.tcp.TCPPacketHandlerFactory;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.*;
 
 import java.util.Objects;
 
@@ -39,7 +32,7 @@ public class FlinkPacketHandlerFactory implements TCPPacketHandlerFactory {
     private final SerializerFactory<HeaderTBaseSerializer> cachedSerializer;
     private final DeserializerFactory<HeaderTBaseDeserializer> cachedDeserializer;
 
-    public FlinkPacketHandlerFactory(FlinkHeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory, FlinkHeaderTBaseDeserializerFactory flinkHeaderTBaseDeserializerFactory) {
+    public FlinkPacketHandlerFactory(HeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory, FlinkHeaderTBaseDeserializerFactory flinkHeaderTBaseDeserializerFactory) {
         Objects.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory must be not null.");
         Objects.requireNonNull(flinkHeaderTBaseDeserializerFactory, "flinkHeaderTBaseDeserializerFactory must be not null.");
 
