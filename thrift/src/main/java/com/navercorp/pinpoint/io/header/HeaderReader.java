@@ -22,6 +22,8 @@ package com.navercorp.pinpoint.io.header;
 public interface HeaderReader {
     Header readHeader();
 
+    HeaderEntity readHeaderEntity(Header header);
+
     int getOffset();
 
     int getRemaining();

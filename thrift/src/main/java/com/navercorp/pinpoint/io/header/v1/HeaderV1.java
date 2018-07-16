@@ -61,11 +61,6 @@ final public class HeaderV1 implements Header {
     }
 
     @Override
-    public Map<String, String> getHeaderData() {
-        return Collections.emptyMap();
-    }
-
-    @Override
     public String toString() {
         return "Header{" +
             "signature=" + SIGNATURE +

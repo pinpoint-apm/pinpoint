@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.cluster.flink;
+package com.navercorp.pinpoint.collector.sender;
 
-import com.navercorp.pinpoint.io.header.HeaderDataGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
+import com.navercorp.pinpoint.io.request.FlinkRequest;
 
+import org.apache.thrift.TBase;
+
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
-public class FlinkHeaderDataGeneratorDelegator implements HeaderDataGenerator {
+public class FlinkRequestFactory {
 
-    @Autowired(required = false)
-    @Qualifier("flinkHeaderDataGenerator")
-    private HeaderDataGenerator customHeaderGenerator = new DefaultCustomHeadergenerator();
-
-    @Override
-    public Map<String, String> generate() {
-        return customHeaderGenerator.generate();
+    public FlinkRequest createFlinkRequest(TBase<?,?> data, Map<String, String> headerEntity) {
+        return new FlinkRequest(new HeaderEntity(headerEntity), data);
     }
 }

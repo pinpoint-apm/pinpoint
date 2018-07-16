@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -25,6 +26,11 @@ public class EmptyMessage<T> implements Message {
     public static final Message INSTANCE = new EmptyMessage();
     @Override
     public Header getHeader() {
+        return null;
+    }
+
+    @Override
+    public HeaderEntity getHeaderEntity() {
         return null;
     }
 

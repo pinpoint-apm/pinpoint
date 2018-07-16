@@ -19,10 +19,7 @@ package com.navercorp.pinpoint.thrift.io;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.io.header.ByteArrayHeaderReader;
-import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.io.header.HeaderReader;
-import com.navercorp.pinpoint.io.header.InvalidHeaderException;
+import com.navercorp.pinpoint.io.header.*;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.util.TypeLocator;
@@ -74,8 +71,11 @@ public class HeaderTBaseDeserializer {
     }
 
     private Message<TBase<?, ?>> readInternal() throws TException {
+        final HeaderReader reader = newHeaderReader();
+        final Header header = readHeader(reader);
+        final HeaderEntity headerEntity = readHeaderEntity(reader, header);
+        skipHeaderOffset(reader);
 
-        final Header header = readHeader();
 
         final TBase<?, ?> base = locator.bodyLookup(header.getType());
         if (base == null) {
@@ -84,14 +84,7 @@ public class HeaderTBaseDeserializer {
 
         base.read(protocol);
 
-        return new DefaultMessage<TBase<?, ?>>(header, base);
-    }
-
-    private Header readHeader() throws TException {
-        HeaderReader reader = newHeaderReader();
-        Header header = readHeader(reader);
-        skipHeaderOffset(reader);
-        return header;
+        return new DefaultMessage<TBase<?, ?>>(header, headerEntity, base);
     }
 
     private void skipHeaderOffset(HeaderReader reader) {
@@ -110,6 +103,14 @@ public class HeaderTBaseDeserializer {
             return reader.readHeader();
         } catch (InvalidHeaderException e) {
             throw new TException("invalid header Caused by:" + e.getMessage(), e);
+        }
+    }
+
+    private HeaderEntity readHeaderEntity(HeaderReader reader, Header header) throws TException {
+        try {
+            return reader.readHeaderEntity(header);
+        } catch (InvalidHeaderException e) {
+            throw new TException("invalid headerEntity Caused by:" + e.getMessage(), e);
         }
     }
 

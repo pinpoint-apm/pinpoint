@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,41 +57,47 @@ public class ByteArrayHeaderReader implements HeaderReader {
         }
 
         final byte version = buffer.readByte();
+        final short type = buffer.readShort();
+
         if (version == HeaderV1.VERSION) {
-            return createHeaderV1(signature, version);
+            return new HeaderV1(signature, version, type);
         }
         if (version == HeaderV2.VERSION) {
-            return createHeaderV2(signature, version);
+            return new HeaderV2(signature, version, type);
         }
 
         throw new InvalidHeaderException(String.format("invalid Header : signature(0x%02X), version(0x%02X)", signature, version));
-
     }
 
-    private HeaderV2 createHeaderV2(byte signature, byte version) {
-        final short type = buffer.readShort();
-
-        final short headerSize = buffer.readShort();
-        if (headerSize == 0) {
-            return new HeaderV2(signature, version, type, Collections.<String, String>emptyMap());
+    public HeaderEntity readHeaderEntity(Header header) {
+        final byte version = header.getVersion();
+        if (version == HeaderV1.VERSION) {
+            return HeaderEntity.EMPTY_HEADER_ENTITY;
         }
-        if (headerSize > HeaderV2.HEADER_DATA_MAX_SIZE) {
-            throw new InvalidHeaderException("header data size exceed the max limit. size : " + headerSize);
+        if (version == HeaderV2.VERSION) {
+            return readHeaderEntity();
         }
 
-        Map<String, String> headerBody = readHeaderBody(headerSize);
-        Map<String, String> unmodifiableBody = Collections.unmodifiableMap(headerBody);
-        return new HeaderV2(signature, version, type, unmodifiableBody);
+        throw new InvalidHeaderException(String.format("invalid Header : ", header));
     }
 
-    private Map<String, String> readHeaderBody(short headerSize) {
-        final Map<String, String> data = new HashMap<String, String>(headerSize);
-        for (int i = 0 ; i < headerSize ; i++ ) {
+    private HeaderEntity readHeaderEntity() {
+        final short headerEntitySize = buffer.readShort();
+
+        if (headerEntitySize < 0 || headerEntitySize > HeaderV2.HEADER_ENTITY_COUNT_MAX_SIZE) {
+            throw new InvalidHeaderException("header entity count size is invalid. size : " + headerEntitySize);
+        }
+        if (headerEntitySize == 0) {
+            return HeaderEntity.EMPTY_HEADER_ENTITY;
+        }
+
+        final Map<String, String> headerEntity = new HashMap<String, String>(headerEntitySize);
+        for (int i = 0 ; i < headerEntitySize ; i++ ) {
             final String key = readString();
             final String value = readString();
-            data.put(key, value);
+            headerEntity.put(key, value);
         }
-        return data;
+        return new HeaderEntity(headerEntity);
     }
 
     private String readString() {
@@ -106,16 +111,11 @@ public class ByteArrayHeaderReader implements HeaderReader {
     }
 
     private boolean validCheck(short length) {
-        if (length > HeaderV2.HEADER_DATA_STRING_MAX_LANGTH || length == 0) {
+        if (length > HeaderV2.HEADER_ENTITY_STRING_MAX_LANGTH || length == 0) {
             return false;
         }
 
         return true;
-    }
-
-    private HeaderV1 createHeaderV1(byte signature, byte version) {
-        final short type = buffer.readShort();
-        return new HeaderV1(signature, version, type);
     }
 
     @Override
