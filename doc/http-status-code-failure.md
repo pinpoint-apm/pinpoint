@@ -1,6 +1,6 @@
 # HTTP Status Code with Request Failure.
 
-![overview](img/http-status-code-failure-overview.png)
+![overview](images/http-status-code-failure-overview.png)
 
 ## Pinpoint Configuration
 
