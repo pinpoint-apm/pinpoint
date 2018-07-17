@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.sun.corba.se.spi.activation.Server;
 import org.junit.Test;
 
 import static org.mockito.ArgumentMatchers.anyLong;

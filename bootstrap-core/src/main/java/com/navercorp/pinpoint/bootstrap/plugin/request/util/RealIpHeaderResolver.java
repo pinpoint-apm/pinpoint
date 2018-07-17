@@ -39,7 +39,7 @@ public class RealIpHeaderResolver<T> implements RemoteAddressResolver<T> {
 
     @Override
     public String resolve(T request) {
-        final String realIp = requestAdaptor.getHeader(request, realIpHeaderName);;
+        final String realIp = requestAdaptor.getHeader(request, realIpHeaderName);
         if (StringUtils.isEmpty(realIp)) {
             return requestAdaptor.getRemoteAddress(request);
         }
