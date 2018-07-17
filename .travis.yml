@@ -10,10 +10,12 @@ jdk:
  - oraclejdk8
 
 env:
- - JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64
-   JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
-   JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
-   JAVA_9_HOME=/usr/lib/jvm/java-9-oracle
+  global:
+   - secure: LPw7JYUjk//ULQ7vLYPmFOfGqZZbEEa7C+e56DziJoQS05OJREhruHJ6tNvs1a4bDEBnVfwOOMCpdVPadv4o/ToYHPKRLJ8b8oAqaW6f78Z+33N5ZpWkwZDAfQgdoBMaN58vsxeIMUPxYdLODn96weSykD+t3wZH9ClpYy4Ost8=
+   - JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64
+     JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+     JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
+     JAVA_9_HOME=/usr/lib/jvm/java-9-oracle
 
 install:
  - set -o pipefail
@@ -33,6 +35,7 @@ script:
 
 after_success:
  - bash <(curl -s https://codecov.io/bash)
+ - bash ./doc/scripts/deployGitPage.sh
 
 dist:
  - trusty
