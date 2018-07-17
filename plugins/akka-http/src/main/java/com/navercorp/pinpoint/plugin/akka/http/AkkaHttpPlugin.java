@@ -90,7 +90,7 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         return fullQualifiedMethodName.substring(methodBeginPosition + 1).trim();
     }
 
-    private void transformDirectives(String clazzName, String methodName, List<String> methodParameters) {
+    private void transformDirectives(String clazzName, final String methodName, final List<String> methodParameters) {
         transformTemplate.transform(clazzName, new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
