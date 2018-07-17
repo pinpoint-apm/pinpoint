@@ -1,7 +1,7 @@
 # Proxy monitoring using HTTP headers
 It is used to know the elapsed time between proxy and WAS.
 
-![overview](img/proxy-http-header-overview.png)
+![overview](images/proxy-http-header-overview.png)
 
 ## Pinpoint Configuration
 

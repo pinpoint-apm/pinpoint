@@ -8,18 +8,18 @@ Application inspector provides an aggregate view of all the agent's resource dat
 To access application inspector, click on the application inspector menu on the left side of the screen.
 
 - 1 : application inspector menu, 2 : application stat data
-![inspector_view.jpg](img/applicationInspector/inspector_view.jpg)
+![inspector_view.jpg](images/applicationInspector/inspector_view.jpg)
 
 The Heap Usage chart above for example, shows the average(Avg), smallest(Min), greatest(Max) heap usage of the agents registered under the same application name along with the id of the agent that had the smallest/greatest heap usage at a certain point in time. The application inspector also provides other statistics found in the agent inspector in a similar fashion.
 
-![graph.jpg](img/applicationInspector/graph.jpg)
+![graph.jpg](images/applicationInspector/graph.jpg)
 
 
 Application inspector requires [flink](https://flink.apache.org) and [zookeeper](https://zookeeper.apache.org/). Please read on for more detail.
 
 ## 2. Architecture
 
-![execute_flow.jpg](img/applicationInspector/execute_flow.jpg)
+![execute_flow.jpg](images/applicationInspector/execute_flow.jpg)
 
 **A.** Run a streaming job on [flink](https://flink.apache.org).  
 **B.** The taskmanager server is registered to zookeeper as a data node once the job starts.  
@@ -105,11 +105,11 @@ application inspector 기능은 agent들의 리소스 데이터(stat : cpu, memo
 inspector 화면 왼쪽 메뉴의 링크를 클릭하면 application inspector 버튼을 클릭하고 데이터를 볼 수 있다.
 
 - 1 : application inspector menu, 2: application stat data
-![inspector_view.jpg](img/applicationInspector/inspector_view.jpg)
+![inspector_view.jpg](images/applicationInspector/inspector_view.jpg)
 
 예를들면 A라는 application에 포함된 agent들의 heap 사용량을 모아서 heap 사용량 평균값 , heap 사용량의 평균값,  heap 사용량이 가장 높은 agentid와 사용량, heap 사용량이 가장 적은 agentid와 사용량을 보여준다. 이외에도 agent inspector 에서 제공하는 다른 데이터들도 집계하여 application inspector에서 제공한다.
 
-![graph.jpg](img/applicationInspector/graph.jpg)
+![graph.jpg](images/applicationInspector/graph.jpg)
 
 
 application inspector 기능을 동작시키기 위해서는 [flink](https://flink.apache.org)와 [zookeeper](https://zookeeper.apache.org/)가 필요하고, 기능의 동작 구조와 구성 및 설정 방법을 아래 설명한다.
@@ -118,7 +118,7 @@ application inspector 기능을 동작시키기 위해서는 [flink](https://fli
 
 application inspector 기능의 동작 및 구조를 그림과 함께 보자.
 
-![execute_flow.jpg](img/applicationInspector/execute_flow.jpg)
+![execute_flow.jpg](images/applicationInspector/execute_flow.jpg)
 
 
 

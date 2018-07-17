@@ -31,15 +31,15 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * **Realtime Active Thread Chart** - Monitor active threads inside applications in real-time.
 * **Request/Response Scatter Chart** - Visualize request count and response patterns over time to identify potential problems. Transactions can be selected for additional detail by **dragging over the chart**.
 
-  ![Server Map](doc/img/ss_server-map.png)
+  ![Server Map](doc/images/ss_server-map.png)
 
 * **CallStack** - Gain code-level visibility to every transaction in a distributed environment, identifying bottlenecks and points of failure in a single view.
 
-  ![Call Stack](doc/img/ss_call-stack.png)
+  ![Call Stack](doc/images/ss_call-stack.png)
 
 * **Inspector** - View additional details on the application such as CPU usage, Memory/Garbage Collection, TPS, and JVM arguments.
 
-  ![Inspector](doc/img/ss_inspector.png)
+  ![Inspector](doc/images/ss_inspector.png)
 
 ## Supported Modules
 * JDK 6+
