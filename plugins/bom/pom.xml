@@ -234,7 +234,11 @@
                 <version>2.3</version>
                 <classifier>jdk15</classifier>
             </dependency>
-
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.47</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
