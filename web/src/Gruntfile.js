@@ -19,6 +19,8 @@ module.exports = function (grunt) {
 				'PAGE': ROOT + '/pages',
 				'COMMON': ROOT + '/common',
 				'FEATURE': ROOT + '/features',
+				'STAT_HTML': ROOT + '/stat.html',
+				'DANGER_HTML': ROOT + '/_danger.html',
 				'INDEX_HTML': ROOT + '/index.html',
 				'SERVER_MAP': ROOT + '/components/server-map2',
 				'TIME_SLIDER': ROOT + '/components/time-slider',
