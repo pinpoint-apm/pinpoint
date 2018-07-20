@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,10 +28,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.websphere.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.websphere.StatusCodeAccessor;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereConfiguration;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereConstants;
+
 
 /**
  * @author sjmittal
@@ -41,13 +44,15 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MethodDescriptor methodDescriptor;
-    private TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
+    private final ArgumentValidator argumentValidator;
     private final ServletRequestListenerInterceptorHelper<IRequest> servletRequestListenerInterceptorHelper;
 
     public WebContainerHandleRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
+
         this.methodDescriptor = descriptor;
+
+        this.argumentValidator = new ServletArgumentValidator(logger, 0, IRequest.class, 1, IResponse.class);
         final WebsphereConfiguration config = new WebsphereConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<IRequest> requestAdaptor = new IRequestAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
@@ -61,7 +66,7 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!validate(args)) {
+        if (!argumentValidator.validate(args)) {
             return;
         }
 
@@ -79,7 +84,7 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!validate(args)) {
+        if (!argumentValidator.validate(args)) {
             return;
         }
 
@@ -93,26 +98,6 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
         }
     }
 
-    private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
-            return false;
-        }
-
-        if (!(args[0] instanceof IRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object, Not implemented of com.ibm.websphere.servlet.request.IRequest. args[0]={}", args[0]);
-            }
-            return false;
-        }
-
-        if (!(args[1] instanceof IResponse)) {
-            if (isDebug) {
-                logger.debug("Invalid args[1] object, Not implemented of com.ibm.websphere.servlet.request.IResponse. args[1]={}.", args[1]);
-            }
-            return false;
-        }
-        return true;
-    }
 
     private int getStatusCode(final IResponse response) {
         try {
