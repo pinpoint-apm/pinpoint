@@ -130,12 +130,12 @@ public class ServerMetaDataBo {
             this.serverInfo = buffer.read2PrefixedString();
             final int numVmArgs = buffer.readVInt();
             this.vmArgs = new ArrayList<String>(numVmArgs);
-            for (int i = 0; i < numVmArgs; ++i) {
+            for (int i = 0; i < numVmArgs; i++) {
                 this.vmArgs.add(buffer.read2PrefixedString());
             }
             final int numServiceInfos = buffer.readVInt();
             this.serviceInfos = new ArrayList<ServiceInfoBo>(numServiceInfos);
-            for (int i = 0; i < numServiceInfos; ++i) {
+            for (int i = 0; i < numServiceInfos; i++) {
                 ServiceInfoBo serviceInfoBo = new ServiceInfoBo.Builder(buffer.readPrefixedBytes()).build();
                 this.serviceInfos.add(serviceInfoBo);
             }

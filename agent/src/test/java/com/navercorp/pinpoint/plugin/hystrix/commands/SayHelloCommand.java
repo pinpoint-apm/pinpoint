@@ -16,31 +16,78 @@
 
 package com.navercorp.pinpoint.plugin.hystrix.commands;
 
+import com.navercorp.pinpoint.plugin.hystrix.HystrixTestHelper;
+import com.navercorp.test.pinpoint.plugin.hystrix.repository.HelloRepository;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 
 /**
  * @author Jiaqi Feng
+ * @author HyunGil Jeong
  */
 public class SayHelloCommand extends HystrixCommand<String> {
-    private final String _name;
 
-    public SayHelloCommand(String name)
-    {
-        //builder for HystrixCommand, a simple way and a complex way
-        //super(HystrixCommandGroupKey.Factory.asKey("HelloService"));
+    private static final HelloRepository helloRepository = new HelloRepository();
 
-        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("HelloServiceGroup"))
-                .andCommandPropertiesDefaults(HystrixCommandProperties.Setter().
-                        withExecutionIsolationThreadTimeoutInMilliseconds(500)));
+    private final HystrixTestHelper.ExecutionOption executionOption;
+    private final String name;
+    private final Exception expectedException;
+    private final long delayMs;
 
-        _name = new String(name);
+    private SayHelloCommand(HystrixTestHelper.ExecutionOption executionOption, String commandGroup, String name, HystrixCommandProperties.Setter setter) {
+        this(executionOption, commandGroup, name, setter, 0, null);
+    }
 
+    private SayHelloCommand(HystrixTestHelper.ExecutionOption executionOption, String commandGroup, String name, HystrixCommandProperties.Setter setter, long delayMs) {
+        this(executionOption, commandGroup, name, setter, delayMs, null);
+    }
+
+    private SayHelloCommand(HystrixTestHelper.ExecutionOption executionOption, String commandGroup, String name, HystrixCommandProperties.Setter setter, long delayMs, Exception expectedException) {
+        super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandGroup)).andCommandPropertiesDefaults(setter));
+        this.executionOption = executionOption;
+        this.name = name;
+        this.expectedException = expectedException;
+        this.delayMs = delayMs;
+    }
+
+    public static SayHelloCommand create(String commandGroup, String name) {
+        return new SayHelloCommand(HystrixTestHelper.ExecutionOption.NORMAL, commandGroup, name, HystrixCommandProperties.Setter());
+    }
+
+    public static SayHelloCommand createForException(String commandGroup, String name, Exception expectedException) {
+        return new SayHelloCommand(HystrixTestHelper.ExecutionOption.EXCEPTION, commandGroup, name, HystrixCommandProperties.Setter(), 0, expectedException);
+    }
+
+    public static SayHelloCommand createForTimeout(String commandGroup, String name, int timeoutMs) {
+        return new SayHelloCommand(HystrixTestHelper.ExecutionOption.TIMEOUT, commandGroup, name, HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(timeoutMs), timeoutMs * 2);
+    }
+
+    public static SayHelloCommand createForShortCircuit(String commandGroup, String name) {
+        return new SayHelloCommand(HystrixTestHelper.ExecutionOption.TIMEOUT, commandGroup, name, HystrixCommandProperties.Setter().withCircuitBreakerForceOpen(true));
     }
 
     @Override
-    protected String run() {
-        return String.format("Hello %s!", _name);
+    protected String run() throws Exception {
+        String message;
+        switch (executionOption) {
+            case EXCEPTION:
+                message = helloRepository.hello(name, expectedException);
+                break;
+            case TIMEOUT:
+                message = helloRepository.hello(name, delayMs);
+                break;
+            case NORMAL:
+            case SHORT_CIRCUIT:
+            default:
+                message = helloRepository.hello(name);
+                break;
+        }
+        return message;
+    }
+
+    @Override
+    protected String getFallback() {
+        return HystrixTestHelper.fallbackHello(name);
     }
 }

@@ -16,19 +16,23 @@
 
 package com.navercorp.pinpoint.rpc.cluster;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public enum Role {
 
     CALLER, CALLEE, ROUTER, UNKNOWN;
 
+    private static final Set<Role> ROLES = EnumSet.allOf(Role.class);
+
     public static Role getValue(String name) {
         if (name == null) {
             return UNKNOWN;
         }
-
-        for (Role role : Role.values()) {
+        for (Role role : ROLES) {
             if (name.equals(role.name())) {
                 return role;
             }

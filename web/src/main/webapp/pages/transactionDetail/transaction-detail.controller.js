@@ -8,7 +8,7 @@
 	 * @class
 	 */
 	pinpointApp.constant('TransactionDetailConfig', {
-	    applicationUrl: '/transactionInfo.pinpoint',
+	    applicationUrl: 'transactionInfo.pinpoint',
 		CALL_STACK: "#CallStacks",
 		SERVER_MAP: "#ServerMap",
 		TIMELINE: "#Timeline"
@@ -32,6 +32,7 @@
 
 	        var currentTab = cfg.CALL_STACK;
 	        var $elSearchForm = $("#traceTabs ._searchForm");
+			var $elSearchInput = $elSearchForm.find("input");
 			$("#customLogPopup").modal("hide");
 	
 	        $timeout(function () {
@@ -96,7 +97,7 @@
 	        function initSearchVar() {
 	        	bChangedColumn = true;
 				searchIndex = 0;
-				$scope.searchText = "";
+				$elSearchInput.val("");
 				$scope.searchColumn = "self";
 				$scope.searchPlaceholder = "1000(ms)";
 				$elSearchForm.find("input").val("").attr("placeholder", "1000(ms)");
@@ -121,9 +122,6 @@
 	        		window.open(url);
 	        	}
 	        };
-	        $scope.$watch( "searchText", function() {
-	        	searchIndex = 0;
-	        });
 	
 	        $scope.openInNewWindow = function () {
 	            $window.open($location.absUrl());
@@ -138,8 +136,10 @@
 	         * open transaction view
 	         * @param transaction
 	         */
-	        $scope.openTransactionView = function () {
-	            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $routeParams.spanId);
+	        $scope.openTransactionView = function ($event) {
+	        	$event.preventDefault();
+	        	console.log('#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $routeParams.spanId);
+	            $window.open('#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $routeParams.spanId);
 	        };
 	        $scope.$on("transactionDetail.selectDistributedCallFlowRow", function( event, rowId ) {
 				analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_DISTRIBUTED_CALL_FLOW);
@@ -159,7 +159,7 @@
 				}
 			});
 
-	        $scope.searchText = "";
+			$elSearchInput.val("");
 	        $scope.searchColumn = "self";
 	        $scope.searchPlaceholder = "1000(ms)";
 	        $scope.selectSearchColumn = function() {
@@ -171,7 +171,7 @@
 				}
 			};
 	        $scope.searchByClick = function() {
-	        	var trimVal = $.trim( $scope.searchText );
+	        	var trimVal = $.trim( $elSearchInput.val() );
 	        	if ( trimVal === "" ) return;
 
 	        	if ( bChangedColumn ) {
@@ -192,6 +192,8 @@
 	        $scope.searchByKeydown = function( $event ) {
 				if ( $event.keyCode === 13 ) {
 					$scope.searchByClick();
+				} else {
+					searchIndex = 0;
 				}
 			};
 

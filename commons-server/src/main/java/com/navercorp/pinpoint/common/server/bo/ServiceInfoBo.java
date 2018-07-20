@@ -50,7 +50,7 @@ public class ServiceInfoBo {
         buffer.put2PrefixedString(this.serviceName);
         int numServiceLibs = this.serviceLibs == null ? 0 : this.serviceLibs.size();
         buffer.putVInt(numServiceLibs);
-        for (int i = 0; i < numServiceLibs; ++i) {
+        for (int i = 0; i < numServiceLibs; i++) {
             buffer.put2PrefixedString(this.serviceLibs.get(i));
         }
         return buffer.getBuffer();
@@ -106,7 +106,7 @@ public class ServiceInfoBo {
             this.serviceName = buffer.read2PrefixedString();
             final int numServiceLibs = buffer.readVInt();
             this.serviceLibs = new ArrayList<String>(numServiceLibs);
-            for (int i = 0; i < numServiceLibs; ++i) {
+            for (int i = 0; i < numServiceLibs; i++) {
                 this.serviceLibs.add(buffer.read2PrefixedString());
             }
         }

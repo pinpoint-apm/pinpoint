@@ -86,14 +86,15 @@
 <body>
 	<div class="navbar main-navbar bs-docs-nav">
 		<div class="nav-container">
-			<a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
+			<a href="/" class="navbar-brand"><img class="brand" src="images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
 		</div>
 	</div>
 
 	<div class="container">
   		<div class="starter-template">
     		<h1>Pinpoint Agent Version Statistic</h1>
-    		<div id='dashboard'></div>
+    		<div id='dashboard' style="display:inline-block;padding-right: 10px;"></div>
+			<div id='jvmDashboard' style="display:inline-block"></div>
   		</div>
   		<div>
 			<select class="form-control" id="filter-version">
@@ -107,6 +108,7 @@
   					<th>Application</th>
   					<th>Agent</th>
   					<th>Version</th>
+					<th>JVM Version</th>
   				</tr>
   			</thead>
   			<tbody></tbody>
@@ -121,11 +123,11 @@
     <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
     <script src="components/d3/d3.min.js?v=${buildTime}"></script>
     <script src="components/handlebars/handlebars.min.js?v=${buildTime}"></script>
-	<script src="components/moment/moment.js?v=${buildTime}"></script>
+	<script src="components/moment/moment-with-locales.min.js?v=${buildTime}"></script>
     
     <script>
 		var oRef = {
-			REQ_URL: "/getAgentList.pinpoint",
+			REQ_URL: "getAgentList.pinpoint",
 			CONST_ALL: "all",
 			fnTableTemplate : Handlebars.compile([
 				'<tr>',
@@ -134,6 +136,7 @@
 						'{{#if visible}}<a href="/#/main/{{{appName}}}@{{{serviceType}}}" target="_blank">{{{appName}}}</a>{{/if}}',
 						'<td data-app-name="{{{appName}}}@{{{serviceType}}}">{{{hostName}}}</td>',
 					'<td class="version">{{{version}}}</td>',
+					'<td class="jvm">{{{jvm}}}</td>',
 				'</tr>'
 			].join("")),
 			fnSelectTemplate: Handlebars.compile('<option value="{{{version}}}">{{{version}}} - {{{count}}}</option>'),
@@ -149,10 +152,13 @@
 		}).done( function(data){ //, textStatue, jqXHR) {
 			if ( typeof data["exception"] === "undefined" ) {
 				var versionData = parseResultData(data);
+				var jvmData = parseJvmResultData(data);
 
 				sortData(versionData);
+				sortData(jvmData);
 				addToSelect(versionData);
 				dashboard('#dashboard', versionData);
+				dashboard('#jvmDashboard', jvmData);
 				addToTable(data);
 			} else {
 				alert( data["exception"].message );
@@ -168,6 +174,7 @@
 					oRef.$tbody.append( oRef.fnTableTemplate({
 						index: totalIndex++,
 						version: o.agentVersion,
+						jvm: o.vmVersion,
 						appName: appName,
 						visible: index > 0 ? "" : appName,
 						hostName: o.hostName,
@@ -214,6 +221,29 @@
 				var a = oData[p];
 				for( var j = 0 ; j < a.length ; j++ ) {
 					var version = a[j].agentVersion;
+					if ( typeof oResult[version] === "undefined" ) {
+						oResult[version] = 1;
+					} else {
+						oResult[version]++;
+					}
+				}
+			}
+			var aResult = [];
+			for(var ver in oResult ) {
+				aResult.push({
+					version: ver,
+					count: oResult[ver]
+				});
+			}
+			return aResult;
+		}
+		function parseJvmResultData( oData ) {
+			var oResult = {};
+
+			for (var p in oData ) {
+				var a = oData[p];
+				for( var j = 0 ; j < a.length ; j++ ) {
+					var version = a[j].vmVersion;
 					if ( typeof oResult[version] === "undefined" ) {
 						oResult[version] = 1;
 					} else {

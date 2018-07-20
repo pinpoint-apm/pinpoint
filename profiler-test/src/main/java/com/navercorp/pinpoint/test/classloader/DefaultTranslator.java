@@ -20,13 +20,13 @@ package com.navercorp.pinpoint.test.classloader;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,9 +42,9 @@ public class DefaultTranslator implements Translator {
     private final ConcurrentMap<String, MatchableClassFileTransformer> transformerMap = new ConcurrentHashMap<String, MatchableClassFileTransformer>();
 
     private final ClassLoader loader;
-    private final ClassFileTransformerDispatcher dispatcher;
+    private final ClassFileTransformer dispatcher;
 
-    public DefaultTranslator(ClassLoader loader, ClassFileTransformerDispatcher defaultTransformer) {
+    public DefaultTranslator(ClassLoader loader, ClassFileTransformer defaultTransformer) {
         if (defaultTransformer == null) {
             throw new NullPointerException("dispatcher must not be null");
         }
@@ -72,8 +72,8 @@ public class DefaultTranslator implements Translator {
     }
 
     private void addTransformer0(MatchableClassFileTransformer transformer, String className) {
-        final String checkJvmClassName = JavaAssistUtils.javaNameToJvmName(className);
-        MatchableClassFileTransformer old = transformerMap.put(checkJvmClassName, transformer);
+        final String checkClassInternalName = JavaAssistUtils.javaNameToJvmName(className);
+        MatchableClassFileTransformer old = transformerMap.put(checkClassInternalName, transformer);
         if (old != null) {
             throw new IllegalStateException("Modifier already exist new:" + transformer.getClass() + " old:" + old.getMatcher());
         }
@@ -85,29 +85,29 @@ public class DefaultTranslator implements Translator {
     }
 
     @Override
-    public byte[] transform(String javaClassName) {
-        logger.debug("loading className:{}", javaClassName);
+    public byte[] transform(String className) {
+        logger.debug("loading className:{}", className);
 
-        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(javaClassName);
+        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
         try {
             // Find Modifier from agent and try transforming
-            final byte[] transformBytes = dispatcher.transform(this.loader, jvmClassName, null, null, null);
+            final byte[] transformBytes = dispatcher.transform(this.loader, classInternalName, null, null, null);
             if (transformBytes != null) {
                 return transformBytes;
             }
 
-            final byte[] customTransformBytes = customTransformer(jvmClassName);
+            final byte[] customTransformBytes = customTransformer(classInternalName);
             if (customTransformBytes != null) {
                 return customTransformBytes;
             }
 
-            final byte[] classFile = BytecodeUtils.getClassFile(this.loader, javaClassName);
+            final byte[] classFile = BytecodeUtils.getClassFile(this.loader, className);
             if (classFile == null) {
-                throw new ClassNotFoundException(javaClassName + " not found");
+                throw new ClassNotFoundException(className + " not found");
             }
             return classFile;
         } catch (Throwable th) {
-            throw new RuntimeException(javaClassName + " transform fail" , th);
+            throw new RuntimeException(className + " transform fail" , th);
         }
     }
 

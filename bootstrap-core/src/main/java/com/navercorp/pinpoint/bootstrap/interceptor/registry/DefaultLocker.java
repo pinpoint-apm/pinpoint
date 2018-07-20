@@ -30,4 +30,9 @@ public class DefaultLocker implements Locker {
 
         }
     }
+
+    @Override
+    public Object getLock() {
+        return lockRef.get();
+    }
 }

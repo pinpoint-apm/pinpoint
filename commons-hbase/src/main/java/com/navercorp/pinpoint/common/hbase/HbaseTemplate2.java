@@ -108,7 +108,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         Configuration configuration = getConfiguration();
         Assert.notNull(configuration, "configuration is required");
         Assert.notNull(getTableFactory(), "tableFactory is required");
-        PinpointThreadFactory parallelScannerThreadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner");
+        PinpointThreadFactory parallelScannerThreadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner", true);
         if (this.maxThreadsPerParallelScan <= 1) {
             this.enableParallelScan = false;
             this.executor = Executors.newSingleThreadExecutor(parallelScannerThreadFactory);

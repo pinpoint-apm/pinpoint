@@ -26,7 +26,7 @@ public class BindValueConverter {
         converter.register();
     }
 
-    public final Map<String, Converter> convertermap = new HashMap<String, Converter>() ;
+    private final Map<String, Converter> convertermap = new HashMap<String, Converter>() ;
 
     private void register() {
         simpleType();
@@ -94,8 +94,8 @@ public class BindValueConverter {
         convertermap.put("setNString", simpleTypeConverter);
     }
 
-    public String convert0(String methodName, Object[] args) {
-        Converter converter = this.convertermap.get(methodName);
+    private String convert0(String methodName, Object[] args) {
+        final Converter converter = this.convertermap.get(methodName);
         if (converter == null) {
             return "";
         }

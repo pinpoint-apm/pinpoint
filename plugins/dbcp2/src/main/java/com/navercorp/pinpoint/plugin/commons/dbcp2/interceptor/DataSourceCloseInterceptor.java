@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,39 @@
 
 package com.navercorp.pinpoint.plugin.commons.dbcp2.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.plugin.commons.dbcp2.CommonsDbcp2Plugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.plugin.commons.dbcp2.DataSourceMonitorAccessor;
+import com.navercorp.pinpoint.plugin.commons.dbcp2.Dbcp2DataSourceMonitor;
 
-@Scope(CommonsDbcp2Plugin.DBCP2_SCOPE)
-@TargetMethod(name="close")
-public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+/**
+ * @author Taejin Koo
+ */
+public class DataSourceCloseInterceptor implements AroundInterceptor {
 
-    public DataSourceCloseInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+
+    public DataSourceCloseInterceptor(DataSourceMonitorRegistry dataSourceMonitorRegistry) {
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
+    public void before(Object target, Object[] args) {
+        if (target instanceof DataSourceMonitorAccessor) {
+            final DataSourceMonitorAccessor dataSourceMonitorAccessor = (DataSourceMonitorAccessor) target;
+
+            final Dbcp2DataSourceMonitor dataSourceMonitor = dataSourceMonitorAccessor._$PINPOINT$_getDataSourceMonitor();
+            if (dataSourceMonitor != null) {
+                dataSourceMonitorAccessor._$PINPOINT$_setDataSourceMonitor(null);
+                dataSourceMonitor.close();
+                dataSourceMonitorRegistry.unregister(dataSourceMonitor);
+            }
+        }
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordServiceType(CommonsDbcp2Plugin.DBCP2_SERVICE_TYPE);
-        trace.recordApi(getMethodDescriptor());
-        trace.recordException(throwable);
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+
     }
 
 }

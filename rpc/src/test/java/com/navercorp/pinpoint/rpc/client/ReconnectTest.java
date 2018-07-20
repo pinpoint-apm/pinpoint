@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.rpc.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
+import com.navercorp.pinpoint.rpc.server.EchoServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.junit.*;
 import org.slf4j.Logger;
@@ -53,10 +53,11 @@ public class ReconnectTest {
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
         
-        clientFactory = new PinpointClientFactory();
+        clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setReconnectDelay(200);
         clientFactory.setPingDelay(100);
-        clientFactory.setTimeoutMillis(200);
+        clientFactory.setWriteTimeoutMillis(200);
+        clientFactory.setRequestTimeoutMillis(200);
     }
     
     @AfterClass
@@ -69,7 +70,7 @@ public class ReconnectTest {
 
     @Test
     public void reconnect() throws IOException, InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
         
         final AtomicBoolean reconnectPerformed = new AtomicBoolean(false);
 
@@ -86,14 +87,14 @@ public class ReconnectTest {
             });
             
             PinpointRPCTestUtils.close(serverAcceptor);
-            logger.info("server.close()---------------------------");
+            logger.debug("server.close");
             assertClientDisconnected(client);
 
-            newServerAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
-            logger.info("bind server---------------------------");
+            newServerAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
+            logger.debug("bind server");
             assertClientConnected(client);
 
-            logger.info("request server---------------------------");
+            logger.debug("request server");
             byte[] randomByte = TestByteUtils.createRandomByte(10);
             byte[] response = PinpointRPCTestUtils.request(client, randomByte);
             
@@ -117,20 +118,20 @@ public class ReconnectTest {
 
         int threadCount = tbean.getThreadCount();
         for (int i = 0; i < count; i++) {
-            logger.info((i + 1) + "th's start.");
+            logger.debug((i + 1) + "th's start.");
             
-            PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+            PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
             PinpointClient client = clientFactory.connect("localhost", bindPort);
 
             PinpointRPCTestUtils.close(serverAcceptor);
-            logger.info("server.close()---------------------------");
+            logger.debug("server.close");
             assertClientDisconnected(client);
 
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
-            logger.info("bind server---------------------------");
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
+            logger.debug("bind server");
             assertClientConnected(client);
 
-            logger.info("request server---------------------------");
+            logger.debug("request server");
             byte[] randomByte = TestByteUtils.createRandomByte(10);
             byte[] response = PinpointRPCTestUtils.request(client, randomByte);
 
@@ -148,17 +149,17 @@ public class ReconnectTest {
 
     @Test
     public void scheduledConnect() throws IOException, InterruptedException {
-        final PinpointClientFactory clientFactory = new PinpointClientFactory();
+        final PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setReconnectDelay(200);
         PinpointClient client = null;
         PinpointServerAcceptor serverAcceptor = null;
         try {
             client = clientFactory.scheduledConnect("localhost", bindPort);
 
-            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+            serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
             assertClientConnected(client);
 
-            logger.info("request server---------------------------");
+            logger.debug("request server");
             byte[] randomByte = TestByteUtils.createRandomByte(10);
             byte[] response = PinpointRPCTestUtils.request(client, randomByte);
 

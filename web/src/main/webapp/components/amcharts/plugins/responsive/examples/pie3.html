@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>amCharts Responsive Example</title>
+  <script src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+  <script src="http://www.amcharts.com/lib/3/pie.js"></script>
+  <script src="../responsive.min.js"></script>
+  <style>
+  body, html {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  .chartdiv {
+    width: 50%;
+    height: 100%;
+    float: left;
+  }
+  </style>
+  <script>
+    AmCharts.makeChart( "chart1", {
+      "type": "pie",
+      "titles": [ {
+        "text": "Visits",
+        "size": 16
+      } ],
+      "dataProvider": [ {
+        "country": "United States",
+        "visits": 7252
+      }, {
+        "country": "China",
+        "visits": 3882
+      }, {
+        "country": "Japan",
+        "visits": 1809
+      }, {
+        "country": "Germany",
+        "visits": 1322
+      }, {
+        "country": "United Kingdom",
+        "visits": 1122
+      } ],
+      "valueField": "visits",
+      "titleField": "country",
+      "startEffect": "elastic",
+      "startDuration": 2,
+      "labelRadius": 15,
+      "innerRadius": "50%",
+      "depth3D": 10,
+      "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+      "angle": 15,
+      "legend": {},
+      "responsive": {
+        "enabled": true
+      }
+    } );
+
+    AmCharts.makeChart( "chart2", {
+      "type": "pie",
+      "theme": "none",
+      "titles": [ {
+        "text": "Views",
+        "size": 16
+      } ],
+      "dataProvider": [ {
+        "country": "United States",
+        "visits": 10616
+      }, {
+        "country": "China",
+        "visits": 9845
+      }, {
+        "country": "Japan",
+        "visits": 3111
+      }, {
+        "country": "Germany",
+        "visits": 2874
+      }, {
+        "country": "United Kingdom",
+        "visits": 2110
+      } ],
+      "valueField": "visits",
+      "titleField": "country",
+      "startEffect": "elastic",
+      "startDuration": 2,
+      "labelRadius": 15,
+      "innerRadius": "50%",
+      "depth3D": 10,
+      "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+      "angle": 15,
+      "legend": {},
+      "responsive": {
+        "enabled": true
+      }
+    } );
+  </script>
+</head>
+
+<body>
+  <div id="chart1" class="chartdiv"></div>
+  <div id="chart2" class="chartdiv"></div>
+</body>
+
+</html>

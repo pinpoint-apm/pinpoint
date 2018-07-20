@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
 import java.util.*;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public enum ActiveThreadCountErrorType {
-
 
     UNSUPPORTED_VERSION((short) 111, "UNSUPPORTED VERSION", StreamCode.TYPE_UNSUPPORT.name()),
     CLUSTER_OPTION_NOT_SET((short) 121, "CLUSTER OPTION NOT SET", StreamCode.CONNECTION_UNSUPPORT.name()),
@@ -40,18 +40,22 @@ public enum ActiveThreadCountErrorType {
 
     private final short code;
     private final String message;
-    private final List<String> errorMessageList = new ArrayList<>();
-    private static final String LINE_DELEMETER = "-";
+    private final List<String> errorMessageList;
+    private static final String LINE_DELIMITER = "-";
 
     ActiveThreadCountErrorType(short code, String message, String... candidateErrorMessages) {
         this.code = code;
         this.message = message;
 
-        if (candidateErrorMessages != null) {
-            for (String errorMessage : candidateErrorMessages) {
-                errorMessageList.add(errorMessage);
-            }
+        this.errorMessageList = asList(candidateErrorMessages);
+    }
+
+    private List<String> asList(String[] candidateErrorMessages) {
+        if (ArrayUtils.isEmpty(candidateErrorMessages)) {
+            return Collections.emptyList();
         }
+
+        return Arrays.asList(candidateErrorMessages);
     }
 
     public short getCode() {

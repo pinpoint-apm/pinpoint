@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
+import com.google.inject.Inject;
+import com.navercorp.pinpoint.io.request.EmptyMessage;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
@@ -31,7 +34,7 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -40,9 +43,15 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ProfilerCommandServiceRegistry commandServiceRegistry = new ProfilerCommandServiceRegistry();
+    private final ProfilerCommandServiceLocator commandServiceLocator;
 
-    public CommandDispatcher() {
+    @Inject
+    public CommandDispatcher(ProfilerCommandServiceLocator commandServiceLocator) {
+        if (commandServiceLocator == null) {
+            throw new NullPointerException("commandServiceLocator must not be null");
+        }
+
+        this.commandServiceLocator = commandServiceLocator;
     }
 
     @Override
@@ -54,7 +63,8 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
-        final TBase<?, ?> request = SerializationUtils.deserialize(requestPacket.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
+        final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(requestPacket.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, EmptyMessage.INSTANCE);
+        final TBase<?, ?> request = deserialize.getData();
         logger.debug("handleRequest request:{}, remote:{}", request, pinpointSocket.getRemoteAddress());
 
         TBase response;
@@ -64,7 +74,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
             response = tResult;
         } else {
-            final ProfilerRequestCommandService service = commandServiceRegistry.getRequestService(request);
+            final ProfilerRequestCommandService service = commandServiceLocator.getRequestService(request);
             if (service == null) {
                 TResult tResult = new TResult(false);
                 tResult.setMessage("Can't find suitable service(" + request + ").");
@@ -77,7 +87,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
         final byte[] payload = SerializationUtils.serialize(response, CommandSerializer.SERIALIZER_FACTORY, null);
         if (payload != null) {
-            pinpointSocket.response(requestPacket, payload);
+            pinpointSocket.response(requestPacket.getRequestId(), payload);
         }
     }
 
@@ -85,12 +95,13 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
         logger.info("MessageReceived handleStreamCreate {} {}", packet, streamChannelContext);
 
-        final TBase<?, ?> request = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
+        final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, EmptyMessage.INSTANCE);
+        final TBase<?, ?> request = deserialize.getData();
         if (request == null) {
             return StreamCode.TYPE_UNKNOWN;
         }
         
-        final ProfilerStreamCommandService service = commandServiceRegistry.getStreamService(request);
+        final ProfilerStreamCommandService service = commandServiceLocator.getStreamService(request);
         if (service == null) {
             return StreamCode.TYPE_UNSUPPORT;
         }
@@ -102,22 +113,8 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
     }
 
-    public boolean registerCommandService(ProfilerCommandService commandService) {
-        if (commandService == null) {
-            throw new NullPointerException("commandService must not be null");
-        }
-        return this.commandServiceRegistry.addService(commandService);
-    }
-
-    public void registerCommandService(ProfilerCommandServiceGroup commandServiceGroup) {
-        if (commandServiceGroup == null) {
-            throw new NullPointerException("commandServiceGroup must not be null");
-        }
-        this.commandServiceRegistry.addService(commandServiceGroup);
-    }
-
-    public List<Short> getRegisteredCommandServiceCodes() {
-        return commandServiceRegistry.getCommandServiceCodes();
+    public Set<Short> getRegisteredCommandServiceCodes() {
+        return commandServiceLocator.getCommandServiceCodes();
     }
 
 }

@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive("userGroupDirective", [ "$timeout", "helpContentService", "AlarmUtilService", "AnalyticsService", "globalConfig",
-	    function ( $timeout, helpContentService, AlarmUtilService, AnalyticsService, globalConfig ) {
+	pinpointApp.directive("userGroupDirective", [ "$timeout", "helpContentService", "AlarmUtilService", "AnalyticsService", "SystemConfigurationService",
+	    function ( $timeout, helpContentService, AlarmUtilService, AnalyticsService, SystemConfigService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -58,6 +58,13 @@
 	    				addSelectClass( AlarmUtilService.extractID( $el ) );
 						scope.$emit( "userGroup.selectedUserGroup", $el.find(".contents").html() );
 	    			}
+	    			function releaseGroup( groupNumber ) {
+						if ( selectedGroupNumber !== groupNumber ) {
+							return;
+						}
+						selectedGroupNumber = "";
+						scope.$emit( "userGroup.selectedNone" );
+					}
 					function addSelectClass( newSelectedGroupNumber ) {
 						$( "#" + scope.prefix + selectedGroupNumber ).removeClass("selected");
 						$( "#" + scope.prefix + newSelectedGroupNumber ).addClass("selected");
@@ -81,7 +88,7 @@
 						cancelPreviousWork();
 						var query = $.trim( $elSearchInput.val() );
 						if ( query === "" ) {
-							loadData();
+							loadData("");
 						} else {
 							if ( query.length < CONSTS.MIN_GROUPNAME_LENGTH ) {
 								$elSearchInput.val("");
@@ -108,14 +115,16 @@
 						applyAddUserGroup();
 					};
 					function applyAddUserGroup() {
-						AddUserGroup.applyAction( AlarmUtilService, $elNewGroup, $elLoading, globalConfig.userId, function( oServerData, groupId ) {
-							oUserGroupList.push({
-								id: groupId,
-								number: oServerData.number
-							});
-							scope.userGroupList = oUserGroupList;
-							AlarmUtilService.setTotal( $elTotal, oUserGroupList.length );
-						}, showAlert );
+						SystemConfigService.getConfig().then(function(config) {
+							AddUserGroup.applyAction( AlarmUtilService, $elNewGroup, $elLoading, config["userId"], function( oServerData, groupId ) {
+								oUserGroupList.push({
+									id: groupId,
+									number: oServerData.number
+								});
+								scope.userGroupList = oUserGroupList;
+								AlarmUtilService.setTotal( $elTotal, oUserGroupList.length );
+							}, showAlert );
+						});
 					}
 
 					// remove process
@@ -131,18 +140,22 @@
 						RemoveUserGroup.cancelAction( AlarmUtilService, $workingNode );
 					};
 					scope.onApplyRemoveUserGroup = function() {
-						RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, globalConfig.userId, function( groupId ) {
-							for (var i = 0; i < oUserGroupList.length; i++) {
-								if ( oUserGroupList[i].id == groupId ) {
-									oUserGroupList.splice(i, 1);
-									break;
+						SystemConfigService.getConfig().then(function(config) {
+							var groupNumber = AlarmUtilService.extractID($workingNode);
+							RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, config["userId"], function( groupId ) {
+								for (var i = 0; i < oUserGroupList.length; i++) {
+									if ( oUserGroupList[i].id == groupId ) {
+										oUserGroupList.splice(i, 1);
+										break;
+									}
 								}
-							}
-							scope.$apply(function () {
-								scope.userGroupList = oUserGroupList;
-							});
-							AlarmUtilService.setTotal($elTotal, oUserGroupList.length);
-						}, showAlert );
+								releaseGroup( groupNumber );
+								scope.$apply(function () {
+									scope.userGroupList = oUserGroupList;
+								});
+								AlarmUtilService.setTotal($elTotal, oUserGroupList.length);
+							}, showAlert );
+						});
 					};
 
 					// key down
@@ -167,7 +180,7 @@
 					};
 					scope.$on("configuration.userGroup.show", function() {
 	    				if ( bIsLoaded === false ) {
-	    					loadData();
+	    					loadData("");
 	    				}
 	    			});
 	            }

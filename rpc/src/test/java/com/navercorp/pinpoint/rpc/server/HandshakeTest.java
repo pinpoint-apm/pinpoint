@@ -36,6 +36,7 @@ import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +49,7 @@ public class HandshakeTest {
 
     private static int bindPort;
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(10, 500);
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(50, 3000);
 
 
     @BeforeClass
@@ -67,7 +68,7 @@ public class HandshakeTest {
     // simple test
     @Test
     public void handshakeTest1() throws InterruptedException {
-        final PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
+        final PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
         PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
         PinpointClientFactory clientFactory2 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), null);
@@ -99,7 +100,7 @@ public class HandshakeTest {
 
     @Test
     public void handshakeTest2() throws InterruptedException {
-        final PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
+        final PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
 
         Map<String, Object> params = PinpointRPCTestUtils.getParams();
         
@@ -133,7 +134,8 @@ public class HandshakeTest {
         int retryInterval = 100;
         int maxHandshakeCount = 10;
 
-        PinpointClientHandshaker handshaker = new PinpointClientHandshaker(timer, retryInterval, maxHandshakeCount);
+        Map<String, Object> emptyMap = Collections.emptyMap();
+        PinpointClientHandshaker handshaker = new PinpointClientHandshaker(emptyMap, timer, retryInterval, maxHandshakeCount);
         handshaker.handshakeComplete(null);
 
         Assert.assertEquals(null, handshaker.getHandshakeResult());
@@ -146,7 +148,8 @@ public class HandshakeTest {
         int retryInterval = 100;
         int maxHandshakeCount = 10;
 
-        PinpointClientHandshaker handshaker = new PinpointClientHandshaker(timer, retryInterval, maxHandshakeCount);
+        Map<String, Object> emptyMap = Collections.emptyMap();
+        PinpointClientHandshaker handshaker = new PinpointClientHandshaker(emptyMap, timer, retryInterval, maxHandshakeCount);
         handshaker.handshakeAbort();
 
         Assert.assertTrue(handshaker.isFinished());

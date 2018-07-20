@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.test.junit4;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.classloader.TestClassLoaderFactory;
 import org.junit.runners.model.TestClass;
@@ -28,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.test.MockAgent;
 
 /**
  * @author hyungil.jeong
@@ -42,14 +43,15 @@ public class TestContext implements Closeable {
 
     private final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
     private final TestClassLoader classLoader;
-    private final MockAgent mockAgent;
+    private final DefaultApplicationContext mockApplicationContext;
 
     private final Class<?> baseTestClass;
 
 
     public TestContext() {
-        this.mockAgent = createMockAgent();
-        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockAgent);
+        this.mockApplicationContext = createMockApplicationContext();
+        this.mockApplicationContext.start();
+        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockApplicationContext);
         this.classLoader.initialize();
         try {
             this.baseTestClass = classLoader.loadClass(BASE_TEST_CLASS_NAME);
@@ -59,17 +61,18 @@ public class TestContext implements Closeable {
     }
 
 
-    private MockAgent createMockAgent() {
+    private DefaultApplicationContext createMockApplicationContext() {
         logger.trace("agent create");
-        return MockAgent.of("pinpoint.config");
+        MockApplicationContextFactory factory = new MockApplicationContextFactory();
+        return factory.build("pinpoint.config");
     }
 
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
-    public MockAgent getMockAgent() {
-        return mockAgent;
+    public DefaultApplicationContext getDefaultApplicationContext() {
+        return mockApplicationContext;
     }
 
     public TestClass createTestClass(Class<?> testClass) {
@@ -87,8 +90,8 @@ public class TestContext implements Closeable {
 
     @Override
     public void close() throws IOException {
-        if (mockAgent != null) {
-            mockAgent.stop(true);
+        if (mockApplicationContext != null) {
+            mockApplicationContext.close();
         }
         PLoggerFactory.unregister(loggerBinder);
     }

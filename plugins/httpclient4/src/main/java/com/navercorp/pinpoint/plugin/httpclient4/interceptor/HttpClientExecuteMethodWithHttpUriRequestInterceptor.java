@@ -24,9 +24,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
  * InstrumentMethod interceptor
@@ -41,7 +39,6 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends AbstractHttpClientExecuteMethodInterceptor {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;

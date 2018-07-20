@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.google.httpclient;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -63,7 +64,7 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
                 if (config.isAsync()) {
                     InstrumentMethod executeAsync = target.getDeclaredMethod("executeAsync", "java.util.concurrent.Executor");
                     if (executeAsync != null) {
-                        executeAsync.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInterceptor");
+                        executeAsync.addScopedInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInterceptor", HttpClientConstants.EXECUTE_ASYNC_SCOPE, ExecutionPolicy.ALWAYS);
                     }
 
                     for (InstrumentClass nestedClass : target.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("executeAsync", "java.util.concurrent.Executor"), ClassFilters.interfaze("java.util.concurrent.Callable")))) {
@@ -72,12 +73,12 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
                             @Override
                             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                                target.addField(AsyncTraceIdAccessor.class.getName());
+                                target.addField(AsyncContextAccessor.class.getName());
 
                                 InstrumentMethod constructor = target.getConstructor("com.google.api.client.http.HttpRequest");
                                 if (constructor != null) {
-                                    logger.debug("Add constuctor interceptor for nested class {}", target.getName());
-                                    constructor.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor");
+                                    logger.debug("Add constructor interceptor for nested class {}", target.getName());
+                                    constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor", HttpClientConstants.EXECUTE_ASYNC_SCOPE, ExecutionPolicy.ALWAYS);
                                 }
 
                                 InstrumentMethod m = target.getDeclaredMethod("call");

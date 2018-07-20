@@ -1,0 +1,5 @@
+<FindBugsFilter>
+    <Match>
+        <Package name="~com\.navercorp\.pinpoint\.thrift\.dto.*" />
+    </Match>
+</FindBugsFilter>

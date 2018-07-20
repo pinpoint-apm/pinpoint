@@ -14,17 +14,21 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Jongho Moon
  *
  */
+/**
+ * @deprecated Since 1.6.1. Use {@link JdbcUrlParserV2 )}
+ */
+@Deprecated
 public abstract class JdbcUrlParser {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final ConcurrentMap<String, DatabaseInfo> cache = new ConcurrentHashMap<String, DatabaseInfo>();
@@ -41,13 +45,7 @@ public abstract class JdbcUrlParser {
             return hit;
         }
 
-        DatabaseInfo databaseInfo = null;
-        try {
-            databaseInfo = doParse(url);
-        } catch (Exception e) {
-            logger.error("connectionString parse fail. url:{} ", url);
-            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-        }
+        final DatabaseInfo databaseInfo = getDatabaseInfo(url);
 
         final DatabaseInfo old = cache.putIfAbsent(url, databaseInfo);
  
@@ -58,5 +56,15 @@ public abstract class JdbcUrlParser {
         return databaseInfo;
     }
 
+    private DatabaseInfo getDatabaseInfo(String url) {
+        try {
+            return doParse(url);
+        } catch (Exception e) {
+            logger.error("connectionString parse fail. url:{} ", url);
+            return UnKnownDatabaseInfo.INSTANCE;
+        }
+    }
+
     protected abstract DatabaseInfo doParse(String url);
+
 }

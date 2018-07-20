@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import javassist.CtClass;
 
 import org.junit.Test;
@@ -66,7 +67,7 @@ public class IsolateMultipleClassPoolTest {
     };
 
     public static URL getLoggerUrl() {
-        URL location = Logger.class.getProtectionDomain().getCodeSource().getLocation();
+        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
         logger.debug("Slf4j url:{}", location);
         return location;
     }

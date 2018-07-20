@@ -17,57 +17,62 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 public class SampledTransaction implements SampledAgentStatDataPoint {
 
-    private Point<Long, Double> sampledNew;
-    private Point<Long, Double> sampledContinuation;
-    private Point<Long, Double> unsampledNew;
-    private Point<Long, Double> unsampledContinuation;
-    private Point<Long, Double> total;
+    public static final double UNCOLLECTED_VALUE = -1D;
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Double>>() {
+        @Override
+        public AgentStatPoint<Double> createUnCollectedPoint(long xVal) {
+            return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);
+        }
+    };
 
-    public Point<Long, Double> getSampledNew() {
+    private final AgentStatPoint<Double> sampledNew;
+    private final AgentStatPoint<Double> sampledContinuation;
+    private final AgentStatPoint<Double> unsampledNew;
+    private final AgentStatPoint<Double> unsampledContinuation;
+    private final AgentStatPoint<Double> total;
+
+    public SampledTransaction(AgentStatPoint<Double> sampledNew, AgentStatPoint<Double> sampledContinuation, AgentStatPoint<Double> unsampledNew, AgentStatPoint<Double> unsampledContinuation, AgentStatPoint<Double> total) {
+        this.sampledNew = Objects.requireNonNull(sampledNew, "sampledNew must not be null");
+        this.sampledContinuation = Objects.requireNonNull(sampledContinuation, "sampledContinuation must not be null");
+        this.unsampledNew = Objects.requireNonNull(unsampledNew, "unsampledNew must not be null");
+        this.unsampledContinuation = Objects.requireNonNull(unsampledContinuation, "unsampledContinuation must not be null");
+        this.total = Objects.requireNonNull(total, "total must not be null");
+    }
+
+    public AgentStatPoint<Double> getSampledNew() {
         return sampledNew;
     }
 
-    public void setSampledNew(Point<Long, Double> sampledNew) {
-        this.sampledNew = sampledNew;
-    }
 
-    public Point<Long, Double> getSampledContinuation() {
+
+    public AgentStatPoint<Double> getSampledContinuation() {
         return sampledContinuation;
     }
 
-    public void setSampledContinuation(Point<Long, Double> sampledContinuation) {
-        this.sampledContinuation = sampledContinuation;
-    }
 
-    public Point<Long, Double> getUnsampledNew() {
+    public AgentStatPoint<Double> getUnsampledNew() {
         return unsampledNew;
     }
 
-    public void setUnsampledNew(Point<Long, Double> unsampledNew) {
-        this.unsampledNew = unsampledNew;
-    }
 
-    public Point<Long, Double> getUnsampledContinuation() {
+    public AgentStatPoint<Double> getUnsampledContinuation() {
         return unsampledContinuation;
     }
 
-    public void setUnsampledContinuation(Point<Long, Double> unsampledContinuation) {
-        this.unsampledContinuation = unsampledContinuation;
-    }
 
-    public Point<Long, Double> getTotal() {
+    public AgentStatPoint<Double> getTotal() {
         return total;
     }
 
-    public void setTotal(Point<Long, Double> total) {
-        this.total = total;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -20,15 +20,16 @@ import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
-import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
 
 /**
  * @author HyunGil Jeong
  */
-public class TestAgentInformation extends AgentInformation {
+public class TestAgentInformation extends DefaultAgentInformation {
     
     private static final String AGENT_ID = "test-agent";
     private static final String APPLICATION_NAME = "TEST_APPLICATION";
+    private static final boolean IS_CONTAINER = false;
     private static final int PID = 10;
     private static final String MACHINE_NAME = "test-machine";
     private static final String HOST_IP = "127.0.0.1";
@@ -37,6 +38,6 @@ public class TestAgentInformation extends AgentInformation {
     private static final String AGENT_VERSION = Version.VERSION;
 
     public TestAgentInformation() {
-        super(AGENT_ID, APPLICATION_NAME, System.currentTimeMillis(), PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, JVM_VERSION, AGENT_VERSION);
+        super(AGENT_ID, APPLICATION_NAME, IS_CONTAINER, System.currentTimeMillis(), PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, JVM_VERSION, AGENT_VERSION);
     }
 }

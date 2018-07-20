@@ -35,10 +35,16 @@ public class RetryMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MethodDescriptor descriptor;
-    private TraceContext traceContext;
+    private final MethodDescriptor descriptor;
+    private final TraceContext traceContext;
 
     public RetryMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
+        if (context == null) {
+            throw new NullPointerException("context must not be null");
+        }
+        if (methodDescriptor == null) {
+            throw new NullPointerException("methodDescriptor must not be null");
+        }
         this.traceContext = context;
         this.descriptor = methodDescriptor;
     }
@@ -50,7 +56,7 @@ public class RetryMethodInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -65,7 +71,7 @@ public class RetryMethodInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -74,15 +80,9 @@ public class RetryMethodInterceptor implements AroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            
-            final StringBuilder sb = new StringBuilder();
-            if (args != null && args.length >= 2 && args[1] != null && args[1] instanceof Exception) {
-                sb.append(args[1].getClass().getName()).append(", ");
-            }
-            if (args != null && args.length >= 3 && args[2] != null && args[2] instanceof Integer) {
-                sb.append(args[2]);
-            }
-            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());
+
+            final String retryMessage = getRetryMessage(args);
+            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, retryMessage);
 
             if (result != null) {
                 recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
@@ -90,5 +90,19 @@ public class RetryMethodInterceptor implements AroundInterceptor {
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private String getRetryMessage(Object[] args) {
+        if (args == null) {
+            return "";
+        }
+        final StringBuilder sb = new StringBuilder();
+        if (args.length >= 2 && args[1] instanceof Exception) {
+            sb.append(args[1].getClass().getName()).append(", ");
+        }
+        if (args.length >= 3 && args[2] instanceof Integer) {
+            sb.append(args[2]);
+        }
+        return sb.toString();
     }
 }

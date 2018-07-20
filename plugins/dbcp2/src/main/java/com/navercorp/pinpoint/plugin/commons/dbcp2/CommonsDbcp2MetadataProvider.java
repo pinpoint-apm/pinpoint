@@ -25,7 +25,7 @@ public class CommonsDbcp2MetadataProvider implements TraceMetadataProvider {
      */
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(CommonsDbcp2Plugin.DBCP2_SERVICE_TYPE);
+        context.addServiceType(CommonsDbcp2Constants.SERVICE_TYPE);
     }
 
 }

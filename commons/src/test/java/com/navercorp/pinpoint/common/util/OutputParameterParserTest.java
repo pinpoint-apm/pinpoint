@@ -49,9 +49,9 @@ public class OutputParameterParserTest {
 
     private void assertOutputParameter(String outputParam, String... params) {
         List<String> result = parser.parseOutputParameter(outputParam);
-        logger.info("parseResult:{}", result);
+        logger.debug("parseResult:{}", result);
         try {
-            Assert.assertArrayEquals(result.toArray(new String[result.size()]), params);
+            Assert.assertArrayEquals(result.toArray(new String[0]), params);
         } catch (AssertionError e) {
             logger.warn("parseResult:{}", result);
             logger.warn("params:{}", (Object[]) params);

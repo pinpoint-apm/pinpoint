@@ -29,10 +29,18 @@ public class ListenableDataSender<T extends TBase<?, ?>> implements DataSender {
         public boolean handleSend(TBase<?, ?> data) {
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "EMPTY_LISTENER";
+        }
     };
+
+    private final String name;
     private volatile Listener listener = DEFAULT_LISTENER;
 
-    public ListenableDataSender() {
+    public ListenableDataSender(String name) {
+        this.name = name;
     }
 
     public void setListener(Listener listener) {
@@ -54,5 +62,13 @@ public class ListenableDataSender<T extends TBase<?, ?>> implements DataSender {
 
     public interface Listener {
         boolean handleSend(TBase<?, ?> data);
+    }
+
+    @Override
+    public String toString() {
+        return "ListenableDataSender{" +
+                "name='" + name + '\'' +
+                ", listener=" + listener +
+                '}';
     }
 }

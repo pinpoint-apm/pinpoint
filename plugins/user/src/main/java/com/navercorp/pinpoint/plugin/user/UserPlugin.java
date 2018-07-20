@@ -45,22 +45,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
         final UserPluginConfig config = new UserPluginConfig(context.getConfig());
 
         // merge
-        final Map<String, Set<String>> methods = new HashMap<String, Set<String>>();
-        for (String fullQualifiedMethodName : config.getIncludeList()) {
-            try {
-                final String className = toClassName(fullQualifiedMethodName);
-                final String methodName = toMethodName(fullQualifiedMethodName);
-                Set<String> names = methods.get(className);
-                if(names == null) {
-                    names = new HashSet<String>();
-                    methods.put(className, names);
-                }
-                names.add(methodName);
-            } catch (Exception e) {
-                logger.warn("Failed to parse entry point(" + fullQualifiedMethodName + ").", e);
-            }
-        }
-
+        final Map<String, Set<String>> methods = parseUserMethods(config.getIncludeList());
         if (logger.isInfoEnabled()) {
             logger.info("UserPlugin entry points={}", methods);
         }
@@ -76,6 +61,10 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
                 logger.warn("Failed to add user include class(" + entry.getKey() + "." + entry.getValue() + ").", e);
             }
         }
+
+        // add message queue client handler methods
+        List<String> clientHandlerMethods = config.getMqClientHandlerMethods();
+        addMessageQueueClientHandlerMethods(clientHandlerMethods);
     }
 
     private void addUserIncludeClass(final String className, final Set<String> methodNames) {
@@ -85,7 +74,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                final String[] names = methodNames.toArray(new String[methodNames.size()]);
+                final String[] names = methodNames.toArray(new String[0]);
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(names))) {
                     try {
                         method.addInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor");
@@ -101,8 +90,52 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
+    private void addMessageQueueClientHandlerMethods(List<String> clientHandlerMethods) {
+        Map<String, Set<String>> clientHandlers = parseUserMethods(clientHandlerMethods);
+        for (Map.Entry<String, Set<String>> clientHandler : clientHandlers.entrySet()) {
+            final String className = clientHandler.getKey();
+            final Set<String> methodNames = clientHandler.getValue();
+            transformTemplate.transform(className, new TransformCallback() {
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                    final String[] names = methodNames.toArray(new String[0]);
+                    for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(names))) {
+                        try {
+                            method.addInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.MQExternalClientHandlerInterceptor");
+                        } catch (Exception e) {
+                            if (logger.isWarnEnabled()) {
+                                logger.warn("Unsupported method " + method, e);
+                            }
+                        }
+                    }
+                    return target.toBytecode();
+                }
+            });
+        }
+    }
+
+    private Map<String, Set<String>> parseUserMethods(List<String> fullyQualifiedMethodNames) {
+        Map<String, Set<String>> userMethods = new HashMap<String, Set<String>>();
+        for (String fullyQualifiedMethodName : fullyQualifiedMethodNames) {
+            try {
+                final String className = toClassName(fullyQualifiedMethodName);
+                final String methodName = toMethodName(fullyQualifiedMethodName);
+                Set<String> methodNames = userMethods.get(className);
+                if (methodNames == null) {
+                    methodNames = new HashSet<String>();
+                    userMethods.put(className, methodNames);
+                }
+                methodNames.add(methodName);
+            } catch (Exception e) {
+                logger.warn("Failed to parse user method(" + fullyQualifiedMethodName + ").", e);
+            }
+        }
+        return userMethods;
+    }
+
     String toClassName(String fullQualifiedMethodName) {
-        final int classEndPosition = fullQualifiedMethodName.lastIndexOf(".");
+        final int classEndPosition = fullQualifiedMethodName.lastIndexOf('.');
         if (classEndPosition <= 0) {
             throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
         }
@@ -111,7 +144,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     String toMethodName(String fullQualifiedMethodName) {
-        final int methodBeginPosition = fullQualifiedMethodName.lastIndexOf(".");
+        final int methodBeginPosition = fullQualifiedMethodName.lastIndexOf('.');
         if (methodBeginPosition <= 0 || methodBeginPosition + 1 >= fullQualifiedMethodName.length()) {
             throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
         }

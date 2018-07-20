@@ -17,119 +17,66 @@
 package com.navercorp.pinpoint.bootstrap.util;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils}
+ */
+@Deprecated
 public final class StringUtils {
 
-    private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 64;
-
-    private StringUtils() {
-    }
-
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#defaultString(String, String)}
+     */
     public static String defaultString(final String str, final String defaultStr) {
-        return str == null ? defaultStr : str;
-    }
-
-    public static boolean isEmpty(String string) {
-        return string == null || string.isEmpty();
-    }
-
-    public static String toString(final Object object) {
-        if (object == null) {
-            return "null";
-        }
-        return object.toString();
-    }
-
-    public static List<String> splitAndTrim(String value, String separator) {
-        if(isEmpty(value)) {
-            return Collections.emptyList();
-        }
-        if (separator == null) {
-            throw new NullPointerException("separator must not be null");
-        }
-        final List<String> result = new ArrayList<String>();
-        // TODO remove regex 'separator'
-        final String[] split = value.split(separator);
-        for (String method : split) {
-            if (isEmpty(method)) {
-                continue;
-            }
-            method = method.trim();
-            if (method.isEmpty()) {
-                continue;
-            }
-            result.add(method);
-        }
-        return result;
+        return com.navercorp.pinpoint.common.util.StringUtils.defaultString(str, defaultStr);
     }
 
     /**
-     * @deprecated Since 1.6.1. Use {@link StringUtils#abbreviate(String)}
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#isEmpty(String)}
+     */
+    public static boolean isEmpty(String string) {
+        return com.navercorp.pinpoint.common.util.StringUtils.isEmpty(string);
+    }
+
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#toString(Object)}
+     */
+    public static String toString(final Object object) {
+        return com.navercorp.pinpoint.common.util.StringUtils.toString(object);
+    }
+
+    /**
+     * @deprecated Since 1.7.0. Use {@link com.navercorp.pinpoint.common.util.StringUtils#tokenizeToStringList(String, String)}
+     */
+    @Deprecated
+    public static List<String> splitAndTrim(final String value, final String separator) {
+        return com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(value, separator);
+    }
+
+    /**
+     * @deprecated Since 1.6.1. Use {@link com.navercorp.pinpoint.common.util.StringUtils#abbreviate(String)}
      */
     @Deprecated
     public static String drop(final String str) {
-        return abbreviate(str);
-    }
-
-
-    public static String abbreviate(final String str) {
-        return abbreviate(str, DEFAULT_ABBREVIATE_MAX_WIDTH);
+        return com.navercorp.pinpoint.common.util.StringUtils.abbreviate(str);
     }
 
     /**
-     * @deprecated Since 1.6.1. Use {@link StringUtils#abbreviate(String, int)}
+     * @deprecated Since 1.6.1. Use {@link com.navercorp.pinpoint.common.util.StringUtils#abbreviate(String, int)}
      */
     @Deprecated
     public static String drop(final String str, final int maxWidth) {
-        return abbreviate(str, maxWidth);
+        return com.navercorp.pinpoint.common.util.StringUtils.abbreviate(str, maxWidth);
     }
 
-    public static String abbreviate(final String str, final int maxWidth) {
-        if (str == null) {
-            return "null";
-        }
-        if (maxWidth < 0) {
-            throw new IllegalArgumentException("negative maxWidth:" + maxWidth);
-        }
-        if (str.length() > maxWidth) {
-            StringBuilder buffer = new StringBuilder(maxWidth + 10);
-            buffer.append(str, 0, maxWidth);
-            appendAbbreviateMessage(buffer, str.length());
-            return buffer.toString();
-        } else {
-            return str;
-        }
-    }
 
     /**
-     * @deprecated Since 1.6.1. Use {@link StringUtils#appendAbbreviate(StringBuilder, String, int)}
+     * @deprecated Since 1.6.1. Use {@link com.navercorp.pinpoint.common.util.StringUtils#appendAbbreviate(StringBuilder, String, int)}
      */
     @Deprecated
-    public static void appendDrop(StringBuilder builder, final String str, final int maxWidth) {
-        appendAbbreviate(builder, str, maxWidth);
+    public static void appendDrop(final StringBuilder builder, final String str, final int maxWidth) {
+        com.navercorp.pinpoint.common.util.StringUtils.appendAbbreviate(builder, str, maxWidth);
     }
 
-    public static void appendAbbreviate(StringBuilder builder, final String str, final int maxWidth) {
-        if (str == null) {
-            return;
-        }
-        if (maxWidth < 0) {
-            return;
-        }
-        if (str.length() > maxWidth) {
-            builder.append(str, 0, maxWidth);
-            appendAbbreviateMessage(builder, str.length());
-        } else {
-            builder.append(str);
-        }
-    }
-
-    private static void appendAbbreviateMessage(StringBuilder buffer, int strLength) {
-        buffer.append("...(");
-        buffer.append(strLength);
-        buffer.append(')');
-    }
 }

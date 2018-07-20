@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.view.DotSerializer;
 
-
 @JsonSerialize(using = DotSerializer.class)
 public class Dot {
     public static final int EXCEPTION_NONE = 0;
@@ -42,7 +41,6 @@ public class Dot {
      * @param elapsedTime
      * @param exceptionCode 0 : success, 1 : error
      */
-
     public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
@@ -107,4 +105,5 @@ public class Dot {
         sb.append('}');
         return sb.toString();
     }
+
 }

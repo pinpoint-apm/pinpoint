@@ -17,11 +17,10 @@
 
 package com.navercorp.pinpoint.test.classloader;
 
+import com.navercorp.pinpoint.common.util.ClassUtils;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.common.util.ClassUtils;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 
 /**
  * @author hyungil.jeong
@@ -35,8 +34,8 @@ public class TestClassLoaderFactory {
 
     private static final String ATLASSIAN_CLOVER = "com_atlassian_clover.Clover";
 
-    public static TestClassLoader createTestClassLoader(DefaultAgent agent) {
-        final TestClassLoader testClassLoader = new TestClassLoader(agent);
+    public static TestClassLoader createTestClassLoader(DefaultApplicationContext applicationContext) {
+        final TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         addCloverPackage(testClassLoader, CENQUA_CLOVER);
         addCloverPackage(testClassLoader, ATLASSIAN_CLOVER);
         return testClassLoader;

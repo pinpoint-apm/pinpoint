@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.rpc;
 
 
-import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,31 +28,35 @@ public class DiscardServerHandler extends SimpleChannelUpstreamHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private long transferredBytes;
-
-    public long getTransferredBytes() {
-        return transferredBytes;
-    }
+    private int messageReceivedCount = 0;
 
     @Override
-    public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-        if (e instanceof ChannelStateEvent) {
-            logger.info("event:{}", e);
+    public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent event) throws Exception {
+        if (event instanceof ChannelStateEvent) {
+            logger.debug("event:{}", event);
+        } else if (event instanceof MessageEvent) {
+            messageReceived(ctx, (MessageEvent) event);
         }
-
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
+        messageReceivedCount++;
 
-        transferredBytes += ((ChannelBuffer) e.getMessage()).readableBytes();
-        logger.info("messageReceived. meg:{} channel:{}", e.getMessage(), e.getChannel());
-        logger.info("transferredBytes. transferredBytes:{}", transferredBytes);
-
+        try {
+            logger.debug("messageReceived. meg:{} channel:{}", event.getMessage(), event.getChannel());
+        } catch (Exception e) {
+            logger.warn("catch exception. message:{}", e.getMessage(), e);
+        }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
         logger.warn("Unexpected exception from downstream. Caused:{}", e, e.getCause());
     }
+
+    public int getMessageReceivedCount() {
+        return messageReceivedCount;
+    }
+
 }

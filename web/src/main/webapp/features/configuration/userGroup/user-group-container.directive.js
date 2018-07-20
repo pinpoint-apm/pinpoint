@@ -1,8 +1,8 @@
 (function( $ ) {
 	"use strict";
 
-	pinpointApp.directive( "userGroupContainerDirective", [ "globalConfig",
-		function ( globalConfig ) {
+	pinpointApp.directive( "userGroupContainerDirective", [ "SystemConfigurationService",
+		function ( SystemConfigService ) {
 			return {
 				restrict: "EA",
 				replace: true,
@@ -14,9 +14,11 @@
 
 					scope.$on( "configuration.selectMenu", function( event, selectedName ) {
 						if ( myName === selectedName ) {
-							scope.$broadcast( "configuration.userGroup.show" );
-							scope.$broadcast( "pinpointUser.load", globalConfig.userDepartment );
-							$element.show();
+							SystemConfigService.getConfig().then(function(config) {
+								scope.$broadcast( "configuration.userGroup.show" );
+								scope.$broadcast( "pinpointUser.load", config["userDepartment"] );
+								$element.show();
+							});
 						} else {
 							$element.hide();
 						}
@@ -42,11 +44,6 @@
 					});
 					scope.$on( "groupMember.sendCallbackAddedUser", function( event, bIsSuccess, userId ) {
 						scope.$broadcast( "pinpointUser.addUserCallback", bIsSuccess, userId );
-						event.stopPropagation();
-					});
-					// pinpointUser > groupMember
-					scope.$on( "pinpointUser.sendUserRemoved", function( event, userId ) {
-						scope.$broadcast( "groupMember.removeUser", userId );
 						event.stopPropagation();
 					});
 					scope.$on( "pinpointUser.sendUserUpdated", function( event, oPinpointUser ) {

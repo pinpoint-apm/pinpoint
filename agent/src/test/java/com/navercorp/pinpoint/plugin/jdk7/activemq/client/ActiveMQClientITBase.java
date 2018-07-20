@@ -19,10 +19,14 @@ package com.navercorp.pinpoint.plugin.jdk7.activemq.client;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jdk7.activemq.client.util.ActiveMQClientITHelper;
-import com.navercorp.pinpoint.plugin.jdk7.activemq.client.util.AssertTextMessageListener;
 import com.navercorp.pinpoint.plugin.jdk7.activemq.client.util.MessageConsumerBuilder;
 import com.navercorp.pinpoint.plugin.jdk7.activemq.client.util.MessageProducerBuilder;
+import com.navercorp.test.pinpoint.plugin.activemq.MessagePrinter;
+import com.navercorp.test.pinpoint.plugin.activemq.MessageReceiveHandler;
+import com.navercorp.test.pinpoint.plugin.activemq.MessageReceiver;
+import com.navercorp.test.pinpoint.plugin.activemq.PollingMessageReceiver;
 import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -36,15 +40,13 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.URI;
-import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -72,53 +74,55 @@ public abstract class ActiveMQClientITBase {
         final String testQueueName = "TestPullQueue";
         final ActiveMQQueue testQueue = new ActiveMQQueue(testQueueName);
         final String testMessage = "Hello World for Queue!";
+        final CountDownLatch consumerLatch = new CountDownLatch(1);
+        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
         // create producer
-        ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
-        MessageProducer producer = producerSession.createProducer(testQueue);
+        final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
+        final MessageProducer producer = new MessageProducerBuilder(producerSession, testQueue).waitTillStarted().build();
         final TextMessage expectedTextMessage = producerSession.createTextMessage(testMessage);
+        // create and start message receiver
+        final ActiveMQSession consumerSession = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
+        final MessageConsumer consumer = new MessageConsumerBuilder(consumerSession, testQueue).waitTillStarted().build();
+        final MessageReceiver messageReceiver = new MessageReceiver(consumer);
+        final Thread consumerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    messageReceiver.receiveMessage(1000L);
+                } catch (Exception e) {
+                    exception.set(e);
+                } finally {
+                    consumerLatch.countDown();
+                }
+            }
+        });
+
         // When
-        ActiveMQSession consumerSession = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
-        MessageConsumer consumer = consumerSession.createConsumer(testQueue);
+        producer.send(expectedTextMessage);
+        consumerThread.start();
+        consumerLatch.await(1L, TimeUnit.SECONDS);
 
         // Then
-        producer.send(expectedTextMessage);
-        Message message = consumer.receive(1000L);
-        Assert.assertEquals(testMessage, ((TextMessage) message).getText());
+        assertNoConsumerError(exception.get());
 
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(5, 5000L);
-        verifyProducerSendEvent(testQueue); // trace count : 1
-        verifyConsumerPullEvent(testQueue, consumer, expectedTextMessage); // trace count : 4
-    }
+        awaitAndVerifyTraceCount(verifier, 7, 5000L);
 
-    @Test
-    public void testTopicPull() throws Exception {
-        // Given
-        final String testTopicName = "TestPullTopic";
-        final ActiveMQTopic testTopic = new ActiveMQTopic(testTopicName);
-        final String testMessage = "Hello World for Topic!";
-        // create producer
-        ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
-        MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();
-        final TextMessage expectedTextMessage = producerSession.createTextMessage(testMessage);
-        // create 2 consumers
-        ActiveMQSession consumer1Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
-        MessageConsumer consumer1 = new MessageConsumerBuilder(consumer1Session, testTopic).waitTillStarted().build();
-        ActiveMQSession consumer2Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
-        MessageConsumer consumer2 = new MessageConsumerBuilder(consumer2Session, testTopic).waitTillStarted().build();
+        verifyProducerSendEvent(verifier, testQueue, producerSession);
+        verifyConsumerConsumeEvent(verifier, testQueue, consumerSession);
 
-        // When
-        producer.send(expectedTextMessage);
-        Message message1 = consumer1.receive(1000L);
-        Message message2 = consumer2.receive(1000L);
-        Assert.assertEquals(testMessage, ((TextMessage) message1).getText());
-        Assert.assertEquals(testMessage, ((TextMessage) message2).getText());
+        // Separate transaction for the consumer's request to receive the message
+        verifier.verifyTrace(root(ServiceType.STAND_ALONE.getName(), "Entry Point Process", null, null, null, null));
+        Method receiveMessageMethod = MessageReceiver.class.getDeclaredMethod("receiveMessage", long.class);
+        verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), receiveMessageMethod));
+        Method receiveMethod = ActiveMQMessageConsumer.class.getDeclaredMethod("receive", long.class);
+        verifier.verifyTrace(event(ACTIVEMQ_CLIENT_INTERNAL, receiveMethod, annotation("activemq.message", getMessageAsString(expectedTextMessage))));
+        Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
+        verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), printMessageMethod));
 
-        // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(9, 5000L);
-        verifyProducerSendEvent(testTopic); // trace count : 1
-        verifyConsumerPullEvent(testTopic, consumer1, expectedTextMessage); // trace count : 4
-        verifyConsumerPullEvent(testTopic, consumer2, expectedTextMessage); // trace count : 4
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -127,27 +131,170 @@ public abstract class ActiveMQClientITBase {
         final String testQueueName = "TestPushQueue";
         final ActiveMQQueue testQueue = new ActiveMQQueue(testQueueName);
         final String testMessage = "Hello World for Queue!";
+        final MessagePrinter messagePrinter = new MessagePrinter();
         final CountDownLatch consumerLatch = new CountDownLatch(1);
-        final Collection<Throwable> consumerThrowables = new CopyOnWriteArrayList<Throwable>();
+        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
         // create producer
-        ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
-        MessageProducer producer = producerSession.createProducer(testQueue);
+        final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
+        final MessageProducer producer = new MessageProducerBuilder(producerSession, testQueue).waitTillStarted().build();
         final TextMessage expectedTextMessage = producerSession.createTextMessage(testMessage);
         // create consumer
-        ActiveMQSession consumerSession = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
-        MessageConsumer consumer = consumerSession.createConsumer(testQueue);
-        consumer.setMessageListener(new AssertTextMessageListener(consumerLatch, consumerThrowables, expectedTextMessage));
+        final ActiveMQSession consumerSession = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
+        new MessageConsumerBuilder(consumerSession, testQueue)
+                .waitTillStarted()
+                .withMessageListener(new MessageListener() {
+                    @Override
+                    public void onMessage(Message message) {
+                        try {
+                            messagePrinter.printMessage(message);
+                        } catch (Exception e) {
+                            exception.set(e);
+                        } finally {
+                            consumerLatch.countDown();
+                        }
+                    }
+                })
+                .build();
 
         // When
         producer.send(expectedTextMessage);
         consumerLatch.await(1L, TimeUnit.SECONDS);
 
         // Then
-        assertNoConsumerError(consumerThrowables);
+        assertNoConsumerError(exception.get());
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(2, 5000L);
-        verifyProducerSendEvent(testQueue); // trace count : 1
-        verifyConsumerPushEvent(testQueue); // trace count : 1
+        awaitAndVerifyTraceCount(verifier, 4, 5000L);
+
+        verifyProducerSendEvent(verifier, testQueue, producerSession);
+        verifyConsumerConsumeEvent(verifier, testQueue, consumerSession);
+
+        Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
+        verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), printMessageMethod));
+
+        verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testQueuePoll() throws Exception {
+        // Given
+        final String testQueueName = "TestPollQueue";
+        final ActiveMQQueue testQueue = new ActiveMQQueue(testQueueName);
+        final String testMessage = "Hello World for Queue!";
+        // create producer
+        final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
+        final MessageProducer producer = new MessageProducerBuilder(producerSession, testQueue).waitTillStarted().build();
+        final TextMessage expectedTextMessage = producerSession.createTextMessage(testMessage);
+        // create consumer
+        final ActiveMQSession consumerSession = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
+        final MessageConsumer consumer = new MessageConsumerBuilder(consumerSession, testQueue).waitTillStarted().build();
+        final MessageReceiveHandler messageReceiveHandler = new MessageReceiveHandler();
+        final PollingMessageReceiver pollingMessageReceiver = new PollingMessageReceiver(consumer, messageReceiveHandler);
+
+        // When
+        pollingMessageReceiver.start();
+        producer.send(expectedTextMessage);
+        messageReceiveHandler.await(5000L);
+        pollingMessageReceiver.stop();
+
+        // Then
+        assertNoConsumerError(pollingMessageReceiver.getException());
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        // Wait till all traces are recorded (consumer traces are recorded from another thread)
+        awaitAndVerifyTraceCount(verifier, 6, 5000L);
+
+        verifyProducerSendEvent(verifier, testQueue, producerSession);
+        verifyConsumerConsumeEvent(verifier, testQueue, consumerSession);
+
+        verifier.verifyTrace(event(ServiceType.ASYNC.getName(), "Asynchronous Invocation"));
+        Method handleMessageMethod = MessageReceiveHandler.class.getDeclaredMethod("handleMessage", Message.class);
+        verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), handleMessageMethod));
+        Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
+        verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), printMessageMethod));
+
+        verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testTopicPull() throws Exception {
+        // Given
+        final String testTopicName = "TestPullTopic";
+        final ActiveMQTopic testTopic = new ActiveMQTopic(testTopicName);
+        final String testMessage = "Hello World for Topic!";
+        final CountDownLatch consumerLatch = new CountDownLatch(2);
+        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+        // create producer
+        final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
+        final MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();
+        final TextMessage expectedTextMessage = producerSession.createTextMessage(testMessage);
+        // create 2 consumers
+        final ActiveMQSession consumer1Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
+        final MessageConsumer consumer1 = new MessageConsumerBuilder(consumer1Session, testTopic).waitTillStarted().build();
+        final MessageReceiver messageReceiver1 = new MessageReceiver(consumer1);
+        final Thread consumer1Thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    messageReceiver1.receiveMessage(1000L);
+                } catch (Exception e) {
+                    exception.set(e);
+                } finally {
+                    consumerLatch.countDown();
+                }
+            }
+        });
+        final ActiveMQSession consumer2Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
+        final MessageConsumer consumer2 = new MessageConsumerBuilder(consumer2Session, testTopic).waitTillStarted().build();
+        final MessageReceiver messageReceiver2 = new MessageReceiver(consumer2);
+        final Thread consumer2Thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    messageReceiver2.receiveMessage(1000L);
+                } catch (Exception e) {
+                    exception.set(e);
+                } finally {
+                    consumerLatch.countDown();
+                }
+            }
+        });
+
+        // When
+        producer.send(expectedTextMessage);
+        consumer1Thread.start();
+        consumer2Thread.start();
+        consumerLatch.await(1L, TimeUnit.SECONDS);
+
+        // Then
+        assertNoConsumerError(exception.get());
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+        // Wait till all traces are recorded (consumer traces are recorded from another thread)
+        awaitAndVerifyTraceCount(verifier, 13, 5000L);
+
+        verifyProducerSendEvent(verifier, testTopic, producerSession);
+        verifyConsumerConsumeEvent(verifier, testTopic, consumer1Session);
+        verifyConsumerConsumeEvent(verifier, testTopic, consumer2Session);
+
+        // Separate transaction for the consumer's request to receive the message
+        Method receiveMessageMethod = MessageReceiver.class.getDeclaredMethod("receiveMessage", long.class);
+        Method receiveMethod = ActiveMQMessageConsumer.class.getDeclaredMethod("receive", long.class);
+        Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
+        for (int i = 0; i < 2; ++i) {
+            verifier.verifyDiscreteTrace(
+                    root(ServiceType.STAND_ALONE.getName(), "Entry Point Process", null, null, null, null),
+                    event(ServiceType.INTERNAL_METHOD.getName(), receiveMessageMethod),
+                    event(ACTIVEMQ_CLIENT_INTERNAL, receiveMethod, annotation("activemq.message", getMessageAsString(expectedTextMessage))),
+                    event(ServiceType.INTERNAL_METHOD.getName(), printMessageMethod));
+        }
+
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -156,132 +303,161 @@ public abstract class ActiveMQClientITBase {
         final String testTopicName = "TestPushTopic";
         final ActiveMQTopic testTopic = new ActiveMQTopic(testTopicName);
         final String testMessage = "Hello World for Topic!";
-        final int numMessageConsumers = 2;
-
-        final CountDownLatch consumerConsumeLatch = new CountDownLatch(numMessageConsumers);
-        final Collection<Throwable> consumerThrowables = new CopyOnWriteArrayList<Throwable>();
+        final MessagePrinter messagePrinter = new MessagePrinter();
+        final CountDownLatch consumerLatch = new CountDownLatch(2);
+        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
         // create producer
-        ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
-        MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();
+        final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
+        final MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();
         final TextMessage expectedTextMessage = producerSession.createTextMessage(testMessage);
         // create 2 consumers
-        ActiveMQSession consumer1Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
+        final MessageListener messageListener = new MessageListener() {
+            @Override
+            public void onMessage(Message message) {
+                try {
+                    messagePrinter.printMessage(message);
+                } catch (Exception e) {
+                    exception.set(e);
+                } finally {
+                    consumerLatch.countDown();
+                }
+            }
+        };
+        final ActiveMQSession consumer1Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
         new MessageConsumerBuilder(consumer1Session, testTopic)
-                .withMessageListener(new AssertTextMessageListener(consumerConsumeLatch, consumerThrowables, expectedTextMessage))
+                .withMessageListener(messageListener)
                 .waitTillStarted()
                 .build();
         ActiveMQSession consumer2Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
         new MessageConsumerBuilder(consumer2Session, testTopic)
-                .withMessageListener(new AssertTextMessageListener(consumerConsumeLatch, consumerThrowables, expectedTextMessage))
+                .withMessageListener(messageListener)
                 .waitTillStarted()
                 .build();
 
         // When
         producer.send(expectedTextMessage);
-        consumerConsumeLatch.await(1L, TimeUnit.SECONDS);
+        consumerLatch.await(1L, TimeUnit.SECONDS);
 
         // Then
+        assertNoConsumerError(exception.get());
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(3, 1000L);
-        verifyProducerSendEvent(testTopic); // trace count : 1
-        verifyConsumerPushEvent(testTopic); // trace count : 1
-        verifyConsumerPushEvent(testTopic); // trace count : 1
+        awaitAndVerifyTraceCount(verifier, 7, 5000L);
+
+        verifyProducerSendEvent(verifier, testTopic, producerSession);
+        verifyConsumerConsumeEvent(verifier, testTopic, consumer1Session);
+        verifyConsumerConsumeEvent(verifier, testTopic, consumer2Session);
+
+        Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
+        for (int i = 0; i < 2; ++i) {
+            verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), printMessageMethod));
+        }
+
+        verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testTopicPoll() throws Exception {
+        // Given
+        final String testTopicName = "TestPollTopic";
+        final ActiveMQTopic testTopic = new ActiveMQTopic(testTopicName);
+        final String testMessage = "Hello World for Topic!";
+        // create producer
+        final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
+        final MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();
+        final TextMessage expectedTextMessage = producerSession.createTextMessage(testMessage);
+        // create 2 consumers
+        final ActiveMQSession consumer1Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
+        final MessageConsumer consumer1 = new MessageConsumerBuilder(consumer1Session, testTopic).waitTillStarted().build();
+        final MessageReceiveHandler messageReceiveHandler1 = new MessageReceiveHandler();
+        final PollingMessageReceiver pollingMessageReceiver1 = new PollingMessageReceiver(consumer1, messageReceiveHandler1);
+
+        final ActiveMQSession consumer2Session = ActiveMQClientITHelper.createSession(getConsumerBrokerName(), getConsumerBrokerUrl());
+        final MessageConsumer consumer2 = new MessageConsumerBuilder(consumer2Session, testTopic).waitTillStarted().build();
+        final MessageReceiveHandler messageReceiveHandler2 = new MessageReceiveHandler();
+        final PollingMessageReceiver pollingMessageReceiver2 = new PollingMessageReceiver(consumer2, messageReceiveHandler2);
+
+        // When
+        pollingMessageReceiver1.start();
+        pollingMessageReceiver2.start();
+        producer.send(expectedTextMessage);
+        messageReceiveHandler1.await(5000L);
+        messageReceiveHandler2.await(5000L);
+        pollingMessageReceiver1.stop();
+        pollingMessageReceiver2.stop();
+
+        // Then
+        assertNoConsumerError(pollingMessageReceiver1.getException());
+        assertNoConsumerError(pollingMessageReceiver2.getException());
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        // Wait till all traces are recorded (consumer traces are recorded from another thread)
+        awaitAndVerifyTraceCount(verifier, 11, 5000L);
+
+        verifyProducerSendEvent(verifier, testTopic, producerSession);
+        verifyConsumerConsumeEvent(verifier, testTopic, consumer1Session);
+        verifyConsumerConsumeEvent(verifier, testTopic, consumer2Session);
+
+        ExpectedTrace asyncTrace = event(ServiceType.ASYNC.getName(), "Asynchronous Invocation");
+        Method handleMessageMethod = MessageReceiveHandler.class.getDeclaredMethod("handleMessage", Message.class);
+        ExpectedTrace handleMessageTrace = event(ServiceType.INTERNAL_METHOD.getName(), handleMessageMethod);
+        Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
+        ExpectedTrace printMessageTrace = event(ServiceType.INTERNAL_METHOD.getName(), printMessageMethod);
+        for (int i = 0; i < 2; ++i) {
+            verifier.verifyDiscreteTrace(asyncTrace, handleMessageTrace, printMessageTrace);
+        }
+
+        verifier.verifyTraceCount(0);
     }
 
     /**
-     * Verifies traced span event for when {@link org.apache.activemq.ActiveMQMessageProducer ActiveMQMessageProducer}
-     * sends the message. (trace count : 1)
+     * Verifies traces for when {@link org.apache.activemq.ActiveMQMessageProducer ActiveMQMessageProducer}
+     * sends the message.
      *
+     * @param verifier verifier used to verify traces
      * @param destination the destination to which the producer is sending the message
+     * @param session the session established by the producer
      * @throws Exception
      */
-    private void verifyProducerSendEvent(ActiveMQDestination destination) throws Exception {
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+    private void verifyProducerSendEvent(PluginTestVerifier verifier, ActiveMQDestination destination, ActiveMQSession session) throws Exception {
         Class<?> messageProducerClass = Class.forName("org.apache.activemq.ActiveMQMessageProducer");
         Method send = messageProducerClass.getDeclaredMethod("send", Destination.class, Message.class, int.class, int.class, long.class);
-        URI producerBrokerUri = new URI(getProducerBrokerUrl());
+        String expectedEndPoint = session.getConnection().getTransport().getRemoteAddress();
         verifier.verifyDiscreteTrace(event(
                 ACTIVEMQ_CLIENT, // serviceType
                 send, // method
                 null, // rpc
-                producerBrokerUri.getHost() + ":" + producerBrokerUri.getPort(), // endPoint
+                expectedEndPoint, // endPoint
                 destination.getPhysicalName(), // destinationId
                 annotation("message.queue.url", destination.getQualifiedName()),
-                annotation("activemq.broker.address", producerBrokerUri.getHost() + ":" + producerBrokerUri.getPort())
+                annotation("activemq.broker.address", expectedEndPoint)
         ));
     }
 
     /**
-     * Verifies spans and span events for when {@link ActiveMQMessageConsumer} receives the message and enqueues it to
-     * the {@link org.apache.activemq.MessageDispatchChannel MessageDispatchChannel}. The client then invokes any of
-     * {@link ActiveMQMessageConsumer#receive() receive()}, {@link ActiveMQMessageConsumer#receive(long) receive(long)},
-     * or {@link ActiveMQMessageConsumer#receiveNoWait() receiveNotWait()} to retrieve the message. (trace count : 4)
+     * Verifies traces for when {@link ActiveMQMessageConsumer} consumes the message and dispatches for
+     * further processing (for example, calling {@link MessageListener} attached to the consumer directly, or adding
+     * the message to {@link org.apache.activemq.MessageDispatchChannel MessageDispatchChannel}.
      *
+     * @param verifier verifier used to verify traces
      * @param destination the destination from which the consumer is receiving the message
-     * @param expectedMessage the message the consumer is expected to receive
+     * @param session the session established by the consumer
      * @throws Exception
      */
-    private void verifyConsumerPullEvent(ActiveMQDestination destination, MessageConsumer consumer, Message expectedMessage) throws Exception {
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
-        Class<?> messageConsumerClass = Class.forName("org.apache.activemq.ActiveMQMessageConsumer");
-        Method receiveWithTimeout = messageConsumerClass.getDeclaredMethod("receive", long.class);
-        URI consumerBrokerUri = new URI(getConsumerBrokerUrl());
-
-        ExpectedTrace consumerDispatchTrace = root(ACTIVEMQ_CLIENT, // serviceType
+    private void verifyConsumerConsumeEvent(PluginTestVerifier verifier, ActiveMQDestination destination, ActiveMQSession session) throws Exception {
+        String expectedEndPoint = session.getConnection().getTransport().getRemoteAddress();
+        ExpectedTrace activeMQConsumerInvocationTrace = root(ACTIVEMQ_CLIENT, // serviceType
                 "ActiveMQ Consumer Invocation", // method
                 destination.getQualifiedName(), // rpc
                 null, // endPoint (collected but there's no easy way to retrieve local address)
-                consumerBrokerUri.getHost() + ":" + consumerBrokerUri.getPort());
-        ExpectedTrace consumerReceiveTrace = event(ACTIVEMQ_CLIENT_INTERNAL, // serviceType
-                receiveWithTimeout, // method
-                annotation("activemq.message", getMessageAsString(expectedMessage)));
-
-        Class<?> messageDispatchChannel = getMessageDispatchChannelClass(consumer);
-        if (messageDispatchChannel != null) {
-            Method enqueue = messageDispatchChannel.getDeclaredMethod("enqueue", MessageDispatch.class);
-            Method dequeueWithTimeout = messageDispatchChannel.getDeclaredMethod("dequeue", long.class);
-            // Consumer dispatches and enqueues the message to dispatch channel automatically
-            verifier.verifyDiscreteTrace(consumerDispatchTrace, event(ACTIVEMQ_CLIENT_INTERNAL, enqueue));
-            // Client receives the message by dequeueing it from the dispatch channel
-            verifier.verifyDiscreteTrace(consumerReceiveTrace, event(ACTIVEMQ_CLIENT_INTERNAL, dequeueWithTimeout));
-        } else {
-            // Consumer dispatches and enqueues the message to dispatch channel automatically
-            verifier.verifyDiscreteTrace(consumerDispatchTrace);
-            // Client receives the message by dequeueing it from the dispatch channel
-            verifier.verifyDiscreteTrace(consumerReceiveTrace);
-        }
-    }
-
-    /**
-     * Verifies spans and span events for when {@link ActiveMQMessageConsumer} receives the message and invokes it's
-     * {@link javax.jms.MessageListener MessageListener}. (trace count : 1)
-     *
-     * @param destination the destination from which the consumer is receiving the message
-     * @throws Exception
-     */
-    private void verifyConsumerPushEvent(ActiveMQDestination destination) throws Exception {
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        URI consumerBrokerUri = new URI(getConsumerBrokerUrl());
-        verifier.verifyDiscreteTrace(root(
-                ACTIVEMQ_CLIENT, // serviceType
-                "ActiveMQ Consumer Invocation", // method
-                destination.getQualifiedName(), // rpc
-                null, // endPoint (collected but there's no easy way to retrieve local address so skip check)
-                consumerBrokerUri.getHost() + ":" + consumerBrokerUri.getPort() // remoteAddress
-        ));
-    }
-
-    private Class<?> getMessageDispatchChannelClass(MessageConsumer consumer) throws NoSuchFieldException, IllegalAccessException {
-        final String messageDispatchChannelFieldName = "unconsumedMessages";
-        Class<?> consumerClass = consumer.getClass();
-        // Need a better way as field names could change in future versions. Comparing classes or class names doesn't
-        // work due to class loading issue, and some versions may not have certain implementations of
-        // MessageDispatchChannel.
-        // Test should be fixed if anything changes in future ActiveMQClient library
-        Field messageDispatchChannelField = consumerClass.getDeclaredField(messageDispatchChannelFieldName);
-        messageDispatchChannelField.setAccessible(true);
-        return messageDispatchChannelField.get(consumer).getClass();
+                expectedEndPoint);
+        Method dispatchMethod = ActiveMQMessageConsumer.class.getDeclaredMethod("dispatch", MessageDispatch.class);
+        ExpectedTrace dispatchTrace = event(ACTIVEMQ_CLIENT_INTERNAL, dispatchMethod);
+        verifier.verifyDiscreteTrace(activeMQConsumerInvocationTrace, dispatchTrace);
     }
 
     private String getMessageAsString(Message message) throws JMSException {
@@ -292,12 +468,11 @@ public abstract class ActiveMQClientITBase {
         return messageStringBuilder.toString();
     }
 
-    protected final void assertNoConsumerError(Collection<Throwable> consumerThrowables) {
-        Assert.assertTrue("Consumer Error : " + consumerThrowables.toString(), consumerThrowables.isEmpty());
+    protected final void assertNoConsumerError(Exception consumerException) {
+        Assert.assertNull("Failed with exception : " + consumerException, consumerException);
     }
 
-    protected final void awaitAndVerifyTraceCount(int expectedTraceCount, long maxWaitMs) throws InterruptedException {
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+    protected final void awaitAndVerifyTraceCount(PluginTestVerifier verifier, int expectedTraceCount, long maxWaitMs) throws InterruptedException {
         final long waitIntervalMs = 100L;
         long maxWaitTime = maxWaitMs;
         if (maxWaitMs < waitIntervalMs) {
@@ -313,7 +488,6 @@ public abstract class ActiveMQClientITBase {
                 Thread.sleep(waitIntervalMs);
             }
         }
-        verifier.printCache();
         verifier.verifyTraceCount(expectedTraceCount);
     }
 }

@@ -16,35 +16,71 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
+import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModule;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
+import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
+
+
 
 /**
  * @author emeroad
  */
 public class MockTraceContextFactory {
 
-    private EnhancedDataSender priorityDataSender = new LoggingDataSender();
 
-    public void setPriorityDataSender(EnhancedDataSender priorityDataSender) {
-        if (priorityDataSender == null) {
-            throw new NullPointerException("priorityDataSender must not be null");
+    public static DefaultApplicationContext newMockApplicationContext(ProfilerConfig profilerConfig) {
+
+        Module loggingModule = new LoggingModule();
+
+        InterceptorRegistryBinder interceptorRegistryBinder = new EmptyInterceptorRegistryBinder();
+        Module interceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(loggingModule, interceptorRegistryModule);
+
+        MockApplicationContextFactory factory = new MockApplicationContextFactory();
+        return factory.build(profilerConfig, moduleFactory);
+    }
+
+    public static class LoggingModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(AgentInformation.class).toInstance(new TestAgentInformation());
+            bind(StorageFactory.class).toInstance(new LogStorageFactory());
+            bind(EnhancedDataSender.class).toInstance(new LoggingDataSender());
         }
-        this.priorityDataSender = priorityDataSender;
     }
 
-    public TraceContext create() {
-        DefaultTraceContext traceContext = new DefaultTraceContext(new TestAgentInformation()) ;
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        traceContext.setProfilerConfig(profilerConfig);
 
+    public static class EmptyInterceptorRegistryBinder implements InterceptorRegistryBinder {
+        @Override
+        public void bind() {
 
-        traceContext.setPriorityDataSender(priorityDataSender);
+        }
 
-        return traceContext;
-    }
+        @Override
+        public void unbind() {
+
+        }
+
+        @Override
+        public InterceptorRegistryAdaptor getInterceptorRegistryAdaptor() {
+            return null;
+        }
+
+        @Override
+        public String getInterceptorRegistryClassName() {
+            return null;
+        }
+    };
 }

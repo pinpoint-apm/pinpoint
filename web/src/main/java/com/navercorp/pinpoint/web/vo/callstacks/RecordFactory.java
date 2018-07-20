@@ -21,15 +21,18 @@ import java.util.List;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.util.ApiDescription;
 import com.navercorp.pinpoint.common.server.util.ApiDescriptionParser;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,40 +45,44 @@ public class RecordFactory {
 
     // spans with id = 0 are regarded as root - start at 1
     private int idGen = 1;
+    private AnnotationKeyMatcherService annotationKeyMatcherService;
     private ServiceTypeRegistryService registry;
     private AnnotationKeyRegistryService annotationKeyRegistryService;
     private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
+    private final AnnotationRecordFormatter annotationRecordFormatter;
 
-    public RecordFactory(ServiceTypeRegistryService registry, AnnotationKeyRegistryService annotationKeyRegistryService) {
+    public RecordFactory(final AnnotationKeyMatcherService annotationKeyMatcherService, final ServiceTypeRegistryService registry, final AnnotationKeyRegistryService annotationKeyRegistryService) {
+        this.annotationKeyMatcherService = annotationKeyMatcherService;
         this.registry = registry;
         this.annotationKeyRegistryService = annotationKeyRegistryService;
+        this.annotationRecordFormatter = new AnnotationRecordFormatter();
     }
-    
-    public Record get(final CallTreeNode node, final String argument) {
+
+    public Record get(final CallTreeNode node) {
         final SpanAlign align = node.getValue();
         align.setId(getNextId());
 
         final int parentId = getParentId(node);
         Api api = getApi(align);
-        
-        final Record record = new Record(align.getDepth(), 
-                align.getId(), 
-                parentId, 
-                true, 
+        final String argument = getArgument(align);
+        final Record record = new DefaultRecord(align.getDepth(),
+                align.getId(),
+                parentId,
+                true,
                 api.getTitle(),
-                argument, 
-                align.getStartTime(), 
-                align.getElapsed(), 
-                align.getGap(), 
-                align.getAgentId(), 
-                align.getApplicationId(), 
+                argument,
+                align.getStartTime(),
+                align.getElapsed(),
+                align.getGap(),
+                align.getAgentId(),
+                align.getApplicationId(),
                 registry.findServiceType(align.getServiceType()),
-                align.getDestinationId(), 
+                align.getDestinationId(),
                 align.hasChild(),
-                false, 
-                align.getTransactionId(), 
-                align.getSpanId(), 
-                align.getExecutionMilliseconds(), 
+                false,
+                align.getTransactionId(),
+                align.getSpanId(),
+                align.getExecutionMilliseconds(),
                 api.getMethodTypeEnum(),
                 true);
         record.setSimpleClassName(api.getClassName());
@@ -83,7 +90,54 @@ public class RecordFactory {
 
         return record;
     }
-    
+
+    private String getArgument(final SpanAlign spanAlign) {
+        if (spanAlign.isSpan()) {
+            return getRpcArgument(spanAlign);
+        }
+
+        return getDisplayArgument(spanAlign);
+    }
+
+    private String getRpcArgument(SpanAlign spanAlign) {
+        SpanBo spanBo = spanAlign.getSpanBo();
+        String rpc = spanBo.getRpc();
+        if (rpc != null) {
+            return rpc;
+        }
+        return getDisplayArgument(spanAlign);
+    }
+
+    private String getDisplayArgument(SpanAlign spanAlign) {
+        AnnotationBo displayArgument = getDisplayArgument0(spanAlign.getServiceType(), spanAlign.getAnnotationBoList());
+        if (displayArgument == null) {
+            return "";
+        }
+
+        final AnnotationKey key = findAnnotationKey(displayArgument.getKey());
+        return this.annotationRecordFormatter.formatArguments(key, displayArgument, spanAlign);
+    }
+
+    private AnnotationBo getDisplayArgument0(final short serviceType, final List<AnnotationBo> annotationBoList) {
+        if (annotationBoList == null) {
+            return null;
+        }
+
+        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(serviceType);
+        if (matcher == null) {
+            return null;
+        }
+
+        for (AnnotationBo annotation : annotationBoList) {
+            int key = annotation.getKey();
+
+            if (matcher.matches(key)) {
+                return annotation;
+            }
+        }
+        return null;
+    }
+
     public Record getFilteredRecord(final CallTreeNode node, String apiTitle) {
         final SpanAlign align = node.getValue();
         align.setId(getNextId());
@@ -91,100 +145,61 @@ public class RecordFactory {
         final int parentId = getParentId(node);
 //        Api api = getApi(align);
 
-        final Record record = new Record(align.getDepth(), 
-                align.getId(), 
-                parentId, 
-                true, 
-                apiTitle, 
-                "", 
-                align.getStartTime(), 
-                align.getElapsed(), 
-                align.getGap(), 
-                "UNKNOWN", 
-                align.getApplicationId(), 
+        final Record record = new DefaultRecord(align.getDepth(),
+                align.getId(),
+                parentId,
+                true,
+                apiTitle,
+                "",
+                align.getStartTime(),
+                align.getElapsed(),
+                align.getGap(),
+                "UNKNOWN",
+                align.getApplicationId(),
                 ServiceType.UNKNOWN,
-                "", 
-                false, 
-                false, 
-                align.getTransactionId(), 
-                align.getSpanId(), 
+                "",
+                false,
+                false,
+                align.getTransactionId(),
+                align.getSpanId(),
                 align.getExecutionMilliseconds(),
                 MethodTypeEnum.DEFAULT,
                 false);
-        
+
         return record;
-    }
-    
-    public Record getException(final int depth, final int parentId, final SpanAlign align) {
-        if(!align.hasException()) {
-            return null;
-        }
-        
-        final Record record =  new Record(depth, 
-                getNextId(), 
-                parentId, 
-                false, 
-                getSimpleExceptionName(align.getExceptionClass()), 
-                align.getExceptionMessage(), 
-                0L, 0L, 0, null, null, null, null, false, true, 
-                align.getTransactionId(), 
-                align.getSpanId(), 
-                align.getExecutionMilliseconds(),
-                MethodTypeEnum.DEFAULT,
-                true);
-        
-        return record;
-    }
-    
-    private String getSimpleExceptionName(String exceptionClass) {
-        if (exceptionClass == null) {
-            return "";
-        }
-        final int index = exceptionClass.lastIndexOf('.');
-        if (index != -1) {
-            exceptionClass = exceptionClass.substring(index + 1, exceptionClass.length());
-        }
-        return exceptionClass;
     }
 
+    public Record getException(final int depth, final int parentId, final SpanAlign align) {
+        if (!align.hasException()) {
+            return null;
+        }
+        return new ExceptionRecord(depth, getNextId(), parentId, align);
+    }
 
     public List<Record> getAnnotations(final int depth, final int parentId, SpanAlign align) {
         List<Record> list = new ArrayList<>();
-        for(AnnotationBo annotation : align.getAnnotationBoList()) {
+        for (AnnotationBo annotation : align.getAnnotationBoList()) {
             final AnnotationKey key = findAnnotationKey(annotation.getKey());
             if (key.isViewInRecordSet()) {
-                final Record record = new Record(depth, 
-                        getNextId(), 
-                        parentId, 
-                        false, 
-                        key.getName(), 
-                        annotation.getValue().toString(), 
-                        0L, 0L, 0, null, null, null, null, false, false, null, 0, 0,
-                        MethodTypeEnum.DEFAULT, annotation.isAuthorized());
+                final String title = this.annotationRecordFormatter.formatTitle(key, annotation, align);
+                final String arguments = this.annotationRecordFormatter.formatArguments(key, annotation, align);
+                final Record record = new AnnotationRecord(depth, getNextId(), parentId, title, arguments, annotation.isAuthorized());
                 list.add(record);
             }
         }
-        
+
         return list;
     }
-    
+
     public Record getParameter(final int depth, final int parentId, final String method, final String argument) {
-        return new Record(depth, 
-                getNextId(), 
-                parentId, 
-                false, 
-                method, 
-                argument, 
-                0L, 0L, 0, null, null, null, null, false, false, null, 0, 0,
-                MethodTypeEnum.DEFAULT, true);
+        return new ParameterRecord(depth, getNextId(), parentId, method, argument);
     }
-    
 
     int getParentId(final CallTreeNode node) {
         final CallTreeNode parent = node.getParent();
         if (parent == null) {
             if (!node.getValue().isSpan()) {
-                throw new IllegalStateException("parent is null. node=" + node); 
+                throw new IllegalStateException("parent is null. node=" + node);
             }
 
             return 0;
@@ -242,7 +257,7 @@ public class RecordFactory {
         // could not find a more specific error - returns generalized error
         return AnnotationKey.ERROR_API_METADATA_ERROR;
     }
-    
+
     private AnnotationKey findAnnotationKey(int key) {
         return annotationKeyRegistryService.findAnnotationKey(key);
     }

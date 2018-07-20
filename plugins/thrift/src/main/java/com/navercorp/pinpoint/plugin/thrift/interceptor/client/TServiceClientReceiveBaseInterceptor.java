@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 
 /**

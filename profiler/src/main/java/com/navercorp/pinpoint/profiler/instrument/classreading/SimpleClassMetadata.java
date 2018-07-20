@@ -35,8 +35,4 @@ public interface SimpleClassMetadata {
     List<String> getInterfaceNames();
 
     byte[] getClassBinary();
-
-    void setDefinedClass(Class<?> definedClass);
-
-    Class<?> getDefinedClass();
 }

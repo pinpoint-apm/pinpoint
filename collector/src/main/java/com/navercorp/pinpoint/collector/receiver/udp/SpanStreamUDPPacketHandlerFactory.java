@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,17 +17,24 @@
 package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.io.request.DefaultMessage;
+import com.navercorp.pinpoint.io.request.DefaultServerRequest;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.*;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -66,6 +73,12 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
 
     // stateless
     private class DispatchPacket implements PacketHandler<T> {
+        private ServerResponse fake = new ServerResponse() {
+            @Override
+            public void write(Object data) {
+
+            }
+        };
 
         private DispatchPacket() {
         }
@@ -88,7 +101,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
 
             byte version = requestBuffer.get();
             int chunkSize = 0xff & requestBuffer.get();
-            SocketAddress socketAddress = packet.getSocketAddress();
+            InetSocketAddress remoteSocketAddress = (InetSocketAddress) packet.getSocketAddress();
             
             try {
                 for (int i = 0; i < chunkSize; i++) {
@@ -99,32 +112,42 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                         break;
                     }
 
-                    List<TBase<?, ?>> tbaseList = deserializer.deserializeList(componentData);
-                    if (tbaseList == null || tbaseList.isEmpty()) {
+                    List<Message<TBase<?, ?>>> requestList = deserializer.deserializeList(componentData);
+                    if (CollectionUtils.isEmpty(requestList)) {
                         continue;
                     }
                     
-                    if (tbaseList.size() == 1) {
-                        if (filter.filter(localSocket, tbaseList.get(0), socketAddress) == TBaseFilter.BREAK) {
+                    if (requestList.size() == 1) {
+                        if (filter.filter(localSocket, requestList.get(0).getData(), remoteSocketAddress) == TBaseFilter.BREAK) {
                             continue;
                         }
                     }
 
-                    List<TSpanEvent> spanEventList = getSpanEventList(tbaseList);
+                    List<TSpanEvent> spanEventList = getSpanEventList(requestList);
 
-                    TBase<?, ?> tBase = tbaseList.get(tbaseList.size() - 1);
+                    Message<TBase<?, ?>> lastMessage = requestList.get(requestList.size() - 1);
+                    TBase tBase = lastMessage.getData();
                     if (tBase instanceof TSpan) {
                         ((TSpan) tBase).setSpanEventList(spanEventList);
                     } else if (tBase instanceof TSpanChunk) {
                         ((TSpanChunk) tBase).setSpanEventList(spanEventList);
                     }
+                    Message<TBase<?, ?>> message = new DefaultMessage<>(lastMessage.getHeader(), tBase);
+                    ServerRequest<TBase<?, ?>> mergedRequest = newServerRequest(message, remoteSocketAddress);
 
-                    dispatchHandler.dispatchRequestMessage(tBase);
+                    dispatchHandler.dispatchRequestMessage(mergedRequest, fake);
                 }
             } catch (Exception e) {
                 logger.warn("Failed to handle receive packet.", e);
             }
         }
+    }
+
+    private ServerRequest<TBase<?, ?>> newServerRequest(Message<TBase<?, ?>> message, InetSocketAddress remoteSocketAddress) {
+        final String remoteAddress = remoteSocketAddress.getAddress().getHostAddress();
+        final int remotePort = remoteSocketAddress.getPort();
+
+        return new DefaultServerRequest<>(message, remoteAddress, remotePort);
     }
 
     private byte[] getComponentData(ByteBuffer buffer, HeaderTBaseDeserializer deserializer) {
@@ -145,15 +168,16 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
         return componentData;
     }
 
-    private List<TSpanEvent> getSpanEventList(List<TBase<?, ?>> tbaseList) {
-        if (tbaseList == null || tbaseList.isEmpty()) {
+    private List<TSpanEvent> getSpanEventList(List<Message<TBase<?, ?>>> tbaseList) {
+        if (CollectionUtils.isEmpty(tbaseList)) {
             return new ArrayList<>(0);
         }
 
         int spanEventListSize = tbaseList.size() - 1;
         List<TSpanEvent> spanEventList = new ArrayList<>(spanEventListSize);
         for (int i = 0; i < spanEventListSize; i++) {
-            TBase<?, ?> tBase = tbaseList.get(i);
+            Message<TBase<?, ?>> request = tbaseList.get(i);
+            TBase<?, ?> tBase = request.getData();
             if (tBase instanceof TSpanEvent) {
                 spanEventList.add((TSpanEvent) tBase);
             }

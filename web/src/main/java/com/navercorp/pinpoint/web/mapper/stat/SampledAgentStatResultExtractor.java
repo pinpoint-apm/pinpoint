@@ -18,13 +18,14 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.AgentStatSamplingHandler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.EagerSamplingHandler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -49,17 +50,12 @@ public class SampledAgentStatResultExtractor<T extends AgentStatDataPoint, S ext
     @Override
     public List<S> extractData(ResultScanner results) throws Exception {
         int rowNum = 0;
-        List<T> aggregatedDataPoints = new ArrayList<>();
+        AgentStatSamplingHandler<T, S> samplingHandler = new EagerSamplingHandler<>(timeWindow, sampler);
         for (Result result : results) {
-            aggregatedDataPoints.addAll(this.rowMapper.mapRow(result, rowNum++));
+            for (T dataPoint : this.rowMapper.mapRow(result, rowNum++)) {
+                samplingHandler.addDataPoint(dataPoint);
+            }
         }
-        List<S> sampledDataPoints;
-        if (aggregatedDataPoints.isEmpty()) {
-            sampledDataPoints = Collections.emptyList();
-        } else {
-            sampledDataPoints = sampler.sampleDataPoints(timeWindow, aggregatedDataPoints);
-        }
-        return sampledDataPoints;
+        return samplingHandler.getSampledDataPoints();
     }
-
 }

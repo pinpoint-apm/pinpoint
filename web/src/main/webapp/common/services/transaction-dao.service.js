@@ -7,8 +7,8 @@
 	 * @name TransactionDaoService
 	 * @class
 	 */
-	pinpointApp.constant('TransactionDaoServiceConfig', {
-	    transactionInfoUrl: '/transactionInfo.pinpoint'
+	pinpointApp.constant("TransactionDaoServiceConfig", {
+	    transactionInfoUrl: "transactionInfo.pinpoint"
 	});
 	
 	pinpointApp.service('TransactionDaoService', ['TransactionDaoServiceConfig', '$timeout', '$window',

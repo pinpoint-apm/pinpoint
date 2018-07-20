@@ -23,11 +23,7 @@ public class DefaultApiDescription implements ApiDescription {
     }
 
     public String getPackageNameName() {
-        int packageNameIndex = className.lastIndexOf('.');
-        if (packageNameIndex == -1) {
-            return "";
-        }
-        return className.substring(0, packageNameIndex);
+        return ClassUtils.getPackageName(className);
     }
 
     public void setMethodName(String methodName) {
@@ -56,7 +52,7 @@ public class DefaultApiDescription implements ApiDescription {
     }
 
     public String concateLine(String[] stringList, String separator) {
-        if (stringList == null || stringList.length == 0) {
+        if (ArrayUtils.isEmpty(stringList)) {
             return "()";
         }
 

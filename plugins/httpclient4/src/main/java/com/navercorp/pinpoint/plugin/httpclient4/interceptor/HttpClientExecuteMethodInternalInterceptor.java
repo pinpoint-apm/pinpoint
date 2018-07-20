@@ -19,14 +19,11 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
-import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 import org.apache.http.*;
 
@@ -36,7 +33,6 @@ import org.apache.http.*;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class HttpClientExecuteMethodInternalInterceptor implements AroundInterceptor {
 
     private boolean isHasCallbackParam;
@@ -71,14 +67,15 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
         }
 
         if (result != null && result instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse) result;
+            final HttpResponse response = (HttpResponse) result;
             if (response.getStatusLine() != null) {
                 HttpCallContext context = new HttpCallContext();
                 final StatusLine statusLine = response.getStatusLine();
                 if (statusLine != null) {
                     context.setStatusCode(statusLine.getStatusCode());
-                    InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-                    if(transaction != null && transaction.getAttachment() == null) {
+                    final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
+                    final Object attachment = getAttachment(transaction);
+                    if (attachment == null) {
                         transaction.setAttachment(context);
                     }
                 }
@@ -101,11 +98,19 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
 //            return false;
 //        }
 
-        InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-        if (transaction != null && transaction.getAttachment() != null && transaction.getAttachment() instanceof HttpCallContext) {
+        final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
+        final Object attachment = getAttachment(transaction);
+        if (attachment instanceof HttpCallContext) {
             return false;
         }
 
         return true;
+    }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
     }
 }

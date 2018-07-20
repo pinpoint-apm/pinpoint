@@ -61,7 +61,7 @@ public abstract class DeltaOfDeltaEncodingStrategy<T extends Number> implements 
             T previousValue = initialValue;
             T previousDelta = this.operation.zero();
             // skip first value as this value is stored without compression
-            for (int i = 1; i < values.size(); ++i) {
+            for (int i = 1; i < values.size(); i++) {
                 T value = values.get(i);
                 T delta = this.operation.diff(value, previousValue);
                 this.bufferHandler.putSV(buffer, this.operation.diff(delta, previousDelta));
@@ -75,13 +75,13 @@ public abstract class DeltaOfDeltaEncodingStrategy<T extends Number> implements 
             if (numValues < 1) {
                 return Collections.emptyList();
             }
-            List<T> values = new ArrayList<>(numValues);
+            List<T> values = new ArrayList<T>(numValues);
             T initialValue = this.bufferHandler.readV(buffer);
             values.add(initialValue);
             T previousValue = initialValue;
             T previousDelta = this.operation.zero();
             // loop through numValues - 1 as the first value is simply read from buffer
-            for (int i = 0; i < numValues - 1; ++i) {
+            for (int i = 0; i < numValues - 1; i++) {
                 T delta = this.operation.add(previousDelta, this.bufferHandler.readSV(buffer));
                 T value = this.operation.add(previousValue, delta);
                 values.add(value);

@@ -22,7 +22,6 @@ import org.apache.activemq.advisory.ProducerEventSource;
 import org.apache.activemq.advisory.ProducerListener;
 
 import javax.jms.Destination;
-import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -70,19 +69,6 @@ public class MessageProducerBuilder {
             return producer;
         } else {
             return this.session.createProducer(this.destination);
-        }
-    }
-
-    public static class ForQueue extends MessageProducerBuilder {
-        public ForQueue(ActiveMQSession session, String queueName) throws JMSException {
-            super(session, session.createQueue(queueName));
-        }
-
-    }
-
-    public static class ForTopic extends MessageProducerBuilder {
-        public ForTopic(ActiveMQSession session, String topicName) throws JMSException {
-            super(session, session.createTopic(topicName));
         }
     }
 }

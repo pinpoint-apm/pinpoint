@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TException;
@@ -82,7 +83,7 @@ public class SpanStreamSendDataPlaner extends AbstractSpanStreamSendDataPlaner {
     private TSpanChunk toSpanChunk(TSpan span) {
         final TSpanChunk spanChunk = new TSpanChunk();
 
-        spanChunk.setSpanEventList(Collections.EMPTY_LIST);
+        spanChunk.setSpanEventList(Collections.<TSpanEvent>emptyList());
         spanChunk.setSpanEventListIsSet(true);
         spanChunk.setAgentId(span.getAgentId());
         spanChunk.setAgentIdIsSet(true);
@@ -90,8 +91,7 @@ public class SpanStreamSendDataPlaner extends AbstractSpanStreamSendDataPlaner {
         spanChunk.setApplicationNameIsSet(true);
         spanChunk.setAgentStartTime(span.getStartTime());
         spanChunk.setAgentStartTimeIsSet(true);
-        spanChunk.setServiceType(span.getServiceType());
-        spanChunk.setServiceTypeIsSet(true);
+
         spanChunk.setTransactionId(span.getTransactionId());
         spanChunk.setTransactionIdIsSet(true);
         spanChunk.setSpanId(span.getSpanId());

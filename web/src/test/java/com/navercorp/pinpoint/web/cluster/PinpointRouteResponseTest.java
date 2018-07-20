@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,22 +16,24 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.*;
+import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class PinpointRouteResponseTest {
 
     TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-    TCommandRegistry commandTbaseRegistry = new TCommandRegistry(TCommandTypeVersion.getVersion("1.5.0-SNAPSHOT"));
+    TypeLocator<TBase<?, ?>> commandTbaseRegistry = TCommandRegistry.build(TCommandTypeVersion.getVersion("1.5.0-SNAPSHOT"));
 
     SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true, 10000, protocolFactory, commandTbaseRegistry);
     DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(protocolFactory, commandTbaseRegistry);
@@ -72,7 +74,7 @@ public class PinpointRouteResponseTest {
         DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(responsePayload);
         response.parse(deserializerFactory);
 
-        Assert.assertEquals(TRouteResult.NOT_SUPPORTED_RESPONSE, response.getRouteResult());
+        Assert.assertEquals(TRouteResult.OK, response.getRouteResult());
         Assert.assertNull(response.getResponse());
     }
 

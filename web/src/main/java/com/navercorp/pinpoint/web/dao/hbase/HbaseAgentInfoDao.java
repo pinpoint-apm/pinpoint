@@ -18,14 +18,15 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 
-import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
+import com.navercorp.pinpoint.web.mapper.AgentInfoResultsExtractor;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,10 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    private AgentInfoMapper agentInfoMapper;
+    private TableNameProvider tableNameProvider;
+
+    @Autowired
+    private AgentInfoResultsExtractor agentInfoResultsExtractor;
 
     /**
      * Returns the very first information of the agent
@@ -61,19 +65,23 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             throw new NullPointerException("agentId must not be null");
         }
         Scan scan = createScanForInitialAgentInfo(agentId);
-        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoResultsExtractor());
+
+        TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
     @Override
     public List<AgentInfo> getInitialAgentInfos(List<String> agentIds) {
-        if (agentIds == null || agentIds.isEmpty()) {
+        if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
         List<Scan> scans = new ArrayList<>(agentIds.size());
         for (String agentId : agentIds) {
             scans.add(createScanForInitialAgentInfo(agentId));
         }
-        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scans, new AgentInfoResultsExtractor());
+
+        TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        return this.hbaseOperations2.find(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
     private Scan createScanForInitialAgentInfo(String agentId) {
@@ -102,7 +110,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         Scan scan = createScan(agentId, timestamp);
 
-        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoResultsExtractor());
+        TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
     @Override
@@ -116,7 +125,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             scans.add(createScan(agentId, timestamp));
         }
 
-        return this.hbaseOperations2.findParallel(HBaseTables.AGENTINFO, scans, new AgentInfoResultsExtractor());
+        TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        return this.hbaseOperations2.findParallel(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
     private Scan createScan(String agentId, long currentTime) {
@@ -135,18 +145,6 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         scan.setCaching(SCANNER_CACHING);
 
         return scan;
-    }
-
-    private class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfo> {
-
-        @Override
-        public AgentInfo extractData(ResultScanner results) throws Exception {
-            int found = 0;
-            for (Result result : results) {
-                return agentInfoMapper.mapRow(result, found++);
-            }
-            return null;
-        }
     }
 
 }

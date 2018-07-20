@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.collector.dao.AgentEventDao;
 import com.navercorp.pinpoint.collector.dao.hbase.mapper.AgentEventValueMapper;
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
@@ -42,6 +44,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
+
+    @Autowired
+    private TableNameProvider tableNameProvider;
 
     @Autowired
     private AgentEventValueMapper valueMapper;
@@ -64,7 +69,8 @@ public class HbaseAgentEventDao implements AgentEventDao {
         final AgentEventType eventType = agentEventBo.getEventType();
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
 
-        this.hbaseTemplate.put(HBaseTables.AGENT_EVENT, rowKey, HBaseTables.AGENT_EVENT_CF_EVENTS, qualifier, agentEventBo, this.valueMapper);
+        TableName agentEventTableName = tableNameProvider.getTableName(HBaseTables.AGENT_EVENT_STR);
+        this.hbaseTemplate.put(agentEventTableName, rowKey, HBaseTables.AGENT_EVENT_CF_EVENTS, qualifier, agentEventBo, this.valueMapper);
     }
 
     byte[] createRowKey(String agentId, long eventTimestamp) {

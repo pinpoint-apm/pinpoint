@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,15 +36,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * @author HyunGil Jeong
  */
 public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
-
-    public static final ServiceType IBATIS = ServiceTypeFactory.of(5500, "IBATIS");
-    public static final ServiceType IBATIS_SPRING = ServiceTypeFactory.of(5501, "IBATIS_SPRING", "IBATIS");
 
     private static final String IBATIS_SCOPE = "IBATIS_SCOPE";
 
@@ -65,7 +61,7 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     // SqlMapClient / SqlMapSession
     private void addInterceptorsForSqlMapExecutors() {
-        final ServiceType serviceType = IBATIS;
+        final ServiceType serviceType = IBatisConstants.IBATIS;
         final String[] sqlMapExecutorImplClasses = { "com.ibatis.sqlmap.engine.impl.SqlMapClientImpl",
                 "com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl" };
         addInterceptorsForClasses(serviceType, sqlMapExecutorImplClasses);
@@ -73,7 +69,7 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     // SqlMapClientTemplate
     private void addInterceptorsForSqlMapClientTemplate() {
-        final ServiceType serviceType = IBATIS_SPRING;
+        final ServiceType serviceType = IBatisConstants.IBATIS_SPRING;
         final String[] sqlMapClientTemplateClasses = { "org.springframework.orm.ibatis.SqlMapClientTemplate" };
         addInterceptorsForClasses(serviceType, sqlMapClientTemplateClasses);
     }

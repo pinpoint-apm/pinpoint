@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -44,7 +44,6 @@ public class SpanChunkHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
     @Autowired
@@ -57,7 +56,16 @@ public class SpanChunkHandler implements SimpleHandler {
     private SpanFactory spanFactory;
 
     @Override
-    public void handleSimple(TBase<?, ?> tbase) {
+    public void handleSimple(ServerRequest serverRequest) {
+        final Object data = serverRequest.getData();
+        if (data instanceof TBase<?, ?>) {
+            handleSimple((TBase<?, ?>) data);
+        } else {
+            throw new UnsupportedOperationException("data is not support type : " + data);
+        }
+    }
+
+    private void handleSimple(TBase<?, ?> tbase) {
 
         try {
             final SpanChunkBo spanChunkBo = newSpanChunkBo(tbase);

@@ -17,12 +17,9 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 
 /**
  * @author emeroad
@@ -35,13 +32,12 @@ public interface AgentOption {
 
     String getApplicationName();
 
+    boolean isContainer();
+
     ProfilerConfig getProfilerConfig();
 
-    URL[] getPluginJars();
+    List<String> getPluginJars();
 
     List<String> getBootstrapJarPaths();
 
-    ServiceTypeRegistryService getServiceTypeRegistryService();
-    
-    AnnotationKeyRegistryService getAnnotationKeyRegistryService();
 }

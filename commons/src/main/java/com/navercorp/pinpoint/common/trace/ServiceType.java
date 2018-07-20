@@ -46,9 +46,23 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1021</td><td><i>RESERVED</i></td></tr>
  * <tr><td>1030</td><td>JETTY</td></tr>
  * <tr><td>1031</td><td>JETTY_METHOD</td></tr>
+ * <tr><td>1040</td><td>JBOSS</td></tr>
+ * <tr><td>1041</td><td>JBOSS_METHOD</td></tr>
+ * <tr><td>1050</td><td>VERTX</td></tr>
+ * <tr><td>1051</td><td>VERTX_INTERNAL</td></tr>
+ * <tr><td>1052</td><td>VERTX_HTTP_SERVER</td></tr>
+ * <tr><td>1053</td><td>VERTX_HTTP_SERVER_INTERNAL</td></tr>
+ * <tr><td>1060</td><td>WEBSPHERE</td></tr>
+ * <tr><td>1061</td><td>WEBSPHERE_METHOD</td></tr>
+ * <tr><td>1070</td><td>WEBLOGIC</td></tr>
+ * <tr><td>1071</td><td>WEBLOGIC_METHOD</td></tr>
  * <tr><td>1100</td><td>THRIFT_SERVER</td></tr>
  * <tr><td>1101</td><td>THRIFT_SERVER_INTERNAL</td></tr>
  * <tr><td>1110</td><td>DUBBO_PROVIDER</td></tr>
+ *
+ * <tr><td>1500</td><td>PHP</td></tr>
+ * <tr><td>1501</td><td>PHP_METHOD</td></tr>
+ *
  * </table>
  * 
  * <h3>Server Sandbox (1900 ~ 1999)</h3>
@@ -86,6 +100,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <h3>Library (5000 ~ 7499)</h3>
  * <table>
  * <tr><td>5000</td><td>INTERNAL_METHOD</td></tr>
+ * <tr><td>5005</td><td>JSP</td></tr>
  * <tr><td>5010</td><td>GSON</td></tr>
  * <tr><td>5011</td><td>JACKSON</td></tr>
  * <tr><td>5012</td><td>JSON-LIB</td></tr>
@@ -97,12 +112,15 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5501</td><td>IBATIS-SPRING</td></tr>
  * <tr><td>5510</td><td>MYBATIS</td></tr>
  * <tr><td>6050</td><td>DBCP</td></tr>
+ * <tr><td>6052</td><td>DBCP2</td></tr>
+ * <tr><td>6060</td><td>HIKARICP</td></tr>
+ * <tr><td>6500</td><td>RXJAVA</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
  * </table>
  *
  * <h3>Library Sandbox (7500 ~ 7999)</h3>
  *
- * <h3>Cache Library (8000 ~ 8899) Fast Histogram</h3>
+ * <h3>Cache & File Library (8000 ~ 8899) Fast Histogram</h3>
  * <table>
  * <tr><td>8050</td><td>MEMCACHED</td></tr>
  * <tr><td>8051</td><td>MEMCACHED_FUTURE_GET</td></tr>
@@ -113,6 +131,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8200</td><td>REDIS</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>8260</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>8300</td><td>RABBITMQ</td></tr>
+ * <tr><td>8310</td><td><i>ACTIVEMQ_CLIENT</i></td></tr>
+ * <tr><td>8311</td><td><i>ACTIVEMQ_CLIENT_INTERNAL</i></td></tr>
  * </table>
  * <h3>Cache Library Sandbox (8900 ~ 8999) Histogram type: Fast </h3>
  * 
@@ -136,6 +158,12 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9101</td><td>THRIFT_CLIENT_INTERNAL</td></tr>
  * <tr><td>9110</td><td>DUBBO_CONSUMER</td></tr>
  * <tr><td>9120</td><td>HYSTRIX_COMMAND</td></tr>
+ * <tr><td>9130</td><td>VERTX_HTTP_CLIENT</td></tr>
+ * <tr><td>9131</td><td>VERTX_HTTP_CLIENT_INTERNAL</td></tr>
+ * <tr><td>9140</td><td>REST_TEMPLATE</td></tr>
+ * <tr><td>9150</td><td>NETTY</td></tr>
+ * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
+ * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
@@ -210,7 +238,13 @@ public interface ServiceType {
     ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
     ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
     ServiceType UNAUTHORIZED = of(1007, "UNAUTHORIZED", RECORD_STATISTICS);
-    
+
+    // Added for php agent.
+    //@Deprecated
+    //ServiceType PHP = ServiceTypeFactory.of(1500, "PHP", RECORD_STATISTICS);
+    // Added for php agent.
+    //@Deprecated
+    //ServiceType PHP_METHOD = ServiceTypeFactory.of(1501, "PHP_METHOD");
 
 
     /**
@@ -223,6 +257,7 @@ public interface ServiceType {
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.
     ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD");
+    ServiceType SERVLET = of(5004, "SERVLET");
     
 
     // Spring framework

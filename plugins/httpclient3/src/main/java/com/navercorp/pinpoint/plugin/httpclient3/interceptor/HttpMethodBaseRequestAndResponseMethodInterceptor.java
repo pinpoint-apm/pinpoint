@@ -20,30 +20,35 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
-import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
  * @author jaehong.kim
  */
-@Scope(value=HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
 public class HttpMethodBaseRequestAndResponseMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
+    private final InterceptorScope interceptorScope;
 
 
     public HttpMethodBaseRequestAndResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (methodDescriptor == null) {
+            throw new NullPointerException("methodDescriptor must not be null");
+        }
+        if (interceptorScope == null) {
+            throw new NullPointerException("interceptorScope must not be null");
+        }
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
@@ -60,10 +65,11 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
             return;
         }
 
-        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
-            HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
-            if(methodDescriptor.getMethodName().equals("writeRequest")) {
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        final Object attachment = getAttachment(invocation);
+        if (attachment instanceof HttpClient3CallContext) {
+            HttpClient3CallContext callContext = (HttpClient3CallContext) attachment;
+            if (methodDescriptor.getMethodName().equals("writeRequest")) {
                 callContext.setWriteBeginTime(System.currentTimeMillis());
             } else {
                 callContext.setReadBeginTime(System.currentTimeMillis());
@@ -83,10 +89,11 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
             return;
         }
 
-        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
-            HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
-            if(methodDescriptor.getMethodName().equals("writeRequest")) {
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        final Object attachment = getAttachment(invocation);
+        if (attachment instanceof HttpClient3CallContext) {
+            HttpClient3CallContext callContext = (HttpClient3CallContext) attachment;
+            if (methodDescriptor.getMethodName().equals("writeRequest")) {
                 callContext.setWriteEndTime(System.currentTimeMillis());
                 callContext.setWriteFail(throwable != null);
             } else {
@@ -95,5 +102,12 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
             }
             logger.debug("Set call context {}", callContext);
         }
+    }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
     }
 }

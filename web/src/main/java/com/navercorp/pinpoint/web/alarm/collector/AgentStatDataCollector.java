@@ -16,18 +16,18 @@
 
 package com.navercorp.pinpoint.web.alarm.collector;
 
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
 
 /**
  * @author minwoo.jung
@@ -98,14 +98,6 @@ public class AgentStatDataCollector extends DataCollector {
 
         init.set(true);
 
-    }
-
-    private long calculatePercent(long used, long total) {
-        if (total == 0 || used == 0) {
-            return 0;
-        } else {
-            return (used * 100L) / total;
-        }
     }
 
     public Map<String, Long> getHeapUsageRate() {

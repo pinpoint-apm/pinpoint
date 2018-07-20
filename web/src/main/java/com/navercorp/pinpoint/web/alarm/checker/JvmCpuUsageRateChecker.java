@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.web.alarm.checker;
 
-import java.util.Map;
-
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
+
+import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
-public class JvmCpuUsageRateChecker extends AgentChecker {
+public class JvmCpuUsageRateChecker extends AgentChecker<Long> {
     
     public JvmCpuUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {
         super(rule, "%", dataCollector);
@@ -34,5 +34,10 @@ public class JvmCpuUsageRateChecker extends AgentChecker {
     protected Map<String, Long> getAgentValues() {
         return ((AgentStatDataCollector)dataCollector).getJvmCpuUsageRate();
     }
-    
+
+    @Override
+    protected boolean decideResult(Long value) {
+        return value >= rule.getThreshold();
+    }
+
 }

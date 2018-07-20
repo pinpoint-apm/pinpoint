@@ -1,15 +1,8 @@
 (function($) {
 	'use strict';
-	/**
-	 * (en)alarmPinpointUserDirective 
-	 * @ko alarmPinpointUserDirective
-	 * @group Directive
-	 * @name alarmPinpointUserDirective
-	 * @class
-	 */	
 	
-	pinpointApp.directive( "pinpointUserDirective", [ "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService", "globalConfig",
-	    function ( helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService, globalConfig) {
+	pinpointApp.directive( "pinpointUserDirective", [ "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService", "SystemConfigurationService",
+	    function ( helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService, SystemConfigService) {
         return {
             restrict: 'EA',
             replace: true,
@@ -18,6 +11,9 @@
             link: function (scope, element) {
 
 				scope.prefix = "pinpointUser_";
+				SystemConfigService.getConfig().then(function(config) {
+					scope.canEditUserInfo = config["editUserInfo"];
+				});
             	var $element = $(element);
     			var $elWrapper = $element.find(".wrapper");
     			var $elTotal = $element.find(".total");
@@ -34,9 +30,6 @@
 				var oGroupMemberList = [];
 				scope.pinpointUserList = [];
 				
-				scope.getCreateAllow = function() {
-					return globalConfig.editUserInfo;
-				};
 				function cancelPreviousWork() {
 					AddPinpointUser.cancelAction( aEditNode, hideEditArea );
 					RemovePinpointUser.cancelAction( AlarmUtilService, $workingNode );
@@ -206,7 +199,7 @@
 							if ( oPinpointUserList[i].userId == oPinpointUser.userId ) {
 								oPinpointUserList[i].name = oPinpointUser.name;
 								oPinpointUserList[i].department = oPinpointUser.department;
-								oPinpointUserList[i].phoneNumber = oPinpointUser.phone;
+								oPinpointUserList[i].phoneNumber = oPinpointUser.phoneNumber;
 								oPinpointUserList[i].email = oPinpointUser.email;
 								break;
 							}
@@ -256,11 +249,7 @@
 					AlarmUtilService.show( $elLoading );
 					var $node = AlarmUtilService.getNode( $event, "li" );
 					var userId =  AlarmUtilService.extractID( $node );
-					if ( $node.find("input").get(0).checked ) {
-						scope.$emit( "pinpointUser.sendUserAdd", getUser( userId ) );
-					} else {
-						scope.$emit( "pinpointUser.sendUserRemoved", userId );
-					}
+					scope.$emit( "pinpointUser.sendUserAdd", getUser( userId ) );
 				};
 				scope.$on( "pinpointUser.changeSelectedMember", function( event, list ) {
 					resetList( list );
@@ -268,6 +257,7 @@
 						scope.pinpointUserList = oPinpointUserList;
 					});
 					AlarmUtilService.setTotal( $elTotal, getTotal() );
+					AlarmUtilService.hide( $elLoading );
 				});
 				scope.$on( "pinpointUser.checkSelectedMember", function( event, list ) {
 					$elWrapper.removeClass( "_disable-check" );

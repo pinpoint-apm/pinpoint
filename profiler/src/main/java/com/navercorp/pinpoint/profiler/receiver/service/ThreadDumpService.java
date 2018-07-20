@@ -16,9 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
-import com.navercorp.pinpoint.thrift.dto.command.*;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadDumpType;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +34,19 @@ import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author koo.taejin
  */
 public class ThreadDumpService implements ProfilerRequestCommandService {
 
+    private static final Set<TThreadState> THREAD_STATES = EnumSet.allOf(TThreadState.class);
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     @Override
     public TBase<?, ?> requestCommandService(TBase tbase) {
@@ -44,67 +55,80 @@ public class ThreadDumpService implements ProfilerRequestCommandService {
         TCommandThreadDump param = (TCommandThreadDump) tbase;
         TThreadDumpType type = param.getType();
 
-        List<ThreadInfo> threadInfoList = null;
-        if (TThreadDumpType.TARGET == type) {
-            threadInfoList = getThreadInfo(param.getName());
-        } else if (TThreadDumpType.PENDING == type) {
-            threadInfoList = getThreadInfo(param.getPendingTimeMillis());
-        } else {
-            threadInfoList = Arrays.asList(getAllThreadInfo());
-        }
+        final List<ThreadInfo> threadInfoList = getThreadInfos(type, param);
+
+        final List<TThreadDump> threadDumpList = getTThreadDumpList(threadInfoList);
 
         TCommandThreadDumpResponse response = new TCommandThreadDumpResponse();
+        response.setThreadDumps(threadDumpList);
+        return response;
+    }
 
+    private List<TThreadDump> getTThreadDumpList(List<ThreadInfo> threadInfoList) {
+        final List<TThreadDump> threadDumpList = new ArrayList<TThreadDump>(threadInfoList.size());
         for (ThreadInfo info : threadInfoList) {
-            TThreadDump dump = new TThreadDump();
+            final TThreadDump dump = toTThreadDump(info);
+            threadDumpList.add(dump);
+        }
+        return threadDumpList;
+    }
 
-            dump.setThreadName(info.getThreadName());
-            dump.setThreadId(info.getThreadId());
-            dump.setBlockedTime(info.getBlockedTime());
-            dump.setBlockedCount(info.getBlockedCount());
-            dump.setWaitedTime(info.getWaitedTime());
-            dump.setWaitedCount(info.getWaitedCount());
+    private TThreadDump toTThreadDump(ThreadInfo info) {
+        TThreadDump dump = new TThreadDump();
 
-            dump.setLockName(info.getLockName());
-            dump.setLockOwnerId(info.getLockOwnerId());
-            dump.setLockOwnerName(info.getLockOwnerName());
+        dump.setThreadName(info.getThreadName());
+        dump.setThreadId(info.getThreadId());
+        dump.setBlockedTime(info.getBlockedTime());
+        dump.setBlockedCount(info.getBlockedCount());
+        dump.setWaitedTime(info.getWaitedTime());
+        dump.setWaitedCount(info.getWaitedCount());
 
-            dump.setInNative(info.isInNative());
-            dump.setSuspended(info.isSuspended());
+        dump.setLockName(info.getLockName());
+        dump.setLockOwnerId(info.getLockOwnerId());
+        dump.setLockOwnerName(info.getLockOwnerName());
 
-            dump.setThreadState(getThreadState(info));
+        dump.setInNative(info.isInNative());
+        dump.setSuspended(info.isSuspended());
 
-            StackTraceElement[] stackTraceElements = info.getStackTrace();
-            for (StackTraceElement each : stackTraceElements) {
-                dump.addToStackTrace(each.toString());
-            }
+        dump.setThreadState(getThreadState(info));
 
-            MonitorInfo[] monitorInfos = info.getLockedMonitors();
-            for (MonitorInfo each : monitorInfos) {
-                TMonitorInfo tMonitorInfo = new TMonitorInfo();
-
-                tMonitorInfo.setStackDepth(each.getLockedStackDepth());
-                tMonitorInfo.setStackFrame(each.getLockedStackFrame().toString());
-
-                dump.addToLockedMonitors(tMonitorInfo);
-            }
-
-            LockInfo[] lockInfos = info.getLockedSynchronizers();
-            for (LockInfo lockInfo : lockInfos) {
-                dump.addToLockedSynchronizers(lockInfo.toString());
-            }
-
-            response.addToThreadDumps(dump);
+        StackTraceElement[] stackTraceElements = info.getStackTrace();
+        for (StackTraceElement each : stackTraceElements) {
+            dump.addToStackTrace(each.toString());
         }
 
-        return response;
+        MonitorInfo[] monitorInfos = info.getLockedMonitors();
+        for (MonitorInfo each : monitorInfos) {
+            TMonitorInfo tMonitorInfo = new TMonitorInfo();
+
+            tMonitorInfo.setStackDepth(each.getLockedStackDepth());
+            tMonitorInfo.setStackFrame(each.getLockedStackFrame().toString());
+
+            dump.addToLockedMonitors(tMonitorInfo);
+        }
+
+        LockInfo[] lockInfos = info.getLockedSynchronizers();
+        for (LockInfo lockInfo : lockInfos) {
+            dump.addToLockedSynchronizers(lockInfo.toString());
+        }
+        return dump;
+    }
+
+    private List<ThreadInfo> getThreadInfos(TThreadDumpType type, TCommandThreadDump param) {
+        if (TThreadDumpType.TARGET == type) {
+            return getThreadInfo(param.getName());
+        } else if (TThreadDumpType.PENDING == type) {
+            return getThreadInfo(param.getPendingTimeMillis());
+        }
+
+        return Arrays.asList(getAllThreadInfo());
     }
 
     private TThreadState getThreadState(ThreadInfo info) {
 
-        String stateName = info.getThreadState().name();
+        final String stateName = info.getThreadState().name();
 
-        for (TThreadState state : TThreadState.values()) {
+        for (TThreadState state : THREAD_STATES) {
             if (state.name().equalsIgnoreCase(stateName)) {
                 return state;
             }
@@ -114,12 +138,11 @@ public class ThreadDumpService implements ProfilerRequestCommandService {
     }
 
     private List<ThreadInfo> getThreadInfo(String threadName) {
-        List<ThreadInfo> result = new ArrayList<ThreadInfo>();
-
-        if (threadName == null || threadName.trim().equals("")) {
+        if (!StringUtils.hasText(threadName)) {
             return Arrays.asList(getAllThreadInfo());
         }
 
+        final List<ThreadInfo> result = new ArrayList<ThreadInfo>();
         for (ThreadInfo threadIno : getAllThreadInfo()) {
             if (threadName.equals(threadIno.getThreadName())) {
                 result.add(threadIno);
@@ -131,12 +154,11 @@ public class ThreadDumpService implements ProfilerRequestCommandService {
 
     // TODO : need to modify later
     private List<ThreadInfo> getThreadInfo(long pendingTimeMillis) {
-        List<ThreadInfo> result = new ArrayList<ThreadInfo>();
-
         if (pendingTimeMillis <= 0) {
             return Arrays.asList(getAllThreadInfo());
         }
 
+        final List<ThreadInfo> result = new ArrayList<ThreadInfo>();
         for (ThreadInfo threadInfo : getAllThreadInfo()) {
             if (threadInfo.getBlockedTime() >= pendingTimeMillis) {
                 result.add(threadInfo);

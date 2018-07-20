@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -109,9 +109,9 @@ public class AutomaticBufferTest {
 
         Assert.assertEquals("check data", test, trimString);
 
-        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, "UTF-8");
+        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, Charsets.UTF_8);
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        org.junit.Assert.assertEquals("check pad", padString, new String(padBytes, Charset.forName("UTF-8")));
+        org.junit.Assert.assertEquals("check pad", padString, new String(padBytes, Charsets.UTF_8));
 
     }
 
@@ -300,10 +300,10 @@ public class AutomaticBufferTest {
         buffer.putShort((short)28704);
 
         Buffer read = new FixedBuffer(buffer.getBuffer());
-        logger.info("{}", (char)read.readByte());
-        logger.info("{}", (char)read.readByte());
-        logger.info("{}", (char)read.readByte());
-        logger.info("{}", (char)read.readByte());
+        logger.debug("{}", (char)read.readByte());
+        logger.debug("{}", (char)read.readByte());
+        logger.debug("{}", (char)read.readByte());
+        logger.debug("{}", (char)read.readByte());
 
     }
 

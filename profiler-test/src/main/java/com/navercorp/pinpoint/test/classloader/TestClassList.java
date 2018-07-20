@@ -33,7 +33,7 @@ public class TestClassList {
         add("com.navercorp.pinpoint.thrift.");
         add("com.navercorp.pinpoint.profiler.context.");
 
-        add("com.navercorp.pinpoint.test.MockAgent");
+        add("com.navercorp.pinpoint.test.MockApplicationContext");
         add("com.navercorp.pinpoint.test.TBaseRecorder");
         add("com.navercorp.pinpoint.test.TBaseRecorderAdaptor");
         add("com.navercorp.pinpoint.test.ListenableDataSender");

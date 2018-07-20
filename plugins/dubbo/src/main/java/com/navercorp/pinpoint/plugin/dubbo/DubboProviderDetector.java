@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.dubbo;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,7 @@ public final class DubboProviderDetector implements ApplicationTypeDetector {
     private List<String> bootstrapMains;
 
     public DubboProviderDetector(List<String> bootstrapMains) {
-        if (bootstrapMains == null || bootstrapMains.isEmpty()) {
+        if (CollectionUtils.isEmpty(bootstrapMains)) {
             this.bootstrapMains = Arrays.asList(DEFAULT_BOOTSTRAP_MAIN);
         } else {
             this.bootstrapMains = bootstrapMains;

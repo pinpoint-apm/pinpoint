@@ -63,9 +63,9 @@
     <li class="active"><a href="#CallStacks" data-toggle="tab">Call Tree</a></li>
     <li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
     <li><a href="#Timeline" data-toggle="tab">Timeline</a></li>
-    <li><a href ng-click="openTransactionView();">Mixed View</a></li>
+    <li><a href ng-click="openTransactionView($event);">Mixed View</a></li>
     <li ng-show="logLinkEnable">
-   		<a href="{{logPageUrl}}" ng-click="viewLog(logPageUrl)" style="{{loggingTransactionInfo ? '' : 'color:#BBBABA'}}">{{logButtonName}}</a>
+   		<a href ng-click="viewLog(logPageUrl)" style="{{loggingTransactionInfo ? '' : 'color:#BBBABA'}};curspr: pointer;">{{logButtonName}}</a>
     </li>
 	<li style="padding-left:10px;padding-top:1px;" class="_searchForm">
 		<select class="form-control" style="width:100px" ng-model="searchColumn" ng-change="selectSearchColumn()">
@@ -75,7 +75,7 @@
 	</li>
 	<li style="padding-top:1px;" class="_searchForm">
 		<div class="input-group" style="width:200px">
-			<input type="text" class="form-control" placeholder="{{ searchPlaceholder }}" ng-model="searchText" ng-keydown="searchByKeydown($event)" style="background-color:beige">
+			<input type="text" class="form-control" placeholder="{{ searchPlaceholder }}" ng-keydown="searchByKeydown($event)" style="background-color:beige">
 			<span class="input-group-btn">
 				<button class="btn btn-default btn-info" type="button" ng-click="searchByClick()">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>

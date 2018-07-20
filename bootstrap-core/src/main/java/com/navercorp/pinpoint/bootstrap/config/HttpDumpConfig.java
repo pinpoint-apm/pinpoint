@@ -20,9 +20,8 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 
 /**
- * 
  * @author netspider
- * 
+ * @author jaehong.kim
  */
 public class HttpDumpConfig {
 
@@ -39,13 +38,25 @@ public class HttpDumpConfig {
         config.setEntitySampler(SimpleSamplerFactory.createSampler(false, 1));
         config.setEntityDumpSize(128);
 
-        config.setDumpParam(false);
-        config.setParamDumpType(DumpType.EXCEPTION);
-        config.setParamSampler(SimpleSamplerFactory.createSampler(false, 1));
-        config.setParamDumpSize(128);
+        return config;
+    }
+
+    public static HttpDumpConfig get(final boolean cookie, final DumpType cookieDumpType, final int cookieDumpSamplingRate, final int cookieDumpSize, final boolean entity, final DumpType entityDumpType, final int entityDumpSamplingRate, final int entityDumpSize) {
+        HttpDumpConfig config = new HttpDumpConfig();
+
+        config.setDumpCookie(cookie);
+        config.setCookieDumpType(cookieDumpType);
+        config.setCookieSampler(SimpleSamplerFactory.createSampler(cookie, cookieDumpSamplingRate));
+        config.setCookieDumpSize(cookieDumpSize);
+
+        config.setDumpEntity(entity);
+        config.setEntityDumpType(entityDumpType);
+        config.setEntitySampler(SimpleSamplerFactory.createSampler(entity, entityDumpSamplingRate));
+        config.setEntityDumpSize(entityDumpSize);
 
         return config;
     }
+
 
     private boolean dumpCookie = false;
     private DumpType cookieDumpType = DumpType.EXCEPTION;
@@ -56,11 +67,6 @@ public class HttpDumpConfig {
     private DumpType entityDumpType;
     private SimpleSampler entitySampler;
     private int entityDumpSize;
-
-    private boolean dumpParam;
-    private DumpType paramDumpType;
-    private SimpleSampler paramSampler;
-    private int paramDumpSize;
 
     public boolean isDumpCookie() {
         return dumpCookie;
@@ -124,37 +130,5 @@ public class HttpDumpConfig {
 
     public void setEntityDumpSize(int entityDumpSize) {
         this.entityDumpSize = entityDumpSize;
-    }
-
-    public boolean isDumpParam() {
-        return dumpParam;
-    }
-
-    public void setDumpParam(boolean dumpParam) {
-        this.dumpParam = dumpParam;
-    }
-
-    public DumpType getParamDumpType() {
-        return paramDumpType;
-    }
-
-    public void setParamDumpType(DumpType paramDumpType) {
-        this.paramDumpType = paramDumpType;
-    }
-
-    public SimpleSampler getParamSampler() {
-        return paramSampler;
-    }
-
-    public void setParamSampler(SimpleSampler paramSampler) {
-        this.paramSampler = paramSampler;
-    }
-
-    public int getParamDumpSize() {
-        return paramDumpSize;
-    }
-
-    public void setParamDumpSize(int paramDumpSize) {
-        this.paramDumpSize = paramDumpSize;
     }
 }

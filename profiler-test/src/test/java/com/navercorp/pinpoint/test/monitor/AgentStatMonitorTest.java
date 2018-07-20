@@ -17,25 +17,27 @@
 
 package com.navercorp.pinpoint.test.monitor;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
+import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
-import com.navercorp.pinpoint.test.MockTraceContextFactory;
 import com.navercorp.pinpoint.test.TBaseRecorder;
 import com.navercorp.pinpoint.test.TBaseRecorderAdaptor;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 public class AgentStatMonitorTest {
 
@@ -44,14 +46,18 @@ public class AgentStatMonitorTest {
     private TBaseRecorder<TAgentStatBatch> tBaseRecorder;
     private DataSender dataSender;
 
+    @Mock
+    private AgentStatMetricCollector<TAgentStat> agentStatCollector;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        when(agentStatCollector.collect()).thenReturn(new TAgentStat());
 
         this.tBaseRecorder = new TBaseRecorder<TAgentStatBatch>();
         TBaseRecorderAdaptor recorderAdaptor = new TBaseRecorderAdaptor(tBaseRecorder);
 
-        ListenableDataSender listenableDataSender = new ListenableDataSender();
+        ListenableDataSender listenableDataSender = new ListenableDataSender("testDataSender");
         listenableDataSender.setListener(recorderAdaptor);
         this.dataSender = listenableDataSender;
     }
@@ -64,12 +70,8 @@ public class AgentStatMonitorTest {
         final int minNumBatchToTest = 2;
         final long totalTestDurationMs = collectionIntervalMs + collectionIntervalMs * numCollectionsPerBatch * minNumBatchToTest;
         // When
-        System.setProperty("pinpoint.log", "test.");
-        TraceContext testTraceContext = new MockTraceContextFactory().create();
-        AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(testTraceContext);
-
-        AgentStatMonitor monitor = new AgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
-                agentStatCollectorFactory, collectionIntervalMs, numCollectionsPerBatch);
+        AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
+                agentStatCollector, collectionIntervalMs, numCollectionsPerBatch);
         monitor.start();
         Thread.sleep(totalTestDurationMs);
         monitor.stop();
@@ -80,5 +82,4 @@ public class AgentStatMonitorTest {
             assertTrue(agentStatBatch.getAgentStats().size() <= numCollectionsPerBatch);
         }
     }
-
 }

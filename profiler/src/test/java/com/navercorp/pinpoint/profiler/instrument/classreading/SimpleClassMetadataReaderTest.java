@@ -42,19 +42,24 @@ public class SimpleClassMetadataReaderTest {
         byte[] classFile = BytecodeUtils.getClassFile(ClassLoaderUtils.getDefaultClassLoader(), clazz.getName());
 
         SimpleClassMetadata simpleClassMetadata = SimpleClassMetadataReader.readSimpleClassMetadata(classFile);
-
+        // name.
         Assert.assertEquals(simpleClassMetadata.getClassName(), clazz.getName());
 
-
+        // interfaces
         List<String> interfaceList = getInterfaceList(clazz.getInterfaces());
         List<String> interfaceNames = simpleClassMetadata.getInterfaceNames();
         Assert.assertThat(interfaceNames, containsInAnyOrder(interfaceList.toArray()));
 
+        // super
         Assert.assertEquals(simpleClassMetadata.getSuperClassName(), "java.lang.Object");
+
+        // access
+        simpleClassMetadata.getAccessFlag();
+        // version
+        simpleClassMetadata.getVersion();
     }
 
     private List<String> getInterfaceList(Class<?>[] interfaces) {
-
         List<Class<?>> collection = Lists.newArrayList(interfaces);
         return Lists.transform(collection, new Function<Class<?>, String>() {
             @Override
@@ -63,5 +68,4 @@ public class SimpleClassMetadataReaderTest {
             }
         });
     }
-
 }

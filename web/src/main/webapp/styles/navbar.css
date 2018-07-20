@@ -85,8 +85,8 @@
     height:30px;
 }
 .navbar .btn-group-sm .btn {
-	padding-left:8px;
-	padding-right: 8x;
+	padding-left: 7px;
+	padding-right: 7px;
 }
 .navbar .inout-bound .dropdown-menu {
     width: 192px;
@@ -129,13 +129,14 @@
     padding-top: 4px;
     padding-bottom: 4px;
 }
-@keyframes blinkKeyframe {
-    0% { color: #FFF }
-    50% { color: #000  }
-    100% { color: #FFF }
+
+.navbar .bidirectional {
+    clear: both;
+    cursor: pointer;
+    padding: 4px 2px 2px 2px;
+    text-align: center;
+    border-bottom: 1px solid #D2D2D2;
 }
-.blinkblink {
-    animation-name: blinkKeyframe;
-    animation-duration: 4s;
-    animation-iteration-count: infinite;
+.navbar .bidirectional:hover {
+
 }

@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -82,17 +83,17 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
 
                 InstrumentMethod execute = target.getDeclaredMethod("execute", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
                 if (execute != null) {
-                    execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorExecuteMethodInterceptor");
+                    execute.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorExecuteMethodInterceptor", HttpClient4Constants.HTTP_CLIENT4_SCOPE, ExecutionPolicy.ALWAYS);
                 }
 
                 InstrumentMethod doSendRequest = target.getDeclaredMethod("doSendRequest", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
                 if (doSendRequest != null) {
-                    doSendRequest.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor");
+                    doSendRequest.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor", HttpClient4Constants.HTTP_CLIENT4_SCOPE, ExecutionPolicy.ALWAYS);
                 }
 
                 InstrumentMethod doReceiveResponse = target.getDeclaredMethod("doReceiveResponse", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
                 if (doReceiveResponse != null) {
-                    doReceiveResponse.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor");
+                    doReceiveResponse.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor", HttpClient4Constants.HTTP_CLIENT4_SCOPE, ExecutionPolicy.ALWAYS);
                 }
 
                 return target.toBytecode();
@@ -149,7 +150,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         InstrumentMethod execute = target.getDeclaredMethod("execute", parameterTypeNames);
         
         if (execute != null) {
-            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpRequestInterceptor", va(isHasCallbackParam));
+            execute.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpRequestInterceptor", va(isHasCallbackParam), HttpClient4Constants.HTTP_CLIENT4_SCOPE);
         }
     }
 
@@ -157,7 +158,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         InstrumentMethod execute = target.getDeclaredMethod("execute", parameterTypeNames);
         
         if (execute != null) {
-            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpUriRequestInterceptor", va(isHasCallbackParam));
+            execute.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpUriRequestInterceptor", va(isHasCallbackParam), HttpClient4Constants.HTTP_CLIENT4_SCOPE);
         }
     }
 
@@ -270,7 +271,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
                 InstrumentMethod execute = target.getDeclaredMethod("execute", parameterTypeNames);
                 
                 if (execute != null) {
-                    execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpAsyncClientExecuteMethodInterceptor");
+                    execute.addScopedInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpAsyncClientExecuteMethodInterceptor", HttpClient4Constants.HTTP_CLIENT4_SCOPE);
                 }
             }
         });
@@ -306,7 +307,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class.getName());
                 
                 InstrumentMethod get = target.getDeclaredMethod("get");
                 if (get != null) {

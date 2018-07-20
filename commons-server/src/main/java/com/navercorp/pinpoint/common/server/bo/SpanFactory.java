@@ -6,9 +6,9 @@ import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
-import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.io.util.AnnotationTranscoder;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
@@ -213,9 +213,9 @@ public class SpanFactory {
 
     private List<SpanEventBo> buildSpanEventBoList(List<TSpanEvent> spanEventList) {
         if (CollectionUtils.isEmpty(spanEventList)) {
-            return new ArrayList<>();
+            return new ArrayList<SpanEventBo>();
         }
-        List<SpanEventBo> spanEventBoList = new ArrayList<>(spanEventList.size());
+        List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>(spanEventList.size());
         for (TSpanEvent tSpanEvent : spanEventList) {
             final SpanEventBo spanEventBo = buildSpanEventBo(tSpanEvent);
             if (!spanEventFilter.filter(spanEventBo)) {
@@ -230,9 +230,9 @@ public class SpanFactory {
 
     private List<AnnotationBo> buildAnnotationList(List<TAnnotation> tAnnotationList) {
         if (tAnnotationList == null) {
-            return new ArrayList<>();
+            return new ArrayList<AnnotationBo>();
         }
-        List<AnnotationBo> boList = new ArrayList<>(tAnnotationList.size());
+        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(tAnnotationList.size());
         for (TAnnotation tAnnotation : tAnnotationList) {
             final AnnotationBo annotationBo = newAnnotationBo(tAnnotation);
             boList.add(annotationBo);

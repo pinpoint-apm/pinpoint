@@ -16,25 +16,17 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
-import com.codahale.metrics.MetricRegistry;
-import com.navercorp.pinpoint.collector.monitor.MonitoredExecutorService;
-import com.navercorp.pinpoint.collector.receiver.DataReceiver;
-import com.navercorp.pinpoint.collector.receiver.WorkerOption;
-import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
-import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.collector.util.PooledObject;
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.util.CpuUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
+import org.springframework.beans.factory.annotation.Qualifier;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -42,152 +34,86 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
  * @author netspider
  * @author jaehong.kim
  */
-public class UDPReceiver implements DataReceiver {
+public class UDPReceiver {
 
     private final Logger logger;
 
-    private final String bindAddress;
-    private final int port;
+    private final String name;
 
-    private final String receiverName;
-
-    @Autowired
-    private MetricRegistry metricRegistry;
+    private final InetSocketAddress bindAddress;
 
     // increasing ioThread size wasn't very effective
     private final int ioThreadSize = CpuUtils.cpuCount();
-    private ThreadPoolExecutor io;
+    private ExecutorService ioExecutor;
 
-    private final WorkerOption workerOption;
-    // modify thread pool size appropriately when modifying queue capacity
-    private ExecutorService worker;
+    private final Executor worker;
 
     // can't really allocate memory as max udp packet sizes are unknown.
     // not allocating memory in advance as I am unsure of the max udp packet size.
     // packet cache is necessary as the JVM does not last long if they are dynamically created with the maximum size.
-    private ObjectPool<DatagramPacket> datagramPacketPool;
+    private final ObjectPool<DatagramPacket> datagramPacketPool;
 
     private final DatagramSocket socket;
 
     private final PacketHandlerFactory<DatagramPacket> packetHandlerFactory;
 
-    private final AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
-
     private final AtomicBoolean state = new AtomicBoolean(true);
 
-    public UDPReceiver(String receiverName, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, String bindAddress, int port, int receiverBufferSize, WorkerOption workerOption) {
-        if (receiverName != null) {
-            this.logger = LoggerFactory.getLogger(receiverName);
-        } else {
-            this.logger = LoggerFactory.getLogger(this.getClass());
-        }
-        if (packetHandlerFactory == null) {
-            throw new NullPointerException("packetHandlerFactory must not be null");
-        }
-        if (bindAddress == null) {
-            throw new NullPointerException("bindAddress must not be null");
-        }
-        if (workerOption == null) {
-            throw new NullPointerException("workerOption must not be null");
-        }
+    public UDPReceiver(String name, PacketHandlerFactory<DatagramPacket> packetHandlerFactory,
+                       @Qualifier("udpWorker") Executor worker, int receiverBufferSize, InetSocketAddress bindAddress, ObjectPool<DatagramPacket> datagramPacketPool) {
+        this.name = Objects.requireNonNull(name);
+        this.logger = LoggerFactory.getLogger(name);
 
-        this.receiverName = receiverName;
-        this.bindAddress = bindAddress;
-        this.port = port;
+        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress must not be null");
+        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
+        this.worker = Objects.requireNonNull(worker, "worker must not be null");
+
+        Assert.isTrue(receiverBufferSize > 0, "receiverBufferSize must be greater than 0");
         this.socket = createSocket(receiverBufferSize);
 
-        this.packetHandlerFactory = packetHandlerFactory;
-
-        this.workerOption = workerOption;
+        this.datagramPacketPool = Objects.requireNonNull(datagramPacketPool, "datagramPacketPool must not be null");
     }
 
-    public void afterPropertiesSet() {
-        Assert.notNull(metricRegistry, "metricRegistry must not be null");
-        Assert.notNull(packetHandlerFactory, "packetHandlerFactory must not be null");
 
-        this.worker = createWorker(workerOption, receiverName + "-Worker");
-        if (workerOption.isEnableCollectMetric()) {
-            this.worker = new MonitoredExecutorService(worker, metricRegistry, receiverName + "-Worker");
-        }
-
-        final int packetPoolSize = getPacketPoolSize(workerOption);
-        this.datagramPacketPool = new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
-
-        this.io = (ThreadPoolExecutor) Executors.newCachedThreadPool(new PinpointThreadFactory(receiverName + "-Io", true));
-    }
-
-    private ExecutorService createWorker(WorkerOption workerOption, String receiverName) {
-        int workerThreadSize = workerOption.getWorkerThreadSize();
-        int workerThreadQueueSize = workerOption.getWorkerThreadQueueSize();
-
-        return ExecutorFactory.newFixedThreadPool(workerThreadSize, workerThreadQueueSize, receiverName, true);
-    }
 
     private void receive(final DatagramSocket socket) {
         if (logger.isInfoEnabled()) {
             logger.info("start ioThread localAddress:{}, IoThread:{}", this.socket.getLocalAddress(), Thread.currentThread().getName());
         }
-        final SocketAddress localSocketAddress = socket.getLocalSocketAddress();
-        final boolean debugEnabled = logger.isDebugEnabled();
 
         // need shutdown logic
         while (state.get()) {
-            PooledObject<DatagramPacket> pooledPacket = read0(socket);
+            final PooledObject<DatagramPacket> pooledPacket = read0(socket);
             if (pooledPacket == null) {
                 continue;
             }
-            final DatagramPacket packet = pooledPacket.getObject();
-            if (packet.getLength() == 0) {
-                if (debugEnabled) {
-                    logger.debug("length is 0 ip:{}, port:{}", packet.getAddress(), packet.getPort());
-                }
-                return;
-            }
-            try {
-                Runnable dispatchTask = wrapDispatchTask(pooledPacket);
-                worker.execute(dispatchTask);
-            } catch (RejectedExecutionException ree) {
-                handleRejectedExecutionException(ree);
-            }
+            Runnable task = wrapTask(pooledPacket);
+            worker.execute(task);
         }
+
         if (logger.isInfoEnabled()) {
+            final SocketAddress localSocketAddress = socket.getLocalSocketAddress();
             logger.info("stop ioThread localAddress:{}, IoThread:{}", localSocketAddress, Thread.currentThread().getName());
         }
     }
 
-    private void handleRejectedExecutionException(RejectedExecutionException ree) {
-        final int error = rejectedExecutionCount.incrementAndGet();
-        final int mod = 100;
-        if ((error % mod) == 0) {
-            logger.warn("RejectedExecutionCount={}", error);
-        }
+    private Runnable wrapTask(final PooledObject<DatagramPacket> pooledPacket) {
+        return new Task(socket, packetHandlerFactory, pooledPacket);
     }
 
-    private Runnable wrapDispatchTask(final PooledObject<DatagramPacket> pooledPacket) {
-        final Runnable lazyExecution = new Runnable() {
-            @Override
-            public void run() {
-                PacketHandler<DatagramPacket> dispatchPacket = packetHandlerFactory.createPacketHandler();
-                PooledPacketWrap pooledPacketWrap = new PooledPacketWrap(socket, dispatchPacket, pooledPacket);
-                Runnable execution = pooledPacketWrap;
-                execution.run();
-            }
-        };
-        return lazyExecution;
-    }
 
     private PooledObject<DatagramPacket> read0(final DatagramSocket socket) {
         boolean success = false;
@@ -223,7 +149,24 @@ public class UDPReceiver implements DataReceiver {
                 pooledObject.returnObject();
             }
         }
+        if (!validatePacket(packet)) {
+            pooledObject.returnObject();
+            return null;
+        }
         return pooledObject;
+    }
+
+    @VisibleForTesting
+    boolean validatePacket(DatagramPacket packet) {
+        // L4 health check packet
+        if (packet.getLength() == 0) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("length is 0 ip:{}, port:{}", packet.getAddress(), packet.getPort());
+            }
+            return false;
+        }
+
+        return true;
     }
 
     private DatagramSocket createSocket(int receiveBufferSize) {
@@ -243,37 +186,35 @@ public class UDPReceiver implements DataReceiver {
         }
     }
 
-    private void bindSocket(DatagramSocket socket, String bindAddress, int port) {
-        if (socket == null) {
-            throw new NullPointerException("socket must not be null");
-        }
+    private void bindSocket(DatagramSocket socket, InetSocketAddress bindAddress) {
         try {
-            logger.info("DatagramSocket.bind() {}/{}", bindAddress, port);
-            socket.bind(new InetSocketAddress(bindAddress, port));
+            logger.info("DatagramSocket.bind() {}/{}", bindAddress.getHostString(), bindAddress.getPort());
+            socket.bind(bindAddress);
         } catch (SocketException ex) {
-            throw new IllegalStateException("Socket bind Fail. port:" + port + " Caused:" + ex.getMessage(), ex);
+            throw new IllegalStateException("Socket bind Fail. port:" + bindAddress.getPort() + " Caused:" + ex.getMessage(), ex);
         }
     }
 
-    private int getPacketPoolSize(WorkerOption workerOption) {
-        int workerThreadQueueSize = workerOption.getWorkerThreadQueueSize();
-        return workerOption.getWorkerThreadSize() + workerThreadQueueSize + ioThreadSize;
+    private ExecutorService newThreadPoolExecutor() {
+        final ThreadFactory threadFactory = new PinpointThreadFactory(name + "-Io", true);
+        return Executors.newCachedThreadPool(threadFactory);
     }
 
-    @PostConstruct
-    @Override
     public void start() {
-        logger.info("{} start.", receiverName);
-        afterPropertiesSet();
+        if (logger.isInfoEnabled()) {
+            logger.info("{} start() started", name);
+        }
+
+        this.ioExecutor = newThreadPoolExecutor();
         final DatagramSocket socket = this.socket;
         if (socket == null) {
             throw new IllegalStateException("socket is null.");
         }
-        bindSocket(socket, bindAddress, port);
+        bindSocket(socket, bindAddress);
 
         logger.info("UDP Packet reader:{} started.", ioThreadSize);
         for (int i = 0; i < ioThreadSize; i++) {
-            io.execute(new Runnable() {
+            ioExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     receive(socket);
@@ -281,23 +222,32 @@ public class UDPReceiver implements DataReceiver {
             });
         }
 
+        if (logger.isInfoEnabled()) {
+            logger.info("{} start() completed", name);
+        }
     }
 
-    @PreDestroy
-    @Override
     public void shutdown() {
-        logger.info("{} shutdown.", this.receiverName);
+        if (logger.isInfoEnabled()) {
+            logger.info("{} shutdown() started", this.name);
+        }
+
         state.set(false);
         // is it okay to just close here?
         if (socket != null) {
             socket.close();
         }
-        shutdownExecutor(io, "IoExecutor");
-        shutdownExecutor(worker, "WorkerExecutor");
+        if (ioExecutor != null) {
+            shutdownExecutor(ioExecutor, name);
+        }
+
+        if (logger.isInfoEnabled()) {
+            logger.info("{} shutdown() completed", this.name);
+        }
     }
 
     private void shutdownExecutor(ExecutorService executor, String executorName) {
-        logger.info("{] shutdown.", executorName);
+        logger.info("{} shutdown.", executorName);
         executor.shutdown();
         try {
             executor.awaitTermination(1000 * 10, TimeUnit.MILLISECONDS);

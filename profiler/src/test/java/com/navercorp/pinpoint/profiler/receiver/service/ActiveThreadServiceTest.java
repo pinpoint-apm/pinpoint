@@ -16,59 +16,82 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.profiler.context.ActiveTrace;
-import com.navercorp.pinpoint.profiler.context.DefaultTrace;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.TestAgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ReuseResponseTimeCollector;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  * @author Taejin Koo
  */
 public class ActiveThreadServiceTest {
 
-    private final DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
-    private final AtomicInteger idGenerator = new AtomicInteger(0);
+    private long activeTraceId = 0;
+
+    private static final int FAST_COUNT = 1;
+    private static final long FAST_EXECUTION_TIME = 500;
+
+    private static final int NORMAL_COUNT = 2;
+    private static final long NORMAL_EXECUTION_TIME = 1500;
+
+    private static final int SLOW_COUNT = 3;
+    private static final long SLOW_EXECUTION_TIME = 3500;
+
+    private static final int VERY_SLOW_COUNT = 4;
+    private static final long VERY_SLOW_EXECUTION_TIME = 5500;
+
 
     @Test
     public void serviceTest1() throws InterruptedException {
-        int normalCount = 5;
-        ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
-        addActiveTrace(activeTraceRepository, normalCount);
+        ResponseTimeCollector responseTimeCollector = new ReuseResponseTimeCollector();
+        ActiveTraceRepository activeTraceRepository = new DefaultActiveTraceRepository(responseTimeCollector);
 
-        Thread.sleep(1100);
-        int fastCount = 3;
-        addActiveTrace(activeTraceRepository, fastCount);
+        addActiveTrace(activeTraceRepository, FAST_EXECUTION_TIME, FAST_COUNT);
+        addActiveTrace(activeTraceRepository, NORMAL_EXECUTION_TIME, NORMAL_COUNT);
+        addActiveTrace(activeTraceRepository, SLOW_EXECUTION_TIME, SLOW_COUNT);
+        addActiveTrace(activeTraceRepository, VERY_SLOW_EXECUTION_TIME, VERY_SLOW_COUNT);
 
         ActiveThreadCountService service = new ActiveThreadCountService(activeTraceRepository);
         TBase<?, ?> tBase = service.requestCommandService(new TCmdActiveThreadCount());
         if (tBase instanceof TCmdActiveThreadCountRes) {
             List<Integer> activeThreadCount = ((TCmdActiveThreadCountRes) tBase).getActiveThreadCount();
-            Assert.assertEquals(activeThreadCount.get(0), new Integer(fastCount));
-            Assert.assertEquals(activeThreadCount.get(1), new Integer(normalCount));
+            Assert.assertThat(activeThreadCount.get(0), is(FAST_COUNT));
+            Assert.assertThat(activeThreadCount.get(1), is(NORMAL_COUNT));
+            Assert.assertThat(activeThreadCount.get(2), is(SLOW_COUNT));
+            Assert.assertThat(activeThreadCount.get(3), is(VERY_SLOW_COUNT));
         } else {
             Assert.fail();
         }
     }
 
-    private void addActiveTrace(ActiveTraceRepository activeTraceRepository, int addCount) {
+    private void addActiveTrace(ActiveTraceRepository activeTraceRepository, long executionTime, int addCount) {
         for (int i = 0; i < addCount; i++) {
-            activeTraceRepository.put(createActiveTrace());
+            TraceRoot traceRoot = createTraceRoot(executionTime);
+            activeTraceRepository.register(traceRoot);
         }
     }
 
-    private ActiveTrace createActiveTrace() {
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, idGenerator.incrementAndGet(), true);
-        return new ActiveTrace(trace);
+    private TraceRoot createTraceRoot(long executionTime) {
+        TraceRoot traceRoot = Mockito.mock(TraceRoot.class);
+        Mockito.when(traceRoot.getTraceStartTime()).thenReturn(System.currentTimeMillis() - executionTime);
+        Mockito.when(traceRoot.getLocalTransactionId()).thenReturn(nextLocalTransactionId());
+        return traceRoot;
+    }
+
+    private long nextLocalTransactionId() {
+        return activeTraceId++;
     }
 
 }

@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)

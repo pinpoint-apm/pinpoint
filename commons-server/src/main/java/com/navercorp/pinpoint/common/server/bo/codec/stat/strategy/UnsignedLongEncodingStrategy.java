@@ -29,18 +29,22 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
  */
 public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
-    NONE(new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
-    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
-    DELTA(new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS)),
-    DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS));
+    NONE(new ValueEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
+    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
+    DELTA(new DeltaEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS)),
+    DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS));
 
     private final EncodingStrategy<Long> delegate;
+
+    private static final Set<UnsignedLongEncodingStrategy> UNSIGNED_LONG_ENCODING_STRATEGY = EnumSet.allOf(UnsignedLongEncodingStrategy.class);
 
     UnsignedLongEncodingStrategy(EncodingStrategy<Long> delegate) {
         this.delegate = delegate;
@@ -62,12 +66,13 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
     }
 
     public static UnsignedLongEncodingStrategy getFromCode(int code) {
-        for (UnsignedLongEncodingStrategy encodingStrategy : UnsignedLongEncodingStrategy.values()) {
+
+        for (UnsignedLongEncodingStrategy encodingStrategy : UNSIGNED_LONG_ENCODING_STRATEGY) {
             if (encodingStrategy.getCode() == (code & 0xFF)) {
                 return encodingStrategy;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Unknown code : " + code);
     }
 
     public static class Analyzer implements StrategyAnalyzer<Long> {
@@ -92,7 +97,7 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
 
         public static class Builder implements StrategyAnalyzerBuilder<Long> {
 
-            private final List<Long> values = new ArrayList<>();
+            private final List<Long> values = new ArrayList<Long>();
             private long previousValue = 0L;
             private long previousDelta = 0L;
 
@@ -138,7 +143,7 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
                 } else {
                     bestStrategy = REPEAT_COUNT;
                 }
-                List<Long> values = new ArrayList<>(this.values);
+                List<Long> values = new ArrayList<Long>(this.values);
                 this.values.clear();
                 return new Analyzer(bestStrategy, values);
             }

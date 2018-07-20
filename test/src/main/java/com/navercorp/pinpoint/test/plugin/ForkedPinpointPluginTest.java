@@ -103,7 +103,7 @@ public class ForkedPinpointPluginTest {
                     logger.debug("child-runner lib:" + url);
                 }
             }
-            return new PluginTestClassLoader(urls.toArray(new URL[urls.size()]), ClassLoader.getSystemClassLoader());
+            return new PluginTestClassLoader(urls.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
         }
         return ClassLoader.getSystemClassLoader();
     }

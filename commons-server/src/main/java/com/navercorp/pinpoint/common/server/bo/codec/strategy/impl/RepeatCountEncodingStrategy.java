@@ -71,12 +71,12 @@ public abstract class RepeatCountEncodingStrategy<T extends Number> implements E
 
         @Override
         public List<T> decodeValues(Buffer buffer, int numValues) {
-            List<T> values = new ArrayList<>(numValues);
+            List<T> values = new ArrayList<T>(numValues);
             int totalCount = 0;
             while (totalCount < numValues) {
                 int count = buffer.readVInt();
                 T value = this.bufferHandler.readV(buffer);
-                for (int i = 0; i < count; ++i) {
+                for (int i = 0; i < count; i++) {
                     values.add(value);
                     totalCount++;
                 }

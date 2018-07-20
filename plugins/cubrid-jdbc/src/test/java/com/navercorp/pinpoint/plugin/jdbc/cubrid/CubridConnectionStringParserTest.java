@@ -16,27 +16,25 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridConstants;
-import com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridJdbcUrlParser;
 
 /**
  * @author emeroad
  */
 public class CubridConnectionStringParserTest {
 
-    private final JdbcUrlParser parser = new CubridJdbcUrlParser();
+    private final JdbcUrlParserV2 parser = new CubridJdbcUrlParser();
     
     @Test
-    public void testParse() {
+    public void testParse1() {
         String cubrid = "jdbc:cubrid:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
 
         DatabaseInfo dbInfo = parser.parse(cubrid);
+        Assert.assertTrue(dbInfo.isParsingComplete());
 
         Assert.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
         Assert.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
@@ -45,8 +43,46 @@ public class CubridConnectionStringParserTest {
     }
 
     @Test
-    public void testNullParse() {
-        DatabaseInfo dbInfo = parser.parse(null);
-        Assert.assertEquals(UnKnownDatabaseInfo.INSTANCE, dbInfo);
+    public void testParse2() {
+        String cubrid = "jdbc:cubrid-mysql:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
+
+        DatabaseInfo dbInfo = parser.parse(cubrid);
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
+        Assert.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
+        Assert.assertEquals("nrdwapw", dbInfo.getDatabaseId());
+        Assert.assertEquals("jdbc:cubrid-mysql:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
     }
+
+    @Test
+    public void testParse3() {
+        String cubrid = "jdbc:cubrid-oracle:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
+
+        DatabaseInfo dbInfo = parser.parse(cubrid);
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
+        Assert.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
+        Assert.assertEquals("nrdwapw", dbInfo.getDatabaseId());
+        Assert.assertEquals("jdbc:cubrid-oracle:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
+    }
+
+    @Test
+    public void parseFailTest1() {
+        DatabaseInfo dbInfo = parser.parse(null);
+        Assert.assertFalse(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+    }
+
+    @Test
+    public void parseFailTest2() {
+        String cubrid = "jdbc:mysql:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
+        DatabaseInfo dbInfo = parser.parse(cubrid);
+        Assert.assertFalse(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+    }
+
 }

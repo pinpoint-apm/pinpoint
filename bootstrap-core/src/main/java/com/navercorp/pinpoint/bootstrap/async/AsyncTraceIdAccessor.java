@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
  * @author Jongho Moon
  *
  */
+@Deprecated
 public interface AsyncTraceIdAccessor {
     void _$PINPOINT$_setAsyncTraceId(AsyncTraceId id);
     AsyncTraceId _$PINPOINT$_getAsyncTraceId();

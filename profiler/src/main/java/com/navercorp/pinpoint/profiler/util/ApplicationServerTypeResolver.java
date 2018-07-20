@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ApplicationServerTypePluginResolver;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**
  * @author emeroad
@@ -40,34 +39,48 @@ public class ApplicationServerTypeResolver {
 
     private final ServiceType defaultType;
     private final ApplicationServerTypePluginResolver resolver;
-    private final List<ApplicationTypeDetector> detectors = new ArrayList<ApplicationTypeDetector>();
 
-    public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType, List<String> orderedDetectors) {
+
+    public ApplicationServerTypeResolver(List<ApplicationTypeDetector> applicationTypeDetector, ServiceType defaultType, List<String> orderedDetectors) {
+        if (applicationTypeDetector == null) {
+            throw new NullPointerException("applicationTypeDetector must not be null");
+        }
+
         if (isValidApplicationServerType(defaultType)) {
             this.defaultType = defaultType;
         } else {
             this.defaultType = ServiceType.UNDEFINED;
         }
-        Map<String, ApplicationTypeDetector> registeredDetectors = getRegisteredServerTypeDetectors(plugins);
+
+        List<ApplicationTypeDetector> sortedDetectors = sortByOrder(orderedDetectors, applicationTypeDetector);
+
+        this.resolver = new ApplicationServerTypePluginResolver(sortedDetectors);
+    }
+
+    private List<ApplicationTypeDetector> sortByOrder(List<String> orderedDetectors, List<ApplicationTypeDetector> applicationTypeDetectors) {
+        final List<ApplicationTypeDetector> detectionOrder = new ArrayList<ApplicationTypeDetector>();
+
+        Map<String, ApplicationTypeDetector> applicationTypeDetectorMap = toMap(applicationTypeDetectors);
         for (String orderedDetector : orderedDetectors) {
-            if (registeredDetectors.containsKey(orderedDetector)) {
-                this.detectors.add(registeredDetectors.remove(orderedDetector));
+            if (applicationTypeDetectorMap.containsKey(orderedDetector)) {
+                detectionOrder.add(applicationTypeDetectorMap.remove(orderedDetector));
             }
         }
-        this.detectors.addAll(registeredDetectors.values());
-        this.resolver = new ApplicationServerTypePluginResolver(this.detectors);
+
+        detectionOrder.addAll(applicationTypeDetectorMap.values());
+        return detectionOrder;
     }
-    
-    private Map<String, ApplicationTypeDetector> getRegisteredServerTypeDetectors(List<DefaultProfilerPluginContext> plugins) {
-        Map<String, ApplicationTypeDetector> registeredDetectors = new HashMap<String, ApplicationTypeDetector>();
-        for (DefaultProfilerPluginContext context : plugins) {
-            for (ApplicationTypeDetector detector : context.getApplicationTypeDetectors()) {
-                registeredDetectors.put(detector.getClass().getName(), detector);
-            }
+
+    private Map<String, ApplicationTypeDetector> toMap(List<ApplicationTypeDetector> applicationTypeDetectorList) {
+
+        Map<String, ApplicationTypeDetector> typeDetectorMap = new HashMap<String, ApplicationTypeDetector>();
+        for (ApplicationTypeDetector applicationTypeDetector : applicationTypeDetectorList) {
+            typeDetectorMap.put(applicationTypeDetector.getClass().getName(), applicationTypeDetector);
         }
-        return registeredDetectors;
+        return typeDetectorMap;
     }
-    
+
+
     public ServiceType resolve() {
         ServiceType resolvedApplicationServerType;
         if (this.defaultType == ServiceType.UNDEFINED) {

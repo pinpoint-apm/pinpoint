@@ -19,28 +19,33 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 import org.apache.thrift.TBase;
 
 import java.net.DatagramSocket;
-import java.net.SocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author emeroad
  */
-public class TBaseFilterChain<T extends SocketAddress> implements TBaseFilter<T> {
+public class TBaseFilterChain<T> implements TBaseFilter<T> {
 
-    private final List<TBaseFilter<T>> filterChain;
+    private final TBaseFilter<T>[] filterChain;
+
 
     public TBaseFilterChain(List<TBaseFilter<T>> tBaseFilter) {
         if (tBaseFilter == null) {
             throw new NullPointerException("tBaseFilter must not be null");
         }
-        this.filterChain = new ArrayList<>(tBaseFilter);
+
+        @SuppressWarnings("unchecked")
+        final TBaseFilter<T>[] newArray = (TBaseFilter<T>[]) new TBaseFilter[0];
+        this.filterChain = tBaseFilter.toArray(newArray);
     }
+
 
     @Override
     public boolean filter(DatagramSocket localSocket, TBase<?, ?> tBase, T remoteHostAddress) {
         for (TBaseFilter tBaseFilter : filterChain) {
-            if (tBaseFilter.filter(localSocket, tBase, remoteHostAddress) == TBaseFilter.BREAK) {
+            @SuppressWarnings("unchecked")
+            final boolean filter = tBaseFilter.filter(localSocket, tBase, remoteHostAddress);
+            if (filter == TBaseFilter.BREAK) {
                 return BREAK;
             }
         }

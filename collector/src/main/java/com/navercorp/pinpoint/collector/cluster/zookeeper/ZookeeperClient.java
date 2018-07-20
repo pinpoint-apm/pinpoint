@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface ZookeeperClient {
 
@@ -35,6 +35,8 @@ public interface ZookeeperClient {
     void createPath(String path, boolean createEndNode) throws PinpointZookeeperException, InterruptedException;
 
     String createNode(String zNodePath, byte[] data) throws PinpointZookeeperException, InterruptedException;
+
+    String createNode(String zNodePath, byte[] data, boolean throwExceptionIfNodeExists) throws PinpointZookeeperException, InterruptedException;
 
     byte[] getData(String path) throws PinpointZookeeperException, InterruptedException;
 
@@ -50,4 +52,4 @@ public interface ZookeeperClient {
 
     void close();
 
- }
+}

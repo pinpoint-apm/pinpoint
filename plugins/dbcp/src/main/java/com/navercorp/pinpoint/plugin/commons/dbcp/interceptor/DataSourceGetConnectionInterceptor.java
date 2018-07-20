@@ -20,20 +20,12 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
-import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpPlugin;
+import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpConstants;
 
 /**
  * Maybe we should trace get of Datasource.
  * @author emeroad
  */
-@Scope(CommonsDbcpPlugin.DBCP_SCOPE)
-@TargetMethods({
-        @TargetMethod(name="getConnection"),
-        @TargetMethod(name="getConnection", paramTypes={"java.lang.String", "java.lang.String"})
-})
 public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public DataSourceGetConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
@@ -46,7 +38,7 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(CommonsDbcpPlugin.DBCP_SERVICE_TYPE);
+        recorder.recordServiceType(CommonsDbcpConstants.SERVICE_TYPE);
         if (args == null) {
 //          getConnection() without any arguments
             recorder.recordApi(getMethodDescriptor());

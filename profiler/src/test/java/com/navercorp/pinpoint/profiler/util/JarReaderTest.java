@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +36,8 @@ public class JarReaderTest {
 
     @Test
     public void read() throws Exception {
-        URL location = Logger.class.getProtectionDomain().getCodeSource().getLocation();
+        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+
         JarFile jarFile = new JarFile(location.getPath());
 
         logger.debug("jarFile:{}", jarFile.getName());
@@ -47,5 +49,15 @@ public class JarReaderTest {
         for (FileBinary fileBinary : fileBinaries) {
             Assert.assertThat(fileBinary.getFileName(), Matchers.endsWith(".class"));
         }
+    }
+
+    @Test
+    public void getInputStream() throws Exception {
+        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+
+        JarFile jarFile = new JarFile(location.getPath());
+        JarReader jarReader = new JarReader(jarFile);
+        Assert.assertNotNull(jarReader.getInputStream("org/slf4j/Logger.class"));
+        Assert.assertNull(jarReader.getInputStream("org/slf4j/NotFound.class"));
     }
 }

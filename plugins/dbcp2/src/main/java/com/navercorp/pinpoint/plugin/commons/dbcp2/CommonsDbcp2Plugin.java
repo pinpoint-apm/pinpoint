@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.commons.dbcp2;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -26,17 +27,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 
 public class CommonsDbcp2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-
-    public static final ServiceType DBCP2_SERVICE_TYPE = ServiceTypeFactory.of(6052, "DBCP2");
-    public static final String DBCP2_SCOPE = "DBCP2_SCOPE";
 
     private CommonsDbcp2Config config;
 
@@ -62,7 +59,11 @@ public class CommonsDbcp2Plugin implements ProfilerPlugin, TransformTemplateAwar
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp2.interceptor.DataSourceCloseInterceptor");
+
+                // closeMethod
+                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                closeMethod.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CLOSE_CONNECTION, CommonsDbcp2Constants.SCOPE);
+
                 return target.toBytecode();
             }
         });
@@ -70,14 +71,47 @@ public class CommonsDbcp2Plugin implements ProfilerPlugin, TransformTemplateAwar
 
     private void addBasicDataSourceTransformer() {
         transformTemplate.transform("org.apache.commons.dbcp2.BasicDataSource", new TransformCallback() {
-            
+
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp2.interceptor.DataSourceGetConnectionInterceptor");
+
+                if (isAvailableDataSourceMonitor(target)) {
+                    target.addField(CommonsDbcp2Constants.ACCESSOR_DATASOURCE_MONITOR);
+
+                    // closeMethod
+                    InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                    closeMethod.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CLOSE, CommonsDbcp2Constants.SCOPE);
+
+                    // constructor
+                    InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target);
+                    defaultConstructor.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CONSTRUCTOR, CommonsDbcp2Constants.SCOPE);
+                }
+
+                // getConnectionMethod
+                InstrumentMethod getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection");
+                getConnectionMethod.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_GET_CONNECTION, CommonsDbcp2Constants.SCOPE);
+                getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection", new String[]{"java.lang.String", "java.lang.String"});
+                getConnectionMethod.addScopedInterceptor(CommonsDbcp2Constants.INTERCEPTOR_GET_CONNECTION, CommonsDbcp2Constants.SCOPE);
+
                 return target.toBytecode();
             }
         });
+    }
+
+    private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
+        boolean hasMethod = target.hasMethod("getUrl");
+        if (!hasMethod) {
+            return false;
+        }
+
+        hasMethod = target.hasMethod("getNumActive");
+        if (!hasMethod) {
+            return false;
+        }
+
+        hasMethod = target.hasMethod("getMaxTotal");
+        return hasMethod;
     }
 
     @Override

@@ -55,6 +55,8 @@ public class AgentInfoBo {
     private final long endTimeStamp;
     private final int endStatus;
 
+    private final boolean container;
+
     // Should be serialized separately
     private final ServerMetaDataBo serverMetaData;
     private final JvmInfoBo jvmInfo;
@@ -72,6 +74,7 @@ public class AgentInfoBo {
         this.startTime = builder.startTime;
         this.endTimeStamp = builder.endTimeStamp;
         this.endStatus = builder.endStatus;
+        this.container = builder.container;
         this.serverMetaData = builder.serverMetaData;
         this.jvmInfo = builder.jvmInfo;
     }
@@ -124,7 +127,11 @@ public class AgentInfoBo {
     public String getAgentVersion() {
         return agentVersion;
     }
-    
+
+    public boolean isContainer() {
+        return container;
+    }
+
     public ServerMetaDataBo getServerMetaData() {
         return this.serverMetaData;
     }
@@ -148,6 +155,8 @@ public class AgentInfoBo {
         buffer.putInt(this.getEndStatus());
         
         buffer.putPrefixedString(this.getVmVersion());
+
+        buffer.putBoolean(this.isContainer());
 
         return buffer.getBuffer();
     }
@@ -210,6 +219,8 @@ public class AgentInfoBo {
         private long startTime;
         private long endTimeStamp;
         private int endStatus;
+
+        private boolean container;
         
         // Should be serialized separately
         private ServerMetaDataBo serverMetaData;
@@ -268,6 +279,10 @@ public class AgentInfoBo {
 
         public void setEndStatus(int endStatus) {
             this.endStatus = endStatus;
+        }
+
+        public void isContainer(boolean container) {
+            this.container = container;
         }
         
         public void setServerMetaData(ServerMetaDataBo serverMetaData) {

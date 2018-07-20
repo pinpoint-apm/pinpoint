@@ -29,7 +29,7 @@ public class OutputParameterParser {
 
     public List<String> parseOutputParameter(String outputParams) {
         // may also need to know about the parsing result 
-        if (outputParams == null || outputParams.length() == 0) {
+        if (StringUtils.isEmpty(outputParams)) {
             return Collections.emptyList();
         }
 

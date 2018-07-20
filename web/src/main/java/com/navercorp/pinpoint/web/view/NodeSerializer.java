@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -32,7 +33,8 @@ import java.util.Map;
 
 /**
  * @author emeroad
- * @usthor minwoo.jung
+ * @author minwoo.jung
+ * @author HyunGil Jeong
  */
 public class NodeSerializer extends JsonSerializer<Node>  {
     @Override
@@ -61,24 +63,47 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         jgen.writeBooleanField("isQueue", serviceType.isQueue());
         jgen.writeBooleanField("isAuthorized", node.isAuthorized());
 
-
-
         writeHistogram(jgen, node);
-        if (node.getServiceType().isUnknown()) {
-            writeEmptyObject(jgen, "serverList");
-            jgen.writeNumberField("instanceCount", 0);
-        } else {
-            final ServerInstanceList serverInstanceList = node.getServerInstanceList();
-            if (serverInstanceList != null) {
-                jgen.writeObjectField("serverList", serverInstanceList);
-                jgen.writeNumberField("instanceCount", serverInstanceList.getInstanceCount());
-            } else {
-                writeEmptyObject(jgen, "serverList");
-                jgen.writeNumberField("instanceCount", 0);
-            }
-        }
+        writeServerInstanceList(jgen, node);
 
         jgen.writeEndObject();
+    }
+
+    private void writeServerInstanceList(JsonGenerator jgen, Node node) throws IOException {
+        ServerInstanceList serverInstanceList = node.getServerInstanceList();
+        if (node.getServiceType().isUnknown()) {
+            serverInstanceList = null;
+        }
+
+        if (serverInstanceList == null) {
+            jgen.writeNumberField("instanceCount", 0);
+            jgen.writeNumberField("instanceErrorCount", 0);
+            writeEmptyArray(jgen, "agentIds");
+            if (NodeType.DETAILED == node.getNodeType()) {
+                writeEmptyObject(jgen, "serverList");
+            }
+        } else {
+            jgen.writeNumberField("instanceCount", serverInstanceList.getInstanceCount());
+            long instanceErrorCount = 0;
+            NodeHistogram nodeHistogram = node.getNodeHistogram();
+            if (nodeHistogram!= null) {
+                Map<String, Histogram> agentHistogramMap = node.getNodeHistogram().getAgentHistogramMap();
+                if (agentHistogramMap != null) {
+                    instanceErrorCount = agentHistogramMap.values().stream()
+                            .filter(agentHistogram -> agentHistogram.getTotalErrorCount() > 0)
+                            .count();
+                }
+            }
+            jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
+            jgen.writeArrayFieldStart("agentIds");
+            for (String agentId : serverInstanceList.getAgentIdList()) {
+                jgen.writeString(agentId);
+            }
+            jgen.writeEndArray();
+            if (NodeType.DETAILED == node.getNodeType()) {
+                jgen.writeObjectField("serverList", serverInstanceList);
+            }
+        }
     }
 
     private void writeHistogram(JsonGenerator jgen, Node node) throws IOException {
@@ -88,10 +113,8 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser() || serviceType.isQueue()) {
             Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
             if (applicationHistogram == null) {
-                writeEmptyObject(jgen, "histogram");
                 jgen.writeBooleanField("hasAlert", false);  // for go.js
             } else {
-                jgen.writeObjectField("histogram", applicationHistogram);
                 jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount()); // for go.js
                 jgen.writeNumberField("errorCount", applicationHistogram.getTotalErrorCount());
                 jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
@@ -108,11 +131,18 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 }
             }
 
-            Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-            if(agentHistogramMap == null) {
-                writeEmptyObject(jgen, "agentHistogram");
+            if (applicationHistogram == null) {
+                writeEmptyObject(jgen, "histogram");
             } else {
-                jgen.writeObjectField("agentHistogram", agentHistogramMap);
+                jgen.writeObjectField("histogram", applicationHistogram);
+            }
+            if (NodeType.DETAILED == node.getNodeType()) {
+                Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
+                if (agentHistogramMap == null) {
+                    writeEmptyObject(jgen, "agentHistogram");
+                } else {
+                    jgen.writeObjectField("agentHistogram", agentHistogramMap);
+                }
             }
         } else {
             jgen.writeBooleanField("hasAlert", false);  // for go.js
@@ -125,9 +155,10 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             } else {
                 jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
             }
-
-            AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram();
-            jgen.writeObject(agentTimeSeriesHistogram);
+            if (NodeType.DETAILED == node.getNodeType()) {
+                AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram();
+                jgen.writeObject(agentTimeSeriesHistogram);
+            }
         }
     }
 
@@ -142,6 +173,4 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         jgen.writeStartObject();
         jgen.writeEndObject();
     }
-
-
 }

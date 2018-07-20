@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JvmGcSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;

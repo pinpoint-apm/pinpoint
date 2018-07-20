@@ -47,20 +47,21 @@ public class DubboConsumerIT {
 
     @Test
     public void testConsumer() throws NoSuchMethodException {
+        Exception expected = null;
         abstractClusterInvoker = new FailoverClusterInvoker(directory);
         when(abstractClusterInvoker.getInterface()).thenReturn(String.class);
 
         try {
             abstractClusterInvoker.invoke(rpcInvocation);
-        } catch (RpcException ignore) {
-            // ignore
+        } catch (RpcException e) {
+            expected = e;
         }
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
 
         Method invoke = AbstractClusterInvoker.class.getMethod("invoke", Invocation.class);
-        verifier.verifyTrace(Expectations.event("DUBBO_CONSUMER", invoke));
+        verifier.verifyTrace(Expectations.event("DUBBO_CONSUMER", invoke, expected));
 
         verifier.verifyTraceCount(0);
     }

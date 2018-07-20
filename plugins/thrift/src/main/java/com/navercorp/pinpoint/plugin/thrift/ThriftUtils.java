@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.plugin.thrift;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.regex.Pattern;
-
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.async.TAsyncMethodCall;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.regex.Pattern;
 
 /**
  * @author HyunGil Jeong
@@ -110,7 +111,7 @@ public class ThriftUtils {
         }
         if (socketAddress instanceof InetSocketAddress) {
             InetSocketAddress addr = (InetSocketAddress)socketAddress;
-            return addr.getAddress().getHostAddress() + ":" + addr.getPort();
+            return HostAndPort.toHostAndPortString(addr.getAddress().getHostAddress(), addr.getPort());
         }
         return getSocketAddress(socketAddress);
     }
@@ -148,7 +149,7 @@ public class ThriftUtils {
         }
         if (socketAddress instanceof InetSocketAddress) {
             InetSocketAddress addr = (InetSocketAddress)socketAddress;
-            return addr.getHostName() + ":" + addr.getPort();
+            return HostAndPort.toHostAndPortString(addr.getHostName(), addr.getPort());
         }
         return getSocketAddress(socketAddress);
     }
@@ -161,8 +162,8 @@ public class ThriftUtils {
             if (address.startsWith("/")) {
                 return address.substring(1);
             } else {
-                final int delimeterIndex = address.indexOf('/');
-                if (delimeterIndex != -1 && delimeterIndex < addressLength) {
+                final int delimiterIndex = address.indexOf('/');
+                if (delimiterIndex != -1 && delimiterIndex < addressLength) {
                     return address.substring(address.indexOf('/') + 1);
                 }
             }

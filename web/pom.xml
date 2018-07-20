@@ -1,10 +1,26 @@
+<!--
+  ~ Copyright 2018 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.6.1-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-web</artifactId>
@@ -12,11 +28,12 @@
     <packaging>war</packaging>
 
     <properties>
-        <jdk.version>1.7</jdk.version>
-        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+        <jdk.version>1.8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-        <sniffer.artifactid>java17</sniffer.artifactid>
-        <fastxml.jackson.version>2.8.5</fastxml.jackson.version>
+        <sniffer.artifactid>java18</sniffer.artifactid>
+        <fastxml.jackson.version>2.8.10</fastxml.jackson.version>
+        <grunt.build.command>build_release_without_lint</grunt.build.command>
     </properties>
 
     <dependencies>
@@ -39,11 +56,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-thrift</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -82,8 +94,8 @@
 
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>servlet-api</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -314,13 +326,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -350,48 +355,6 @@
                             <directory>target/main/webapp</directory>
                         </resource>
                     </webResources>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.maven.plugin.version}</version>
-                <configuration>
-                    <skipDockerBuild>false</skipDockerBuild>
-                    <imageName>naver/${project.artifactId}:${project.version}</imageName>
-                    <baseImage>tomcat:8-jre8</baseImage>
-                    <entryPoint>
-                        ["/usr/local/bin/start-web.sh"]
-                    </entryPoint>
-                    <exposes>
-                        <expose>8080</expose>
-                    </exposes>
-                    <resources>
-                        <resource>
-                            <targetPath>/assets/</targetPath>
-                            <directory>${project.build.directory}</directory>
-                            <include>${project.artifactId}-${project.version}.war</include>
-                        </resource>
-                        <resource>
-                            <targetPath>/assets/</targetPath>
-                            <directory>${project.build.directory}/deploy/WEB-INF/classes/</directory>
-                            <includes>
-                                <include>pinpoint-web.properties</include>
-                                <include>hbase.properties</include>
-                            </includes>
-                        </resource>
-                        <resource>
-                            <targetPath>/usr/local/bin/</targetPath>
-                            <directory>${project.basedir}/</directory>
-                            <include>start-web.sh</include>
-                        </resource>
-                    </resources>
-                    <runs>
-                        <run>chmod a+x /usr/local/bin/start-web.sh</run>
-                        <run>rm -rf /usr/local/tomcat/webapps/*</run>
-                        <run>unzip /assets/${project.artifactId}-${project.version}.war -d /usr/local/tomcat/webapps/ROOT</run>
-                        <run>rm -rf /assets/${project.artifactId}-${project.version}.war</run>
-                    </runs>
                 </configuration>
             </plugin>
             <plugin>
@@ -456,7 +419,7 @@
                             <goal>grunt</goal>
                         </goals>
                         <configuration>
-                            <arguments>build_release</arguments>
+                            <arguments>${grunt.build.command}</arguments>
                         </configuration>
                     </execution>
                 </executions>

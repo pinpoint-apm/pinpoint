@@ -59,12 +59,19 @@ HEAP USAGE RATE
 
 JVM CPU USAGE RATE
    Triggered when the application's CPU usage(%) exceeds the configured threshold.
+
+DATASOURCE CONNECTION USAGE RATE
+   Triggered when the application's DataSource connection usage(%) exceeds the configured threshold.
 ```
 
 
 ## 2. Implementation & Configuration
 
 In order to use the alarm function, you must implement your own logic to send sms and email by implementing `com.navercorp.pinpoint.web.alarm.AlarmMessageSender` and registering it as a Spring managed bean. When an alarm is triggered, `AlarmMessageSender#sendEmail`, and `AlarmMessageSender#sendSms` methods are called.
+
+> If an email/sms is sent everytime when a threshold is exceeded, we felt that alarm message would be spammable.<br/>
+> Therefore we decided to gradually increase the transmission frequency for alarms.<br/>
+> ex) If an alarm occurs continuously, transmission frequency is increased by a factor of two. 3 min -> 6min -> 12min -> 24min
 
 ### 1) Implementing `AlarmMessageSender` and Spring bean registration
 ```
@@ -130,7 +137,7 @@ jdbc.url=jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8
 jdbc.username=admin
 jdbc.password=admin
 ```
-Create tables by running *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, and *[SpringBatchJobReositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobReositorySchema-mysql.sql)*.
+Create tables by running *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, and *[SpringBatchJobRepositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*.
 
 ### 4) Others
 **1) You may start the alarm batch in a separate process** - Simply start the spring batch job using the *[applicationContext-alarmJob.xml](../web/src/main/resources/batch/applicationContext-alarmJob.xml)* file inside the Pinpoint-web module.
@@ -172,7 +179,7 @@ Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web'
 
 pinpoint-web 서버에서 application 상태를 주기적으로 체크하여 application 상태의 수치가 임계치를 초과할 경우 사용자에게 알람을 전송하는 기능을 제공한다. 
 
-applicaiton 상태 값이 사용자가 설정한 임계치를 초과하는 지 판단하는 batch는 pinpoint-web 서버내에서 background로 동작 된다.
+application 상태 값이 사용자가 설정한 임계치를 초과하는 지 판단하는 batch는 pinpoint-web 서버내에서 background로 동작 된다.
 alarm batch는 기본적으로 3분에 한번씩 동작이 된다. 최근 5분동안의 데이터를 수집해서 alarm 조건을 만족하면 user group에 속한 user 들에게 sms /email을 전송한다.
 
 ## 1. Alarm 기능 사용 방법
@@ -226,6 +233,9 @@ HEAP USAGE RATE
 
 JVM CPU USAGE RATE
    applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
+
+DATASOURCE CONNECTION USAGE RATE
+   applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
 ```
 
 
@@ -235,6 +245,10 @@ JVM CPU USAGE RATE
 pipoint-web에서 제공하는 `com.navercorp.pinpoint.web.alarm.AlarmMessageSender` interface를 구현하고 spring framework의 bean으로 등록하면 된다.
 사용자가 등록한 alarm rule 중 임계치를 초과한 rule이 발생하면 AlarmMessageSender의 sendEmail, sendSms 함수가 호출이 된다.
 구현 및 설정 방법은 아래와 같다.
+
+> 연속적으로 알람 조건이 임게치를 초과한 경우에 매번 sms/email를 전송하지 않습니다.<br/>
+> 알람 조건이 만족할때마다 매번 sms/email이 전송되는것은 오히려 방해가 된다고 생각하기 때문입니다. 그래서 연속해서 알람이 발생할 경우 sms/email 전송 주기가 점증적으로 증가됩니다.<br/>
+> 예) 알람이 연속해서 발생할 경우, 전송 주기는 3분 -> 6분 -> 12분 -> 24분 으로 증가합니다.
 
 ### 1) AlarmMessageSender 구현 및 bean 등록
 	
@@ -306,15 +320,14 @@ jdbc.url=jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8
 jdbc.username=admin
 jdbc.password=admin
 ```
-필요한 table 생성 - *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, *[SpringBatchJobReositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobReositorySchema-mysql.sql)*
+필요한 table 생성 - *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, *[SpringBatchJobReositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*
 
-    
 ## 3. 기타
 **1) alarm batch를 별도 프로세스로 실행하는 것도 가능하다.**
 pinpoint-web 프로젝트의 *[applicationContext-alarmJob.xml](../web/src/main/resources/batch/applicationContext-alarmJob.xml)* 파일을 이용해서 spring batch job을 실행하면 된다.
 실행 방법은 대한 구체적인 방법은 spirng batch 메뉴얼을 참고하자.
 
-**2) batch의 동작 주기를 조정하고 싶다면 *[applicationContext-batch-schedule.xml](../web/src/main/resources/batch/applicationContext-batch-schedule.xml)* 파일의 cron excpression을 수정하면 된다.**
+**2) batch의 동작 주기를 조정하고 싶다면 *[applicationContext-batch-schedule.xml](../web/src/main/resources/batch/applicationContext-batch-schedule.xml)* 파일의 cron expression을 수정하면 된다.**
 ```
 <task:scheduled-tasks scheduler="scheduler">
     <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *" />
@@ -340,7 +353,7 @@ application 각각마다 등록된 alarm의 개수가 많다면 *[applicationCon
 <task:executor id="poolTaskExecutorForStep" pool-size="10" />
 ```
 
-**4) pinpoint web을 사용한다면.**
+**4) quickstart web을 사용한다면.**
 pinpoint web은 mockDAO를 사용하기 때문에 pinpont web의 설정들을 참고해서 기능을 사용해야한다.
 [applicationContext-dao-config.xml
 ](../web/src/main/resources/applicationContext-dao-config.xml

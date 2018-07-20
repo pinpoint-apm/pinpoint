@@ -15,28 +15,24 @@
 package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 
 /**
  * @author Brad Hong
  *
  */
-public class PostgreSqlConfig {
-    private final boolean pluginEnable;
+public class PostgreSqlConfig extends JdbcConfig {
     private final boolean profileSetAutoCommit;
     private final boolean profileCommit;
     private final boolean profileRollback;
-    private final int maxSqlBindValueSize; 
 
     public PostgreSqlConfig(ProfilerConfig config) {
-        this.pluginEnable = config.readBoolean("profiler.jdbc.postgresql", false);
+        super(config.readBoolean("profiler.jdbc.postgresql", false),
+                config.readBoolean("profiler.jdbc.postgresql.tracesqlbindvalue", config.isTraceSqlBindValue()),
+                config.getMaxSqlBindValueSize());
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.postgresql.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.postgresql.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.postgresql.rollback", false);
-        this.maxSqlBindValueSize = config.readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
-    }
-
-    public boolean isPluginEnable() {
-        return pluginEnable;
     }
 
     public boolean isProfileSetAutoCommit() {
@@ -51,12 +47,8 @@ public class PostgreSqlConfig {
         return profileRollback;
     }
     
-    public int getMaxSqlBindValueSize() {
-        return maxSqlBindValueSize;
-    }
-    
     @Override
     public String toString() {
-        return "PostgreSqlConfig [pluginEnable="+ pluginEnable + ",profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
+        return "PostgreSqlConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
     }
 }

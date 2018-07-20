@@ -26,16 +26,19 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
  */
 public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
-    NONE(new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER)),
-    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER));
+    NONE(new ValueEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER)),
+    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER));
 
     private final EncodingStrategy<Short> delegate;
+    private static final Set<UnsignedShortEncodingStrategy> UNSIGNED_SHORT_ENCODING_STRATEGY = EnumSet.allOf(UnsignedShortEncodingStrategy.class);
 
     UnsignedShortEncodingStrategy(EncodingStrategy<Short> delegate) {
         this.delegate = delegate;
@@ -57,12 +60,13 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
     }
 
     public static UnsignedShortEncodingStrategy getFromCode(int code) {
-        for (UnsignedShortEncodingStrategy encodingStrategy : UnsignedShortEncodingStrategy.values()) {
+
+        for (UnsignedShortEncodingStrategy encodingStrategy : UNSIGNED_SHORT_ENCODING_STRATEGY) {
             if (encodingStrategy.getCode() == (code & 0xFF)) {
                 return encodingStrategy;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Unknown code : " + code);
     }
 
     public static class Analyzer implements StrategyAnalyzer<Short> {
@@ -89,7 +93,7 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
 
             private static final int SHORT_BYTE_SIZE = 2;
 
-            private final List<Short> values = new ArrayList<>();
+            private final List<Short> values = new ArrayList<Short>();
             private short previousValue = 0;
 
             private int byteSizeValue = 0;
@@ -124,7 +128,7 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
                 } else {
                     bestStrategy = REPEAT_COUNT;
                 }
-                List<Short> values = new ArrayList<>(this.values);
+                List<Short> values = new ArrayList<Short>(this.values);
                 this.values.clear();
                 return new Analyzer(bestStrategy, values);
             }

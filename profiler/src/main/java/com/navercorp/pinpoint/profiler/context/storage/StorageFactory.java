@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
 /**
  * @author emeroad
  */
 public interface StorageFactory {
-    Storage createStorage();
+    Storage createStorage(TraceRoot traceRoot);
 }

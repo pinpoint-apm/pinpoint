@@ -18,6 +18,9 @@
 			"view": "Application",
 			"value": "application"
 		}, {
+			"view": "Installation",
+			"value": "installation"
+		}, {
 			"view": "Help",
 			"value": "help"
 		}]

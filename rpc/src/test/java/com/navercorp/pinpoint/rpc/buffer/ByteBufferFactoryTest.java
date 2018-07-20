@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ByteBufferFactoryTest {
 

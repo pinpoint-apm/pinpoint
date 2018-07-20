@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -30,7 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,7 +167,7 @@ public class SampledAgentStatResultExtractorTest {
 
     private List<TestAgentStatDataPoint> createDataPoints(long finalTimestamp, long timeInterval, int numDataPoints) {
         List<TestAgentStatDataPoint> dataPoints = new ArrayList<>(numDataPoints);
-        for (int i = 0; i < numDataPoints; ++i) {
+        for (int i = 0; i < numDataPoints; i++) {
             TestAgentStatDataPoint dataPoint = new TestAgentStatDataPoint();
             dataPoint.setTimestamp(finalTimestamp - (timeInterval * i));
             dataPoint.setValue(i);
@@ -175,7 +176,7 @@ public class SampledAgentStatResultExtractorTest {
         return dataPoints;
     }
 
-    private static class TestAgentStatSampler extends AbstractAgentStatSampler<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> {
+    private static class TestAgentStatSampler implements AgentStatSampler<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> {
 
         @Override
         public TestSampledAgentStatDataPoint sampleDataPoints(int timeWindowIndex, long timestamp, List<TestAgentStatDataPoint> dataPoints, TestAgentStatDataPoint previousDataPoint) {

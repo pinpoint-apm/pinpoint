@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
@@ -23,6 +24,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,6 +40,9 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
+
+    @Autowired
+    private TableNameProvider tableNameProvider;
 
     @Autowired
     @Qualifier("stringMetaDataMapper")
@@ -59,7 +64,8 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         Get get = new Get(rowKey);
         get.addFamily(HBaseTables.STRING_METADATA_CF_STR);
 
-        return hbaseOperations2.get(HBaseTables.STRING_METADATA, get, stringMetaDataMapper);
+        TableName stringMetaDataTableName = tableNameProvider.getTableName(HBaseTables.STRING_METADATA_STR);
+        return hbaseOperations2.get(stringMetaDataTableName, get, stringMetaDataMapper);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {

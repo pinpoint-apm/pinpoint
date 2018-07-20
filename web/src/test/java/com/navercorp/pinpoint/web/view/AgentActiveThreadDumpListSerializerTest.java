@@ -21,12 +21,13 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadDump;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpList;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.management.ThreadInfo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public class AgentActiveThreadDumpListSerializerTest {
 
         List list = mapper.readValue(jsonValue, List.class);
 
-        Assert.assertTrue(CollectionUtils.isNotEmpty(list));
+        Assert.assertTrue(CollectionUtils.hasLength(list));
 
         Map map = (Map) list.get(0);
 
@@ -62,15 +63,17 @@ public class AgentActiveThreadDumpListSerializerTest {
     }
 
     private AgentActiveThreadDumpList createThreadDumpList(ThreadInfo[] allThreadInfo) {
-        AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
+        List<TActiveThreadDump> activeThreadDumpList = new ArrayList<>();
         for (ThreadInfo threadInfo : allThreadInfo) {
             TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
             tActiveThreadDump.setStartTime(System.currentTimeMillis() - 1000);
             tActiveThreadDump.setThreadDump(ThreadDumpUtils.createTThreadDump(threadInfo));
 
-            activeThreadDumpList.add(new AgentActiveThreadDump(tActiveThreadDump));
+            activeThreadDumpList.add(tActiveThreadDump);
         }
-        return activeThreadDumpList;
+
+        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+        return factory.create1(activeThreadDumpList);
     }
 
 }

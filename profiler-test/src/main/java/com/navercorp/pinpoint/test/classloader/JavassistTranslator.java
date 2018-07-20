@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test.classloader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,8 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -47,10 +47,10 @@ public class JavassistTranslator implements Translator {
     private final ConcurrentMap<String, MatchableClassFileTransformer> transformerMap = new ConcurrentHashMap<String, MatchableClassFileTransformer>();
 
     private final ClassLoader loader;
-    private final ClassFileTransformerDispatcher dispatcher;
+    private final ClassFileTransformer dispatcher;
     private final ClassPool classPool;
 
-    public JavassistTranslator(ClassLoader loader, ClassPool classPool, ClassFileTransformerDispatcher defaultTransformer) {
+    public JavassistTranslator(ClassLoader loader, ClassPool classPool, ClassFileTransformer defaultTransformer) {
         if (defaultTransformer == null) {
             throw new NullPointerException("dispatcher must not be null");
         }
@@ -83,8 +83,8 @@ public class JavassistTranslator implements Translator {
     }
 
     private void addTransformer0(MatchableClassFileTransformer transformer, String className) {
-        final String checkJvmClassName = JavaAssistUtils.javaNameToJvmName(className);
-        MatchableClassFileTransformer old = transformerMap.put(checkJvmClassName, transformer);
+        final String checkClassInternalName = JavaAssistUtils.javaNameToJvmName(className);
+        MatchableClassFileTransformer old = transformerMap.put(checkClassInternalName, transformer);
         if (old != null) {
             throw new IllegalStateException("Modifier already exist new:" + transformer.getClass() + " old:" + old.getMatcher());
         }
@@ -96,29 +96,29 @@ public class JavassistTranslator implements Translator {
     }
 
     @Override
-    public byte[] transform(String javaClassName) throws ClassNotFoundException {
-        logger.debug("loading className:{}", javaClassName);
+    public byte[] transform(String className) throws ClassNotFoundException {
+        logger.debug("loading className:{}", className);
 
-        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(javaClassName);
+        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
         try {
             // Find Modifier from agent and try transforming
-            final byte[] transformBytes = dispatcher.transform(this.loader, jvmClassName, null, null, null);
+            final byte[] transformBytes = dispatcher.transform(this.loader, classInternalName, null, null, null);
             if (transformBytes != null) {
-                logger.debug(jvmClassName + " find in dispatcher");
-                makeClass(classPool, transformBytes, jvmClassName);
+                logger.debug(classInternalName + " find in dispatcher");
+                makeClass(classPool, transformBytes, classInternalName);
                 return transformBytes;
             }
 
-            final byte[] customTransformBytes = customTransformer(classPool, jvmClassName);
+            final byte[] customTransformBytes = customTransformer(classPool, classInternalName);
             if (customTransformBytes != null) {
-                logger.debug(jvmClassName + " find in transformerMap");
+                logger.debug(classInternalName + " find in transformerMap");
                 return customTransformBytes;
             }
 
-            final CtClass ctClass = this.classPool.get(javaClassName);
+            final CtClass ctClass = this.classPool.get(className);
             return ctClass.toBytecode();
         } catch (Throwable th) {
-            throw new RuntimeException(javaClassName + " transform fail" , th);
+            throw new RuntimeException(className + " transform fail" , th);
         }
 
     }

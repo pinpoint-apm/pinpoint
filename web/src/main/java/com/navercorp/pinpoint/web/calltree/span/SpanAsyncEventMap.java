@@ -12,7 +12,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
 public class SpanAsyncEventMap {
 
-    final Map<Integer, Map<Short, List<SpanEventBo>>> map = new HashMap<>();
+    private final Map<Integer, Map<Short, List<SpanEventBo>>> map = new HashMap<>();
+    private int size = 0;
 
     public boolean add(final SpanEventBo spanEvent) {
         if (!spanEvent.isAsync()) {
@@ -20,11 +21,7 @@ public class SpanAsyncEventMap {
         }
 
         final int id = spanEvent.getAsyncId();
-        Map<Short, List<SpanEventBo>> subMap = map.get(id);
-        if (subMap == null) {
-            subMap = new HashMap<>();
-            map.put(id, subMap);
-        }
+        Map<Short, List<SpanEventBo>> subMap = map.computeIfAbsent(id, k -> new HashMap<>());
 
         final short sequence = spanEvent.getAsyncSequence();
         List<SpanEventBo> list = subMap.get(sequence);
@@ -36,13 +33,14 @@ public class SpanAsyncEventMap {
             list.add(spanEvent);
         }
 
+        this.size++;
         return true;
     }
 
     public void sort() {
         for (Map<Short, List<SpanEventBo>> subMap : map.values()) {
             for (List<SpanEventBo> list : subMap.values()) {
-                Collections.sort(list, new Comparator<SpanEventBo>() {
+                list.sort(new Comparator<SpanEventBo>() {
                     public int compare(SpanEventBo source, SpanEventBo target) {
                         return source.getSequence() - target.getSequence();
                     }
@@ -53,10 +51,13 @@ public class SpanAsyncEventMap {
 
     public Collection<List<SpanEventBo>> get(final int asyncId) {
         final Map<Short, List<SpanEventBo>> subMap = map.get(asyncId);
-        if (subMap != null) {
-            return subMap.values();
+        if (subMap == null) {
+            return Collections.emptyList();
         }
+        return subMap.values();
+    }
 
-        return Collections.emptyList();
+    public int size() {
+        return size;
     }
 }

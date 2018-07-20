@@ -35,5 +35,11 @@ public class HystrixTraceMetadataProvider implements TraceMetadataProvider {
         context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_COMMAND_ANNOTATION_KEY);
         context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_ANNOTATION_KEY);
         context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_FALLBACK_CAUSE_ANNOTATION_KEY);
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_FALLBACK_EXCEPTION_ANNOTATION_KEY);
+
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_COMMAND_KEY_ANNOTATION_KEY);
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_COMMAND_GROUP_KEY_ANNOTATION_KEY);
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_THREAD_POOL_KEY_ANNOTATION_KEY);
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_COLLAPSER_KEY_ANNOTATION_KEY);
     }
 }

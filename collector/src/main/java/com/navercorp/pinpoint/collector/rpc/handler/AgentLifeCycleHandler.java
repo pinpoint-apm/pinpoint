@@ -26,10 +26,10 @@ import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 
-import javax.annotation.Resource;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -42,20 +42,14 @@ public class AgentLifeCycleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Resource(name = "agentEventWorker")
-    private Executor executor;
-
     @Autowired
     private AgentLifeCycleDao agentLifeCycleDao;
 
+    @Async("agentEventWorker")
     public void handleLifeCycleEvent(PinpointServer pinpointServer, long eventTimestamp,
             AgentLifeCycleState agentLifeCycleState, int eventCounter) {
-        if (pinpointServer == null) {
-            throw new NullPointerException("pinpointServer may not be null");
-        }
-        if (agentLifeCycleState == null) {
-            throw new NullPointerException("agentLifeCycleState may not be null");
-        }
+        Objects.requireNonNull(pinpointServer, "pinpointServer must not be null");
+        Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState must not be null");
         if (eventCounter < 0) {
             throw new IllegalArgumentException("eventCounter may not be negative");
         }
@@ -76,8 +70,7 @@ public class AgentLifeCycleHandler {
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp,
                 eventIdentifier, agentLifeCycleState);
 
-        this.executor.execute(new AgentLifeCycleHandlerDispatch(agentLifeCycleBo));
-
+        agentLifeCycleDao.insert(agentLifeCycleBo);
     }
 
     long createEventIdentifier(int socketId, int eventCounter) {
@@ -88,23 +81,6 @@ public class AgentLifeCycleHandler {
             throw new IllegalArgumentException("eventCounter may not be less than 0");
         }
         return ((long)socketId << INTEGER_BIT_COUNT) | eventCounter;
-    }
-
-    class AgentLifeCycleHandlerDispatch implements Runnable {
-        private final AgentLifeCycleBo agentLifeCycleBo;
-
-        private AgentLifeCycleHandlerDispatch(AgentLifeCycleBo agentLifeCycleBo) {
-            if (agentLifeCycleBo == null) {
-                throw new NullPointerException("agentLifeCycleBo may not be null");
-            }
-            this.agentLifeCycleBo = agentLifeCycleBo;
-        }
-
-        @Override
-        public void run() {
-            agentLifeCycleDao.insert(this.agentLifeCycleBo);
-        }
-
     }
 
 }

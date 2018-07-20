@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
-import com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler;
-
+import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
+import com.navercorp.pinpoint.collector.config.DeprecatedConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -27,6 +26,7 @@ import org.springframework.util.SocketUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Properties;
 
 /**
  * @author emeroad
@@ -35,40 +35,33 @@ public class TCPReceiverTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void server() throws InterruptedException {
-        TCPReceiver tcpReceiver = new TCPReceiver(createConfiguration(), new UdpDispatchHandler());
-        try {
-            tcpReceiver.start();
-        } finally {
-            tcpReceiver.stop();
-        }
-    }
-
-    @Test
     public void l4ip() throws UnknownHostException {
-        InetAddress byName = InetAddress.getByName("10.118.202.30");
+        InetAddress byName = InetAddress.getByName("10.12.13.10");
         logger.debug("byName:{}", byName);
     }
 
     @Test
     public void l4ipList() throws UnknownHostException {
-        String two = "10.118.202.30,10.118.202.31";
+        String two = "10.12.13.10,10.12.13.20";
         String[] split = two.split(",");
         Assert.assertEquals(split.length, 2);
 
-        String twoEmpty = "10.118.202.30,";
+        String twoEmpty = "10.12.13.10,";
         String[] splitEmpty = twoEmpty.split(",");
         Assert.assertEquals(splitEmpty.length, 1);
 
     }
 
-    private CollectorConfiguration createConfiguration() {
-        CollectorConfiguration configuration = new CollectorConfiguration();
-        configuration.setTcpListenIp("0.0.0.0");
+    private AgentBaseDataReceiverConfiguration createConfiguration() {
+        Properties properties = new Properties();
+        properties.put("collector.receiver.base.ip", "0.0.0.0");
         final int availableTcpPort = SocketUtils.findAvailableTcpPort(19099);
-        configuration.setTcpListenPort(availableTcpPort);
-        configuration.setTcpWorkerThread(8);
-        configuration.setTcpWorkerQueueSize(1024);
-        return configuration;
+        properties.put("collector.receiver.base.port", String.valueOf(availableTcpPort));
+        properties.put("collector.receiver.base.worker.threadSize", "8");
+        properties.put("collector.receiver.base.worker.queueSize", "1024");
+
+        AgentBaseDataReceiverConfiguration config = new AgentBaseDataReceiverConfiguration(properties, new DeprecatedConfiguration());
+        return config;
     }
+
 }

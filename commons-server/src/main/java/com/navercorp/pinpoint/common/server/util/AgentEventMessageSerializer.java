@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import java.io.UnsupportedEncodingException;
-
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * @author HyunGil Jeong
@@ -33,10 +32,10 @@ public class AgentEventMessageSerializer {
 
     private static final byte[] EMPTY_BYTES = new byte[0];
 
-    private final SerializerFactory<HeaderTBaseSerializer> tBaseSerializerFactory;
+    private final List<SerializerFactory> serializerFactoryList;
 
-    public AgentEventMessageSerializer(SerializerFactory<HeaderTBaseSerializer> tBaseSerializerFactory) {
-        this.tBaseSerializerFactory = tBaseSerializerFactory;
+    public AgentEventMessageSerializer(List<SerializerFactory> serializerFactoryList) {
+        this.serializerFactoryList = serializerFactoryList;
     }
 
     public byte[] serialize(AgentEventType agentEventType, Object eventMessage) throws UnsupportedEncodingException {
@@ -59,14 +58,19 @@ public class AgentEventMessageSerializer {
         }
 
         if (eventMessage instanceof TBase) {
-            try {
-                return SerializationUtils.serialize((TBase<?, ?>)eventMessage, this.tBaseSerializerFactory);
-            } catch (TException e) {
-                throw new UnsupportedEncodingException(e.getMessage());
+            for (SerializerFactory serializerFactory : serializerFactoryList) {
+                if (serializerFactory.isSupport(eventMessage)) {
+                    try {
+                        return SerializationUtils.serialize((TBase<?, ?>) eventMessage, serializerFactory);
+                    } catch (TException e) {
+                        throw new UnsupportedEncodingException(e.getMessage());
+                    }
+                }
             }
         } else if (eventMessage instanceof String) {
-            return BytesUtils.toBytes((String)eventMessage);
+            return BytesUtils.toBytes((String) eventMessage);
         }
         throw new UnsupportedEncodingException("Unsupported event message type [" + eventMessage.getClass().getName() + "]");
     }
+
 }

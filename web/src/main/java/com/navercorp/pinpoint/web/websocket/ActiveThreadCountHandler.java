@@ -16,18 +16,21 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
-import com.navercorp.pinpoint.rpc.util.StringUtils;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
+import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
 import com.navercorp.pinpoint.web.websocket.message.PongMessage;
 import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,17 +43,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ActiveThreadCountHandler extends TextWebSocketHandler implements PinpointWebSocketHandler {
 
     public static final String APPLICATION_NAME_KEY = "applicationName";
-    private static final String HEALTH_CHECK_WAIT_KEY = "pinpoint.healthCheck.wait";
 
     static final String API_ACTIVE_THREAD_COUNT = "activeThreadCount";
 
@@ -67,20 +70,24 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
+
     private SimpleOrderedThreadPool webSocketFlushExecutor;
 
-    private java.util.Timer flushTimer;
+    private Timer flushTimer;
     private static final long DEFAULT_FLUSH_DELAY = 1000;
     private final long flushDelay;
 
-    private java.util.Timer healthCheckTimer;
+    private Timer healthCheckTimer;
     private static final long DEFAULT_HEALTH_CHECk_DELAY = 60 * 1000;
     private final long healthCheckDelay;
 
-    private java.util.Timer reactiveTimer;
-    
+    private Timer reactiveTimer;
+
     @Autowired(required=false)
     ServerMapDataFilter serverMapDataFilter;
+
+    @Autowired(required = false)
+    private TimerTaskDecoratorFactory timerTaskDecoratorFactory = new PinpointWebSocketTimerTaskDecoratorFactory();
 
     public ActiveThreadCountHandler(AgentService agentService) {
         this(DEFAULT_REQUEST_MAPPING, agentService);
@@ -104,11 +111,15 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     @Override
     public void start() {
         PinpointThreadFactory flushThreadFactory = new PinpointThreadFactory(ClassUtils.simpleClassName(this) + "-Flush-Thread", true);
-        webSocketFlushExecutor = new SimpleOrderedThreadPool(Runtime.getRuntime().availableProcessors(), 65535, flushThreadFactory);
+        webSocketFlushExecutor = new SimpleOrderedThreadPool(CpuUtils.cpuCount(), 65535, flushThreadFactory);
 
-        flushTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-Flush-Timer", true);
-        healthCheckTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-HealthCheck-Timer", true);
-        reactiveTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-Reactive-Timer", true);
+        flushTimer = newJavaTimer(ClassUtils.simpleClassName(this) + "-Flush-Timer");
+        healthCheckTimer = newJavaTimer(ClassUtils.simpleClassName(this) + "-HealthCheck-Timer");
+        reactiveTimer = newJavaTimer(ClassUtils.simpleClassName(this) + "-Reactive-Timer");
+    }
+
+    private Timer newJavaTimer(String timerName) {
+        return new Timer(timerName, true);
     }
 
     @Override
@@ -142,12 +153,19 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         return requestMapping;
     }
 
+    private WebSocketSessionContext getSessionContext(WebSocketSession webSocketSession) {
+        final WebSocketSessionContext sessionContext = WebSocketSessionContext.getSessionContext(webSocketSession);
+        if (sessionContext == null) {
+            throw new IllegalStateException("WebSocketSessionContext not initialized");
+        }
+        return sessionContext;
+    }
+
     @Override
     public void afterConnectionEstablished(WebSocketSession newSession) throws Exception {
         logger.info("ConnectionEstablished. session:{}", newSession);
 
         synchronized (lock) {
-            newSession.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(false));
             sessionRepository.add(newSession);
             boolean turnOn = onTimerTask.compareAndSet(false, true);
             if (turnOn) {
@@ -163,8 +181,9 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     public void afterConnectionClosed(WebSocketSession closeSession, CloseStatus status) throws Exception {
         logger.info("ConnectionClose. session:{}, caused:{}", closeSession, status);
 
+        final WebSocketSessionContext sessionContext = getSessionContext(closeSession);
         synchronized (lock) {
-            unbindingResponseAggregator(closeSession);
+            unbindingResponseAggregator(closeSession, sessionContext);
 
             sessionRepository.remove(closeSession);
             if (sessionRepository.isEmpty()) {
@@ -202,27 +221,33 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             return;
         }
         
-        String command = requestMessage.getCommand();
-
+        final String command = requestMessage.getCommand();
         if (API_ACTIVE_THREAD_COUNT.equals(command)) {
-            String applicationName = MapUtils.getString(requestMessage.getParams(), APPLICATION_NAME_KEY);
-            if (applicationName != null) {
-                synchronized (lock) {
-                    if (StringUtils.isEquals(applicationName, (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY))) {
-                        return;
-                    }
+            handleActiveThreadCount(webSocketSession, requestMessage);
+        } else {
+            logger.debug("unknown command:{}", command);
+        }
+    }
 
-                    unbindingResponseAggregator(webSocketSession);
-                    if (webSocketSession.isOpen()) {
-                        bindingResponseAggregator(webSocketSession, applicationName);
-                    } else {
-                        logger.warn("WebSocketSession is not opened. skip binding.");
-                    }
+    private void handleActiveThreadCount(WebSocketSession webSocketSession, RequestMessage requestMessage) {
+        final String applicationName = MapUtils.getString(requestMessage.getParameters(), APPLICATION_NAME_KEY);
+        if (applicationName != null) {
+            final WebSocketSessionContext sessionContext = getSessionContext(webSocketSession);
+            synchronized (lock) {
+                if (StringUtils.equals(applicationName, sessionContext.getApplicationName())) {
+                    return;
+                }
+
+                unbindingResponseAggregator(webSocketSession, sessionContext);
+                if (webSocketSession.isOpen()) {
+                    bindingResponseAggregator(webSocketSession, sessionContext, applicationName);
+                } else {
+                    logger.warn("WebSocketSession is not opened. skip binding.");
                 }
             }
         }
     }
-    
+
     private void closeSession(WebSocketSession session, CloseStatus status) {
         try {
             session.close(status);
@@ -232,10 +257,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     private void handlePongMessage0(WebSocketSession webSocketSession, PongMessage pongMessage) {
-        Object healthCheckWait = webSocketSession.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
-        if (healthCheckWait instanceof AtomicBoolean) {
-            ((AtomicBoolean) healthCheckWait).compareAndSet(true, false);
-        }
+        final WebSocketSessionContext sessionContext = getSessionContext(webSocketSession);
+        sessionContext.changeHealthCheckSuccess();
     }
 
     @Override
@@ -245,17 +268,18 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         super.handlePongMessage(webSocketSession, message);
     }
 
-    private void bindingResponseAggregator(WebSocketSession webSocketSession, String applicationName) {
+    private void bindingResponseAggregator(WebSocketSession webSocketSession, WebSocketSessionContext webSocketSessionContext, String applicationName) {
         logger.info("bindingResponseAggregator. session:{}, applicationName:{}.", webSocketSession, applicationName);
 
-        webSocketSession.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
+        webSocketSessionContext.setApplicationName(applicationName);
         if (StringUtils.isEmpty(applicationName)) {
             return;
         }
 
         PinpointWebSocketResponseAggregator responseAggregator = aggregatorRepository.get(applicationName);
         if (responseAggregator == null) {
-            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentService, reactiveTimer);
+            TimerTaskDecorator timerTaskDecorator = timerTaskDecoratorFactory.createTimerTaskDecorator();
+            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentService, reactiveTimer, timerTaskDecorator);
             responseAggregator.start();
             aggregatorRepository.put(applicationName, responseAggregator);
         }
@@ -263,8 +287,9 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         responseAggregator.addWebSocketSession(webSocketSession);
     }
 
-    private void unbindingResponseAggregator(WebSocketSession webSocketSession) {
-        String applicationName = (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY);
+    private void unbindingResponseAggregator(WebSocketSession webSocketSession, WebSocketSessionContext sessionContext) {
+
+        final String applicationName = sessionContext.getApplicationName();
         logger.info("unbindingResponseAggregator. session:{}, applicationName:{}.", webSocketSession, applicationName);
         if (StringUtils.isEmpty(applicationName)) {
             return;
@@ -342,38 +367,19 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 logger.info("HealthCheckTimerTask started.");
 
                 // check session state.
-                List<WebSocketSession> webSocketSessionList = new ArrayList<>(sessionRepository);
-                for (WebSocketSession session : webSocketSessionList) {
-                    if (!session.isOpen()) {
-                        continue;
-                    }
-
-                    Object untilWait = session.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
-                    if (untilWait instanceof AtomicBoolean) {
-                        if (((AtomicBoolean) untilWait).get()) {
-                            closeSession(session, CloseStatus.SESSION_NOT_RELIABLE);
-                        }
-                    } else {
-                        session.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(false));
-                    }
-                }
+                List<WebSocketSession> snapshot = filterHealthCheckSuccess(sessionRepository);
 
                 // send healthCheck packet
                 String pingTextMessage = messageConverter.getPingTextMessage();
                 TextMessage pingMessage = new TextMessage(pingTextMessage);
 
-                webSocketSessionList = new ArrayList<>(sessionRepository);
-                for (WebSocketSession session : webSocketSessionList) {
+                for (WebSocketSession session : snapshot) {
                     if (!session.isOpen()) {
                         continue;
                     }
-
-                    Object untilWait = session.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
-                    if (untilWait instanceof AtomicBoolean) {
-                        ((AtomicBoolean) untilWait).compareAndSet(false, true);
-                    } else {
-                        session.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(true));
-                    }
+                    // reset healthCheck state
+                    final WebSocketSessionContext sessionContext = getSessionContext(session);
+                    sessionContext.changeHealthCheckFail();
 
                     sendPingMessage(session, pingMessage);
                 }
@@ -382,6 +388,25 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                     healthCheckTimer.schedule(new HealthCheckTimerTask(), healthCheckDelay);
                 }
             }
+        }
+
+        private  List<WebSocketSession> filterHealthCheckSuccess(List<WebSocketSession> sessionRepository) {
+            List<WebSocketSession> snapshot = new ArrayList<>(sessionRepository.size());
+
+            for (WebSocketSession session : sessionRepository) {
+                if (!session.isOpen()) {
+                    continue;
+                }
+
+                final WebSocketSessionContext sessionContext = getSessionContext(session);
+                if (!sessionContext.getHealthCheckState()) {
+                    // health check fail
+                    closeSession(session, CloseStatus.SESSION_NOT_RELIABLE);
+                } else {
+                    snapshot.add(session);
+                }
+            }
+            return snapshot;
         }
 
 

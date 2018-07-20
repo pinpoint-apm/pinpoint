@@ -21,49 +21,22 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 
 // TODO move package
 public final class BytecodeUtils {
-
-    private static final Method DEFINE_CLASS = getDefineClassMethod();
 
     private BytecodeUtils() {
     }
 
 
-    private static Method getDefineClassMethod() {
-        try {
-            final Method method = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
-            method.setAccessible(true);
-            return method;
-        } catch (NoSuchMethodException e) {
-            // link error
-            throw new RuntimeException("defineClass not found. Error:" + e.getMessage(), e);
-        } catch (SecurityException e) {
-            // link error
-            throw new RuntimeException("defineClass error. Error:" + e.getMessage(), e);
-        }
-    }
-
-    public static Class<?> defineClass(ClassLoader classLoader, String className, byte[] classFile) {
-        try {
-            return (Class<?>) DEFINE_CLASS.invoke(classLoader, className, classFile, 0, classFile.length);
-        } catch (Exception ex) {
-            throw new RuntimeException("defineClass error. Caused:" + ex.getMessage(), ex);
-        }
-    }
-
     public static byte[] getClassFile(ClassLoader classLoader, String className) {
-        if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
         if (className == null) {
             throw new NullPointerException("className must not be null");
         }
+        classLoader = getClassLoader(classLoader);
 
-        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className);
-        final InputStream is = classLoader.getResourceAsStream(jvmClassName + ".class");
+        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
+        final InputStream is = classLoader.getResourceAsStream(classInternalName + ".class");
         if (is == null) {
             throw new RuntimeException("No such class file: " + className);
         }
@@ -135,5 +108,12 @@ public final class BytecodeUtils {
                 // skip
             }
         }
+    }
+
+    private static ClassLoader getClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return ClassLoader.getSystemClassLoader();
+        }
+        return classLoader;
     }
 }

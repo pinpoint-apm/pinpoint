@@ -17,36 +17,36 @@
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
+import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CollectorClusterConnectionRepository {
 
-    private final ConcurrentHashMap<SocketAddress, PinpointSocket> clusterConnectionRepository = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Address, PinpointSocket> clusterConnectionRepository = new ConcurrentHashMap<>();
 
-    public PinpointSocket putIfAbsent(SocketAddress address, PinpointSocket pinpointSocket) {
+    public PinpointSocket putIfAbsent(Address address, PinpointSocket pinpointSocket) {
         return clusterConnectionRepository.putIfAbsent(address, pinpointSocket);
     }
 
-    public PinpointSocket remove(SocketAddress address) {
+    public PinpointSocket remove(Address address) {
         return clusterConnectionRepository.remove(address);
     }
 
-    public boolean containsKey(SocketAddress address) {
+    public boolean containsKey(Address address) {
         return clusterConnectionRepository.containsKey(address);
     }
 
-    public List<SocketAddress> getAddressList() {
+    public List<Address> getAddressList() {
         // fix jdk 8 KeySetView compatibility
-        Set<SocketAddress> socketAddresses = clusterConnectionRepository.keySet();
+        Set<Address> socketAddresses = clusterConnectionRepository.keySet();
         return new ArrayList<>(socketAddresses);
     }
 

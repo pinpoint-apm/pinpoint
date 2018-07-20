@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.io.request.DefaultServerRequest;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.*;
 
 import org.apache.thrift.TBase;
@@ -67,17 +70,19 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
         public void receive(DatagramSocket localSocket, T packet) {
             final ChunkHeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
             try {
-                List<TBase<?, ?>> list = deserializer.deserialize(packet.getData(), packet.getOffset(), packet.getLength());
+                List<Message<TBase<?, ?>>> list = deserializer.deserialize(packet.getData(), packet.getOffset(), packet.getLength());
                 if (list == null) {
                     return;
                 }
 
-                for (TBase<?, ?> tBase : list) {
-                    if (filter.filter(localSocket, tBase, packet.getSocketAddress()) == TBaseFilter.BREAK) {
+                final InetSocketAddress remoteAddress = (InetSocketAddress) packet.getSocketAddress();
+                for (Message<TBase<?, ?>> message : list) {
+                    if (filter.filter(localSocket, message.getData(), remoteAddress) == TBaseFilter.BREAK) {
                         return;
                     }
+                    ServerRequest<TBase<?, ?>> request = newServerRequest(message, remoteAddress);;
                     // dispatch signifies business logic execution
-                    dispatchHandler.dispatchSendMessage(tBase);
+                    dispatchHandler.dispatchSendMessage(request);
                 }
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
@@ -96,5 +101,14 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
             }
         }
     }
+
+    private ServerRequest<TBase<?, ?>> newServerRequest(Message<TBase<?, ?>> message, InetSocketAddress remoteSocketAddress) {
+        final String remoteAddress = remoteSocketAddress.getAddress().getHostAddress();
+        final int remotePort = remoteSocketAddress.getPort();
+
+        ServerRequest<TBase<?, ?>> tBaseDefaultServerRequest = new DefaultServerRequest<>(message, remoteAddress, remotePort);
+        return tBaseDefaultServerRequest;
+    }
+
 
 }

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -26,7 +25,7 @@ import java.util.List;
  */
 public class CallTreeIterator implements Iterator<CallTreeNode> {
 
-    private List<CallTreeNode> nodes = new LinkedList<>();
+    private List<CallTreeNode> nodes;
     private int index = -1;
 
     public CallTreeIterator(final CallTreeNode root) {
@@ -34,36 +33,47 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
             return;
         }
 
+        // init
+        int count = traversal(root, false);
+        this.nodes = new ArrayList<CallTreeNode>(count);
+
+        // populate
         addNode(root);
         if (root.hasChild()) {
-            populate(root.getChild());
+            traversal(root.getChild(), true);
         }
-
+        // reset
         index = -1;
     }
 
-
-    void populate(CallTreeNode node) {
+    int traversal(final CallTreeNode node, final boolean populate) {
         if (node == null) {
-            return;
+            return 0;
         }
 
-        addNode(node);
+        int count = 1;
+        if (populate) {
+            addNode(node);
+        }
 
         if (node.hasChild()) {
-            populate(node.getChild());
+            count += traversal(node.getChild(), populate);
         }
 
         // change logic from recursive to loop, because of avoid call-stack-overflow.
         CallTreeNode sibling = node.getSibling();
         while (sibling != null) {
-            addNode(sibling);
+            count += 1;
+            if (populate) {
+                addNode(sibling);
+            }
             if (sibling.hasChild()) {
-                populate(sibling.getChild());
+                count += traversal(sibling.getChild(), populate);
             }
             sibling = sibling.getSibling();
         }
 
+        return count;
     }
 
     void addNode(CallTreeNode node) {
@@ -71,11 +81,17 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         index++;
 
         final SpanAlign align = node.getValue();
-        align.setGap(getGap());
-        align.setDepth(node.getDepth());
-        align.setExecutionMilliseconds(getExecutionTime());
-    }
+        if(align.isMeta()) {
+            align.setGap(0);
+            align.setDepth(node.getDepth());
+            align.setExecutionMilliseconds(0);
+        } else {
+            align.setGap(getGap());
+            align.setDepth(node.getDepth());
+            align.setExecutionMilliseconds(getExecutionTime());
+        }
 
+    }
 
     public long getGap() {
         final CallTreeNode current = getCurrent();
@@ -129,7 +145,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         CallTreeNode sibling = node.getParent().getChild();
         while (node != sibling.getSibling()) {
             sibling = sibling.getSibling();
-            if(sibling == null) {
+            if (sibling == null) {
                 throw new IllegalStateException("Not found prev sibling " + node);
             }
         }
@@ -244,7 +260,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     }
 
     public boolean isEmpty() {
-        return size() == 0;
+        return nodes.isEmpty();
     }
 
     public String toString() {

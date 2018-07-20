@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class HBaseAsyncTemplate implements HBaseAsyncOperation {
 

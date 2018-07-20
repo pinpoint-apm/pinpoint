@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
@@ -27,12 +28,15 @@ import java.lang.management.ThreadInfo;
 import java.util.Collections;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ThreadDumpUtils {
 
+
     public static TThreadDump createTThreadDump(Thread thread) {
-        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(thread);
+        Assert.requireNonNull(thread, "thread must not be null");
+
+        ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(thread.getId());
         if (threadInfo == null) {
             return null;
         }
@@ -41,7 +45,9 @@ public class ThreadDumpUtils {
     }
 
     public static TThreadDump createTThreadDump(Thread thread, int stackTraceMaxDepth) {
-        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(thread, stackTraceMaxDepth);
+        Assert.requireNonNull(thread, "thread must not be null");
+
+        ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(thread.getId(), stackTraceMaxDepth);
         if (threadInfo == null) {
             return null;
         }
@@ -60,16 +66,41 @@ public class ThreadDumpUtils {
         return threadDump;
     }
 
-    public static TThreadState toTThreadState(Thread.State threadState) {
-        if (threadState == null) {
-            throw new NullPointerException("threadState may not be null");
+    public static TThreadDump createTThreadDump(long threadId) {
+        ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(threadId);
+        if (threadInfo == null) {
+            return null;
         }
 
-        String threadStateName = threadState.name();
-        for (TThreadState state : TThreadState.values()) {
-            if (state.name().equalsIgnoreCase(threadStateName)) {
-                return state;
-            }
+        return createTThreadDump(threadInfo);
+    }
+
+    public static TThreadDump createTThreadDump(long threadId, int stackTraceMaxDepth) {
+        ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(threadId, stackTraceMaxDepth);
+        if (threadInfo == null) {
+            return null;
+        }
+
+        return createTThreadDump(threadInfo);
+    }
+
+    public static TThreadState toTThreadState(Thread.State threadState) {
+        if (threadState == null) {
+            throw new NullPointerException("threadState must not be null");
+        }
+        switch (threadState) {
+            case NEW:
+                return TThreadState.NEW;
+            case RUNNABLE:
+                return TThreadState.RUNNABLE;
+            case BLOCKED:
+                return TThreadState.BLOCKED;
+            case WAITING:
+                return TThreadState.WAITING;
+            case TIMED_WAITING:
+                return TThreadState.TIMED_WAITING;
+            case TERMINATED:
+                return TThreadState.TERMINATED;
         }
         return TThreadState.UNKNOWN;
     }

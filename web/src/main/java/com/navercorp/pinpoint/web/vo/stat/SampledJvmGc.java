@@ -18,19 +18,28 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 /**
  * @author HyunGil Jeong
  */
 public class SampledJvmGc implements SampledAgentStatDataPoint {
 
+    public static final Long UNCOLLECTED_VALUE = -1L;
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Long>>() {
+        @Override
+        public AgentStatPoint<Long> createUnCollectedPoint(long xVal) {
+            return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);
+        }
+    };
+
     private JvmGcType jvmGcType;
-    private Point<Long, Long> heapUsed;
-    private Point<Long, Long> heapMax;
-    private Point<Long, Long> nonHeapUsed;
-    private Point<Long, Long> nonHeapMax;
-    private Point<Long, Long> gcOldCount;
-    private Point<Long, Long> gcOldTime;
+    private AgentStatPoint<Long> heapUsed;
+    private AgentStatPoint<Long> heapMax;
+    private AgentStatPoint<Long> nonHeapUsed;
+    private AgentStatPoint<Long> nonHeapMax;
+    private AgentStatPoint<Long> gcOldCount;
+    private AgentStatPoint<Long> gcOldTime;
 
     public JvmGcType getJvmGcType() {
         return jvmGcType;
@@ -40,51 +49,51 @@ public class SampledJvmGc implements SampledAgentStatDataPoint {
         this.jvmGcType = jvmGcType;
     }
 
-    public Point<Long, Long> getHeapUsed() {
+    public AgentStatPoint<Long> getHeapUsed() {
         return heapUsed;
     }
 
-    public void setHeapUsed(Point<Long, Long> heapUsed) {
+    public void setHeapUsed(AgentStatPoint<Long> heapUsed) {
         this.heapUsed = heapUsed;
     }
 
-    public Point<Long, Long> getHeapMax() {
+    public AgentStatPoint<Long> getHeapMax() {
         return heapMax;
     }
 
-    public void setHeapMax(Point<Long, Long> heapMax) {
+    public void setHeapMax(AgentStatPoint<Long> heapMax) {
         this.heapMax = heapMax;
     }
 
-    public Point<Long, Long> getNonHeapUsed() {
+    public AgentStatPoint<Long> getNonHeapUsed() {
         return nonHeapUsed;
     }
 
-    public void setNonHeapUsed(Point<Long, Long> nonHeapUsed) {
+    public void setNonHeapUsed(AgentStatPoint<Long> nonHeapUsed) {
         this.nonHeapUsed = nonHeapUsed;
     }
 
-    public Point<Long, Long> getNonHeapMax() {
+    public AgentStatPoint<Long> getNonHeapMax() {
         return nonHeapMax;
     }
 
-    public void setNonHeapMax(Point<Long, Long> nonHeapMax) {
+    public void setNonHeapMax(AgentStatPoint<Long> nonHeapMax) {
         this.nonHeapMax = nonHeapMax;
     }
 
-    public Point<Long, Long> getGcOldCount() {
+    public AgentStatPoint<Long> getGcOldCount() {
         return gcOldCount;
     }
 
-    public void setGcOldCount(Point<Long, Long> gcOldCount) {
+    public void setGcOldCount(AgentStatPoint<Long> gcOldCount) {
         this.gcOldCount = gcOldCount;
     }
 
-    public Point<Long, Long> getGcOldTime() {
+    public AgentStatPoint<Long> getGcOldTime() {
         return gcOldTime;
     }
 
-    public void setGcOldTime(Point<Long, Long> gcOldTime) {
+    public void setGcOldTime(AgentStatPoint<Long> gcOldTime) {
         this.gcOldTime = gcOldTime;
     }
 
@@ -95,6 +104,7 @@ public class SampledJvmGc implements SampledAgentStatDataPoint {
 
         SampledJvmGc that = (SampledJvmGc) o;
 
+        if (jvmGcType != that.jvmGcType) return false;
         if (heapUsed != null ? !heapUsed.equals(that.heapUsed) : that.heapUsed != null) return false;
         if (heapMax != null ? !heapMax.equals(that.heapMax) : that.heapMax != null) return false;
         if (nonHeapUsed != null ? !nonHeapUsed.equals(that.nonHeapUsed) : that.nonHeapUsed != null) return false;
@@ -105,7 +115,8 @@ public class SampledJvmGc implements SampledAgentStatDataPoint {
 
     @Override
     public int hashCode() {
-        int result = heapUsed != null ? heapUsed.hashCode() : 0;
+        int result = jvmGcType != null ? jvmGcType.hashCode() : 0;
+        result = 31 * result + (heapUsed != null ? heapUsed.hashCode() : 0);
         result = 31 * result + (heapMax != null ? heapMax.hashCode() : 0);
         result = 31 * result + (nonHeapUsed != null ? nonHeapUsed.hashCode() : 0);
         result = 31 * result + (nonHeapMax != null ? nonHeapMax.hashCode() : 0);

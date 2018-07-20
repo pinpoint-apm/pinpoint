@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -38,7 +37,9 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
         super(instrumentor, transformer, filter);
     }
 
-    @IgnoreMethod
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//    @IgnoreMethod
     @Override
     public void before(Object target, Object arg0) {
     }

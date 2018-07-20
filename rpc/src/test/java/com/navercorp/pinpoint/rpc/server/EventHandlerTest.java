@@ -16,27 +16,27 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import com.navercorp.pinpoint.rpc.codec.TestCodec;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
+import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
@@ -44,10 +44,8 @@ import java.util.Map;
  */
 public class EventHandlerTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private static int bindPort;
-    
+
     @BeforeClass
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
@@ -60,7 +58,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListener(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
@@ -74,34 +72,28 @@ public class EventHandlerTest {
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
-            
+            IOUtils.close(socket);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
-    
+
     @Test
     public void registerAgentFailTest() throws Exception {
         ThrowExceptionEventHandler eventHandler = new ThrowExceptionEventHandler();
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListener(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+        serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
         try {
             socket = new Socket("127.0.0.1", bindPort);
             sendAndReceiveSimplePacket(socket);
-            
+
             Assert.assertTrue(eventHandler.getErrorCount() > 0);
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
-            
+            IOUtils.close(socket);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
@@ -122,68 +114,24 @@ public class EventHandlerTest {
 
     private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
         byte[] payload = ControlMessageEncodingUtils.encode(properties);
-        ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
 
-        ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-        sendData(outputStream, bb.array());
+        byte[] packet = TestCodec.encodePacket(new ControlHandshakePacket(1, payload));
+        IOUtils.write(outputStream, packet);
     }
 
     private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
-        RequestPacket packet = new RequestPacket(new byte[0]);
-        packet.setRequestId(10);
-
-        ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-        sendData(outputStream, bb.array());
-    }
-
-    private void sendData(OutputStream outputStream, byte[] payload) throws IOException {
-        outputStream.write(payload);
-        outputStream.flush();
+        byte[] packet = TestCodec.encodePacket(new RequestPacket(10, new byte[0]));
+        IOUtils.write(outputStream, packet);
     }
 
     private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
-
-        byte[] payload = readData(inputStream);
-        ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
-
-        short packetType = cb.readShort();
-
-        ControlHandshakeResponsePacket packet = ControlHandshakeResponsePacket.readBuffer(packetType, cb);
-        return packet;
+        byte[] payload = IOUtils.read(inputStream, 50, 3000);
+        return (ControlHandshakeResponsePacket) TestCodec.decodePacket(payload);
     }
 
     private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
-        byte[] payload = readData(inputStream);
-        ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
-
-        short packetType = cb.readShort();
-
-        ResponsePacket packet = ResponsePacket.readBuffer(packetType, cb);
-        return packet;
-    }
-
-    private byte[] readData(InputStream inputStream) throws IOException {
-        int availableSize = 0;
-
-        for (int i = 0; i < 3; i++) {
-            availableSize = inputStream.available();
-
-            if (availableSize > 0) {
-                break;
-            }
-
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        byte[] payload = new byte[availableSize];
-        inputStream.read(payload);
-
-        return payload;
+        byte[] payload = IOUtils.read(inputStream, 50, 3000);
+        return (ResponsePacket) TestCodec.decodePacket(payload);
     }
 
     class EventHandler implements ServerStateChangeEventHandler {
@@ -194,7 +142,7 @@ public class EventHandlerTest {
         public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) {
             this.code = stateCode;
         }
-        
+
         @Override
         public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
         }
@@ -203,11 +151,11 @@ public class EventHandlerTest {
             return code;
         }
     }
-    
+
     class ThrowExceptionEventHandler implements ServerStateChangeEventHandler {
 
         private int errorCount = 0;
-        
+
         @Override
         public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception {
             throw new Exception("always error.");

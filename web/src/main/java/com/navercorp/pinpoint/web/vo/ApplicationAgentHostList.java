@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @JsonSerialize(using = ApplicationAgentHostListSerializer.class)
 public class ApplicationAgentHostList {
