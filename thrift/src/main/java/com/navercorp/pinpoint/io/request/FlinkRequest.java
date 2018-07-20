@@ -16,8 +16,7 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
 import org.apache.thrift.TBase;
 
 /**
@@ -25,16 +24,16 @@ import org.apache.thrift.TBase;
  */
 public class FlinkRequest {
 
-    private final Header header;
+    private final HeaderEntity headerEntity;
     private final TBase<?, ?> data;
 
-    public FlinkRequest(Header header, TBase<?, ?> data) {
-        this.header = Assert.requireNonNull(header, "header must not be null");
+    public FlinkRequest(HeaderEntity headerEntity, TBase<?, ?> data) {
+        this.headerEntity = Assert.requireNonNull(headerEntity, "headerEntity must not be null");
         this.data = Assert.requireNonNull(data, "data must not be null");
     }
 
-    public Header getHeader() {
-        return header;
+    public HeaderEntity getHeaderEntity() {
+        return headerEntity;
     }
 
     public TBase<?, ?> getData() {

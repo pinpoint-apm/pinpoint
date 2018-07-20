@@ -66,18 +66,6 @@ public class FlinkTBaseLocator {
         return typeLocator;
     }
 
-    public Header createHeaderByMeta(final TBase<?, ?> data) {
-        Header headerMeta = typeLocator.headerLookup(data);
-
-        if (headerMeta.getVersion() == HeaderV1.VERSION) {
-            return new HeaderV1(headerMeta.getType());
-        } else if (headerMeta.getVersion() == HeaderV2.VERSION) {
-            return new HeaderV2(headerMeta.getSignature(), headerMeta.getVersion(), headerMeta.getType(), new ConcurrentHashMap<String, String>(headerMeta.getHeaderData()));
-        }
-
-        throw new IllegalArgumentException("unsupported Header version : " + headerMeta.getVersion());
-    }
-
     public class FlinkHeaderFactory implements HeaderFactory {
         @Override
         public Header newHeader(short type) {
@@ -99,7 +87,7 @@ public class FlinkTBaseLocator {
         }
 
         private Header createHeaderV2(short type) {
-            return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type, Collections.EMPTY_MAP);
+            return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type);
         }
     };
 

@@ -17,12 +17,15 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface Message<T> {
     Header getHeader();
+
+    HeaderEntity getHeaderEntity();
 
     T getData();
 }

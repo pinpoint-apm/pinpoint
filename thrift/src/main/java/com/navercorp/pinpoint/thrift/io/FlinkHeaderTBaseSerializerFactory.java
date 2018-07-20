@@ -38,7 +38,7 @@ public class FlinkHeaderTBaseSerializerFactory implements SerializerFactory<Flin
     public FlinkHeaderTBaseSerializer createSerializer() {
         ResettableByteArrayOutputStream baos = headerTBaseSerializerFactory.createResettableByteArrayOutputStream();
         TProtocolFactory protocolFactory = headerTBaseSerializerFactory.getProtocolFactory();
-        return new FlinkHeaderTBaseSerializer(baos, protocolFactory);
+        return new FlinkHeaderTBaseSerializer(baos, protocolFactory, tBaseLocator);
     }
 
     @Override

@@ -33,7 +33,5 @@ public interface Header {
     byte getVersion();
 
     short getType();
-
-    Map<String, String> getHeaderData();
 }
 

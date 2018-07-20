@@ -13,27 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.sender;
+package com.navercorp.pinpoint.io.header;
 
-import com.navercorp.pinpoint.io.header.HeaderEntity;
-import com.navercorp.pinpoint.io.request.FlinkRequest;
-import com.navercorp.pinpoint.thrift.io.FlinkTBaseLocator;
-import org.apache.thrift.TBase;
-
-import javax.xml.crypto.Data;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
-public class FlinkRequestFactory {
+public class HeaderEntity {
+    public static final HeaderEntity EMPTY_HEADER_ENTITY = new HeaderEntity(new HashMap<String, String>(0));
 
-    public FlinkRequest createFlinkRequest(TBase<?,?> data) {
-        return createFlinkRequest(data, new HashMap<String, String>(0));
+    private final Map<String, String> entity;
+
+    public HeaderEntity(Map<String,String> headerEntityData) {
+        if (headerEntityData == null) {
+            throw new NullPointerException("headerEntityData must not be null.");
+        }
+
+        this.entity = Collections.unmodifiableMap(headerEntityData);
     }
 
-    private FlinkRequest createFlinkRequest(TBase<?,?> data, Map<String, String> headerEntity) {
-        return new FlinkRequest(new HeaderEntity(headerEntity), data);
+    public String getEntity(String key) {
+        return entity.get(key);
+    }
+
+    public Map<String, String> getEntityAll() {
+        return entity;
     }
 }

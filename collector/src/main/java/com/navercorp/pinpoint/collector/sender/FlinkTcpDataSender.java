@@ -61,7 +61,7 @@ public class FlinkTcpDataSender extends TcpDataSender {
 
     @Override
     public boolean send(TBase<?, ?> data) {
-        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(data);;
+        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(data);
         return executor.execute(flinkRequest);
     }
 

@@ -16,10 +16,7 @@
 package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.io.header.ByteArrayHeaderWriter;
-import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.io.header.HeaderWriter;
-import com.navercorp.pinpoint.io.header.InvalidHeaderException;
+import com.navercorp.pinpoint.io.header.*;
 import com.navercorp.pinpoint.io.request.FlinkRequest;
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
@@ -35,6 +32,7 @@ public class FlinkHeaderTBaseSerializer {
 
     private final ResettableByteArrayOutputStream baos;
     private final TProtocol protocol;
+    private final TypeLocator<TBase<?, ?>> locator;
 
     /**
      * Create a new HeaderTBaseSerializer.
@@ -42,30 +40,32 @@ public class FlinkHeaderTBaseSerializer {
      * @param bos
      * @param protocolFactory
      */
-    public FlinkHeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory) {
+    public FlinkHeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
         this.baos = Assert.requireNonNull(bos, "ResettableByteArrayOutputStream must not be null.");
+        this.locator = Assert.requireNonNull(locator, "locator must not be null.");
 
         Assert.requireNonNull(protocolFactory, "TProtocolFactory must not be null.");
         TIOStreamTransport transport = new TIOStreamTransport(bos);
         this.protocol = protocolFactory.getProtocol(transport);
+
+
     }
 
     public byte[] serialize(FlinkRequest flinkRequest) throws TException {
         baos.reset();
-        writeHeader(flinkRequest.getHeader());
+        writeHeader(flinkRequest);
         flinkRequest.getData().write(protocol);
         return baos.toByteArray();
     }
 
-    private void writeHeader(Header header) {
+    private void writeHeader(FlinkRequest flinkRequest) {
         try {
-            HeaderWriter headerWriter = new ByteArrayHeaderWriter(header);
+            Header header = locator.headerLookup(flinkRequest.getData());
+            HeaderWriter headerWriter = new ByteArrayHeaderWriter(header, flinkRequest.getHeaderEntity());
             byte[] headerBytes = headerWriter.writeHeader();
             baos.write(headerBytes);
         } catch (Exception e) {
             throw new InvalidHeaderException("can not write header.", e);
         }
     }
-
-
 }
