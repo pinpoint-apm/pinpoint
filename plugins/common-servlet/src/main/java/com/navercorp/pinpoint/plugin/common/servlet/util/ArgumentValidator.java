@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.context;
-
-import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+package com.navercorp.pinpoint.plugin.common.servlet.util;
 
 /**
- * @author emeroad
+ * @author Woonduk Kang(emeroad)
  */
-public interface RemoteAddressResolver<T> {
-    String resolve(RequestAdaptor<T> requestAdaptor, T target);
+public interface ArgumentValidator {
+    boolean validate(Object[] args);
 }

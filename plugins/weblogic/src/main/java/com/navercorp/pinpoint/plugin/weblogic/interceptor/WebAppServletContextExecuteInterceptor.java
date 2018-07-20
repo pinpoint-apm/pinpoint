@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,11 +41,10 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
     private final boolean isInfo = logger.isInfoEnabled();
 
     private MethodDescriptor methodDescriptor;
-    private TraceContext traceContext;
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
+    private ServletRequestListenerInterceptorHelper<ServletRequestImpl> servletRequestListenerInterceptorHelper;
 
     public WebAppServletContextExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
+
         this.methodDescriptor = methodDescriptor;
         final WeblogicConfiguration config = new WeblogicConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<ServletRequestImpl> requestAdaptor = new ServletRequestImplAdaptor();

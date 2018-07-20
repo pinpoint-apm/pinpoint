@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 Pinpoint contributors and NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,8 +25,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 
@@ -47,8 +49,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final boolean isInfo = logger.isInfoEnabled();
 
     private final MethodDescriptor methodDescriptor;
-    private final TraceContext traceContext;
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
+    private final ArgumentValidator argumentValidator;
+    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
     /**
      * Instantiates a new standard host valve invoke interceptor.
@@ -57,8 +59,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param descriptor   the descriptor
      */
     public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
+        this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
         final JbossConfig config = new JbossConfig(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
@@ -72,7 +74,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!validate(args)) {
+        if (!argumentValidator.validate(args)) {
             return;
         }
 
@@ -98,7 +100,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!validate(args)) {
+        if (!argumentValidator.validate(args)) {
             return;
         }
 
@@ -118,28 +120,6 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 logger.info("Failed to servlet request event handle.", t);
             }
         }
-    }
-
-    private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
-            if (isDebug) {
-                logger.debug("Invalid args, args={}", args);
-            }
-            return false;
-        }
-        if (!(args[0] instanceof HttpServletRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object, The javax.servlet.http.HttpServletRequest interface is not implemented. args[0]={}", args[0]);
-            }
-            return false;
-        }
-        if (!(args[1] instanceof HttpServletResponse)) {
-            if (isDebug) {
-                logger.debug("Invalid args[1] object, The javax.servlet.http.HttpServletResponse interface is not implemented. args[1]={}", args[1]);
-            }
-            return false;
-        }
-        return true;
     }
 
     private int getStatusCode(final HttpServletResponse response) {
