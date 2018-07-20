@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,11 +39,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private TransformTemplate transformTemplate;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin#setUp(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
-     */
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final TomcatConfig config = new TomcatConfig(context.getConfig());
@@ -85,13 +80,11 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         addTomcatConnector();
         addWebappLoader();
 
-        // Add servlet request listener. Servlet 2.4
-        addStandardContext();
         // Add async listener. Servlet 3.0
         addRequest();
         // Hide pinpoint headers & Trace HTTP response status code
         addRequestFacade(config);
-        // Remove bind trace
+        // Entry Point
         addStandardHostValve();
     }
 
@@ -166,35 +159,12 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-
-    private void addStandardContext() {
-        transformTemplate.transform("org.apache.catalina.core.StandardContext", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add servlet request listener. Servlet 2.4
-                final InstrumentMethod listenerStartMethod = target.getDeclaredMethod("listenerStart");
-                if (listenerStartMethod != null) {
-                    listenerStartMethod.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardContextListenerStartInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
-    }
-
     private void addRequest() {
         transformTemplate.transform("org.apache.catalina.connector.Request", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // RequestFacade for tomcat 6/8/9
-                final InstrumentMethod getRequestMethod = target.getDeclaredMethod("getRequest");
-                if (getRequestMethod != null) {
-                    getRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestGetRequestInterceptor");
-                }
-
                 // Add async listener. Servlet 3.0
                 final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
                 if (startAsyncMethodEditor != null) {
@@ -211,8 +181,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Trace HTTP response status code
-                target.addField(TomcatConstants.STATUS_CODE_ACCESSOR);
                 if (config.isHidePinpointHeader()) {
                     // Hide pinpoint headers
                     target.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");

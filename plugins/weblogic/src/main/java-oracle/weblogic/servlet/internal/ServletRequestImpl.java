@@ -21,6 +21,10 @@ package weblogic.servlet.internal;
  */
 public class ServletRequestImpl {
 
+    public String getMethod() {
+        return "";
+    }
+
     public String getRequestURI() {
         return "";
     }

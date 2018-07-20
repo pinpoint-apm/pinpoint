@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRequestListener;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -17,12 +16,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.resin.ResinServletRequestListener;
 
 /**
- * 
  * @author huangpengjie@fang.com
- *
  */
 public class WebAppInterceptor implements AroundInterceptor {
 
@@ -30,11 +26,9 @@ public class WebAppInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
-    private final ServletRequestListener servletRequestListener;
 
     public WebAppInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.servletRequestListener = new ResinServletRequestListener(traceContext);
     }
 
     @Override
@@ -57,16 +51,11 @@ public class WebAppInterceptor implements AroundInterceptor {
                     logger.debug("{}  jars : {}", contextKey, Arrays.toString(loadedJarNames.toArray()));
                 }
                 dispatchLibJars(contextKey, loadedJarNames, servletContext);
-                // Add servlet request listener. Servlet 2.4
-                servletContext.addListener(this.servletRequestListener);
-                if (isDebug) {
-                    logger.debug("Add servlet request listener. servletRequestListener={}", this.servletRequestListener);
-                }
             } else {
                 logger.warn("Webapp loader is not an instance of javax.servlet.ServletContext , target={}", target);
             }
         } catch (Exception e) {
-            logger.warn("Failed to add servlet request listener. servletRequestListener={}", this.servletRequestListener, e);
+            logger.warn("Failed to dispatch lib jars", e);
         }
     }
 

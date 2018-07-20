@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package weblogic.servlet.internal;
-
-import java.util.EventListener;
+package com.ibm.wsspi.webcontainer.servlet;
 
 /**
  * @author jaehong.kim
  */
-public class WebAppServletContext {
-    public <T extends EventListener> void addListener(T t) {
-    }
-
-    public EventsManager getEventsManager() {
-        return null;
-    }
+public interface IExtendedResponse {
+    int getStatusCode();
 }

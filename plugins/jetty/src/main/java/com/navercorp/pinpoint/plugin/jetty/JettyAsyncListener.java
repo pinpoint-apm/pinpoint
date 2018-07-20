@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptorH
 
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -56,7 +58,8 @@ public class JettyAsyncListener implements AsyncListener {
 
         try {
             final int statusCode = getStatusCode(asyncEvent);
-            this.asyncListenerInterceptorHelper.complete(asyncEvent.getThrowable(), statusCode);
+            final Throwable throwable = getThrowable(asyncEvent);
+            this.asyncListenerInterceptorHelper.complete(throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to async event handle. asyncEvent={}", asyncEvent, t);
@@ -66,6 +69,22 @@ public class JettyAsyncListener implements AsyncListener {
 
     @Override
     public void onTimeout(AsyncEvent asyncEvent) throws IOException {
+        if (isDebug) {
+            logger.debug("Timeout asynchronous operation. event={}", asyncEvent);
+        }
+
+        if (asyncEvent == null) {
+            if (isDebug) {
+                logger.debug("Invalid event. event is null");
+            }
+            return;
+        }
+
+        try {
+            this.asyncListenerInterceptorHelper.timeout(asyncEvent.getThrowable());
+        } catch (Throwable t) {
+            logger.info("Failed to async event handle. event={}", asyncEvent, t);
+        }
     }
 
     @Override
@@ -82,8 +101,8 @@ public class JettyAsyncListener implements AsyncListener {
         }
 
         try {
-            final int statusCode = getStatusCode(asyncEvent);
-            this.asyncListenerInterceptorHelper.error(asyncEvent.getThrowable(), statusCode);
+            final Throwable throwable = getThrowable(asyncEvent);
+            this.asyncListenerInterceptorHelper.error(throwable);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to async event handle. asyncEvent={}", asyncEvent, t);
@@ -103,5 +122,23 @@ public class JettyAsyncListener implements AsyncListener {
         } catch (Exception ignored) {
         }
         return 0;
+    }
+
+    private Throwable getThrowable(AsyncEvent asyncEvent) {
+        try {
+            if (asyncEvent.getThrowable() != null) {
+                return asyncEvent.getThrowable();
+            }
+            // Jetty 8.x
+            final ServletRequest request = asyncEvent.getSuppliedRequest();
+            if (request != null) {
+                final Object errorException = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+                if (errorException instanceof Throwable) {
+                    return (Throwable) errorException;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 }

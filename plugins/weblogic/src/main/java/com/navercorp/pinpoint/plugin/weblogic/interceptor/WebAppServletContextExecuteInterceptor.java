@@ -17,34 +17,61 @@
 package com.navercorp.pinpoint.plugin.weblogic.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.plugin.weblogic.ParameterRecorderFactory;
+import com.navercorp.pinpoint.plugin.weblogic.WeblogicConfiguration;
+import com.navercorp.pinpoint.plugin.weblogic.WeblogicConstants;
 import weblogic.servlet.internal.ServletRequestImpl;
 import weblogic.servlet.internal.ServletResponseImpl;
 
 /**
+ * @author andyspan
  * @author jaehong.kim
  */
 public class WebAppServletContextExecuteInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+    private final boolean isInfo = logger.isInfoEnabled();
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
-    private HttpStatusCodeRecorder httpStatusCodeRecorder;
+    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
 
     public WebAppServletContextExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
+        final WeblogicConfiguration config = new WeblogicConfiguration(traceContext.getProfilerConfig());
+        RequestAdaptor<ServletRequestImpl> requestAdaptor = new ServletRequestImplAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
+        ParameterRecorder<ServletRequestImpl> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<ServletRequestImpl>(WeblogicConstants.WEBLOGIC, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
     }
 
     @Override
     public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        if (!validate(args)) {
+            return;
+        }
+
+        try {
+            final ServletRequestImpl request = (ServletRequestImpl) args[0];
+            this.servletRequestListenerInterceptorHelper.initialized(request, WeblogicConstants.WEBLOGIC_METHOD, this.methodDescriptor);
+        } catch (Throwable t) {
+            if (isInfo) {
+                logger.info("Failed to servlet request event handle.", t);
+            }
+        }
     }
 
     @Override
@@ -53,20 +80,17 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = this.traceContext.currentRawTraceObject();
-        if (trace == null) {
+        if (!validate(args)) {
             return;
         }
 
         try {
-            if (trace.canSampled() && validate(args)) {
-                final ServletResponseImpl response = (ServletResponseImpl) args[1];
-                this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), response.getStatus());
-            }
-        } finally {
-            // Close
-            this.traceContext.removeTraceObject();
-            trace.close();
+            final ServletRequestImpl request = (ServletRequestImpl) args[0];
+            final ServletResponseImpl response = (ServletResponseImpl) args[1];
+            final int statusCode = getStatusCode(response);
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
+        } catch (Throwable t) {
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 
@@ -89,5 +113,13 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
             return false;
         }
         return true;
+    }
+
+    private int getStatusCode(final ServletResponseImpl response) {
+        try {
+            return response.getStatus();
+        } catch (Exception ignored) {
+        }
+        return 0;
     }
 }

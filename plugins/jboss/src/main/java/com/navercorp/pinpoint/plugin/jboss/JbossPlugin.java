@@ -91,8 +91,6 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
         if (jbossConfig.isTraceEjb()) {
             addMethodInvocationMessageHandlerEditor();
         } else {
-            // Add servlet request listener. Servlet 2.4
-            addStandardContext();
             // Add async listener. Servlet 3.0
             addRequestEditor();
             addContextInvocationEditor();
@@ -111,22 +109,6 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (jbossConfig.isHidePinpointHeader()) {
                     // Hide pinpoint headers
                     target.weave("com.navercorp.pinpoint.plugin.jboss.aspect.RequestFacadeAspect");
-                }
-                return target.toBytecode();
-            }
-        });
-    }
-
-    private void addStandardContext() {
-        transformTemplate.transform("org.apache.catalina.core.StandardContext", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add servlet request listener. Servlet 2.4
-                final InstrumentMethod startInternalMethod = target.getDeclaredMethod("start");
-                if (startInternalMethod != null) {
-                    startInternalMethod.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.StandardContextStartInternalInterceptor");
                 }
                 return target.toBytecode();
             }
@@ -195,7 +177,6 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
                 return target.toBytecode();
             }
         });
-
     }
 
     /**
@@ -213,10 +194,6 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
                 final InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
                 if (invokeMethod != null) {
                     invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeInterceptor");
-                }
-                final InstrumentMethod statusMethod = target.getDeclaredMethod("status", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
-                if (statusMethod != null) {
-                    statusMethod.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveStatusInterceptor");
                 }
                 return target.toBytecode();
             }
