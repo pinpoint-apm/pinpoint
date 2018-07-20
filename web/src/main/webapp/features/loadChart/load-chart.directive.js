@@ -26,7 +26,7 @@
                 }
                 function renderChart(data, yMax) {
                 	if ( oChart !== null ) {
-                		oChart.clear();
+                		oChart.destroy();
 					}
 					oChart = new Chart(elCanvas, {
 						type: "bar",
