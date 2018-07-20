@@ -33,7 +33,7 @@
                     }
                     function renderChart(data, yMax, useFilterTransaction) {
 						if ( oChart !== null ) {
-							oChart.clear();
+							oChart.destroy();
 						}
 						oChart = new Chart(elCanvas, {
 							type: "bar",
