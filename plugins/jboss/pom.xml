@@ -43,6 +43,12 @@
             <artifactId>jboss-as-security</artifactId>
             <version>7.2.0.Final</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>tools</artifactId>
+                    <groupId>com.sun</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
