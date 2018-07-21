@@ -29,9 +29,7 @@ import com.navercorp.pinpoint.plugin.elasticsearch.ElasticsearchPlugin;
 public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBaseOperationInterceptor {
     private boolean recordResult = false;
     private boolean recordArgs = false;
-    public ElasticsearchExecutorOperationInterceptor(){
-        super();
-    }
+
     public ElasticsearchExecutorOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
         recordResult = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearch.recordResult",false);
@@ -57,7 +55,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 
     }
 
-    private String convertParams(Object[] args){
+    public String convertParams(Object[] args){
         if(args != null && args.length > 0){
             StringBuilder builder = new StringBuilder();
             for(Object arg:args) {
@@ -80,7 +78,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
         return null;
     }
 
-    private void convertArray(Object arg,StringBuilder builder){
+    public void convertArray(Object arg,StringBuilder builder){
        {
             builder.append("[");
             Object[] fields = (Object[])arg;
@@ -193,7 +191,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
         }
     }
     @Override
-    protected void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH_EXECUTOR);
         recorder.recordException(throwable);
         if (recordArgs && args != null && args.length > 0) {

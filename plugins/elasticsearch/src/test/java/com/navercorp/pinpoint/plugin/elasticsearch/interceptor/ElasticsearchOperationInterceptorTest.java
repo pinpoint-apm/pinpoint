@@ -17,25 +17,30 @@
 package com.navercorp.pinpoint.plugin.elasticsearch.interceptor;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author yinbp[yin-bp@163.com]
  */
 public class ElasticsearchOperationInterceptorTest {
-
+    ElasticsearchOperationInterceptor elasticsearchExecutorOperationInterceptor = null;
+    Object[] args = null;
+    @Before
+    public void setUp(){
+        elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationInterceptor(new TraceContextIT(), new MethodDescriptorIT());
+        args = new Object[]{"1","2","3","4","5","6"};
+    }
+    @Test
+    public void testConstruction(){
+        ElasticsearchOperationInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationInterceptor(new TraceContextIT(), new MethodDescriptorIT());
+    }
     @Test
     public void testBefore(){
-        try {
-            ElasticsearchOperationInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationInterceptor(null, null);
-        }
-        catch (Exception e){
-            Assert.assertEquals("traceContext must not be null",e.getMessage());
-        }
+
 
         try {
-            ElasticsearchOperationInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationInterceptor();
-            elasticsearchExecutorOperationInterceptor.before(null,null);
+            elasticsearchExecutorOperationInterceptor.before(new Object(),args);
         }
         catch (Exception e){
             Assert.assertTrue(e instanceof NullPointerException);
@@ -45,19 +50,66 @@ public class ElasticsearchOperationInterceptorTest {
 
     @Test
     public void testAfter(){
-        try {
-            ElasticsearchExecutorOperationInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchExecutorOperationInterceptor(null, null);
-        }
-        catch (Exception e){
-            Assert.assertEquals("traceContext must not be null",e.getMessage());
-        }
+
 
         try {
-            ElasticsearchExecutorOperationInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchExecutorOperationInterceptor();
-            elasticsearchExecutorOperationInterceptor.after(null,null,null,null);
+            elasticsearchExecutorOperationInterceptor.after(new Object(), args, "ok", null);
         }
         catch (Exception e){
             Assert.assertTrue(e instanceof NullPointerException);
+        }
+    }
+
+    @Test
+    public void testDoSpanInBeforeTrace() {
+        try {
+            elasticsearchExecutorOperationInterceptor.doInBeforeTrace(new SpanRecorderIT(), new Object(), args, true);
+        }
+        catch (Exception e){
+
+        }
+    }
+
+
+    @Test
+    public void testConvertParams(){
+        try {
+            String value = elasticsearchExecutorOperationInterceptor.convertParams(args);
+        }
+        catch (Exception e){
+
+        }
+    }
+
+    @Test
+    public void convertArray(){
+        try {
+            elasticsearchExecutorOperationInterceptor.convertArray(args,new StringBuilder());
+        }
+        catch (Exception e){
+
+        }
+
+    }
+
+    @Test
+    public void doInEventAfterTrace() {
+        try {
+            elasticsearchExecutorOperationInterceptor.doInAfterTrace(new SpanEventRecorderIT(),new Object(),args,"aa",null,true);
+        }
+        catch (Exception e){
+
+        }
+
+    }
+
+    @Test
+    public void doInAfterTrace() {
+        try {
+            elasticsearchExecutorOperationInterceptor.doInAfterTrace(new SpanRecorderIT(),new Object(),args,"aa",null);
+        }
+        catch (Exception e){
+
         }
     }
 

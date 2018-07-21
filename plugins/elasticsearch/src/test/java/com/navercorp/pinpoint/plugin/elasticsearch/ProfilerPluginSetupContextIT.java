@@ -13,21 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.elasticsearch;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.plugin.elasticsearch.interceptor.ProfilerConfigIT;
 
 /**
  * @author yinbp[yin-bp@163.com]
  */
-public class RestSeachExecutorMethodFilter implements MethodFilter {
+public class ProfilerPluginSetupContextIT implements ProfilerPluginSetupContext {
 	@Override
-	public boolean accept(InstrumentMethod instrumentMethod) {
-		String name = instrumentMethod.getName();
-		return name.equals("execute") || name.equals("executeHttp")
-				|| name.equals("executeSimpleRequest")
-				|| name.equals("executeRequest");
+	public ProfilerConfig getConfig() {
+		return new ProfilerConfigIT();
+	}
+
+	@Override
+	public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
+
+	}
+
+	@Override
+	public void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParserV2) {
 
 	}
 }

@@ -55,6 +55,9 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 	private static final List<ElasticsearchInterceptorClassInfo> clazzInterceptors = new ArrayList<ElasticsearchInterceptorClassInfo>();
 
 	static {
+		init();
+	}
+	static void init(){
 		ElasticsearchInterceptorClassInfo interceptorClassInfo = null;
 		List<ElasticsearchMethodInfo> methodInfos = null;
 		ElasticsearchMethodInfo methodInfo = null;
@@ -104,6 +107,10 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 		interceptorClassInfo.setInterceptorMehtods(methodInfos);
 		interceptorClassInfo.setMethodFilter(new ElasticsearchCustomMethodFilter(null, interceptorClassInfo));
 		clazzInterceptors.add(interceptorClassInfo);
+	}
+
+	public static List<ElasticsearchInterceptorClassInfo> getClazzInterceptors(){
+		return clazzInterceptors;
 	}
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

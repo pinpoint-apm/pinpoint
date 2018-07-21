@@ -28,16 +28,26 @@ public class ElasticsearchPluginTest {
     public void setUp(){
         elasticsearchPlugin = new ElasticsearchPlugin();
     }
-
     @Test
     public void testSetup() {
-        elasticsearchPlugin.setup(null);
+        try {
+            elasticsearchPlugin.setup(new ProfilerPluginSetupContextIT());
+        }
+        catch (Exception e){
 
+        }
     }
-
-
     @Test
     public void setTransformTemplate() {
         elasticsearchPlugin.setTransformTemplate(null);
+    }
+    @Test
+    public void testInit(){
+        try {
+            ElasticsearchPlugin.init();
+        }
+        catch (Exception e){
+
+        }
     }
 }

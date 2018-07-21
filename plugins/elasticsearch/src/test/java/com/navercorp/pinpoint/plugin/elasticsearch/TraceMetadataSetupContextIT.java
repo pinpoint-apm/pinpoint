@@ -13,21 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.elasticsearch;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
  * @author yinbp[yin-bp@163.com]
  */
-public class RestSeachExecutorMethodFilter implements MethodFilter {
+public class TraceMetadataSetupContextIT implements TraceMetadataSetupContext {
 	@Override
-	public boolean accept(InstrumentMethod instrumentMethod) {
-		String name = instrumentMethod.getName();
-		return name.equals("execute") || name.equals("executeHttp")
-				|| name.equals("executeSimpleRequest")
-				|| name.equals("executeRequest");
+	public void addServiceType(ServiceType serviceType) {
+
+	}
+
+	@Override
+	public void addServiceType(ServiceType serviceType, AnnotationKeyMatcher primaryAnnotationKeyMatcher) {
+
+	}
+
+	@Override
+	public void addAnnotationKey(AnnotationKey annotationKey) {
 
 	}
 }

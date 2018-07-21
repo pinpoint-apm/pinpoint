@@ -29,9 +29,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperationInterceptor {
     private boolean recordResult = false;
     private boolean recordArgs = false;
-    public ElasticsearchOperationInterceptor(){
 
-    }
     public ElasticsearchOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
         recordResult = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearch.recordResult",false);
@@ -39,7 +37,7 @@ public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperatio
     }
 
     @Override
-    protected void doInBeforeTrace(SpanRecorder recorder, Object target, Object[] args, boolean newTrace) {
+    public void doInBeforeTrace(SpanRecorder recorder, Object target, Object[] args, boolean newTrace) {
         if(newTrace) {
             StringBuilder buffer = new StringBuilder(256);
             buffer.append(className);
@@ -58,7 +56,7 @@ public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperatio
 
     }
 
-    private String convertParams(Object[] args){
+    public String convertParams(Object[] args){
         if(args != null && args.length > 0){
             StringBuilder builder = new StringBuilder();
             for(Object arg:args) {
@@ -81,7 +79,7 @@ public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperatio
         return null;
     }
 
-    private void convertArray(Object arg,StringBuilder builder){
+    public void convertArray(Object arg,StringBuilder builder){
        {
             builder.append("[");
             Object[] fields = (Object[])arg;
@@ -102,7 +100,7 @@ public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperatio
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
             Throwable throwable,boolean newTrace) {
         recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH_EVENT);
         recorder.recordException(throwable);
@@ -122,7 +120,7 @@ public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperatio
     }
 
     @Override
-    protected void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH);
         recorder.recordException(throwable);
         if (recordArgs && args != null && args.length > 0) {

@@ -28,7 +28,7 @@ public class ElasticsearchMetadataProviderTest{
     public void setup() {
         ElasticsearchMetadataProvider elasticsearchMetadataProvider = new ElasticsearchMetadataProvider();
 
-        elasticsearchMetadataProvider.setup(null);
+        elasticsearchMetadataProvider.setup(new TraceMetadataSetupContextIT());
         
     }
 

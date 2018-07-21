@@ -122,7 +122,7 @@ public class RestSeachExecutorMethodFilterTest {
 
 			}
 		};
-		Assert.assertEquals("executeSimpleRequest",instrumentMethod.getName());
+		Assert.assertTrue(restSeachExecutorMethodFilter.accept(instrumentMethod));
 
 
 	}
