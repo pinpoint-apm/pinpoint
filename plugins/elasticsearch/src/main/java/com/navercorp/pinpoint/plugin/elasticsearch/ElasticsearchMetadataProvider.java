@@ -30,6 +30,8 @@ public class ElasticsearchMetadataProvider implements TraceMetadataProvider {
     @Override
     public void setup(TraceMetadataSetupContext context) {
 
+        if(context == null)
+            return;
         context.addServiceType(ELASTICSEARCH);
         context.addServiceType(ELASTICSEARCH_EVENT);
         context.addServiceType(ELASTICSEARCH_EXECUTOR);

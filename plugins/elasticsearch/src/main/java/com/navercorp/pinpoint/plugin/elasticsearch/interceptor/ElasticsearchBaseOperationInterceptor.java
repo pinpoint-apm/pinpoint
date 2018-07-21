@@ -33,8 +33,11 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;
     protected String className;
-
-	public String mergeParameterVariableNameDescription(StringBuilder sb ,String[] parameterType, String[] variableName) {
+	protected ElasticsearchBaseOperationInterceptor(){
+		methodDescriptor = null;
+		this.traceContext = null;
+	}
+	protected String mergeParameterVariableNameDescription(StringBuilder sb ,String[] parameterType, String[] variableName) {
 		if (parameterType == null && variableName == null) {
 			return "()";
 		} else if (variableName != null && parameterType != null) {

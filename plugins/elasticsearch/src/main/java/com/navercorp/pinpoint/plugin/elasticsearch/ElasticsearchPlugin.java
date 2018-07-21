@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.elasticsearch;
 
-import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -37,153 +40,155 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STA
  * @author yinbp[yin-bp@163.com]
  */
 public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAware {
-    public static final AnnotationKey ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(971, "es.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(971, "es.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 
-    public static final ServiceType ELASTICSEARCH = ServiceTypeFactory.of(1971, "Elasticsearch",RECORD_STATISTICS);
+	public static final ServiceType ELASTICSEARCH = ServiceTypeFactory.of(1971, "Elasticsearch", RECORD_STATISTICS);
 
-    public static final ServiceType ELASTICSEARCH_EVENT = ServiceTypeFactory.of(1972, "ElasticsearchEvent");
-    private static final String ELASTICSEARCH_SCOPE = "Elasticsearch_SCOPE";
+	public static final ServiceType ELASTICSEARCH_EVENT = ServiceTypeFactory.of(1972, "ElasticsearchEvent");
+	public static final AnnotationKey ARGS_URL_ANNOTATION_KEY = AnnotationKeyFactory.of(972, "es.url", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(973, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_ACTION_ANNOTATION_KEY = AnnotationKeyFactory.of(974, "es.action", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_RESPONSEHANDLE_ANNOTATION_KEY = AnnotationKeyFactory.of(975, "es.responseHandle", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(9977, "ElasticsearchExecutor");
+	private static final String ELASTICSEARCH_SCOPE = "Elasticsearch_SCOPE";
+	private static final String ELASTICSEARCH_EXECUTOR_SCOPE = "ElasticsearchExecutor_SCOPE";
+	private static final List<ElasticsearchInterceptorClassInfo> clazzInterceptors = new ArrayList<ElasticsearchInterceptorClassInfo>();
 
-    public static final AnnotationKey ARGS_URL_ANNOTATION_KEY = AnnotationKeyFactory.of(972, "es.url", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(973, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ARGS_ACTION_ANNOTATION_KEY = AnnotationKeyFactory.of(974, "es.action", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ARGS_RESPONSEHANDLE_ANNOTATION_KEY = AnnotationKeyFactory.of(975, "es.responseHandle", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	static {
+		ElasticsearchInterceptorClassInfo interceptorClassInfo = null;
+		List<ElasticsearchMethodInfo> methodInfos = null;
+		ElasticsearchMethodInfo methodInfo = null;
+		interceptorClassInfo = new ElasticsearchInterceptorClassInfo();
+		interceptorClassInfo.setInterceptorClass("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
+		methodInfo = new ElasticsearchMethodInfo();
+		methodInfo.setFilterType(1);
+		methodInfo.setName("*");
+		methodInfo.setPattern(true);
+		interceptorClassInfo.setAllAccept(methodInfo);
 
-    public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(9977, "ElasticsearchExecutor");
-    private static final String ELASTICSEARCH_EXECUTOR_SCOPE = "ElasticsearchExecutor_SCOPE";
+		methodInfos = null;
+		methodInfos = new ArrayList<ElasticsearchMethodInfo>();
+		methodInfo = new ElasticsearchMethodInfo();
+		methodInfo.setFilterType(1);
+		methodInfo.setName("*");
+		methodInfo.setPattern(true);
+		methodInfos.add(methodInfo);
+		methodInfo = new ElasticsearchMethodInfo();
+		methodInfo.setFilterType(0);
+		methodInfo.setName("discover");
+		methodInfo.setPattern(false);
+		methodInfos.add(methodInfo);
+		interceptorClassInfo.setInterceptorMehtods(methodInfos);
+		interceptorClassInfo.setMethodFilter(new ElasticsearchCustomMethodFilter(null, interceptorClassInfo));
+		clazzInterceptors.add(interceptorClassInfo);
+		interceptorClassInfo = new ElasticsearchInterceptorClassInfo();
+		interceptorClassInfo.setInterceptorClass("org.frameworkset.elasticsearch.client.RestClientUtil");
+		methodInfo = new ElasticsearchMethodInfo();
+		methodInfo.setFilterType(1);
+		methodInfo.setName("*");
+		methodInfo.setPattern(true);
+		interceptorClassInfo.setAllAccept(methodInfo);
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+		methodInfos = null;
+		methodInfos = new ArrayList<ElasticsearchMethodInfo>();
+		methodInfo = new ElasticsearchMethodInfo();
+		methodInfo.setFilterType(1);
+		methodInfo.setName("*");
+		methodInfo.setPattern(true);
+		methodInfos.add(methodInfo);
+		methodInfo = new ElasticsearchMethodInfo();
+		methodInfo.setFilterType(0);
+		methodInfo.setName("discover");
+		methodInfo.setPattern(false);
+		methodInfos.add(methodInfo);
+		interceptorClassInfo.setInterceptorMehtods(methodInfos);
+		interceptorClassInfo.setMethodFilter(new ElasticsearchCustomMethodFilter(null, interceptorClassInfo));
+		clazzInterceptors.add(interceptorClassInfo);
+	}
 
-    private TransformTemplate transformTemplate;
-    private RestSeachExecutorMethodFilter restSeachExecutorMethodFilter = new RestSeachExecutorMethodFilter();
-    private static final List<ElasticsearchInterceptorClassInfo> clazzInterceptors = new ArrayList<ElasticsearchInterceptorClassInfo>();
-    static{
-        ElasticsearchInterceptorClassInfo interceptorClassInfo = null;
-        List<ElasticsearchMethodInfo> methodInfos = null;
-        ElasticsearchMethodInfo methodInfo = null;
-            interceptorClassInfo = new ElasticsearchInterceptorClassInfo();
-        interceptorClassInfo.setInterceptorClass("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
-                    methodInfo = new ElasticsearchMethodInfo();
-            methodInfo.setFilterType(1);
-            methodInfo.setName("*");
-            methodInfo.setPattern(true);
-            interceptorClassInfo.setAllAccept(methodInfo);
-                
-        methodInfos = null;
-                    methodInfos = new ArrayList<ElasticsearchMethodInfo>();
-                            methodInfo = new ElasticsearchMethodInfo();
-                methodInfo.setFilterType(1);
-                methodInfo.setName("*");
-                methodInfo.setPattern(true);
-                methodInfos.add(methodInfo);
-                            methodInfo = new ElasticsearchMethodInfo();
-                methodInfo.setFilterType(0);
-                methodInfo.setName("discover");
-                methodInfo.setPattern(false);
-                methodInfos.add(methodInfo);
-                            interceptorClassInfo.setInterceptorMehtods(methodInfos);
-        interceptorClassInfo.setMethodFilter(new ElasticsearchCustomMethodFilter(null,interceptorClassInfo));
-        clazzInterceptors.add(interceptorClassInfo);
-            interceptorClassInfo = new ElasticsearchInterceptorClassInfo();
-        interceptorClassInfo.setInterceptorClass("org.frameworkset.elasticsearch.client.RestClientUtil");
-                    methodInfo = new ElasticsearchMethodInfo();
-            methodInfo.setFilterType(1);
-            methodInfo.setName("*");
-            methodInfo.setPattern(true);
-            interceptorClassInfo.setAllAccept(methodInfo);
-                
-        methodInfos = null;
-                    methodInfos = new ArrayList<ElasticsearchMethodInfo>();
-                            methodInfo = new ElasticsearchMethodInfo();
-                methodInfo.setFilterType(1);
-                methodInfo.setName("*");
-                methodInfo.setPattern(true);
-                methodInfos.add(methodInfo);
-                            methodInfo = new ElasticsearchMethodInfo();
-                methodInfo.setFilterType(0);
-                methodInfo.setName("discover");
-                methodInfo.setPattern(false);
-                methodInfos.add(methodInfo);
-                            interceptorClassInfo.setInterceptorMehtods(methodInfos);
-        interceptorClassInfo.setMethodFilter(new ElasticsearchCustomMethodFilter(null,interceptorClassInfo));
-        clazzInterceptors.add(interceptorClassInfo);
-        }
+	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+	private TransformTemplate transformTemplate;
+	private RestSeachExecutorMethodFilter restSeachExecutorMethodFilter = new RestSeachExecutorMethodFilter();
 
-    @Override
-    public void setup(ProfilerPluginSetupContext context) {
+	@Override
+	public void setup(ProfilerPluginSetupContext context) {
+		if (context == null) {
+			return;
+		}
 
-        ElasticsearchPluginConfig elasticsearchPluginConfig = new ElasticsearchPluginConfig(context.getConfig());
-        if (logger.isInfoEnabled()) {
-            logger.info("ElasticsearchPlugin config:{}", elasticsearchPluginConfig);
-        }
+		ElasticsearchPluginConfig elasticsearchPluginConfig = new ElasticsearchPluginConfig(context.getConfig());
+		if (logger.isInfoEnabled()) {
+			logger.info("ElasticsearchPlugin config:{}", elasticsearchPluginConfig);
+		}
 
-        if ( !elasticsearchPluginConfig.isEnabled()) {
-            return;
-        }
-        this.addApplicationTypeDetector(context);
-        addElasticsearchInterceptors();
-        addElasticsearchExecutorInterceptors();
-    }
-    /**
-    * Pinpoint profiler agent uses this detector to find out the service type of current application.
-    */
-    private void addApplicationTypeDetector(ProfilerPluginSetupContext context) {
-        context.addApplicationTypeDetector(new ElasticsearchProviderDetector(clazzInterceptors));
-    }
+		if (!elasticsearchPluginConfig.isEnabled()) {
+			return;
+		}
+		this.addApplicationTypeDetector(context);
+		addElasticsearchInterceptors();
+		addElasticsearchExecutorInterceptors();
+	}
 
-    //  implementations
-    private void addElasticsearchInterceptors() {
-        for (final ElasticsearchInterceptorClassInfo interceptorClassInfo : clazzInterceptors) {
-            transformTemplate.transform(interceptorClassInfo.getInterceptorClass(), new TransformCallback() {
+	/**
+	 * Pinpoint profiler agent uses this detector to find out the service type of current application.
+	 */
+	private void addApplicationTypeDetector(ProfilerPluginSetupContext context) {
+		context.addApplicationTypeDetector(new ElasticsearchProviderDetector(clazzInterceptors));
+	}
 
-                @Override
-                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
-                                            String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                                            byte[] classfileBuffer) throws InstrumentException {
+	//  implementations
+	private void addElasticsearchInterceptors() {
+		for (final ElasticsearchInterceptorClassInfo interceptorClassInfo : clazzInterceptors) {
+			transformTemplate.transform(interceptorClassInfo.getInterceptorClass(), new TransformCallback() {
 
-                    final InstrumentClass target = instrumentor.getInstrumentClass(loader, interceptorClassInfo.getInterceptorClass(), classfileBuffer);
+				@Override
+				public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
+											String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+											byte[] classfileBuffer) throws InstrumentException {
 
-                    final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(interceptorClassInfo.getMethodFilter());
-                    for (InstrumentMethod methodToTrace : methodsToTrace) {
-                        String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearch.interceptor.ElasticsearchOperationInterceptor";
-                        methodToTrace.addScopedInterceptor(operationInterceptor, ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
-                    }
-                    return target.toBytecode();
-                }
-            });
+					final InstrumentClass target = instrumentor.getInstrumentClass(loader, interceptorClassInfo.getInterceptorClass(), classfileBuffer);
 
-        }
-    }
+					final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(interceptorClassInfo.getMethodFilter());
+					for (InstrumentMethod methodToTrace : methodsToTrace) {
+						String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearch.interceptor.ElasticsearchOperationInterceptor";
+						methodToTrace.addScopedInterceptor(operationInterceptor, ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
+					}
+					return target.toBytecode();
+				}
+			});
 
-    //  implementations
-    private void addElasticsearchExecutorInterceptors() {
+		}
+	}
 
-        transformTemplate.transform("org.frameworkset.elasticsearch.client.RestSeachExecutor", new TransformCallback() {
+	//  implementations
+	private void addElasticsearchExecutorInterceptors() {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
-                                        String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                                        byte[] classfileBuffer) throws InstrumentException {
+		transformTemplate.transform("org.frameworkset.elasticsearch.client.RestSeachExecutor", new TransformCallback() {
 
-                final InstrumentClass target = instrumentor.getInstrumentClass(loader, "org.frameworkset.elasticsearch.client.RestSeachExecutor", classfileBuffer);
+			@Override
+			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
+										String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+										byte[] classfileBuffer) throws InstrumentException {
 
-                final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(restSeachExecutorMethodFilter);
-                String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearch.interceptor.ElasticsearchExecutorOperationInterceptor";
-                //logger.info(operationInterceptor+" methodsToTrace",methodsToTrace);
-                for (InstrumentMethod methodToTrace : methodsToTrace) {
+				final InstrumentClass target = instrumentor.getInstrumentClass(loader, "org.frameworkset.elasticsearch.client.RestSeachExecutor", classfileBuffer);
 
-                    methodToTrace.addScopedInterceptor(operationInterceptor, ELASTICSEARCH_EXECUTOR_SCOPE, ExecutionPolicy.ALWAYS);
+				final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(restSeachExecutorMethodFilter);
+				String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearch.interceptor.ElasticsearchExecutorOperationInterceptor";
+				//logger.info(operationInterceptor+" methodsToTrace",methodsToTrace);
+				for (InstrumentMethod methodToTrace : methodsToTrace) {
+
+					methodToTrace.addScopedInterceptor(operationInterceptor, ELASTICSEARCH_EXECUTOR_SCOPE, ExecutionPolicy.ALWAYS);
 //                    methodToTrace.addInterceptor(operationInterceptor);
-                }
-                return target.toBytecode();
-            }
-        });
+				}
+				return target.toBytecode();
+			}
+		});
 
 
-    }
+	}
 
-    @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
-        this.transformTemplate = transformTemplate;
-    }
+	@Override
+	public void setTransformTemplate(TransformTemplate transformTemplate) {
+		this.transformTemplate = transformTemplate;
+	}
 }

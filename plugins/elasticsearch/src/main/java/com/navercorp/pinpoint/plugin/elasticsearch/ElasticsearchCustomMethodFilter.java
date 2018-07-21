@@ -29,7 +29,8 @@ public class ElasticsearchCustomMethodFilter implements MethodFilter {
 	private ElasticsearchInterceptorClassInfo interceptorClassInfo;
 	public ElasticsearchCustomMethodFilter(int[] rejectModifiers, ElasticsearchInterceptorClassInfo interceptorClassInfo) {
 		this.interceptorClassInfo = interceptorClassInfo;
-		this.interceptorMehtods = interceptorClassInfo.getInterceptorMehtods();
+		if(interceptorClassInfo != null)
+			this.interceptorMehtods = interceptorClassInfo.getInterceptorMehtods();
 
 	}
 

@@ -29,6 +29,9 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperationInterceptor {
     private boolean recordResult = false;
     private boolean recordArgs = false;
+    public ElasticsearchOperationInterceptor(){
+
+    }
     public ElasticsearchOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
         recordResult = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearch.recordResult",false);
@@ -52,17 +55,7 @@ public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperatio
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args,boolean newTrace) {
-//        if(newTrace) {
-//            StringBuilder buffer = new StringBuilder(256);
-//            buffer.append(methodDescriptor.getClassName());
-//            buffer.append(".");
-//            buffer.append(methodDescriptor.getMethodName());
-//            buffer.append(methodDescriptor.getParameterDescriptor());
-//            String rpc = buffer.toString();//builder.append();
-//            recorder.recordRpcName(rpc);
-//            recorder.recordEndPoint(rpc);
-////            recorder.recordRemoteAddress(rpc);
-//        }
+
     }
 
     private String convertParams(Object[] args){

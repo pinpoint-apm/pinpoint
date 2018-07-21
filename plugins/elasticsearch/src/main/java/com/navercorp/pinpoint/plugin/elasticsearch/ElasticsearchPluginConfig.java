@@ -34,7 +34,11 @@ public class ElasticsearchPluginConfig {
 
 
 	public ElasticsearchPluginConfig(ProfilerConfig profilerConfig) {
-        this.elasticsearchEnabled = profilerConfig.readBoolean("profiler.elasticsearch.enabled", true);
+    	if(profilerConfig != null) {
+			this.elasticsearchEnabled = profilerConfig.readBoolean("profiler.elasticsearch.enabled", true);
+		}
+		else
+			this.elasticsearchEnabled = false;
     }
 
      
