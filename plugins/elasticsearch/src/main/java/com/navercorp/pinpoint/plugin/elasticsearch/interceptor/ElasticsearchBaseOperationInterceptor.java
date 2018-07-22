@@ -89,23 +89,20 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
 	}
 
 	public void convertArray(Object arg,StringBuilder builder){
-		{
-			builder.append("[");
-			Object[] fields = (Object[])arg;
-			boolean isfirst = true;
-			for(Object f:fields){
-				if(isfirst){
-					isfirst = false;
-				}
-				else{
-					builder.append(",");
-
-				}
-				builder.append(f);
+		builder.append("[");
+		Object[] fields = (Object[])arg;
+		boolean isfirst = true;
+		for(Object f:fields){
+			if(isfirst){
+				isfirst = false;
 			}
-			builder.append("]");
-		}
+			else{
+				builder.append(",");
 
+			}
+			builder.append(f);
+		}
+		builder.append("]");
 	}
 
     protected ElasticsearchBaseOperationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
