@@ -55,48 +55,6 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 
     }
 
-    public String convertParams(Object[] args){
-        if(args != null && args.length > 0){
-            StringBuilder builder = new StringBuilder();
-            for(Object arg:args) {
-                boolean isArray = arg != null && arg.getClass().isArray();
-
-
-                if(builder.length() > 0) {
-                    builder.append(",");
-
-                }
-                if(!isArray) {
-                    builder.append(arg);
-                }
-                else{
-                    convertArray(  arg,  builder);
-                }
-            }
-            return builder.toString();
-        }
-        return null;
-    }
-
-    public void convertArray(Object arg,StringBuilder builder){
-       {
-            builder.append("[");
-            Object[] fields = (Object[])arg;
-            boolean isfirst = true;
-            for(Object f:fields){
-                if(isfirst){
-                    isfirst = false;
-                }
-                else{
-                    builder.append(",");
-
-                }
-                builder.append(f);
-            }
-            builder.append("]");
-        }
-
-    }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
