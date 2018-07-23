@@ -56,6 +56,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1061</td><td>WEBSPHERE_METHOD</td></tr>
  * <tr><td>1070</td><td>WEBLOGIC</td></tr>
  * <tr><td>1071</td><td>WEBLOGIC_METHOD</td></tr>
+ * <tr><td>1080</td><td>RESERVED</td></tr>
+ * <tr><td>1081</td><td>RESERVED</td></tr>
  * <tr><td>1100</td><td>THRIFT_SERVER</td></tr>
  * <tr><td>1101</td><td>THRIFT_SERVER_INTERNAL</td></tr>
  * <tr><td>1110</td><td>DUBBO_PROVIDER</td></tr>
