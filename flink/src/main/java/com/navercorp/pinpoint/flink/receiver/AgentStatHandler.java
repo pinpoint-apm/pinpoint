@@ -37,7 +37,6 @@ import java.util.Objects;
  */
 public class AgentStatHandler implements SimpleHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final SourceContext sourceContext;
 
     public AgentStatHandler(SourceContext sourceContext) {
@@ -51,31 +50,6 @@ public class AgentStatHandler implements SimpleHandler {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
 
-        ServerRequest<TBase<?, ?>> copiedServerRequest = copyServerRequest(serverRequest);
-
-        sourceContext.collect(copiedServerRequest);
+        sourceContext.collect(serverRequest);
     }
-
-    private ServerRequest<TBase<?, ?>> copyServerRequest(ServerRequest serverRequest) {
-        Header header = serverRequest.getHeader();
-        Header copiedHeader = copyHeader(header);
-
-        TBase<?, ?> data = (TBase<?, ?>) serverRequest.getData();
-        Message<TBase<?, ?>> message = new DefaultMessage<>(copiedHeader, data);
-        return new DefaultServerRequest<>(message, serverRequest.getRemoteAddress(), serverRequest.getRemotePort());
-    }
-
-    private Header copyHeader(Header header) {
-        if (header.getVersion() == HeaderV1.VERSION) {
-            return header;
-        }
-        if (header.getVersion() == HeaderV2.VERSION) {
-            return new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), new HashMap<>(header.getHeaderData()));
-        }
-
-        throw new IllegalStateException("unsupported header version " + header);
-
-    }
-
-
 }

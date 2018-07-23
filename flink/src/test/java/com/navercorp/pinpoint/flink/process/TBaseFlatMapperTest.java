@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.flink.process;
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.Message;
@@ -255,7 +256,7 @@ public class TBaseFlatMapperTest {
 
     private ServerRequest<TBase<?, ?>> newServerRequest(TFAgentStatBatch tfAgentStatBatch) {
         final Header header = new HeaderV1((short) 1000);
-        final Message<TBase<?, ?>> message = new DefaultMessage<>(header, tfAgentStatBatch);
+        final Message<TBase<?, ?>> message = new DefaultMessage<>(header, HeaderEntity.EMPTY_HEADER_ENTITY, tfAgentStatBatch);
         return new DefaultServerRequest<TBase<?, ?>>(message, "127.0.0.1", 8080);
     }
 

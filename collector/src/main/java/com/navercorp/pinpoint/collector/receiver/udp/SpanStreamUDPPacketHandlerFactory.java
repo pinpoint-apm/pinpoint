@@ -132,7 +132,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     } else if (tBase instanceof TSpanChunk) {
                         ((TSpanChunk) tBase).setSpanEventList(spanEventList);
                     }
-                    Message<TBase<?, ?>> message = new DefaultMessage<>(lastMessage.getHeader(), tBase);
+                    Message<TBase<?, ?>> message = new DefaultMessage<>(lastMessage.getHeader(), lastMessage.getHeaderEntity(), tBase);
                     ServerRequest<TBase<?, ?>> mergedRequest = newServerRequest(message, remoteSocketAddress);
 
                     dispatchHandler.dispatchRequestMessage(mergedRequest, fake);
