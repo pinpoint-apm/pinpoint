@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SocketAddress;
 

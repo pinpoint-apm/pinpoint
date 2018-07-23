@@ -29,23 +29,21 @@ public class RealIpHeaderResolver<T> implements RemoteAddressResolver<T> {
 
     private final String realIpHeaderName;
     private final String realIpHeaderEmptyValue;
-    private final RequestAdaptor<T> requestAdaptor;
 
-    public RealIpHeaderResolver(final RequestAdaptor<T> requestAdaptor, final String realIpHeaderName, final String realIpHeaderEmptyValue) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+    public RealIpHeaderResolver(final String realIpHeaderName, final String realIpHeaderEmptyValue) {
         this.realIpHeaderName = Assert.requireNonNull(realIpHeaderName, "realIpHeaderName must not be null");
         this.realIpHeaderEmptyValue = realIpHeaderEmptyValue;
     }
 
     @Override
-    public String resolve(T request) {
+    public String resolve(RequestAdaptor<T> requestAdaptor, T request) {
         final String realIp = requestAdaptor.getHeader(request, realIpHeaderName);
         if (StringUtils.isEmpty(realIp)) {
-            return requestAdaptor.getRemoteAddress(request);
+            return null;
         }
 
         if (realIpHeaderEmptyValue != null && realIpHeaderEmptyValue.equalsIgnoreCase(realIp)) {
-            return requestAdaptor.getRemoteAddress(request);
+            return null;
         }
 
         final int firstIndex = realIp.indexOf(',');

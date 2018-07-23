@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,17 +38,16 @@ import javax.servlet.http.HttpServletResponse;
  * @author jaehong.kim
  */
 public abstract class AbstractServerHandleInterceptor implements AroundInterceptor {
-    protected PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
     private final MethodDescriptor methodDescriptor;
-    private final TraceContext traceContext;
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
+    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
     public AbstractServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
+
         this.methodDescriptor = descriptor;
         final JettyConfiguration config = new JettyConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestRequestAdaptor = new HttpServletRequestAdaptor();

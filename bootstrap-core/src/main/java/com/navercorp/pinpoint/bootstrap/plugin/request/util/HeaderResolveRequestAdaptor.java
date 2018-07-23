@@ -51,7 +51,11 @@ public class HeaderResolveRequestAdaptor<T> implements RequestAdaptor<T> {
 
     @Override
     public String getRemoteAddress(T request) {
-        return remoteAddressResolver.resolve(request);
+        final String remoteAddress = remoteAddressResolver.resolve(delegate, request);
+        if (remoteAddress != null) {
+            return remoteAddress;
+        }
+        return delegate.getRemoteAddress(request);
     }
 
     @Override

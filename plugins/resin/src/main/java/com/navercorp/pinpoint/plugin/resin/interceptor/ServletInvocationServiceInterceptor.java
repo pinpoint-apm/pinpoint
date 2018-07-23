@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,8 +25,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.resin.ResinConfig;
 import com.navercorp.pinpoint.plugin.resin.ResinConstants;
 
@@ -42,14 +44,15 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private MethodDescriptor methodDescriptor;
-    private TraceContext traceContext;
-    private ServletRequestListenerInterceptorHelper servletRequestListenerInterceptorHelper;
+    private final MethodDescriptor methodDescriptor;
+    private final ArgumentValidator argumentValidator;
+    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
     public ServletInvocationServiceInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
+        this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
         final ResinConfig config = new ResinConfig(traceContext.getProfilerConfig());
+
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
@@ -62,7 +65,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!validate(args)) {
+        if (!argumentValidator.validate(args)) {
             return;
         }
 
@@ -89,7 +92,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!validate(args)) {
+        if (!argumentValidator.validate(args)) {
             return;
         }
 
@@ -112,27 +115,6 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
         }
     }
 
-    private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
-            return false;
-        }
-
-        if (!(args[0] instanceof HttpServletRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object, The javax.servlet.http.HttpServletRequest interface is not implemented. args[0]={}", args[0]);
-            }
-            // AsyncRequest is asynchronous operation request.
-            return false;
-        }
-
-        if (!(args[1] instanceof HttpServletResponse)) {
-            if (isDebug) {
-                logger.debug("Invalid args[1] object, The javax.servlet.http.HttpServletResponse interface is not implemented. args[1]={}", args[1]);
-            }
-            return false;
-        }
-        return true;
-    }
 
     private int getStatusCode(final HttpServletResponse response) {
         try {
