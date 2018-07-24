@@ -17,19 +17,13 @@ package com.navercorp.pinpoint.flink.receiver;
 
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.io.header.v1.HeaderV1;
-import com.navercorp.pinpoint.io.header.v2.HeaderV2;
-import com.navercorp.pinpoint.io.request.DefaultMessage;
-import com.navercorp.pinpoint.io.request.DefaultServerRequest;
-import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.flink.vo.RawData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -45,11 +39,13 @@ public class AgentStatHandler implements SimpleHandler {
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
-        if (!(data instanceof TBase<?, ?>)) {
-            throw new UnsupportedOperationException("data is not support type : " + data);
+        if (!(serverRequest.getData() instanceof TBase<?, ?>)) {
+            throw new UnsupportedOperationException("data is not support type : " + serverRequest.getData());
         }
+        final TBase<?, ?> tBase = (TBase<?, ?>) serverRequest.getData();
+        final Map<String, String> metaInfo = new HashMap<>(serverRequest.getHeaderEntity().getEntityAll());
 
-        sourceContext.collect(serverRequest);
+        RawData rawData = new RawData(tBase, metaInfo);
+        sourceContext.collect(rawData);
     }
 }

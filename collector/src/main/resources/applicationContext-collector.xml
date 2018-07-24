@@ -465,9 +465,7 @@
         <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
 
-    <bean id="flinkRequestFactory" class="com.navercorp.pinpoint.collector.sender.FlinkRequestFactory">
-        <constructor-arg index="0" ref="flinkTBaseLocator"/>
-    </bean>
+    <bean id="flinkRequestFactory" class="com.navercorp.pinpoint.collector.sender.FlinkRequestFactory"/>
 
     <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterConnectionManager">
         <constructor-arg index="0" ref="tcpDataSenderRepository"/>

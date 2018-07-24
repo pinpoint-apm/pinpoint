@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -61,7 +62,7 @@ public class FlinkTcpDataSender extends TcpDataSender {
 
     @Override
     public boolean send(TBase<?, ?> data) {
-        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(data);
+        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(data, new HashMap<String, String>(0));
         return executor.execute(flinkRequest);
     }
 

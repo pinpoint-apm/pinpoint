@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,6 +44,11 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
     @Override
     public Header getHeader() {
         return message.getHeader();
+    }
+
+    @Override
+    public HeaderEntity getHeaderEntity() {
+        return message.getHeaderEntity();
     }
 
     @Override

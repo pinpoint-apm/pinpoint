@@ -13,22 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.sender;
-
-import com.navercorp.pinpoint.io.header.HeaderEntity;
-import com.navercorp.pinpoint.io.request.FlinkRequest;
+package com.navercorp.pinpoint.flink.vo;
 
 import org.apache.thrift.TBase;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
-public class FlinkRequestFactory {
+public class RawData {
 
-    public FlinkRequest createFlinkRequest(TBase<?,?> data, Map<String, String> headerEntity) {
-        return new FlinkRequest(new HeaderEntity(headerEntity), data);
+    private final TBase<?, ?> data;
+    private final Map<String, String> metaInfo;
+
+    public RawData(TBase<?, ?> data, Map<String,String> metaInfo) {
+        this.data = Objects.requireNonNull(data, "data must not be null");
+        this.metaInfo = Objects.requireNonNull(metaInfo, "metaInfo must not be null");
     }
+
+    public TBase<?, ?> getData() {
+        return data;
+    }
+
+    public String getMetaInfo(String key) {
+        return metaInfo.get(key);
+    }
+
 }
