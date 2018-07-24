@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.jdk.http.interceptor;
 
 import java.net.HttpURLConnection;
+import java.net.URL;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -27,10 +28,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter;
+import com.navercorp.pinpoint.plugin.jdk.http.HttpURLConnectionClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientRequestWrapper;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
@@ -49,6 +53,8 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
     private final InterceptorScope scope;
     private final ClientRequestRecorder clientRequestRecorder;
 
+    private final RequestTraceWriter<HttpURLConnection> requestTraceWriter;
+
     public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
@@ -56,6 +62,9 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
 
         final JdkHttpPluginConfig config = new JdkHttpPluginConfig(traceContext.getProfilerConfig());
         this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+
+        ClientHeaderAdaptor<HttpURLConnection> clientHeaderAdaptor = new HttpURLConnectionClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpURLConnection>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -85,8 +94,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if (request != null) {
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new JdkHttpClientRequestWrapper(request));
-                requestTraceWriter.write();
+                this.requestTraceWriter.write(request);
             }
             return;
         }
@@ -99,9 +107,22 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
         recorder.recordNextSpanId(nextId.getSpanId());
 
         if (request != null) {
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new JdkHttpClientRequestWrapper(request));
-            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
+            String host = getHost(request);
+            this.requestTraceWriter.write(request, nextId, host);
         }
+    }
+
+
+    private String getHost(HttpURLConnection httpURLConnection) {
+        final URL url = httpURLConnection.getURL();
+        if (url != null) {
+            final String host = url.getHost();
+            final int port = url.getPort();
+            if (host != null) {
+                return JdkHttpClientRequestWrapper.getEndpoint(host, port);
+            }
+        }
+        return null;
     }
 
     @Override

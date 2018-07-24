@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,42 +44,14 @@ public class HttpClient3RequestWrapper implements ClientRequestWrapper {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    final HttpMethod httpMethod;
-    final HttpConnection httpConnection;
+    private final HttpMethod httpMethod;
+    private final HttpConnection httpConnection;
 
     public HttpClient3RequestWrapper(final HttpMethod httpMethod, final HttpConnection httpConnection) {
         this.httpMethod = Assert.requireNonNull(httpMethod, "httpMethod must not be null");
         this.httpConnection = httpConnection;
     }
 
-    @Override
-    public void setHeader(final String name, final String value) {
-        this.httpMethod.setRequestHeader(name, value);
-        if (isDebug) {
-            logger.debug("Set header {}={}", name, value);
-        }
-    }
-
-    @Override
-    public String getHost() {
-        try {
-            final URI uri = this.httpMethod.getURI();
-            // if uri have schema
-            if (uri.isAbsoluteURI()) {
-                return getEndpoint(uri.getHost(), uri.getPort());
-            }
-            if (this.httpConnection != null) {
-                final String host = this.httpConnection.getHost();
-                final int port = getPort(this.httpConnection);
-                return getEndpoint(host, port);
-            }
-        } catch (Exception e) {
-            if (isDebug) {
-                logger.debug("Failed to get host. httpMethod={}", this.httpMethod, e);
-            }
-        }
-        return null;
-    }
 
     @Override
     public String getDestinationId() {
@@ -119,14 +91,14 @@ public class HttpClient3RequestWrapper implements ClientRequestWrapper {
         return null;
     }
 
-    private static String getEndpoint(final String host, final int port) {
+    public static String getEndpoint(final String host, final int port) {
         if (host == null) {
             return "Unknown";
         }
         return HostAndPort.toHostAndPortString(host, HostAndPort.getPortOrNoPort(port));
     }
 
-    private static int getPort(final HttpConnection httpConnection) {
+    public static int getPort(final HttpConnection httpConnection) {
         if (httpConnection == null) {
             return SKIP_DEFAULT_PORT;
         }

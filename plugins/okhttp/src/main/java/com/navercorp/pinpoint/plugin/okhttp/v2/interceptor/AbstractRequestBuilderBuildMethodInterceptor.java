@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,8 +25,10 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-import com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpClientRequestBuilderWrapper;
+import com.navercorp.pinpoint.plugin.okhttp.v2.RequestBuilder2ClientHeaderAdaptor;
 import com.squareup.okhttp.Request;
 
 /**
@@ -39,11 +41,15 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
     protected final TraceContext traceContext;
     protected final MethodDescriptor methodDescriptor;
     protected final InterceptorScope interceptorScope;
+    protected final RequestTraceWriter<Request.Builder> requestTraceWriter;
 
     public AbstractRequestBuilderBuildMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
+
+        ClientHeaderAdaptor<Request.Builder> clientHeaderAdaptor = new RequestBuilder2ClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<Request.Builder>(clientHeaderAdaptor, traceContext);
     }
 
     abstract String toHost(Object target);
@@ -67,9 +73,7 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
             final Request.Builder builder = ((Request.Builder) target);
             if (!trace.canSampled()) {
                 if (builder != null) {
-                    final String host = toHost(target);
-                    final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderWrapper(builder, host));
-                    requestTraceWriter.write();
+                    this.requestTraceWriter.write(builder);
                 }
                 return;
             }
@@ -85,8 +89,7 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
 
             final TraceId nextId = (TraceId) attachment;
             final String host = toHost(target);
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new OkHttpClientRequestBuilderWrapper(builder, host));
-            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
+            this.requestTraceWriter.write(builder, nextId, host);
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }

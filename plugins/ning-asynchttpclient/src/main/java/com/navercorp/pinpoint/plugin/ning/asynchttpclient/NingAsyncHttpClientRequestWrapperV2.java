@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,21 +47,6 @@ public class NingAsyncHttpClientRequestWrapperV2 implements ClientRequestWrapper
         this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest must not be null");
     }
 
-    @Override
-    public void setHeader(final String name, final String value) {
-        final HttpHeaders httpRequestHeaders = httpRequest.getHeaders();
-        if (httpRequestHeaders != null) {
-            httpRequestHeaders.set(name, value);
-            if (isDebug) {
-                logger.debug("Set header {}={}", name, value);
-            }
-        }
-    }
-
-    @Override
-    public String getHost() {
-        return EndPointUtils.getEndPoint(httpRequest.getUrl(), null);
-    }
 
     @Override
     public String getDestinationId() {
