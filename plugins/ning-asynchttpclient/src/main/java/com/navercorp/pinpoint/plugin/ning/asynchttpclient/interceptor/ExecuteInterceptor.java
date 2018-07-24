@@ -23,11 +23,15 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.EndPointUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientConstants;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientRequestWrapperV2;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.RequestHeaderAdaptorV2;
 import org.asynchttpclient.Request;
 
 /**
@@ -41,12 +45,16 @@ public class ExecuteInterceptor implements AroundInterceptor {
     private final MethodDescriptor descriptor;
 
     private final ClientRequestRecorder clientRequestRecorder;
+    private final RequestTraceWriter<Request> requestTraceWriter;
 
     public ExecuteInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         final NingAsyncHttpClientPluginConfig config = new NingAsyncHttpClientPluginConfig(traceContext.getProfilerConfig());
         this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+
+        ClientHeaderAdaptor<Request> clientHeaderAdaptor = new RequestHeaderAdaptorV2();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<Request>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -68,8 +76,7 @@ public class ExecuteInterceptor implements AroundInterceptor {
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if (httpRequest != null) {
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NingAsyncHttpClientRequestWrapperV2(httpRequest));
-                requestTraceWriter.write();
+                this.requestTraceWriter.write(httpRequest);
             }
             return;
         }
@@ -80,10 +87,15 @@ public class ExecuteInterceptor implements AroundInterceptor {
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
         if (httpRequest != null) {
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NingAsyncHttpClientRequestWrapperV2(httpRequest));
-            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
+            String host = getHost(httpRequest);
+            this.requestTraceWriter.write(httpRequest, nextId, host);
         }
     }
+
+    private String getHost(Request httpRequest) {
+        return EndPointUtils.getEndPoint(httpRequest.getUrl(), null);
+    }
+
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {

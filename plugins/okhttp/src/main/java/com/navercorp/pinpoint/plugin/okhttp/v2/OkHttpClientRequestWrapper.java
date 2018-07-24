@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,16 +33,6 @@ public class OkHttpClientRequestWrapper implements ClientRequestWrapper {
 
     public OkHttpClientRequestWrapper(final Request request) {
         this.request = Assert.requireNonNull(request, "request must not be null");
-    }
-
-    @Override
-    public void setHeader(final String name, final String value) {
-        throw new UnsupportedOperationException("Must be used only in the HttpEngineSendRequestMethodInterceptor class");
-    }
-
-    @Override
-    public String getHost() {
-        return null;
     }
 
     @Override

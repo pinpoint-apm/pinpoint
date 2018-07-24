@@ -17,36 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClientRequestWrapper {
-
-    /**
-     * The DestinationId is logical name of the destination.
-     * <p>
-     *
-     * @return If the value does not exist, it should return "Unknown".
-     */
-    String getDestinationId();
-
-    /**
-     * URL
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getUrl();
-
-    /**
-     * Entity
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getEntityValue();
-
-    /**
-     * Cookie
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getCookieValue();
+public interface ClientHeaderAdaptor<T> {
+    void setHeader(T request, String name, String value);
 }

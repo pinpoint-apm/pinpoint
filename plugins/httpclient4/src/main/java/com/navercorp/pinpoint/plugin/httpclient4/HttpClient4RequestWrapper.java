@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,28 +50,13 @@ public class HttpClient4RequestWrapper implements ClientRequestWrapper {
         this.port = port;
     }
 
-    @Override
-    public void setHeader(final String name, final String value) {
-        this.httpRequest.setHeader(name, value);
-        if (isDebug) {
-            logger.debug("Set header {}={}", name, value);
-        }
-    }
-
-    @Override
-    public String getHost() {
-        if (this.hostName != null) {
-            return getEndpoint(this.hostName, this.port);
-        }
-        return null;
-    }
 
     @Override
     public String getDestinationId() {
         return getEndpoint(this.hostName, this.port);
     }
 
-    private String getEndpoint(final String host, final int port) {
+    public static String getEndpoint(final String host, final int port) {
         if (host == null) {
             return "Unknown";
         }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,11 +20,13 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.plugin.vertx.HttpClientRequestClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
-import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestWrapper;
 import io.vertx.core.http.HttpClientRequest;
 
 /**
@@ -36,10 +38,14 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
+    private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
 
     public HttpClientImplDoRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
+
+        ClientHeaderAdaptor<HttpClientRequest> clientHeaderAdaptor = new HttpClientRequestClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpClientRequest>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -79,8 +85,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
 
         if (!trace.canSampled()) {
             if (request != null) {
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestWrapper(request));
-                requestTraceWriter.write();
+                requestTraceWriter.write(request);
             }
             return;
         }

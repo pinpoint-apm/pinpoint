@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,11 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.plugin.vertx.HttpRequestClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestWrapper;
@@ -37,6 +40,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
     private final ClientRequestRecorder clientRequestRecorder;
+    private final RequestTraceWriter<HttpRequest> requestTraceWriter;
 
     public HttpClientStreamInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
@@ -44,6 +48,9 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
 
         final VertxHttpClientConfig config = new VertxHttpClientConfig(traceContext.getProfilerConfig());
         this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+
+        ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequestClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpRequest>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -74,8 +81,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
 
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new VertxHttpClientRequestWrapper(request, host));
-            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
+            requestTraceWriter.write(request, nextId, host);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
