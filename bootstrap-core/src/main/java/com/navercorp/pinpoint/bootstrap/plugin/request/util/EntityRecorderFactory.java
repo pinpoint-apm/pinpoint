@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.bootstrap.plugin.request.util;
+
+import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ClientHeaderAdaptor<T> {
-    void setHeader(T header, String name, String value);
+public class EntityRecorderFactory {
+
+    public static <T> EntityRecorder<T> newEntityRecorder(HttpDumpConfig httpDumpConfig, EntityExtractor<T> extractor) {
+        Assert.requireNonNull(httpDumpConfig, "httpDumpConfig must not be null");
+
+        if (!httpDumpConfig.isDumpEntity()) {
+            return new DisableEntityRecorder<T>();
+        }
+        return new DefaultEntityRecorder<T>(httpDumpConfig, extractor);
+    }
 }

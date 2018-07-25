@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 public class DisableParameterRecorder<T> implements ParameterRecorder<T> {
 
     @Override
-    public void recordParameter(SpanEventRecorder spanRecorder, T request) {
+    public void record(SpanEventRecorder spanRecorder, T request, Throwable throwable) {
 
     }
 }

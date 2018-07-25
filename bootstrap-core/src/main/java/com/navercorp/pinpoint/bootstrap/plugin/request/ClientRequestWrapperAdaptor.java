@@ -17,23 +17,19 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClientRequestWrapper {
+public class ClientRequestWrapperAdaptor implements ClientRequestAdaptor<ClientRequestWrapper> {
 
-    /**
-     * The DestinationId is logical name of the destination.
-     * <p>
-     *
-     * @return If the value does not exist, it should return "Unknown".
-     */
-    String getDestinationId();
+    public static final ClientRequestAdaptor<ClientRequestWrapper> INSTANCE = new ClientRequestWrapperAdaptor();
 
-    /**
-     * URL
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getUrl();
+    @Override
+    public String getDestinationId(ClientRequestWrapper request) {
+        return request.getDestinationId();
+    }
 
+    @Override
+    public String getUrl(ClientRequestWrapper request) {
+        return request.getUrl();
+    }
 }

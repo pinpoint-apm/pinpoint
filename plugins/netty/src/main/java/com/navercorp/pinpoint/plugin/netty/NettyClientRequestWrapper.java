@@ -61,13 +61,4 @@ public class NettyClientRequestWrapper implements ClientRequestWrapper {
         return null;
     }
 
-    @Override
-    public String getEntityValue() {
-        return null;
-    }
-
-    @Override
-    public String getCookieValue() {
-        return null;
-    }
 }

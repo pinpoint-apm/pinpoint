@@ -55,20 +55,5 @@ public class VertxHttpClientRequestWrapper implements ClientRequestWrapper {
         return this.httpRequest.uri();
     }
 
-    @Override
-    public String getEntityValue() {
-        return null;
-    }
 
-    @Override
-    public String getCookieValue() {
-        final HttpHeaders headers = this.httpRequest.headers();
-        if (headers != null) {
-            final String cookie = headers.get("Cookie");
-            if (StringUtils.hasLength(cookie)) {
-                return cookie;
-            }
-        }
-        return null;
-    }
 }

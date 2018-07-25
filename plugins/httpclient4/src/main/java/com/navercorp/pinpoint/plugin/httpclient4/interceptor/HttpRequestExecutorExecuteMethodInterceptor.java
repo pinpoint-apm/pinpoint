@@ -19,13 +19,20 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4CookieExtractor;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4RequestWrapper;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpRequest4ClientHeaderAdaptor;
@@ -59,7 +66,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     private final boolean statusCode;
     private final InterceptorScope interceptorScope;
     private final boolean io;
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
+    private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
 
     public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
@@ -68,7 +76,13 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         this.interceptorScope = interceptorScope;
 
         final HttpClient4PluginConfig profilerConfig = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
-        this.clientRequestRecorder = new ClientRequestRecorder(profilerConfig.isParam(), profilerConfig.getHttpDumpConfig());
+
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(profilerConfig.isParam(), clientRequestAdaptor);
+
+        CookieExtractor<HttpRequest> cookieExtractor = HttpClient4CookieExtractor.INSTANCE;
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(profilerConfig.getHttpDumpConfig(), cookieExtractor);
+
         this.statusCode = profilerConfig.isStatusCode();
         this.io = profilerConfig.isIo();
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
@@ -151,7 +165,9 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             final HttpRequest httpRequest = getHttpRequest(args);
             final NameIntValuePair<String> host = getHost();
             if (httpRequest != null) {
-                this.clientRequestRecorder.record(recorder, new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()), throwable);
+                ClientRequestWrapper clientRequest = new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue());
+                this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+                this.cookieRecorder.record(recorder, httpRequest, throwable);
             }
 
             if (statusCode) {

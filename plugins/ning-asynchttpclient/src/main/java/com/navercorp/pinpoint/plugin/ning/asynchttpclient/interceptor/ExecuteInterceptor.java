@@ -24,13 +24,22 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.EndPointUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientConstants;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
-import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientRequestWrapperV2;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientRequestAdaptorV2;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingCookieExtractorV2;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingEntityExtractorV2;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.RequestHeaderAdaptorV2;
 import org.asynchttpclient.Request;
 
@@ -44,14 +53,24 @@ public class ExecuteInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
 
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<Request> clientRequestRecorder;
     private final RequestTraceWriter<Request> requestTraceWriter;
+    private final CookieRecorder<Request> cookieRecorder;
+    private final EntityRecorder<Request> entityRecorder;
 
     public ExecuteInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         final NingAsyncHttpClientPluginConfig config = new NingAsyncHttpClientPluginConfig(traceContext.getProfilerConfig());
-        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+
+        ClientRequestAdaptor<Request> clientRequestAdaptor = new NingAsyncHttpClientRequestAdaptorV2();
+        this.clientRequestRecorder = new ClientRequestRecorder<Request>(config.isParam(), clientRequestAdaptor);
+
+        CookieExtractor<Request> cookieExtractor = NingCookieExtractorV2.INSTANCE;
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
+
+        EntityExtractor<Request> entityExtractor = NingEntityExtractorV2.INSTANCE;
+        this.entityRecorder = EntityRecorderFactory.newEntityRecorder(config.getHttpDumpConfig(), entityExtractor);
 
         ClientHeaderAdaptor<Request> clientHeaderAdaptor = new RequestHeaderAdaptorV2();
         this.requestTraceWriter = new DefaultRequestTraceWriter<Request>(clientHeaderAdaptor, traceContext);
@@ -118,7 +137,9 @@ public class ExecuteInterceptor implements AroundInterceptor {
             final Request httpRequest = (Request) args[0];
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                this.clientRequestRecorder.record(recorder, new NingAsyncHttpClientRequestWrapperV2(httpRequest), throwable);
+                this.clientRequestRecorder.record(recorder, httpRequest, throwable);
+                this.cookieRecorder.record(recorder, httpRequest, throwable);
+                this.entityRecorder.record(recorder, httpRequest, throwable);
             }
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);

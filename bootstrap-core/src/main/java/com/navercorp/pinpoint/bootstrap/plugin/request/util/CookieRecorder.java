@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.bootstrap.plugin.request.util;
+
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClientRequestWrapper {
-
-    /**
-     * The DestinationId is logical name of the destination.
-     * <p>
-     *
-     * @return If the value does not exist, it should return "Unknown".
-     */
-    String getDestinationId();
-
-    /**
-     * URL
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getUrl();
-
+public interface CookieRecorder<T> {
+    void record(final SpanEventRecorder recorder, final T cookie, final Throwable throwable);
 }

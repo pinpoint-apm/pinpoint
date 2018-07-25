@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.okhttp.v2;
 
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.squareup.okhttp.Request;
 
@@ -28,15 +26,13 @@ import java.net.URL;
 /**
  * @author jaehong.kim
  */
-public class OkHttpClientRequestWrapper implements ClientRequestWrapper {
-    private final Request request;
+public class OkHttpClientRequestAdaptor implements ClientRequestAdaptor<Request> {
 
-    public OkHttpClientRequestWrapper(final Request request) {
-        this.request = Assert.requireNonNull(request, "request must not be null");
+    public OkHttpClientRequestAdaptor() {
     }
 
     @Override
-    public String getDestinationId() {
+    public String getDestinationId(Request request) {
         final URL httpUrl = request.url();
         if (httpUrl == null || httpUrl.getHost() == null) {
             return "Unknown";
@@ -46,22 +42,9 @@ public class OkHttpClientRequestWrapper implements ClientRequestWrapper {
     }
 
     @Override
-    public String getUrl() {
-        return this.request.urlString();
+    public String getUrl(Request request) {
+        return request.urlString();
     }
 
-    @Override
-    public String getEntityValue() {
-        return null;
-    }
 
-    @Override
-    public String getCookieValue() {
-        for (String cookie : request.headers("Cookie")) {
-            if (StringUtils.hasLength(cookie)) {
-                return cookie;
-            }
-        }
-        return null;
-    }
 }

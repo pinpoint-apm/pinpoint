@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.plugin.okhttp.v2;
+
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import com.squareup.okhttp.Request;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClientRequestWrapper {
-
-    /**
-     * The DestinationId is logical name of the destination.
-     * <p>
-     *
-     * @return If the value does not exist, it should return "Unknown".
-     */
-    String getDestinationId();
-
-    /**
-     * URL
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getUrl();
+public class OkHttpCookieExtractor implements CookieExtractor<Request> {
+    @Override
+    public String getCookie(Request request) {
+        for (String cookie : request.headers("Cookie")) {
+            if (StringUtils.hasLength(cookie)) {
+                return cookie;
+            }
+        }
+        return null;
+    }
 
 }

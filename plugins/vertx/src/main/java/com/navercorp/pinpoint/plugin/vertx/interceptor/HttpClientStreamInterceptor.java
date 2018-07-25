@@ -20,11 +20,18 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
 import com.navercorp.pinpoint.plugin.vertx.HttpRequestClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
+import com.navercorp.pinpoint.plugin.vertx.VertxCookieExtractor;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestWrapper;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -39,7 +46,8 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
+    private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
 
     public HttpClientStreamInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
@@ -47,7 +55,11 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
         this.descriptor = descriptor;
 
         final VertxHttpClientConfig config = new VertxHttpClientConfig(traceContext.getProfilerConfig());
-        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(config.isParam(), clientRequestAdaptor);
+
+        CookieExtractor<HttpRequest> cookieExtractor = new VertxCookieExtractor();
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
 
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequestClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<HttpRequest>(clientHeaderAdaptor, traceContext);
@@ -136,7 +148,9 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             }
 
             final String host = (String) args[1];
-            this.clientRequestRecorder.record(recorder, new VertxHttpClientRequestWrapper(request, host), throwable);
+            ClientRequestWrapper clientRequest = new VertxHttpClientRequestWrapper(request, host);
+            this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+            this.cookieRecorder.record(recorder, request, throwable);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", t.getMessage(), t);

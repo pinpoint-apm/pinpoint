@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClientRequestWrapper {
-
+public interface CookieExtractor<T> {
     /**
-     * The DestinationId is logical name of the destination.
-     * <p>
-     *
-     * @return If the value does not exist, it should return "Unknown".
-     */
-    String getDestinationId();
-
-    /**
-     * URL
+     * Cookie
      *
      * @return If the value does not exist, it should return null.
      */
-    String getUrl();
-
+    String getCookie(T request);
 }

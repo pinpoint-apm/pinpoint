@@ -23,5 +23,5 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
  * @author Woonduk Kang(emeroad)
  */
 public interface ParameterRecorder<T> {
-    void recordParameter(SpanEventRecorder spanRecorder, T request);
+    void record(SpanEventRecorder spanRecorder, T request, Throwable throwable);
 }

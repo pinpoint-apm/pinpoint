@@ -29,13 +29,16 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.HttpURLConnectionClientHeaderAdaptor;
-import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientRequestWrapper;
+import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientRequestAdaptor;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
 
@@ -51,7 +54,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorScope scope;
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<HttpURLConnection> clientRequestRecorder;
 
     private final RequestTraceWriter<HttpURLConnection> requestTraceWriter;
 
@@ -61,7 +64,9 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
         this.scope = scope;
 
         final JdkHttpPluginConfig config = new JdkHttpPluginConfig(traceContext.getProfilerConfig());
-        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+
+        ClientRequestAdaptor<HttpURLConnection> clientRequestAdaptor = new JdkHttpClientRequestAdaptor();
+        this.clientRequestRecorder = new ClientRequestRecorder<HttpURLConnection>(config.isParam(), clientRequestAdaptor);
 
         ClientHeaderAdaptor<HttpURLConnection> clientHeaderAdaptor = new HttpURLConnectionClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<HttpURLConnection>(clientHeaderAdaptor, traceContext);
@@ -119,7 +124,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
             final String host = url.getHost();
             final int port = url.getPort();
             if (host != null) {
-                return JdkHttpClientRequestWrapper.getEndpoint(host, port);
+                return JdkHttpClientRequestAdaptor.getEndpoint(host, port);
             }
         }
         return null;
@@ -148,7 +153,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
             recorder.recordException(throwable);
             final HttpURLConnection request = (HttpURLConnection) target;
             if (request != null) {
-                this.clientRequestRecorder.record(recorder, new JdkHttpClientRequestWrapper(request), throwable);
+                this.clientRequestRecorder.record(recorder, request, throwable);
             }
         } finally {
             trace.traceBlockEnd();
