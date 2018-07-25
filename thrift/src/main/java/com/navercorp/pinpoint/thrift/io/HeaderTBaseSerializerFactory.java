@@ -93,14 +93,18 @@ public final class HeaderTBaseSerializerFactory implements SerializerFactory<Hea
 
     @Override
     public HeaderTBaseSerializer createSerializer() {
+        ResettableByteArrayOutputStream baos = createResettableByteArrayOutputStream();
+        return new HeaderTBaseSerializer(baos, protocolFactory, locator);
+    }
+
+    public ResettableByteArrayOutputStream createResettableByteArrayOutputStream() {
         ResettableByteArrayOutputStream baos = null;
         if (safetyGuaranteed) {
             baos = new PinpointByteArrayOutputStream(outputStreamSize, autoExpand);
         } else {
             baos = new UnsafeByteArrayOutputStream(outputStreamSize, autoExpand);
         }
-
-        return new HeaderTBaseSerializer(baos, protocolFactory, locator);
+        return baos;
     }
 
     @Override

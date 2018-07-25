@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.function.Timestamp;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoFliter;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
-import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.flink.vo.RawData;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -53,7 +53,7 @@ public class StatStreamingVer2Job implements Serializable {
         // set data source
         final TcpSourceFunction tcpSourceFunction = bootstrap.getTcpSourceFunction();
         final StreamExecutionEnvironment env = bootstrap.createStreamExecutionEnvironment();
-        DataStreamSource<ServerRequest> rawData = env.addSource(tcpSourceFunction);
+        DataStreamSource<RawData> rawData = env.addSource(tcpSourceFunction);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         bootstrap.setSourceFunctionParallel(rawData);
 

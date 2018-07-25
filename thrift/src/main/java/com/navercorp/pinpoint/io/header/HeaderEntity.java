@@ -13,21 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.cluster.flink;
+package com.navercorp.pinpoint.io.header;
 
-import com.navercorp.pinpoint.io.header.HeaderDataGenerator;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
-public class DefaultCustomHeadergenerator implements HeaderDataGenerator {
+public class HeaderEntity {
+    public static final HeaderEntity EMPTY_HEADER_ENTITY = new HeaderEntity(new HashMap<String, String>(0));
 
-    @Override
-    public Map<String, String> generate() {
-        return new HashMap<String, String>();
+    private final Map<String, String> entity;
+
+    public HeaderEntity(Map<String,String> headerEntityData) {
+        if (headerEntityData == null) {
+            throw new NullPointerException("headerEntityData must not be null.");
+        }
+
+        this.entity = Collections.unmodifiableMap(headerEntityData);
     }
 
+    public String getEntity(String key) {
+        return entity.get(key);
+    }
+
+    public Map<String, String> getEntityAll() {
+        return entity;
+    }
 }

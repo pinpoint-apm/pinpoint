@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.TFAgentStatBatchMapper;
+import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class SendAgentStatService implements AgentStatService {
     private final boolean flinkClusterEnable;
     private final TFAgentStatBatchMapper tFAgentStatBatchMapper = new TFAgentStatBatchMapper();
 
-    private volatile List<TcpDataSender> flinkServerList = new CopyOnWriteArrayList<>();
+    private volatile List<FlinkTcpDataSender> flinkTcpDataSenderList = new CopyOnWriteArrayList<>();
     private AtomicInteger callCount = new AtomicInteger(1);
 
     public SendAgentStatService(CollectorConfiguration config) {
@@ -52,10 +52,10 @@ public class SendAgentStatService implements AgentStatService {
         }
 
         try {
-            TcpDataSender tcpDataSender = roundRobinTcpDataSender();
+            FlinkTcpDataSender tcpDataSender = roundRobinTcpDataSender();
 
             if (tcpDataSender == null) {
-                logger.warn("not send flink server. Because TcpDataSender is null");
+                logger.warn("not send flink server. Because FlinkTcpDataSender is null");
                 return;
             }
 
@@ -71,13 +71,13 @@ public class SendAgentStatService implements AgentStatService {
         }
     }
 
-    private TcpDataSender roundRobinTcpDataSender() {
-        if (flinkServerList.isEmpty()) {
+    private FlinkTcpDataSender roundRobinTcpDataSender() {
+        if (flinkTcpDataSenderList.isEmpty()) {
             return null;
         }
 
         int count = callCount.getAndIncrement();
-        int tcpDataSenderIndex = count % flinkServerList.size();
+        int tcpDataSenderIndex = count % flinkTcpDataSenderList.size();
 
         if (tcpDataSenderIndex < 0) {
             tcpDataSenderIndex = tcpDataSenderIndex * -1;
@@ -85,15 +85,15 @@ public class SendAgentStatService implements AgentStatService {
         }
 
         try {
-            return flinkServerList.get(tcpDataSenderIndex);
+            return flinkTcpDataSenderList.get(tcpDataSenderIndex);
         } catch (Exception e) {
-            logger.warn("not get TcpDataSender", e);
+            logger.warn("not get FlinkTcpDataSender", e);
         }
 
         return null;
     }
 
-    public void replaceFlinkServerList(List<TcpDataSender> flinkServerList) {
-        this.flinkServerList = new CopyOnWriteArrayList<>(flinkServerList);
+    public void replaceFlinkTcpDataSenderList(List<FlinkTcpDataSender> flinkTcpDataSenderList) {
+        this.flinkTcpDataSenderList = new CopyOnWriteArrayList<FlinkTcpDataSender>(flinkTcpDataSenderList);
     }
 }

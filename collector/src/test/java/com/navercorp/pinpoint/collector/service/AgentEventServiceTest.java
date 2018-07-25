@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
@@ -146,7 +148,7 @@ public class AgentEventServiceTest {
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
         when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
-        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short)1000), expectedThreadDumpResponse);
+        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short)1000), HeaderEntity.EMPTY_HEADER_ENTITY, expectedThreadDumpResponse);
         when(deserializer.deserialize(expectedThreadDumpResponseBody)).thenReturn(message);
         // when
         this.agentEventService.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);
@@ -180,7 +182,7 @@ public class AgentEventServiceTest {
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
         when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
-        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short)1000), mismatchingResponse);
+        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short)1000), HeaderEntity.EMPTY_HEADER_ENTITY, mismatchingResponse);
         when(deserializer.deserialize(mismatchingResponseBody)).thenReturn(message);
         // when
         this.agentEventService.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);

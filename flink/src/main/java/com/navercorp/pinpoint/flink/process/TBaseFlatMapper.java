@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.Bootstrap;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
-import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.flink.vo.RawData;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class TBaseFlatMapper extends RichFlatMapFunction<ServerRequest, Tuple3<String, JoinStatBo, Long>> {
+public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String, JoinStatBo, Long>> {
     private final static List<Tuple3<String, JoinStatBo, Long>> EMPTY_LIST = Collections.emptyList();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -64,8 +64,8 @@ public class TBaseFlatMapper extends RichFlatMapFunction<ServerRequest, Tuple3<S
     }
 
     @Override
-    public void flatMap(ServerRequest serverRequest, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
-        final Object data = serverRequest.getData();
+    public void flatMap(RawData rawData, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
+        final Object data = rawData.getData();
         if (!(data instanceof TBase)) {
             logger.error("data is not TBase type {}", data);
             return;
@@ -73,7 +73,7 @@ public class TBaseFlatMapper extends RichFlatMapFunction<ServerRequest, Tuple3<S
 
         TBase tBase = (TBase) data;
 
-        tBaseFlatMapperInterceptor.before(serverRequest);
+        tBaseFlatMapperInterceptor.before(rawData);
 
         try {
             List<Tuple3<String, JoinStatBo, Long>> outData = serverRequestFlatMap(tBase);

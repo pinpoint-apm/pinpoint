@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.io.header.HeaderDataGenerator;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.util.BodyFactory;
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author minwoo.jung
@@ -39,19 +39,13 @@ public class FlinkTBaseLocator {
     public static final short AGENT_STAT_BATCH = 1000;
 
     private final byte version;
-    private final HeaderDataGenerator headerDataGenerator;
     private final TypeLocator<TBase<?, ?>> typeLocator;
 
-    public FlinkTBaseLocator(byte version, HeaderDataGenerator headerDataGenerator) {
+    public FlinkTBaseLocator(byte version) {
         if (version != HeaderV1.VERSION && version != HeaderV2.VERSION) {
             throw new IllegalArgumentException(String.format("could not select match header version. : 0x%02X", version));
         }
         this.version = version;
-
-        if (headerDataGenerator == null) {
-            throw new NullPointerException("headerDataGenerator must not be null.");
-        }
-        this.headerDataGenerator = headerDataGenerator;
         this.typeLocator = newTypeLocator();
     }
 
@@ -65,57 +59,11 @@ public class FlinkTBaseLocator {
             }
         });
 
-        TypeLocator<TBase<?, ?>> typeLocator = typeLocatorBuilder.build();
-
-        if (version == HeaderV2.VERSION) {
-            typeLocator = new FlinkTypeLocator(typeLocator);
-        }
-
-        return typeLocator;
+        return typeLocatorBuilder.build();
     }
 
     public TypeLocator<TBase<?, ?>> getTypeLocator() {
         return typeLocator;
-    }
-
-    public class FlinkTypeLocator implements TypeLocator<TBase<?, ?>> {
-
-        private final TypeLocator<TBase<?, ?>> delegate;
-
-        public FlinkTypeLocator(TypeLocator<TBase<?, ?>> original) {
-            if (original == null) {
-                throw new NullPointerException("TypeLocator must not be null");
-            }
-
-            delegate = original;
-        }
-
-        @Override
-        public TBase<?, ?> bodyLookup(short type) {
-            return delegate.bodyLookup(type);
-        }
-
-        @Override
-        public Header headerLookup(TBase<?, ?> body) {
-            Header header = delegate.headerLookup(body);
-            return new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), headerDataGenerator.generate());
-        }
-
-        @Override
-        public Header headerLookup(short type) {
-            Header header = delegate.headerLookup(type);
-            return new HeaderV2(header.getSignature(), header.getVersion(), header.getType(), headerDataGenerator.generate());
-        }
-
-        @Override
-        public boolean isSupport(short type) {
-            return delegate.isSupport(type);
-        }
-
-        @Override
-        public boolean isSupport(Class<? extends TBase<?, ?>> clazz) {
-            return delegate.isSupport(clazz);
-        }
     }
 
     public class FlinkHeaderFactory implements HeaderFactory {
@@ -123,24 +71,24 @@ public class FlinkTBaseLocator {
         public Header newHeader(short type) {
             return createHeader(type);
         }
-    };
 
-    private Header createHeader(short type) {
-        if (version == HeaderV1.VERSION) {
-            return createHeaderV1(type);
-        } else if (version == HeaderV2.VERSION) {
-            return createHeaderV2(type);
+        private Header createHeader(short type) {
+            if (version == HeaderV1.VERSION) {
+                return createHeaderV1(type);
+            } else if (version == HeaderV2.VERSION) {
+                return createHeaderV2(type);
+            }
+
+            throw new IllegalArgumentException("unsupported Header version : " + version);
         }
 
-        throw new IllegalArgumentException("unsupported Header version : " + version);
-    }
+        private Header createHeaderV1(short type) {
+            return new HeaderV1(type);
+        }
 
-    private Header createHeaderV1(short type) {
-        return new HeaderV1(type);
-    }
-
-    private Header createHeaderV2(short type) {
-        return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type, Collections.EMPTY_MAP);
-    }
+        private Header createHeaderV2(short type) {
+            return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type);
+        }
+    };
 
 }

@@ -17,11 +17,12 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
+import org.apache.thrift.protocol.TProtocolFactory;
 
 /**
  * @author minwoo.jung
  */
-public class FlinkHeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
+public class FlinkHeaderTBaseSerializerFactory implements SerializerFactory<FlinkHeaderTBaseSerializer> {
 
     private final TypeLocator<TBase<?, ?>> tBaseLocator;
     private final HeaderTBaseSerializerFactory headerTBaseSerializerFactory;
@@ -31,13 +32,13 @@ public class FlinkHeaderTBaseSerializerFactory implements SerializerFactory<Head
             throw new NullPointerException("flinkTBaseLocator must not be null.");
         }
         tBaseLocator = flinkTBaseLocator;
-
         headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(tBaseLocator);
     }
 
-    @Override
-    public HeaderTBaseSerializer createSerializer() {
-        return headerTBaseSerializerFactory.createSerializer();
+    public FlinkHeaderTBaseSerializer createSerializer() {
+        ResettableByteArrayOutputStream baos = headerTBaseSerializerFactory.createResettableByteArrayOutputStream();
+        TProtocolFactory protocolFactory = headerTBaseSerializerFactory.getProtocolFactory();
+        return new FlinkHeaderTBaseSerializer(baos, protocolFactory, tBaseLocator);
     }
 
     @Override

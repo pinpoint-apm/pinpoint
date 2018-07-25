@@ -172,14 +172,12 @@
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="flinkHeaderDataGeneratorDelegator" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkHeaderDataGeneratorDelegator"/>
     <bean id="flinkTBaseLocator" class="com.navercorp.pinpoint.thrift.io.FlinkTBaseLocator">
         <constructor-arg index="0">
             <util:constant static-field="com.navercorp.pinpoint.io.header.v2.HeaderV2.VERSION"/>
         </constructor-arg>
-        <constructor-arg index="1" ref="flinkHeaderDataGeneratorDelegator"/>
     </bean>
-    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
+    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory">
         <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
     <bean id="flinkHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory">
