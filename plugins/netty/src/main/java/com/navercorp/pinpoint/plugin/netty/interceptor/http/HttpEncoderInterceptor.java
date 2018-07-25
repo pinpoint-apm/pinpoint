@@ -29,7 +29,10 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.netty.NettyClientRequestWrapper;
@@ -52,7 +55,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     protected final MethodDescriptor methodDescriptor;
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpMessage> requestTraceWriter;
 
     public HttpEncoderInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
@@ -66,7 +69,9 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         final NettyConfig config = new NettyConfig(traceContext.getProfilerConfig());
-        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(config.isParam(), clientRequestAdaptor);
         ClientHeaderAdaptor<HttpMessage> clientHeaderAdaptor = new HttpMessageClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<HttpMessage>(clientHeaderAdaptor, traceContext);
     }

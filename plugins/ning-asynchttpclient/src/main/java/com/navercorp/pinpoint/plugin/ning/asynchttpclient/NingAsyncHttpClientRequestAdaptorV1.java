@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
+
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
+import com.ning.http.client.Request;
 
 /**
  * @author jaehong.kim
  */
-public interface ClientRequestWrapper {
+public class NingAsyncHttpClientRequestAdaptorV1 implements ClientRequestAdaptor<Request> {
 
-    /**
-     * The DestinationId is logical name of the destination.
-     * <p>
-     *
-     * @return If the value does not exist, it should return "Unknown".
-     */
-    String getDestinationId();
+    public NingAsyncHttpClientRequestAdaptorV1() {
+    }
 
-    /**
-     * URL
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getUrl();
+
+    @Override
+    public String getDestinationId(Request request) {
+        return EndPointUtils.getEndPoint(request.getUrl(), "Unknown");
+    }
+
+    @Override
+    public String getUrl(Request request) {
+        return request.getUrl();
+    }
+
+
 
 }

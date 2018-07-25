@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.okhttp.v3;
 
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -28,16 +27,14 @@ import java.net.URL;
 /**
  * @author jaehong.kim
  */
-public class OkHttpClientRequestWrapper implements ClientRequestWrapper {
-    private final Request request;
+public class OkHttpClientRequestAdaptor implements ClientRequestAdaptor<Request> {
 
-    public OkHttpClientRequestWrapper(final Request request) {
-        this.request = request;
+    public OkHttpClientRequestAdaptor() {
     }
 
 
     @Override
-    public String getDestinationId() {
+    public String getDestinationId(Request request) {
         final HttpUrl httpUrl = request.url();
         if (httpUrl != null) {
             URL url = httpUrl.url();
@@ -50,7 +47,7 @@ public class OkHttpClientRequestWrapper implements ClientRequestWrapper {
     }
 
     @Override
-    public String getUrl() {
+    public String getUrl(Request request) {
         final HttpUrl httpUrl = request.url();
         if (httpUrl != null) {
             return httpUrl.url().toString();
@@ -58,18 +55,4 @@ public class OkHttpClientRequestWrapper implements ClientRequestWrapper {
         return null;
     }
 
-    @Override
-    public String getEntityValue() {
-        return null;
-    }
-
-    @Override
-    public String getCookieValue() {
-        for (String cookie : request.headers("Cookie")) {
-            if (StringUtils.hasLength(cookie)) {
-                return cookie;
-            }
-        }
-        return null;
-    }
 }

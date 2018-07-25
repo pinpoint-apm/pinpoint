@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClientRequestWrapper {
+public interface ClientRequestAdaptor<T> {
 
     /**
      * The DestinationId is logical name of the destination.
@@ -27,13 +27,12 @@ public interface ClientRequestWrapper {
      *
      * @return If the value does not exist, it should return "Unknown".
      */
-    String getDestinationId();
+    String getDestinationId(T request);
 
     /**
      * URL
      *
      * @return If the value does not exist, it should return null.
      */
-    String getUrl();
-
+    String getUrl(T request);
 }

@@ -35,7 +35,7 @@ public class HttpParameterRecorder<T> implements ParameterRecorder<T> {
     }
 
     @Override
-    public void recordParameter(SpanEventRecorder spanRecorder, T request) {
+    public void record(SpanEventRecorder spanRecorder, T request, Throwable throwable) {
 
         final String parameters = parameterExtractor.extractParameter(request);
         if (StringUtils.hasLength(parameters)) {

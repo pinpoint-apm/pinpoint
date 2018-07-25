@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClientRequestWrapper {
-
+public interface EntityExtractor<T> {
     /**
-     * The DestinationId is logical name of the destination.
-     * <p>
-     *
-     * @return If the value does not exist, it should return "Unknown".
-     */
-    String getDestinationId();
-
-    /**
-     * URL
+     * Entity
      *
      * @return If the value does not exist, it should return null.
      */
-    String getUrl();
-
+    String getEntity(T request);
 }

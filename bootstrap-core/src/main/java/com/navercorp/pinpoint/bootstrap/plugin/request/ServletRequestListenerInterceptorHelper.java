@@ -142,7 +142,7 @@ public class ServletRequestListenerInterceptorHelper<T> {
             recorder.recordException(throwable);
             this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), statusCode);
             // Must be executed in destroyed()
-            this.parameterRecorder.recordParameter(recorder, request);
+            this.parameterRecorder.record(recorder, request, throwable);
         } finally {
             trace.traceBlockEnd();
             this.traceContext.removeTraceObject();

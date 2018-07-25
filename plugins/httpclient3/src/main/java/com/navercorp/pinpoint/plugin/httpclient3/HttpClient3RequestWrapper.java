@@ -39,7 +39,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
  */
 public class HttpClient3RequestWrapper implements ClientRequestWrapper {
     private static final int SKIP_DEFAULT_PORT = -1;
-    private static final int MAX_READ_SIZE = 1024;
+
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -129,60 +129,4 @@ public class HttpClient3RequestWrapper implements ClientRequestWrapper {
         return sb.toString();
     }
 
-    @Override
-    public String getEntityValue() {
-        if (httpMethod instanceof EntityEnclosingMethod) {
-            final EntityEnclosingMethod entityEnclosingMethod = (EntityEnclosingMethod) httpMethod;
-            final RequestEntity entity = entityEnclosingMethod.getRequestEntity();
-            if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
-                try {
-                    String entityValue;
-                    String charSet = entityEnclosingMethod.getRequestCharSet();
-                    if (StringUtils.isEmpty(charSet)) {
-                        charSet = HttpConstants.DEFAULT_CONTENT_CHARSET;
-                    }
-                    if (entity instanceof ByteArrayRequestEntity || entity instanceof StringRequestEntity) {
-                        entityValue = entityUtilsToString(entity, charSet);
-                    } else {
-                        entityValue = entity.getClass() + " (ContentType:" + entity.getContentType() + ")";
-                    }
-                    return entityValue;
-                } catch (Exception e) {
-                    if (isDebug) {
-                        logger.debug("Failed to get entity. httpMethod={}", this.httpMethod, e);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static String entityUtilsToString(final RequestEntity entity, final String charSet) throws Exception {
-        final FixedByteArrayOutputStream outStream = new FixedByteArrayOutputStream(MAX_READ_SIZE);
-        entity.writeRequest(outStream);
-        final String entityValue = outStream.toString(charSet);
-        if (entity.getContentLength() > MAX_READ_SIZE) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(entityValue);
-            sb.append(" (HTTP entity is large. length: ");
-            sb.append(entity.getContentLength());
-            sb.append(" )");
-            return sb.toString();
-        }
-
-        return entityValue;
-    }
-
-
-    @Override
-    public String getCookieValue() {
-        final org.apache.commons.httpclient.Header cookie = httpMethod.getRequestHeader("Cookie");
-        if (cookie != null) {
-            final String value = cookie.getValue();
-            if (StringUtils.hasLength(value)) {
-                return value;
-            }
-        }
-        return null;
-    }
 }

@@ -18,13 +18,23 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3EntityExtractor;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3RequestWrapper;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpMethodClientHeaderAdaptor;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CookieExtractor;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpMethod;
 
@@ -56,10 +66,12 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorScope interceptorScope;
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpMethod> requestTraceWriter;
 
     private final boolean io;
+    private final CookieRecorder<HttpMethod> cookieRecorder;
+    private final EntityRecorder<HttpMethod> entityRecorder;
 
     public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         if (traceContext == null) {
@@ -78,7 +90,15 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(traceContext.getProfilerConfig());
         final boolean param = config.isParam();
         final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
-        this.clientRequestRecorder = new ClientRequestRecorder(param, httpDumpConfig);
+
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(param, clientRequestAdaptor);
+
+        CookieExtractor<HttpMethod> cookieExtractor = HttpClient3CookieExtractor.INSTANCE;
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
+
+        EntityExtractor<HttpMethod> entityExtractor = HttpClient3EntityExtractor.INSTANCE;
+        this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
 
         ClientHeaderAdaptor<HttpMethod> clientHeaderAdaptor = new HttpMethodClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<HttpMethod>(clientHeaderAdaptor, traceContext);
@@ -170,6 +190,8 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                 final HttpConnection httpConnection = getHttpConnection(args);
                 final ClientRequestWrapper requestWrapper =  new HttpClient3RequestWrapper(httpMethod, httpConnection);
                 this.clientRequestRecorder.record(recorder, requestWrapper, throwable);
+                this.cookieRecorder.record(recorder, httpMethod, throwable);
+                this.entityRecorder.record(recorder, httpMethod, throwable);
             }
 
             if (result != null) {

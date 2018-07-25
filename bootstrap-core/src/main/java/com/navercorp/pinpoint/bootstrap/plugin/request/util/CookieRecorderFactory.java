@@ -14,11 +14,23 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.bootstrap.plugin.request.util;
+
+import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ClientHeaderAdaptor<T> {
-    void setHeader(T header, String name, String value);
+public class CookieRecorderFactory {
+
+
+    public static <T> CookieRecorder<T> newCookieRecorder(HttpDumpConfig httpDumpConfig, CookieExtractor<T> extractor) {
+        Assert.requireNonNull(httpDumpConfig, "httpDumpConfig must not be null");
+
+        if (!httpDumpConfig.isDumpCookie()) {
+            return new DisableCookieRecorder<T>();
+        }
+        return new DefaultCookieRecorder<T>(httpDumpConfig, extractor);
+    }
 }
