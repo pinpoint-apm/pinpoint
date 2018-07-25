@@ -273,20 +273,27 @@
         <constructor-arg ref="channelFilter"/>
     </bean>
 
-    <bean id="tcpReceiverExecutor" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean" >
-        <property name="corePoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
-        <property name="maxPoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
-        <property name="queueCapacity" value="#{baseDataReceiverConfig.workerQueueSize}"/>
-        <property name="threadNamePrefix" value="Pinpoint-AgentBaseDataReceiger-Worker"/>
+    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
+    <bean id="abstractReceiverExecutorFactoryBean" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" abstract="true">
+        <property name="rejectedExecutionHandler" ref="discardPolicy"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
         <property name="preStartAllCoreThreads" value="true"/>
+        <property name="logRate" value="100"/>
+    </bean>
+
+    <bean id="baseDataReceiverWorker" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+        <property name="corePoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
+        <property name="maxPoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
+        <property name="queueCapacity" value="#{baseDataReceiverConfig.workerQueueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AgentBaseDataReceiger-Worker"/>
+        <property name="registry" value="#{baseDataReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.AgentBaseDataReceiver" >
         <constructor-arg ref="baseDataReceiverConfig"/>
-        <constructor-arg ref="tcpReceiverExecutor"/>
+        <constructor-arg ref="baseDataReceiverWorker"/>
         <constructor-arg ref="acceptor"/>
         <constructor-arg ref="tcpDispatchHandlerFactoryBean"/>
         <constructor-arg ref="clusterService"/>
@@ -303,24 +310,13 @@
     <bean id="networkAvailabilityCheckPacketFilter" class="com.navercorp.pinpoint.collector.receiver.udp.NetworkAvailabilityCheckPacketFilter"/>
 
 
-
-    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
-    <bean id="abstractReceiverExecutorFactoryBean" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" abstract="true">
-        <property name="rejectedExecutionHandler" ref="discardPolicy"/>
-        <property name="daemon" value="true"/>
-        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
-        <property name="awaitTerminationSeconds" value="10"/>
-        <property name="preStartAllCoreThreads" value="true"/>
-        <property name="registry" value="#{spanReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
-        <property name="logRate" value="100"/>
-    </bean>
-
     <!-- span receiver configuration start -->
     <bean id="spanReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{spanReceiverConfig.workerThreadSize}"/>
         <property name="maxPoolSize" value="#{spanReceiverConfig.workerThreadSize}"/>
         <property name="queueCapacity" value="#{spanReceiverConfig.workerQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-Span-Worker-"/>
+        <property name="registry" value="#{spanReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
     <bean id="spanUdpReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
         <property name="bindIp" value="#{spanReceiverConfig.udpBindIp}"/>
@@ -363,6 +359,7 @@
         <property name="maxPoolSize" value="#{statReceiverConfig.workerThreadSize}"/>
         <property name="queueCapacity" value="#{statReceiverConfig.workerQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-Stat-Worker-"/>
+        <property name="registry" value="#{statReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
     <bean id="statUdpReceiver" class="com.navercorp.pinpoint.collector.receiver.UDPReceiverBean">
         <property name="bindIp" value="#{statReceiverConfig.udpBindIp}"/>
