@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,27 +41,6 @@ public class NettyClientRequestWrapper implements ClientRequestWrapper {
         this.channelHandlerContext = channelHandlerContext;
     }
 
-    @Override
-    public void setHeader(final String name, final String value) {
-        final HttpHeaders headers = this.httpMessage.headers();
-        if (headers != null && !headers.contains(name)) {
-            headers.set(name, value);
-            if (isDebug) {
-                logger.debug("Set header {}={}", name, value);
-            }
-        }
-    }
-
-    @Override
-    public String getHost() {
-        if (this.channelHandlerContext != null) {
-            final Channel channel = this.channelHandlerContext.channel();
-            if (channel != null) {
-                return NettyUtils.getEndPoint(channel.remoteAddress());
-            }
-        }
-        return null;
-    }
 
     @Override
     public String getDestinationId() {
@@ -82,13 +61,4 @@ public class NettyClientRequestWrapper implements ClientRequestWrapper {
         return null;
     }
 
-    @Override
-    public String getEntityValue() {
-        return null;
-    }
-
-    @Override
-    public String getCookieValue() {
-        return null;
-    }
 }

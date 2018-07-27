@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.plugin.dubbo;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -35,23 +36,25 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addTransformers() {
-        transformTemplate.transform("com.alibaba.dubbo.rpc.cluster.support.AbstractClusterInvoker", new TransformCallback() {
+        transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractInvoker", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation").addInterceptor("com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboConsumerInterceptor");
-
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
+                if (invokeMethod != null) {
+                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboConsumerInterceptor");
+                }
                 return target.toBytecode();
             }
         });
         transformTemplate.transform("com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation").addInterceptor("com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboProviderInterceptor");
-
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
+                if (invokeMethod != null) {
+                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboProviderInterceptor");
+                }
                 return target.toBytecode();
             }
         });

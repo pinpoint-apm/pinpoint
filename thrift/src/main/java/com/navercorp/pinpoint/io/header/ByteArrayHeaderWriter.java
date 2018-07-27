@@ -32,6 +32,7 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private final Header header;
     private final AutomaticBuffer buffer;
+    private final HeaderEntity headerEntity;
 
     public ByteArrayHeaderWriter(Header header) {
         if (header == null) {
@@ -40,6 +41,17 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
 
         this.buffer = new AutomaticBuffer(4);
         this.header = header;
+        this.headerEntity = HeaderEntity.EMPTY_HEADER_ENTITY;
+    }
+
+    public ByteArrayHeaderWriter(Header header, HeaderEntity headerEntity) {
+        if (header == null) {
+            throw new NullPointerException("header must not be null.");
+        }
+
+        this.buffer = new AutomaticBuffer(4);
+        this.header = header;
+        this.headerEntity = headerEntity;
     }
 
     @Override
@@ -48,9 +60,9 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
 
         try{
             if (version == HeaderV1.VERSION) {
-                writeHeaderV1((HeaderV1)header);
+                writeHeaderV1();
             } else if (version == HeaderV2.VERSION) {
-                writeHeaderV2((HeaderV2) header);
+                writeHeaderV2();
             } else {
                 throw new InvalidHeaderException("can not find header version. header : " + header);
             }
@@ -61,7 +73,7 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
         return buffer.getBuffer();
     }
 
-    private void writeHeaderV1(HeaderV1 header) throws TException {
+    private void writeHeaderV1() throws TException {
         writeHeaderPrefix();
     }
 
@@ -72,29 +84,30 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
     }
 
 
-    private void writeHeaderV2(HeaderV2 header) throws TException, UnsupportedEncodingException {
+    private void writeHeaderV2() throws TException, UnsupportedEncodingException {
         writeHeaderPrefix();
-
-        writeHeaderData(header.getHeaderData());
+        writeHeaderEntity();
     }
 
-    private void writeHeaderData(Map<String, String> data) throws TException, UnsupportedEncodingException {
-        final int size = data.size();
-        if (size >= HeaderV2.HEADER_DATA_MAX_SIZE) {
+    private void writeHeaderEntity() throws TException, UnsupportedEncodingException {
+        Map<String, String> headerEntityData = headerEntity.getEntityAll();
+        final int size = headerEntityData.size();
+        if (size >= HeaderV2.HEADER_ENTITY_COUNT_MAX_SIZE) {
             throw new InvalidHeaderException("header size is to big. size : " + size);
         }
+
         buffer.putShort((short)size);
+
         if (size == 0) {
             return;
         }
-
-        for (Map.Entry<String, String> entry : data.entrySet()) {
+        for (Map.Entry<String, String> entry : headerEntityData.entrySet()) {
             writeString(entry.getKey());
             writeString(entry.getValue());
         }
     }
 
-    private void writeString(String value) throws TException, UnsupportedEncodingException {
+    private void writeString(String value) {
         if (!validCheck(value)) {
             throw new InvalidHeaderException("string length is invalid in header data. value : " + value);
         }
@@ -106,7 +119,7 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
     private boolean validCheck(String value) {
         int length = value.length();
 
-        if (length > HeaderV2.HEADER_DATA_STRING_MAX_LANGTH || length == 0) {
+        if (length > HeaderV2.HEADER_ENTITY_STRING_MAX_LANGTH || length == 0) {
             return false;
         }
 

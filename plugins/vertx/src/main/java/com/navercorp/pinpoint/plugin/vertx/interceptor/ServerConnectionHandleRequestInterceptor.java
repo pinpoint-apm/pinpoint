@@ -205,7 +205,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             recorder.recordException(throwable);
             if (validate(args)) {
                 final HttpServerRequest request = (HttpServerRequest) args[0];
-                parameterRecorder.recordParameter(recorder, request);
+                parameterRecorder.record(recorder, request, throwable);
             }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {

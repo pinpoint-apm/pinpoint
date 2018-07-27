@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,9 +19,24 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4CookieExtractor;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4EntityExtractor;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4RequestWrapper;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpRequest4ClientHeaderAdaptor;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.concurrent.BasicFuture;
@@ -51,7 +66,11 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
 
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
+    private final CookieRecorder<HttpRequest> cookieRecorder;
+    private final EntityRecorder<HttpRequest> entityRecorder;
+
+    private final RequestTraceWriter<HttpRequest> requestTraceWriter;
 
     public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
@@ -60,7 +79,18 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         final HttpClient4PluginConfig config = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
         final boolean param = config.isParam();
         final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
-        this.clientRequestRecorder = new ClientRequestRecorder(param, httpDumpConfig);
+
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(param, clientRequestAdaptor);
+
+        CookieExtractor<HttpRequest> cookieExtractor = HttpClient4CookieExtractor.INSTANCE;
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
+
+        EntityExtractor<HttpRequest> entityExtractor = HttpClient4EntityExtractor.INSTANCE;
+        this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
+
+        ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpRequest>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -79,8 +109,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if (httpRequest != null) {
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()));
-                requestTraceWriter.write();
+                this.requestTraceWriter.write(httpRequest);
             }
             return;
         }
@@ -92,8 +121,8 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
 
         if (httpRequest != null) {
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()));
-            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
+            final String hostString = getHostString(host.getName(), host.getValue());
+            this.requestTraceWriter.write(httpRequest, nextId, hostString);
         }
 
         try {
@@ -109,6 +138,14 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }
+    }
+
+
+    private String getHostString(String hostName, int port) {
+        if (hostName != null) {
+            return HostAndPort.toHostAndPortString(hostName, port);
+        }
+        return null;
     }
 
     private HttpRequest getHttpRequest(final Object target) {
@@ -171,7 +208,10 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             final NameIntValuePair<String> host = getHost(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                this.clientRequestRecorder.record(recorder, new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue()), throwable);
+                ClientRequestWrapper clientRequest = new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue());
+                this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+                this.cookieRecorder.record(recorder, httpRequest, throwable);
+                this.entityRecorder.record(recorder, httpRequest, throwable);
             }
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);

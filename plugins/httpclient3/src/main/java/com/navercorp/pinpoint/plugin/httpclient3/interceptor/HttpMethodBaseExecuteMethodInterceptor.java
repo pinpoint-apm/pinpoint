@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,10 +17,24 @@
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3EntityExtractor;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3RequestWrapper;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpMethodClientHeaderAdaptor;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CookieExtractor;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpMethod;
 
@@ -39,6 +53,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
+import org.apache.commons.httpclient.URI;
 
 /**
  * @author Minwoo Jung
@@ -51,9 +66,12 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorScope interceptorScope;
-    private ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
+    private final RequestTraceWriter<HttpMethod> requestTraceWriter;
 
     private final boolean io;
+    private final CookieRecorder<HttpMethod> cookieRecorder;
+    private final EntityRecorder<HttpMethod> entityRecorder;
 
     public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         if (traceContext == null) {
@@ -72,7 +90,18 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(traceContext.getProfilerConfig());
         final boolean param = config.isParam();
         final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
-        this.clientRequestRecorder = new ClientRequestRecorder(param, httpDumpConfig);
+
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(param, clientRequestAdaptor);
+
+        CookieExtractor<HttpMethod> cookieExtractor = HttpClient3CookieExtractor.INSTANCE;
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
+
+        EntityExtractor<HttpMethod> entityExtractor = HttpClient3EntityExtractor.INSTANCE;
+        this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
+
+        ClientHeaderAdaptor<HttpMethod> clientHeaderAdaptor = new HttpMethodClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpMethod>(clientHeaderAdaptor, traceContext);
 
         this.io = config.isIo();
     }
@@ -91,9 +120,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         if (!trace.canSampled()) {
             if (target instanceof HttpMethod) {
                 final HttpMethod httpMethod = (HttpMethod) target;
-                final HttpConnection httpConnection = getHttpConnection(args);
-                final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient3RequestWrapper(httpMethod, httpConnection));
-                requestTraceWriter.write();
+                this.requestTraceWriter.write(httpMethod);
             }
             return;
         }
@@ -107,12 +134,33 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         if (target instanceof HttpMethod) {
             final HttpMethod httpMethod = (HttpMethod) target;
             final HttpConnection httpConnection = getHttpConnection(args);
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new HttpClient3RequestWrapper(httpMethod, httpConnection));
-            requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
+            final String host = getHost(httpMethod, httpConnection);
+            this.requestTraceWriter.write(httpMethod, nextId, host);
         }
 
         // init attachment for io(read/write).
         initAttachment();
+    }
+
+
+    private String getHost(HttpMethod httpMethod, HttpConnection httpConnection) {
+        try {
+            final URI uri = httpMethod.getURI();
+            // if uri have schema
+            if (uri.isAbsoluteURI()) {
+                return HttpClient3RequestWrapper.getEndpoint(uri.getHost(), uri.getPort());
+            }
+            if (httpConnection != null) {
+                final String host = httpConnection.getHost();
+                final int port = HttpClient3RequestWrapper.getPort(httpConnection);
+                return HttpClient3RequestWrapper.getEndpoint(host, port);
+            }
+        } catch (Exception e) {
+            if (isDebug) {
+                logger.debug("Failed to get host. httpMethod={}", httpMethod, e);
+            }
+        }
+        return null;
     }
 
     private HttpConnection getHttpConnection(final Object[] args) {
@@ -140,7 +188,10 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             if (target instanceof HttpMethod) {
                 final HttpMethod httpMethod = (HttpMethod) target;
                 final HttpConnection httpConnection = getHttpConnection(args);
-                this.clientRequestRecorder.record(recorder, new HttpClient3RequestWrapper(httpMethod, httpConnection), throwable);
+                final ClientRequestWrapper requestWrapper =  new HttpClient3RequestWrapper(httpMethod, httpConnection);
+                this.clientRequestRecorder.record(recorder, requestWrapper, throwable);
+                this.cookieRecorder.record(recorder, httpMethod, throwable);
+                this.entityRecorder.record(recorder, httpMethod, throwable);
             }
 
             if (result != null) {

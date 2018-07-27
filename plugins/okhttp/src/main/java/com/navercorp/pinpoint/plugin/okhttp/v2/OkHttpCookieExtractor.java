@@ -13,14 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.io.header;
 
-import java.util.Map;
+package com.navercorp.pinpoint.plugin.okhttp.v2;
+
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import com.squareup.okhttp.Request;
 
 /**
- * @author minwoo.jung
+ * @author Woonduk Kang(emeroad)
  */
-public interface HeaderDataGenerator {
+public class OkHttpCookieExtractor implements CookieExtractor<Request> {
+    @Override
+    public String getCookie(Request request) {
+        for (String cookie : request.headers("Cookie")) {
+            if (StringUtils.hasLength(cookie)) {
+                return cookie;
+            }
+        }
+        return null;
+    }
 
-    Map<String,String> generate();
 }

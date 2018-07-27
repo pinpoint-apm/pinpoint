@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,11 +28,17 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.netty.NettyClientRequestWrapper;
 import com.navercorp.pinpoint.plugin.netty.NettyConfig;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
+import com.navercorp.pinpoint.plugin.netty.NettyUtils;
 import com.navercorp.pinpoint.plugin.netty.field.accessor.AsyncStartFlagFieldAccessor;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -49,7 +55,8 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     protected final MethodDescriptor methodDescriptor;
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
+    private final RequestTraceWriter<HttpMessage> requestTraceWriter;
 
     public HttpEncoderInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         if (traceContext == null) {
@@ -62,7 +69,11 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         final NettyConfig config = new NettyConfig(traceContext.getProfilerConfig());
-        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(config.isParam(), clientRequestAdaptor);
+        ClientHeaderAdaptor<HttpMessage> clientHeaderAdaptor = new HttpMessageClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpMessage>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -86,8 +97,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
     private void before0(Trace trace, Object target, Object[] args) {
         if (!trace.canSampled()) {
             final HttpMessage httpMessage = (HttpMessage) args[1];
-            final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NettyClientRequestWrapper(httpMessage, null));
-            requestTraceWriter.write();
+            this.requestTraceWriter.write(httpMessage);
             return;
         }
         final SpanEventRecorder recorder = trace.traceBlockBegin();
@@ -130,8 +140,18 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
         final ChannelHandlerContext channelHandlerContext = (ChannelHandlerContext) args[0];
         final HttpMessage httpMessage = (HttpMessage) args[1];
-        final RequestTraceWriter requestTraceWriter = new RequestTraceWriter(new NettyClientRequestWrapper(httpMessage, channelHandlerContext));
-        requestTraceWriter.write(nextId, this.traceContext.getApplicationName(), this.traceContext.getServerTypeCode(), this.traceContext.getProfilerConfig().getApplicationNamespace());
+        final String host = getHost(channelHandlerContext);
+        this.requestTraceWriter.write(httpMessage, nextId, host);
+    }
+
+    private String getHost(ChannelHandlerContext channelHandlerContext) {
+        if (channelHandlerContext != null) {
+            final Channel channel = channelHandlerContext.channel();
+            if (channel != null) {
+                return NettyUtils.getEndPoint(channel.remoteAddress());
+            }
+        }
+        return null;
     }
 
     @Override

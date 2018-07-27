@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,15 +20,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.request;
  * @author jaehong.kim
  */
 public interface ClientRequestWrapper {
-    void setHeader(String name, String value);
-
-    /**
-     * The Host request-header field specifies the Internet host and port number of the resource being requested.
-     * e.g., www.w3.org
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getHost();
 
     /**
      * The DestinationId is logical name of the destination.
@@ -45,17 +36,4 @@ public interface ClientRequestWrapper {
      */
     String getUrl();
 
-    /**
-     * Entity
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getEntityValue();
-
-    /**
-     * Cookie
-     *
-     * @return If the value does not exist, it should return null.
-     */
-    String getCookieValue();
 }

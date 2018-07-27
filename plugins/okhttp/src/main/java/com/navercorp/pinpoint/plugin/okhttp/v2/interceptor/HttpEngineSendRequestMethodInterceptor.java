@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,11 +27,16 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
 import com.navercorp.pinpoint.plugin.okhttp.v2.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
-import com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpClientRequestWrapper;
+import com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpClientRequestAdaptor;
+import com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpCookieExtractor;
 import com.navercorp.pinpoint.plugin.okhttp.v2.UserRequestGetter;
 import com.navercorp.pinpoint.plugin.okhttp.v2.UserResponseGetter;
 import com.squareup.okhttp.Request;
@@ -47,7 +52,8 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
     private final MethodDescriptor methodDescriptor;
     private final InterceptorScope interceptorScope;
 
-    private final ClientRequestRecorder clientRequestRecorder;
+    private final ClientRequestRecorder<Request> clientRequestRecorder;
+    private final CookieRecorder<Request> cookieRecorder;
 
     public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -55,7 +61,12 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         this.interceptorScope = interceptorScope;
 
         final OkHttpPluginConfig config = new OkHttpPluginConfig(traceContext.getProfilerConfig());
-        this.clientRequestRecorder = new ClientRequestRecorder(config.isParam(), config.getHttpDumpConfig());
+
+        ClientRequestAdaptor<Request> clientRequestAdaptor = new OkHttpClientRequestAdaptor();
+        this.clientRequestRecorder = new ClientRequestRecorder<Request>(config.isParam(), clientRequestAdaptor);
+
+        CookieExtractor<Request> cookieExtractor = new OkHttpCookieExtractor();
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
     }
 
     @Override
@@ -148,7 +159,8 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             // typeCheck validate();
             final Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
-                this.clientRequestRecorder.record(recorder, new OkHttpClientRequestWrapper(request), throwable);
+                this.clientRequestRecorder.record(recorder, request, throwable);
+                this.cookieRecorder.record(recorder, request, throwable);
             }
         } finally {
             trace.traceBlockEnd();
