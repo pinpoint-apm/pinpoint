@@ -17,6 +17,11 @@ Click on a server node, which will populate the scatter chart on the right. This
 ### How do I change agent's log level?
 You can change the log level by modifying the agent's *log4j.xml* located in *PINPOINT_AGENT/lib* directory.
 
+### Why is only the first/some of the requests traced?
+There is a sampling rate option in the agent's pinpoint.config file (profiler.sampling.rate).
+The agent's release binary has this value set to 20, which tells the agent to sample 1 trace every 20 transactions.
+Changing this value to 1 will allow you to trace every transaction.
+
 ### Request count in the Scatter Chart is different from the ones in Response Summary chart. Why is this?
 The Scatter Chart data have a second granularity, so the requests counted here can be differentiated by a second interval.
 On the other hand, the Server Map, Response Summary, and Load Chart data are stored in a minute granularity (the collector aggregates these in memory and flushes them every minute due to performance reasons).
