@@ -31,7 +31,7 @@ public class JvmGcDetailedBoMapper implements ThriftBoMapper<JvmGcDetailedBo, TJ
     public JvmGcDetailedBo map(TJvmGcDetailed tJvmGcDetailed) {
         JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
         jvmGcDetailedBo.setGcNewCount(tJvmGcDetailed.getJvmGcNewCount());
-        jvmGcDetailedBo.setGcNewTime(tJvmGcDetailed.getJvmGcNewCount());
+        jvmGcDetailedBo.setGcNewTime(tJvmGcDetailed.getJvmGcNewTime());
         jvmGcDetailedBo.setCodeCacheUsed(tJvmGcDetailed.getJvmPoolCodeCacheUsed());
         jvmGcDetailedBo.setNewGenUsed(tJvmGcDetailed.getJvmPoolNewGenUsed());
         jvmGcDetailedBo.setOldGenUsed(tJvmGcDetailed.getJvmPoolOldGenUsed());
