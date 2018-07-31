@@ -22,6 +22,7 @@ import java.util.List;
 import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleInstanceHolder;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 
@@ -82,8 +83,9 @@ public abstract class BasePinpointTest {
 
     public void setup(TestContext testContext) {
         DefaultApplicationContext mockApplicationContext = testContext.getDefaultApplicationContext();
+        ModuleInstanceHolder moduleInstanceHolder = mockApplicationContext.getModuleInstanceHolder();
 
-        DataSender spanDataSender = mockApplicationContext.getSpanDataSender();
+        DataSender spanDataSender = moduleInstanceHolder.getSpanDataSender();
         if (spanDataSender instanceof ListenableDataSender) {
             ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
 
@@ -98,7 +100,7 @@ public abstract class BasePinpointTest {
             setTBaseRecorder(tBaseRecord);
         }
 
-        ServerMetaDataRegistryService serverMetaDataRegistryService = mockApplicationContext.getServerMetaDataRegistryService();
+        ServerMetaDataRegistryService serverMetaDataRegistryService = moduleInstanceHolder.getServerMetaDataRegistryService();
         this.setServerMetaDataRegistryService(serverMetaDataRegistryService);
     }
 }

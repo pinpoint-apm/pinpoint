@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleInstanceHolder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,9 +73,11 @@ public class ActiveTraceRepositoryTest {
         this.applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
         applicationContext.start();
 
-        this.traceContext = applicationContext.getTraceContext();
-        this.transactionCounter = new DefaultTransactionCounter(applicationContext.getInjector().getInstance(IdGenerator.class));
-        this.activeTraceRepository = applicationContext.getInjector().getInstance(ActiveTraceRepository.class);
+        ModuleInstanceHolder instanceHolder = applicationContext.getModuleInstanceHolder();
+
+        this.traceContext = instanceHolder.getTraceContext();
+        this.transactionCounter = new DefaultTransactionCounter(instanceHolder.getInjector().getInstance(IdGenerator.class));
+        this.activeTraceRepository = instanceHolder.getInjector().getInstance(ActiveTraceRepository.class);
     }
 
     @After

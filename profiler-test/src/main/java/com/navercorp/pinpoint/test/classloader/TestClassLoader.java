@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleInstanceHolder;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
@@ -49,7 +50,8 @@ public class TestClassLoader extends TransformClassLoader {
 
     private final Logger logger = Logger.getLogger(TestClassLoader.class.getName());
 
-    private final DefaultApplicationContext applicationContext;
+    private final ModuleInstanceHolder moduleInstanceHolder;
+
     private Translator instrumentTranslator;
     private final List<String> delegateClass;
     private final ClassFileTransformerLoader classFileTransformerLoader;
@@ -57,13 +59,14 @@ public class TestClassLoader extends TransformClassLoader {
 
     public TestClassLoader(DefaultApplicationContext applicationContext) {
         Assert.requireNonNull(applicationContext, "applicationContext must not be null");
+        ModuleInstanceHolder moduleInstanceHolder = applicationContext.getModuleInstanceHolder();
+        this.moduleInstanceHolder = Assert.requireNonNull(moduleInstanceHolder, "moduleInstanceHolder must not be null");
 
-        this.applicationContext = applicationContext;
-        this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
+        this.classFileTransformerLoader = new ClassFileTransformerLoader(moduleInstanceHolder.getProfilerConfig(), moduleInstanceHolder.getDynamicTransformTrigger());
 
         ClassInjector classInjector = new DebugTransformerClassInjector();
-        this.instrumentContext = new PluginInstrumentContext(applicationContext.getProfilerConfig(), applicationContext.getInstrumentEngine(),
-                applicationContext.getDynamicTransformTrigger(), classInjector, classFileTransformerLoader);
+        this.instrumentContext = new PluginInstrumentContext(moduleInstanceHolder.getProfilerConfig(), moduleInstanceHolder.getInstrumentEngine(),
+                moduleInstanceHolder.getDynamicTransformTrigger(), classInjector, classFileTransformerLoader);
 
         this.delegateClass = new ArrayList<String>();
     }
@@ -98,7 +101,7 @@ public class TestClassLoader extends TransformClassLoader {
     }
 
     public ProfilerConfig getProfilerConfig() {
-        return applicationContext.getProfilerConfig();
+        return moduleInstanceHolder.getProfilerConfig();
     }
 
     public void addTransformer(final String targetClassName, final TransformCallback transformer) {
@@ -106,7 +109,7 @@ public class TestClassLoader extends TransformClassLoader {
             logger.fine("addTransformer targetClassName:{}" + targetClassName + " callback:{}" + transformer);
         }
         final Matcher matcher = Matchers.newClassNameMatcher(targetClassName);
-        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(applicationContext.getProfilerConfig(), instrumentContext, matcher, transformer);
+        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(moduleInstanceHolder.getProfilerConfig(), instrumentContext, matcher, transformer);
 
         this.instrumentTranslator.addTransformer(guard);
     }
@@ -132,22 +135,22 @@ public class TestClassLoader extends TransformClassLoader {
     }
 
     private Translator newTranslator() {
-        final InstrumentEngine instrumentEngine = applicationContext.getInstrumentEngine();
+        final InstrumentEngine instrumentEngine = moduleInstanceHolder.getInstrumentEngine();
         if (instrumentEngine instanceof JavassistEngine) {
 
             logger.info("JAVASSIST BCI engine");
             ClassPool classPool = ((JavassistEngine) instrumentEngine).getClassPool(this);
-            return new JavassistTranslator(this, classPool, applicationContext.getClassFileTransformer());
+            return new JavassistTranslator(this, classPool, moduleInstanceHolder.getClassFileTransformer());
         }
 
         if (instrumentEngine instanceof ASMEngine) {
             logger.info("ASM BCI engine");
-            return new DefaultTranslator(this, applicationContext.getClassFileTransformer());
+            return new DefaultTranslator(this, moduleInstanceHolder.getClassFileTransformer());
         }
 
 
         logger.info("Unknown BCI engine");
-        return new DefaultTranslator(this, applicationContext.getClassFileTransformer());
+        return new DefaultTranslator(this, moduleInstanceHolder.getClassFileTransformer());
     }
 
 }

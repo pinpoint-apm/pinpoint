@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
+import com.navercorp.pinpoint.profiler.context.module.PinpointModuleHolder;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,9 +35,12 @@ public class OverrideModuleFactory implements ModuleFactory {
     }
 
     @Override
-    public Module newModule(AgentOption agentOption) {
+    public PinpointModuleHolder newModule(AgentOption agentOption) {
         ModuleFactory moduleFactory = new ApplicationContextModuleFactory();
-        Module module = moduleFactory.newModule(agentOption);
-        return Modules.override(module).with(overrideModule);
+        PinpointModuleHolder pinpointModuleHolder = moduleFactory.newModule(agentOption);
+
+        Module newModule = Modules.override(pinpointModuleHolder.getModule()).with(overrideModule);
+        return new PinpointModuleHolder(newModule, agentOption.getInstrumentation());
     }
+
 }

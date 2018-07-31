@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 
 
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleInstanceHolder;
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -72,7 +73,8 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     private TraceContext getTraceContext() {
         DefaultApplicationContext mockApplicationContext = testContext.getDefaultApplicationContext();
-        return mockApplicationContext.getTraceContext();
+        ModuleInstanceHolder moduleInstanceHolder = mockApplicationContext.getModuleInstanceHolder();
+        return moduleInstanceHolder.getTraceContext();
     }
 
     @Override

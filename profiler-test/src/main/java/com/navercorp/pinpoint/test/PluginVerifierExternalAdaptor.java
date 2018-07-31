@@ -43,6 +43,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleInstanceHolder;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -71,22 +72,22 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
 
-    private final DefaultApplicationContext applicationContext;
+    private final ModuleInstanceHolder moduleInstanceHolder;
 
-    public PluginVerifierExternalAdaptor(DefaultApplicationContext applicationContext) {
-        this.applicationContext = Assert.requireNonNull(applicationContext, "applicationContext must not be null");
+    public PluginVerifierExternalAdaptor(ModuleInstanceHolder moduleInstanceHolder) {
+        this.moduleInstanceHolder = Assert.requireNonNull(moduleInstanceHolder, "moduleInstanceHolder must not be null");
     }
 
-    public DefaultApplicationContext getApplicationContext() {
-        return applicationContext;
+    public ModuleInstanceHolder getModuleInstanceHolder() {
+        return moduleInstanceHolder;
     }
 
     @Override
     public void verifyServerType(String serviceTypeName) {
-        final DefaultApplicationContext applicationContext = getApplicationContext();
+        final ModuleInstanceHolder instanceHolder = getModuleInstanceHolder();
 
         ServiceType expectedType = findServiceType(serviceTypeName);
-        ServiceType actualType = applicationContext.getAgentInformation().getServerType();
+        ServiceType actualType = instanceHolder.getAgentInformation().getServerType();
 
         if (!expectedType.equals(actualType)) {
             throw new AssertionError("ResolvedExpectedTrace server type: " + expectedType.getName() + "[" + expectedType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
@@ -317,7 +318,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
     private Injector getInjector() {
-        return this.applicationContext.getInjector();
+        return getModuleInstanceHolder().getInjector();
     }
 
     private ServiceTypeRegistryService getServiceTypeRegistry() {
@@ -823,8 +824,8 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
     private TraceContext getTraceContext() {
-        DefaultApplicationContext applicationContext = getApplicationContext();
-        return applicationContext.getTraceContext();
+        ModuleInstanceHolder instanceHolder = getModuleInstanceHolder();
+        return instanceHolder.getTraceContext();
     }
 
     @Override

@@ -32,9 +32,12 @@ public class OverrideModuleFactory implements ModuleFactory {
     }
 
     @Override
-    public Module newModule(AgentOption agentOption) {
+    public PinpointModuleHolder  newModule(AgentOption agentOption) {
         ModuleFactory moduleFactory = new ApplicationContextModuleFactory();
-        Module module = moduleFactory.newModule(agentOption);
-        return Modules.override(module).with(with);
+        PinpointModuleHolder pinpointModuleHolder = moduleFactory.newModule(agentOption);
+        Module newModule = Modules.override(pinpointModuleHolder.getModule()).with(this.with);
+
+        return new PinpointModuleHolder(newModule, agentOption.getInstrumentation());
     }
+
 }

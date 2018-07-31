@@ -27,13 +27,15 @@ import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
 public class ApplicationContextModuleFactory implements ModuleFactory {
 
     @Override
-    public Module newModule(AgentOption agentOption) {
+    public PinpointModuleHolder newModule(AgentOption agentOption) {
         final Module config = new ConfigModule(agentOption);
         final Module pluginModule = new PluginModule();
         final Module applicationContextModule = new ApplicationContextModule();
         final Module rpcModule = new RpcModule();
         final Module statsModule = new StatsModule();
 
-        return Modules.combine(config, pluginModule, applicationContextModule, rpcModule, statsModule);
+        Module combinedModule = Modules.combine(config, pluginModule, applicationContextModule, rpcModule, statsModule);
+        return new PinpointModuleHolder(combinedModule, agentOption.getInstrumentation());
     }
+
 }
