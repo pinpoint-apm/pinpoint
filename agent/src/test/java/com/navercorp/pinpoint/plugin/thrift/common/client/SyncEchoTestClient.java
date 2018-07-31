@@ -21,6 +21,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
+import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -60,14 +61,17 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
 
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
-        final InetSocketAddress actualServerAddress = this.environment.getServerAddress();
+        final InetSocketAddress socketAddress = this.environment.getServerAddress();
+        final String hostName = SocketAddressUtils.getHostNameFirst(socketAddress);
+        // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getHostPort
+        final String remoteAddress = HostAndPort.toHostAndPortString(hostName, socketAddress.getPort());
         // SpanEvent - TServiceClient.sendBase
         Method sendBase = TServiceClient.class.getDeclaredMethod("sendBase", String.class, TBase.class);
         // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getClientServiceName
-        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url", actualServerAddress.getHostName() + ":"
-                + actualServerAddress.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
-        ExpectedAnnotation thriftArgs = Expectations.annotation("thrift.args", "echo_args(message:" + expectedMessage
-                + ")");
+        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url",
+                remoteAddress + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
+        ExpectedAnnotation thriftArgs = Expectations.annotation("thrift.args",
+                "echo_args(message:" + expectedMessage + ")");
 
         // SpanEvent - TServiceClient.receiveBase
         Method receiveBase = TServiceClient.class.getDeclaredMethod("receiveBase", TBase.class, String.class);
@@ -78,7 +82,7 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
                 sendBase, // Method
                 null, // rpc
                 null, // endPoint
-                HostAndPort.toHostAndPortString(actualServerAddress.getHostName(), actualServerAddress.getPort()), // destinationId
+                remoteAddress, // destinationId
                 thriftUrl, // Annotation("thrift.url")
                 thriftArgs), // Annotation("thrift.args")
                 event("THRIFT_CLIENT_INTERNAL", // ServiceType

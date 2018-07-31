@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
+import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TProtocol;
@@ -52,7 +54,8 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
 
     @Override
     public void verifyServerTraces(PluginTestVerifier verifier) throws Exception {
-        final InetSocketAddress actualServerAddress = super.environment.getServerAddress();
+        final InetSocketAddress socketAddress = super.environment.getServerAddress();
+        final String address = SocketAddressUtils.getAddressFirst(socketAddress);
         verifier.verifyTraceCount(2);
         Method process = TBaseProcessor.class.getDeclaredMethod("process", TProtocol.class, TProtocol.class);
         verifier.verifyDiscreteTrace(
@@ -60,8 +63,8 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
                 root("THRIFT_SERVER", // ServiceType,
                         "Thrift Server Invocation", // Method
                         "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo", // rpc
-                        actualServerAddress.getHostName() + ":" + actualServerAddress.getPort(), // endPoint
-                        actualServerAddress.getHostName()), // remoteAddress
+                        HostAndPort.toHostAndPortString(address, socketAddress.getPort()), // endPoint
+                        address), // remoteAddress
                 // SpanEvent - TBaseProcessor.process
                 event("THRIFT_SERVER_INTERNAL", process));
         verifier.verifyTraceCount(0);
