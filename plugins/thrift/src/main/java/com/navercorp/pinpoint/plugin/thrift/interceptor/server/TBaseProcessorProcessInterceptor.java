@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.server;
 
-import java.net.Socket;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.apache.thrift.TBaseProcessor;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TTransport;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -35,7 +32,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
  * Entry/exit point for tracing synchronous processors for Thrift services.
@@ -133,30 +129,6 @@ public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
         SpanRecorder recorder = trace.getSpanRecorder();
         String methodUri = getMethodUri(target);
         recorder.recordRpcName(methodUri);
-        // retrieve connection information
-        String localIpPort = ThriftConstants.UNKNOWN_ADDRESS;
-        String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
-        if (args.length == 2 && args[0] instanceof TProtocol) {
-            TProtocol inputProtocol = (TProtocol)args[0];
-            TTransport inputTransport = inputProtocol.getTransport();
-            if (inputTransport instanceof SocketFieldAccessor) {
-                Socket socket = ((SocketFieldAccessor)inputTransport)._$PINPOINT$_getSocket();
-                if (socket != null) {
-                    localIpPort = ThriftUtils.getHostPort(socket.getLocalSocketAddress());
-                    remoteAddress = ThriftUtils.getHost(socket.getRemoteSocketAddress());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
-                }
-            }
-        }
-        if (localIpPort != ThriftConstants.UNKNOWN_ADDRESS) {
-            recorder.recordEndPoint(localIpPort);
-        }
-        if (remoteAddress != ThriftConstants.UNKNOWN_ADDRESS) {
-            recorder.recordRemoteAddress(remoteAddress);
-        }
     }
 
     private String getMethodUri(Object target) {

@@ -250,10 +250,10 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         // retrieve connection information
         String localIpPort = ThriftConstants.UNKNOWN_ADDRESS;
         String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
-        Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
+        Socket socket = ((SocketFieldAccessor) transport)._$PINPOINT$_getSocket();
         if (socket != null) {
-            localIpPort = ThriftUtils.getHostPort(socket.getLocalSocketAddress());
-            remoteAddress = ThriftUtils.getHost(socket.getRemoteSocketAddress());
+            localIpPort = ThriftUtils.getIpPort(socket.getLocalSocketAddress());
+            remoteAddress = ThriftUtils.getIp(socket.getRemoteSocketAddress());
         }
         if (localIpPort != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordEndPoint(localIpPort);

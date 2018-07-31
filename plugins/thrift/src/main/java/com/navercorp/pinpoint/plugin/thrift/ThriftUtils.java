@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.thrift;
 
+import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.TBaseProcessor;
@@ -85,16 +86,12 @@ public class ThriftUtils {
      * @return the ip address retrieved from the given <tt>socketAddress</tt>,
      *      or {@literal ThriftConstants.UNKNOWN_ADDRESS} if it cannot be retrieved
      */
-    // TODO should probably be pulled up as a common API
     public static String getIp(SocketAddress socketAddress) {
-        if (socketAddress == null) {
-            return ThriftConstants.UNKNOWN_ADDRESS;
-        }
         if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress addr = (InetSocketAddress)socketAddress;
-            return addr.getAddress().getHostAddress();
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            return SocketAddressUtils.getAddressFirst(inetSocketAddress, ThriftConstants.UNKNOWN_ADDRESS);
         }
-        return getSocketAddress(socketAddress);
+        return ThriftConstants.UNKNOWN_ADDRESS;
     }
     
     /**
@@ -104,16 +101,16 @@ public class ThriftUtils {
      * @return the ip/port retrieved from the given <tt>socketAddress</tt>,
      *      or {@literal ThriftConstants.UNKNOWN_ADDRESS} if it cannot be retrieved
      */
-    // TODO should probably be pulled up as a common API
     public static String getIpPort(SocketAddress socketAddress) {
-        if (socketAddress == null) {
-            return ThriftConstants.UNKNOWN_ADDRESS;
-        }
         if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress addr = (InetSocketAddress)socketAddress;
-            return HostAndPort.toHostAndPortString(addr.getAddress().getHostAddress(), addr.getPort());
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            String address = SocketAddressUtils.getAddressFirst(inetSocketAddress);
+            if (address == null) {
+                return ThriftConstants.UNKNOWN_ADDRESS;
+            }
+            return HostAndPort.toHostAndPortString(address, inetSocketAddress.getPort());
         }
-        return getSocketAddress(socketAddress);
+        return ThriftConstants.UNKNOWN_ADDRESS;
     }
     
     /**
@@ -123,16 +120,12 @@ public class ThriftUtils {
      * @return the host retrieved from the given <tt>socketAddress</tt>,
      *      or {@literal ThriftConstants.UNKNOWN_ADDRESS} if it cannot be retrieved
      */
-    // TODO should probably be pulled up as a common API
     public static String getHost(SocketAddress socketAddress) {
-        if (socketAddress == null) {
-            return ThriftConstants.UNKNOWN_ADDRESS;
-        }
         if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress addr = (InetSocketAddress)socketAddress;
-            return addr.getHostName();
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            return SocketAddressUtils.getHostNameFirst(inetSocketAddress, ThriftConstants.UNKNOWN_ADDRESS);
         }
-        return getSocketAddress(socketAddress);
+        return ThriftConstants.UNKNOWN_ADDRESS;
     }
     
     /**
@@ -142,32 +135,15 @@ public class ThriftUtils {
      * @return the host/port retrieved from the given <tt>socketAddress</tt>,
      *      or {@literal ThriftConstants.UNKNOWN_ADDRESS} if it cannot be retrieved
      */
-    // TODO should probably be pulled up as a common API
     public static String getHostPort(SocketAddress socketAddress) {
-        if (socketAddress == null) {
-            return ThriftConstants.UNKNOWN_ADDRESS;
-        }
         if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress addr = (InetSocketAddress)socketAddress;
-            return HostAndPort.toHostAndPortString(addr.getHostName(), addr.getPort());
-        }
-        return getSocketAddress(socketAddress);
-    }
-    
-    private static String getSocketAddress(SocketAddress socketAddress) {
-        String address = socketAddress.toString();
-        int addressLength = address.length();
-
-        if (addressLength > 0) {
-            if (address.startsWith("/")) {
-                return address.substring(1);
-            } else {
-                final int delimiterIndex = address.indexOf('/');
-                if (delimiterIndex != -1 && delimiterIndex < addressLength) {
-                    return address.substring(address.indexOf('/') + 1);
-                }
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
+            if (hostName == null) {
+                return ThriftConstants.UNKNOWN_ADDRESS;
             }
+            return HostAndPort.toHostAndPortString(hostName, inetSocketAddress.getPort());
         }
-        return address;
+        return ThriftConstants.UNKNOWN_ADDRESS;
     }
 }

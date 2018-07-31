@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
+import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.server.AbstractNonblockingServer;
@@ -49,15 +51,16 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
 
     @Override
     public void verifyServerTraces(PluginTestVerifier verifier) throws Exception {
-        final InetSocketAddress actualServerAddress = super.environment.getServerAddress();
+        final InetSocketAddress socketAddress = super.environment.getServerAddress();
+        final String address = SocketAddressUtils.getAddressFirst(socketAddress);
         verifier.verifyTraceCount(2);
         Method process = TBaseAsyncProcessor.class.getDeclaredMethod("process", AsyncFrameBuffer.class);
         // RootSpan
         verifier.verifyTrace(root("THRIFT_SERVER", // ServiceType,
                 "Thrift Server Invocation", // Method
                 "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo", // rpc
-                actualServerAddress.getHostName() + ":" + actualServerAddress.getPort(), // endPoint
-                actualServerAddress.getHostName() // remoteAddress
+                HostAndPort.toHostAndPortString(address, socketAddress.getPort()), // endPoint
+                address // remoteAddress
         ));
         // SpanEvent - TBaseAsyncProcessor.process
         verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));

@@ -24,6 +24,8 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.CountDownLatch;
 
+import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.TServiceClient;
@@ -79,7 +81,10 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
-        final InetSocketAddress actualServerAddress = this.environment.getServerAddress();
+        final InetSocketAddress socketAddress = this.environment.getServerAddress();
+        final String hostName = SocketAddressUtils.getHostNameFirst(socketAddress);
+        // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getHostPort
+        final String remoteAddress = HostAndPort.toHostAndPortString(hostName, socketAddress.getPort());
         // ********** Asynchronous Traces
         // SpanEvent - Asynchronous Invocation
         ExpectedTrace asyncInvocationTrace = event("ASYNC", "Asynchronous Invocation");
@@ -101,13 +106,13 @@ public class AsyncEchoTestClient implements EchoTestClient {
         // ********** Root trace for Asynchronous traces
         // SpanEvent - TAsyncClientManager.call
         Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
-        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url", actualServerAddress.getHostName() + ":"
-                + actualServerAddress.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
+        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url",
+                remoteAddress + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
         ExpectedTrace callTrace = event("THRIFT_CLIENT", // ServiceType
                 call, // Method
                 null, // rpc
                 null, // endPoint
-                actualServerAddress.getHostName() + ":" + actualServerAddress.getPort(), // destinationId
+                remoteAddress, // destinationId
                 thriftUrl // Annotation("thrift.url")
         );
         verifier.verifyTrace(async(callTrace, asyncInvocationTrace, cleanUpAndFireCallbackTrace, receiveBaseTrace));
