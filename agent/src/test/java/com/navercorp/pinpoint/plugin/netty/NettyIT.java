@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.plugin.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import io.netty.bootstrap.Bootstrap;
@@ -57,6 +58,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  * @author Taejin Koo
  */
 @RunWith(PinpointPluginTestSuite.class)
+@JvmVersion(7)
 @Dependency({"io.netty:netty-all:[4.1.0.Final,4.1.max]", "org.nanohttpd:nanohttpd:2.3.1"})
 @PinpointConfig("pinpoint-netty-plugin-test.config")
 public class NettyIT {
