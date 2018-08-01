@@ -30,6 +30,10 @@ public interface SpanEventRecorder extends FrameAttachment {
 
     void recordSqlParsingResult(ParsingResult parsingResult, String bindValue);
 
+    void recordJsonParsingResult(ParsingResult parsingResult);
+
+    void recordMongoCollectionInfo(String collectionName, String readOption);
+
     void recordAttribute(AnnotationKey key, String value);
 
     void recordAttribute(AnnotationKey key, int value);
