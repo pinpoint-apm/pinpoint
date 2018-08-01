@@ -26,12 +26,14 @@ import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TLongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.thrift.dto.TStringStringValue;
 
 /**
  * @author emeroad
@@ -59,6 +61,7 @@ public class AnnotationTranscoder {
     static final byte CODE_INT_STRING_STRING = 21;
     static final byte CODE_LONG_INT_INT_BYTE_BYTE_STRING = 22;
     static final byte CODE_INT_BOOLEAN_INT_BOOLEAN = 23;
+    static final byte CODE_STRING_STRING = 24;
 
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
@@ -105,6 +108,8 @@ public class AnnotationTranscoder {
                 return decodeIntStringValue(data);
             case CODE_INT_STRING_STRING:
                 return decodeIntStringStringValue(data);
+            case CODE_STRING_STRING:
+                return decodeStringStringValue(data);
             case CODE_LONG_INT_INT_BYTE_BYTE_STRING:
                 return decodeLongIntIntByteByteStringValue(data);
             case CODE_INT_BOOLEAN_INT_BOOLEAN:
@@ -143,6 +148,8 @@ public class AnnotationTranscoder {
             return CODE_INT_STRING;
         } else if (o instanceof TIntStringStringValue) {
             return CODE_INT_STRING_STRING;
+        } else if (o instanceof TStringStringValue) {
+            return CODE_STRING_STRING;
         } else if (o instanceof TLongIntIntByteByteStringValue) {
             return CODE_LONG_INT_INT_BYTE_BYTE_STRING;
         } else if (o instanceof TIntBooleanIntBooleanValue) {
@@ -196,6 +203,8 @@ public class AnnotationTranscoder {
                 return encodeIntStringValue(o);
             case CODE_INT_STRING_STRING:
                 return encodeIntStringStringValue(o);
+            case CODE_STRING_STRING:
+                return encodeStringStringValue(o);
             case CODE_LONG_INT_INT_BYTE_BYTE_STRING:
                 return encodeLongIntIntByteByteStringValue(o);
             case CODE_INT_BOOLEAN_INT_BOOLEAN:
@@ -343,7 +352,71 @@ public class AnnotationTranscoder {
         buffer.putBoolean(value.isBoolValue2());
         return buffer.getBuffer();
     }
+//    private Object decodeIntStringStringValue(byte[] data) {
+//        final Buffer buffer = new FixedBuffer(data);
+//        final int intValue = buffer.readSVInt();
+//        final String stringValue1 = BytesUtils.toString(buffer.readPrefixedBytes());
+//        final String stringValue2 = BytesUtils.toString(buffer.readPrefixedBytes());
+//        return new IntStringStringValue(intValue, stringValue1, stringValue2);
+//    }
+//
+//    private byte[] encodeIntStringStringValue(Object o) {
+//        final TIntStringStringValue tIntStringStringValue = (TIntStringStringValue) o;
+//        final int intValue = tIntStringStringValue.getIntValue();
+//        final byte[] stringValue1 = BytesUtils.toBytes(tIntStringStringValue.getStringValue1());
+//        final byte[] stringValue2 = BytesUtils.toBytes(tIntStringStringValue.getStringValue2());
+//        // TODO increase by a more precise value
+//        final int bufferSize = getBufferSize(stringValue1, stringValue2, 4 + 8);
+//        final Buffer buffer = new AutomaticBuffer(bufferSize);
+//        buffer.putSVInt(intValue);
+//        buffer.putPrefixedBytes(stringValue1);
+//        buffer.putPrefixedBytes(stringValue2);
+//        return buffer.getBuffer();
+//    }
+//
+//    private int getBufferSize(byte[] stringValue1, byte[] stringValue2, int reserve) {
+//        int length = 0;
+//        if (stringValue1 != null) {
+//            length += stringValue1.length;
+//        }
+//        if (stringValue2 != null) {
+//            length += stringValue2.length;
+//
+//        }
+//        return length + reserve;
+//    }
+//
 
+    private Object decodeStringStringValue(byte[] data) {
+        final Buffer buffer = new FixedBuffer(data);
+        final String stringValue1 = BytesUtils.toString(buffer.readPrefixedBytes());
+        final String stringValue2 = BytesUtils.toString(buffer.readPrefixedBytes());
+        return new StringStringValue(stringValue1, stringValue2);
+    }
+
+    private byte[] encodeStringStringValue(Object o) {
+        final TStringStringValue tStringStringValue = (TStringStringValue) o;
+        final byte[] stringValue1 = BytesUtils.toBytes(tStringStringValue.getStringValue1());
+        final byte[] stringValue2 = BytesUtils.toBytes(tStringStringValue.getStringValue2());
+        // TODO increase by a more precise value
+        final int bufferSize = getBufferSize(stringValue1, stringValue2);
+        final Buffer buffer = new AutomaticBuffer(bufferSize);
+        buffer.putPrefixedBytes(stringValue1);
+        buffer.putPrefixedBytes(stringValue2);
+        return buffer.getBuffer();
+    }
+
+    private int getBufferSize(byte[] stringValue1, byte[] stringValue2) {
+        int length = 0;
+        if (stringValue1 != null) {
+            length += stringValue1.length;
+        }
+        if (stringValue2 != null) {
+            length += stringValue2.length;
+
+        }
+        return length;
+    }
     /**
      * Decode the string with the current character set.
      */
