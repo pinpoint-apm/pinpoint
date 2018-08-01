@@ -22,7 +22,7 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 	4. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
 	5. Set JAVA_8_HOME environment variable to JDK 8 home directory.
 	6. Set JAVA_9_HOME environment variable to JDK 9 home directory.
-	7. Run `./mvnw clean install -Dmaven.test.skip=true` (or `./mvnw.cmd` for Windows)
+	7. Run `./mvnw clean install -DskipTests=true` (or `./mvnw.cmd` for Windows)
 3. Pinpoint Collector ([details](#3-pinpoint-collector))
 	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
 	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
@@ -95,10 +95,10 @@ There are two options:
     
 	Once the above requirements are met, simply run the command below (you may need to add permission for **mvnw** so that it can be executed) :
 
-	`./mvnw install -Dmaven.test.skip=true`
+	`./mvnw install -DskipTests=true`
 	
 	The default agent built this way will have log level set to DEBUG by default. If you're building an agent for release and need a higher log level, you can set maven profile to *release* when building :  
-	`./mvnw install -Prelease -Dmaven.test.skip=true`
+	`./mvnw install -Prelease -DskipTests=true`
 	
 	The guide will refer to the full path of the pinpoint home directory as `$PINPOINT_PATH`.
 
