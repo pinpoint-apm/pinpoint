@@ -27,10 +27,6 @@
 
     <fileSets>
         <fileSet>
-            <directory>${basedir}/src/main/resources</directory>
-            <outputDirectory></outputDirectory>
-        </fileSet>
-        <fileSet>
             <directory>${basedir}/src/main/resources-${env}</directory>
             <outputDirectory></outputDirectory>
         </fileSet>
