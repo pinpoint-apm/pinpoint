@@ -14,7 +14,10 @@
  */
 package com.navercorp.pinpoint.plugin.fastjson;
 
-import com.navercorp.pinpoint.common.trace.*;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * The type Fastjson constants.
@@ -35,7 +38,7 @@ public final class FastjsonConstants {
     /**
      * The constant ANNOTATION_KEY_JSON_LENGTH.
      */
-    public static final AnnotationKey ANNOTATION_KEY_JSON_LENGTH = AnnotationKeyFactory.of(9003, "fastjson.json.length", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ANNOTATION_KEY_JSON_LENGTH = AnnotationKeyFactory.of(9003, "fastjson.json.length");
 
     /**
      * The constant SCOPE.
