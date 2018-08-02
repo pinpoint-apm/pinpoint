@@ -317,7 +317,12 @@
             <artifactId>async-http-client</artifactId>
             <version>2.0.32</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
+            <version>5.0.8.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
