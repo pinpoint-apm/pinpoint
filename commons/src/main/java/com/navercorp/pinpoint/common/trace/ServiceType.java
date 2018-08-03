@@ -61,6 +61,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1100</td><td>THRIFT_SERVER</td></tr>
  * <tr><td>1101</td><td>THRIFT_SERVER_INTERNAL</td></tr>
  * <tr><td>1110</td><td>DUBBO_PROVIDER</td></tr>
+ * <tr><td>1120</td><td>UNDERTOW</td></tr>
+ * <tr><td>1121</td><td>UNDERTOW_METHOD</td></tr>
  *
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
