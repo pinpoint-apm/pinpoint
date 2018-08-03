@@ -72,7 +72,7 @@ public class DubboProviderIT {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
 
-        verifier.verifyTraceCount(1);
+        verifier.verifyTraceCount(2);
     }
 
     @Test
