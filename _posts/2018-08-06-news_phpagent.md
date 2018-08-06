@@ -1,5 +1,5 @@
 ---
-title:  "Official docker for Pinpoint is On-line"
+title:  "Pinpoint starts to support PHP"
 published: true
 permalink: news_docker.html
 sidebar: mydoc_sidebar
