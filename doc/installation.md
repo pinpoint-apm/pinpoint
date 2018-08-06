@@ -14,7 +14,7 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
 2. Build Pinpoint (Optional) - You do not need to build from source to use Pinpoint (binaries [here](https://github.com/naver/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
-	2. Set JAVA_HOME environment variable to JDK 7+ home directory.
+	2. Set JAVA_HOME environment variable to JDK 8 home directory.
 	3. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
 	4. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
 	5. Set JAVA_8_HOME environment variable to JDK 8 home directory.
@@ -38,13 +38,13 @@ Pinpoint uses HBase as its storage backend for the Collector and the Web.
 
 To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. The HBase compatibility table is given below:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBase 1.2.x
----------------- | ------------ | ------------ | ----------- | ----------- | -----------
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.2.x
+---------------- | ------------ | ------------ | ----------- | -----------
 1.0.x | yes | no | no | no | no
-1.1.x | no | not tested | yes | not tested | not tested
-1.5.x | no | not tested | yes | not tested | not tested
-1.6.x | no | not tested | not tested | not tested | yes
-1.7.x | no | not tested | not tested | not tested | yes
+1.1.x | no | not tested | yes | not tested
+1.5.x | no | not tested | yes | not tested
+1.6.x | no | not tested | not tested | yes
+1.7.x | no | not tested | not tested | yes
 
 Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
 
@@ -70,7 +70,7 @@ There are two options:
 	* JDK 6 installed
 	* JDK 7 installed
 	* JDK 8 installed
-	* JAVA_HOME environment variable set to JDK 7+ home directory.
+	* JAVA_HOME environment variable set to JDK 8 home directory.
 	* JAVA_6_HOME environment variable set to JDK 6 home directory (1.6.0_45 recommended).
 	* JAVA_7_HOME environment variable set to JDK 7 home directory (1.7.0_80 recommended).
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
