@@ -8,6 +8,8 @@ permalink: quickstart.html
 disqus: true
 ---
 
+If you are using docker, [Take a look at pinpoint docker](./docker.md) which is the easiest way to look around.
+
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
 
 Once the components are running, you should be able to visit http://localhost:28080 to view the Pinpoint Web UI, and http://localhost:28081 to generate transactions on the Sample TestApp.
