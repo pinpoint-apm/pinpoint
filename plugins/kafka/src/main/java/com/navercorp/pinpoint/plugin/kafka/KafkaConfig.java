@@ -19,40 +19,34 @@ package com.navercorp.pinpoint.plugin.kafka;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 public class KafkaConfig {
-    private boolean enable;
-    private boolean createContext;
-    private boolean includeHeader;
-    private String caller;
-    private String encoder;
+
+    static final String PRODUCER_ENABLE = "profiler.kafka.producer.enable";
+    static final String CONSUMER_ENABLE = "profiler.kafka.consumer.enable";
+    static final String CONSUMER_ENTRY_POINT = "profiler.kafka.consumer.entryPoint";
+
+    private final boolean producerEnable;
+    private final boolean consumerEnable;
+    private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
         /*
          * kafka
          */
-        this.enable = config.readBoolean("profiler.kafka.enable", false);
-        this.caller = config.readString("profiler.kafka.caller", "CALLER");
-        this.createContext = config.readBoolean("profiler.kafka.create.context", true);
-        this.includeHeader = config.readBoolean("profiler.kafka.include.header", false);
-        this.encoder = config.readString("profiler.kafka.include.encoder", "");
+        this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
+        this.consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
+        this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
     }
 
-    public boolean isEnable() {
-        return enable;
+    public boolean isProducerEnable() {
+        return producerEnable;
     }
 
-    public String getCaller() {
-        return caller;
+    public boolean isConsumerEnable() {
+        return consumerEnable;
     }
 
-    public boolean isCreateContext() {
-        return createContext;
+    public String getKafkaEntryPoint() {
+        return kafkaEntryPoint;
     }
 
-    public boolean isIncludeHeader() {
-        return includeHeader;
-    }
-
-    public String getEncoder() {
-        return encoder;
-    }
 }
