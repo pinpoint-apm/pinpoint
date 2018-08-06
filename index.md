@@ -32,8 +32,8 @@ You should definitely check **Pinpoint** out If you want to
 <iframe width="560" height="315" src="https://www.youtube.com/embed/U4EwnB34Dus" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 ## Getting Started
- * [Quick-start guide](./quickstart.html) for simple test run of Pinpoint
- * [Installation guide](./installation.html) for further instructions.
+ * [Quick-start guide](https://github.com/naver/pinpoint/tree/master/quickstart) for simple test run of Pinpoint
+ * [Installation guide](https://github.com/naver/pinpoint/blob/master/doc/installation.md) for further instructions.
 
 ## Supported Modules (last updated 2018/04/01)
 * JDK 6+
