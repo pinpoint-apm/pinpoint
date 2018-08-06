@@ -10,4 +10,4 @@ disqus: false
 
 [Installation Guide for 1.8.0+](https://github.com/naver/pinpoint/blob/master/doc/installation.md)
   
-[Installation Guide for 1.7.3](https://github.com/naver/pinpoint/blob/1.7.3/doc/installation.md)
+[Installation Guide for 1.7.x](https://github.com/naver/pinpoint/blob/1.7.x/doc/installation.md)
