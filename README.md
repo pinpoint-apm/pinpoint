@@ -20,8 +20,8 @@ You should definitely check **Pinpoint** out If you want to
 * have minimal impact on the performance (approximately 3% increase in resource usage)
 
 ## Getting Started
- * [Quick-start guide](http://naver.github.io/pinpoint/quickstart.html) for simple test run of Pinpoint
- * [Installation guide](http://naver.github.io/pinpoint/installation.html) for further instructions.
+ * [Quick-start guide](https://github.com/naver/pinpoint/tree/1.7.x/quickstart) for simple test run of Pinpoint
+ * [Installation guide](https://github.com/naver/pinpoint/blob/1.7.x/doc/installation.md) for further instructions.
  
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
