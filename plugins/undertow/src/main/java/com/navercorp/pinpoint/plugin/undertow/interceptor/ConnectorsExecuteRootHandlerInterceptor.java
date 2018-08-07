@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.plugin.undertow.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.undertow.UndertowConfig;
 import com.navercorp.pinpoint.plugin.undertow.UndertowConstants;
 import com.navercorp.pinpoint.plugin.undertow.UndertowHttpHeaderFilter;
-import io.undertow.server.DefaultResponseListener;
 import io.undertow.server.HttpServerExchange;
 
 /**
@@ -91,8 +90,8 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
         try {
             final HttpServerExchange request = (HttpServerExchange) args[1];
             final int statusCode = getStatusCode(request);
-            final Throwable t = getException(request);
-            this.servletRequestListenerInterceptorHelper.destroyed(request, t, statusCode);
+            // TODO Get exception. e.g. request.getAttachment(DefaultResponseListener.EXCEPTION)
+            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
@@ -106,10 +105,6 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
         } catch (Exception ignored) {
         }
         return 0;
-    }
-
-    private Throwable getException(final HttpServerExchange response) {
-        return response.getAttachment(DefaultResponseListener.EXCEPTION);
     }
 
     private class ConnectorsArgumentValidator implements ArgumentValidator {
