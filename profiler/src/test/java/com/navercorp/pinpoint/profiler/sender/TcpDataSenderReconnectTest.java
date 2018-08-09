@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.profiler.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.profiler.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.server.LoggingServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import org.junit.Assert;
 import org.junit.Test;

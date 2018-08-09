@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
-import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.rpc.TestAwaitUtils;
+import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

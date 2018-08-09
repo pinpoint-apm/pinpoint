@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZook
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.web.config.WebConfig;
-import com.navercorp.pinpoint.web.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.web.TestAwaitUtils;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.CreateMode;
