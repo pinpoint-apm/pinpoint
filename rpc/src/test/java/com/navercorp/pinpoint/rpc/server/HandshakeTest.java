@@ -17,14 +17,12 @@
 package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientHandshaker;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import com.navercorp.pinpoint.test.client.TestPinpointClient;
+import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import org.jboss.netty.util.Timer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -32,7 +30,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,15 +44,9 @@ public class HandshakeTest {
 
     private static Timer timer = null;
 
-    private static int bindPort;
-
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(50, 3000);
-
-
     @BeforeClass
     public static void setUp() throws IOException {
         timer = TimerFactory.createHashedWheelTimer(HandshakeTest.class.getSimpleName(), 100, TimeUnit.MILLISECONDS, 512);
-        bindPort = SocketUtils.findAvailableTcpPort();
     }
 
     @AfterClass
@@ -68,64 +59,42 @@ public class HandshakeTest {
     // simple test
     @Test
     public void handshakeTest1() throws InterruptedException {
-        final PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        int bindPort = testPinpointServerAcceptor.bind();
 
-        PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
-        PinpointClientFactory clientFactory2 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), null);
+        TestPinpointClient testPinpointClient1 = new TestPinpointClient(PinpointRPCTestUtils.createEchoClientListener(), PinpointRPCTestUtils.getParams());
+        TestPinpointClient testPinpointClient2 = new TestPinpointClient(PinpointRPCTestUtils.getParams());
         try {
-            PinpointClient client = clientFactory1.connect("127.0.0.1", bindPort);
-            PinpointClient client2 = clientFactory2.connect("127.0.0.1", bindPort);
+            testPinpointClient1.connect(bindPort);
+            testPinpointClient2.connect(bindPort);
 
-            awaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
-                    return writableServerList.size() == 2;
-                }
-            });
-
-            List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
-            if (writableServerList.size() != 2) {
-                Assert.fail();
-            }
-
-            PinpointRPCTestUtils.close(client, client2);
+            testPinpointServerAcceptor.assertAwaitClientConnected(2, 3000);
         } finally {
-            clientFactory1.release();
-            clientFactory2.release();
-
-            PinpointRPCTestUtils.close(serverAcceptor);
+            testPinpointClient1.closeAll();
+            testPinpointClient2.closeAll();
+            testPinpointServerAcceptor.close();
         }
     }
 
     @Test
     public void handshakeTest2() throws InterruptedException {
-        final PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        int bindPort = testPinpointServerAcceptor.bind();
 
         Map<String, Object> params = PinpointRPCTestUtils.getParams();
-        
-        PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
-
+        TestPinpointClient testPinpointClient = new TestPinpointClient(PinpointRPCTestUtils.createEchoClientListener(), params);
         try {
-            PinpointClient client = clientFactory1.connect("127.0.0.1", bindPort);
-            awaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
-                    return writableServerList.size() == 1;
-                }
-            });
+            testPinpointClient.connect(bindPort);
+            testPinpointServerAcceptor.assertAwaitClientConnected(1, 3000);
 
-            PinpointSocket writableServer = getWritableServer("application", "agent", (Long) params.get(HandshakePropertyType.START_TIMESTAMP.getName()), serverAcceptor.getWritableSocketList());
+            PinpointSocket writableServer = getWritableServer("application", "agent", (Long) params.get(HandshakePropertyType.START_TIMESTAMP.getName()), testPinpointServerAcceptor.getConnectedPinpointSocketList());
             Assert.assertNotNull(writableServer);
 
-            writableServer = getWritableServer("application", "agent", (Long) params.get(HandshakePropertyType.START_TIMESTAMP.getName()) + 1, serverAcceptor.getWritableSocketList());
+            writableServer = getWritableServer("application", "agent", (Long) params.get(HandshakePropertyType.START_TIMESTAMP.getName()) + 1, testPinpointServerAcceptor.getConnectedPinpointSocketList());
             Assert.assertNull(writableServer);
-
-            PinpointRPCTestUtils.close(client);
         } finally {
-            clientFactory1.release();
-            PinpointRPCTestUtils.close(serverAcceptor);
+            testPinpointClient.closeAll();
+            testPinpointServerAcceptor.close();
         }
     }
 
