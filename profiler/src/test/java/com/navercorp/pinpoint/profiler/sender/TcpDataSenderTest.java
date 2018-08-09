@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.server.CountCheckServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,39 +38,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class TcpDataSenderTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    public static final int PORT = SocketUtils.findAvailableTcpPort(50050);
-    public static final String HOST = "127.0.0.1";
-
-    private PinpointServerAcceptor serverAcceptor;
-
-    public void serverStart(CountDownLatch sendLatch) {
-        serverAcceptor = new PinpointServerAcceptor();
-
-        CountCheckServerMessageListenerFactory countCheckServerMessageListenerFactory = new CountCheckServerMessageListenerFactory();
-        countCheckServerMessageListenerFactory.setSendCountDownLatch(sendLatch);
-
-        serverAcceptor.setMessageListenerFactory(countCheckServerMessageListenerFactory);
-        serverAcceptor.bind(HOST, PORT);
-    }
-
-    @After
-    public void serverShutdown() {
-        if (serverAcceptor != null) {
-            serverAcceptor.close();
-        }
-    }
-
     @Test
     public void connectAndSend() throws InterruptedException {
         CountDownLatch sendLatch = new CountDownLatch(2);
 
-        serverStart(sendLatch);
+        CountCheckServerMessageListenerFactory countCheckServerMessageListenerFactory = new CountCheckServerMessageListenerFactory();
+        countCheckServerMessageListenerFactory.setSendCountDownLatch(sendLatch);
+
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(countCheckServerMessageListenerFactory);
+        int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender sender = new TcpDataSender(this.getClass().getName(), HOST, PORT, clientFactory);
+        TcpDataSender sender = new TcpDataSender(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
         try {
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
@@ -83,6 +64,8 @@ public class TcpDataSenderTest {
             if (clientFactory != null) {
                 clientFactory.release();
             }
+
+            testPinpointServerAcceptor.close();
         }
     }
     

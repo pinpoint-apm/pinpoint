@@ -16,27 +16,18 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import com.navercorp.pinpoint.rpc.codec.TestCodec;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
-import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import com.navercorp.pinpoint.test.client.TestRawSocket;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.util.Map;
 
 /**
@@ -61,18 +52,19 @@ public class EventHandlerTest {
         serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
         serverAcceptor.bind("127.0.0.1", bindPort);
 
-        Socket socket = null;
+        TestRawSocket testRawSocket = new TestRawSocket();
         try {
-            socket = new Socket("127.0.0.1", bindPort);
-            sendAndReceiveSimplePacket(socket);
+            testRawSocket.connect(bindPort);
+
+            sendAndReceiveSimplePacket(testRawSocket);
             Assert.assertEquals(eventHandler.getCode(), SocketStateCode.RUN_WITHOUT_HANDSHAKE);
 
-            int code = sendAndReceiveRegisterPacket(socket, PinpointRPCTestUtils.getParams());
+            int code = sendAndReceiveRegisterPacket(testRawSocket, PinpointRPCTestUtils.getParams());
             Assert.assertEquals(eventHandler.getCode(), SocketStateCode.RUN_DUPLEX);
 
-            sendAndReceiveSimplePacket(socket);
+            sendAndReceiveSimplePacket(testRawSocket);
         } finally {
-            IOUtils.close(socket);
+            testRawSocket.close();
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
@@ -86,52 +78,28 @@ public class EventHandlerTest {
         serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
         serverAcceptor.bind("127.0.0.1", bindPort);
 
-        Socket socket = null;
+        TestRawSocket testRawSocket = new TestRawSocket();
         try {
-            socket = new Socket("127.0.0.1", bindPort);
-            sendAndReceiveSimplePacket(socket);
+            testRawSocket.connect(bindPort);
+
+            sendAndReceiveSimplePacket(testRawSocket);
 
             Assert.assertTrue(eventHandler.getErrorCount() > 0);
         } finally {
-            IOUtils.close(socket);
+            testRawSocket.close();
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
-    private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> properties) throws ProtocolException, IOException {
-        sendRegisterPacket(socket.getOutputStream(), properties);
-        ControlHandshakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
-        Map<Object, Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(packet.getPayload());
-
-        return MapUtils.getInteger(result, "code", -1);
+    private int sendAndReceiveRegisterPacket(TestRawSocket testRawSocket, Map<String, Object> properties) throws ProtocolException, IOException {
+        testRawSocket.sendHandshakePacket(properties);
+        Map<Object, Object> responseData = testRawSocket.readHandshakeResponseData(3000);
+        return MapUtils.getInteger(responseData, "code", -1);
     }
 
-    private void sendAndReceiveSimplePacket(Socket socket) throws ProtocolException, IOException {
-        sendSimpleRequestPacket(socket.getOutputStream());
-        ResponsePacket responsePacket = readSimpleResponsePacket(socket.getInputStream());
-        Assert.assertNotNull(responsePacket);
-    }
-
-    private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
-        byte[] payload = ControlMessageEncodingUtils.encode(properties);
-
-        byte[] packet = TestCodec.encodePacket(new ControlHandshakePacket(1, payload));
-        IOUtils.write(outputStream, packet);
-    }
-
-    private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
-        byte[] packet = TestCodec.encodePacket(new RequestPacket(10, new byte[0]));
-        IOUtils.write(outputStream, packet);
-    }
-
-    private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
-        byte[] payload = IOUtils.read(inputStream, 50, 3000);
-        return (ControlHandshakeResponsePacket) TestCodec.decodePacket(payload);
-    }
-
-    private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
-        byte[] payload = IOUtils.read(inputStream, 50, 3000);
-        return (ResponsePacket) TestCodec.decodePacket(payload);
+    private void sendAndReceiveSimplePacket(TestRawSocket testRawSocket) throws ProtocolException, IOException {
+        testRawSocket.sendRequestPacket();
+        Assert.assertNotNull(testRawSocket.readResponsePacket(3000));
     }
 
     class EventHandler implements ServerStateChangeEventHandler {
