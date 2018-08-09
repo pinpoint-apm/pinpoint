@@ -48,10 +48,8 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
             logger.beforeInterceptor(target, args);
         }
 
-        if (traceContext.currentRawTraceObject() != null) {
-            if (isDebug) {
-                logger.debug("Skip recursive invoke or duplicated trace");
-            }
+        if (isSkipTrace()) {
+            // Skip recursive invoked or duplicated span(entry point)
             return;
         }
 
@@ -68,6 +66,7 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
 
             // init entry point scope
             if (!initScope(trace)) {
+                // Defense code
                 deleteTrace(trace);
                 return;
             }
@@ -87,6 +86,27 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
             }
         }
     }
+
+    private boolean isSkipTrace() {
+        final Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return false;
+        }
+        if (hasScope(trace)) {
+            // Entry Scope
+            entryScope(trace);
+            if (isDebug) {
+                logger.debug("Skip recursive invoked");
+            }
+        } else {
+            if (isDebug) {
+                logger.debug("Skip duplicated entry point");
+            }
+        }
+        // Skip recursive invoke or duplicated entry point
+        return true;
+    }
+
 
     protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, Object target, final Object[] args);
 
@@ -109,6 +129,7 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
         }
 
         if (!leaveScope(trace)) {
+            // Defense code
             deleteTrace(trace);
             return;
         }
@@ -193,5 +214,8 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
     private void deleteTrace(final Trace trace) {
         traceContext.removeTraceObject();
         trace.close();
+        if (isDebug) {
+            logger.debug("Delete trace.");
+        }
     }
 }
