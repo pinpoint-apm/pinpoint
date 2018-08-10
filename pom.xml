@@ -65,6 +65,7 @@
     <modules>
         <module>annotations</module>
         <module>agent</module>
+        <module>agent-it</module>
         <module>bootstrap-core</module>
         <module>bootstrap-core-optional</module>
         <module>bootstrap</module>
@@ -100,6 +101,11 @@
         <spring.security.version>4.2.2.RELEASE</spring.security.version>
         <sniffer.artifactid>java16</sniffer.artifactid>
         <asm.version>6.1</asm.version>
+
+        <plugin.surefire.verison>2.22.0</plugin.surefire.verison>
+        <plugin.failsafe.verison>2.22.0</plugin.failsafe.verison>
+        <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
+        <plugin.clover.verison>4.2.1</plugin.clover.verison>
     </properties>
 
     <dependencies>
@@ -722,7 +728,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.21.0</version>
+                <version>${plugin.surefire.verison}</version>
                 <configuration>
                     <excludes>
                         <exclude>**/Mock*</exclude>
@@ -738,7 +744,7 @@
             <plugin>
                 <groupId>org.openclover</groupId>
                 <artifactId>clover-maven-plugin</artifactId>
-                <version>4.2.1</version>
+                <version>${plugin.clover.verison}</version>
                 <configuration>
                     <encoding>${encoding}</encoding>
                     <jdk>${jdk.version}</jdk>
@@ -929,7 +935,7 @@
             <plugin>
                 <groupId>org.openclover</groupId>
                 <artifactId>clover-maven-plugin</artifactId>
-                <version>4.2.1</version>
+                <version>${plugin.clover.verison}</version>
                 <configuration>
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                     <license>
