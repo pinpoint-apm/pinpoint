@@ -26,9 +26,13 @@ import com.navercorp.pinpoint.common.util.StringUtils;
  */
 public class ClassResourceCondition implements Condition<String> {
 
+    public static final ClassResourceCondition INSTANCE = new ClassResourceCondition();
+
     private static final String CLASS_EXTENSION = ".class";
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass().getName()); 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass().getName());
+
+    private ClassResourceCondition() {}
 
     private String getClassNameAsResource(String className) {
         String classNameAsResource = className.replace('.', '/');
