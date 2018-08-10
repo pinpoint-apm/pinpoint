@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
+import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import org.jboss.netty.util.Timer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -42,6 +43,8 @@ public class HandshakeTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
+
     private static Timer timer = null;
 
     @BeforeClass
@@ -59,10 +62,10 @@ public class HandshakeTest {
     // simple test
     @Test
     public void handshakeTest1() throws InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
-        TestPinpointClient testPinpointClient1 = new TestPinpointClient(PinpointRPCTestUtils.createEchoClientListener(), PinpointRPCTestUtils.getParams());
+        TestPinpointClient testPinpointClient1 = new TestPinpointClient(testServerMessageListenerFactory.create(), PinpointRPCTestUtils.getParams());
         TestPinpointClient testPinpointClient2 = new TestPinpointClient(PinpointRPCTestUtils.getParams());
         try {
             testPinpointClient1.connect(bindPort);
@@ -78,11 +81,11 @@ public class HandshakeTest {
 
     @Test
     public void handshakeTest2() throws InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         Map<String, Object> params = PinpointRPCTestUtils.getParams();
-        TestPinpointClient testPinpointClient = new TestPinpointClient(PinpointRPCTestUtils.createEchoClientListener(), params);
+        TestPinpointClient testPinpointClient = new TestPinpointClient(testServerMessageListenerFactory.create(), params);
         try {
             testPinpointClient.connect(bindPort);
             testPinpointServerAcceptor.assertAwaitClientConnected(1, 3000);

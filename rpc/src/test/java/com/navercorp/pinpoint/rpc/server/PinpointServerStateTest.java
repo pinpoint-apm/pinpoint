@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.test.client.TestRawSocket;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
+import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import org.junit.Assert;
@@ -36,12 +37,13 @@ import java.io.IOException;
 public class PinpointServerStateTest {
 
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 1000);
+    private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
     @Test
     public void closeByPeerTest() {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
 
-        TestPinpointClient testPinpointClient = new TestPinpointClient(PinpointRPCTestUtils.createEchoClientListener(), PinpointRPCTestUtils.getParams());
+        TestPinpointClient testPinpointClient = new TestPinpointClient(testServerMessageListenerFactory.create(), PinpointRPCTestUtils.getParams());
         try {
             int bindPort = testPinpointServerAcceptor.bind();
 
@@ -65,9 +67,9 @@ public class PinpointServerStateTest {
 
     @Test
     public void closeTest() {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
 
-        TestPinpointClient testPinpointClient = new TestPinpointClient(PinpointRPCTestUtils.createEchoClientListener(), PinpointRPCTestUtils.getParams());
+        TestPinpointClient testPinpointClient = new TestPinpointClient(testServerMessageListenerFactory.create(), PinpointRPCTestUtils.getParams());
         try {
             int bindPort = testPinpointServerAcceptor.bind();
 
@@ -87,7 +89,7 @@ public class PinpointServerStateTest {
 
     @Test
     public void unexpectedCloseByPeerTest() throws IOException, ProtocolException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         try {
             int bindPort = testPinpointServerAcceptor.bind();
 
@@ -113,9 +115,9 @@ public class PinpointServerStateTest {
 
     @Test
     public void unexpectedCloseTest() {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
 
-        TestPinpointClient testPinpointClient = new TestPinpointClient(PinpointRPCTestUtils.createEchoClientListener(), PinpointRPCTestUtils.getParams());
+        TestPinpointClient testPinpointClient = new TestPinpointClient(testServerMessageListenerFactory.create(), PinpointRPCTestUtils.getParams());
         try {
             int bindPort = testPinpointServerAcceptor.bind();
 

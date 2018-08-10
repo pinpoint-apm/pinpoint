@@ -95,10 +95,6 @@ public final class PinpointRPCTestUtils {
         }
     }
 
-    public static EchoClientListener createEchoClientListener() {
-        return new EchoClientListener();
-    }
-
     public static Map<String, Object> getParams() {
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(HandshakePropertyType.AGENT_ID.getName(), "agent");

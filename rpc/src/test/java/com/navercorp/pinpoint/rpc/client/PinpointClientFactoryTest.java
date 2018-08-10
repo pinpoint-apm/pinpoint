@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
-import com.navercorp.pinpoint.rpc.server.CountCheckServerMessageListenerFactory;
-import com.navercorp.pinpoint.rpc.server.EchoServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
+import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
+import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import org.jboss.netty.channel.ChannelFuture;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -34,7 +35,6 @@ import org.springframework.util.SocketUtils;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -97,17 +97,22 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void pingInternal() throws IOException, InterruptedException {
-        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
+        TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
+        final TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
-        final CountDownLatch pingLatch = new CountDownLatch(1);
-        messageListenerFactory.setPingCountDownLatch(pingLatch);
-
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
-            pingLatch.await();
+
+            boolean await = TestAwaitUtils.await(new TestAwaitTaskUtils() {
+                @Override
+                public boolean checkCompleted() {
+                    return serverMessageListener.hasReceivedPing();
+                }
+            }, 100, 3000);
+            Assert.assertTrue(await);
             PinpointRPCTestUtils.close(client);
         } finally {
             testPinpointServerAcceptor.close();
@@ -130,7 +135,7 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void pingAndRequestResponse() throws IOException, InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX));
         int bindPort = testPinpointServerAcceptor.bind();
 
         try {
@@ -148,7 +153,7 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void sendSync() throws IOException, InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor();
         int bindPort = testPinpointServerAcceptor.bind();
 
         try {
@@ -166,7 +171,7 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void requestAndResponse() throws IOException, InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX));
         int bindPort = testPinpointServerAcceptor.bind();
 
         try {
