@@ -1,5 +1,7 @@
 repository: naver/pinpoint
 
+theme: false
+
 output: web
 # this property is useful for conditional filtering of content that is separate from the PDF.
 
@@ -30,6 +32,20 @@ port: 4000
 exclude:
   - .idea/
   - .gitignore
+  - pinpointHome.iml
+  - Gemfile
+  - Gemfile.lock
+  - googlec597bd2844fc7d83.html
+  - README.md
+  - version.json
+  - licenses/
+  - var/
+  - tooltips.html
+  - tooltips.json
+  - createtag
+
+
+
 # these are the files and directories that jekyll will exclude from the build
 
 feedback_subject_line: pinpoint
@@ -64,6 +80,7 @@ collections:
 # collections are declared here. this renders the content in _tooltips and processes it, but doesn't output it as actual files in the output unless you change output to true
 
 defaults:
+
   -
     scope:
       path: ""
@@ -72,7 +89,6 @@ defaults:
       layout: "page"
       comments: true
       search: true
-      sidebar: home_sidebar
       topnav: topnav
   -
     scope:
@@ -92,17 +108,12 @@ defaults:
       layout: "post"
       comments: true
       search: true
-      sidebar: home_sidebar
       topnav: topnav
 
 # these are defaults used for the frontmatter for these file types
 
 sidebars:
-- home_sidebar
 - mydoc_sidebar
-- product1_sidebar
-- product2_sidebar
-- other
 
 description: "Intended as a documentation theme based on Jekyll for technical writers documenting software and other technical products, this theme has all the elements you would need to handle multiple products with both multi-level sidebar navigation, tags, and other documentation features."
 # the description is used in the feed.xml file
