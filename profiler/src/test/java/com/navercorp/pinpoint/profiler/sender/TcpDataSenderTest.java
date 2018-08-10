@@ -18,20 +18,12 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.server.CountCheckServerMessageListenerFactory;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
+import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.SocketUtils;
 
 import java.util.Collections;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -40,12 +32,10 @@ public class TcpDataSenderTest {
 
     @Test
     public void connectAndSend() throws InterruptedException {
-        CountDownLatch sendLatch = new CountDownLatch(2);
+        TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
+        TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
-        CountCheckServerMessageListenerFactory countCheckServerMessageListenerFactory = new CountCheckServerMessageListenerFactory();
-        countCheckServerMessageListenerFactory.setSendCountDownLatch(sendLatch);
-
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(countCheckServerMessageListenerFactory);
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
@@ -55,9 +45,7 @@ public class TcpDataSenderTest {
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
 
-
-            boolean received = sendLatch.await(1000, TimeUnit.MILLISECONDS);
-            Assert.assertTrue(received);
+            serverMessageListener.awaitAssertExpectedSendCount(2, 1000);
         } finally {
             sender.stop();
             

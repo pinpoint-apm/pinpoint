@@ -21,15 +21,14 @@ import com.navercorp.pinpoint.rpc.packet.Packet;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.PingSimplePacket;
-import com.navercorp.pinpoint.rpc.server.CountCheckServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.client.TestRawSocket;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
+import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Taejin Koo
@@ -38,12 +37,10 @@ public class HealthCheckTest {
 
     @Test
     public void legacyHealthCheckTest1() throws Exception {
-        final CountDownLatch pingLatch = new CountDownLatch(1);
+        TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
+        TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
-        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
-        messageListenerFactory.setPingCountDownLatch(pingLatch);
-
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         TestRawSocket testRawSocket = new TestRawSocket();
@@ -55,17 +52,15 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertFalse(isSuccess(pingLatch));
+        Assert.assertFalse(serverMessageListener.hasReceivedPing());
     }
 
     @Test
     public void legacyHealthCheckTest2() throws Exception {
-        final CountDownLatch pingLatch = new CountDownLatch(1);
+        TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
+        TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
-        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
-        messageListenerFactory.setPingCountDownLatch(pingLatch);
-
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         TestRawSocket testRawSocket = new TestRawSocket();
@@ -77,24 +72,15 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertTrue(isSuccess(pingLatch));
-    }
-
-    private boolean isSuccess(CountDownLatch latch) {
-        if (latch != null && latch.getCount() == 0) {
-            return true;
-        }
-        return false;
+        Assert.assertTrue(serverMessageListener.hasReceivedPing());
     }
 
     @Test
     public void healthCheckTest() throws Exception {
-        final CountDownLatch pingLatch = new CountDownLatch(1);
+        TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
+        TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
-        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
-        messageListenerFactory.setPingCountDownLatch(pingLatch);
-
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         TestRawSocket testRawSocket = new TestRawSocket();
@@ -107,17 +93,15 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertTrue(isSuccess(pingLatch));
+        Assert.assertTrue(serverMessageListener.hasReceivedPing());
     }
 
     @Test
     public void healthCheckSimplePingTest() throws Exception {
-        final CountDownLatch pingLatch = new CountDownLatch(1);
+        TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
+        TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
-        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
-        messageListenerFactory.setPingCountDownLatch(pingLatch);
-
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         TestRawSocket testRawSocket = new TestRawSocket();
@@ -131,17 +115,15 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertFalse(isSuccess(pingLatch));
+        Assert.assertFalse(serverMessageListener.hasReceivedPing());
     }
 
     @Test
     public void stateSyncFailTest() throws Exception {
-        final CountDownLatch pingLatch = new CountDownLatch(1);
+        TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
+        TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
-        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
-        messageListenerFactory.setPingCountDownLatch(pingLatch);
-
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         boolean isSuccess = false;
@@ -164,18 +146,16 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertFalse(isSuccess(pingLatch));
+        Assert.assertFalse(serverMessageListener.hasReceivedPing());
     }
 
     @Ignore
     @Test
     public void expiredHealthCheckTest() throws Exception {
-        final CountDownLatch pingLatch = new CountDownLatch(1);
+        TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
+        TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
-        CountCheckServerMessageListenerFactory messageListenerFactory = new CountCheckServerMessageListenerFactory();
-        messageListenerFactory.setPingCountDownLatch(pingLatch);
-
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         TestRawSocket testRawSocket = new TestRawSocket();
@@ -192,7 +172,7 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertFalse(isSuccess(pingLatch));
+        Assert.assertFalse(serverMessageListener.hasReceivedPing());
     }
 
     private void sendPingAndReceivePongPacket(TestRawSocket testRawSocket, Packet pingPacket) throws IOException, ProtocolException {

@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.server.EchoServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils.EchoClientListener;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
+import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import org.junit.Assert;
@@ -33,10 +33,11 @@ import org.junit.Test;
 public class ClientMessageListenerTest {
 
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(10, 1000);
+    private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
     @Test
     public void clientMessageListenerTest1() throws InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         EchoClientListener echoMessageListener = new EchoClientListener();
@@ -56,13 +57,13 @@ public class ClientMessageListenerTest {
 
     @Test
     public void clientMessageListenerTest2() throws InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
-        EchoClientListener echoMessageListener1 = PinpointRPCTestUtils.createEchoClientListener();
+        TestServerMessageListenerFactory.TestServerMessageListener echoMessageListener1 = testServerMessageListenerFactory.create();
         TestPinpointClient testPinpointClient1 = new TestPinpointClient(echoMessageListener1, PinpointRPCTestUtils.getParams());
 
-        EchoClientListener echoMessageListener2 = PinpointRPCTestUtils.createEchoClientListener();
+        TestServerMessageListenerFactory.TestServerMessageListener echoMessageListener2 = testServerMessageListenerFactory.create();
         TestPinpointClient testPinpointClient2 = new TestPinpointClient(echoMessageListener2, PinpointRPCTestUtils.getParams());
 
         try {
@@ -76,8 +77,9 @@ public class ClientMessageListenerTest {
             PinpointSocket writableServer2 = testPinpointServerAcceptor.getConnectedPinpointSocketList().get(1);
             assertRequestMessage(writableServer2, "socket2", null);
 
-            Assert.assertEquals(1, echoMessageListener1.getRequestPacketRepository().size());
-            Assert.assertEquals(1, echoMessageListener2.getRequestPacketRepository().size());
+
+            echoMessageListener1.awaitAssertExpectedRequestCount(1, 0);
+            echoMessageListener2.awaitAssertExpectedRequestCount(1, 0);
         } finally {
             testPinpointClient1.closeAll();
             testPinpointClient2.closeAll();

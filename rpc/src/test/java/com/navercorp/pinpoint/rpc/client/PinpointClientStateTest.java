@@ -19,19 +19,17 @@ package com.navercorp.pinpoint.rpc.client;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.DefaultPinpointServer;
-import com.navercorp.pinpoint.rpc.server.EchoServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
+import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -40,14 +38,8 @@ import java.net.SocketAddress;
  */
 public class PinpointClientStateTest {
 
-    private static int bindPort;
-
+    private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 2000);
-
-    @BeforeClass
-    public static void setUp() throws IOException {
-        bindPort = SocketUtils.findAvailableTcpPort();
-    }
 
     @Test
     public void connectFailedStateTest() throws InterruptedException {
@@ -56,7 +48,7 @@ public class PinpointClientStateTest {
         try {
             int availableTcpPort = SocketUtils.findAvailableTcpPort(47000);
 
-            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
             handler = connect(clientFactory, availableTcpPort);
 
             assertHandlerState(SocketStateCode.CONNECT_FAILED, handler);
@@ -68,13 +60,13 @@ public class PinpointClientStateTest {
 
     @Test
     public void closeStateTest() throws InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientSocketFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
-            clientSocketFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+            clientSocketFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
             handler = connect(clientSocketFactory, bindPort);
             assertHandlerState(SocketStateCode.RUN_DUPLEX, handler);
 
@@ -89,13 +81,13 @@ public class PinpointClientStateTest {
 
     @Test
     public void closeByPeerStateTest() throws InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
-            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
             handler = connect(clientFactory, bindPort);
             assertHandlerState(SocketStateCode.RUN_DUPLEX, handler);
 
@@ -110,13 +102,13 @@ public class PinpointClientStateTest {
 
     @Test
     public void unexpectedCloseStateTest() throws InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
-            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
             handler = connect(clientFactory, bindPort);
             assertHandlerState(SocketStateCode.RUN_DUPLEX, handler);
 
@@ -131,13 +123,13 @@ public class PinpointClientStateTest {
 
     @Test
     public void unexpectedCloseByPeerStateTest() throws InterruptedException {
-        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(new EchoServerMessageListenerFactory(true));
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
-            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
             handler = connect(clientFactory, bindPort);
             assertHandlerState(SocketStateCode.RUN_DUPLEX, handler);
 

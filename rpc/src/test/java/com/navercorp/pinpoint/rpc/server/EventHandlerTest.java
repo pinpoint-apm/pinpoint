@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.client.TestRawSocket;
+import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +37,7 @@ import java.util.Map;
 public class EventHandlerTest {
 
     private static int bindPort;
+    private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -49,7 +51,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
+        serverAcceptor.setMessageListenerFactory(testServerMessageListenerFactory);
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         TestRawSocket testRawSocket = new TestRawSocket();
@@ -75,7 +77,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListenerFactory(new EchoServerMessageListenerFactory(true));
+        serverAcceptor.setMessageListenerFactory(testServerMessageListenerFactory);
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         TestRawSocket testRawSocket = new TestRawSocket();
