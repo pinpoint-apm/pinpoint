@@ -1,3 +1,13 @@
+---
+title: Per Request Features
+tags:
+keywords: history
+last_updated: Feb 1, 2018
+sidebar: mydoc_sidebar
+permalink: perrequestfeatureguide.html
+disqus: true
+---
+
 # ENGLISH GUIDE
 
 ## Per-request logging
