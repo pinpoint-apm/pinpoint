@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include head.html %}
+
+
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+
+
+</head>
+<body>
+
+{% include topnav.html %}
+<!-- Page Content -->
+
+<div class="container">
+
+    <div id="main">
+        <!-- Content Row -->
+        <div class="row">
+            {% assign content_col_size = "col-md-8" %}
+
+            <!-- Content Column -->
+            <div class="{{content_col_size}}" id="tg-sb-content">
+                <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+                {{content}}
+            </div>
+            <div class="col-md-4">
+                {% include reference.html %}
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </div>
+    <!-- /#main -->
+</div>
+
+</body>
+{% if site.google_analytics %}
+{% include google_analytics.html %}
+{% endif %}
+</html>
+

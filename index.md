@@ -1,19 +1,21 @@
 ---
-title: "Welcome to Pinpoint"
+title: 
 keywords: pinpoint apm, apm, pinpoint, pinpoint homepage, pinpoint gitpage
 tags:
-sidebar: mydoc_sidebar
 permalink: index.html
 summary:
 toc: false
 disqus: false
+layout: firstpage
 ---
 
 ![Pinpoint](images/logo.png)
 
 ![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)
 ![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)
-
+  
+## Introduction  
+  
 **Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
 You should definitely check **Pinpoint** out If you want to
@@ -34,21 +36,6 @@ You should definitely check **Pinpoint** out If you want to
 ## Getting Started
  * [Quick-start guide](https://github.com/naver/pinpoint/tree/master/quickstart) for simple test run of Pinpoint
  * [Installation guide](https://github.com/naver/pinpoint/blob/master/doc/installation.md) for further instructions.
-
-## Supported Modules (last updated 2018/04/01)
-* JDK 6+
-* Tomcat 6/7/8, [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx)
-* Spring, Spring Boot (Embedded Tomcat, Jetty)
-* Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
-* Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
-* ActiveMQ, RabbitMQ
-* MySQL, Oracle, MSSQL, CUBRID,POSTGRESQL, MARIA
-* Arcus, Memcached, Redis, CASSANDRA
-* iBATIS, MyBatis
-* DBCP, DBCP2, HIKARICP
-* gson, Jackson, Json Lib
-* log4j, Logback
-
 
 ## Google Analytics
 The web module has google analytics attached that tracks the number and the order of button clicks in the server map, transaction list, and the inspector view.

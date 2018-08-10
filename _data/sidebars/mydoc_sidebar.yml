@@ -19,8 +19,8 @@ entries:
       output: pdf
       type: frontmatter
 
-  - title: Home
-    url: /index.html
+  - title: What's New
+    url: /main.html
     output: link
     type: homepage
 
