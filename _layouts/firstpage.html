@@ -1,24 +1,9 @@
 ---
-layout: default
+layout: firstdefault
 ---
 
-
-<script language="javascript" type="text/javascript">
-    $(document).ready(function () {
-        GetUrl();
-    });
-
-    function GetUrl() {
-
-        var pathname = window.location.pathname;
-        if(pathname == "/pinpoint/main.html"){
-            document.getElementById("pathname").innerHTML = "Snapshot(Unstable)";
-        }
-    }
-</script>
-
 <div class="post-header">
-   <h1 class="post-title-main" id="pathname">{{ page.title }}</h1>
+   <h1 class="post-title-main">{{ page.title }}</h1>
 </div>
 
 {% if page.simple_map == true %}
@@ -87,6 +72,4 @@ layout: default
 {% include disqus.html %}
 {% endif %}
 
-{{site.data.alerts.hr_shaded}}
 
-{% include footer.html %}

@@ -1,0 +1,25 @@
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        buildHtmlTable();
+    });
+
+    function buildHtmlTable() {
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+            $.each(data, function(key, value) {
+                var tr = $('<tr/>');
+
+                $(tr).append("<td>" + value.ver + "</td>");
+                $(tr).append("<td><a href=\"" + value.url + "\">Reference</a></td>");
+                $('#versionTable').append(tr);
+            })
+        });
+
+    }
+</script>
+
+
+        <h2>Releases</h2>
+        <table id="versionTable" class="table table-striped">
+            <thead><tr><th>Release</th><th>Documentation</th></tr></thead>
+        </table>
