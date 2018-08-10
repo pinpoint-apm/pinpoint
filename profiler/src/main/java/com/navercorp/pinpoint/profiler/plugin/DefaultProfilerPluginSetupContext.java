@@ -18,8 +18,12 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.resolver.ApplicationTypeResolver;
+import com.navercorp.pinpoint.bootstrap.resolver.ExceptionalApplicationTypeResolver;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,24 +34,24 @@ import java.util.List;
  */
 public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupContext {
 
-    private final ProfilerConfig profilerConfig;
+    private static final ApplicationTypeResolver DEFAULT_APPLICATION_TYPE_RESOLVER = ExceptionalApplicationTypeResolver.INSTANCE;
+
+    private final ProfilerPluginGlobalContext globalContext;
 
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<JdbcUrlParserV2> jdbcUrlParserList = new ArrayList<JdbcUrlParserV2>();
 
-    public DefaultProfilerPluginSetupContext(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+    public DefaultProfilerPluginSetupContext(ProfilerPluginGlobalContext globalContext) {
+        if (globalContext == null) {
+            throw new NullPointerException("globalContext must not be null");
         }
-
-        this.profilerConfig = profilerConfig;
+        this.globalContext = globalContext;
     }
 
     @Override
     public ProfilerConfig getConfig() {
-        return profilerConfig;
+        return globalContext.getConfig();
     }
-
 
     @Override
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
@@ -61,6 +65,21 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
 
     public List<ApplicationTypeDetector> getApplicationTypeDetectors() {
         return serverTypeDetectors;
+    }
+
+    @Override
+    public ServiceType getConfiguredApplicationType() {
+        return globalContext.getConfiguredApplicationType();
+    }
+
+    @Override
+    public void setApplicationType(ServiceType applicationType) {
+        globalContext.setApplicationType(applicationType, DEFAULT_APPLICATION_TYPE_RESOLVER);
+    }
+
+    @Override
+    public void setApplicationType(ServiceType applicationType, ApplicationTypeResolver applicationTypeResolver) {
+        globalContext.setApplicationType(applicationType, applicationTypeResolver);
     }
 
     @Override
