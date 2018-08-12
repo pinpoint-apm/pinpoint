@@ -9,6 +9,7 @@ disqus: false
 ---
 
 ## Third-party agents/plugins
+
 There may be agents, and plugins that are being developed and managed by other individuals/organizations.
 
 Below include agents and plugins that are not merged into this repository.  
