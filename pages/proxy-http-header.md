@@ -7,6 +7,7 @@ sidebar: mydoc_sidebar
 permalink: proxyhttpheader.html
 disqus: true
 ---
+
 # Proxy monitoring using HTTP headers
 It is used to know the elapsed time between proxy and WAS.
 

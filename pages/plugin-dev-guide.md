@@ -119,7 +119,7 @@ You may also pass `AnnotationKeyMatcher` with the `ServiceType` (`TraceMetadata.
 `ProfilerPlugin` works in the order of following steps:
 
 1. Pinpoint Agent is started when the JVM starts.
-2. Pinpoint Agent loads all plugins under plugin directory.
+2. Pinpoint Agent loads all plugins under `plugin` directory.
 3. Pinpoint Agent invokes `ProfilerPlugin.setup(ProfilerPluginSetupContext)` for each loaded plugin.
 4. In the `setup` method, the plugin defines classes that should be transformed and registers a `TransformerCallback`.
 5. Target application start.

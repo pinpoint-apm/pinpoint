@@ -35,34 +35,45 @@ These conditions are (by default) checked every 3 minutes by a background batch 
 **Alarm Rules**
 ```
 SLOW COUNT
-   Triggered when the number of slow requests sent by the application exceeds the configured threshold.
-
-SLOW RATE
-   Triggered when the percentage(%) of slow requests sent by the application exceeds the configured threshold.
-
-ERROR COUNT
-   Triggered when the number of failed requests sent by the application exceeds the configured threshold.
-
-ERROR RATE
-   Triggered when the percentage(%) of failed requests sent by the application exceeds the configured threshold.
-
-TOTAL COUNT
-   Triggered when the number of all requests sent by the application exceeds the configured threshold.
-
-SLOW COUNT TO CALLEE
    Triggered when the number of slow requests sent to the application exceeds the configured threshold.
 
-SLOW RATE TO CALLEE
+SLOW RATE
    Triggered when the percentage(%) of slow requests sent to the application exceeds the configured threshold.
 
-ERROR COUNT TO CALLEE
+ERROR COUNT
    Triggered when the number of failed requests sent to the application exceeds the configured threshold.
 
-ERROR RATE TO CALLEE
+ERROR RATE
    Triggered when the percentage(%) of failed requests sent to the application exceeds the configured threshold.
 
-TOTAL COUNT TO CALLEE
+TOTAL COUNT
    Triggered when the number of all requests sent to the application exceeds the configured threshold.
+
+SLOW COUNT TO CALLEE
+   Triggered when the number of slow requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+SLOW RATE TO CALLEE
+   Triggered when the percentage(%) of slow requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+ERROR COUNT TO CALLEE
+   Triggered when the number of failed requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+ERROR RATE TO CALLEE
+   Triggered when the percentage(%) of failed requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+TOTAL COUNT TO CALLEE
+   Triggered when the number of all requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
 
 HEAP USAGE RATE
    Triggered when the application's heap usage(%) exceeds the configured threshold.
@@ -179,7 +190,8 @@ If there are a lot of alarms registered to applications, you may set the `alarmS
 **4) use quickstart's web** - 
 Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
 However Quickstart uses MockDAO to reduce memory usage.<br/>
-Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/applicationContext-dao-config.xml
+Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml
+](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/applicationContext-dao-config.xml
 ), [jdbc.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/jdbc.properties).  
 
 ---
@@ -207,41 +219,49 @@ alarm batch는 기본적으로 3분에 한번씩 동작이 된다. 최근 5분�
 alarm rule에 대한 설명은 아래를 참고하시오. 
 
 ```         
+
 SLOW COUNT
-   application 내에서 외부서버를 호출한 요청 중 slow 호출의 개수가 임계치를 초과한 경우 알람이 전송된다.
-    
-SLOW RATE
-   application 내에서 외부서버를 호출한 요청 중 slow 호출의 비율(%)이 임계치를 초과한 경우 알람이 전송된다.
-
-ERROR COUNT
-   application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 개수가 임계치를 초과한 경우 알람이 전송된다.
-
-ERROR RATE
-   application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 비율이 임계치를 초과한 경우 알람이 전송된다.
-
-TOTAL COUNT
-   application 내에서 외부서버를 호출한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다.
-
-SLOW COUNT TO CALLEE
    외부에서 application을 호출한 요청 중에 외부서버로 응답을 늦게 준 요청의 개수가 임계치를 초과한 경우 알람이 전송된다.
 
-SLOW RATE TO CALLEE
+SLOW RATE
    외부에서 application을 호출한 요청 중에 외부서버로 응답을 늦게 준 요청의 비율(%)이 임계치를 초과한 경우 알람이 전송된다.
 
-ERROR COUNT TO CALLEE
+ERROR COUNT
    외부에서 application을 호출한 요청 중에 에러가 발생한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다.
 
-ERROR RATE TO CALLEE
+ERROR RATE
    외부에서 application을 호출한 요청 중에 에러가 발생한 요청의 비율(%)이 임계치를 초과한 경우 알람이 전송된다.
 
-TOTAL COUNT TO CALLEE
+TOTAL COUNT
    외부에서 application을 호출한 요청 개수가 임계치를 초과한 경우 알람이 전송된다.
+
+SLOW COUNT TO CALLEE
+   application 내에서 외부서버를 호출한 요청 중 slow 호출의 개수가 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+    
+SLOW RATE TO CALLEE
+   application 내에서 외부서버를 호출한 요청 중 slow 호출의 비율(%)이 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+
+ERROR COUNT TO CALLEE
+   application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 개수가 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+
+ERROR RATE TO CALLEE
+   application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 비율이 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+
+TOTAL COUNT TO CALLEE
+   application 내에서 외부서버를 호출한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
 
 HEAP USAGE RATE
    heap의 사용률이 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
 
 JVM CPU USAGE RATE
    applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
 
 DATASOURCE CONNECTION USAGE RATE
    applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
