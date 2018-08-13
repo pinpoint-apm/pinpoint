@@ -32,7 +32,7 @@ public class JavaAgentPathResolverTest {
 
     @Test
     public void testInputArgument() {
-        String agentPath = "/pinpoint/agent/target/pinpoint-agent-1.8.0-RC1/pinpoint-bootstrap-1.8.0-RC1.jar";
+        String agentPath = "/pinpoint/agent/target/pinpoint-agent-1.8.0-SNAPSHOT/pinpoint-bootstrap-1.8.0-SNAPSHOT.jar";
         final RuntimeMXBean runtimeMXBean = mock(RuntimeMXBean.class);
         List<String> inputArguments = Collections.singletonList(JavaAgentPathResolver.JAVA_AGENT_OPTION + agentPath);
         when(runtimeMXBean.getInputArguments()).thenReturn(inputArguments);
