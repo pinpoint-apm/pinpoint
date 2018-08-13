@@ -7,7 +7,11 @@
 
 **Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**  
 
-The current stable version is [v1.7.3](https://github.com/naver/pinpoint/releases/latest).
+## Latest Release (2018/08/13)
+We're happy to announce the release of Pinpoint v1.8.0-RC1.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.0-RC1).
+
+The current stable version is [v1.7.3](https://github.com/naver/pinpoint/releases/tag/1.7.3).
 
 **Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
