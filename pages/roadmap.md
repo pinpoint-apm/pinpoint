@@ -1,6 +1,5 @@
 ---
 title: Roadmap
-tags:
 keywords: roadmap, future
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar

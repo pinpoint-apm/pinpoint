@@ -1,7 +1,6 @@
 ---
 title: FAQ
 sidebar: mydoc_sidebar
-tags:
 keywords: faq, question, answer, frequently asked questions, FAQ, question and answer
 last_updated: Feb 1, 2018
 permalink: faq.html

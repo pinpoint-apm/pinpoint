@@ -1,6 +1,5 @@
 ---
 title: HTTP Status Code Failure
-tags:
 keywords: http, code fail, failure, http status
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar

@@ -1,6 +1,5 @@
 ---
 title: How to use Application Inspector
-tags:
 keywords: inspector, how, how-to
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar

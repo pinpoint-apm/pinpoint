@@ -1,6 +1,5 @@
 ---
 title: Overview
-tags:
 keywords: overview, architecture
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar

@@ -1,6 +1,5 @@
 ---
 title: Resources
-tags:
 keywords: resources, other sites
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
