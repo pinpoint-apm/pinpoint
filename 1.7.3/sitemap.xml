@@ -118,12 +118,6 @@
   
   
   <url>
-    <loc>http://localhost:4000/installation173.html</loc>
-  </url>
-  
-  
-  
-  <url>
     <loc>http://localhost:4000/installation_old.html</loc>
   </url>
   
@@ -131,12 +125,6 @@
   
   <url>
     <loc>http://localhost:4000/main.html</loc>
-  </url>
-  
-  
-  
-  <url>
-    <loc>http://localhost:4000/main173.html</loc>
   </url>
   
   
@@ -155,12 +143,6 @@
   
   <url>
     <loc>http://localhost:4000/overview.html</loc>
-  </url>
-  
-  
-  
-  <url>
-    <loc>http://localhost:4000/perrequestfeatureguide.html</loc>
   </url>
   
   
@@ -219,6 +201,30 @@
   
   <url>
     <loc>http://localhost:4000/troubleshooting_network.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>http://localhost:4000/1.7.3/pages/compatibilityHbase.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>http://localhost:4000/1.7.3/pages/compatibilityJava.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>http://localhost:4000/1.7.3/pages/compatibilityPinpoint.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>http://localhost:4000/1.7.3/pages/dev-architecture.html</loc>
   </url>
   
   

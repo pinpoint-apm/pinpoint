@@ -116,21 +116,10 @@
 
 
 {
-"title": "Installation",
+"title": "Installation.",
 "tags": "",
 "keywords": "pinpoint, pinpoint homepage, install, start, installation",
 "url": "installation.html",
-"summary": ""
-}
-,
-
-
-
-{
-"title": "Installation",
-"tags": "",
-"keywords": "pinpoint, pinpoint homepage, install, start, installation",
-"url": "installation173.html",
 "summary": ""
 }
 ,
@@ -149,21 +138,10 @@
 
 
 {
-"title": "Pinpoint 1.7.3",
-"tags": "",
-"keywords": "pinpoint release, 1.7.3",
-"url": "main.html",
-"summary": ""
-}
-,
-
-
-
-{
 "title": "Pinpoint 1.8.0",
 "tags": "",
 "keywords": "pinpoint release, 1.8.0",
-"url": "main173.html",
+"url": "main.html",
 "summary": ""
 }
 ,
@@ -197,17 +175,6 @@
 "tags": "",
 "keywords": "overview, architecture",
 "url": "overview.html",
-"summary": ""
-}
-,
-
-
-
-{
-"title": "Per Request Features",
-"tags": "",
-"keywords": "history",
-"url": "perrequestfeatureguide.html",
 "summary": ""
 }
 ,
@@ -311,6 +278,50 @@
 "tags": "",
 "keywords": "troubleshooting",
 "url": "troubleshooting_network.html",
+"summary": ""
+}
+,
+
+
+
+{
+"title": "",
+"tags": "",
+"keywords": "",
+"url": "1.7.3pagescompatibilityHbase.html",
+"summary": ""
+}
+,
+
+
+
+{
+"title": "",
+"tags": "",
+"keywords": "",
+"url": "1.7.3pagescompatibilityJava.html",
+"summary": ""
+}
+,
+
+
+
+{
+"title": "",
+"tags": "",
+"keywords": "",
+"url": "1.7.3pagescompatibilityPinpoint.html",
+"summary": ""
+}
+,
+
+
+
+{
+"title": "Architecture",
+"tags": "",
+"keywords": "",
+"url": "1.7.3pagesdev-architecture.html",
 "summary": ""
 }
 ,
