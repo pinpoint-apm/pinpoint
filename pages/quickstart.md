@@ -8,7 +8,7 @@ permalink: quickstart.html
 disqus: true
 ---
 
-If you are using docker, [Take a look at pinpoint docker](./docker.md) which is the easiest way to look around.
+If you are using docker, [Take a look at pinpoint docker](./docker.html) which is the easiest way to look around.
 
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
 
@@ -102,6 +102,6 @@ You can feed trace data to Pinpoint using the TestApp UI, and check them using P
 
 Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
 However Quickstart uses MockDAO to reduce memory usage.<br/>
-Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml](../web/src/main/resources/applicationContext-dao-config.xml), [jdbc.properties](../web/src/main/resources/jdbc.properties).
+Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/applicationContext-dao-config.xml), [jdbc.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/jdbc.properties).
 
 Additionally, if you would like to enable alerts, you need to implement additional logic. Please ref this [link](./alarm.html)

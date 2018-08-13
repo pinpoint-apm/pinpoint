@@ -29,7 +29,7 @@ For example, if the data is queried from 10:00:30 to 10:05:30, the Scatter Chart
 
 ### How do I delete application name and/or agent id from HBase?
 Application names and agent ids, once registered, stay in HBase until their TTL expires (default 1year).
-You may however delete them proactively using [admin APIs](../blob/master/web/src/main/java/com/navercorp/pinpoint/web/controller/AdminController.java) once they are no longer used.
+You may however delete them proactively using [admin APIs](https://github.com/naver/pinpoint/blob/master/web/src/main/java/com/navercorp/pinpoint/web/controller/AdminController.java) once they are no longer used.
 * Remove application name - `/admin/removeApplicationName.pinpoint?applicationName=$APPLICATION_NAME&password=$PASSWORD`
 * Remove agent id - `/admin/removeAgentId.pinpoint?applicationName=$APPLICATION_NAME&agentId=$AGENT_ID&password=$PASSWORD`
 Note that the value for the password parameter is what you defined `admin.password` property in *pinpoint-web.properties*. Leaving this blank will allow you to call admin APIs without the password parameter.
