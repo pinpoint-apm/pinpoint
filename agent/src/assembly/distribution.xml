@@ -27,7 +27,7 @@
     <fileSets>
         <fileSet>
             <directory>${basedir}/src/main/resources-${env}</directory>
-            <outputDirectory></outputDirectory>
+            <outputDirectory>./</outputDirectory>
         </fileSet>
     </fileSets>
 

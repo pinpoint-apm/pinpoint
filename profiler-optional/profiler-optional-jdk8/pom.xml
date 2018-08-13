@@ -60,7 +60,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${plugin.failsafe.verison}</version>
+                <version>${plugin.failsafe.version}</version>
                 <executions>
                     <execution>
                         <goals>
