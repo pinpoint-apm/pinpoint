@@ -34,8 +34,8 @@ You should definitely check **Pinpoint** out If you want to
 <iframe width="560" height="315" src="https://www.youtube.com/embed/U4EwnB34Dus" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 ## Getting Started
- * [Quick-start guide](https://github.com/naver/pinpoint/tree/master/quickstart) for simple test run of Pinpoint
- * [Installation guide](https://github.com/naver/pinpoint/blob/master/doc/installation.md) for further instructions.
+ * [Quick-start guide](./1.7.3/quickstart.html) for simple test run of Pinpoint
+ * [Installation guide](./1.7.3/installation.html) for further instructions.
 
 ## Google Analytics
 The web module has google analytics attached that tracks the number and the order of button clicks in the server map, transaction list, and the inspector view.
@@ -51,7 +51,7 @@ Pinpoint is licensed under the Apache License, Version 2.0.
 See [LICENSE](https://github.com/naver/pinpoint/blob/master/LICENSE) for full license text.
 
 ```
-Copyright 2017 NAVER Corp.
+Copyright 2018 NAVER Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
