@@ -1,5 +1,5 @@
 ---
-title: Installation.
+title: Installation
 tags:
 keywords: pinpoint, pinpoint homepage, install, start, installation
 last_updated: Feb 1, 2018
@@ -7,8 +7,6 @@ sidebar: mydoc_sidebar
 permalink: installation.html
 disqus: false
 ---
-
-# Installation
 
 To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
 In order to run your own Pinpoint instance, you will need to run below components:
@@ -18,7 +16,7 @@ In order to run your own Pinpoint instance, you will need to run below component
 * **Pinpoint Web** (deployed on a web container)
 * **Pinpoint Agent** (attached to a java application for profiling)
 
-To try out a simple quickstart project, please refer to the [quick-start guide](./quickstart.md).
+To try out a simple quickstart project, please refer to the [quick-start guide](./quickstart.html).
 
 ## Quick Overview of Installation
 1. HBase ([details](#1-hbase))
