@@ -6,9 +6,9 @@ topnav:
     - title: GitHub
       external_url: https://github.com/naver/pinpoint
     - title: News
-      url: https://naver.github.io/pinpoint/news
+      external_url: https://naver.github.io/pinpoint/news
     - title: Pinpoint Blogs
-      url: https://naver.github.io/pinpoint/resources
+      external_url: https://naver.github.io/pinpoint/resources
 
 
 #Topnav dropdowns
