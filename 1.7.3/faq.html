@@ -540,7 +540,7 @@ For example, if the data is queried from 10:00:30 to 10:05:30, the Scatter Chart
 
 <h3 id="how-do-i-delete-application-name-andor-agent-id-from-hbase">How do I delete application name and/or agent id from HBase?</h3>
 <p>Application names and agent ids, once registered, stay in HBase until their TTL expires (default 1year).
-You may however delete them proactively using <a href="../blob/master/web/src/main/java/com/navercorp/pinpoint/web/controller/AdminController.java">admin APIs</a> once they are no longer used.</p>
+You may however delete them proactively using <a href="https://github.com/naver/pinpoint/blob/master/web/src/main/java/com/navercorp/pinpoint/web/controller/AdminController.java">admin APIs</a> once they are no longer used.</p>
 <ul>
   <li>Remove application name - <code class="highlighter-rouge">/admin/removeApplicationName.pinpoint?applicationName=$APPLICATION_NAME&amp;password=$PASSWORD</code></li>
   <li>Remove agent id - <code class="highlighter-rouge">/admin/removeAgentId.pinpoint?applicationName=$APPLICATION_NAME&amp;agentId=$AGENT_ID&amp;password=$PASSWORD</code>
