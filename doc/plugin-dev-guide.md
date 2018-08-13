@@ -1,6 +1,5 @@
 ---
 title: Plugin Developer Guide
-tags:
 keywords: plugin, plug-in, plug
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar

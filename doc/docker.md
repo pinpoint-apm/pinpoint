@@ -1,6 +1,5 @@
 ---
 title: Pinpoint on Docker
-tags:
 keywords: docker pinpoint, pinpoint install
 last_updated: May 14, 2018
 sidebar: mydoc_sidebar

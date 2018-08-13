@@ -1,6 +1,5 @@
 ---
 title: Per Request Features
-tags:
 keywords: history
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar

@@ -1,6 +1,5 @@
 ---
 title: Powered by Pinpoint
-tags:
 keywords: pinpoint, used, working, use, inuse
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
