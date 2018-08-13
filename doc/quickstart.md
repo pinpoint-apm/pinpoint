@@ -1,6 +1,5 @@
 ---
 title: Quick Start Guide
-tags:
 keywords: start, begin, quickstart, quick
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar

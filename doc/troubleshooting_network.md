@@ -1,6 +1,5 @@
 ---
 title: Checking network configuration 
-tags:
 keywords: troubleshooting
 last_updated: May 17, 2018
 sidebar: mydoc_sidebar
