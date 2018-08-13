@@ -102,10 +102,23 @@
         <sniffer.artifactid>java16</sniffer.artifactid>
         <asm.version>6.1</asm.version>
 
-        <plugin.surefire.verison>2.22.0</plugin.surefire.verison>
-        <plugin.failsafe.verison>2.22.0</plugin.failsafe.verison>
+        <!-- maven-plugin -->
+        <plugin.compiler.version>3.8.0</plugin.compiler.version>
+        <plugin.resources.version>3.1.0</plugin.resources.version>
+        <plugin.surefire.version>2.22.0</plugin.surefire.version>
+        <plugin.failsafe.version>2.22.0</plugin.failsafe.version>
+        <plugin.shade.version>3.1.1</plugin.shade.version>
+        <plugin.assembly.version>3.1.0</plugin.assembly.version>
+        <plugin.war.version>3.2.2</plugin.war.version>
+        <plugin.jar.version>3.1.0</plugin.jar.version>
+
         <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
-        <plugin.clover.verison>4.2.1</plugin.clover.verison>
+        <plugin.clover.version>4.2.1</plugin.clover.version>
+        <plugin.spotbugs.version>3.1.3</plugin.spotbugs.version>
+        <plugin.pmd.version>3.10.0</plugin.pmd.version>
+
+        <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
+        <plugin.animal-sniffer.version>1.16</plugin.animal-sniffer.version>
     </properties>
 
     <dependencies>
@@ -681,12 +694,14 @@
                 <directory>${basedir}/src/test/resources</directory>
             </testResource>
         </testResources>
+
+
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>${plugin.war.version}</version>
                     <configuration>
                         <attachClasses>true</attachClasses>
                         <classesClassifier>classes</classesClassifier>
@@ -696,15 +711,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>${plugin.jar.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
+
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>${plugin.resources.version}</version>
                 <configuration>
                     <encoding>${encoding}</encoding>
                 </configuration>
@@ -712,7 +729,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>${plugin.compiler.version}</version>
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
@@ -728,7 +745,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${plugin.surefire.verison}</version>
+                <version>${plugin.surefire.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>**/Mock*</exclude>
@@ -744,7 +761,7 @@
             <plugin>
                 <groupId>org.openclover</groupId>
                 <artifactId>clover-maven-plugin</artifactId>
-                <version>${plugin.clover.verison}</version>
+                <version>${plugin.clover.version}</version>
                 <configuration>
                     <encoding>${encoding}</encoding>
                     <jdk>${jdk.version}</jdk>
@@ -773,15 +790,15 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>3.1.3</version>
+                <version>${plugin.spotbugs.version}</version>
                 <configuration>
-                    <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+                    <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
+                <version>${plugin.enforcer.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-pinpoint-build-requirements</id>
@@ -792,7 +809,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>3.2</version>
+                                    <version>3.5</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
                                     <version>1.8</version>
@@ -821,7 +838,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.9.0</version>
+                <version>${plugin.pmd.version}</version>
                 <configuration>
                     <linkXRef>true</linkXRef>
                     <sourceEncoding>${encoding}</sourceEncoding>
@@ -864,7 +881,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.16</version>
+                <version>${plugin.animal-sniffer.version}</version>
                 <configuration>
                     <signature>
                         <groupId>org.codehaus.mojo.signature</groupId>
@@ -885,38 +902,31 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.7.1</version>
+            </plugin>
         </plugins>
     </build>
 
     <reporting>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <inherited>false</inherited>
-                <configuration>
-                    <aggregate>true</aggregate>
-                    <inputEncoding>${encoding}</inputEncoding>
-                    <outputEncoding>${encoding}</outputEncoding>
-                    <windowTitle>Pinpoint ${project.version} Cross Reference</windowTitle>
-                    <docTitle>Pinpoint ${project.version} Cross Reference</docTitle>
-                </configuration>
-                <version>2.5</version>
-            </plugin>
-            <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${plugin.spotbugs.version}</version>
                 <configuration>
-                    <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+                    <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>${project.build.directory}/spotbugs</xmlOutputDirectory>
                 </configuration>
-                <version>3.1.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.9.0</version>
+                <version>${plugin.pmd.version}</version>
                 <configuration>
                     <linkXRef>true</linkXRef>
                     <sourceEncoding>${encoding}</sourceEncoding>
@@ -935,7 +945,7 @@
             <plugin>
                 <groupId>org.openclover</groupId>
                 <artifactId>clover-maven-plugin</artifactId>
-                <version>${plugin.clover.verison}</version>
+                <version>${plugin.clover.version}</version>
                 <configuration>
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                     <license>
@@ -955,6 +965,26 @@
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.7.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.5</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <inputEncoding>${encoding}</inputEncoding>
+                    <outputEncoding>${encoding}</outputEncoding>
+                    <windowTitle>Pinpoint ${project.version} Cross Reference</windowTitle>
+                    <docTitle>Pinpoint ${project.version} Cross Reference</docTitle>
                 </configuration>
             </plugin>
         </plugins>
