@@ -16,15 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.mongodb;
 
-import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoDriverInformation;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.connection.Cluster;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
@@ -34,6 +32,14 @@ import com.navercorp.pinpoint.common.util.JsonParser;
 import com.navercorp.pinpoint.common.util.NormalizedJson;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.MongodProcess;
+import de.flapdoodle.embed.mongo.MongodStarter;
+import de.flapdoodle.embed.mongo.config.IMongodConfig;
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.process.runtime.Network;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.AfterClass;
@@ -42,7 +48,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.json;
@@ -52,13 +60,13 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.json;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.7.0,3.8.max]",
-        "org.mongodb:bson:3.7.0",
+        "org.mongodb:mongodb-driver:[3.0.0,3.6.max]",
+        "org.mongodb:bson:3.6.4",
         "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.5"
         })
-public class MongoDB_3_7_x extends MongoDBBase {
+public class MongoDB_3_0_x extends MongoDBBase {
 
-    private static final String MONGODB_VERSION = "3_7_x";
+    private static final String MONGODB_VERSION = "3_0_x";
 
     // for normalized json
     protected static final JsonParser JSON_PARSER = new DefaultJsonParser();
@@ -79,13 +87,11 @@ public class MongoDB_3_7_x extends MongoDBBase {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
-        //create DB
-        MongoClient mongoClient = MongoClients.create( "mongodb://localhost:27018" );
-
+        com.mongodb.MongoClient mongoClient = new com.mongodb.MongoClient( "localhost" , 27018);
         verifier.printCache();
-        Class<?> CreateDBClass = Class.forName("com.mongodb.client.MongoClients");
+        Class<?> clusterClass = Class.forName("com.mongodb.Mongo");
 
-        Method create = CreateDBClass.getDeclaredMethod("create", MongoClientSettings.class, MongoDriverInformation.class);
+        Constructor create = clusterClass.getDeclaredConstructor(Cluster.class, MongoClientOptions.class, List.class);
         verifier.verifyTrace(event(MONGODB, create, null, MONGODB_ADDRESS, null));
 
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
@@ -95,15 +101,14 @@ public class MongoDB_3_7_x extends MongoDBBase {
         Document doc = new Document("name", "Roy").append("company", "Naver");
         collection.insertOne(doc);
 
-        Class<?> mongoDatabaseImpl = Class.forName("com.mongodb.client.internal.MongoCollectionImpl");
+        Class<?> mongoDatabaseImpl = Class.forName("com.mongodb.MongoCollectionImpl");
         Method insertOne = mongoDatabaseImpl.getDeclaredMethod("insertOne", Object.class);
         String nosql = doc.toJson();
         NormalizedJson normalizedJson = JSON_PARSER.normalizeJson(nosql);
 
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOne, null, MONGODB_ADDRESS, null
-                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers using MAJORITY")
+                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers with MAJORITY")
                 , json(normalizedJson.getNormalizedJson(), normalizedJson.getParseParameter())));
-
 
         //insert Data
         MongoCollection<Document> collection2 = database.getCollection("customers2").withWriteConcern(WriteConcern.ACKNOWLEDGED);
@@ -115,9 +120,8 @@ public class MongoDB_3_7_x extends MongoDBBase {
         NormalizedJson normalizedJson2 = JSON_PARSER.normalizeJson(nosql2);
 
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOne, null, MONGODB_ADDRESS, null
-                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers2 using ACKNOWLEDGED")
+                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers2 with ACKNOWLEDGED")
                 , json(normalizedJson2.getNormalizedJson(), normalizedJson2.getParseParameter())));
-
 
         //update Data
         Document doc3 = new Document("$set", new Document("name", "Roy3"));
@@ -128,7 +132,7 @@ public class MongoDB_3_7_x extends MongoDBBase {
 
         Method updateOne = mongoDatabaseImpl.getDeclaredMethod("updateOne", Bson.class , Bson.class);
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, updateOne, null, MONGODB_ADDRESS, null
-                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers using MAJORITY")
+                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers with MAJORITY")
                 , json(normalizedJson3.getNormalizedJson(), normalizedJson3.getParseParameter())));
 
         //read data
@@ -136,8 +140,8 @@ public class MongoDB_3_7_x extends MongoDBBase {
         Method find = mongoDatabaseImpl.getDeclaredMethod("find");
 
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MONGODB_ADDRESS, null
-                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers using SECONDARYPREFERRED")
-                ));
+                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers with SECONDARYPREFERRED")
+        ));
 
         int resultCount=0;
         try {
@@ -150,19 +154,19 @@ public class MongoDB_3_7_x extends MongoDBBase {
         }
         Assert.assertEquals(1, resultCount);
 
-        //delete data
+        //delete
         Document doc4 = new Document("name", "Roy3");
         NormalizedJson normalizedJson4 = JSON_PARSER.normalizeJson(doc4.toJson());
 
         DeleteResult deleteResult = collection.deleteMany(doc4);
         Method deleteMany = mongoDatabaseImpl.getDeclaredMethod("deleteMany", Bson.class);
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, deleteMany, null, MONGODB_ADDRESS, null
-                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers using MAJORITY")
+                , new ExpectedAnnotation(AnnotationKey.MONGO_COLLECTIONINFO.getName(), "customers with MAJORITY")
                 , json(normalizedJson4.getNormalizedJson(), normalizedJson4.getParseParameter())));
 
         Assert.assertEquals(1, deleteResult.getDeletedCount());
 
-        //close connection
+
         mongoClient.close();
         stopDB();
     }
