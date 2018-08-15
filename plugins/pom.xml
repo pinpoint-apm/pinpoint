@@ -78,8 +78,8 @@
         <module>weblogic</module>
         <module>php</module>
         <module>akka-http</module>
-        <module>undertow</module>
-        <module>kafka</module>
+        <module>fastjson</module>
+        <module>druid</module>
     </modules>
 
     <dependencies>
@@ -320,12 +320,17 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-undertow-plugin</artifactId>
+            <artifactId>pinpoint-php-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-kafka-plugin</artifactId>
+            <artifactId>pinpoint-fastjson-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-druid-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

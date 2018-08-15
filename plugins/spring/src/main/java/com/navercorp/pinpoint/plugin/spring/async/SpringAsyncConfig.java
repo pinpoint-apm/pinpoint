@@ -28,6 +28,7 @@ import java.util.List;
 public class SpringAsyncConfig {
     private static final String[] DEFAULT_ASYNC_TASK_EXECUTOR = {
             "org.springframework.scheduling.concurrent.ConcurrentTaskExecutor",
+            "org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler",
             "org.springframework.core.task.SimpleAsyncTaskExecutor",
             "org.springframework.scheduling.quartz.SimpleThreadPoolTaskExecutor",
             "org.springframework.core.task.support.TaskExecutorAdapter",

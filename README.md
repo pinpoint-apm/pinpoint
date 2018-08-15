@@ -7,11 +7,7 @@
 
 **Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**  
 
-## Latest Release (2018/08/13)
-We're happy to announce the release of Pinpoint v1.8.0-RC1.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.0-RC1).
-
-The current stable version is [v1.7.3](https://github.com/naver/pinpoint/releases/tag/1.7.3).
+The current stable version is [v1.7.3](https://github.com/naver/pinpoint/releases/latest).
 
 **Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
@@ -24,8 +20,8 @@ You should definitely check **Pinpoint** out If you want to
 * have minimal impact on the performance (approximately 3% increase in resource usage)
 
 ## Getting Started
- * [Quick-start guide](https://github.com/naver/pinpoint/tree/master/quickstart) for simple test run of Pinpoint
- * [Installation guide](https://github.com/naver/pinpoint/blob/master/doc/installation.md) for further instructions.
+ * [Quick-start guide](http://naver.github.io/pinpoint/quickstart.html) for simple test run of Pinpoint
+ * [Installation guide](http://naver.github.io/pinpoint/installation.html) for further instructions.
  
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
@@ -35,15 +31,15 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * **Realtime Active Thread Chart** - Monitor active threads inside applications in real-time.
 * **Request/Response Scatter Chart** - Visualize request count and response patterns over time to identify potential problems. Transactions can be selected for additional detail by **dragging over the chart**.
 
-  ![Server Map](doc/images/ss_server-map.png)
+  ![Server Map](doc/img/ss_server-map.png)
 
 * **CallStack** - Gain code-level visibility to every transaction in a distributed environment, identifying bottlenecks and points of failure in a single view.
 
-  ![Call Stack](doc/images/ss_call-stack.png)
+  ![Call Stack](doc/img/ss_call-stack.png)
 
 * **Inspector** - View additional details on the application such as CPU usage, Memory/Garbage Collection, TPS, and JVM arguments.
 
-  ![Inspector](doc/images/ss_inspector.png)
+  ![Inspector](doc/img/ss_inspector.png)
 
 ## Supported Modules
 * JDK 6+

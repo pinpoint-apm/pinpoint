@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- retransformed by bean name -->
+    <bean id="maru" class="com.navercorp.test.pinpoint.plugin.spring.beans.Maru"/>
+    
+    <!-- retransformed by class -->
+    <bean id="morae" class="com.navercorp.test.pinpoint.plugin.spring.beans.Morae"/>
+    
+    <!-- retransformed by class. duplicated class -->
+    <bean id="duplicatedMorae" class="com.navercorp.test.pinpoint.plugin.spring.beans.Morae"/>
+    
+    <!-- retransformed by annotation -->
+    <bean id="mozzi" class="com.navercorp.test.pinpoint.plugin.spring.beans.Mozzi" scope="prototype"/>
+    
+    <!-- excluded -->
+    <bean id="excluded" class="com.navercorp.test.pinpoint.plugin.spring.beans.Excluded"/>
+    
+    <!-- inner bean -->
+    <bean id="outer" class="com.navercorp.test.pinpoint.plugin.spring.beans.Outer">
+        <property name="inner">
+            <bean class="com.navercorp.test.pinpoint.plugin.spring.beans.Inner"/>
+        </property>
+    </bean>
+    
+    
+    <!-- proxy -->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+        <property name="proxyTargetClass" value="true"></property>
+    </bean>
+    
+    <bean id="testAdvisor" class="com.navercorp.test.pinpoint.plugin.spring.beans.TestAdvisor"/>
+    
+    <bean id="proxyTarget" class="com.navercorp.test.pinpoint.plugin.spring.beans.ProxyTarget"/>
+</beans>

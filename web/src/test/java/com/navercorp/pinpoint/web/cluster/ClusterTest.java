@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
-import com.navercorp.pinpoint.test.client.TestPinpointClient;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+import com.navercorp.pinpoint.web.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.web.TestAwaitUtils;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
@@ -192,20 +192,27 @@ public class ClusterTest {
 
     @Test
     public void clusterTest3() throws Exception {
+        PinpointClientFactory clientFactory = null;
+        PinpointClient client = null;
+
         ZooKeeper zookeeper = null;
-        TestPinpointClient testPinpointClient = new TestPinpointClient(SimpleMessageListener.INSTANCE);
         try {
             zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
             awaitZookeeperConnected(zookeeper);
 
             Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
 
-            testPinpointClient.connect(DEFAULT_IP, acceptorPort);
+            clientFactory = new DefaultPinpointClientFactory();
+            clientFactory.setMessageListener(SimpleMessageListener.INSTANCE);
+
+            client = clientFactory.connect(DEFAULT_IP, acceptorPort);
             awaitPinpointClientConnected(clusterConnectionManager);
 
             Assert.assertEquals(1, clusterConnectionManager.getClusterList().size());
+
         } finally {
-            testPinpointClient.closeAll();
+            closePinpointSocket(clientFactory, client);
+
             if (zookeeper != null) {
                 zookeeper.close();
             }

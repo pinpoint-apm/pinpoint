@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
@@ -84,8 +83,6 @@ public class DefaultAgent implements Agent {
 
         changeStatus(AgentStatus.INITIALIZING);
 
-        preloadOnStartup();
-
         this.profilerConfig = agentOption.getProfilerConfig();
 
         this.applicationContext = newApplicationContext(agentOption);
@@ -133,11 +130,6 @@ public class DefaultAgent implements Agent {
         PLoggerFactory.initialize(binder);
     }
 
-    private void preloadOnStartup() {
-        // Preload to fail fast on startup. This won't be necessary once JDK 6 support ends
-        // and reflective method handle is not needed.
-        SocketAddressUtils.getHostNameFirst(null);
-    }
 
     @Override
     public void start() {

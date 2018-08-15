@@ -78,7 +78,7 @@ public class ByteArrayHeaderReader implements HeaderReader {
             return readHeaderEntity();
         }
 
-        throw new InvalidHeaderException("invalid Header : " + header);
+        throw new InvalidHeaderException(String.format("invalid Header : ", header));
     }
 
     private HeaderEntity readHeaderEntity() {

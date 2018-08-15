@@ -1,11 +1,5 @@
----
-title: Installation
-keywords: pinpoint, pinpoint homepage, install, start, installation
-last_updated: Feb 1, 2018
-sidebar: mydoc_sidebar
-permalink: installation.html
-disqus: false
----
+
+# Installation
 
 To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
 In order to run your own Pinpoint instance, you will need to run below components:
@@ -15,7 +9,7 @@ In order to run your own Pinpoint instance, you will need to run below component
 * **Pinpoint Web** (deployed on a web container)
 * **Pinpoint Agent** (attached to a java application for profiling)
 
-To try out a simple quickstart project, please refer to the [quick-start guide](./quickstart.html).
+To try out a simple quickstart project, please refer to the [quick-start guide](./quickstart.md).
 
 ## Quick Overview of Installation
 1. HBase ([details](#1-hbase))
@@ -23,7 +17,7 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
 2. Build Pinpoint (Optional)([details](#2-building-pinpoint-optional)) - No need if you use the binaries.([here](https://github.com/naver/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
-	2. Set JAVA_HOME environment variable to JDK 8 home directory.
+	2. Set JAVA_HOME environment variable to JDK 7+ home directory.
 	3. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
 	4. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
 	5. Set JAVA_8_HOME environment variable to JDK 8 home directory.
@@ -48,7 +42,14 @@ Pinpoint uses HBase as its storage backend for the Collector and the Web.
 
 To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. The HBase compatibility table is given below:
 
-{% include_relative compatibilityHbase.md %}
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBase 1.2.x
+---------------- | ------------ | ------------ | ----------- | ----------- | -----------
+1.0.x | yes | no | no | no | no
+1.1.x | no | not tested | yes | not tested | not tested
+1.5.x | no | not tested | yes | not tested | not tested
+1.6.x | no | not tested | not tested | not tested | yes
+1.7.x | no | not tested | not tested | not tested | yes
+1.8.x | no | not tested | not tested | not tested | yes
 
 Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
 
@@ -83,7 +84,14 @@ There are two options:
 
 	Additionally, the required Java version to run each Pinpoint component is given below:
 
-	{% include_relative compatibilityPinpoint.md %}
+	Pinpoint Version | Agent | Collector | Web
+	---------------- | ----- | --------- | ---
+	1.0.x | 6-8 | 6+ | 6+
+	1.1.x | 6-8 | 7+ | 7+
+	1.5.x | 6-8 | 7+ | 7+
+	1.6.x | 6-8 | 7+ | 7+
+	1.7.x | 6-8 | 8+ | 8+
+    1.8.x | 6-8<br> 9+(Experimental) | 8+ | 8+ 
     
 	Once the above requirements are met, simply run the command below (you may need to add permission for **mvnw** so that it can be executed) :
 
@@ -181,7 +189,14 @@ You may move/extract the contents of **pinpoint-agent** directory to any locatio
 
 Agent compatibility to Collector table:
 
-{% include_relative compatibilityJava.md %}
+Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 1.6.x | Collector 1.7.x | Collector 1.8.x
+------------- | --------------- | --------------- | --------------- | --------------- | --------------- | ---------------
+1.0.x | yes | yes | yes | yes | yes | yes
+1.1.x | not tested | yes | yes | yes | yes | yes
+1.5.x | no | no | yes | yes | yes | yes
+1.6.x | no | no | not tested | yes | yes | yes
+1.7.x | no | no | no | no | yes | yes
+1.8.x | no | no | no | no | no | yes
 
 ### Installation
 Pinpoint Agent runs as a java agent attached to an application to be profiled (such as Tomcat). 

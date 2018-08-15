@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,22 @@ public final class PinpointRPCTestUtils {
     private PinpointRPCTestUtils() {
     }
 
+
+    public static PinpointServerAcceptor createPinpointServerFactory(int bindPort) {
+        return createPinpointServerFactory(bindPort, null);
+    }
+    
+    public static PinpointServerAcceptor createPinpointServerFactory(int bindPort, ServerMessageListenerFactory messageListenerFactory) {
+        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
+        serverAcceptor.bind("127.0.0.1", bindPort);
+        
+        if (messageListenerFactory != null) {
+            serverAcceptor.setMessageListenerFactory(messageListenerFactory);
+        }
+
+        return serverAcceptor;
+    }
+    
     public static void close(PinpointServerAcceptor serverAcceptor, PinpointServerAcceptor... serverAcceptors) {
         if (serverAcceptor != null) {
             serverAcceptor.close();
@@ -56,7 +73,11 @@ public final class PinpointRPCTestUtils {
             }
         }
     }
-
+    
+    public static PinpointClientFactory createClientFactory(Map<String, Object> param) {
+        return createClientFactory(param, null);
+    }
+    
     public static PinpointClientFactory createClientFactory(Map<String, Object> param, MessageListener messageListener) {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setProperties(param);
@@ -93,6 +114,10 @@ public final class PinpointRPCTestUtils {
                 }
             }
         }
+    }
+
+    public static EchoClientListener createEchoClientListener() {
+        return new EchoClientListener();
     }
 
     public static Map<String, Object> getParams() {

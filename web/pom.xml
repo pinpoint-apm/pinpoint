@@ -326,14 +326,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-rpc</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -394,7 +386,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.6</version>
+                <version>1.0</version>
                 <configuration>
                     <workingDirectory>${basedir}/target</workingDirectory>
                     <srcdir>${basedir}/target/main/webapp</srcdir>
