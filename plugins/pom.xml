@@ -80,6 +80,8 @@
         <module>akka-http</module>
         <module>undertow</module>
         <module>kafka</module>
+        <module>fastjson</module>
+        <module>druid</module>
     </modules>
 
     <dependencies>
