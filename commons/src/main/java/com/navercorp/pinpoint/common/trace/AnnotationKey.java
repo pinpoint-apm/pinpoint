@@ -101,6 +101,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>9000</td><td>gson.json.length</td></tr>
  * <tr><td>9001</td><td>jackson.json.length</td></tr>
  * <tr><td>9002</td><td>json-lib.json.length</td></tr>
+ * <tr><td>9003</td><td>fastjson.json.length</td></tr>
  * <tr><td>10015</td><td>API-TAG</td></tr>
  * <tr><td>10000010</td><td>API-METADATA-ERROR</td></tr>
  * <tr><td>10000011</td><td>API-METADATA-AGENT-INFO-NOT-FOUND</td></tr>
