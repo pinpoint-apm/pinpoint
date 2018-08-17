@@ -89,15 +89,15 @@ entries:
       url: /applicationinspector.html
       output: web, pdf
 
-    - title: Per Request Features
+    - title: Separate Log Per Request
       url: /perrequestfeatureguide.html
       output: web, pdf
 
-    - title: HTTP Status Code Failure(config)
+    - title: Marking Transaction as Fail
       url: /httpstatuscodefailure.html
       output: web, pdf
 
-    - title: Proxy HTTP Header(config)
+    - title: Monitoring Proxy Server
       url: /proxyhttpheader.html
       output: web, pdf
 
