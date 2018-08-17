@@ -101,7 +101,7 @@
         <spring.version>4.3.8.RELEASE</spring.version>
         <spring.batch.version>3.0.7.RELEASE</spring.batch.version>
         <spring.security.version>4.2.2.RELEASE</spring.security.version>
-        <asm.version>6.1</asm.version>
+        <asm.version>6.2.1</asm.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.0</plugin.compiler.version>
