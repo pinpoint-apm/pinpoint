@@ -1,5 +1,5 @@
 ---
-title: Techincal Details
+title: Technical Details
 keywords: tech, technology
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
