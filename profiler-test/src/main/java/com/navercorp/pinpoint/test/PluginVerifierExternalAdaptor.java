@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
+import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedJson;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedSql;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
@@ -36,6 +37,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -52,6 +54,7 @@ import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.thrift.dto.TStringStringValue;
 
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
@@ -660,6 +663,8 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
             if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
                 verifySql((ExpectedSql) expect, actualAnnotation);
+            } else if (expectedAnnotationKey == AnnotationKey.JSON && expect instanceof ExpectedJson) {
+                verifyJson((ExpectedJson) expect, actualAnnotation);
             } else {
                 Object expectedValue = expect.getValue();
 
@@ -704,6 +709,18 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
         if (!Objects.equal(value.getStringValue2(), expected.getBindValuesAsString())) {
             throw new AssertionError("Expected sql with bindValues [" + expected.getBindValuesAsString() + "] but was [" + value.getStringValue2() + "], expected: " + expected + ", was: " + actual);
+        }
+    }
+
+    private void verifyJson(ExpectedJson expected, TAnnotation actual) {
+        TStringStringValue value = actual.getValue().getStringStringValue();
+
+        if (!Objects.equal(value.getStringValue1(), expected.getQuery())) {
+            throw new AssertionError("Expected json with query [" + expected.getQuery() + "] but was [" + value.getStringValue1() + "], expected: " + expected + ", was: " + actual);
+        }
+
+        if (!Objects.equal(value.getStringValue2(), expected.getOutput())) {
+            throw new AssertionError("Expected json with output [" + expected.getOutput() + "] but was [" + value.getStringValue2() + "], expected: " + expected + ", was: " + actual);
         }
     }
 
