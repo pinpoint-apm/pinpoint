@@ -36,7 +36,7 @@ public final class RabbitMQClientConstants {
     public static final ServiceType RABBITMQ_CLIENT = ServiceTypeFactory.of(8300, "RABBITMQ_CLIENT", QUEUE, RECORD_STATISTICS);
     public static final ServiceType RABBITMQ_CLIENT_INTERNAL = ServiceTypeFactory.of(8301, "RABBITMQ_CLIENT_INTERNAL", "RABBITMQ_CLIENT");
 
-    public static final String RABBITMQ_SCOPE = "rabbitmqScope";
+    public static final String RABBITMQ_PRODUCER_SCOPE = "rabbitmqProducerScope";
     public static final String RABBITMQ_CONSUMER_SCOPE = "rabbitmqConsumerScope";
     public static final String RABBITMQ_FRAME_HANDLER_CREATION_SCOPE = "rabbitmqFrameHandlerCreationScope";
     public static final String RABBITMQ_TEMPLATE_API_SCOPE = "rabbitmqTemplateApiScope";
