@@ -1,5 +1,5 @@
 ---
-title: Per Request Features
+title: Separate Logging Per Request
 keywords: history
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
