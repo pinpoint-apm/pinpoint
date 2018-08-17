@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="">
-<meta name="keywords" content=" pinpoint release, 1.7.3">
-<title>Pinpoint 1.7.3 | Pinpoint APM</title>
+<meta name="keywords" content=" pinpoint release, 1.8.0">
+<title>Pinpoint 1.7 | Pinpoint APM</title>
 <link rel="stylesheet" href="css/syntax.css">
 
 <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -124,11 +124,11 @@
                 
                 
                 
-                <li><a href="news">News</a></li>
+                <li><a href="https://naver.github.io/pinpoint/news" target="_blank">News</a></li>
                 
                 
                 
-                <li><a href="resources">Pinpoint Blogs</a></li>
+                <li><a href="https://naver.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
                 
                 
                 
@@ -158,7 +158,7 @@
                                 searchInput: document.getElementById('search-input'),
                                 resultsContainer: document.getElementById('results-container'),
                                 dataSource: 'search.json',
-                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 1.7.3">{title}</a></li>',
+                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 1.7">{title}</a></li>',
                     noResultsText: 'No results found.',
                             limit: 10,
                             fuzzy: true,
@@ -503,7 +503,7 @@
 </script>
 
 <div class="post-header">
-   <h1 class="post-title-main" id="pathname">Pinpoint 1.7.3</h1>
+   <h1 class="post-title-main" id="pathname">Pinpoint 1.7</h1>
 </div>
 
 
@@ -545,9 +545,27 @@ $('#toc').on('click', 'a', function() {
 
   <h2 id="whats-new-in-173">What’s New in 1.7.3</h2>
 
-<p><strong><em>To be updated</em></strong></p>
+<p>If you are tracing RabbitMQ or Dubbo, we highly suggest upgrading your agent to 1.7.3 as it includes a number of bug fixes for the plugins.
+Added several Bug Fixes</p>
 
-<h2 id="upgrade-consideration">Upgrade consideration</h2>
+<h3 id="pinpoint-plugin">Pinpoint Plugin</h3>
+
+<ul>
+  <li>Bug Fix RabbitMQ plugin</li>
+  <li>Bug Fix Dubbo plugin</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.3+is%3Aclosed+label%3Amodule%3Aplugin">Details</a></p>
+
+<h3 id="pinpoint-web">Pinpoint Web</h3>
+
+<ul>
+  <li>Bug Fix related to RabbitMQ plugin</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.3+is%3Aclosed+label%3Abug+label%3Amodule%3Aweb">Details</a></p>
+
+<h3 id="upgrade-consideration">Upgrade consideration</h3>
 
 <p>HBase compatibility table:</p>
 
@@ -597,13 +615,6 @@ $('#toc').on('click', 'a', function() {
       <td>not tested</td>
       <td>yes</td>
     </tr>
-    <tr>
-      <td>1.8.x</td>
-      <td>no</td>
-      <td>not tested</td>
-      <td>not tested</td>
-      <td>yes</td>
-    </tr>
   </tbody>
 </table>
 
@@ -618,13 +629,11 @@ $('#toc').on('click', 'a', function() {
       <th>Collector 1.5.x</th>
       <th>Collector 1.6.x</th>
       <th>Collector 1.7.x</th>
-      <th>Collector 1.8.x</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>1.0.x</td>
-      <td>yes</td>
       <td>yes</td>
       <td>yes</td>
       <td>yes</td>
@@ -638,13 +647,11 @@ $('#toc').on('click', 'a', function() {
       <td>yes</td>
       <td>yes</td>
       <td>yes</td>
-      <td>yes</td>
     </tr>
     <tr>
       <td>1.5.x</td>
       <td>no</td>
       <td>no</td>
-      <td>yes</td>
       <td>yes</td>
       <td>yes</td>
       <td>yes</td>
@@ -656,20 +663,9 @@ $('#toc').on('click', 'a', function() {
       <td>not tested</td>
       <td>yes</td>
       <td>yes</td>
-      <td>yes</td>
     </tr>
     <tr>
       <td>1.7.x</td>
-      <td>no</td>
-      <td>no</td>
-      <td>no</td>
-      <td>no</td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-    <tr>
-      <td>1.8.x</td>
-      <td>no</td>
       <td>no</td>
       <td>no</td>
       <td>no</td>
@@ -721,16 +717,10 @@ $('#toc').on('click', 'a', function() {
       <td>8+</td>
       <td>8+</td>
     </tr>
-    <tr>
-      <td>1.8.x</td>
-      <td>6-8<br /> 9+(Experimental)</td>
-      <td>8+</td>
-      <td>8+</td>
-    </tr>
   </tbody>
 </table>
 
-<h2 id="full-list-of-supported-modules">Full List of Supported Modules</h2>
+<h3 id="full-list-of-supported-modules">Full List of Supported Modules</h3>
 
 <ul>
   <li>JDK 6+</li>
@@ -738,7 +728,8 @@ $('#toc').on('click', 'a', function() {
   <li>Spring, Spring Boot (Embedded Tomcat, Jetty)</li>
   <li>Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient</li>
   <li>Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER</li>
-  <li>MySQL, Oracle, MSSQL, CUBRID,POSTGRESQL, MARIA</li>
+  <li>ActiveMQ, RabbitMQ</li>
+  <li>MySQL, Oracle, MSSQL, CUBRID, POSTGRESQL, MARIA</li>
   <li>Arcus, Memcached, Redis, CASSANDRA</li>
   <li>iBATIS, MyBatis</li>
   <li>DBCP, DBCP2, HIKARICP</li>
@@ -746,6 +737,686 @@ $('#toc').on('click', 'a', function() {
   <li>log4j, Logback</li>
 </ul>
 
+<h2 id="whats-new-in-172">What’s New in 1.7.2</h2>
+
+<p>RabbitMQ, ActiveMQ Plugins are added with several enhancement of other plugins</p>
+
+<h3 id="pinpoint-plugin-1">Pinpoint Plugin</h3>
+
+<ul>
+  <li>Started to support RabbitMQ, ActiveMQ plugin</li>
+  <li>Bug Fix MariaDB plugin</li>
+  <li>Enhance stated to support vertx.io 3.5.0</li>
+  <li>Enhance JBoss plugin</li>
+  <li>Enhance Jetty plugin</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.2+is%3Aclosed+label%3Amodule%3Aplugin">Details</a></p>
+
+<h3 id="pinpoint-agent">Pinpoint Agent</h3>
+
+<ul>
+  <li>Bug Fix concurrency issue</li>
+  <li>Bug Fix classloader handler for Jboss</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.2+is%3Aclosed+label%3Abug+label%3Amodule%3Aagent">Details</a></p>
+
+<ul>
+  <li>Upgrade ASM version to 6.0</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.2+is%3Aclosed+label%3Aenhancement+label%3Amodule%3Aagent">Details</a></p>
+
+<h3 id="pinpoint-collector">Pinpoint Collector</h3>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.2+is%3Aclosed+label%3Aenhancement+label%3Amodule%3Acollector">Details</a></p>
+
+<h3 id="pinpoint-web-1">Pinpoint Web</h3>
+
+<ul>
+  <li>Bug Fix mixed view</li>
+  <li>Enhance CallTree</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.2+is%3Aclosed+label%3Aenhancement+label%3Amodule%3Aweb">Details</a></p>
+
+<h3 id="upgrade-consideration-1">Upgrade consideration</h3>
+
+<p>HBase compatibility table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>HBase 0.94.x</th>
+      <th>HBase 0.98.x</th>
+      <th>HBase 1.0.x</th>
+      <th>HBase 1.2.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent Version</th>
+      <th>Collector 1.0.x</th>
+      <th>Collector 1.1.x</th>
+      <th>Collector 1.5.x</th>
+      <th>Collector 1.6.x</th>
+      <th>Collector 1.7.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>Agent</th>
+      <th>Collector</th>
+      <th>Web</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>6-8</td>
+      <td>6+</td>
+      <td>6+</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>6-8</td>
+      <td>8+</td>
+      <td>8+</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="full-list-of-supported-modules-1">Full List of Supported Modules</h3>
+
+<ul>
+  <li>JDK 6+</li>
+  <li>Tomcat 6/7/8, <a href="https://github.com/naver/pinpoint/tree/master/plugins/jetty">Jetty 8/9</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/jboss">JBoss EAP 6</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/resin">Resin 4</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/websphere">Websphere 6/7/8</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/vertx">Vertx 3.3/3.4/3.5</a></li>
+  <li>Spring, Spring Boot (Embedded Tomcat, Jetty)</li>
+  <li>Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient</li>
+  <li>Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER</li>
+  <li>ActiveMQ, RabbitMQ</li>
+  <li>MySQL, Oracle, MSSQL, CUBRID, POSTGRESQL, MARIA</li>
+  <li>Arcus, Memcached, Redis, CASSANDRA</li>
+  <li>iBATIS, MyBatis</li>
+  <li>DBCP, DBCP2, HIKARICP</li>
+  <li>gson, Jackson, Json Lib</li>
+  <li>log4j, Logback</li>
+</ul>
+
+<h2 id="whats-new-in-171">What’s New in 1.7.1</h2>
+
+<p>Bug Fixes</p>
+
+<h3 id="pinpoint-web-2">Pinpoint Web</h3>
+
+<ul>
+  <li>Bug Fix on inspector page</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.1+is%3Aclosed+label%3Abug+label%3Amodule%3Aweb">Details</a></p>
+
+<h3 id="upgrade-consideration-2">Upgrade consideration</h3>
+
+<p>HBase compatibility table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>HBase 0.94.x</th>
+      <th>HBase 0.98.x</th>
+      <th>HBase 1.0.x</th>
+      <th>HBase 1.2.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent Version</th>
+      <th>Collector 1.0.x</th>
+      <th>Collector 1.1.x</th>
+      <th>Collector 1.5.x</th>
+      <th>Collector 1.6.x</th>
+      <th>Collector 1.7.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>Agent</th>
+      <th>Collector</th>
+      <th>Web</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>6-8</td>
+      <td>6+</td>
+      <td>6+</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>6-8</td>
+      <td>8+</td>
+      <td>8+</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="full-list-of-supported-modules-2">Full List of Supported Modules</h3>
+
+<ul>
+  <li>JDK 6+</li>
+  <li>Tomcat 6/7/8, <a href="https://github.com/naver/pinpoint/tree/master/plugins/jetty">Jetty 8/9</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/jboss">JBoss EAP 6</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/resin">Resin 4</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/websphere">Websphere 6/7/8</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/vertx">Vertx 3.3/3.4/3.5</a></li>
+  <li>Spring, Spring Boot (Embedded Tomcat, Jetty)</li>
+  <li>Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient</li>
+  <li>Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER</li>
+  <li>MySQL, Oracle, MSSQL, CUBRID, POSTGRESQL, MARIA</li>
+  <li>Arcus, Memcached, Redis, CASSANDRA</li>
+  <li>iBATIS, MyBatis</li>
+  <li>DBCP, DBCP2, HIKARICP</li>
+  <li>gson, Jackson, Json Lib</li>
+  <li>log4j, Logback</li>
+</ul>
+
+<h2 id="whats-new-in-170">What’s New in 1.7.0</h2>
+
+<h3 id="pinpoint-plugin-2">Pinpoint Plugin</h3>
+
+<ul>
+  <li>
+    <p>Started to support VertX Plugin</p>
+
+    <p>VertX APIs are mostly non-blocking so it was incredibly hard to monitor them. We hope Pinpoint can help in 1.7.0.</p>
+
+    <p><img src="https://user-images.githubusercontent.com/10057874/33050826-4367125e-ceaa-11e7-9687-ed36946347fa.png" alt="f16b8170-cbab-11e7-8af1-900ad3aa4fe8" /></p>
+  </li>
+  <li>
+    <p>RxJava 1.x / Hystrix observables Support
+  <img src="https://user-images.githubusercontent.com/10057874/33051608-1ec16ebe-ceae-11e7-8566-f389d8dcfb18.png" alt="rx" /></p>
+
+    <p>Trace support for RxJava 1.x and Hystrix observables have been added. Hystrix tracing now also requires enabling RxJava plugin.
+  (Note that this is a beta release. You must set <code class="highlighter-rouge">profiler.rxjava=true</code> and <code class="highlighter-rouge">profiler.hystrix=true</code> in <em>pinpoint.config</em>.)</p>
+  </li>
+  <li>Enhance MariaDB plugin to support 1.6.x and 2.x</li>
+  <li>Enhance okhttp plugin to support 3.x</li>
+  <li>Started to support JSP plugin</li>
+  <li>Started to support Netty plugin</li>
+  <li>Started to support MySQL connector 6</li>
+  <li>Bug Fix Redis plugin</li>
+  <li>and more…</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.0+is%3Aclosed+label%3Amodule%3Aplugin">Details</a></p>
+
+<h3 id="pinpoint-agent-1">Pinpoint Agent</h3>
+
+<ul>
+  <li>Active Trace Optimization</li>
+  <li>Optimize trace format</li>
+  <li>Reduce memory usage of buffered storage</li>
+  <li>Proxy HTTP header monitoring</li>
+  <li>Support multiple async events</li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.0+is%3Aclosed+label%3Aenhancement+label%3Amodule%3Aagent">Enhancement Details</a> 
+<a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.0+is%3Aclosed+label%3Abug+label%3Amodule%3Aagent">Bug Details</a></p>
+
+<h3 id="pinpoint-collector-1">Pinpoint Collector</h3>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.0+is%3Aclosed+label%3Aenhancement+label%3Amodule%3Acollector">Enhancement Details</a>
+<a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.0+is%3Aclosed+label%3Abug+label%3Amodule%3Acollector">Bug Details</a></p>
+
+<h3 id="pinpoint-web-3">Pinpoint Web</h3>
+
+<ul>
+  <li>
+    <p>Application Inspector Added</p>
+
+    <p><img src="https://user-images.githubusercontent.com/10057874/33051309-a47758f4-ceac-11e7-8cab-1245c58bfd8a.png" alt="1" /></p>
+
+    <p>Each application often have multiple agents running the same application, and it was difficult to check them all out in a single view.
+ With the introduction of Application Inspector, you now have a bird’s eye view of all the agents.
+ Please refer to <a href="./applicationinspector.html">this</a> guide for more detail.</p>
+  </li>
+  <li>
+    <p>ProxyServer Monitoring</p>
+
+    <p><img src="https://user-images.githubusercontent.com/10057874/33051367-ec60a918-ceac-11e7-8dfc-23adee33079d.png" alt="2" /></p>
+
+    <p>With a simple configuration, you can now monitor proxy servers sitting in front of your application through Pinpoint.
+ Please refer to <a href="./proxyhttpheader.html">this</a> guide for more detail.</p>
+  </li>
+  <li>
+    <p>Server map Option added</p>
+
+    <ul>
+      <li>Directional search
+Until now, searching 2+ depths included nodes not relevant to the application, resulting in overly complex server maps that took a long time to query/render.
+Directional search option has been added to alleviate this issue.
+        <ul>
+          <li><img src="https://raw.githubusercontent.com/naver/pinpoint/master/web/src/main/webapp/images/bidirect_off.png" alt="Unidirectional" /> (default) : Nodes called by the application will not look for other nodes that called them. Similarly, nodes that called the application will not look for other nodes that they called.</li>
+          <li><img src="https://raw.githubusercontent.com/naver/pinpoint/master/web/src/main/webapp/images/bidirect_on.png" alt="Bidirectional" /> : Just as it is now, all nodes (regardless of their relationship to the application) will look for everything that they called, and everything called by them.</li>
+        </ul>
+      </li>
+      <li>WAS Only
+Looking for relationships between WAS nodes were often hard with database nodes, and unknown cloud nodes all over the server map.
+Now you can use the following option to trim out terminal nodes.
+        <ul>
+          <li><img src="https://user-images.githubusercontent.com/10057874/33051424-30e0cae6-cead-11e7-8ef6-1dc253ff0b8c.png" alt="wasonly1" /> Terminal nodes such as database and unknown clouds are not included in the server map.</li>
+          <li><img src="https://user-images.githubusercontent.com/10057874/33051442-3d685ef0-cead-11e7-865f-fc12e54afa06.png" alt="wasonly2" /> (default) : Everything is included in the server map, just as it is now.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Deadlock Detection</p>
+
+    <p><img src="https://user-images.githubusercontent.com/10057874/33051548-bf76e970-cead-11e7-9fd9-486f2b1dda0d.png" alt="default" /></p>
+
+    <p>It is quite hard to detect and identify deadlocks.
+ Pinpoint now allows you to identify deadlocks when they happen, and provides relevant thread dumps for you.</p>
+  </li>
+  <li>
+    <p>Average Response Time</p>
+
+    <p><img src="https://user-images.githubusercontent.com/10057874/33051575-f309d7a2-cead-11e7-9756-99a3f3b93d95.png" alt="default" /></p>
+
+    <p>Response Time chart has been added!
+ You may now check out your service’s average response time in a blink of an eye.</p>
+  </li>
+</ul>
+
+<p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.0+is%3Aclosed+label%3Aenhancement+label%3Amodule%3Aweb">Enhancement Detail</a>
+<a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.7.0+is%3Aclosed+label%3Abug+label%3Amodule%3Aweb">Bug Detail</a></p>
+
+<h3 id="upgrade-consideration-3">Upgrade consideration</h3>
+
+<p>HBase compatibility table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>HBase 0.94.x</th>
+      <th>HBase 0.98.x</th>
+      <th>HBase 1.0.x</th>
+      <th>HBase 1.2.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent Version</th>
+      <th>Collector 1.0.x</th>
+      <th>Collector 1.1.x</th>
+      <th>Collector 1.5.x</th>
+      <th>Collector 1.6.x</th>
+      <th>Collector 1.7.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>Agent</th>
+      <th>Collector</th>
+      <th>Web</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>6-8</td>
+      <td>6+</td>
+      <td>6+</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>6-8</td>
+      <td>8+</td>
+      <td>8+</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="full-list-of-supported-modules-3">Full List of Supported Modules</h3>
+
+<ul>
+  <li>JDK 6+</li>
+  <li>Tomcat 6/7/8, <a href="https://github.com/naver/pinpoint/tree/master/plugins/jetty">Jetty 8/9</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/jboss">JBoss EAP 6</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/resin">Resin 4</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/websphere">Websphere 6/7/8</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/vertx">Vertx 3.3/3.4/3.5</a></li>
+  <li>Spring, Spring Boot (Embedded Tomcat, Jetty)</li>
+  <li>Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient</li>
+  <li>Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER</li>
+  <li>MySQL, Oracle, MSSQL, CUBRID, POSTGRESQL, MARIA</li>
+  <li>Arcus, Memcached, Redis, CASSANDRA</li>
+  <li>iBATIS, MyBatis</li>
+  <li>DBCP, DBCP2, HIKARICP</li>
+  <li>gson, Jackson, Json Lib</li>
+  <li>log4j, Logback</li>
+</ul>
 
 
     <div class="tags">
