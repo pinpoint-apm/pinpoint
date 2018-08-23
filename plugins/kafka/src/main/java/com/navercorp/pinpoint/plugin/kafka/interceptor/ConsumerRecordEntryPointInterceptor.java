@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -41,7 +42,9 @@ import org.apache.kafka.common.header.Headers;
  */
 public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
 
-    public static final EntryPointMethodDescriptor ENTRY_POINT_METHOD_DESCRIPTOR = new EntryPointMethodDescriptor();
+    private static final String SCOPE_NAME = "##KAFKA_ENTRY_POINT_START_TRACE";
+
+    private static final EntryPointMethodDescriptor ENTRY_POINT_METHOD_DESCRIPTOR = new EntryPointMethodDescriptor();
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -66,11 +69,16 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
             return;
         }
 
-        Trace trace = createTrace(consumerRecord);
+        Trace trace = getTrace(consumerRecord);
         if (trace == null) {
             return;
         }
+
+        enterScope(trace);
         if (!trace.canSampled()) {
+            if (isDebug) {
+                logger.debug("before() canSampled is false - skip trace");
+            }
             return;
         }
 
@@ -91,6 +99,22 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
         return null;
     }
 
+    private Trace getTrace(ConsumerRecord consumerRecord) {
+        final Trace currentTrace = traceContext.currentRawTraceObject();
+        if (currentTrace == null) {
+            Trace newTrace = createTrace(consumerRecord);
+            if (newTrace != null) {
+                newTrace.addScope(SCOPE_NAME);
+            }
+            return newTrace;
+        } else {
+            if (isDebug) {
+                logger.debug("already has trace()");
+            }
+            return currentTrace;
+        }
+    }
+
     private Trace createTrace(ConsumerRecord consumerRecord) {
         Headers headers = consumerRecord.headers();
         if (headers == null) {
@@ -109,38 +133,52 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
 
         TraceId traceId = populateTraceIdFromHeaders(headers);
         if (traceId != null) {
-            Trace trace = traceContext.continueTraceObject(traceId);
+            return createContinueTrace(consumerRecord, traceId);
+        } else {
+            return createNewTrace0(consumerRecord);
+        }
+    }
 
-            String parentApplicationName = null;
-            String parentApplicationType = null;
-            for (org.apache.kafka.common.header.Header header : headers.toArray()) {
-                if (header.key().equals(Header.HTTP_PARENT_APPLICATION_NAME.toString())) {
-                    parentApplicationName = new String(header.value());
-                } else if (header.key().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
-                    parentApplicationType = new String(header.value());
-                }
+    private Trace createContinueTrace(ConsumerRecord consumerRecord, TraceId traceId) {
+        if (isDebug) {
+            logger.debug("TraceID exist. continue trace. traceId:{}", traceId);
+        }
+
+        Trace trace = traceContext.continueTraceObject(traceId);
+
+        String parentApplicationName = null;
+        String parentApplicationType = null;
+
+        Headers headers = consumerRecord.headers();
+        for (org.apache.kafka.common.header.Header header : headers.toArray()) {
+            if (header.key().equals(Header.HTTP_PARENT_APPLICATION_NAME.toString())) {
+                parentApplicationName = new String(header.value());
+            } else if (header.key().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
+                parentApplicationType = new String(header.value());
             }
+        }
 
-            if (trace.canSampled()) {
-                final SpanRecorder recorder = trace.getSpanRecorder();
-                recordRootSpan(recorder, consumerRecord, parentApplicationName, parentApplicationType);
+        if (trace.canSampled()) {
+            final SpanRecorder recorder = trace.getSpanRecorder();
+            recordRootSpan(recorder, consumerRecord, parentApplicationName, parentApplicationType);
+        }
+        return trace;
+    }
+
+    private Trace createNewTrace0(ConsumerRecord consumerRecord) {
+        final Trace trace = traceContext.newTraceObject();
+        if (trace.canSampled()) {
+            final SpanRecorder recorder = trace.getSpanRecorder();
+            recordRootSpan(recorder, consumerRecord);
+            if (isDebug) {
+                logger.debug("TraceID not exist. start new trace.");
             }
             return trace;
         } else {
-            final Trace trace = traceContext.newTraceObject();
-            if (trace.canSampled()) {
-                final SpanRecorder recorder = trace.getSpanRecorder();
-                recordRootSpan(recorder, consumerRecord);
-                if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace.");
-                }
-                return trace;
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace.");
-                }
-                return null;
+            if (isDebug) {
+                logger.debug("TraceID not exist. camSampled is false. skip trace.");
             }
+            return null;
         }
     }
 
@@ -226,6 +264,20 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
         return rpcName.toString();
     }
 
+    private void enterScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope != null) {
+            scope.tryEnter();
+            if (isDebug) {
+                logger.debug("try enter trace scope={}", scope);
+            }
+        } else {
+            if (isDebug) {
+                logger.debug("can't find scope");
+            }
+        }
+    }
+
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
@@ -241,14 +293,21 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
         if (trace == null) {
             return;
         }
+
+        leaveScope(trace);
         if (!trace.canSampled()) {
-            traceContext.removeTraceObject();
+            if (isDebug) {
+                logger.debug("after() canSampled is false - skip trace");
+            }
+            if (isCompletedTrace(trace)) {
+                deleteTrace(trace);
+            }
             return;
         }
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor)  ;
+            recorder.recordApi(descriptor);
             if (throwable != null) {
                 recorder.recordException(throwable);
             }
@@ -258,13 +317,51 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
                 logger.warn("AFTER. Caused:{}", t.getMessage(), t);
             }
         } finally {
-            deleteTrace(trace);
+            trace.traceBlockEnd();
+            if (isCompletedTrace(trace)) {
+                deleteTrace(trace);
+            }
         }
     }
 
+    private void leaveScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope != null) {
+            if (scope.canLeave()) {
+                if (isDebug) {
+                    logger.debug("leave trace scope={}", scope);
+                }
+                scope.leave();
+                return;
+            } else {
+                if (isDebug) {
+                    logger.debug("failed to leave trace scope={}", scope);
+                }
+                return;
+            }
+        } else {
+            if (isDebug) {
+                logger.debug("can't find scope");
+            }
+            return;
+        }
+    }
+
+    private boolean isCompletedTrace(final Trace trace) {
+        TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope == null) {
+            return false;
+        }
+
+        return !scope.isActive();
+    }
+
     private void deleteTrace(final Trace trace) {
+        if (isDebug) {
+            logger.debug("delete trace={}, sampled={}", trace, trace.canSampled());
+        }
+
         traceContext.removeTraceObject();
-        trace.traceBlockEnd();
         trace.close();
     }
 
