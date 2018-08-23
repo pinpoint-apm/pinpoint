@@ -52,7 +52,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
 * ActiveMQ, RabbitMQ
-* MySQL, Oracle, MSSQL, CUBRID,POSTGRESQL, MARIA
+* MySQL(jtds), Oracle, MSSQL, CUBRID,POSTGRESQL, MARIA
 * Arcus, Memcached, Redis, CASSANDRA
 * iBATIS, MyBatis
 * DBCP, DBCP2, HIKARICP
