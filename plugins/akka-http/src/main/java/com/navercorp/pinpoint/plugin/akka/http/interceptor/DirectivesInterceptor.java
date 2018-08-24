@@ -44,8 +44,6 @@ import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConfig;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
 import com.navercorp.pinpoint.plugin.akka.http.HttpRequestAdaptor;
 
-import java.util.Optional;
-
 public class DirectivesInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(DirectivesInterceptor.class);
