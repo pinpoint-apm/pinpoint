@@ -33,6 +33,10 @@ You may however delete them proactively using [admin APIs](https://github.com/na
 * Remove agent id - `/admin/removeAgentId.pinpoint?applicationName=$APPLICATION_NAME&agentId=$AGENT_ID&password=$PASSWORD`
 Note that the value for the password parameter is what you defined `admin.password` property in *pinpoint-web.properties*. Leaving this blank will allow you to call admin APIs without the password parameter.
 
+### What are the criteria for the application name?
+Pinpoint's applicationName doesn't support special characters. such as @,#,$,%,*.
+Pinpoint's applicationName only supports [a-zA-Z0-9], '.', '-', '_' characters.
+
 ### HBase is taking up too much space, which data should I delete first?
 Hbase is very scalable so you can always add more region servers if you're running out of space. Shortening the TTL values, especially for **AgentStatV2** and **TraceV2**, can also help (though you might have to wait for a major compaction before space is reclaimed). For details on how to major compact, please refer to [this](https://github.com/naver/pinpoint/blob/master/hbase/scripts/hbase-major-compact-htable.hbase) script.
 
@@ -57,6 +61,4 @@ This data is used to better understand how users interact with the Web UI which 
 ```
 config.sendUsage=false
 ```
-
-
 
