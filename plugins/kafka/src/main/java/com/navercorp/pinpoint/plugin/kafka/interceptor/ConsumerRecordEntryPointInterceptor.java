@@ -35,7 +35,9 @@ import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.descriptor.EntryPointMethodDescriptor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Headers;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Taejin Koo
@@ -51,6 +53,8 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
+
+    private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<TraceFactoryProvider.TraceFactory>();
 
     public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
@@ -116,152 +120,12 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
     }
 
     private Trace createTrace(ConsumerRecord consumerRecord) {
-        Headers headers = consumerRecord.headers();
-        if (headers == null) {
-            return null;
+        TraceFactoryProvider.TraceFactory createTrace = tracyFactoryReference.get();
+        if (createTrace == null) {
+            createTrace = TraceFactoryProvider.get(consumerRecord);
+            tracyFactoryReference.compareAndSet(null, createTrace);
         }
-
-        if (!isSampled(headers)) {
-            // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
-            // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
-            final Trace trace = traceContext.disableSampling();
-            if (isDebug) {
-                logger.debug("remotecall sampling flag found. skip trace");
-            }
-            return trace;
-        }
-
-        TraceId traceId = populateTraceIdFromHeaders(headers);
-        if (traceId != null) {
-            return createContinueTrace(consumerRecord, traceId);
-        } else {
-            return createNewTrace0(consumerRecord);
-        }
-    }
-
-    private Trace createContinueTrace(ConsumerRecord consumerRecord, TraceId traceId) {
-        if (isDebug) {
-            logger.debug("TraceID exist. continue trace. traceId:{}", traceId);
-        }
-
-        Trace trace = traceContext.continueTraceObject(traceId);
-
-        String parentApplicationName = null;
-        String parentApplicationType = null;
-
-        Headers headers = consumerRecord.headers();
-        for (org.apache.kafka.common.header.Header header : headers.toArray()) {
-            if (header.key().equals(Header.HTTP_PARENT_APPLICATION_NAME.toString())) {
-                parentApplicationName = new String(header.value());
-            } else if (header.key().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
-                parentApplicationType = new String(header.value());
-            }
-        }
-
-        if (trace.canSampled()) {
-            final SpanRecorder recorder = trace.getSpanRecorder();
-            recordRootSpan(recorder, consumerRecord, parentApplicationName, parentApplicationType);
-        }
-        return trace;
-    }
-
-    private Trace createNewTrace0(ConsumerRecord consumerRecord) {
-        final Trace trace = traceContext.newTraceObject();
-        if (trace.canSampled()) {
-            final SpanRecorder recorder = trace.getSpanRecorder();
-            recordRootSpan(recorder, consumerRecord);
-            if (isDebug) {
-                logger.debug("TraceID not exist. start new trace.");
-            }
-            return trace;
-        } else {
-            if (isDebug) {
-                logger.debug("TraceID not exist. camSampled is false. skip trace.");
-            }
-            return null;
-        }
-    }
-
-    private boolean isSampled(Headers headers) {
-        org.apache.kafka.common.header.Header sampledHeader = headers.lastHeader(Header.HTTP_SAMPLED.toString());
-        if (sampledHeader == null) {
-            return true;
-        }
-
-        String sampledFlag = new String(sampledHeader.value());
-        return SamplingFlagUtils.isSamplingFlag(sampledFlag);
-    }
-
-    private TraceId populateTraceIdFromHeaders(Headers headers) {
-        String transactionId = null;
-        String spanID = null;
-        String parentSpanID = null;
-        String flags = null;
-        for (org.apache.kafka.common.header.Header header : headers.toArray()) {
-            if (header.key().equals(Header.HTTP_TRACE_ID.toString())) {
-                transactionId = new String(header.value());
-            } else if (header.key().equals(Header.HTTP_PARENT_SPAN_ID.toString())) {
-                parentSpanID = new String(header.value());
-            } else if (header.key().equals(Header.HTTP_SPAN_ID.toString())) {
-                spanID = new String(header.value());
-            } else if (header.key().equals(Header.HTTP_FLAGS.toString())) {
-                flags = new String(header.value());
-            }
-        }
-
-        if (transactionId == null || spanID == null || parentSpanID == null || flags == null) {
-            return null;
-        }
-
-        TraceId traceId = traceContext.createTraceId(transactionId, Long.parseLong(parentSpanID), Long.parseLong(spanID), Short.parseShort(flags));
-        return traceId;
-    }
-
-    private void recordRootSpan(SpanRecorder recorder, ConsumerRecord consumerRecord) {
-        recordRootSpan(recorder, consumerRecord, null, null);
-    }
-
-    private void recordRootSpan(SpanRecorder recorder, ConsumerRecord consumerRecord, String parentApplicationName, String parentApplicationType) {
-        recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT);
-        recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
-
-        String remoteAddress = getRemoteAddress(consumerRecord);
-        recorder.recordEndPoint(remoteAddress);
-        recorder.recordRemoteAddress(remoteAddress);
-
-        String topic = consumerRecord.topic();
-        recorder.recordRpcName(createRpcName(consumerRecord));
-        recorder.recordAcceptorHost("topic:" + topic);
-        recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
-
-        recorder.recordAttribute(KafkaConstants.KAFKA_PARTITION_ANNOTATION_KEY, consumerRecord.partition());
-        recorder.recordAttribute(KafkaConstants.KAFKA_OFFSET_ANNOTATION_KEY, consumerRecord.offset());
-
-        if (StringUtils.hasText(parentApplicationName) && StringUtils.hasText(parentApplicationType)) {
-            recorder.recordParentApplication(parentApplicationName, NumberUtils.parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
-        }
-    }
-
-    private String getRemoteAddress(Object remoteAddressFieldAccessor) {
-        String remoteAddress = null;
-        if (remoteAddressFieldAccessor instanceof RemoteAddressFieldAccessor) {
-            remoteAddress = ((RemoteAddressFieldAccessor) remoteAddressFieldAccessor)._$PINPOINT$_getRemoteAddress();
-        }
-
-        if (StringUtils.isEmpty(remoteAddress)) {
-            return KafkaConstants.UNKNOWN;
-        } else {
-            return remoteAddress;
-        }
-    }
-
-    private String createRpcName(ConsumerRecord consumerRecord) {
-        StringBuilder rpcName = new StringBuilder("kafka://");
-        rpcName.append("topic=").append(consumerRecord.topic());
-        rpcName.append("?partition=").append(consumerRecord.partition());
-        rpcName.append("&offset=").append(consumerRecord.offset());
-
-        return rpcName.toString();
+        return createTrace.createTrace(traceContext, consumerRecord);
     }
 
     private void enterScope(final Trace trace) {
@@ -363,6 +227,196 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
 
         traceContext.removeTraceObject();
         trace.close();
+    }
+
+    private static class TraceFactoryProvider {
+
+        private static TraceFactory get(Object object) {
+            try {
+                final Class<?> aClass = object.getClass();
+                final Method method = aClass.getMethod("headers");
+
+                if (method != null) {
+                    return new SupportContinueTraceFactory();
+                }
+            } catch (NoSuchMethodException e) {
+                // ignore
+            }
+            return new DefaultTraceFactory();
+        }
+
+        private interface TraceFactory {
+
+            Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord);
+
+        }
+
+        private static class DefaultTraceFactory implements TraceFactory {
+
+            final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+            final boolean isDebug = logger.isDebugEnabled();
+
+            @Override
+            public Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord) {
+                return createTrace0(traceContext, consumerRecord);
+            }
+
+            Trace createTrace0(TraceContext traceContext, ConsumerRecord consumerRecord) {
+                final Trace trace = traceContext.newTraceObject();
+                if (trace.canSampled()) {
+                    final SpanRecorder recorder = trace.getSpanRecorder();
+                    recordRootSpan(recorder, consumerRecord);
+                    if (isDebug) {
+                        logger.debug("TraceID not exist. start new trace.");
+                    }
+                    return trace;
+                } else {
+                    if (isDebug) {
+                        logger.debug("TraceID not exist. camSampled is false. skip trace.");
+                    }
+                    return null;
+                }
+            }
+
+            void recordRootSpan(SpanRecorder recorder, ConsumerRecord consumerRecord) {
+                recordRootSpan(recorder, consumerRecord, null, null);
+            }
+
+            void recordRootSpan(SpanRecorder recorder, ConsumerRecord consumerRecord, String parentApplicationName, String parentApplicationType) {
+                recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT);
+                recorder.recordApi(ConsumerRecordEntryPointInterceptor.ENTRY_POINT_METHOD_DESCRIPTOR);
+
+                String remoteAddress = getRemoteAddress(consumerRecord);
+                recorder.recordEndPoint(remoteAddress);
+                recorder.recordRemoteAddress(remoteAddress);
+
+                String topic = consumerRecord.topic();
+                recorder.recordRpcName(createRpcName(consumerRecord));
+                recorder.recordAcceptorHost("topic:" + topic);
+                recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
+
+                recorder.recordAttribute(KafkaConstants.KAFKA_PARTITION_ANNOTATION_KEY, consumerRecord.partition());
+                recorder.recordAttribute(KafkaConstants.KAFKA_OFFSET_ANNOTATION_KEY, consumerRecord.offset());
+
+                if (StringUtils.hasText(parentApplicationName) && StringUtils.hasText(parentApplicationType)) {
+                    recorder.recordParentApplication(parentApplicationName, NumberUtils.parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
+                }
+            }
+
+            private String getRemoteAddress(Object remoteAddressFieldAccessor) {
+                String remoteAddress = null;
+                if (remoteAddressFieldAccessor instanceof RemoteAddressFieldAccessor) {
+                    remoteAddress = ((RemoteAddressFieldAccessor) remoteAddressFieldAccessor)._$PINPOINT$_getRemoteAddress();
+                }
+
+                if (StringUtils.isEmpty(remoteAddress)) {
+                    return KafkaConstants.UNKNOWN;
+                } else {
+                    return remoteAddress;
+                }
+            }
+
+            private String createRpcName(ConsumerRecord consumerRecord) {
+                StringBuilder rpcName = new StringBuilder("kafka://");
+                rpcName.append("topic=").append(consumerRecord.topic());
+                rpcName.append("?partition=").append(consumerRecord.partition());
+                rpcName.append("&offset=").append(consumerRecord.offset());
+
+                return rpcName.toString();
+            }
+
+        }
+
+        private static class SupportContinueTraceFactory extends DefaultTraceFactory {
+
+            @Override
+            public Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord) {
+                org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
+                if (headers == null) {
+                    return null;
+                }
+
+                if (!isSampled(headers)) {
+                    // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
+                    // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
+                    final Trace trace = traceContext.disableSampling();
+                    if (isDebug) {
+                        logger.debug("remotecall sampling flag found. skip trace");
+                    }
+                    return trace;
+                }
+
+                TraceId traceId = populateTraceIdFromHeaders(traceContext, headers);
+                if (traceId != null) {
+                    return createContinueTrace(traceContext, consumerRecord, traceId);
+                } else {
+                    return createTrace0(traceContext, consumerRecord);
+                }
+            }
+
+            private boolean isSampled(org.apache.kafka.common.header.Headers headers) {
+                org.apache.kafka.common.header.Header sampledHeader = headers.lastHeader(Header.HTTP_SAMPLED.toString());
+                if (sampledHeader == null) {
+                    return true;
+                }
+
+                String sampledFlag = new String(sampledHeader.value());
+                return SamplingFlagUtils.isSamplingFlag(sampledFlag);
+            }
+
+            private TraceId populateTraceIdFromHeaders(TraceContext traceContext, org.apache.kafka.common.header.Headers headers) {
+                String transactionId = null;
+                String spanID = null;
+                String parentSpanID = null;
+                String flags = null;
+                for (org.apache.kafka.common.header.Header header : headers.toArray()) {
+                    if (header.key().equals(Header.HTTP_TRACE_ID.toString())) {
+                        transactionId = new String(header.value());
+                    } else if (header.key().equals(Header.HTTP_PARENT_SPAN_ID.toString())) {
+                        parentSpanID = new String(header.value());
+                    } else if (header.key().equals(Header.HTTP_SPAN_ID.toString())) {
+                        spanID = new String(header.value());
+                    } else if (header.key().equals(Header.HTTP_FLAGS.toString())) {
+                        flags = new String(header.value());
+                    }
+                }
+
+                if (transactionId == null || spanID == null || parentSpanID == null || flags == null) {
+                    return null;
+                }
+
+                TraceId traceId = traceContext.createTraceId(transactionId, Long.parseLong(parentSpanID), Long.parseLong(spanID), Short.parseShort(flags));
+                return traceId;
+            }
+
+            private Trace createContinueTrace(TraceContext traceContext, ConsumerRecord consumerRecord, TraceId traceId) {
+                if (isDebug) {
+                    logger.debug("TraceID exist. continue trace. traceId:{}", traceId);
+                }
+
+                Trace trace = traceContext.continueTraceObject(traceId);
+
+                String parentApplicationName = null;
+                String parentApplicationType = null;
+
+                org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
+                for (org.apache.kafka.common.header.Header header : headers.toArray()) {
+                    if (header.key().equals(Header.HTTP_PARENT_APPLICATION_NAME.toString())) {
+                        parentApplicationName = new String(header.value());
+                    } else if (header.key().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
+                        parentApplicationType = new String(header.value());
+                    }
+                }
+
+                if (trace.canSampled()) {
+                    final SpanRecorder recorder = trace.getSpanRecorder();
+                    recordRootSpan(recorder, consumerRecord, parentApplicationName, parentApplicationType);
+                }
+                return trace;
+            }
+
+        }
+
     }
 
 }

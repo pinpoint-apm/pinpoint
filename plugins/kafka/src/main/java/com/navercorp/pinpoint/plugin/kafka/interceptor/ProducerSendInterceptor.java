@@ -32,8 +32,9 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.header.Headers;
-import org.apache.kafka.common.header.internals.RecordHeader;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class ProducerSendInterceptor implements AroundInterceptor {
@@ -43,6 +44,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
 
+    private final AtomicReference<HeaderSetter> headerSetterReference = new AtomicReference<HeaderSetter>();
 
     public ProducerSendInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
@@ -68,7 +70,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         if (trace.canSampled()) {
             SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT);
-            setPinpointHeaders(recorder, trace, record);
+            setPinpointHeaders(recorder, trace, record, true);
         } else {
             setPinpointHeaders(null, trace, record, false);
         }
@@ -80,47 +82,19 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
 
         if (args[0] instanceof ProducerRecord) {
-            return (ProducerRecord)args[0];
+            return (ProducerRecord) args[0];
         }
 
         return null;
     }
 
-    private void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, ProducerRecord record) {
-        setPinpointHeaders(recorder, trace, record, true);
-    }
-
     private void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, ProducerRecord record, boolean sample) {
-        Headers kafkaHeaders = record.headers();
-        if (kafkaHeaders == null) {
-            return;
+        HeaderSetter headerSetter = headerSetterReference.get();
+        if (headerSetter == null) {
+            headerSetter = HeaderSetterProvider.get(record);
+            headerSetterReference.compareAndSet(null, headerSetter);
         }
-
-        cleanPinpointHeader(kafkaHeaders);
-        if (sample) {
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-
-            kafkaHeaders.add(new RecordHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId().getBytes()));
-            kafkaHeaders.add(new RecordHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()).getBytes()));
-            kafkaHeaders.add(new RecordHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()).getBytes()));
-            kafkaHeaders.add(new RecordHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()).getBytes()));
-            kafkaHeaders.add(new RecordHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), String.valueOf(traceContext.getApplicationName()).getBytes()));
-            kafkaHeaders.add(new RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()).getBytes()));
-        } else {
-            kafkaHeaders.add(new RecordHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE.getBytes()));
-        }
-    }
-
-    private void cleanPinpointHeader(Headers kafkaHeaders) {
-        Assert.requireNonNull(kafkaHeaders, "kafkaHeaders must not be null");
-
-        for (org.apache.kafka.common.header.Header kafkaHeader : kafkaHeaders.toArray()) {
-            String kafkaHeaderKey = kafkaHeader.key();
-            if (Header.startWithPinpointHeader(kafkaHeaderKey)) {
-                kafkaHeaders.remove(kafkaHeaderKey);
-            }
-        }
+        headerSetter.setPinpointHeaders(recorder, trace, record, sample, traceContext.getApplicationName(), traceContext.getServerTypeCode());
     }
 
     @Override
@@ -175,5 +149,72 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
     }
 
+    private static class HeaderSetterProvider {
+
+        static HeaderSetter get(Object object) {
+            try {
+                final Class<?> aClass = object.getClass();
+                final Method method = aClass.getMethod("headers");
+                if (method != null) {
+                    return new DefaultHeaderSetter();
+                }
+            } catch (NoSuchMethodException e) {
+                // ignore
+            }
+            return new DisabledHeaderSetter();
+        }
+
+    }
+
+    private interface HeaderSetter {
+
+        void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, ProducerRecord record, boolean sample, String applicationName, short serverTypeCode);
+
+    }
+
+    private static class DisabledHeaderSetter implements HeaderSetter {
+
+        @Override
+        public void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, ProducerRecord record, boolean sample, String applicationName, short serverTypeCode) {
+        }
+
+    }
+
+    private static class DefaultHeaderSetter implements HeaderSetter {
+
+        public void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, ProducerRecord record, boolean sample, String applicationName, short serverTypeCode) {
+            org.apache.kafka.common.header.Headers kafkaHeaders = record.headers();
+            if (kafkaHeaders == null) {
+                return;
+            }
+
+            cleanPinpointHeader(kafkaHeaders);
+            if (sample) {
+                final TraceId nextId = trace.getTraceId().getNextTraceId();
+                recorder.recordNextSpanId(nextId.getSpanId());
+
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId().getBytes()));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()).getBytes()));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()).getBytes()));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()).getBytes()));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), String.valueOf(applicationName).getBytes()));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode).getBytes()));
+            } else {
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE.getBytes()));
+            }
+        }
+
+        private void cleanPinpointHeader(org.apache.kafka.common.header.Headers kafkaHeaders) {
+            Assert.requireNonNull(kafkaHeaders, "kafkaHeaders must not be null");
+
+            for (org.apache.kafka.common.header.Header kafkaHeader : kafkaHeaders.toArray()) {
+                String kafkaHeaderKey = kafkaHeader.key();
+                if (Header.startWithPinpointHeader(kafkaHeaderKey)) {
+                    kafkaHeaders.remove(kafkaHeaderKey);
+                }
+            }
+        }
+
+    }
 
 }
