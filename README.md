@@ -52,7 +52,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
 * ActiveMQ, RabbitMQ
-* MySQL(jtds), Oracle, MSSQL, CUBRID,POSTGRESQL, MARIA
+* MySQL, Oracle, MSSQL(jtds), CUBRID,POSTGRESQL, MARIA
 * Arcus, Memcached, Redis, CASSANDRA
 * iBATIS, MyBatis
 * DBCP, DBCP2, HIKARICP
@@ -70,18 +70,18 @@ Pinpoint Version | Agent | Collector | Web
 1.5.x | 6-8 | 7+ | 7+
 1.6.x | 6-8 | 7+ | 7+
 1.7.x | 6-8 | 8+ | 8+
-1.8.x | 6-8<br> 9+(Experimental) | 8+ | 8+ 
+1.8.x | 6-10 | 8+ | 8+ 
 
 HBase compatibility table:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBase 1.2.x
----------------- | ------------ | ------------ | ----------- | ----------- | -----------
-1.0.x | yes | no | no | no | no
-1.1.x | no | not tested | yes | not tested | not tested
-1.5.x | no | not tested | yes | not tested | not tested
-1.6.x | no | not tested | not tested | not tested | yes
-1.7.x | no | not tested | not tested | not tested | yes
-1.8.x | no | not tested | not tested | not tested | yes
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.2.x
+---------------- | ------------ | ------------ | ----------- | -----------
+1.0.x | yes | no | no | no
+1.1.x | no | not tested | yes | not tested
+1.5.x | no | not tested | yes | not tested
+1.6.x | no | not tested | not tested | yes
+1.7.x | no | not tested | not tested | yes
+1.8.x | no | not tested | not tested | yes
 
 Agent - Collector compatibility table:
 
