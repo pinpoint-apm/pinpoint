@@ -25,7 +25,7 @@
                 <prop key="hbase.client.async.enable">${hbase.client.async.enable:false}</prop>
                 <prop key="hbase.client.async.in.queuesize">${hbase.client.async.in.queuesize:10000}</prop>
                 <prop key="hbase.tablemultiplexer.flush.period.ms">${hbase.client.async.flush.period.ms:100}</prop>
-                <prop key="hbase.client.max.retries.in.queue">${hbase.client.async.max.retries.in.queue:10}</prop>
+                <prop key="hbase.client.max.retries.in.queue">${hbase.client.async.max.retries.in.queue:10000}</prop>
             </props>
         </property>
     </bean>
