@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.hbase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.HTableMultiplexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +38,11 @@ public class HBaseAsyncOperationFactory {
     public static final String ASYNC_IN_QUEUE_SIZE = "hbase.client.async.in.queuesize";
     public static final int DEFAULT_ASYNC_IN_QUEUE_SIZE = 10000;
 
-    public static final String ASYNC_PERIODIC_FLUSH_TIME = "hbase.tablemultiplexer.flush.period.ms";
+    public static final String ASYNC_PERIODIC_FLUSH_TIME = HTableMultiplexer.TABLE_MULTIPLEXER_FLUSH_PERIOD_MS;
     public static final int DEFAULT_ASYNC_PERIODIC_FLUSH_TIME = 100;
 
-    public static final String ASYNC_RETRY_COUNT = "hbase.client.max.retries.in.queue";
-    public static final int DEFAULT_ASYNC_RETRY_COUNT = 10;
+    public static final String ASYNC_MAX_RETRIES_IN_QUEUE = HTableMultiplexer.TABLE_MULTIPLEXER_MAX_RETRIES_IN_QUEUE;
+    public static final int DEFAULT_ASYNC_RETRY_COUNT = 10000;
 
     public static HBaseAsyncOperation create(Configuration configuration) throws IOException {
         boolean enableAsyncMethod = configuration.getBoolean(ENABLE_ASYNC_METHOD, DEFAULT_ENABLE_ASYNC_METHOD);
@@ -55,8 +56,8 @@ public class HBaseAsyncOperationFactory {
             configuration.setInt(ASYNC_PERIODIC_FLUSH_TIME, DEFAULT_ASYNC_PERIODIC_FLUSH_TIME);
         }
 
-        if (configuration.get(ASYNC_RETRY_COUNT, null) == null) {
-            configuration.setInt(ASYNC_RETRY_COUNT, DEFAULT_ASYNC_RETRY_COUNT);
+        if (configuration.get(ASYNC_MAX_RETRIES_IN_QUEUE, null) == null) {
+            configuration.setInt(ASYNC_MAX_RETRIES_IN_QUEUE, DEFAULT_ASYNC_RETRY_COUNT);
         }
 
         return new HBaseAsyncTemplate(configuration, queueSize);
@@ -74,8 +75,8 @@ public class HBaseAsyncOperationFactory {
             configuration.setInt(ASYNC_PERIODIC_FLUSH_TIME, DEFAULT_ASYNC_PERIODIC_FLUSH_TIME);
         }
 
-        if (configuration.get(ASYNC_RETRY_COUNT, null) == null) {
-            configuration.setInt(ASYNC_RETRY_COUNT, DEFAULT_ASYNC_RETRY_COUNT);
+        if (configuration.get(ASYNC_MAX_RETRIES_IN_QUEUE, null) == null) {
+            configuration.setInt(ASYNC_MAX_RETRIES_IN_QUEUE, DEFAULT_ASYNC_RETRY_COUNT);
         }
 
         return new HBaseAsyncTemplate(connection, configuration, queueSize);
