@@ -56,15 +56,29 @@ public class ApplicationAgentsList {
         String value();
     }
 
-    private final GroupBy groupBy;
-    private final SortedMap<GroupingKey, List<AgentInfo>> agentsMap;
+    public interface Filter {
 
-    public ApplicationAgentsList(GroupBy groupBy) {
+        boolean ACCEPT = true;
+        boolean REJECT = false;
+
+        boolean filter(AgentInfo agentInfo);
+
+        Filter NONE = agentInfo -> ACCEPT;
+    }
+
+    private final GroupBy groupBy;
+    private final Filter filter;
+    private final SortedMap<GroupingKey, List<AgentInfo>> agentsMap = new TreeMap<>();
+
+    public ApplicationAgentsList(GroupBy groupBy, Filter filter) {
         this.groupBy = Objects.requireNonNull(groupBy, "groupBy must not be null");
-        this.agentsMap = new TreeMap<>();
+        this.filter = Objects.requireNonNull(filter, "filter must not be null");
     }
 
     public void add(AgentInfo agentInfo) {
+        if (filter.filter(agentInfo) == Filter.REJECT) {
+            return;
+        }
         GroupingKey key = groupBy.extractKey(agentInfo);
         List<AgentInfo> agentInfos = agentsMap.computeIfAbsent(key, k -> new ArrayList<>());
         agentInfos.add(agentInfo);

@@ -30,7 +30,7 @@ public class ApplicationAgentsListTest {
 
     @Test
     public void groupByApplicationName() {
-        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.APPLICATION_NAME);
+        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.APPLICATION_NAME, ApplicationAgentsList.Filter.NONE);
         AgentInfo app1Agent1 = createAgentInfo("APP_1", "app1-agent1", "Host11", true);
         AgentInfo app1Agent2 = createAgentInfo("APP_1", "app1-agent2", "Host12", false);
         AgentInfo app2Agent1 = createAgentInfo("APP_2", "app2-agent1", "Host21", false);
@@ -58,7 +58,7 @@ public class ApplicationAgentsListTest {
 
     @Test
     public void groupByHostNameShouldHaveContainersLastAndGroupedSeparately() {
-        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME);
+        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, ApplicationAgentsList.Filter.NONE);
         AgentInfo host1Agent1 = createAgentInfo("APP_1", "host1-agent1", "Host1", false);
         AgentInfo host2Agent1 = createAgentInfo("APP_1", "host2-agent1", "Host2", false);
         AgentInfo containerAgent1 = createAgentInfo("APP_1", "container-agent1", "Host3", true);
@@ -97,9 +97,9 @@ public class ApplicationAgentsListTest {
         AgentInfo containerAgent2 = createAgentInfo("APP_1", "container-agent2", "Host4", true);
         List<AgentInfo> agentInfos = shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2);
 
-        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME);
+        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, ApplicationAgentsList.Filter.NONE);
         applicationAgentsList.addAll(agentInfos.subList(0, agentInfos.size() / 2));
-        ApplicationAgentsList applicationAgentsListToMerge = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME);
+        ApplicationAgentsList applicationAgentsListToMerge = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, ApplicationAgentsList.Filter.NONE);
         applicationAgentsListToMerge.addAll(agentInfos.subList(agentInfos.size() / 2, agentInfos.size()));
 
         applicationAgentsList.merge(applicationAgentsListToMerge);
@@ -132,9 +132,9 @@ public class ApplicationAgentsListTest {
         AgentInfo agent1 = createAgentInfo("APP_1", "app1-agent1", "Host1", false);
         AgentInfo agent2 = createAgentInfo("APP_2", "app2-agent1", "Host2", false);
         AgentInfo agent3 = createAgentInfo("APP_2", "app2-agent2", "Host2", true);
-        ApplicationAgentsList groupedByHostnameList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME);
+        ApplicationAgentsList groupedByHostnameList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, ApplicationAgentsList.Filter.NONE);
         groupedByHostnameList.add(agent1);
-        ApplicationAgentsList groupedByApplicationNameList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.APPLICATION_NAME);
+        ApplicationAgentsList groupedByApplicationNameList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.APPLICATION_NAME, ApplicationAgentsList.Filter.NONE);
         groupedByApplicationNameList.add(agent2);
         groupedByApplicationNameList.add(agent3);
 
