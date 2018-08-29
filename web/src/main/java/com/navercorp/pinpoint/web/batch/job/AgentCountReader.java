@@ -42,7 +42,8 @@ public class AgentCountReader implements ItemReader<ApplicationAgentsList>, Step
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        ApplicationAgentsList applicationAgentList = agentInfoService.getAllApplicationAgentsList();
+        long timestamp = System.currentTimeMillis();
+        ApplicationAgentsList applicationAgentList = agentInfoService.getAllApplicationAgentsList(ApplicationAgentsList.Filter.NONE, timestamp);
         queue.add(applicationAgentList);
     }
 
