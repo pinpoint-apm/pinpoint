@@ -22,6 +22,7 @@ Feel free to contact us anytime. We are glad to add more links.
 ## Resources (ENGLISH)
 * Anyone who would like to share any document are always welcome
 * [Technical Overview of Pinpoint](https://github.com/naver/pinpoint/wiki/Technical-Overview-Of-Pinpoint)
+* [Official Docker Repository](https://github.com/naver/pinpoint-docker)
 * [Using Pinpoint with Docker](http://yous.be/2015/05/05/using-pinpoint-with-docker/) ([@yous](https://github.com/yous))
 * [Another docker deployment using docker-compose.yml](https://github.com/minyk/docker-pinpoint) ([@minyk](https://github.com/minyk))
 * [Notes on Jetty Plugin for Pinpoint](https://github.com/cijung/Docs/blob/master/JettyPluginNotes.md) ([@cijung](https://github.com/cijung))
