@@ -17,7 +17,7 @@ company_name: Naver
 github_editme_path:
 # if you're using Github, provide the basepath to the branch you've created for reviews, following the sample here. if not, leave this value blank.
 
-disqus_shortname: pinpoint-home-page
+disqus_shortname:
 # if you're using disqus for comments, add the shortname here. if not, leave this value blank.
 
 google_analytics: UA-57786344-4
