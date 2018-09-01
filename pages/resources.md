@@ -4,7 +4,7 @@ keywords: resources, other sites
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: resources.html
-disqus: true
+disqus: false
 ---
 
 If you have created informative posts on pinpoint and want the link to be added.

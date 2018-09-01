@@ -4,7 +4,7 @@ keywords: proxy, http, header
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: proxyhttpheader.html
-disqus: true
+disqus: false
 ---
 
 # Proxy monitoring using HTTP headers
