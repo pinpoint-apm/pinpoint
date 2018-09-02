@@ -78,7 +78,7 @@
         <module>weblogic</module>
         <module>php</module>
         <module>akka-http</module>
-        <module>elasticsearch</module>
+        <module>elasticsearch-bboss</module>
     </modules>
 
     <dependencies>
@@ -324,7 +324,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-elasticsearch-plugin</artifactId>
+            <artifactId>pinpoint-elasticsearch-bboss-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
