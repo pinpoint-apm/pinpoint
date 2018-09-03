@@ -87,8 +87,8 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
         recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH_EXECUTOR);
 		recorder.recordApi(getMethodDescriptor());
         recorder.recordAttribute(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY,elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
-        recorder.recordException(throwable);
 //        recorder.recordApiCachedString(getMethodDescriptor(),elasticsearchClusterVersionInfo,0);
+        recorder.recordException(throwable);
         if (recordArgs && args != null && args.length > 0) {
             //recorder.recordApiCachedString(getMethodDescriptor(),convertParams(args),0);
 
