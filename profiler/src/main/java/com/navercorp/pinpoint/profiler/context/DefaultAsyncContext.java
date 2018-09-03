@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,9 +73,10 @@ public class DefaultAsyncContext implements AsyncContext {
     }
 
     private Trace newAsyncTrace(Reference<Trace> reference) {
-        final int asyncId = this.asyncId.getAsyncId();
-        final short asyncSequence = this.asyncId.nextAsyncSequence();
-        final Trace asyncTrace = asyncTraceContext.newAsyncTraceObject(traceRoot, asyncId, asyncSequence);
+//        final int asyncId = this.asyncId.getAsyncId();
+//        final short asyncSequence = this.asyncId.nextAsyncSequence();
+        final LocalAsyncId localAsyncId = this.asyncId.nextLocalAsyncId();
+        final Trace asyncTrace = asyncTraceContext.newAsyncTraceObject(traceRoot, localAsyncId);
 
 
         bind(reference, asyncTrace);

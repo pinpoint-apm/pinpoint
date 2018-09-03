@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +30,10 @@ import java.util.List;
  */
 public class SpanStorage implements Storage {
 
-    protected List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(10);
+    protected List<SpanEvent> spanEventList = new ArrayList<SpanEvent>(10);
     private final TraceRoot traceRoot;
     private final DataSender dataSender;
+    private MessageConverter<TBase<?, ?>> messageConverter = null;
 
     public SpanStorage(TraceRoot traceRoot, DataSender dataSender) {
         if (traceRoot == null) {
@@ -50,7 +51,7 @@ public class SpanStorage implements Storage {
         if (spanEvent == null) {
             throw new NullPointerException("spanEvent must not be null");
         }
-        final List<TSpanEvent> spanEventList = this.spanEventList;
+        final List<SpanEvent> spanEventList = this.spanEventList;
         if (spanEventList != null) {
             spanEventList.add(spanEvent);
         } else {
@@ -65,8 +66,11 @@ public class SpanStorage implements Storage {
         }
         span.setSpanEventList(spanEventList);
         spanEventList = null;
-        this.dataSender.send(span);
+
+        TBase<?, ?> tSpan = this.messageConverter.toMessage(span);
+        this.dataSender.send(tSpan);
     }
+
 
     @Override
     public void flush() {

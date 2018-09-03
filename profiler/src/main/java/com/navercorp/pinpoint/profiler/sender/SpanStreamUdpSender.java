@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
+import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.planer.SendDataPlaner;
 import com.navercorp.pinpoint.profiler.sender.planer.SpanChunkStreamSendDataPlaner;
 import com.navercorp.pinpoint.profiler.util.ByteBufferUtils;
 import com.navercorp.pinpoint.profiler.util.ObjectPool;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -37,7 +41,7 @@ import java.util.Iterator;
 /**
  * @author Taejin Koo
  */
-public class SpanStreamUdpSender extends AbstractDataSender {
+public class SpanStreamUdpSender implements DataSender {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -59,15 +63,17 @@ public class SpanStreamUdpSender extends AbstractDataSender {
 
     private final StandbySpanStreamDataSendWorker standbySpanStreamDataSendWorker;
 
-    public SpanStreamUdpSender(String host, int port, String threadName, int queueSize) {
-        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
+    private final MessageConverter<TBase<?, ?>> messageConverter;
+
+    public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, MessageConverter<TBase<?, ?>> messageConverter) {
+        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE, messageConverter);
     }
     
-    public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
-        this(host, port, threadName, queueSize, timeout, sendBufferSize, DEFAULT_BUFFER_SIZE);
+    public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize,  MessageConverter<TBase<?, ?>> messageConverter) {
+        this(host, port, threadName, queueSize, timeout, sendBufferSize, DEFAULT_BUFFER_SIZE, messageConverter);
     }
 
-    public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, int dataBufferSize) {
+    public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, int dataBufferSize,  MessageConverter<TBase<?, ?>> messageConverter) {
         if (host == null) {
             throw new NullPointerException("host must not be null");
         }
@@ -99,6 +105,18 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         this.standbySpanStreamDataSendWorker.start();
 
         this.executor = createAsyncQueueingExecutor(queueSize, threadName);
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+    }
+
+    private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
+        AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener() {
+            @Override
+            public void execute(Object message) {
+                SpanStreamUdpSender.this.sendPacket(message);
+            }
+        };
+        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
+        return executor;
     }
 
     private DatagramChannel createChannel(String host, int port, int timeout, int sendBufferSize) {
@@ -138,7 +156,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
     }
 
     @Override
-    public boolean send(TBase<?, ?> data) {
+    public boolean send(Object data) {
         return executor.execute(data);
     }
 
@@ -159,8 +177,8 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         executor.stop();
     }
 
-    @Override
-    protected void sendPacket(Object message) {
+
+    private void sendPacket(Object message) {
         if (logger.isDebugEnabled()) {
             logger.debug("sendPacket message:{}", message);
         }
@@ -187,7 +205,9 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         }
 
         HeaderTBaseSerializer serializer = serializerPool.getObject();
-        PartitionedByteBufferLocator partitionedByteBufferLocator = spanStreamSendDataSerializer.serializeSpanStream(serializer, span);
+        TBase<?, ?> message = this.messageConverter.toMessage(span);
+        TSpan tSpan = (TSpan) message;
+        PartitionedByteBufferLocator partitionedByteBufferLocator = spanStreamSendDataSerializer.serializeSpanStream(serializer, tSpan);
         if (partitionedByteBufferLocator == null) {
             serializerPool.returnObject(serializer);
             return;
@@ -203,7 +223,9 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         }
 
         HeaderTBaseSerializer serializer = serializerPool.getObject();
-        PartitionedByteBufferLocator partitionedByteBufferLocator = spanStreamSendDataSerializer.serializeSpanChunkStream(serializer, spanChunk);
+        TBase<?, ?> message = this.messageConverter.toMessage(spanChunk);
+        TSpanChunk tSpanChunk = (TSpanChunk) message;
+        PartitionedByteBufferLocator partitionedByteBufferLocator = spanStreamSendDataSerializer.serializeSpanChunkStream(serializer, tSpanChunk);
         if (partitionedByteBufferLocator == null) {
             serializerPool.returnObject(serializer);
             return;

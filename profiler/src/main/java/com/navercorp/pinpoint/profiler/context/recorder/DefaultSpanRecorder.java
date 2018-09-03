@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     public void recordRpcName(String rpc) {
-        span.setRpc(rpc);
+//        span.setRpc(rpc);
         span.getTraceRoot().getShared().setRpcName(rpc);
     }
 
@@ -101,7 +101,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     public void recordEndPoint(String endPoint) {
-        span.setEndPoint(endPoint);
+//        span.setEndPoint(endPoint);
         span.getTraceRoot().getShared().setEndPoint(endPoint);
     }
 
@@ -142,14 +142,12 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     public void recordTime(boolean autoTimeRecoding) {
         span.setTimeRecording(autoTimeRecoding);
         if (autoTimeRecoding) {
-            if (!span.isSetStartTime()) {
+            if (!(span.getStartTime() == 0)) {
                 span.markBeforeTime();
             }
         } else {
-            span.setElapsed(0);
-            span.setElapsedIsSet(false);
+            span.setElapsedTime(0);
             span.setStartTime(0);
-            span.setStartTimeIsSet(false);
         }
     }
 

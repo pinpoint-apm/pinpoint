@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,34 +17,35 @@
 package com.navercorp.pinpoint.profiler.context;
 
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
 import java.util.List;
 
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
 /**
  * @author emeroad
  */
-public class SpanChunk extends TSpanChunk {
+public class SpanChunk  {
 
-    public SpanChunk(List<SpanEvent> spanEventList) {
-        if (spanEventList == null) {
-            throw new NullPointerException("spanEventList must not be null");
-        }
-        setSpanEventList((List) spanEventList);
+    private final TraceRoot traceRoot;
+
+    private final List<SpanEvent> spanEventList; // required
+
+
+    public SpanChunk(TraceRoot traceRoot, List<SpanEvent> spanEventList) {
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.spanEventList = Assert.requireNonNull(spanEventList, "spanEventList must not be null");
     }
 
-    @Override
-    public void setServiceType(short serviceType) {
-        super.setServiceType(serviceType);
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
     }
 
-    @Override
-    public void setServiceTypeIsSet(boolean value) {
-        super.setServiceTypeIsSet(value);
+
+    public List<SpanEvent> getSpanEventList() {
+        return spanEventList;
     }
 
-    @Override
-    public short getServiceType() {
-        return super.getServiceType();
-    }
 }

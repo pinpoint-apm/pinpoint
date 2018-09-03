@@ -37,7 +37,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
  * String.
  * copy->HeaderTBaseSerializer
  */
-public class HeaderTBaseSerializer {
+public class HeaderTBaseSerializer implements TBaseSerializer {
 
     private static final String UTF8 = "UTF8";
 
@@ -63,10 +63,12 @@ public class HeaderTBaseSerializer {
      * @param base The object to serialize
      * @return Serialized object in byte[] format
      */
+    @Override
     public byte[] serialize(TBase<?, ?> base) throws TException {
         return serialize(base, HeaderEntity.EMPTY_HEADER_ENTITY);
     }
 
+    @Override
     public byte[] serialize(TBase<?, ?> base, HeaderEntity headerEntity) throws TException {
         baos.reset();
 
@@ -75,11 +77,11 @@ public class HeaderTBaseSerializer {
         return baos.toByteArray();
     }
 
-    public void writeHeader(TBase<?, ?> base) {
+    private void writeHeader(TBase<?, ?> base) {
         writeHeader(base, HeaderEntity.EMPTY_HEADER_ENTITY);
     }
 
-    public void writeHeader(TBase<?, ?>base, HeaderEntity headerEntity) {
+    private void writeHeader(TBase<?, ?>base, HeaderEntity headerEntity) {
         try {
             final Header header = locator.headerLookup(base);
             if (header == null) {

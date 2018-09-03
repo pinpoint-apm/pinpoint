@@ -69,7 +69,7 @@ struct TSpanEvent {
 
     10: optional i32 endElapsed = 0
 
-    11: optional string rpc
+    11: optional string rpc  ( deprecated )
     12: i16 serviceType
     13: optional string endPoint
 
