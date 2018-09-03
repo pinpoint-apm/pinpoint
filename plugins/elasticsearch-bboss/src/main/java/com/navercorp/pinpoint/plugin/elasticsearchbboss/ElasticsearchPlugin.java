@@ -49,6 +49,7 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 	public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(973, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final AnnotationKey ARGS_ACTION_ANNOTATION_KEY = AnnotationKeyFactory.of(974, "es.action", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final AnnotationKey ARGS_RESPONSEHANDLE_ANNOTATION_KEY = AnnotationKeyFactory.of(975, "es.responseHandle", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(976, "es.version");
 	public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(9977, "ElasticsearchBBossExecutor");
 	private static final String ELASTICSEARCH_SCOPE = "ElasticsearchBBoss_SCOPE";
 	private static final String ELASTICSEARCH_EXECUTOR_SCOPE = "ElasticsearchBBossExecutor_SCOPE";

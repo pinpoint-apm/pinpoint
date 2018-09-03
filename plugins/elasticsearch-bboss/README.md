@@ -4,7 +4,7 @@ This agent plugin is worked with elasticsearch rest client [BBoss][bs].
 
 [BBoss][bs] is a best Java Highlevel Rest client for [ElasticSearch][es].
 
-For more BBoss detail see :
+For more BBoss Elasticsearch detail see :
  https://www.oschina.net/p/bboss-elastic
 
 Fast import bboss to your project:

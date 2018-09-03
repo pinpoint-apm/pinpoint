@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.elasticsearchbboss;
 
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
@@ -32,7 +33,12 @@ public class ElasticsearchMetadataProvider implements TraceMetadataProvider {
             return;
         context.addServiceType(ElasticsearchPlugin.ELASTICSEARCH);
         context.addServiceType(ElasticsearchPlugin.ELASTICSEARCH_EVENT);
-        context.addServiceType(ElasticsearchPlugin.ELASTICSEARCH_EXECUTOR);
+        context.addServiceType(ElasticsearchPlugin.ELASTICSEARCH_EXECUTOR,AnnotationKeyMatchers.exact(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY));//ElasticSearch版本信息，和方法名称在同一行
+
+		/**
+		 * ,
+		 *                 AnnotationKeyMatchers.exact(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY)
+		 */
 //        context.addAnnotationKey(AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
 //        context.addServiceType(ElasticsearchPlugin.ELASTICSEARCH_EXECUTOR);
         //context.addServiceType(ELASTICSEARCH_EXECUTOR, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));//参数和方法名称在同一行
@@ -40,8 +46,8 @@ public class ElasticsearchMetadataProvider implements TraceMetadataProvider {
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY);//HTTP请求DSL参数，在新的一行展示
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY);//HTTP请求ACTION参数，在新的一行展示
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY);//HTTP请求Response处理器参数，
-
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_ANNOTATION_KEY);//HTTP请求URL参数，在新的一行展示
+
     }
 
 }
