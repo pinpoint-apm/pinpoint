@@ -51,7 +51,7 @@ public class ModuleFactoryResolverTest {
     public static class TestModuleFactory implements ModuleFactory {
 
         @Override
-        public Module newModule(AgentOption agentOption) {
+        public PinpointModuleHolder newModule(AgentOption agentOption) {
             return null;
         }
 

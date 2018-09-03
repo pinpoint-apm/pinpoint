@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
+import com.navercorp.pinpoint.profiler.context.module.ModuleInstanceHolder;
 import com.navercorp.pinpoint.profiler.context.module.OverrideModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
@@ -63,8 +64,8 @@ public class DependencyGraph {
 
         DefaultApplicationContext applicationContext = newApplicationContext();
         try {
-
-            Injector injector = applicationContext.getInjector();
+            ModuleInstanceHolder instanceHolder = applicationContext.getModuleInstanceHolder();
+            Injector injector = instanceHolder.getInjector();
 
             String path = currentWorkingDir();
             String fileName = path + "../DependencyGraph.dot";

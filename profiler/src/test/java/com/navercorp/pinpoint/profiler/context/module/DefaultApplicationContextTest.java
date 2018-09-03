@@ -52,7 +52,8 @@ public class DefaultApplicationContextTest {
     public void test() {
         DefaultApplicationContext applicationContext = newApplicationContext();
         try {
-            Injector injector = applicationContext.getInjector();
+            ModuleInstanceHolder instanceHolder = applicationContext.getModuleInstanceHolder();
+            Injector injector = instanceHolder.getInjector();
             Map<Key<?>, Binding<?>> bindings = injector.getBindings();
             for (Map.Entry<Key<?>, Binding<?>> e : bindings.entrySet()) {
                 Key<?> key = e.getKey();

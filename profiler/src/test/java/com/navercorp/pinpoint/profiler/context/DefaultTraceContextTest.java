@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ModuleInstanceHolder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,6 +48,7 @@ public class DefaultTraceContextTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private DefaultApplicationContext applicationContext;
+    private ModuleInstanceHolder instanceHolder;
 
     @Before
     public void setUp() throws Exception {
@@ -54,6 +56,8 @@ public class DefaultTraceContextTest {
 
         applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
         applicationContext.start();
+
+        instanceHolder = applicationContext.getModuleInstanceHolder();
     }
 
     @After
@@ -83,7 +87,7 @@ public class DefaultTraceContextTest {
     @Test
     public void disableTrace() {
 
-        TraceContext traceContext = applicationContext.getTraceContext();
+        TraceContext traceContext = instanceHolder.getTraceContext();
         Trace trace = traceContext.disableSampling();
         Assert.assertNotNull(trace);
         Assert.assertFalse(trace.canSampled());
@@ -94,7 +98,7 @@ public class DefaultTraceContextTest {
     @Test
     public void threadLocalBindTest() {
 
-        TraceContext traceContext = applicationContext.getTraceContext();
+        TraceContext traceContext = instanceHolder.getTraceContext();
         Assert.assertNotNull(traceContext.newTraceObject());
 
         ProfilerConfig profilerConfig = getProfilerConfig();
@@ -102,7 +106,8 @@ public class DefaultTraceContextTest {
         DefaultApplicationContext applicationContext2 = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
         applicationContext2.start();
 
-        TraceContext traceContext2 = applicationContext2.getTraceContext();
+        ModuleInstanceHolder instanceHolder = applicationContext2.getModuleInstanceHolder();
+        TraceContext traceContext2 = instanceHolder.getTraceContext();
         Trace notExist = traceContext2.currentRawTraceObject();
         applicationContext2.close();
 
@@ -127,8 +132,10 @@ public class DefaultTraceContextTest {
         DefaultApplicationContext customContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
         customContext.start();
 
-        final TraceContext traceContext = customContext.getTraceContext();
-        IdGenerator idGenerator = customContext.getInjector().getInstance(IdGenerator.class);
+        ModuleInstanceHolder instanceHolder = customContext.getModuleInstanceHolder();
+
+        final TraceContext traceContext = instanceHolder.getTraceContext();
+        IdGenerator idGenerator = instanceHolder.getInjector().getInstance(IdGenerator.class);
         final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
 
 

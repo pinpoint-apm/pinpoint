@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
+import com.navercorp.pinpoint.profiler.context.module.ModuleInstanceHolder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,8 +77,9 @@ public class MockApplicationContextModuleTest {
         ModuleFactory moduleFactory = new OverrideModuleFactory(pluginModule, testInterceptorRegistryModule);
 
         DefaultApplicationContext applicationContext = new DefaultApplicationContext(agentOption, moduleFactory);
+        ModuleInstanceHolder moduleInstanceHolder = applicationContext.getModuleInstanceHolder();
 
-        Injector injector = applicationContext.getInjector();
+        Injector injector = moduleInstanceHolder.getInjector();
         // singleton check
         AgentInfoSender instance1 = injector.getInstance(AgentInfoSender.class);
         AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);

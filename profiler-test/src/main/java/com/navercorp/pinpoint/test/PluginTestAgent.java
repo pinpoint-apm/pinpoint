@@ -50,7 +50,7 @@ public class PluginTestAgent extends DefaultAgent {
     }
 
     private void exportVerifier(DefaultApplicationContext applicationContext) {
-        PluginVerifierExternalAdaptor adaptor = new PluginVerifierExternalAdaptor(applicationContext);
+        PluginVerifierExternalAdaptor adaptor = new PluginVerifierExternalAdaptor(applicationContext.getModuleInstanceHolder());
         PluginTestVerifierHolder.setInstance(adaptor);
     }
 
