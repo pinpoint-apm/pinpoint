@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,22 @@
 
 package com.navercorp.pinpoint.profiler.context.compress;
 
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
-import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanEventCompressorV1 implements SpanEventCompressor<Long> {
+public interface SpanPostProcessor<C> {
 
-    @Override
-    public void compress(List<SpanEvent> spanEventList, final Long keyTime) {
+    C newContext(Span span, TSpan tSpan);
 
-        final long prevKeyTime = keyTime;
-        for (final SpanEvent spanEvent : spanEventList) {
-            final long startTime = spanEvent.getStartTime();
-            final long startElapsedTime = startTime - prevKeyTime;
-            spanEvent.setStartElapsed((int) startElapsedTime);
+    C newContext(SpanChunk spanChunk, TSpanChunk tSpanChunk);
 
-
-            final long endElapsedTime = spanEvent.getAfterTime() - startTime;
-            if (endElapsedTime != 0) {
-                spanEvent.setEndElapsed((int) endElapsedTime);
-            }
-        }
-
-    }
+    void postProcess(SpanEvent spanEvent, TSpanEvent tSpanEvent, C context);
 }

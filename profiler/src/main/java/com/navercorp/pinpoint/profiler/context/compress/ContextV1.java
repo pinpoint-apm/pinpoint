@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,27 @@
 
 package com.navercorp.pinpoint.profiler.context.compress;
 
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
-
-import java.util.List;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface SpanEventCompressor<T> {
-    void compress(List<SpanEvent> spanEventList, T context);
+public class ContextV1 implements Context {
+    private long keyTime;
+
+    public ContextV1(long keyTime) {
+        this.keyTime = keyTime;
+    }
+
+    @Override
+    public long keyTime() {
+        return keyTime;
+    }
+
+
+    @Override
+    public void next() {
+    }
+
+    @Override
+    public void finish() {
+    }
 }

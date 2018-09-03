@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.profiler.sender;
 
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.profiler.context.storage.BypassMessageConverter;
+import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -29,8 +32,7 @@ import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.util.HashedWheelTimer;
@@ -40,7 +42,6 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,9 +51,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author koo.taejin
  * @author netspider
  */
-public class TcpDataSender extends AbstractDataSender implements EnhancedDataSender {
+public class TcpDataSender implements EnhancedDataSender<Object> {
 
     private final Logger logger;
+
     static {
         // preClassLoad
         ChannelBuffers.buffer(2);
@@ -65,99 +67,109 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private final WriteFailFutureListener writeFailFutureListener;
 
-
-    private final HeaderTBaseSerializer serializer;
+    private final MessageSerializer<byte[]> messageSerializer;
 
     private final RetryQueue retryQueue = new RetryQueue();
 
     protected AsyncQueueingExecutor<Object> executor;
 
-    /**
-     * @deprecated Since 1.7.2 Use {@link #TcpDataSender(String, String, int, PinpointClientFactory)}
-     */
-    @Deprecated
-    public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory) {
-        this(null, ClientFactoryUtils.newPinpointClientProvider(address, clientFactory), HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
-    }
-
-    /**
-     * @deprecated Since 1.7.2 Use {@link #TcpDataSender(String, String, int, PinpointClientFactory, HeaderTBaseSerializer)}
-     */
-    @Deprecated
-    public TcpDataSender(InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
-        this(null, ClientFactoryUtils.newPinpointClientProvider(address, clientFactory), serializer);
-    }
-
-    /**
-     * @deprecated Since 1.7.2 Use {@link #TcpDataSender(String, String, int, PinpointClientFactory)}
-     */
-    @Deprecated
-    public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(address, clientFactory), HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
-    }
-
-    @Deprecated
-    public TcpDataSender(String name, InetSocketAddress address, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(address, clientFactory), serializer);
-    }
 
     public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), newDefaultMessageSerializer());
     }
 
-
-    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, HeaderTBaseSerializer serializer) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), serializer);
+    private static ThriftMessageSerializer newDefaultMessageSerializer() {
+        MessageConverter<TBase<?,?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
+        return new ThriftMessageSerializer(messageConverter);
     }
 
-    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, HeaderTBaseSerializer serializer) {
-        String executorName = "Pinpoint-TcpDataSender-Executor";
-        if (name != null) {
-            logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + name);
-            executorName = String.format("Pinpoint-TcpDataSender(%s)-Executor", name);
-        } else {
-            logger = LoggerFactory.getLogger(this.getClass());
-        }
+    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<byte[]> messageSerializer) {
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer);
+    }
+
+    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<byte[]> messageSerializer) {
+        this.logger = newLogger(name);
+
         Assert.requireNonNull(clientProvider, "clientProvider must not be null");
         this.client = clientProvider.get();
-        this.serializer = Assert.requireNonNull(serializer, "serializer must not be null");
+
+        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer must not be null");
         this.timer = createTimer(name);
-        writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
+        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
+
+        final String executorName = getExecutorName(name);
         this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
+    }
+
+    private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
+        AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener() {
+            @Override
+            public void execute(Object message) {
+                TcpDataSender.this.sendPacket(message);
+            }
+        };
+        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
+        return executor;
+    }
+
+    private Logger newLogger(String name) {
+        if (name == null) {
+            return LoggerFactory.getLogger(this.getClass());
+        }
+        return LoggerFactory.getLogger(this.getClass().getName() + "@" + name);
+    }
+
+    private String getExecutorName(String name) {
+        if (name == null) {
+            return "Pinpoint-TcpDataSender-Executor";
+        }
+        return String.format("Pinpoint-TcpDataSender(%s)-Executor", name);
     }
 
 
     private Timer createTimer(String name) {
-        String timerName = "Pinpoint-TcpDataSender-Timer";
-        if (name != null) {
-            timerName = String.format("Pinpoint-TcpDataSender(%s)-Timer", name);
-        }
+        final String timerName = getTimerName(name);
 
         HashedWheelTimer timer = TimerFactory.createHashedWheelTimer(timerName, 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         return timer;
     }
-    
+
+    private String getTimerName(String name) {
+        if (name == null) {
+            return "Pinpoint-TcpDataSender-Timer";
+        }
+        return String.format("Pinpoint-TcpDataSender(%s)-Timer", name);
+    }
+
     @Override
-    public boolean send(TBase<?, ?> data) {
+    public boolean send(Object data) {
         return executor.execute(data);
     }
 
     @Override
-    public boolean request(TBase<?, ?> data) {
+    public boolean request(Object data) {
         return this.request(data, 3);
     }
 
     @Override
-    public boolean request(TBase<?, ?> data, int retryCount) {
-        RequestMarker message = new RequestMarker(data, retryCount);
-        return executor.execute(message);
+    public boolean request(Object data, int retryCount) {
+        if (data instanceof TBase<?, ?>) {
+            final TBase<?, ?> thriftMessage = (TBase<?, ?>) data;
+            final RequestStatus<TBase<?, ?>> message = new ThriftRequestStatus(thriftMessage, retryCount);
+            return executor.execute(message);
+        }
+        return false;
     }
 
     @Override
-    public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
-        RequestMarker message = new RequestMarker(data, listener);
-        return executor.execute(message);
+    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
+        if (data instanceof TBase<?, ?>) {
+            final TBase<?, ?> thriftMessage = (TBase<?, ?>) data;
+            final RequestStatus<TBase<?, ?>> message = new ThriftRequestStatus(thriftMessage, listener);
+            return executor.execute(message);
+        }
+        return false;
     }
 
     public boolean isConnected() {
@@ -188,29 +200,28 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         }
     }
 
-    @Override
     protected void sendPacket(Object message) {
         try {
-            if (message instanceof TBase) {
-                byte[] copy = serialize(serializer, (TBase) message);
+            if (message instanceof TBase<?, ?>) {
+                final byte[] copy = messageSerializer.serializer(message);
                 if (copy == null) {
                     return;
                 }
                 doSend(copy);
-            } else if (message instanceof RequestMarker) {
-                RequestMarker requestMarker = (RequestMarker) message;
+            } else if (message instanceof ThriftRequestStatus) {
+                RequestStatus<TBase<?, ?>> requestStatus = (ThriftRequestStatus) message;
 
-                TBase tBase = requestMarker.getTBase();
-                int retryCount = requestMarker.getRetryCount();
-                FutureListener futureListener = requestMarker.getFutureListener();
-                byte[] copy = serialize(serializer, tBase);
+                TBase<?, ?> tBase = requestStatus.getMessage();
+                final byte[] copy = messageSerializer.serializer(tBase);
                 if (copy == null) {
                     return;
                 }
 
+                final FutureListener futureListener = requestStatus.getFutureListener();
                 if (futureListener != null) {
                     doRequest(copy, futureListener);
                 } else {
+                    int retryCount = requestStatus.getRetryCount();
                     doRequest(copy, retryCount, tBase);
                 }
             } else {
@@ -234,8 +245,9 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
                     // Should cache?
+                    ResponseMessage responseMessage = future.getResult();
                     HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
-                    TBase<?, ?> response = deserialize(deserializer, future.getResult());
+                    TBase<?, ?> response = deserialize(deserializer, responseMessage.getMessage());
                     if (response instanceof TResult) {
                         TResult result = (TResult) response;
                         if (result.isSuccess()) {
@@ -270,7 +282,8 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                 if (future.isSuccess()) {
                     // Should cache?
                     HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
-                    TBase<?, ?> response = deserialize(deserializer, future.getResult());
+                    ResponseMessage responseMessage = future.getResult();
+                    TBase<?, ?> response = deserialize(deserializer, responseMessage.getMessage());
                     if (response instanceof TResult) {
                         TResult result = (TResult) response;
                         if (result.isSuccess()) {
@@ -295,13 +308,21 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         doRequest(retryMessage.getBytes(), futureListener);
     }
 
+    private TBase<?, ?> deserialize(HeaderTBaseDeserializer deserializer, byte[] message) {
+        final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(message, deserializer, null);
+        if (deserialize == null) {
+            return null;
+        }
+        return deserialize.getData();
+    }
+
     private void retryRequest(RetryMessage retryMessage) {
         retryQueue.add(retryMessage);
         if (fireTimeout()) {
             timer.newTimeout(new TimerTask() {
                 @Override
                 public void run(Timeout timeout) throws Exception {
-                    while(true) {
+                    while (true) {
                         RetryMessage retryMessage = retryQueue.get();
                         if (retryMessage == null) {
                             // Maybe concurrency issue. But ignore it because it's unlikely.

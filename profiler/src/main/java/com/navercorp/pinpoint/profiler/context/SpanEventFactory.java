@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,32 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.List;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface SpanPostProcessor {
-    Span postProcess(Span span, List<SpanEvent> spanEventList);
+public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
+    @Override
+    public Class<SpanEvent> getType() {
+        return SpanEvent.class;
+    }
+
+    @Override
+    public SpanEvent newInstance() {
+        return new SpanEvent();
+    }
+
+    @Override
+    public void markDepth(SpanEvent element, int index) {
+        element.setDepth(index);
+    }
+
+    @Override
+    public void setSequence(SpanEvent element, short sequence) {
+        element.setSequence(sequence);
+    }
+
+    @Override
+    public String toString() {
+        return "SpanEventFactory{}";
+    }
 }

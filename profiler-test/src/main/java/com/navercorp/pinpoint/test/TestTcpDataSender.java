@@ -1,10 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
-import org.apache.thrift.TBase;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -39,9 +39,9 @@ import java.util.NoSuchElementException;
  * @author Jongho Moon
  * @author jaehong.kim
  */
-public class TestTcpDataSender implements EnhancedDataSender {
+public class TestTcpDataSender implements EnhancedDataSender<Object> {
 
-    private final List<TBase<?, ?>> datas = Collections.synchronizedList(new ArrayList<TBase<?, ?>>());
+    private final List<Object> datas = Collections.synchronizedList(new ArrayList<Object>());
 
     private final BiMap<Integer, String> apiIdMap = newSynchronizedBiMap();
 
@@ -65,12 +65,12 @@ public class TestTcpDataSender implements EnhancedDataSender {
 
 
     @Override
-    public boolean send(TBase<?, ?> data) {
+    public boolean send(Object data) {
         addData(data);
         return false;
     }
 
-    private void addData(TBase<?, ?> data) {
+    private void addData(Object data) {
         if (data instanceof TApiMetaData) {
             TApiMetaData md = (TApiMetaData)data;
 
@@ -119,19 +119,19 @@ public class TestTcpDataSender implements EnhancedDataSender {
     }
 
     @Override
-    public boolean request(TBase<?, ?> data) {
+    public boolean request(Object data) {
         addData(data);
         return true;
     }
 
     @Override
-    public boolean request(TBase<?, ?> data, int retry) {
+    public boolean request(Object data, int retry) {
         addData(data);
         return true;
     }
 
     @Override
-    public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
+    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
         addData(data);
         return true;
     }
@@ -191,7 +191,7 @@ public class TestTcpDataSender implements EnhancedDataSender {
         return id;
     }
 
-    public List<TBase<?, ?>> getDatas() {
+    public List<Object> getDatas() {
         return datas;
     }
 

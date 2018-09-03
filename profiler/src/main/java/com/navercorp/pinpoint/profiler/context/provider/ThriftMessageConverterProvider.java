@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,58 +16,48 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV2;
-import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
+import com.navercorp.pinpoint.profiler.context.compress.Context;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
+import com.navercorp.pinpoint.profiler.context.storage.SpanThriftMessageConverter;
+import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
+import org.apache.thrift.TBase;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanChunkFactoryProvider implements Provider<SpanChunkFactory> {
+public class ThriftMessageConverterProvider implements Provider<MessageConverter<TBase<?, ?>>> {
 
     private final String applicationName;
     private final String agentId;
     private final long agentStartTime;
     private final ServiceType applicationServiceType;
-    private final TraceDataFormatVersion version;
     private final TransactionIdEncoder transactionIdEncoder;
-
+    private final SpanPostProcessor<Context> spanPostProcessor;
 
     @Inject
-    public SpanChunkFactoryProvider(ProfilerConfig profilerConfig, @ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
-                                    @ApplicationServerType ServiceType applicationServiceType, TransactionIdEncoder transactionIdEncoder) {
-
+    public ThriftMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
+                                          @ApplicationServerType ServiceType applicationServiceType,
+                                          TransactionIdEncoder transactionIdEncoder, SpanPostProcessor<Context> spanPostProcessor) {
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
         this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
-
         this.agentStartTime = agentStartTime;
         this.applicationServiceType = Assert.requireNonNull(applicationServiceType, "applicationServiceType must not be null");
         this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder must not be null");
-
-
-        this.version = TraceDataFormatVersion.getTraceDataFormatVersion(profilerConfig);
+        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor must not be null");
     }
 
-
     @Override
-    public SpanChunkFactory get() {
-        if (this.version == TraceDataFormatVersion.V2) {
-            return new SpanChunkFactoryV2(applicationName, agentId, agentStartTime, applicationServiceType, transactionIdEncoder);
-        }
-        if (this.version == TraceDataFormatVersion.V1) {
-            return new SpanChunkFactoryV1(applicationName, agentId, agentStartTime, applicationServiceType, transactionIdEncoder);
-        }
-        throw new UnsupportedOperationException("unknown version :" + version);
+    public MessageConverter<TBase<?, ?>> get() {
+        return new SpanThriftMessageConverter(applicationName, agentId, agentStartTime, applicationServiceType.getCode(), transactionIdEncoder, spanPostProcessor);
     }
 }

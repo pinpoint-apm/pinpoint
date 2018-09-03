@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public interface RecorderFactory {
 
     SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling);
 
-    WrappedSpanEventRecorder newWrappedSpanEventRecorder();
+    WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot);
 
-    WrappedSpanEventRecorder newWrappedSpanEventRecorder(AsyncState asyncState);
+    WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot, AsyncState asyncState);
 }

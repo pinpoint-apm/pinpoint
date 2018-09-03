@@ -19,16 +19,9 @@ package com.navercorp.pinpoint.profiler.sender;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -50,12 +43,10 @@ import java.util.List;
  */
 public class SpanStreamSendDataSerializerTest {
 
+    private final String applicationName = "applicationName";
     private final String agentId = "agentId";
     private final long agentStartTime = System.currentTimeMillis();
-    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
-
-    private final SpanChunkFactory spanChunkFactory
-            = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
+    private final ServiceType applicationServiceType = ServiceType.STAND_ALONE ;
 
 
     private TraceRoot newInternalTraceId() {
@@ -72,7 +63,10 @@ public class SpanStreamSendDataSerializerTest {
 
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory();
 
-        SpanChunk spanChunk = spanChunkFactory.create(newInternalTraceId(), createSpanEventList(spanEventSize));
+        TSpanChunk spanChunk = newSpanChunk();
+        spanChunk.setSpanEventList(createSpanEventList(spanEventSize));
+
+//        spanChunkspanChunkFactory.create(newInternalTraceId(), createSpanEventList(spanEventSize));
         PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanChunkStream(factory.createSerializer(), spanChunk);
 
         Assert.assertEquals(spanEventSize + 1, partitionedByteBufferLocator.getPartitionedCount());
@@ -100,6 +94,15 @@ public class SpanStreamSendDataSerializerTest {
         }
     }
 
+    private TSpanChunk newSpanChunk() {
+        TSpanChunk tSpanChunk = new TSpanChunk();
+        tSpanChunk.setApplicationName(applicationName);
+        tSpanChunk.setAgentId(agentId);
+        tSpanChunk.setAgentStartTime(agentStartTime);
+        tSpanChunk.setApplicationServiceType(applicationServiceType.getCode());
+        return tSpanChunk;
+    }
+
     @Test
     public void spanStreamSendDataSerializerTest2() throws InterruptedException, TException {
         int spanEventSize = 10;
@@ -108,7 +111,7 @@ public class SpanStreamSendDataSerializerTest {
 
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory();
 
-        Span span = createSpan(createSpanEventList(spanEventSize));
+        TSpan span = createSpan(createSpanEventList(spanEventSize));
         PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanStream(factory.createSerializer(), span);
 
         Assert.assertEquals(spanEventSize + 1, partitionedByteBufferLocator.getPartitionedCount());
@@ -136,29 +139,25 @@ public class SpanStreamSendDataSerializerTest {
         }
     }
 
-    private Span createSpan(List<SpanEvent> spanEventList) {
-        TraceRoot traceRoot = newInternalTraceId();
-
-        final Span span = new Span(traceRoot);
-        for (SpanEvent spanEvent : spanEventList) {
+    private TSpan createSpan(List<TSpanEvent> spanEventList) {
+        final TSpan span = new TSpan();
+        for (TSpanEvent spanEvent : spanEventList) {
             span.addToSpanEventList(spanEvent);
         }
 
-        span.setAgentId("agentId");
         return span;
     }
 
-    private List<SpanEvent> createSpanEventList(int size) throws InterruptedException {
+    private List<TSpanEvent> createSpanEventList(int size) throws InterruptedException {
 
-        TraceRoot traceRoot = newInternalTraceId();
+        int elapsedTime = 0;
 
-        Span span = new Span(traceRoot);
-        List<SpanEvent> spanEventList = new ArrayList<SpanEvent>(size);
+        List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(size);
+
         for (int i = 0; i < size; i++) {
-            SpanEvent spanEvent = new SpanEvent(traceRoot);
-            spanEvent.markStartTime();
-            Thread.sleep(1);
-            spanEvent.markAfterTime();
+            TSpanEvent spanEvent = new TSpanEvent();
+            spanEvent.setStartElapsed(elapsedTime++);
+            spanEvent.setEndElapsed(elapsedTime++);
 
             spanEventList.add(spanEvent);
         }
