@@ -13,10 +13,16 @@ layout: firstpage
 
 ![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)
 ![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)
-  
+ 
+## Latest News (2018/08/30)
+
+Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
+
 ## Introduction  
   
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/naver/pinpoint-c-agent).
+Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"),
+Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
 You should definitely check **Pinpoint** out If you want to
 
