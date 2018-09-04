@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.jdk7.rabbitmq;
 
 import com.navercorp.pinpoint.plugin.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
@@ -36,7 +35,6 @@ import org.junit.runner.RunWith;
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @Dependency({"com.rabbitmq:amqp-client:[5.0.0,)", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
-@JvmArgument({"-Dpinpoint.configcenter=false"})
 public class RabbitMQClient_5_x_IT extends RabbitMQClientITBase {
 
     @Test
