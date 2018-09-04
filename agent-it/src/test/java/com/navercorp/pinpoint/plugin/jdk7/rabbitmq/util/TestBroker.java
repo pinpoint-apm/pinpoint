@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.plugin.jdk7.rabbitmq.util;
 import org.apache.qpid.server.Broker;
 import org.apache.qpid.server.BrokerOptions;
 
+import java.io.File;
+
 /**
  * @author HyunGil Jeong
  */
@@ -31,8 +33,11 @@ public class TestBroker {
     private final Broker broker = new Broker();
 
     private static void setSystemProperties() {
-        System.setProperty("qpid.work_dir", "/tmp/qpidworktmp");
+        String qpidWorkDir = new File(System.getProperty("java.io.tmpdir"), "qpidworktmp").getAbsolutePath();
+        System.setProperty("qpid.work_dir", qpidWorkDir);
         System.setProperty("qpid.initialConfigurationLocation", "rabbitmq/qpid/qpid-config.json");
+        // Suppress derby.log
+        System.setProperty("derby.stream.error.field", "DerbyUtil.DEV_NULL");
     }
 
     public void start() throws Exception {
