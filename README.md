@@ -7,13 +7,22 @@
 
 **Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**  
 
+## Latest News (2018/08/30)
+
+Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
+
 ## Latest Release (2018/08/13)
+
 We're happy to announce the release of Pinpoint v1.8.0-RC1.
 Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.0-RC1).
 
 The current stable version is [v1.7.3](https://github.com/naver/pinpoint/releases/tag/1.7.3).
 
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
+## About Pinpoint
+
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/naver/pinpoint-c-agent).
+Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"),
+Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
 You should definitely check **Pinpoint** out If you want to
 
@@ -24,8 +33,8 @@ You should definitely check **Pinpoint** out If you want to
 * have minimal impact on the performance (approximately 3% increase in resource usage)
 
 ## Getting Started
- * [Quick-start guide](https://github.com/naver/pinpoint/tree/master/quickstart) for simple test run of Pinpoint
- * [Installation guide](https://github.com/naver/pinpoint/blob/master/doc/installation.md) for further instructions.
+ * [Quick-start guide](https://naver.github.io/pinpoint/1.7.3/quickstart.html) for simple test run of Pinpoint
+ * [Installation guide](https://naver.github.io/pinpoint/1.7.3/installation.html) for further instructions.
  
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
