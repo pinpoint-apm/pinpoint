@@ -926,15 +926,15 @@ span.soft {
 }
 
 /* this part adds an icon after external links, using FontAwesome*/
-a[href^="http://"]:after, a[href^="https://"]:after {
-    content: "\f08e";
-    font-family: FontAwesome;
-    font-weight: normal;
-    font-style: normal;
-    display: inline-block;
-    text-decoration: none;
-    padding-left: 3px;
-}
+/*a[href^="http://"]:after, a[href^="https://"]:after {*/
+    /*content: "\f08e";*/
+    /*font-family: FontAwesome;*/
+    /*font-weight: normal;*/
+    /*font-style: normal;*/
+    /*display: inline-block;*/
+    /*text-decoration: none;*/
+    /*padding-left: 3px;*/
+/*}*/
 
 a[no_icon]:after {
     content:"" !important;
