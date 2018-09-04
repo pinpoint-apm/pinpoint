@@ -377,7 +377,7 @@
 	                    var selectedNode;
 	                    for( var i = 0 ; i < htLastMergedMapData.nodeDataArray.length ; i++ ) {
 	                    	var node = htLastMergedMapData.nodeDataArray[i];
-							if ( node.applicationName === query.applicationName ) {
+							if ( node.applicationName === query.applicationName && node.serviceType === query.serviceTypeName ) {
 								selectedNode = node;
 								options.sBoldKey = node.key;
 								break;
@@ -532,7 +532,7 @@
 	                    scope.$broadcast('serverMapDirective.openFilteredMap', oServerMapFilterVoService, oServerMapHintVoService);
 	                    reset();
 	                };
-	                scope.openFilterWizard = function () {
+	                scope.openFilterWizard2 = function () {
 	                	AnalyticsService.send(AnalyticsService.CONST.CONTEXT, AnalyticsService.CONST.CLK_FILTER_TRANSACTION_WIZARD);
 	                    openFilterWizard();
 	                };
