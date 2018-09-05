@@ -20,12 +20,12 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 import org.apache.hadoop.hbase.TableName;
@@ -57,39 +57,38 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
     @Override
-    public void insert(final TSpan span) {
+    public void insert(final SpanBo span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
 
         final Buffer buffer = new AutomaticBuffer(10 + AGENT_NAME_MAX_LEN);
         buffer.putVInt(span.getElapsed());
-        buffer.putSVInt(span.getErr());
+        buffer.putSVInt(span.getErrCode());
         buffer.putPrefixedString(span.getAgentId());
         final byte[] value = buffer.getBuffer();
 
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final byte[] distributedKey = createRowKey(span, acceptedTime);
-        Put put = new Put(distributedKey);
+        final Put put = new Put(distributedKey);
 
         put.addColumn(APPLICATION_TRACE_INDEX_CF_TRACE, makeQualifier(span) , acceptedTime, value);
 
-        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(APPLICATION_TRACE_INDEX_STR);
+        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(APPLICATION_TRACE_INDEX_STR);
         boolean success = hbaseTemplate.asyncPut(applicationTraceIndexTableName, put);
         if (!success) {
             hbaseTemplate.put(applicationTraceIndexTableName, put);
         }
     }
 
-    private byte[] makeQualifier(final TSpan span) {
-        byte[] qualifier = SpanUtils.getVarTransactionId(span);
-
+    private byte[] makeQualifier(final SpanBo span) {
+        final byte[] qualifier = SpanUtils.getVarTransactionId(span);
         return qualifier;
     }
 
-    private byte[] createRowKey(TSpan span, long acceptedTime) {
+    private byte[] createRowKey(SpanBo span, long acceptedTime) {
         // distribute key evenly
-        byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationName(), acceptedTime);
+        final byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationId(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
     }
 }

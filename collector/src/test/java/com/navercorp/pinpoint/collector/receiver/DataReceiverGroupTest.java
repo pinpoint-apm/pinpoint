@@ -18,6 +18,10 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
+import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.thrift.PinpointServerAcceptorProvider;
+import com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean;
+import com.navercorp.pinpoint.collector.receiver.thrift.UDPReceiverBean;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
@@ -27,7 +31,6 @@ import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

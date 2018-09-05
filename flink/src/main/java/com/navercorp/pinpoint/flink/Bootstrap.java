@@ -15,13 +15,12 @@
  */
 package com.navercorp.pinpoint.flink;
 
-import com.navercorp.pinpoint.collector.receiver.TCPReceiverBean;
+import com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
 import com.navercorp.pinpoint.flink.dao.hbase.*;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindowInterceptor;
 import com.navercorp.pinpoint.flink.process.ApplicationCache;
-import com.navercorp.pinpoint.flink.process.DefaultTBaseFlatMapperInterceptor;
 import com.navercorp.pinpoint.flink.process.TBaseFlatMapper;
 import com.navercorp.pinpoint.flink.process.TBaseFlatMapperInterceptor;
 import com.navercorp.pinpoint.flink.receiver.AgentStatHandler;

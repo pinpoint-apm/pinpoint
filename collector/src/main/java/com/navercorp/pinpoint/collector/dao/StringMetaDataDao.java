@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
-import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 
 /**
  * @author emeroad
  */
 public interface StringMetaDataDao {
-
-    void insert(TStringMetaData stringMetaData);
+    void insert(StringMetaDataBo stringMetaData);
 }

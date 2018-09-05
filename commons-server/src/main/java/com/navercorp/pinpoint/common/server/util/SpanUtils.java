@@ -20,11 +20,10 @@ import static com.navercorp.pinpoint.common.PinpointConstants.*;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 /**
  * @author emeroad
@@ -48,12 +47,12 @@ public final class SpanUtils {
         return RowKeyUtils.concatFixedByteAndLong(applicationName, APPLICATION_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
     }
 
-    public static byte[] getVarTransactionId(TSpan span) {
+    public static byte[] getVarTransactionId(SpanBo span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
-        final byte[] transactionIdBytes = span.getTransactionId();
-        TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
+
+        final TransactionId transactionId = span.getTransactionId();
         String agentId = transactionId.getAgentId();
         if (agentId == null) {
             agentId = span.getAgentId();
