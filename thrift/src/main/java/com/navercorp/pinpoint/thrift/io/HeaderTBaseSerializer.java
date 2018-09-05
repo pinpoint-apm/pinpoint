@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 
 import com.navercorp.pinpoint.io.header.ByteArrayHeaderWriter;
 import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.header.HeaderWriter;
 import com.navercorp.pinpoint.io.header.InvalidHeaderException;
 import com.navercorp.pinpoint.io.util.TypeLocator;
@@ -63,20 +64,28 @@ public class HeaderTBaseSerializer {
      * @return Serialized object in byte[] format
      */
     public byte[] serialize(TBase<?, ?> base) throws TException {
+        return serialize(base, HeaderEntity.EMPTY_HEADER_ENTITY);
+    }
+
+    public byte[] serialize(TBase<?, ?> base, HeaderEntity headerEntity) throws TException {
         baos.reset();
 
-        writeHeader(base);
+        writeHeader(base, headerEntity);
         base.write(protocol);
         return baos.toByteArray();
     }
 
     public void writeHeader(TBase<?, ?> base) {
+        writeHeader(base, HeaderEntity.EMPTY_HEADER_ENTITY);
+    }
+
+    public void writeHeader(TBase<?, ?>base, HeaderEntity headerEntity) {
         try {
             final Header header = locator.headerLookup(base);
             if (header == null) {
                 throw new TException("header must not be null base:" + base);
             }
-            HeaderWriter headerWriter = new ByteArrayHeaderWriter(header);
+            HeaderWriter headerWriter = new ByteArrayHeaderWriter(header, headerEntity);
             byte[] headerBytes = headerWriter.writeHeader();
             baos.write(headerBytes);
         } catch (Exception e) {
