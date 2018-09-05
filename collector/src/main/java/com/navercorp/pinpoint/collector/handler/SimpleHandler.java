@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.handler;
 
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import org.apache.thrift.TBase;
 
 /**
  * @author emeroad

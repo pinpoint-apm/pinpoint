@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.handler;
 
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import org.apache.thrift.TBase;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,5 +28,4 @@ import org.springframework.stereotype.Service;
 public interface RequestResponseHandler {
 
     void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse);
-
 }
