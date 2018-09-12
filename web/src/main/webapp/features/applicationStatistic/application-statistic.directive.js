@@ -311,6 +311,7 @@
 								scope.selectTime = time;
 								initTime( time );
 								sendUpTimeSliderTimeInfo( timeSlider.getSliderTimeSeries(), timeSlider.getSelectionTimeSeries(), time );
+								scope.$apply();
 							}).addEvent("changeSelectionZone", function( aTime ) {
 								loadStatChart( aTime[0], aTime[1] );
 								sendUpTimeSliderTimeInfo( timeSlider.getSliderTimeSeries(), aTime, timeSlider.getSelectTime() );
@@ -345,6 +346,7 @@
 							},
 							"agentEventTimeline":{"timelineSegments":[]}
 						});
+						sendUpTimeSliderTimeInfo( timeSlider.getSliderTimeSeries(), timeSlider.getSelectionTimeSeries(), scope.selectTime );
 					}
 					scope.selectDataSource = function(event) {
 						var target = event.target;
