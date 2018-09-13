@@ -4,7 +4,7 @@ keywords: troubleshooting
 last_updated: Aug 14, 2018
 sidebar: mydoc_sidebar
 permalink: troubleshooting_network.html
-disqus: true
+disqus: false
 ---
 
 We provide a simple tool that can check your network configurations.  

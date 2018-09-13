@@ -7,13 +7,22 @@
 
 **Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**  
 
+## Latest News (2018/08/30)
+
+Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
+
 ## Latest Release (2018/08/13)
+
 We're happy to announce the release of Pinpoint v1.8.0-RC1.
 Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.0-RC1).
 
 The current stable version is [v1.7.3](https://github.com/naver/pinpoint/releases/tag/1.7.3).
 
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
+## About Pinpoint
+
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/naver/pinpoint-c-agent).
+Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"),
+Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
 You should definitely check **Pinpoint** out If you want to
 
@@ -24,8 +33,8 @@ You should definitely check **Pinpoint** out If you want to
 * have minimal impact on the performance (approximately 3% increase in resource usage)
 
 ## Getting Started
- * [Quick-start guide](https://github.com/naver/pinpoint/tree/master/quickstart) for simple test run of Pinpoint
- * [Installation guide](https://github.com/naver/pinpoint/blob/master/doc/installation.md) for further instructions.
+ * [Quick-start guide](https://naver.github.io/pinpoint/1.7.3/quickstart.html) for simple test run of Pinpoint
+ * [Installation guide](https://naver.github.io/pinpoint/1.7.3/installation.html) for further instructions.
  
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
@@ -52,7 +61,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
 * ActiveMQ, RabbitMQ
-* MySQL, Oracle, MSSQL, CUBRID,POSTGRESQL, MARIA
+* MySQL, Oracle, MSSQL(jtds), CUBRID,POSTGRESQL, MARIA
 * Arcus, Memcached, Redis, CASSANDRA
 * iBATIS, MyBatis
 * DBCP, DBCP2, HIKARICP
@@ -70,18 +79,18 @@ Pinpoint Version | Agent | Collector | Web
 1.5.x | 6-8 | 7+ | 7+
 1.6.x | 6-8 | 7+ | 7+
 1.7.x | 6-8 | 8+ | 8+
-1.8.x | 6-8<br> 9+(Experimental) | 8+ | 8+ 
+1.8.x | 6-10 | 8+ | 8+ 
 
 HBase compatibility table:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBase 1.2.x
----------------- | ------------ | ------------ | ----------- | ----------- | -----------
-1.0.x | yes | no | no | no | no
-1.1.x | no | not tested | yes | not tested | not tested
-1.5.x | no | not tested | yes | not tested | not tested
-1.6.x | no | not tested | not tested | not tested | yes
-1.7.x | no | not tested | not tested | not tested | yes
-1.8.x | no | not tested | not tested | not tested | yes
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.2.x
+---------------- | ------------ | ------------ | ----------- | -----------
+1.0.x | yes | no | no | no
+1.1.x | no | not tested | yes | not tested
+1.5.x | no | not tested | yes | not tested
+1.6.x | no | not tested | not tested | yes
+1.7.x | no | not tested | not tested | yes
+1.8.x | no | not tested | not tested | yes
 
 Agent - Collector compatibility table:
 

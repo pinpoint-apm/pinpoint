@@ -20,6 +20,8 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -87,6 +89,9 @@ public class MockPluginSetup implements PluginSetup {
         if (plugin instanceof TransformTemplateAware) {
             final TransformTemplate transformTemplate = new TransformTemplate(context);
             ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
+        } else if (plugin instanceof MatchableTransformTemplateAware) {
+            final MatchableTransformTemplate transformTemplate = new MatchableTransformTemplate(context);
+            ((MatchableTransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
         }
     }
 }

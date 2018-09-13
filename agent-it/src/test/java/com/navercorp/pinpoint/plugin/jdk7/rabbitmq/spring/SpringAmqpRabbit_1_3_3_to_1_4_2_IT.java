@@ -28,7 +28,6 @@ import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.ReceiverConfig_
 import com.navercorp.pinpoint.plugin.jdk7.rabbitmq.util.RabbitMQTestConstants;
 import com.navercorp.pinpoint.plugin.jdk7.rabbitmq.util.TestBroker;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
@@ -53,7 +52,6 @@ import java.lang.reflect.Method;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @Dependency({"org.springframework.amqp:spring-rabbit:[1.3.3.RELEASE,1.4.2.RELEASE)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
-@JvmArgument({"-Dpinpoint.configcenter=false"})
 public class SpringAmqpRabbit_1_3_3_to_1_4_2_IT {
 
     private static final TestBroker BROKER = new TestBroker();
