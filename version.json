@@ -3,6 +3,9 @@
     "ver":"Latest Snapshot",
     "url":"main.html"}
   ,{
+    "ver":"1.8.0",
+    "url":"1.8.0/main.html"}
+  ,{
     "ver":"1.7.3",
     "url":"1.7.3/main.html"}
 ]
