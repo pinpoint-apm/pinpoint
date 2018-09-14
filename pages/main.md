@@ -1,4 +1,3 @@
-
 ---
 title: "Pinpoint 1.8"
 keywords: pinpoint release, 1.8.0
