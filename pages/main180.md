@@ -1,7 +1,7 @@
 ---
 title: "Pinpoint 1.8"
 keywords: pinpoint release, 1.8.0
-permalink: main.html
+permalink: main180.html
 sidebar: mydoc_sidebar
 ---
 
