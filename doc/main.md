@@ -53,9 +53,22 @@ or if you'd like to start monitoring *Open File Descriptor*, *Direct/Mapped Buff
    
 ### Pinpoint Agent 
 
- - Options for agents running in containers to group
-    `-Dpinpoint.container` jvm argument added for grouping container applications with variable host names in the UI.
+ - Started to collect Direct/Mapped Buffer Metric
+    ![buffer 2](https://user-images.githubusercontent.com/10057874/44016075-766f96c8-9f0e-11e8-9273-e95b19bc3742.PNG)  
+    Direct buffer and Mapped buffer have been added to the Inspector.  
     
+ - Started to collect Open File Descriptor Metric
+     ![fd 1](https://user-images.githubusercontent.com/10057874/44016152-ccacd2d0-9f0e-11e8-8119-966f4c129a79.PNG)  
+     Open file descriptor has been added to the Inspector. 
+ 
+ - Option to group agents running in containers
+    `-Dpinpoint.container` jvm argument added for grouping container applications with variable host names in the UI.
+ 
+     ![pinpoint_container_ss](https://user-images.githubusercontent.com/10057488/44317501-918a8e00-a46c-11e8-9dfd-f722ea016d25.png)
+ 
+     Passing `-Dpinpoint.container` or `-Dpinpoint.container=true` as a jvm argument will group the agent under  *Container* instead of it's hostname in the Inspector view.
+     This may help cases where the agent list would get polluted with too many hostname groupings as agents running in containers may have different hostnames everytime they are deployed and new containers are created.
+   
  - Resolved hostname retrieval triggering possible DNS lookups
     [#4427](https://github.com/naver/pinpoint/pull/4427)   
     (Thank you @nickycheng  for your contribution)
@@ -72,16 +85,7 @@ or if you'd like to start monitoring *Open File Descriptor*, *Direct/Mapped Buff
  
 ### Pinpoint Web
 
- - Started to collect Direct/Mapped Buffer Metric
-    ![buffer 2](https://user-images.githubusercontent.com/10057874/44016075-766f96c8-9f0e-11e8-9273-e95b19bc3742.PNG)  
-    Direct buffer and Mapped buffer have been added to the Inspector.  
-    
- - Started to collect Open File Descriptor Metric
-     ![fd 1](https://user-images.githubusercontent.com/10057874/44016152-ccacd2d0-9f0e-11e8-8119-966f4c129a79.PNG)  
-     Open file descriptor has been added to the Inspector. 
- 
  - Fix alarm bug
-
 
 [Enhancement Detail](https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.8.0+is%3Aclosed+label%3Aenhancement+label%3Amodule%3Aweb)
 [Bug Detail](https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.8.0+is%3Aclosed+label%3Abug+label%3Amodule%3Aweb)
