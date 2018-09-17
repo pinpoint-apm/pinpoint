@@ -27,11 +27,11 @@ install:
  - $JAVA_7_HOME/bin/java -version
  - $JAVA_8_HOME/bin/java -version
  - $JAVA_9_HOME/bin/java -version
- - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V | grep -Fv '[copy'
+ - ./mvnw install -DskipTests=true -Plocal -Dmaven.javadoc.skip=true -B -V | grep -Fv '[copy'
 
 script:
  - jdk_switcher use oraclejdk8
- - ./mvnw clover:setup test -Ptest clover:aggregate clover:clover -e | grep -Fv 'DEBUG' | grep -Fv '[copy'
+ - ./mvnw clover:setup test -Plocal,test clover:aggregate clover:clover -e | grep -Fv 'DEBUG' | grep -Fv '[copy'
 
 after_success:
  - bash <(curl -s https://codecov.io/bash)
