@@ -44,8 +44,8 @@ else
     echo "no"
 fi
 
-# Check if Thrift is builded but not copied to compiler path
-echo -n "Check if Thrift is builded but not copied to compiler path... "
+# Check if Thrift is built but not copied to compiler path
+echo -n "Check if Thrift is built but not copied to compiler path... "
 if [ -x "thrift-$tversion/compiler/cpp/thrift" ]; then
     echo "yes"
 
@@ -77,17 +77,17 @@ if [ -f "/etc/os-release" ]; then
     echo "Linux distribution: ${DIST_ID}"
     echo "Version: ${DIST_VERSION}"
 else
-    echo "ERROR: This Linux destribution is not supported."
+    echo "ERROR: This Linux distribution is not supported."
 	exit 1
 fi
 
 if [[ "${DIST_ID}" = "centos" || "${DIST_ID}" = "rhel" ]]; then
     if ! [ "${DIST_VERSION}" -ge 7 ]; then
-        echo "ERROR: This Linux destribution version is not supported."
+        echo "ERROR: This Linux distribution version is not supported."
 		exit 1
 	fi
 else
-    echo "ERROR: This Linux destribution is not supported."
+    echo "ERROR: This Linux distribution is not supported."
 	exit 1
 fi
 
