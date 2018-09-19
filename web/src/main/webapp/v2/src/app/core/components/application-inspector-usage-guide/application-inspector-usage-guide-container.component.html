@@ -1,0 +1,4 @@
+<section class="l-guide-wrapper">
+    <h4 class="l-guide-title"><span class="fas fa-exclamation-circle"></span>Warning</h4>
+    <p class="l-guide-text" [innerHTML]="guideMessage$ | async | jsonTextParser | safeHtml"></p>
+</section>

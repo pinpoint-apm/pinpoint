@@ -1,0 +1,12 @@
+<ul>
+    <li *ngFor="let group of groupList" [class.selected]="isSelected(group.id)" (click)="onSelect($event, group)">
+        <div class="l-item-wrapper">
+            <div>
+                <button [hidden]="isRemoveTarget(group.id)" class="far fa-trash-alt" (click)="onRemove(group.id)"></button>
+                <button [hidden]="!isRemoveTarget(group.id)" class="fas fa-arrow-left" (click)="onCancelRemove()"></button>
+                <button [hidden]="!isRemoveTarget(group.id)" class="fas fa-check" (click)="onConfirmRemove()"></button>
+            </div> 
+            <span>{{group.id}}</span>
+        </div>
+    </li>
+</ul>
