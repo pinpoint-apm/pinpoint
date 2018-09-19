@@ -43,16 +43,18 @@ import java.util.List;
  */
 public class MockPluginContextLoadResult implements PluginContextLoadResult {
     private final ProfilerConfig profilerConfig;
+    private final ServiceType configuredApplicationType;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final PluginLoader pluginLoader;
 
     private List<PluginSetupResult> lazy;
 
-    public MockPluginContextLoadResult(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine,
-                                       DynamicTransformTrigger dynamicTransformTrigger, PluginLoader pluginLoader) {
+    public MockPluginContextLoadResult(ProfilerConfig profilerConfig, ServiceType configuredApplicationType,
+                                       InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger, PluginLoader pluginLoader) {
 
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType must not be null");
         this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
         this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
         this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
@@ -70,7 +72,7 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
 
         List<PluginSetupResult> pluginContexts = new ArrayList<PluginSetupResult>();
         ClassInjector classInjector = new TestProfilerPluginClassLoader();
-        ProfilerPluginGlobalContext globalContext = new DefaultProfilerPluginGlobalContext(profilerConfig, ServiceType.UNKNOWN);
+        ProfilerPluginGlobalContext globalContext = new DefaultProfilerPluginGlobalContext(profilerConfig, configuredApplicationType);
         PluginSetup pluginSetup = new MockPluginSetup(instrumentEngine, dynamicTransformTrigger);
         for (Plugin<ProfilerPlugin> plugin : plugins) {
             for (ProfilerPlugin profilerPlugin : plugin.getInstanceList()) {
