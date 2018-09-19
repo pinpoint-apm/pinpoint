@@ -50,7 +50,7 @@ For custom jar applications, you need to set this manually as the Agent does not
 You can set this by configuring `profiler.entrypoint` in *pinpoint.config* file.
 
 ### Building is failing after new release. Help!
-Please remember to run the command `mvn clean verify -Dmaven.test.skip=true` if you've used a previous version before.
+Please remember to run the command `mvn clean verify -DskipTests=true` if you've used a previous version before.
 
 ### How to set java runtime option when using atlassian OSGi
 `-Datlassian.org.osgi.framework.bootdelegation=sun.,com.sun.,com.navercorp.*,org.apache.xerces.*`
