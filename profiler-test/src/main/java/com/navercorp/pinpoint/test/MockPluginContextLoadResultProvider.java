@@ -21,7 +21,9 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
@@ -31,14 +33,16 @@ import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 public class MockPluginContextLoadResultProvider implements Provider<PluginContextLoadResult> {
 
     private final ProfilerConfig profilerConfig;
+    private final ServiceType configuredApplicationType;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final PluginLoader pluginLoader;
 
     @Inject
-    public MockPluginContextLoadResultProvider(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine,
-                                               DynamicTransformTrigger dynamicTransformTrigger, PluginLoader pluginLoader) {
+    public MockPluginContextLoadResultProvider(ProfilerConfig profilerConfig, @ConfiguredApplicationType ServiceType configuredApplicationType,
+                                               InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger, PluginLoader pluginLoader) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType must not be null");
         this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
         this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
         this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
@@ -46,7 +50,7 @@ public class MockPluginContextLoadResultProvider implements Provider<PluginConte
 
     @Override
     public PluginContextLoadResult get() {
-        return new MockPluginContextLoadResult(profilerConfig, instrumentEngine, dynamicTransformTrigger, pluginLoader);
+        return new MockPluginContextLoadResult(profilerConfig, configuredApplicationType, instrumentEngine, dynamicTransformTrigger, pluginLoader);
     }
 
 
