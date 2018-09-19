@@ -56,7 +56,7 @@ public class StandardServiceModifierTest extends BasePinpointTest {
         service.stop();
         // Then
         ServerMetaData serverMetaData = getServerMetaData();
-        assertEquals(serverMetaData.getServerInfo(), expectedServerInfo);
+        assertEquals(expectedServerInfo, serverMetaData.getServerInfo());
     }
 
 }
