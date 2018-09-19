@@ -564,7 +564,7 @@ For custom jar applications, you need to set this manually as the Agent does not
 You can set this by configuring <code class="highlighter-rouge">profiler.entrypoint</code> in <em>pinpoint.config</em> file.</p>
 
 <h3 id="building-is-failing-after-new-release-help">Building is failing after new release. Help!</h3>
-<p>Please remember to run the command <code class="highlighter-rouge">mvn clean verify -Dmaven.test.skip=true</code> if you’ve used a previous version before.</p>
+<p>Please remember to run the command <code class="highlighter-rouge">mvn clean verify -DskipTests=true</code> if you’ve used a previous version before.</p>
 
 <h3 id="how-to-set-java-runtime-option-when-using-atlassian-osgi">How to set java runtime option when using atlassian OSGi</h3>
 <p><code class="highlighter-rouge">-Datlassian.org.osgi.framework.bootdelegation=sun.,com.sun.,com.navercorp.*,org.apache.xerces.*</code></p>
