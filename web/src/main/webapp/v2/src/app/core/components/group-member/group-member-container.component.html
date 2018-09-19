@@ -1,0 +1,18 @@
+<div class="l-group-member-wrapper">
+    <div class="l-group-member-title">
+        <span>Group Member ({{groupMemberList.length}})</span>
+        <button class="fas fa-exchange-alt l-group-member-sort-exchange" (click)="onSort()"></button>
+    </div>
+    <div class="l-group-member-list">
+        <pp-group-member
+            [groupMemberList]="groupMemberList"
+            (outRemove)="onRemoveGroupMember($event)"
+        ></pp-group-member>
+    </div>
+    <div class="l-message" [hidden]="!hasMessage()">
+        <button class="btn btn-black" (click)="onCloseMessage()"><i class="fas fa-times"></i></button>
+        <span>{{message}}</span>
+    </div>
+    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+    <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
+</div>

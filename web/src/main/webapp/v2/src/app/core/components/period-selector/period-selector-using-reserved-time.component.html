@@ -1,0 +1,8 @@
+<ul class="l-time-set" (click)="onSelectPeriod($event)" [hidden]="isHidden">
+    <li *ngIf="showRealTimeButton">
+        <button [class.active]="isRealTimeMode" [attr.data-period]="'realtime'">REAL TIME</button>
+    </li>
+    <li *ngFor="let period of periodList; let i = index">
+        <button [class.active]="isSelectedPeriod(period)" [attr.data-period]="period.getValueWithTime()">{{i === 0 ? period.getValueWithAddedWords() : period.getValueWithTime()}}</button>
+    </li>
+</ul>

@@ -1,0 +1,5 @@
+<pp-timezone-select
+    [timezoneList]="timezoneList"
+    [currentTimezone]="currentTimezone$ | async"
+    (outChangeTimezone)="onChangeTimezone($event)">
+</pp-timezone-select>

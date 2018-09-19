@@ -1,0 +1,6 @@
+<pp-date-format
+    [timezone]="timezone$ | async"
+    [dateFormatList]="dateFormatList"
+    [currentDateFormatIndex]="currentDateFormatIndex$ | async"
+    (outChangeDateFormat)="onChangeDateFormat($event)">
+</pp-date-format>

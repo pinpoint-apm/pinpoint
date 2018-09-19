@@ -1,0 +1,77 @@
+:host {
+    z-index: 30;
+}
+.l-thread-chart-wrap {
+    display: flex;
+    flex-flow: row wrap;
+    background:#d3dbe6;
+    border-top:1px solid #ccd5e0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width:100%;
+    height: 100%;
+}
+.l-chart-group-wrap {
+    display: flex;
+    flex-flow: row wrap;
+}
+.l-chart-group-list {
+    display: flex;
+    flex-flow: row wrap;
+    width: 100%;
+}
+.l-message {
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    text-align: center;
+    background-color: rgba(226, 226, 226, 0.5);
+    z-index: 9999;
+}
+.l-message h4 {
+    padding: 80px 0 10px 0;
+    font-weight: 100;
+}
+.l-message h4 span {
+    padding: 8px 40px 6px 40px;
+    background-color: #FFF;
+}
+.l-retry button span {
+    margin-right: 6px;
+}
+.l-message.l-no-data h4 span {
+    background-color: #000;
+    color: #FFF;
+}
+.l-paging {
+    width: 100%;
+    background-color: #74879a;
+    color: #FFF;
+    font-size: 15px;
+    margin: 5px 5px 4px 5px;
+    padding: 11px;
+}
+.l-paging .l-txt {
+    font-weight: lighter;
+}
+.l-paging .l-txt-bold {
+    font-weight: bolder;
+    font-size: 18px;
+}
+.l-paging .l-page {
+    float: right;
+    cursor: pointer;
+    padding: 0px 6px;
+}
+.l-paging .l-page:hover {
+    color: #4b99e3;
+}
+.l-paging .l-page:last-child {
+    color: #000;
+    cursor: initial;
+    text-decoration: initial;
+    background-color:#FFF;
+}

@@ -1,0 +1,18 @@
+<pp-notice-container></pp-notice-container>
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-widget-group">
+        <span>{{applicationName}} / {{agentId}}</span>
+    </div>
+</header>
+<div class="l-main-container">
+    <h3>Thread Dump</h3>
+    <section class="l-main-section">
+        <div class="l-thread-dump-list">
+            <router-outlet></router-outlet>
+        </div>
+        <div class="l-thread-dump-log">
+            <pp-thread-dump-log-container></pp-thread-dump-log-container>
+        </div>
+    </section>
+</div>

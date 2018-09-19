@@ -1,0 +1,25 @@
+.l-title-group {
+    height:34px;
+    font-size:13px;
+    font-weight:600;
+    padding:0 20px;
+    color:#333;
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+    background-color: #9DD4BB;
+}
+.l-title-group button {
+    color: #000;
+    float: right;
+    font-size: 14px;
+}
+thead th {
+    text-align: left;
+}
+td div {
+    width: 100%;
+    min-height: 40px;
+    max-height: 200px;
+    overflow-y: auto;
+}

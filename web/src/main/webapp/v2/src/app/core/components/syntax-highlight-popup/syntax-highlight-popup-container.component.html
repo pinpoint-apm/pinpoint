@@ -1,0 +1,6 @@
+<section class="l-popup-section font-opensans" *ngIf="(data$ | async) as data">
+    <pp-syntax-highlight-popup
+        [data]="data"
+        (outClosePopup)="onClosePopup()">
+    </pp-syntax-highlight-popup>
+</section>
