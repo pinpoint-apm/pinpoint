@@ -77,6 +77,10 @@ entries:
     output: web, pdf
     folderitems:
 
+    - title: UI v2(Currently under development)
+      url: /ui_v2.html
+      output: web, pdf
+
     - title: Plugin Developer Guide
       url: /plugindevguide.html
       output: web, pdf
