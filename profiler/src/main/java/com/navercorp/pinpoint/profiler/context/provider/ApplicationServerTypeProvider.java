@@ -29,11 +29,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ApplicationServerTypeProvider implements Provider<ServiceType> {
+
+    private static final ServiceType DEFAULT_APPLICATION_TYPE = ServiceType.STAND_ALONE;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -56,19 +57,36 @@ public class ApplicationServerTypeProvider implements Provider<ServiceType> {
 
     @Override
     public ServiceType get() {
-        final ServiceType applicationServiceType = getApplicationServiceType();
-        logger.info("default ApplicationServerType={}", applicationServiceType);
+        final String configuredApplicationTypeString = profilerConfig.getApplicationServerType();
+        final ServiceType configuredApplicationType = serviceTypeRegistryService.findServiceTypeByName(configuredApplicationTypeString);
+        if (configuredApplicationType != ServiceType.UNDEFINED) {
+            logger.info("Configured ApplicationServerType={}", configuredApplicationType);
+            return configuredApplicationType;
+        }
 
         PluginContextLoadResult pluginContextLoadResult = this.pluginContextLoadResultProvider.get();
-        List<ApplicationTypeDetector> applicationTypeDetectorList = pluginContextLoadResult.getApplicationTypeDetectorList();
-        ApplicationServerTypeResolver applicationServerTypeResolver = new ApplicationServerTypeResolver(applicationTypeDetectorList, applicationServiceType, profilerConfig.getApplicationTypeDetectOrder());
-        ServiceType resolve = applicationServerTypeResolver.resolve();
-        logger.info("resolved ApplicationServerType={}", resolve);
-        return resolve;
+        ServiceType resolvedApplicationType = pluginContextLoadResult.getApplicationType();
+        if (resolvedApplicationType == null) {
+
+            // FIXME remove block when ApplicationTypeDetector is removed.
+            List<ApplicationTypeDetector> detectors = pluginContextLoadResult.getApplicationTypeDetectorList();
+            if (!detectors.isEmpty()) {
+                return resolveUsingRegisteredDetectors(detectors, configuredApplicationType, profilerConfig.getApplicationTypeDetectOrder());
+            }
+
+            logger.info("Application type not resolved. Defaulting to {}", DEFAULT_APPLICATION_TYPE);
+            return DEFAULT_APPLICATION_TYPE;
+        }
+        logger.info("Resolved Application type : {}", resolvedApplicationType);
+        return resolvedApplicationType;
     }
 
-    private ServiceType getApplicationServiceType() {
-        String applicationServerTypeString = profilerConfig.getApplicationServerType();
-        return this.serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
+    private ServiceType resolveUsingRegisteredDetectors(List<ApplicationTypeDetector> applicationTypeDetectorList,
+                                                        ServiceType applicationServiceType,
+                                                        List<String> applicationTypeDetectOrder) {
+        ApplicationServerTypeResolver applicationServerTypeResolver = new ApplicationServerTypeResolver(
+                applicationTypeDetectorList, applicationServiceType, applicationTypeDetectOrder);
+        ServiceType resolve = applicationServerTypeResolver.resolve();
+        return resolve;
     }
 }

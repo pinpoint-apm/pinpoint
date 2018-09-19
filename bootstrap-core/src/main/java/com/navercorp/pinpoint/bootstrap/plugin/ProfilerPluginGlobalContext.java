@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.vertx;
 
-import org.junit.Test;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.resolver.ApplicationTypeResolver;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
- * @author jaehong.kim
+ * @author HyunGil Jeong
  */
-public class VertxDetectorTest {
+public interface ProfilerPluginGlobalContext {
 
-    @Test
-    public void detect() {
-        VertxDetector detector = new VertxDetector(null);
-        assertFalse(detector.detect());
-    }
+    ProfilerConfig getConfig();
+
+    ServiceType getConfiguredApplicationType();
+
+    ServiceType getApplicationType();
+
+    void setApplicationType(ServiceType applicationType, ApplicationTypeResolver applicationTypeResolver);
 }

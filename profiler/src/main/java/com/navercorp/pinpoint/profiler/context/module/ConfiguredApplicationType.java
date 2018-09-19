@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.vertx;
 
-import org.junit.Test;
+package com.navercorp.pinpoint.profiler.context.module;
 
-import static org.junit.Assert.*;
+import com.google.inject.BindingAnnotation;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author jaehong.kim
+ * @author HyunGil Jeong
  */
-public class VertxDetectorTest {
-
-    @Test
-    public void detect() {
-        VertxDetector detector = new VertxDetector(null);
-        assertFalse(detector.detect());
-    }
+@BindingAnnotation
+@Target(PARAMETER)
+@Retention(RUNTIME)
+public @interface ConfiguredApplicationType {
 }

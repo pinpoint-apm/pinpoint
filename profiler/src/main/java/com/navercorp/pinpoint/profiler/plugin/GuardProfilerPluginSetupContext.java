@@ -20,23 +20,23 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.resolver.ApplicationTypeResolver;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author emeroad
  */
-public class GuardProfilerPluginContext implements ProfilerPluginSetupContext {
+public class GuardProfilerPluginSetupContext implements ProfilerPluginSetupContext {
 
     private final ProfilerPluginSetupContext delegate;
     private boolean close = false;
 
-    public GuardProfilerPluginContext(ProfilerPluginSetupContext delegate) {
+    public GuardProfilerPluginSetupContext(ProfilerPluginSetupContext delegate) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
         this.delegate = delegate;
     }
-
-
 
     @Override
     public ProfilerConfig getConfig() {
@@ -48,6 +48,23 @@ public class GuardProfilerPluginContext implements ProfilerPluginSetupContext {
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
         checkOpen();
         this.delegate.addApplicationTypeDetector(detectors);
+    }
+
+    @Override
+    public ServiceType getConfiguredApplicationType() {
+        return delegate.getConfiguredApplicationType();
+    }
+
+    @Override
+    public void setApplicationType(ServiceType applicationType) {
+        checkOpen();
+        this.delegate.setApplicationType(applicationType);
+    }
+
+    @Override
+    public void setApplicationType(ServiceType applicationType, ApplicationTypeResolver applicationTypeResolver) {
+        checkOpen();
+        this.delegate.setApplicationType(applicationType, applicationTypeResolver);
     }
 
     @Override

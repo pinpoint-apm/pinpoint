@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * The Class JbossPlugin.
@@ -61,32 +61,33 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         final JbossDetector jbossDetector = new JbossDetector(jbossConfig.getBootstrapMains());
-        context.addApplicationTypeDetector(jbossDetector);
 
-        if (shouldAddTransformers(jbossConfig)) {
-            if (isInfo) {
-                logger.info("Adding JBoss transformers");
-            }
+        if (shouldAddTransformers(context, jbossDetector)) {
+            logger.info("Adding JBoss transformers");
             addTransformers(jbossConfig);
         } else {
-            if (isInfo) {
-                logger.info("Not adding JBoss transformers");
-            }
+            logger.info("Not adding JBoss transformers");
         }
+
     }
 
-    private boolean shouldAddTransformers(JbossConfig jbossConfig) {
-        // Transform if conditional check is disabled
-        if (!jbossConfig.isConditionalTransformEnable()) {
+    private boolean shouldAddTransformers(ProfilerPluginSetupContext context, JbossDetector jbossDetector) {
+        final ServiceType configuredApplicationType = context.getConfiguredApplicationType();
+        if (JbossConstants.JBOSS.equals(configuredApplicationType)) {
             return true;
         }
-        // Only transform if it's a JBoss application
-        ConditionProvider conditionProvider = ConditionProvider.DEFAULT_CONDITION_PROVIDER;
-        boolean isJbossApplication = conditionProvider.checkMainClass(jbossConfig.getBootstrapMains());
-        return isJbossApplication;
+        if (ServiceType.UNDEFINED.equals(configuredApplicationType)) {
+            if (jbossDetector.detect()) {
+                logger.info("Detected application type : {}", JbossConstants.JBOSS);
+                context.setApplicationType(JbossConstants.JBOSS);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void addTransformers(JbossConfig jbossConfig) {
+        logger.info("Adding JBoss transformers");
         // Instrumenting class on the base of ejb based application or rest based application.
         if (jbossConfig.isTraceEjb()) {
             addMethodInvocationMessageHandlerEditor();

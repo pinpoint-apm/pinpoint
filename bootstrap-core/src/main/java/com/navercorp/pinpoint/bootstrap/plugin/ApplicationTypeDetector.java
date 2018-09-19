@@ -21,7 +21,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author Jongho Moon
  *
+ * @deprecated As of 1.8.1, application type detection timing has been changed.
+ *             Please set the application's {@code ServiceType} directly during each plugin's setup time.
  */
+@Deprecated
 public interface ApplicationTypeDetector {
     
     /**
