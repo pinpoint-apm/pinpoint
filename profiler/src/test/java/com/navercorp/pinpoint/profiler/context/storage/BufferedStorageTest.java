@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,18 +17,11 @@
 package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
-import com.navercorp.pinpoint.profiler.context.SpanPostProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.sender.CountingDataSender;
 
 import org.junit.Assert;
@@ -37,14 +30,9 @@ import org.junit.Test;
 
 public class BufferedStorageTest {
 
-
     private final String agentId = "agentId";
     private final long agentStartTime = System.currentTimeMillis();
-    private final SpanPostProcessor spanPostProcessor = new SpanPostProcessorV1();
 
-    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
-
-    private final SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
     private final CountingDataSender countingDataSender = new CountingDataSender();
     private TraceRoot internalTraceId;
 
@@ -61,10 +49,10 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_Noflush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(internalTraceId, countingDataSender, spanPostProcessor, spanChunkFactory, 10);
+        BufferedStorage bufferedStorage = newBufferedStorage(10);
 
         Span span = new Span(internalTraceId);
-        SpanEvent spanEvent = new SpanEvent(internalTraceId);
+        SpanEvent spanEvent = new SpanEvent();
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
 
@@ -73,10 +61,10 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_flush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(internalTraceId, countingDataSender, spanPostProcessor, spanChunkFactory, 1);
+        BufferedStorage bufferedStorage = newBufferedStorage(1);
 
         Span span = new Span(internalTraceId);
-        SpanEvent spanEvent = new SpanEvent(internalTraceId);
+        SpanEvent spanEvent = new SpanEvent();
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
 
@@ -90,7 +78,7 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_spanFlush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(internalTraceId, countingDataSender, spanPostProcessor, spanChunkFactory, 10);
+        BufferedStorage bufferedStorage = newBufferedStorage(10);
 
         Span span = new Span(internalTraceId);
         bufferedStorage.store(span);
@@ -106,10 +94,10 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_spanLastFlush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(internalTraceId, countingDataSender, spanPostProcessor, spanChunkFactory, 10);
+        BufferedStorage bufferedStorage = newBufferedStorage(10);
 
         Span span = new Span(internalTraceId);
-        SpanEvent spanEvent = new SpanEvent(internalTraceId);
+        SpanEvent spanEvent = new SpanEvent();
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(span);
@@ -123,10 +111,10 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_manual_flush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(internalTraceId, countingDataSender, spanPostProcessor, spanChunkFactory, 10);
+        BufferedStorage bufferedStorage = newBufferedStorage(10);
 
         Span span = new Span(internalTraceId);
-        SpanEvent spanEvent = new SpanEvent(internalTraceId);
+        SpanEvent spanEvent = new SpanEvent();
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
         bufferedStorage.flush();
@@ -136,5 +124,9 @@ public class BufferedStorageTest {
 
         Assert.assertEquals(0, countingDataSender.getSpanCounter());
         Assert.assertEquals(1, countingDataSender.getSpanChunkCounter());
+    }
+
+    private BufferedStorage newBufferedStorage(int bufferSize) {
+        return new BufferedStorage(internalTraceId, countingDataSender, bufferSize);
     }
 }

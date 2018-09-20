@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface CallStackFactory {
-    CallStack newCallStack(TraceRoot traceRoot);
+public interface CallStackFactory<T> {
+    CallStack<T> newCallStack();
 }

@@ -19,10 +19,12 @@ package com.navercorp.pinpoint.profiler.context.module.config;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.google.inject.util.Providers;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
@@ -32,6 +34,8 @@ import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
@@ -41,13 +45,12 @@ import java.util.List;
  */
 public class ConfigModule extends AbstractModule {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final AgentOption agentOption;
 
     public ConfigModule(AgentOption agentOption) {
         this.agentOption = Assert.requireNonNull(agentOption, "profilerConfig must not be null");
         Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
-
-
     }
 
     @Override
@@ -77,6 +80,14 @@ public class ConfigModule extends AbstractModule {
     }
 
     private void bindConstants(ProfilerConfig profilerConfig) {
+
+        final TraceDataFormatVersion version = TraceDataFormatVersion.getTraceDataFormatVersion(profilerConfig);
+        logger.info("TraceDataFormatVersion:{}", version);
+        bind(TraceDataFormatVersion.class).toInstance(version);
+
+        Named callstackMaxDepth = Names.named("profiler.callstack.max.depth");
+        bindConstant().annotatedWith(callstackMaxDepth).to(profilerConfig.getCallStackMaxDepth());
+
         bindConstant().annotatedWith(TraceAgentActiveThread.class).to(profilerConfig.isTraceAgentActiveThread());
 
         bindConstant().annotatedWith(DeadlockMonitorEnable.class).to(profilerConfig.isDeadlockMonitorEnable());

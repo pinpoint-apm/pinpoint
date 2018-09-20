@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,18 @@ package com.navercorp.pinpoint.profiler.sender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import org.apache.thrift.TBase;
+
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EmptyDataSender implements EnhancedDataSender {
+public class EmptyDataSender implements EnhancedDataSender<Object> {
 
     public static final DataSender INSTANCE = new EmptyDataSender();
 
 
     @Override
-    public boolean send(TBase<?, ?> data) {
+    public boolean send(Object data) {
         return true;
     }
 
@@ -40,18 +40,18 @@ public class EmptyDataSender implements EnhancedDataSender {
     }
 
     @Override
-    public boolean request(TBase<?, ?> data) {
+    public boolean request(Object data) {
         return true;
     }
 
     @Override
-    public boolean request(TBase<?, ?> data, int retry) {
+    public boolean request(Object data, int retry) {
         return false;
     }
 
 
     @Override
-    public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
+    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
         return false;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,15 +134,18 @@ public abstract class AbstractRecorder {
     }
 
     public void recordAttribute(AnnotationKey key, String value) {
-        addAnnotation(new Annotation(key.getCode(), value));
+        Annotation annotation = new Annotation(key.getCode(), value);
+        addAnnotation(annotation);
     }
 
     public void recordAttribute(AnnotationKey key, int value) {
-        addAnnotation(new Annotation(key.getCode(), value));
+        Annotation annotation = new Annotation(key.getCode(), value);
+        addAnnotation(annotation);
     }
 
     public void recordAttribute(AnnotationKey key, Object value) {
-        addAnnotation(new Annotation(key.getCode(), value));
+        Annotation annotation = new Annotation(key.getCode(), value);
+        addAnnotation(annotation);
     }
 
     abstract void addAnnotation(Annotation annotation);

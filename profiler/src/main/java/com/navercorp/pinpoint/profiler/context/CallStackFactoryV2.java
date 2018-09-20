@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class CallStackFactoryV2 implements CallStackFactory {
+public class CallStackFactoryV2 implements CallStackFactory<SpanEvent> {
 
+    private final CallStack.Factory<SpanEvent> factory = new SpanEventFactory();
     private final int maxDepth;
 
     public CallStackFactoryV2(int maxDepth) {
@@ -30,7 +29,7 @@ public class CallStackFactoryV2 implements CallStackFactory {
     }
 
     @Override
-    public CallStack newCallStack(TraceRoot traceRoot) {
-        return new DefaultCallStack(traceRoot, maxDepth);
+    public CallStack<SpanEvent> newCallStack() {
+        return new DefaultCallStack<SpanEvent>(factory, maxDepth);
     }
 }

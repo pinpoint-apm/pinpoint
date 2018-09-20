@@ -26,21 +26,25 @@ import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.compress.Context;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.storage.SpanThriftMessageConverter;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamUdpSender;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.thrift.TBase;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -66,12 +70,23 @@ import static org.mockito.Mockito.mock;
  */
 public class SpanStreamUDPSenderTest {
 
+    private String applicationName = "appName";
+    private String agentId = "agentId";
+    private long agentStartTime = 0;
+    private ServiceType applicationServiceType = ServiceType.STAND_ALONE;
+
     private static MessageHolderDispatchHandler messageHolder;
     private static UDPReceiver receiver = null;
 
     private static int port;
 
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 6000);
+
+    private final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
+    private final SpanPostProcessor<Context> spanPostProcessor = new SpanPostProcessorV1();
+    private final MessageConverter<TBase<?, ?>> messageConverter
+            = new SpanThriftMessageConverter(applicationName, agentId, agentStartTime, applicationServiceType.getCode(),
+            transactionIdEncoder, spanPostProcessor);
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -112,7 +127,7 @@ public class SpanStreamUDPSenderTest {
         try {
             final TraceRoot traceRoot = mockTraceRoot();
 
-            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE);
+            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE, messageConverter);
             sender.send(createSpanChunk(traceRoot, 10));
             sender.send(createSpanChunk(traceRoot, 3));
 
@@ -132,7 +147,7 @@ public class SpanStreamUDPSenderTest {
         SpanStreamUdpSender sender = null;
         try {
             final TraceRoot traceRoot = mockTraceRoot();
-            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE);
+            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE, messageConverter);
             sender.send(createSpan(traceRoot, 10));
             sender.send(createSpan(traceRoot, 3));
 
@@ -152,7 +167,7 @@ public class SpanStreamUDPSenderTest {
         SpanStreamUdpSender sender = null;
         try {
             final TraceRoot traceRoot = mockTraceRoot();
-            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE);
+            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE, messageConverter);
             sender.send(createSpan(traceRoot, 10));
             sender.send(createSpan(traceRoot, 3));
             sender.send(createSpanChunk(traceRoot, 3));
@@ -174,21 +189,22 @@ public class SpanStreamUDPSenderTest {
         List<SpanEvent> spanEventList = createSpanEventList(traceRoot, spanEventSize);
 
         Span span = new Span(traceRoot);
-        span.setSpanEventList((List)spanEventList);
+        span.setSpanEventList(spanEventList);
         return span;
     }
 
     private SpanChunk createSpanChunk(TraceRoot traceRoot, int spanEventSize) throws InterruptedException {
-        final String agentId = "agentId";
-        final long agentStartTime = System.currentTimeMillis();
-        final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
-        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, transactionIdEncoder);
 
         List<SpanEvent> originalSpanEventList = createSpanEventList(traceRoot, spanEventSize);
-        SpanChunk spanChunk = spanChunkFactory.create(traceRoot, originalSpanEventList);
+        SpanChunk spanChunk = newSpanChunk(traceRoot, originalSpanEventList);
         return spanChunk;
     }
-    
+
+
+    private SpanChunk newSpanChunk(TraceRoot traceRoot, List<SpanEvent> spanEventList) {
+        SpanChunk spanChunk = new SpanChunk(traceRoot, spanEventList);
+        return spanChunk;
+    }
     private int getObjectCount(List<ServerRequest> tbaseList, Class clazz) {
         int count = 0;
 
@@ -204,12 +220,13 @@ public class SpanStreamUDPSenderTest {
 
     private List<SpanEvent> createSpanEventList(TraceRoot traceRoot, int size) throws InterruptedException {
 
+        int elapsedTime = 0;
+
         List<SpanEvent> spanEventList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            SpanEvent spanEvent = new SpanEvent(traceRoot);
-            spanEvent.markStartTime();
-            Thread.sleep(1);
-            spanEvent.markAfterTime();
+            SpanEvent spanEvent = new SpanEvent();
+            spanEvent.setStartTime(traceRoot.getTraceStartTime() + elapsedTime++);
+            spanEvent.setEndElapsed(elapsedTime++);
 
             spanEventList.add(spanEvent);
         }

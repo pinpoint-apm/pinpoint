@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.compress;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import com.navercorp.pinpoint.profiler.context.SpanChunk;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,34 +37,37 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class SpanChunkFactoryTest {
+public class SpanPostProcessorTest {
 
     private final String agentId = "agentId";
     private final long agentStartTime = System.currentTimeMillis();
-    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
     @Test
     public void create() {
 
-        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
+        SpanPostProcessor spanChunkPostProcessor = new SpanPostProcessorV1();
+
         TraceRoot internalTraceId = newInternalTraceId();
+        TSpanChunk tSpanChunk = new TSpanChunk();
         try {
-            spanChunkFactory.create(internalTraceId, new ArrayList<SpanEvent>());
+            SpanChunk spanChunk = new SpanChunk(internalTraceId, new ArrayList<SpanEvent>());
+            spanChunkPostProcessor.newContext(spanChunk, tSpanChunk);
             Assert.fail();
         } catch (Exception ignored) {
         }
-        // one spanEvent
         List<SpanEvent> spanEvents = new ArrayList<SpanEvent>();
-        spanEvents.add(new SpanEvent(internalTraceId));
-        spanChunkFactory.create(internalTraceId, spanEvents);
+        SpanChunk spanChunk = new SpanChunk(internalTraceId, spanEvents);
+        // one spanEvent
+        spanEvents.add(new SpanEvent());
+        spanChunkPostProcessor.newContext(spanChunk, tSpanChunk);
 
         // two spanEvent
-        spanEvents.add(new SpanEvent(internalTraceId));
-        spanChunkFactory.create(internalTraceId, spanEvents);
+        spanEvents.add(new SpanEvent());
+        spanChunkPostProcessor.newContext(spanChunk, tSpanChunk);
 
         // three
-        spanEvents.add(new SpanEvent(internalTraceId));
-        spanChunkFactory.create(internalTraceId, spanEvents);
+        spanEvents.add(new SpanEvent());
+        spanChunkPostProcessor.newContext(spanChunk, tSpanChunk);
 
     }
 

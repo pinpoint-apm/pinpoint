@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,15 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.DefaultClientFactory;
+import com.navercorp.pinpoint.profiler.context.storage.BypassMessageConverter;
+import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import com.navercorp.pinpoint.profiler.sender.ThriftMessageSerializer;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import org.apache.thrift.TBase;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -47,6 +52,8 @@ public class TcpDataSenderProvider implements Provider<EnhancedDataSender> {
         String collectorTcpServerIp = profilerConfig.getCollectorTcpServerIp();
         int collectorTcpServerPort = profilerConfig.getCollectorTcpServerPort();
         HeaderTBaseSerializer headerTBaseSerializer = tBaseSerializerProvider.get();
-        return new TcpDataSender("Default", collectorTcpServerIp, collectorTcpServerPort, clientFactory, headerTBaseSerializer);
+        MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
+        MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter, headerTBaseSerializer);
+        return new TcpDataSender("Default", collectorTcpServerIp, collectorTcpServerPort, clientFactory, messageSerializer);
     }
 }
