@@ -71,8 +71,8 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
             this.selectedAgent = agent;
             if (this.selectedTarget) {
                 this.loadLoadChartData();
-                this.changeDetector.detectChanges();
             }
+            this.changeDetector.detectChanges();
         });
         this.storeHelperService.getRealTimeScatterChartRange(this.unsubscribe).subscribe(({ from, to  }: IScatterXRange) => {
             this.yMax = -1;

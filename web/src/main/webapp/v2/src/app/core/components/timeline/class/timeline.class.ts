@@ -1,3 +1,5 @@
+declare var Snap: any;
+
 import { Subject } from 'rxjs';
 import { TimelineData, ITimelineData, ITimelineStatusSegment, ITimelineEventSegment } from './timeline-data.class';
 import { TimelinePositionManager } from './timeline-position-manager.class';
@@ -12,8 +14,6 @@ import { TimelineSelectionManager } from './timeline-selection-manager.class';
 import { TimelineXAxis } from './timeline-x-axis.class';
 import { TimelineEvents } from './timeline-events.class';
 import { TimelineUIEvent } from './timeline-ui-event';
-
-declare var Snap: any;
 
 // TODO: Reset 확인
 // TODO: Resize 확인
