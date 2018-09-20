@@ -90,6 +90,9 @@
                 <version>${plugin.jar.version}</version>
                 <executions>
                     <execution>
+                        <configuration>
+                            <skip>false</skip>
+                        </configuration>
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
