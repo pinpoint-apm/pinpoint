@@ -12,9 +12,13 @@ layout: firstpage
 ![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)
 ![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)
  
+
+ 
 ## Latest News (2018/08/30)
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
+
+[Follow our twitter for Latest updates on Pinpoint](https://twitter.com/Pinpoint_APM)
 
 ## Introduction  
   
@@ -33,15 +37,14 @@ You should definitely check **Pinpoint** out If you want to
 ![Pinpoint](images/ss_server-map.png)
 
 ## Want a quick tour?
- * [Latest updates on Pinpoint](./news.html)
  * [Overview](./overview.html)/[History](./history.html)/[Tech Details](./techdetail.html) to get to know more about Pinpoint 
  * [Introduction to Pinpoint(v1.5.0)](https://www.youtube.com/watch?v=U4EwnB34Dus&feature=youtu.be) - a video introducing Pinpoint
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/U4EwnB34Dus" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 ## Getting Started
- * [Quick-start guide](./1.7.3/quickstart.html) for simple test run of Pinpoint
- * [Installation guide](./1.7.3/installation.html) for further instructions.
+ * [Quick-start guide(Lastest Snapshot)](./quickstart.html) for simple test run of Pinpoint
+ * [Installation guide(Lastest Snapshot)](./installation.html) for further instructions.
 
 ## Google Analytics
 The web module has google analytics attached that tracks the number and the order of button clicks in the server map, transaction list, and the inspector view.
