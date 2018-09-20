@@ -30,6 +30,8 @@ You should definitely check **Pinpoint** out If you want to
 * install APM Agents without changing a single line of code
 * have minimal impact on the performance (approximately 3% increase in resource usage)
 
+![Pinpoint](images/ss_server-map.png)
+
 ## Want a quick tour?
  * [Latest updates on Pinpoint](./news.html)
  * [Overview](./overview.html)/[History](./history.html)/[Tech Details](./techdetail.html) to get to know more about Pinpoint 
