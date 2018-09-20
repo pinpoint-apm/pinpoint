@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 const validUrlList: string[] = [];
-const urlPrefix = '';
+const urlPrefix = '/';
 
 @Injectable()
 export class MarkingInterceptor implements HttpInterceptor {
