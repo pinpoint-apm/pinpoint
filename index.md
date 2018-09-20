@@ -1,5 +1,5 @@
 ---
-title: 
+title: Pinpoint
 keywords: pinpoint apm, apm, pinpoint, pinpoint homepage, pinpoint gitpage
 tags:
 permalink: index.html
@@ -8,8 +8,6 @@ toc: false
 disqus: false
 layout: firstpage
 ---
-
-![Pinpoint](images/logo.png)
 
 ![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)
 ![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)
