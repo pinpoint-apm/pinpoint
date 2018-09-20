@@ -45,12 +45,15 @@ public class ConfigProperties {
 
     @Value("#{pinpointWebProps['config.openSource'] ?: true}")
     private boolean openSource;
-    
+
     @Value("#{pinpointWebProps['security.guide.url']}")
     private String securityGuideUrl;
 
     @Value("#{pinpointWebProps['config.show.applicationStat'] ?: false}")
     private boolean showApplicationStat;
+
+    @Value("#{pinpointWebProps['config.show.stackTraceOnError'] ?: true}")
+    private boolean showStackTraceOnError;
 
     @Value("#{pinpointWebProps['websocket.allowedOrigins']}")
     private String webSocketAllowedOrigins;
@@ -91,6 +94,10 @@ public class ConfigProperties {
         return this.showApplicationStat;
     }
 
+    public boolean isShowStackTraceOnError() {
+        return showStackTraceOnError;
+    }
+
     public String getWebSocketAllowedOrigins() {
         return webSocketAllowedOrigins;
     }
@@ -107,6 +114,7 @@ public class ConfigProperties {
         sb.append(", openSource=").append(openSource);
         sb.append(", securityGuideUrl='").append(securityGuideUrl).append('\'');
         sb.append(", showApplicationStat=").append(showApplicationStat);
+        sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
         sb.append('}');
         return sb.toString();
