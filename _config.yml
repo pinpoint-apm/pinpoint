@@ -8,7 +8,7 @@ output: web
 topnav_title: Pinpoint
 # this appears on the top navigation bar next to the home button
 
-site_title: Pinpoint APM
+site_title: Leading Open-Source APM
 # this appears in the html browser tab for the site title (seen mostly by search engines, not users)
 
 company_name: Naver
