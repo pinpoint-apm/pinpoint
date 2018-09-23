@@ -309,7 +309,12 @@
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <version>1.50.5</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
+            <version>5.0.9.9</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
