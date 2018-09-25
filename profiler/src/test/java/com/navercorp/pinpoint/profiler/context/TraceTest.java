@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
+import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -62,7 +63,8 @@ public class TraceTest {
     private StringMetaDataService stringMetaDataService;
     @Mock
     private SqlMetaDataService sqlMetaDataService;
-
+    @Mock
+    private JsonMetaDataService jsonMetaDataService;
 
 
     @Test
@@ -75,8 +77,8 @@ public class TraceTest {
         final Span span = newSpan(traceRoot);
 
         boolean root = span.getTraceRoot().getTraceId().isRoot();
-        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
-        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, jsonMetaDataService, null);
 
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
 
@@ -108,8 +110,8 @@ public class TraceTest {
         final Span span = newSpan(traceRoot);
 
         final boolean root = span.getTraceRoot().getTraceId().isRoot();
-        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
-        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, jsonMetaDataService, null);
 
 
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);

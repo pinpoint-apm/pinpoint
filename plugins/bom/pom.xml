@@ -5,7 +5,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.1-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -17,6 +17,7 @@
         <jedis.version>2.4.2</jedis.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <dubbo.version>2.5.3</dubbo.version>
+        <mongo.driver.version>3.7.0</mongo.driver.version>
     </properties>
 
     <dependencyManagement>
@@ -47,8 +48,11 @@
                 <version>2.1.13</version>
                 <scope>test</scope>
             </dependency>
-
-
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver</artifactId>
+                <version>${mongo.driver.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.springframework.data</groupId>

@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
@@ -30,8 +27,10 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
+import com.navercorp.pinpoint.common.util.OutputParameterJsonParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.CallTree;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
@@ -43,13 +42,15 @@ import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.security.MetaDataFilter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -79,6 +80,7 @@ public class SpanServiceImpl implements SpanService {
 
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
+    private final OutputParameterJsonParser outputParameterJsonParser = new OutputParameterJsonParser();
 
     public void setSqlMetaDataDao(SqlMetaDataDao sqlMetaDataDao) {
         this.sqlMetaDataDao = sqlMetaDataDao;
@@ -101,6 +103,7 @@ public class SpanServiceImpl implements SpanService {
         
         transitionDynamicApiId(values);
         transitionSqlId(values);
+        transitionJson(values);
         transitionCachedString(values);
         transitionException(values);
         // TODO need to at least show the row data when root span is not found. 
@@ -202,6 +205,49 @@ public class SpanServiceImpl implements SpanService {
 
             }
 
+        });
+    }
+
+    private void transitionJson(final List<SpanAlign> spans) {
+        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+            @Override
+            public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
+                AnnotationBo collectionInfo = findAnnotation(annotationBoList, AnnotationKey.MONGO_COLLECTIONINFO.getCode());
+                if (collectionInfo != null) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(spanAlign.getDestinationId()).append(".").append((String) collectionInfo.getValue());
+                    collectionInfo.setValue(stringBuilder);
+                }
+
+                AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, AnnotationKey.JSON.getCode());
+                if (jsonAnnotation == null) {
+                    return;
+                }
+
+                final StringStringValue jsonValue = (StringStringValue) jsonAnnotation.getValue();
+
+                final String jsonParam = jsonValue.getStringValue2();
+
+                if (StringUtils.isEmpty(jsonParam)) {
+                    logger.debug("No values in Json:{}", jsonValue.getStringValue1());
+                } else {
+
+                    final String outputParams = jsonParam;
+                    List<String> parsedOutputParams = outputParameterJsonParser.parseOutputJsonParameter(outputParams);
+                    logger.debug("outputPrams:{}, parsedOutputPrams:{}", outputParams, parsedOutputParams);
+
+                    AnnotationBo jsonMeta = new AnnotationBo();
+                    jsonMeta.setKey(AnnotationKey.JSON.getCode());
+                    jsonMeta.setValue(jsonValue.getStringValue1());
+                    annotationBoList.add(jsonMeta);
+
+                    AnnotationBo bindValueAnnotation = new AnnotationBo();
+                    bindValueAnnotation.setKey(AnnotationKey.JSON_BINDVALUE.getCode());
+                    bindValueAnnotation.setValue(jsonValue.getStringValue2());
+                    annotationBoList.add(bindValueAnnotation);
+
+                }
+            }
         });
     }
 

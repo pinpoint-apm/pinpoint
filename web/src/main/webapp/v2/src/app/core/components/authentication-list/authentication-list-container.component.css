@@ -1,0 +1,25 @@
+.authentication-rules-table th .flex-container {
+    height: 47px;
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+}
+.authentication-rules-tr-wrap {
+    height: 170px;
+    overflow-y: scroll;
+    position: relative;
+}
+.authentication-rules-tr {
+    display: flex;
+    height: 30px;
+    align-items: center;
+    padding: 0 15px;
+    position: relative;
+}
+.authentication-rules-tr-th {
+    color: #777879;
+    font-weight: 600;
+    border-bottom: 1px solid #e6e8ec;
+    background: #fff;
+    margin: 0 -21px;
+}

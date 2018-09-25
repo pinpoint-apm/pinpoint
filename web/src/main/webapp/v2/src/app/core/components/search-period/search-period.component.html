@@ -1,0 +1,4 @@
+<select class="l-app-select" [compareWith]="compareFn" [ngModel]="userDefaultPeriod" (ngModelChange)="onChangeUserDefaultPeriod($event)">
+    <option *ngFor="let period of periodList" [ngValue]="period">{{period.getValueWithTime()}}</option>
+</select>
+<span class="fas fa-angle-down"></span>

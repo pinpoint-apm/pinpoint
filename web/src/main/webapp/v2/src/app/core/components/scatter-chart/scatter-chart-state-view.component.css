@@ -1,0 +1,36 @@
+:host {
+    display: block;
+}
+.l-checkbox-group {
+    color:#b3b3b4;
+    margin: 24px 0 0 0;
+    display: flex;
+    flex-flow: row wrap;
+    font-size:12px;
+    justify-content: space-around;
+}
+.l-checkbox-group span {
+    color:#333;
+    font-size:22px;
+}
+.l-checkbox-group .success:before {
+    width: 13px;
+    height: 13px;
+    margin: 0 6px 0 0;
+    content: '';
+    display: inline-block;
+    background: #34b994;
+    border-radius: 50%;
+}
+.l-checkbox-group .failed:before {
+    width: 13px;
+    height: 13px;
+    margin: 0 6px 0 0;
+    content: '';
+    display: inline-block;
+    background: #e95459;
+    border-radius: 50%;
+}
+input {
+    margin-left: 10px;
+}

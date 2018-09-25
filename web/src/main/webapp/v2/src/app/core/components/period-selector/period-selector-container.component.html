@@ -1,0 +1,14 @@
+<pp-period-selector
+    [hidden]="hiddenComponent"
+    [i18nText]="i18nText"
+    [showRealTimeButton]="showRealTimeButton"
+    [isRealTimeMode]="isRealTimeMode"
+    [periodList]="periodList"
+    [selectedPeriod]="selectedPeriod"
+    [maxPeriod]="maxPeriod"
+    [timezone]="timezone$ | async"
+    [dateFormat]="dateFormat$ | async"
+    [selectedEndTime]="selectedEndTime"
+    (outChangePeriod)="onChangePeriodTime($event)"
+    (outChangeCalendarTime)="onChangeCalendarTime($event)">
+</pp-period-selector>

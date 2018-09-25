@@ -1,0 +1,17 @@
+<div class="l-filter-info" *ngIf="showFilterInfo()">
+    <p class="l-title">Filter Information</p>
+    <div class="l-info-list">
+        <div>Agent</div>
+        <div>
+            <div class="l-agent">
+                <span>{{getAgentFrom()}}</span> <i class="fas fa-arrow-alt-circle-right"></i> <span>{{getAgentTo()}}</span>
+            </div>
+        </div>
+        <div>Url Pattern</div>
+        <div>{{getUrlPattern()}}</div>
+        <div>Response Time</div>
+        <div>{{getResponseTimeFrom() | number}}ms ~ {{getResponseTimeTo() | number}}ms</div>
+        <div>Transaction Result</div>
+        <div>{{getTransactionResult()}}</div>
+    </div>
+</div>

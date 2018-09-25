@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
@@ -60,6 +61,8 @@ public class DefaultTraceTest {
     private SqlMetaDataService sqlMetaDataService;
     @Mock
     private AsyncContextFactory asyncContextFactory;
+    @Mock
+    private JsonMetaDataService jsonMetaDataService;
 
     @BeforeClass
     public static void before() throws Exception {
@@ -88,8 +91,8 @@ public class DefaultTraceTest {
 
         final Span span = spanFactory.newSpan(traceRoot);
         final boolean root = span.getTraceRoot().getTraceId().isRoot();
-        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
+        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, jsonMetaDataService, null);
 
         Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
         trace.traceBlockBegin();

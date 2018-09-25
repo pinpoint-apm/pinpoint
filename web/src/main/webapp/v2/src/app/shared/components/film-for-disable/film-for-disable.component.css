@@ -1,0 +1,7 @@
+.l-disabled {
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    position: absolute;
+    background: linear-gradient(135deg, rgba(226,226,226,0.7) 0%, rgba(219,219,219,0.7) 43%, rgba(209,209,209,0.7) 51%, rgba(254,254,254,0.7) 100%);
+}

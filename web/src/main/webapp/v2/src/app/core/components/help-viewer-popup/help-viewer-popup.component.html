@@ -1,0 +1,17 @@
+<dl *ngFor="let helpViewerText of data" class="main-dl">
+    <div class="title-group">
+        <dt>{{helpViewerText.TITLE}}</dt>
+        <dd>{{helpViewerText.DESC}}</dd>
+    </div>
+    <div class="contents-group">
+        <dl *ngFor="let category of helpViewerText.CATEGORY" class="category-list">
+            <dt class="category-title">{{category.TITLE}}</dt>
+            <dd *ngFor="let item of category.ITEMS">
+                <dl class="category-item-list">
+                    <dt [innerHTML]="item.NAME | jsonTextParser | safeHtml"></dt>
+                    <dd [innerHTML]="item.DESC | jsonTextParser | safeHtml"></dd>
+                </dl>
+            </dd>
+        </dl>
+    </div>
+</dl>

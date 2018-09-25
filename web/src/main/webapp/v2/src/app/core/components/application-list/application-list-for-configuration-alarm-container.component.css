@@ -1,0 +1,32 @@
+:host { 
+    position: relative;
+}
+.l-popup-table th {
+    color:#333;
+}
+.l-popup-table td {
+    padding:10px 15px;
+    height:auto;
+    border-top:1px solid #e5e8f0;
+}
+.l-widget-group {
+    flex:1;
+    padding: 0 15px;
+    height: 100%;
+    align-items: center;
+}
+.l-search-input {
+    border:1px solid #469ae4;
+    font-size:13px;
+    color:#b3b3b4;
+    padding:6px 11px;
+    width:100%;
+}
+.l-application-list {
+    padding: 0 !important;
+    vertical-align: top;
+}
+.l-application-list > div {
+    overflow-y: auto;
+    height: 428px;
+}

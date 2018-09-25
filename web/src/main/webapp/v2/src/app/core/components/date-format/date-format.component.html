@@ -1,0 +1,5 @@
+<select class="l-app-select" [(ngModel)]="currentDateFormatIndex" (ngModelChange)="onChangeDateFormat($event)">
+    <option *ngFor="let dateFormat of dateFormatList; let i = index" [ngValue]="i">{{formatExample(dateFormat[0])}}</option>
+</select>
+<span class="fas fa-angle-down"></span>
+    

@@ -19,7 +19,7 @@ public class ExpectedAnnotation {
     public static ExpectedAnnotation sql(String query, String output, Object... bindValues) {
         return new ExpectedSql(query, output, bindValues);
     }
-    
+
     private final String keyName;
     private final Object value;
     

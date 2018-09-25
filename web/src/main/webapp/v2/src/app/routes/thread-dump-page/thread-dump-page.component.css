@@ -1,0 +1,43 @@
+.l-widget-group {
+    display: flex;
+    flex-flow: row wrap;
+    flex: 1;
+    padding: 0 15px;
+    height: 100%;
+    align-items: center;
+}
+.l-widget-group span {
+    color: #FFF;
+}
+.l-main-container {
+    display: flex;
+    flex-flow: column nowrap;
+    padding-top: 20px;
+    overflow-y: hidden;
+    height: calc(100vh - 50px);
+}
+.l-main-container h3 {
+    color: #00ccff;
+    padding-left: 20px;
+    font-weight: 200;
+    border-bottom: 1px solid #D0D7E1;
+    padding-bottom: 20px;
+}
+.l-main-section {
+    display: flex;
+    flex-flow: column nowrap;
+    background-color: #FFF;
+    flex: 1;
+    position: relative;
+    height: 100%;
+}
+.l-thread-dump-list {
+    height: 40%;
+    margin: 20px;
+    position: relative;
+}
+.l-thread-dump-log {
+    height: 60%;
+    position: relative;
+    background-color: #edf2f8;
+}

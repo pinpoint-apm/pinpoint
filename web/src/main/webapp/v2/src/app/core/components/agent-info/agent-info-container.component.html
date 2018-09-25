@@ -1,0 +1,11 @@
+<div class="l-title-group">Information</div>
+<ng-container *ngIf="(agentData$ | async) as agentData">
+    <pp-agent-info 
+        [urlApplicationName]="urlApplicationName$ | async"
+        [agentData]="agentData"
+        [timezone]="timezone$ | async"
+        [dateFormat]="dateFormat$ | async"
+        (outClickApplicationNameIssue)="onClickApplicationNameIssue($event)">
+    </pp-agent-info>
+</ng-container>
+<pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>

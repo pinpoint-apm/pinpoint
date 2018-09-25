@@ -18,7 +18,11 @@ package com.navercorp.pinpoint.web.controller;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.util.DefaultJsonParser;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
+import com.navercorp.pinpoint.common.util.JsonParser;
+import com.navercorp.pinpoint.common.util.OutputParameterJsonParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -76,6 +80,9 @@ public class BusinessTransactionController {
     private SqlParser sqlParser = new DefaultSqlParser();
     private OutputParameterParser parameterParser = new OutputParameterParser();
 
+    private JsonParser jsonParser = new DefaultJsonParser();
+    private OutputParameterJsonParser parameterJsonParser = new OutputParameterJsonParser();
+
     /**
      * info lookup for a selected transaction
      *
@@ -125,5 +132,43 @@ public class BusinessTransactionController {
         }
 
         return StringEscapeUtils.escapeHtml4(combineSql);
+    }
+
+    @RequestMapping(value = "/jsonBind", method = RequestMethod.POST)
+    @ResponseBody
+    public String jsonBind(@RequestParam("json") String json,
+                          @RequestParam("bind") String bind) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("GET /jsonBind params {json={}, bind={}}", json, bind);
+        }
+
+        if (json == null) {
+            return "";
+        }
+
+        final List<String> bindValues = parameterParser.parseOutputParameter(bind);
+        final String combinedJson = jsonParser.combineBindValues(json, bindValues);
+        if(logger.isDebugEnabled()) {
+            logger.debug("Combine SQL. sql={}", combinedJson);
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        Object readJson;
+        String indented;
+        try {
+            readJson = mapper.readValue(combinedJson, Object.class);
+            indented = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(readJson);
+            if(logger.isDebugEnabled()) {
+                logger.debug("Indent Success = {} ", indented);
+            }
+        }catch(Exception e){
+            if(logger.isDebugEnabled()) {
+                logger.debug("Indent failed Exception: ", e);
+            }
+            indented = combinedJson;
+        }
+
+        return StringEscapeUtils.escapeHtml4(indented);
+
     }
 }

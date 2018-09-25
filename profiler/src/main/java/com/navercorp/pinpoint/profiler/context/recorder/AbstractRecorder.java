@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -30,16 +31,21 @@ public abstract class AbstractRecorder {
 
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
+    protected final JsonMetaDataService jsonMetaDataService;
 
-    public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
+    public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, JsonMetaDataService jsonMetaDataService) {
         if (stringMetaDataService == null) {
             throw new NullPointerException("stringMetaDataService must not be null");
         }
         if (sqlMetaDataService == null) {
             throw new NullPointerException("sqlMetaDataService must not be null");
         }
+        if (jsonMetaDataService == null) {
+            throw new NullPointerException("jsonMetaDataService must not be null");
+        }
         this.stringMetaDataService = stringMetaDataService;
         this.sqlMetaDataService = sqlMetaDataService;
+        this.jsonMetaDataService = jsonMetaDataService;
     }
 
     public void recordError() {

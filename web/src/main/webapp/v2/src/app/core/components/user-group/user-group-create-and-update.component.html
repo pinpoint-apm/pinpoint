@@ -1,0 +1,15 @@
+<div [hidden]="!showCreate" class="l-wrapper">
+    <button class="btn btn-black l-close" (click)="onClose()"><i class="fas fa-times"></i></button>
+    <h1>{{title}}</h1> 
+    <form [formGroup]="userGroupForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
+        <div>
+            <label for="userGroupName">{{nameLabel}}</label>
+            <input type="text" id="userGroupName" formControlName="userGroupName" required autofocus>
+            <div *ngIf="userGroupName.invalid && (userGroupName.dirty || userGroupName.touched)" class="l-alert">
+                <div *ngIf="userGroupName.errors.required">{{nameGuide}}</div>
+                <div *ngIf="userGroupName.errors.minlength">{{nameLengthGuide}}</div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-blue l-create" [class.btn-gray]="userGroupForm.invalid" [disabled]="userGroupForm.invalid">OK</button>
+    </form>
+</div>

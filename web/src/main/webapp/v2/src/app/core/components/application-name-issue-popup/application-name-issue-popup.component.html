@@ -1,0 +1,12 @@
+<h4 class="l-popup-title">
+    <span class="l-prev-application-name-wrapper">{{data.prevAppName}}</span>
+    <span class="fas fa-arrows-alt-h"></span>
+    <span class="l-curr-application-name-wrapper">{{data.currAppName}}</span>
+</h4>
+<p [innerHTML]="data.message.ISSUE_MESSAGE" class="l-issue-message"></p>
+<ul class="l-cause-list">
+    <li *ngFor="let cause of data.message.ISSUE_CAUSES" class="l-cause-list-item">{{cause}}</li>
+</ul>
+<ul class="l-solution-list">
+    <li *ngFor="let solution of data.message.ISSUE_SOLUTIONS" class="l-solution-list-item">{{solution}}</li>
+</ul>

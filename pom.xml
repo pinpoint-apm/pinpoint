@@ -23,7 +23,7 @@
     </organization>
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
+    <version>1.8.1-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
@@ -997,9 +997,6 @@
         <!-- for Local (Development) -->
         <profile>
             <id>local</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <env>local</env>
             </properties>
@@ -1007,6 +1004,9 @@
         <!-- for Release -->
         <profile>
             <id>release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <env>release</env>
             </properties>

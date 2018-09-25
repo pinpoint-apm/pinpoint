@@ -1,0 +1,22 @@
+.l-route {
+    display: flex;
+    flex-flow: row wrap;
+    background:#506078;
+    height: 30px;
+    align-items: center;
+    justify-content: space-around;
+}
+.l-route > div {
+    width: 25%;
+    color:#fff;
+    display: block;
+    position:relative;
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 6px;
+    text-overflow: ellipsis;
+}
+.l-route > div:last-child {
+    padding-right: 6px;
+}
