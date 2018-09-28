@@ -1,11 +1,17 @@
 package com.navercorp.pinpoint.plugin.fastjson.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ToJsonBytesInterceptorTest {
@@ -16,8 +22,18 @@ public class ToJsonBytesInterceptorTest {
     @Mock
     private MethodDescriptor descriptor;
 
+    @Mock
+    private Trace trace;
+
+    @Mock
+    private SpanEventRecorder recorder;
+
+
     @Test
     public void before() {
+
+        doReturn(trace).when(traceContext).currentTraceObject();
+        doReturn(recorder).when(trace).traceBlockBegin();
 
         ToJsonBytesInterceptor interceptor = new ToJsonBytesInterceptor(traceContext, descriptor);
 
@@ -27,8 +43,14 @@ public class ToJsonBytesInterceptorTest {
     @Test
     public void after() {
 
+        doReturn(trace).when(traceContext).currentTraceObject();
+        doReturn(recorder).when(trace).currentSpanEventRecorder();
+
         ToJsonBytesInterceptor interceptor = new ToJsonBytesInterceptor(traceContext, descriptor);
 
-        interceptor.after(null, new Object[]{null}, null, null);
+        interceptor.after(null, new Object[]{}, new byte[]{01}, null);
+
+        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
+        verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, new byte[]{01}.length);
     }
 }
