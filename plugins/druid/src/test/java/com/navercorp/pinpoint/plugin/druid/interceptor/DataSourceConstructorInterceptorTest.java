@@ -28,6 +28,8 @@ public class DataSourceConstructorInterceptorTest {
     @Test
     public void after() {
 
+        interceptor.after(new DruidDataSourceTest(), null, null, new Throwable());
+
         interceptor.after(new DruidDataSourceTest(), null, null, null);
     }
 }

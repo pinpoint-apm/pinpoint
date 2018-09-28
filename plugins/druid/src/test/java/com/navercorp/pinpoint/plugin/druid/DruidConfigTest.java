@@ -12,6 +12,9 @@ public class DruidConfigTest {
         DruidConfig config = new DruidConfig(new DefaultProfilerConfig());
 
         Assert.assertNotNull(config);
+        Assert.assertFalse(config.isPluginEnable());
+        Assert.assertFalse(config.isProfileClose());
+
     }
 
 }
