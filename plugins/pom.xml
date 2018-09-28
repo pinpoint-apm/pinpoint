@@ -81,6 +81,7 @@
         <module>undertow</module>
         <module>kafka</module>
         <module>mongodb</module>
+        <module>druid</module>
     </modules>
 
     <dependencies>
@@ -332,6 +333,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-mongodb-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-druid-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
