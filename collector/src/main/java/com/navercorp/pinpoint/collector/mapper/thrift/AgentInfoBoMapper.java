@@ -17,8 +17,14 @@
 package com.navercorp.pinpoint.collector.mapper.thrift;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
+import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
+import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
+import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,6 +32,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo> {
+    @Autowired
+    @Qualifier("serverMetaDataBoMapper")
+    private ThriftBoMapper<ServerMetaDataBo, TServerMetaData> serverMetaDataBoMapper;
+
+    @Autowired
+    @Qualifier("jvmInfoBoMapper")
+    private ThriftBoMapper<JvmInfoBo, TJvmInfo> jvmInfoBoMapper;
 
     @Override
     public AgentInfoBo map(TAgentInfo thriftObject) {
@@ -42,8 +55,8 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         final long endTimeStamp = thriftObject.getEndTimestamp();
         final int endStatus = thriftObject.getEndStatus();
         final boolean container = thriftObject.isContainer();
-        
-        AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
+
+        final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
         builder.setHostName(hostName);
         builder.setIp(ip);
         builder.setPorts(ports);
@@ -58,7 +71,14 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         builder.setEndStatus(endStatus);
         builder.isContainer(container);
 
+        if (thriftObject.isSetServerMetaData()) {
+            builder.setServerMetaData(this.serverMetaDataBoMapper.map(thriftObject.getServerMetaData()));
+        }
+
+        if (thriftObject.isSetJvmInfo()) {
+            builder.setJvmInfo(this.jvmInfoBoMapper.map(thriftObject.getJvmInfo()));
+        }
+
         return builder.build();
     }
-
 }

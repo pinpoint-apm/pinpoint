@@ -97,7 +97,6 @@ public class DefaultCallStack implements CallStack {
             stack[index - 1] = null;
             index--;
         }
-
         return spanEvent;
     }
 
@@ -114,7 +113,6 @@ public class DefaultCallStack implements CallStack {
         if (isOverflow() && overflowIndex > 0) {
             return newDummySpanEvent();
         }
-
         return stack[index - 1];
     }
 
