@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.cxf.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
 import org.junit.Test;
@@ -22,6 +23,9 @@ public class CxfClientHandleMessageMethodInterceptorTest {
     private MethodDescriptor descriptor;
 
     @Mock
+    private ProfilerConfig profilerConfig;
+
+    @Mock
     private Trace trace;
 
     @Mock
@@ -35,6 +39,7 @@ public class CxfClientHandleMessageMethodInterceptorTest {
 
     @Test
     public void test1() throws Exception {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(trace).when(traceContext).currentRawTraceObject();
         doReturn(true).when(trace).canSampled();
         doReturn(traceId).when(trace).getTraceId();
@@ -61,9 +66,13 @@ public class CxfClientHandleMessageMethodInterceptorTest {
 
     @Test
     public void test2() throws Exception {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
+        doReturn(true).when(profilerConfig).readBoolean("profiler.cxf.server", false);
+        doReturn(trace).when(traceContext).currentRawTraceObject();
+        doReturn(true).when(trace).canSampled();
 
         Object target = new Object();
-        Object[] args = new Object[]{};
+        Object[] args = new Object[]{""};
 
         CxfClientHandleMessageMethodInterceptor interceptor = new CxfClientHandleMessageMethodInterceptor(traceContext, descriptor);
         interceptor.before(target, args);
@@ -73,6 +82,7 @@ public class CxfClientHandleMessageMethodInterceptorTest {
 
     @Test
     public void test3() throws Exception {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(trace).when(traceContext).currentRawTraceObject();
         doReturn(true).when(trace).canSampled();
         doReturn(traceId).when(trace).getTraceId();

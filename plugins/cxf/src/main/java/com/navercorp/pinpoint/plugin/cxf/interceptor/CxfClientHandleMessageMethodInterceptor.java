@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.plugin.cxf.CxfPluginConfig;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
 
 import java.net.MalformedURLException;
@@ -36,6 +37,7 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
+    private final CxfPluginConfig pluginConfig;
 
     /**
      * Instantiates a new Cxf client handle message method interceptor.
@@ -46,6 +48,7 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
     public CxfClientHandleMessageMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
+        this.pluginConfig = new CxfPluginConfig(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -60,18 +63,21 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
         if (trace != null && trace.canSampled()) {
 
             String destination = getDestination(args);
-            String httpUri = getHttpUri(args);
-            String requestMethod = getRequestMethod(args);
-            String contentType = getContentType(args);
 
-            SpanEventRecorder recorder = trace.traceBlockBegin();
-            TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-            recorder.recordServiceType(CxfPluginConstants.CXF_CLIENT_SERVICE_TYPE);
-            recorder.recordDestinationId(destination);
-            recorder.recordAttribute(CxfPluginConstants.CXF_URI, httpUri);
-            recorder.recordAttribute(CxfPluginConstants.CXF_METHOD, requestMethod);
-            recorder.recordAttribute(CxfPluginConstants.CXF_TYPE, contentType);
+            if (destination != null) {
+                String httpUri = getHttpUri(args);
+                String requestMethod = getRequestMethod(args);
+                String contentType = getContentType(args);
+
+                SpanEventRecorder recorder = trace.traceBlockBegin();
+                TraceId nextId = trace.getTraceId().getNextTraceId();
+                recorder.recordNextSpanId(nextId.getSpanId());
+                recorder.recordServiceType(CxfPluginConstants.CXF_CLIENT_SERVICE_TYPE);
+                recorder.recordDestinationId(destination);
+                recorder.recordAttribute(CxfPluginConstants.CXF_URI, httpUri);
+                recorder.recordAttribute(CxfPluginConstants.CXF_METHOD, requestMethod);
+                recorder.recordAttribute(CxfPluginConstants.CXF_TYPE, contentType);
+            }
         }
     }
 
@@ -110,7 +116,7 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
             } catch (MalformedURLException e) {
             }
         }
-        return "unknown";
+        return null;
     }
 
     private String getHttpUri(Object[] args) {
