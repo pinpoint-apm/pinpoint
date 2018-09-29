@@ -137,18 +137,26 @@
                 <scope>test</scope>
             </dependency>
 
-
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+                <version>3.2.1</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>2.7.18</version>
+                <version>3.2.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
-                <version>2.7.18</version>
+                <version>3.2.1</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-client</artifactId>
+                <version>3.2.1</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.netflix.hystrix</groupId>

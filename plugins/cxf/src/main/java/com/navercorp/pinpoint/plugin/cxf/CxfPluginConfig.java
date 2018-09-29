@@ -14,25 +14,32 @@
  */
 package com.navercorp.pinpoint.plugin.cxf;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author barney
- *
+ * @author Victor.Zxy
  */
 public class CxfPluginConfig {
+
+    private final boolean serverProfile;
 
     private final boolean clientProfile;
 
     private final String[] clientHiddenParams;
 
     public CxfPluginConfig(ProfilerConfig src) {
+        this.serverProfile = src.readBoolean("profiler.cxf.server", false);
         this.clientProfile = src.readBoolean("profiler.cxf.client", false);
         this.clientHiddenParams = getStringArray(src.readString("profiler.cxf.client.hiddenParams", ""));
+    }
+
+    public boolean isServerProfile() {
+        return serverProfile;
     }
 
     public boolean isClientProfile() {
@@ -52,17 +59,19 @@ public class CxfPluginConfig {
     }
 
     private String[] toStringArray(List<String> list) {
-		if (list == null) {
-			return null;
-		}
+        if (list == null) {
+            return null;
+        }
 
-		return list.toArray(new String[0]);
-	}
+        return list.toArray(new String[0]);
+    }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("CxfPluginConfig [clientProfile=");
+        builder.append("CxfPluginConfig [serverProfile=");
+        builder.append(serverProfile);
+        builder.append(", clientProfile=");
         builder.append(clientProfile);
         builder.append(", clientHiddenParams=");
         builder.append(Arrays.toString(clientHiddenParams));

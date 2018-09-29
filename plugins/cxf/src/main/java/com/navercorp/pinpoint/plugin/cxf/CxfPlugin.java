@@ -27,9 +27,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author barney
- *
+ * @author Victor.Zxy
  */
 public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -39,24 +41,67 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         CxfPluginConfig config = new CxfPluginConfig(context.getConfig());
 
-        if(config.isClientProfile()) {
+        if (config.isServerProfile()) {
+            addCxfServer();
+        }
+
+        if (config.isClientProfile()) {
             addCxfClient();
         }
+    }
+
+    private void addCxfServer() {
+
+        // cxf http server
+        transformTemplate.transform("org.apache.cxf.transport.servlet.AbstractHTTPServlet", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                // handleRequestMethod
+                InstrumentMethod handleRequestMethod = InstrumentUtils.findMethod(target, "handleRequest", new String[]{"javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse"});
+                handleRequestMethod.addInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", va(CxfPluginConstants.CXF_SERVER_SERVICE_TYPE));
+
+                return target.toBytecode();
+            }
+        });
 
     }
 
     private void addCxfClient() {
+
+        // cxf ws client
         transformTemplate.transform("org.apache.cxf.frontend.ClientProxy", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                     throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 // invokeSyncMethod
                 InstrumentMethod invokeSyncMethod = InstrumentUtils.findMethod(target, "invokeSync", new String[]{"java.lang.reflect.Method", "org.apache.cxf.service.model.BindingOperationInfo", "java.lang.Object[]"});
                 invokeSyncMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.cxf.interceptor.CxfClientInvokeSyncMethodInterceptor", CxfPluginConstants.CXF_CLIENT_SCOPE);
+
+                return target.toBytecode();
+            }
+        });
+
+        // cxf rs client
+        transformTemplate.transform("org.apache.cxf.interceptor.MessageSenderInterceptor$MessageSenderEndingInterceptor", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                // handleMessageMethod
+                InstrumentMethod invokeSyncMethod = InstrumentUtils.findMethod(target, "handleMessage", new String[]{"org.apache.cxf.message.Message"});
+                invokeSyncMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.cxf.interceptor.CxfClientHandleMessageMethodInterceptor", CxfPluginConstants.CXF_CLIENT_SCOPE);
 
                 return target.toBytecode();
             }

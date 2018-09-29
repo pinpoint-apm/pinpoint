@@ -15,25 +15,25 @@
  */
 package com.navercorp.pinpoint.plugin.cxf;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
+import com.navercorp.pinpoint.common.trace.*;
 
 /**
  * @author barney
- *
+ * @author Victor.Zxy
  */
 public final class CxfPluginConstants {
     private CxfPluginConstants() {
     }
 
+    public static final ServiceType CXF_SERVER_SERVICE_TYPE = ServiceTypeFactory.of(1190, "CXF_SERVER", ServiceTypeProperty.RECORD_STATISTICS);
     public static final ServiceType CXF_CLIENT_SERVICE_TYPE = ServiceTypeFactory.of(9080, "CXF_CLIENT", ServiceTypeProperty.RECORD_STATISTICS);
 
     public static final AnnotationKey CXF_OPERATION = AnnotationKeyFactory.of(200, "cxf.operation", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
     public static final AnnotationKey CXF_ARGS = AnnotationKeyFactory.of(201, "cxf.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+
+    public static final AnnotationKey CXF_URI = AnnotationKeyFactory.of(202, "cxf.http.uri", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+    public static final AnnotationKey CXF_METHOD = AnnotationKeyFactory.of(203, "cxf.request.method", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+    public static final AnnotationKey CXF_TYPE = AnnotationKeyFactory.of(204, "cxf.content.type", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 
     public static final String CXF_CLIENT_SCOPE = "CxfClientScope";
 }

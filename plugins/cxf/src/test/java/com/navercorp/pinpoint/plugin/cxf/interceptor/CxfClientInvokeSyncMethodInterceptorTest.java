@@ -14,26 +14,18 @@
  */
 package com.navercorp.pinpoint.plugin.cxf.interceptor;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
+import static org.mockito.Mockito.*;
 
 /**
  * @author barney
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CxfClientInvokeSyncMethodInterceptorTest {
@@ -70,8 +62,8 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
 
         Object target = new Object();
         Object operInfo = "[BindingOperationInfo: {http://foo.com/}getFoo]";
-        Object[] arg = new Object[] { "foo", "bar" };
-        Object[] args = new Object[] { "", operInfo, arg };
+        Object[] arg = new Object[]{"foo", "bar"};
+        Object[] args = new Object[]{"", operInfo, arg};
 
         CxfClientInvokeSyncMethodInterceptor interceptor = new CxfClientInvokeSyncMethodInterceptor(traceContext, descriptor);
         interceptor.before(target, args);
@@ -89,7 +81,7 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
         doReturn(false).when(trace).canSampled();
 
         Object target = new Object();
-        Object[] args = new Object[] {};
+        Object[] args = new Object[]{};
 
         CxfClientInvokeSyncMethodInterceptor interceptor = new CxfClientInvokeSyncMethodInterceptor(traceContext, descriptor);
         interceptor.before(target, args);
@@ -110,8 +102,8 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
 
         Object target = new Object();
         Object operInfo = "[BindingOperationInfo: {http://foo.com/}getFoo]";
-        Object[] arg = new Object[] { "foo", "bar" };
-        Object[] args = new Object[] { "", operInfo, arg };
+        Object[] arg = new Object[]{"foo", "bar"};
+        Object[] args = new Object[]{"", operInfo, arg};
 
         CxfClientInvokeSyncMethodInterceptor interceptor = new CxfClientInvokeSyncMethodInterceptor(traceContext, descriptor);
         interceptor.before(target, args);
@@ -135,8 +127,8 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
 
         Object target = new Object();
         Object operInfo = "[BindingOperationInfo: {http://foo.com/}getFoo]";
-        Object[] arg = new Object[] { "foo", "bar" };
-        Object[] args = new Object[] { "", operInfo, arg };
+        Object[] arg = new Object[]{"foo", "bar"};
+        Object[] args = new Object[]{"", operInfo, arg};
 
         CxfClientInvokeSyncMethodInterceptor interceptor = new CxfClientInvokeSyncMethodInterceptor(traceContext, descriptor);
         interceptor.before(target, args);
@@ -160,8 +152,8 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
 
         Object target = new Object();
         Object operInfo = "[BindingOperationInfo: {http://foo.com/}getFoo]";
-        Object[] arg = new Object[] { "foo", "bar" };
-        Object[] args = new Object[] { "", operInfo, arg };
+        Object[] arg = new Object[]{"foo", "bar"};
+        Object[] args = new Object[]{"", operInfo, arg};
 
         CxfClientInvokeSyncMethodInterceptor interceptor = new CxfClientInvokeSyncMethodInterceptor(traceContext, descriptor);
         interceptor.before(target, args);
