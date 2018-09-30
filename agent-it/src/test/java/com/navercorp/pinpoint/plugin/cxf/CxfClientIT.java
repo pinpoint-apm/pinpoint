@@ -77,28 +77,28 @@ public class CxfClientIT {
 
         verifier.verifyTrace(event("CXF_MESSAGE_SENDER", MessageSenderInterceptor.class.getDeclaredMethod("handleMessage", Message.class)));
 
-        verifier.verifyTrace(event("CXF_LOGGING_OUT", LoggingOutInterceptor.class.getDeclaredMethod("formatLoggingMessage", LoggingMessage.class),
-                annotation("cxf.log.id", "1"),
-                annotation("cxf.address", address + "/test1"),
-                annotation("cxf.http.method", "POST"),
-                annotation("cxf.content.type", "application/json; charset=UTF-8"),
-                annotation("cxf.headers", "{Accept=[application/json], Content-Type=[application/json; charset=UTF-8]}"),
-                annotation("cxf.payload", "{\"id\" : 12345, \"name\" : \"victor\"}")
-        ));
-
-        SimpleDateFormat gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
-        gmtFrmt.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        verifier.verifyTrace(event("CXF_LOGGING_IN", LoggingInInterceptor.class.getDeclaredMethod("formatLoggingMessage", LoggingMessage.class),
-                annotation("cxf.log.id", "1"),
-                annotation("cxf.response.code", "200"),
-                annotation("cxf.encoding", "ISO-8859-1"),
-                annotation("cxf.content.type", "text/html"),
-                annotation("cxf.headers", "{connection=[keep-alive], Content-Length=[2], content-type=[text/html], Date=[" + gmtFrmt.format(new Date()) + "]}"),
-                annotation("cxf.payload", "{}")
-        ));
-
-        verifier.verifyTraceCount(0);
+//        verifier.verifyTrace(event("CXF_LOGGING_OUT", LoggingOutInterceptor.class.getDeclaredMethod("formatLoggingMessage", LoggingMessage.class),
+//                annotation("cxf.log.id", "1"),
+//                annotation("cxf.address", address + "/test1"),
+//                annotation("cxf.http.method", "POST"),
+//                annotation("cxf.content.type", "application/json; charset=UTF-8"),
+//                annotation("cxf.headers", "{Accept=[application/json], Content-Type=[application/json; charset=UTF-8]}"),
+//                annotation("cxf.payload", "{\"id\" : 12345, \"name\" : \"victor\"}")
+//        ));
+//
+//        SimpleDateFormat gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+//        gmtFrmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+//
+//        verifier.verifyTrace(event("CXF_LOGGING_IN", LoggingInInterceptor.class.getDeclaredMethod("formatLoggingMessage", LoggingMessage.class),
+//                annotation("cxf.log.id", "1"),
+//                annotation("cxf.response.code", "200"),
+//                annotation("cxf.encoding", "ISO-8859-1"),
+//                annotation("cxf.content.type", "text/html"),
+//                annotation("cxf.headers", "{connection=[keep-alive], Content-Length=[2], content-type=[text/html], Date=[" + gmtFrmt.format(new Date()) + "]}"),
+//                annotation("cxf.payload", "{}")
+//        ));
+//
+//        verifier.verifyTraceCount(0);
 
         client.close();
 
