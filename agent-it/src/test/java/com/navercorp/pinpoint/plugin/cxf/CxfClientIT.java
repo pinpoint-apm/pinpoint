@@ -8,9 +8,6 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingMessage;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -20,12 +17,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 
@@ -64,8 +55,8 @@ public class CxfClientIT {
         ClientConfiguration configuration = WebClient.getConfig(client);
 
         // add logging interceptor
-        configuration.getInInterceptors().add(new LoggingInInterceptor());
-        configuration.getOutInterceptors().add(new LoggingOutInterceptor());
+        // configuration.getInInterceptors().add(new LoggingInInterceptor());
+        // configuration.getOutInterceptors().add(new LoggingOutInterceptor());
 
         client.path("/test1").accept("application/json").type("application/json; charset=UTF-8").post(json).close();
 
