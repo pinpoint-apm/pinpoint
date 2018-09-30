@@ -59,15 +59,14 @@ public class CxfClientHandleMessageMethodInterceptorTest {
 
         verify(recorder).recordServiceType(CxfPluginConstants.CXF_CLIENT_SERVICE_TYPE);
         verify(recorder).recordDestinationId("http://foo.com");
-        verify(recorder).recordAttribute(CxfPluginConstants.CXF_URI, "http://foo.com/getFoo");
-        verify(recorder).recordAttribute(CxfPluginConstants.CXF_METHOD, "POST");
-        verify(recorder).recordAttribute(CxfPluginConstants.CXF_TYPE, "application/json");
+        verify(recorder).recordAttribute(CxfPluginConstants.CXF_ADDRESS, "http://foo.com/getFoo");
+        verify(recorder).recordAttribute(CxfPluginConstants.CXF_HTTP_METHOD, "POST");
+        verify(recorder).recordAttribute(CxfPluginConstants.CXF_CONTENT_TYPE, "application/json");
     }
 
     @Test
     public void test2() throws Exception {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(true).when(profilerConfig).readBoolean("profiler.cxf.server", false);
         doReturn(trace).when(traceContext).currentRawTraceObject();
         doReturn(true).when(trace).canSampled();
 
@@ -99,8 +98,8 @@ public class CxfClientHandleMessageMethodInterceptorTest {
 
         verify(recorder).recordServiceType(CxfPluginConstants.CXF_CLIENT_SERVICE_TYPE);
         verify(recorder).recordDestinationId("http://foo.com");
-        verify(recorder).recordAttribute(CxfPluginConstants.CXF_URI, "unknown");
-        verify(recorder).recordAttribute(CxfPluginConstants.CXF_METHOD, "unknown");
-        verify(recorder).recordAttribute(CxfPluginConstants.CXF_TYPE, "unknown");
+        verify(recorder).recordAttribute(CxfPluginConstants.CXF_ADDRESS, "unknown");
+        verify(recorder).recordAttribute(CxfPluginConstants.CXF_HTTP_METHOD, "unknown");
+        verify(recorder).recordAttribute(CxfPluginConstants.CXF_CONTENT_TYPE, "unknown");
     }
 }

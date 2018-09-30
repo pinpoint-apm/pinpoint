@@ -8,13 +8,22 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingMessage;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -52,6 +61,11 @@ public class CxfClientIT {
 
         WebClient client = WebClient.create(address, true);
 
+        ClientConfiguration configuration = WebClient.getConfig(client);
+
+        configuration.getInInterceptors().add(new LoggingInInterceptor());
+        configuration.getOutInterceptors().add(new LoggingOutInterceptor());
+
         client.path("/test1").accept("application/json").type("application/json; charset=UTF-8").post(json).close();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
@@ -60,14 +74,31 @@ public class CxfClientIT {
 
         verifier.ignoreServiceType("JDK_HTTPURLCONNECTOR");
 
-        verifier.verifyTrace(event("CXF_CLIENT", MessageSenderInterceptor.MessageSenderEndingInterceptor.class.getDeclaredMethod("handleMessage", Message.class),
-                annotation("cxf.http.uri", address + "/test1"),
-                annotation("cxf.request.method", "POST"),
-                annotation("cxf.content.type", "application/json; charset=UTF-8")
+        verifier.verifyTrace(event("CXF_MESSAGE_SENDER", MessageSenderInterceptor.class.getDeclaredMethod("handleMessage", Message.class)));
+
+        verifier.verifyTrace(event("CXF_LOGGING_OUT", LoggingOutInterceptor.class.getDeclaredMethod("formatLoggingMessage", LoggingMessage.class),
+                annotation("cxf.log.id", "1"),
+                annotation("cxf.address", address + "/test1"),
+                annotation("cxf.http.method", "POST"),
+                annotation("cxf.content.type", "application/json; charset=UTF-8"),
+                annotation("cxf.headers", "{Accept=[application/json], Content-Type=[application/json; charset=UTF-8]}"),
+                annotation("cxf.payload", "{\"id\" : 12345, \"name\" : \"victor\"}")
+        ));
+
+        SimpleDateFormat gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+        gmtFrmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        verifier.verifyTrace(event("CXF_LOGGING_IN", LoggingInInterceptor.class.getDeclaredMethod("formatLoggingMessage", LoggingMessage.class),
+                annotation("cxf.log.id", "1"),
+                annotation("cxf.response.code", "200"),
+                annotation("cxf.encoding", "ISO-8859-1"),
+                annotation("cxf.content.type", "text/html"),
+                annotation("cxf.headers", "{connection=[keep-alive], Content-Length=[2], content-type=[text/html], Date=[" + gmtFrmt.format(new Date()) + "]}"),
+                annotation("cxf.payload", "{}")
         ));
 
         verifier.verifyTraceCount(0);
-        
+
         client.close();
 
     }

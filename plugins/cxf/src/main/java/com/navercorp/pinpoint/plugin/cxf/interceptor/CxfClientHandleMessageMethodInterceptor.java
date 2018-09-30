@@ -31,6 +31,7 @@ import java.util.Map;
  * @version 1.8.1
  * @since 2017/08/16
  */
+@Deprecated
 public class CxfClientHandleMessageMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -74,9 +75,9 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
                 recorder.recordNextSpanId(nextId.getSpanId());
                 recorder.recordServiceType(CxfPluginConstants.CXF_CLIENT_SERVICE_TYPE);
                 recorder.recordDestinationId(destination);
-                recorder.recordAttribute(CxfPluginConstants.CXF_URI, httpUri);
-                recorder.recordAttribute(CxfPluginConstants.CXF_METHOD, requestMethod);
-                recorder.recordAttribute(CxfPluginConstants.CXF_TYPE, contentType);
+                recorder.recordAttribute(CxfPluginConstants.CXF_ADDRESS, httpUri);
+                recorder.recordAttribute(CxfPluginConstants.CXF_HTTP_METHOD, requestMethod);
+                recorder.recordAttribute(CxfPluginConstants.CXF_CONTENT_TYPE, contentType);
             }
         }
     }

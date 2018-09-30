@@ -1,16 +1,16 @@
 /*
- * Copyright 2014 NAVER Corp.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2018 NAVER Corp.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package com.navercorp.pinpoint.plugin.cxf;
 
@@ -41,8 +41,12 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         CxfPluginConfig config = new CxfPluginConfig(context.getConfig());
 
-        if (config.isServerProfile()) {
-            addCxfServer();
+        if (config.isServiceProfile()) {
+            addCxfService();
+        }
+
+        if (config.isLoggingProfile()) {
+            addCxfLogging();
         }
 
         if (config.isClientProfile()) {
@@ -50,20 +54,39 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addCxfServer() {
+    private void addCxfService() {
 
-        // cxf http server
-        transformTemplate.transform("org.apache.cxf.transport.servlet.AbstractHTTPServlet", new TransformCallback() {
+        // cxf service invoker interceptor
+        transformTemplate.transform("org.apache.cxf.interceptor.ServiceInvokerInterceptor", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                                         Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                     throws InstrumentException {
+
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                // handleRequestMethod
-                InstrumentMethod handleRequestMethod = InstrumentUtils.findMethod(target, "handleRequest", new String[]{"javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse"});
-                handleRequestMethod.addInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", va(CxfPluginConstants.CXF_SERVER_SERVICE_TYPE));
+                // handleMessageMethod
+                InstrumentMethod handleMessageMethod = InstrumentUtils.findMethod(target, "handleMessage", new String[]{"org.apache.cxf.message.Message"});
+                handleMessageMethod.addInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", va(CxfPluginConstants.CXF_SERVICE_INVOKER_SERVICE_TYPE));
+
+                return target.toBytecode();
+            }
+        });
+
+        // cxf message sender interceptor
+        transformTemplate.transform("org.apache.cxf.interceptor.MessageSenderInterceptor", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
+
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                // handleMessageMethod
+                InstrumentMethod handleMessageMethod = InstrumentUtils.findMethod(target, "handleMessage", new String[]{"org.apache.cxf.message.Message"});
+                handleMessageMethod.addInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", va(CxfPluginConstants.CXF_MESSAGE_SENDER_SERVICE_TYPE));
 
                 return target.toBytecode();
             }
@@ -71,6 +94,47 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     }
 
+    private void addCxfLogging() {
+
+        // cxf logging in interceptor
+        transformTemplate.transform("org.apache.cxf.interceptor.LoggingInInterceptor", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
+
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                // formatLoggingMessage
+                InstrumentMethod formatLoggingMessage = InstrumentUtils.findMethod(target, "formatLoggingMessage", new String[]{"org.apache.cxf.interceptor.LoggingMessage"});
+                formatLoggingMessage.addScopedInterceptor("com.navercorp.pinpoint.plugin.cxf.interceptor.CxfLoggingInMessageMethodInterceptor", CxfPluginConstants.CXF_SCOPE);
+
+                return target.toBytecode();
+            }
+        });
+
+        // cxf logging out interceptor
+        transformTemplate.transform("org.apache.cxf.interceptor.LoggingOutInterceptor", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                    throws InstrumentException {
+
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                // formatLoggingMessage
+                InstrumentMethod formatLoggingMessage = InstrumentUtils.findMethod(target, "formatLoggingMessage", new String[]{"org.apache.cxf.interceptor.LoggingMessage"});
+                formatLoggingMessage.addScopedInterceptor("com.navercorp.pinpoint.plugin.cxf.interceptor.CxfLoggingOutMessageMethodInterceptor", CxfPluginConstants.CXF_SCOPE);
+
+                return target.toBytecode();
+            }
+        });
+    }
+
+
+    @Deprecated
     private void addCxfClient() {
 
         // cxf ws client
@@ -100,8 +164,8 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 // handleMessageMethod
-                InstrumentMethod invokeSyncMethod = InstrumentUtils.findMethod(target, "handleMessage", new String[]{"org.apache.cxf.message.Message"});
-                invokeSyncMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.cxf.interceptor.CxfClientHandleMessageMethodInterceptor", CxfPluginConstants.CXF_CLIENT_SCOPE);
+                InstrumentMethod handleMessageMethod = InstrumentUtils.findMethod(target, "handleMessage", new String[]{"org.apache.cxf.message.Message"});
+                handleMessageMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.cxf.interceptor.CxfClientHandleMessageMethodInterceptor", CxfPluginConstants.CXF_CLIENT_SCOPE);
 
                 return target.toBytecode();
             }
