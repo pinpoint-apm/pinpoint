@@ -63,6 +63,7 @@ public class CxfClientIT {
 
         ClientConfiguration configuration = WebClient.getConfig(client);
 
+        // add logging interceptor
         configuration.getInInterceptors().add(new LoggingInInterceptor());
         configuration.getOutInterceptors().add(new LoggingOutInterceptor());
 
