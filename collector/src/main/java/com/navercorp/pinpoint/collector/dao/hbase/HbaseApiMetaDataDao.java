@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import org.apache.hadoop.hbase.TableName;
@@ -54,35 +53,23 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
-    public void insert(TApiMetaData apiMetaData) {
+    public void insert(ApiMetaDataBo apiMetaData) {
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", apiMetaData);
         }
 
-
-        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getAgentStartTime(), apiMetaData.getApiId());
-        byte[] rowKey = getDistributedKey(apiMetaDataBo.toRowKey());
-
+        final byte[] rowKey = getDistributedKey(apiMetaData.toRowKey());
         final Put put = new Put(rowKey);
-
         final Buffer buffer = new AutomaticBuffer(64);
-        String api = apiMetaData.getApiInfo();
+        final String api = apiMetaData.getApiInfo();
         buffer.putPrefixedString(api);
-        if (apiMetaData.isSetLine()) {
-            buffer.putInt(apiMetaData.getLine());
-        } else {
-            buffer.putInt(-1);
-        }
-        if(apiMetaData.isSetType()) {
-            buffer.putInt(apiMetaData.getType());
-        } else {
-            buffer.putInt(0);
-        }
-        
+        buffer.putInt(apiMetaData.getLineNumber());
+        buffer.putInt(apiMetaData.getMethodTypeEnum().getCode());
+
         final byte[] apiMetaDataBytes = buffer.getBuffer();
         put.addColumn(HBaseTables.API_METADATA_CF_API, HBaseTables.API_METADATA_CF_API_QUALI_SIGNATURE, apiMetaDataBytes);
 
-        TableName apiMetaDataTableName = tableNameProvider.getTableName(HBaseTables.API_METADATA_STR);
+        final TableName apiMetaDataTableName = tableNameProvider.getTableName(HBaseTables.API_METADATA_STR);
         hbaseTemplate.put(apiMetaDataTableName, put);
     }
 

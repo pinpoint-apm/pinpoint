@@ -32,7 +32,7 @@ public class ApiMetaDataBo {
     private int apiId;
 
     private String apiInfo;
-    private int lineNumber;
+    private int lineNumber = -1;
     private MethodTypeEnum methodTypeEnum = MethodTypeEnum.DEFAULT;
 
     public ApiMetaDataBo() {
@@ -128,12 +128,14 @@ public class ApiMetaDataBo {
 
     @Override
     public String toString() {
-        return "ApiMetaDataBo{" +
-                "agentId='" + agentId + '\'' +
-                ", apiId=" + apiId +
-                ", startTime=" + startTime +
-                ", apiInfo='" + apiInfo + '\'' +
-                ", lineNumber=" + lineNumber +
-                '}';
+        final StringBuilder sb = new StringBuilder("ApiMetaDataBo{");
+        sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", startTime=").append(startTime);
+        sb.append(", apiId=").append(apiId);
+        sb.append(", apiInfo='").append(apiInfo).append('\'');
+        sb.append(", lineNumber=").append(lineNumber);
+        sb.append(", methodTypeEnum=").append(methodTypeEnum);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -53,18 +53,14 @@ public class SendAgentStatService implements AgentStatService {
 
         try {
             FlinkTcpDataSender tcpDataSender = roundRobinTcpDataSender();
-
             if (tcpDataSender == null) {
                 logger.warn("not send flink server. Because FlinkTcpDataSender is null");
                 return;
             }
-
             TFAgentStatBatch tFAgentStatBatch = tFAgentStatBatchMapper.map(agentStatBo);
-
             if (logger.isDebugEnabled()) {
                 logger.debug("send to flinkserver : {}", tFAgentStatBatch);
             }
-
             tcpDataSender.send(tFAgentStatBatch);
         } catch (Exception e) {
             logger.error("Error sending to flink server. Caused:{}", e.getMessage(), e);
