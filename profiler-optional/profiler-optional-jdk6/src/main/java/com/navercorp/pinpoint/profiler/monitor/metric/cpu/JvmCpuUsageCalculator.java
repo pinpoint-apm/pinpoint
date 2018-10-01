@@ -46,12 +46,14 @@ public class JvmCpuUsageCalculator {
         final long diffUpTimeMS = upTimeMS - lastUpTimeMS;
         final long totalUpTimeNS = (diffUpTimeMS * 1000000) * CPU_COUNT;
 
-        final double cpuLoad = totalUpTimeNS > 0 ?
-                Math.min(100F, totalCpuTimeNS / (float) totalUpTimeNS) : UNSUPPORTED;
+        double cpuUsage = UNSUPPORTED;
+        if (totalUpTimeNS > 0) {
+            cpuUsage = Math.min(100F, totalCpuTimeNS / (float) totalUpTimeNS);
+        }
 
         this.lastCpuTimeNS = cpuTimeNS;
         this.lastUpTimeMS = upTimeMS;
 
-        return cpuLoad;
+        return cpuUsage;
     }
 }
