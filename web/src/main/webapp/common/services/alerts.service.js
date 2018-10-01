@@ -33,9 +33,9 @@
 	            		this.getElement('.error .parameters').html(this._transTableFormat(vResult.request.parameters));
 	            		this.getElement('.error .url').text(vResult.request.url);
 	            		if ( vResult.stacktrace ) {
-							this.getElement('.error .stacktrace').text(vResult.stacktrace).parent().show();
+							this.getElement('.error .stacktrace').text(vResult.stacktrace).parent().parent().show();
 						} else {
-							this.getElement('.error .stacktrace').parent().hide();
+							this.getElement('.error .stacktrace').parent().parent().hide();
 						}
 	            	}
 	            }.bind(this), 300);
