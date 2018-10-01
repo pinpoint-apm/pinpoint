@@ -270,6 +270,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Hikari CP -->
         <dependency>
             <groupId>com.zaxxer</groupId>
