@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.security.ProtectionDomain;
 
@@ -47,8 +48,20 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         // 8.0 <= x <= 9.4
         logger.info("Enable JettyPlugin. version range=[8.0, 9.4], config={}", config);
-        context.addApplicationTypeDetector(new JettyDetector(config.getBootstrapMains()));
 
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            JettyDetector jettyDetector = new JettyDetector(config.getBootstrapMains());
+            if (jettyDetector.detect()) {
+                logger.info("Detected application type : {}", JettyConstants.JETTY);
+                context.setApplicationType(JettyConstants.JETTY);
+            }
+        }
+
+        logger.info("Adding Jetty transformers");
+        addTransformers(config);
+    }
+
+    private void addTransformers(JettyConfiguration config) {
         // Add async listener. Servlet 3.0
         requestAspect(config);
         // Entry Point

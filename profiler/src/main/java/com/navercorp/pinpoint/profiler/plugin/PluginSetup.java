@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface PluginSetup {
-    SetupResult setupPlugin(ProfilerPlugin plugin, ClassInjector classInjector);
+    PluginSetupResult setupPlugin(ProfilerPluginGlobalContext globalContext, ProfilerPlugin plugin, ClassInjector classInjector);
 }

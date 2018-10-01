@@ -176,6 +176,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
     private String applicationServerType;
+    @Deprecated // As of 1.8.1, set application type in plugins
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
     private List<String> disabledPlugins = Collections.emptyList();
 
@@ -457,6 +458,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return profilableClassFilter;
     }
 
+    /**
+     * @deprecated As of 1.8.1, set application type in plugins
+     */
+    @Deprecated
     @Override
     public List<String> getApplicationTypeDetectOrder() {
         return applicationTypeDetectOrder;
@@ -811,7 +816,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
         sb.append(", applicationServerType='").append(applicationServerType).append('\'');
-        sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);
         sb.append(", disabledPlugins=").append(disabledPlugins);
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
