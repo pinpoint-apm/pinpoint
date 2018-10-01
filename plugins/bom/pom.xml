@@ -231,6 +231,11 @@
                 <artifactId>fastjson</artifactId>
                 <version>1.2.47</version>
             </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>1.1.10</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.google.code.gson</groupId>
