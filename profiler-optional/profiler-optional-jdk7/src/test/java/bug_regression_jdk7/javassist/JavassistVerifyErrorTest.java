@@ -110,10 +110,12 @@ public class JavassistVerifyErrorTest {
         final ASMBytecodeDisassembler bytecodeDisassembler = new ASMBytecodeDisassembler();
 
         final String dumpBytecode = bytecodeDisassembler.dumpBytecode(bytecode);
-        logger.debug("dumpBytecode:{}", dumpBytecode);
+        // TODO Check CI log
+        //logger.debug("dumpBytecode:{}", dumpBytecode);
 
         final String verify = bytecodeDisassembler.dumpVerify(bytecode, classLoader);
-        logger.debug("dumpVerify:{}", verify);
+        // TODO Check CI log
+        //logger.debug("dumpVerify:{}", verify);
 
 //        final String dumpAsm = bytecodeDisassembler.dumpASM(bytecode);
 //        logger.debug("dumpAsm :{}", dumpAsm);

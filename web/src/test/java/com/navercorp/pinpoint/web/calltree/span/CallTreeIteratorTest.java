@@ -517,7 +517,8 @@ public class CallTreeIteratorTest {
 
             index++;
         }
-        logger.debug(buffer.toString());
+        // TODO Check CI log
+        //logger.debug(buffer.toString());
     }
 
     private Queue<Integer> parseExpected(String expectedValues) {

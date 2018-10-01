@@ -75,7 +75,7 @@ public class ASMClassWriterTest {
         ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(className));
 
         ASMClassWriter cw = new ASMClassWriter(pluginContext, 0, null);
-        TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
+        TraceClassVisitor tcv = new TraceClassVisitor(cw, null);
         classNode.accept(tcv);
     }
 
