@@ -26,7 +26,7 @@ please follow the instructions below.
 ````
 
 * Add `-Pv2` option when building Maven.
-> mvn clean install -Pv2
+> mvn clean install -Pv2  
   // Please note that adding the -Pv2 option may cause longer time to build.
 
 * URL where you can check
@@ -57,3 +57,10 @@ Pinpoint 팀은 새로운 디자인과 최신 Angular Framework 을 이용하여
   * http://your.domain.name/v2
 
 ![UI Example](images/ui.png)
+
+* 개발 시 watch & build 실행   
+`./web/src/main/webapp/v2/` 에서 `npm install` 후  다음 명령 실행
+ 
+```` 
+> npm run build:watch
+````
