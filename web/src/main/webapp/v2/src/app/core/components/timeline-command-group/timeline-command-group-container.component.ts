@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 import { StoreHelperService } from 'app/shared/services';
 
@@ -31,8 +30,6 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
             this.storeHelperService.getDateFormat(this.unsubscribe, 0),
             this.storeHelperService.getTimezone(this.unsubscribe),
             this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)
-        ).pipe(
-            takeUntil(this.unsubscribe)
         ).subscribe((data: [string, string, number]) => {
             const dateFormat = data[0];
             const timezone = data[1];

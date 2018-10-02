@@ -1,6 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { ApplicationListDataService } from 'app/core/components/application-list/application-list-data.service';
 import { AgentManagerDataService } from './agent-manager-data.service';
@@ -10,11 +9,10 @@ import { AgentManagerDataService } from './agent-manager-data.service';
     templateUrl: './agent-manager-container.component.html',
     styleUrls: ['./agent-manager-container.component.css']
 })
-export class AgentManagerContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<void> = new Subject();
+export class AgentManagerContainerComponent implements OnInit {
     applicationFilter = '';
     showLoading  = false;
-    applicationList: IApplication[];
+    applicationList$: Observable<IApplication[]>;
     agentList: {
         [key: string]: any;
     } = {};
@@ -24,15 +22,7 @@ export class AgentManagerContainerComponent implements OnInit, OnDestroy {
         private agentManagerDataService: AgentManagerDataService
     ) {}
     ngOnInit() {
-        this.applicationListDataService.getApplicationList().pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((applicationList: IApplication[]) => {
-            this.applicationList = applicationList;
-        });
-    }
-    ngOnDestroy() {
-        this.unsubscribe.next();
-        this.unsubscribe.complete();
+        this.applicationList$ = this.applicationListDataService.getApplicationList();
     }
     getAgentList(application: IApplication): string[] {
         return this.agentList[application.applicationName];

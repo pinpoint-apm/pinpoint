@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, combineLatest } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { combineLatest } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { WebAppSettingDataService, TranslateReplaceService } from 'app/shared/services';
 import { UserGroupInteractionService } from './user-group-interaction.service';
@@ -10,8 +10,7 @@ import { UserGroupDataService, IUserGroup, IUserGroupCreated, IUserGroupDeleted 
     templateUrl: './user-group-container.component.html',
     styleUrls: ['./user-group-container.component.css']
 })
-export class UserGroupContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+export class UserGroupContainerComponent implements OnInit {
     private searchQuery = '';
     i18nText: { [key: string]: string } = {
         NAME_LABEL: '',
@@ -42,10 +41,6 @@ export class UserGroupContainerComponent implements OnInit, OnDestroy {
                 userId: userId
             });
         });
-    }
-    ngOnDestroy() {
-        this.unsubscribe.next();
-        this.unsubscribe.complete();
     }
     private getI18NText(): void {
         combineLatest(
