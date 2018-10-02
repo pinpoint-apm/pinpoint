@@ -92,8 +92,6 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
         combineLatest(
             this.storeHelperService.getApplicationList(this.unsubscribe),
             this.storeHelperService.getFavoriteApplicationList(this.unsubscribe)
-        ).pipe(
-            takeUntil(this.unsubscribe)
         ).subscribe((responseData: any[]) => {
             this.refreshList(responseData[0], responseData[1]);
             this.showLoading = true;

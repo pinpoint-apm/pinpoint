@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, combineLatest } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, combineLatest, Observable } from 'rxjs';
+import { takeUntil, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { TranslateReplaceService } from 'app/shared/services';
@@ -22,9 +22,9 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     showLoading = false;
     showCreate = false;
     message = '';
-    checkerList: string[];
+    checkerList$: Observable<string[]>;
+    userGroupList$: Observable<string[]>;
     alarmRuleList: IAlarmRule[];
-    userGroupList: string[];
 
     i18nLabel = {
         CHECKER_LABEL: '',
@@ -49,18 +49,14 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         private applicationListInteractionForConfigurationService: ApplicationListInteractionForConfigurationService
     ) { }
     ngOnInit() {
-        this.alarmRuleDataService.getCheckerList().pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((checkerList: string[]) => {
-            this.checkerList = checkerList;
-        });
-        this.userGroupDataSerivce.retrieve().pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((userGroupList: IUserGroup[]) => {
-            this.userGroupList = userGroupList.map((userGroup: IUserGroup) => {
-                return userGroup.id;
-            });
-        });
+        this.checkerList$ = this.alarmRuleDataService.getCheckerList();
+        this.userGroupList$ = this.userGroupDataSerivce.retrieve().pipe(
+            map((userGroupList: IUserGroup[]) => {
+                return userGroupList.map((userGroup: IUserGroup) => {
+                    return userGroup.id;
+                });
+            })
+        );
         this.applicationListInteractionForConfigurationService.onSelectApplication$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((selectedApplication: IApplication) => {
