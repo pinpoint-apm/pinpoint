@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,15 +35,6 @@ public class AgentEventService {
         Assert.requireNonNull(agentEventBo, "agentEventBo must not be null");
         if (logger.isDebugEnabled()) {
             logger.debug("Insert {}", agentEventBo);
-        }
-        agentEventDao.insert(agentEventBo);
-    }
-
-    @Async("agentEventWorker")
-    public void insertAsync(final AgentEventBo agentEventBo) {
-        Assert.requireNonNull(agentEventBo, "agentEventBo must not be null");
-        if (logger.isDebugEnabled()) {
-            logger.debug("Insert async {}", agentEventBo);
         }
         agentEventDao.insert(agentEventBo);
     }

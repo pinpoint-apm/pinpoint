@@ -175,7 +175,7 @@ public class AgentLifeCycleEventHandlerTest {
 
         // when
         this.agentLifeCycleEventHandler.handleLifeCycleEvent(this.pinpointServer, TEST_EVENT_TIMESTAMP, expectedLifeCycleState, expectedEventCounter);
-        verify(this.agentLifeCycleService, times(1)).insertAsync(argCaptor.capture());
+        verify(this.agentLifeCycleService, times(1)).insert(argCaptor.capture());
 
         // then
         AgentLifeCycleBo actualAgentLifeCycleBo = argCaptor.getValue();

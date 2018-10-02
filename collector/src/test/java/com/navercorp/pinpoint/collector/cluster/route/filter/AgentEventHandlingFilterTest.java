@@ -99,7 +99,7 @@ public class AgentEventHandlingFilterTest {
         // when
         this.agentEventHandlingFilter.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);
         // then
-        verify(this.agentEventService, atLeast(1)).insertAsync(argCaptor.capture());
+        verify(this.agentEventService, atLeast(1)).insert(argCaptor.capture());
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
         assertEquals(TEST_AGENT_ID, actualAgentEventBo.getAgentId());
         assertEquals(TEST_START_TIMESTAMP, actualAgentEventBo.getStartTimestamp());
