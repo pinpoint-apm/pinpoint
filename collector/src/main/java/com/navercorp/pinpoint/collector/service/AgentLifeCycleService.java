@@ -32,8 +32,4 @@ public class AgentLifeCycleService {
         this.agentLifeCycleDao.insert(agentLifeCycleBo);
     }
 
-    @Async("agentEventWorker")
-    public void insertAsync(final AgentLifeCycleBo agentLifeCycleBo) {
-        this.agentLifeCycleDao.insert(agentLifeCycleBo);
-    }
 }

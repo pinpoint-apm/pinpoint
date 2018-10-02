@@ -7,7 +7,7 @@
         <button class="btn btn-lg btn-blue" (click)="onRemoveInactiveAgents()" [disabled]="!canRemoveInactiveAgent">Remove Inactive Agents</button>
     </div>
 </div>
-<div class="l-wrapper" *ngIf="applicationList">
+<div class="l-wrapper" *ngIf="(applicationList$ | async) as applicationList">
     <ng-container *ngFor="let app of applicationList">
         <pp-agent-manager 
             [hidden]="!hasFilterStr(app.applicationName)"

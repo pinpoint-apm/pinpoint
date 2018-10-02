@@ -97,20 +97,16 @@ export abstract class InspectorChartContainer {
     }
 
     protected getChartData(range: number[]): void {
-        this.chartDataService.getData(range).pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((data: IChartDataFromServer | IChartDataFromServer[] | AjaxException) => {
+        this.chartDataService.getData(range).subscribe((data: IChartDataFromServer | IChartDataFromServer[] | AjaxException) => {
             if (this.ajaxExceptionCheckerService.isAjaxException(data)) {
                 this.setErrObj(data);
             } else {
                 this.chartData = data;
                 this.setChartConfig(this.makeChartData(data));
             }
-        },
-            (err) => {
-                this.setErrObj();
-            }
-        );
+        }, () => {
+            this.setErrObj();
+        });
     }
 
     protected setChartConfig(data: {[key: string]: any} | {[key: string]: any}[]): void {

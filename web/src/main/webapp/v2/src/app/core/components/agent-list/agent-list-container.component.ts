@@ -21,7 +21,7 @@ interface IGridData {
     templateUrl: './agent-list-container.component.html',
     styleUrls: ['./agent-list-container.component.css']
 })
-export class AgentListContainerComponent implements OnInit, OnDestroy  {
+export class AgentListContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
     agentCount = 0;
     agentListData: any;

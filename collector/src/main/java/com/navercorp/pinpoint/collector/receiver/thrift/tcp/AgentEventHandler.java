@@ -26,6 +26,7 @@ import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -44,8 +45,9 @@ public class AgentEventHandler {
     @Autowired
     private AgentEventMessageSerializer agentEventMessageSerializer;
 
+    @Async("agentEventWorker")
     public void handleEvent(PinpointServer pinpointServer, long eventTimestamp, AgentEventType eventType) {
-        logger.debug("Async handle event. pinpointServer={}", pinpointServer);
+        logger.debug("Handle event. pinpointServer={}", pinpointServer);
         handleEvent(pinpointServer, eventTimestamp, eventType, null);
     }
 
@@ -89,7 +91,6 @@ public class AgentEventHandler {
             logger.warn("error handling agent event", e);
             return;
         }
-        logger.info("handle event: {}", agentEventBo);
-        this.agentEventService.insertAsync(agentEventBo);
+        this.agentEventService.insert(agentEventBo);
     }
 }

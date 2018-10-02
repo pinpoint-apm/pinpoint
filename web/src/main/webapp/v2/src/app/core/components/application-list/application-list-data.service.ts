@@ -15,15 +15,12 @@ export class ApplicationListDataService {
     ) { }
     getApplicationList(): Observable<IApplication[]> {
         return this.http.get<IApplication[]>('applications.pinpoint').pipe(
-            map(res => {
+            map((res: IApplication[]) => {
                 const body = res || [];
-                if (body) {
-                    const convertData = body.map(app => new Application(app.applicationName, app.serviceType, app.code));
-                    this.storeHelperService.dispatch(new Actions.UpdateApplicationList(convertData));
-                    return convertData;
-                } else {
-                    return [];
-                }
+                const convertData = body.map(app => new Application(app.applicationName, app.serviceType, app.code));
+
+                this.storeHelperService.dispatch(new Actions.UpdateApplicationList(convertData));
+                return convertData;
             })
         );
     }

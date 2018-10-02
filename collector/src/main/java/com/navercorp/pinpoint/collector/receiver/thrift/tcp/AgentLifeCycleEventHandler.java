@@ -26,6 +26,7 @@ import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -46,13 +47,14 @@ public class AgentLifeCycleEventHandler {
     @Autowired
     private AgentLifeCycleService agentLifeCycleService;
 
+    @Async("agentEventWorker")
     public void handleLifeCycleEvent(PinpointServer pinpointServer, long eventTimestamp, AgentLifeCycleState agentLifeCycleState, int eventCounter) {
         Objects.requireNonNull(pinpointServer, "pinpointServer must not be null");
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState must not be null");
         if (eventCounter < 0) {
             throw new IllegalArgumentException("eventCounter may not be negative");
         }
-        logger.info("handle lifecycle event - pinpointServer:{}, state:{}", pinpointServer, agentLifeCycleState);
+        logger.info("Handle lifecycle event - pinpointServer:{}, state:{}", pinpointServer, agentLifeCycleState);
 
         // TODO
         Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
@@ -69,7 +71,7 @@ public class AgentLifeCycleEventHandler {
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp,
                 eventIdentifier, agentLifeCycleState);
 
-        agentLifeCycleService.insertAsync(agentLifeCycleBo);
+        agentLifeCycleService.insert(agentLifeCycleBo);
     }
 
     long createEventIdentifier(int socketId, int eventCounter) {

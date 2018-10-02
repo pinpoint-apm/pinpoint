@@ -116,7 +116,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     private getI18NText(): void {
         combineLatest(
             this.translateService.get('COMMON.NO_AGENTS')
-        ).pipe(takeUntil(this.unsubscribe)).subscribe((i18n: string[]) => {
+        ).subscribe((i18n: string[]) => {
             this.i18nText['NO_AGENTS'] = i18n[0];
         });
     }

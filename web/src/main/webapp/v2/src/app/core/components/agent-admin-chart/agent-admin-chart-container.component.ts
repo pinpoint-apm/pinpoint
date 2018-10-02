@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { StoreHelperService } from 'app/shared/services';
 
@@ -7,7 +7,7 @@ import { StoreHelperService } from 'app/shared/services';
     templateUrl: './agent-admin-chart-container.component.html',
     styleUrls: ['./agent-admin-chart-container.component.css']
 })
-export class AgentAdminChartContainerComponent implements OnInit {
+export class AgentAdminChartContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
     showLoading = true;
     agentCount = 0;
@@ -30,6 +30,10 @@ export class AgentAdminChartContainerComponent implements OnInit {
             this.extractChartData(agentList);
             this.showLoading = false;
         });
+    }
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
     private extractChartData(agentList: IAgentList): void {
         this.chartData = {
