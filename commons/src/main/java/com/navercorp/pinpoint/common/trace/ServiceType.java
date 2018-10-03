@@ -108,6 +108,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5010</td><td>GSON</td></tr>
  * <tr><td>5011</td><td>JACKSON</td></tr>
  * <tr><td>5012</td><td>JSON-LIB</td></tr>
+ * <tr><td>5013</td><td>FASTJSON</td></tr>
  * <tr><td>5050</td><td>SPRING</td></tr>
  * <tr><td>5051</td><td>SPRING_MVC</td></tr>
  * <tr><td>5052</td><td>SPRING_ASYNC</td></tr>
@@ -119,6 +120,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6050</td><td>DBCP</td></tr>
  * <tr><td>6052</td><td>DBCP2</td></tr>
  * <tr><td>6060</td><td>HIKARICP</td></tr>
+ * <tr><td>6062</td><td>DRUID</td></tr>
  * <tr><td>6500</td><td>RXJAVA</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
  * </table>
