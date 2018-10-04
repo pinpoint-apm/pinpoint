@@ -94,8 +94,17 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>117</td><td></td>hystrix.thread.pool.key</tr>
  * <tr><td>118</td><td></td>hystrix.collapser.key</tr>
  * <tr><td>120</td><td>netty.address</td></tr>
- * <tr><td>200</td><td>cxf.operation</td></tr>
- * <tr><td>201</td><td>cxf.args</td></tr>
+ * <tr><td><s>200</s></td><td><s>cxf.operation</s></td></tr>
+ * <tr><td><s>201</s></td><td><s>cxf.args</s></td></tr>
+ * <tr><td>202</td><td>cxf.log.id</td></tr>
+ * <tr><td>203</td><td>cxf.address</td></tr>
+ * <tr><td>204</td><td>cxf.response.code</td></tr>
+ * <tr><td>205</td><td>cxf.encoding</td></tr>
+ * <tr><td>206</td><td>cxf.http.method</td></tr>
+ * <tr><td>207</td><td>cxf.content.type</td></tr>
+ * <tr><td>208</td><td>cxf.headers</td></tr>
+ * <tr><td>209</td><td>cxf.messages</td></tr>
+ * <tr><td>210</td><td>cxf.payload</td></tr>
  * <tr><td>300</td><td>PROXY_HTTP_HEADER</td></tr>
  * <tr><td>310</td><td>REDIS.IO</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
