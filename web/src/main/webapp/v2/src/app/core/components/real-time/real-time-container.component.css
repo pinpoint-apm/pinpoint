@@ -16,7 +16,7 @@
     font-size: 14px;
     font-weight: 600;
     height: 34px;
-    padding: 0 25px;
+    padding: 0 10px 0 25px;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #bdc7d5;
@@ -44,20 +44,20 @@
 .l-chart-group-wrap {
     display: flex;
     flex-flow: row wrap;
-    padding: 20px;
+    padding: 20px 10px 20px 25px;
+    max-height: calc(100% - 34px);
 }
 .l-chart-group-wrap > .l-chart-item {
-    width: calc(50% - 20px);
     width: 277px;
     height: 178px;
-    margin: 5px 10px 5px 5px;
+    margin-right: 20px;
 }
 .l-chart-group-wrap .l-chart-group-list {
     display: flex;
     flex-flow: row wrap;
     flex: 1;
     overflow-y: auto;
-    height: 100%;
+    justify-content: space-between;
 }
 .l-message {
     top: 0px;
