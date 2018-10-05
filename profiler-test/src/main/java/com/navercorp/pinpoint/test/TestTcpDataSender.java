@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.test;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
-import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -71,21 +71,21 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private void addData(Object data) {
-        if (data instanceof TApiMetaData) {
-            TApiMetaData md = (TApiMetaData)data;
+        if (data instanceof ApiMetaData) {
+            ApiMetaData md = (ApiMetaData)data;
 
             final String javaMethodDescriptor = toJavaMethodDescriptor(md);
             apiIdMap.put(md.getApiId(), javaMethodDescriptor);
 
-        } else if (data instanceof TSqlMetaData) {
-            TSqlMetaData md = (TSqlMetaData)data;
+        } else if (data instanceof SqlMetaData) {
+            SqlMetaData md = (SqlMetaData)data;
 
             int id = md.getSqlId();
             String sql = md.getSql();
 
             sqlIdMap.put(id, sql);
-        } else if (data instanceof TStringMetaData) {
-            TStringMetaData md = (TStringMetaData)data;
+        } else if (data instanceof StringMetaData) {
+            StringMetaData md = (StringMetaData)data;
 
             int id = md.getStringId();
             String string = md.getStringValue();
@@ -96,7 +96,7 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         datas.add(data);
     }
 
-    private String toJavaMethodDescriptor(TApiMetaData apiMetaData) {
+    private String toJavaMethodDescriptor(ApiMetaData apiMetaData) {
 //        1st method type check
 //        int type = apiMetaData.getType();
 //        if (type != MethodType.DEFAULT) {

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.profiler.context.storage.BypassMessageConverter;
-import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -71,7 +71,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
     private final RetryQueue retryQueue = new RetryQueue();
 
-    protected AsyncQueueingExecutor<Object> executor;
+    protected final AsyncQueueingExecutor<Object> executor;
 
 
     public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory) {
@@ -79,7 +79,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private static ThriftMessageSerializer newDefaultMessageSerializer() {
-        MessageConverter<TBase<?,?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
+        MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
         return new ThriftMessageSerializer(messageConverter);
     }
 
@@ -154,22 +154,14 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
     @Override
     public boolean request(Object data, int retryCount) {
-        if (data instanceof TBase<?, ?>) {
-            final TBase<?, ?> thriftMessage = (TBase<?, ?>) data;
-            final RequestStatus<TBase<?, ?>> message = new ThriftRequestStatus(thriftMessage, retryCount);
-            return executor.execute(message);
-        }
-        return false;
+        final RequestMessage<?> message = RequestMessageFactory.request(data, retryCount);
+        return executor.execute(message);
     }
 
     @Override
     public boolean request(Object data, FutureListener<ResponseMessage> listener) {
-        if (data instanceof TBase<?, ?>) {
-            final TBase<?, ?> thriftMessage = (TBase<?, ?>) data;
-            final RequestStatus<TBase<?, ?>> message = new ThriftRequestStatus(thriftMessage, listener);
-            return executor.execute(message);
-        }
-        return false;
+        final RequestMessage<Object> message = RequestMessageFactory.request(data, listener);
+        return executor.execute(message);
     }
 
     public boolean isConnected() {
@@ -208,21 +200,13 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
                     return;
                 }
                 doSend(copy);
-            } else if (message instanceof ThriftRequestStatus) {
-                RequestStatus<TBase<?, ?>> requestStatus = (ThriftRequestStatus) message;
+                return;
+            }
 
-                TBase<?, ?> tBase = requestStatus.getMessage();
-                final byte[] copy = messageSerializer.serializer(tBase);
-                if (copy == null) {
+            if (message instanceof RequestMessage<?>) {
+                final RequestMessage<?> requestMessage = (RequestMessage<?>) message;
+                if (doRequest(requestMessage)) {
                     return;
-                }
-
-                final FutureListener futureListener = requestStatus.getFutureListener();
-                if (futureListener != null) {
-                    doRequest(copy, futureListener);
-                } else {
-                    int retryCount = requestStatus.getRetryCount();
-                    doRequest(copy, retryCount, tBase);
                 }
             } else {
                 logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
@@ -231,6 +215,25 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
         } catch (Exception e) {
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
         }
+    }
+
+    private boolean doRequest(RequestMessage<?> requestMessage) {
+        final Object message = requestMessage.getMessage();
+
+        final byte[] copy = messageSerializer.serializer(message);
+        if (copy == null) {
+            return false;
+        }
+
+        final FutureListener futureListener = requestMessage.getFutureListener();
+        if (futureListener != null) {
+            doRequest(copy, futureListener);
+        } else {
+            int retryCount = requestMessage.getRetryCount();
+            doRequest(copy, retryCount, message);
+        }
+
+        return true;
     }
 
     protected void doSend(byte[] copy) {
@@ -258,7 +261,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
                             retryRequest(retryMessage);
                         }
                     } else {
-                        logger.warn("Invalid respose:{}", response);
+                        logger.warn("Invalid response:{}", response);
                         // This is not retransmission. need to log for debugging
                         // it could be null
 //                        retryRequest(requestPacket);

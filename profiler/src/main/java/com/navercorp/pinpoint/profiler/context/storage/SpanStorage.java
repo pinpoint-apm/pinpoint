@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ public class SpanStorage implements Storage {
     protected List<SpanEvent> spanEventList = new ArrayList<SpanEvent>(10);
     private final TraceRoot traceRoot;
     private final DataSender dataSender;
-    private MessageConverter<TBase<?, ?>> messageConverter = null;
 
     public SpanStorage(TraceRoot traceRoot, DataSender dataSender) {
         if (traceRoot == null) {
@@ -66,11 +64,8 @@ public class SpanStorage implements Storage {
         }
         span.setSpanEventList(spanEventList);
         spanEventList = null;
-
-        TBase<?, ?> tSpan = this.messageConverter.toMessage(span);
-        this.dataSender.send(tSpan);
+        this.dataSender.send(span);
     }
-
 
     @Override
     public void flush() {

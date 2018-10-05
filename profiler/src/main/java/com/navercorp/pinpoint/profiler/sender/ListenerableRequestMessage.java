@@ -21,12 +21,29 @@ import com.navercorp.pinpoint.rpc.FutureListener;
 /**
  * @author Woonduk Kang(emeroad)
  */
-interface RequestStatus<M> {
+class ListenerableRequestMessage<T> implements RequestMessage<T> {
+    private final T message;
+    private final FutureListener futureListener;
 
-    M getMessage();
 
-    int getRetryCount();
+    ListenerableRequestMessage(T message, FutureListener futureListener) {
+        this.message = message;
+        this.futureListener = futureListener;
+    }
 
-    FutureListener getFutureListener();
 
+    @Override
+    public T getMessage() {
+        return message;
+    }
+
+    @Override
+    public int getRetryCount() {
+        return 3;
+    }
+
+    @Override
+    public FutureListener getFutureListener() {
+        return futureListener;
+    }
 }

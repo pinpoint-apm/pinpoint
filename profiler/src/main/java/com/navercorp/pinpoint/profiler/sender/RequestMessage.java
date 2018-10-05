@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.storage;
+package com.navercorp.pinpoint.profiler.sender;
+
+import com.navercorp.pinpoint.rpc.FutureListener;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class BypassMessageConverter<T> implements MessageConverter<T> {
-    @Override
-    public T toMessage(Object message) {
-        return null;
-    }
+interface RequestMessage<M> {
+
+    M getMessage();
+
+    int getRetryCount();
+
+    FutureListener getFutureListener();
+
 }

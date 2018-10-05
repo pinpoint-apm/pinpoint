@@ -14,14 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.storage;
+package com.navercorp.pinpoint.profiler.sender;
+
+
+import com.navercorp.pinpoint.rpc.FutureListener;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface MessageConverter<M> {
+final class RequestMessageFactory {
 
-    M toMessage(Object message);
+    private RequestMessageFactory() {
+    }
 
+    public static <T> RequestMessage<T> request(T message, int retryCount) {
+        return new RetryRequestMessage<T>(message, retryCount);
+    }
+
+    public static <T> RequestMessage<T> request(T message, FutureListener futureListener) {
+        return new ListenerableRequestMessage<T>(message, futureListener);
+    }
 
 }

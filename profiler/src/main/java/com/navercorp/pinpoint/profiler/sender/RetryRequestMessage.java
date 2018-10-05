@@ -16,35 +16,25 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+
 import com.navercorp.pinpoint.rpc.FutureListener;
-import org.apache.thrift.TBase;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ThriftRequestStatus implements RequestStatus<TBase<?, ?>> {
-
-    private final TBase<?, ?> message;
+public class RetryRequestMessage<T> implements RequestMessage<T> {
+    private final T message;
     private final int retryCount;
-    private final FutureListener futureListener;
 
 
-    public ThriftRequestStatus(TBase<?, ?> message, int retryCount) {
-        this(message, retryCount, null);
-    }
-
-    public ThriftRequestStatus(TBase<?, ?> message, FutureListener futureListener) {
-        this(message, 3, futureListener);
-    }
-
-    private ThriftRequestStatus(TBase<?, ?> message, int retryCount, FutureListener futureListener) {
+    RetryRequestMessage(T message, int retryCount) {
         this.message = message;
         this.retryCount = retryCount;
-        this.futureListener = futureListener;
     }
 
+
     @Override
-    public TBase<?, ?> getMessage() {
+    public T getMessage() {
         return message;
     }
 
@@ -55,6 +45,6 @@ public class ThriftRequestStatus implements RequestStatus<TBase<?, ?>> {
 
     @Override
     public FutureListener getFutureListener() {
-        return futureListener;
+        return null;
     }
 }

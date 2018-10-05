@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test;
 import com.google.common.base.Objects;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -786,7 +787,9 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     private TestTcpDataSender getTestTcpDataSender() {
         Injector injector = getInjector();
-        EnhancedDataSender dataSender = injector.getInstance(EnhancedDataSender.class);
+        TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {};
+        Key<EnhancedDataSender<Object>> dataSenderKey = Key.get(dataSenderTypeLiteral);
+        EnhancedDataSender dataSender = injector.getInstance(dataSenderKey);
         if (dataSender instanceof TestTcpDataSender) {
             return (TestTcpDataSender) dataSender;
         }
@@ -811,15 +814,6 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     private ServerMetaData getServerMetaData() {
         Injector injector = getInjector();
         return injector.getInstance(ServerMetaDataRegistryService.class).getServerMetaData();
-    }
-
-    private Object popSpan() {
-        final Item item = popItem();
-        if (item == null) {
-            return null;
-        }
-
-        return item.getValue();
     }
 
     private Item popItem() {

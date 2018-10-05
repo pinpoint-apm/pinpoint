@@ -18,12 +18,8 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
 import com.navercorp.pinpoint.rpc.client.DnsSocketAddressProvider;
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

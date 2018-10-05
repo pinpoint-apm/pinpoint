@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,14 @@ import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
 
     private final ProfilerConfig profilerConfig;
-    private final Provider<EnhancedDataSender> enhancedDataSenderProvider;
+    private final Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider;
     private final Provider<AgentInfoFactory> agentInfoFactoryProvider;
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     @Inject
     public AgentInfoSenderProvider(
             ProfilerConfig profilerConfig,
-            Provider<EnhancedDataSender> enhancedDataSenderProvider,
+            Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider,
             Provider<AgentInfoFactory> agentInfoFactoryProvider,
             ServerMetaDataRegistryService serverMetaDataRegistryService) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
