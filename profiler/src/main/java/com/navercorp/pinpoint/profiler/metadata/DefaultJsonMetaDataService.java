@@ -42,15 +42,15 @@ public class DefaultJsonMetaDataService implements JsonMetaDataService {
 
     private final String agentId;
     private final long agentStartTime;
-    private final EnhancedDataSender enhancedDataSender;
+    private final EnhancedDataSender<Object> enhancedDataSender;
 
     @Inject
     public DefaultJsonMetaDataService(ProfilerConfig profilerConfig, @AgentId String agentId,
-                                      @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
+                                      @AgentStartTime long agentStartTime, EnhancedDataSender<Object> enhancedDataSender) {
         this(agentId, agentStartTime, enhancedDataSender, profilerConfig.getJdbcSqlCacheSize());
     }
 
-    public DefaultJsonMetaDataService(String agentId, long agentStartTime, EnhancedDataSender enhancedDataSender, int jdbcJsonCacheSize) {
+    public DefaultJsonMetaDataService(String agentId, long agentStartTime, EnhancedDataSender<Object> enhancedDataSender, int jdbcJsonCacheSize) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

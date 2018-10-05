@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +30,19 @@ public class DefaultStringMetaDataServiceTest {
 
     @Test
     public void cacheString() throws Exception {
-        EnhancedDataSender dataSender = mock(EnhancedDataSender.class);
-        StringMetaDataService stringMetaDataService = new DefaultStringMetaDataService("agentId", System.currentTimeMillis(), dataSender);
+        EnhancedDataSender<Object> dataSender = mock(EnhancedDataSender.class);
+        StringMetaDataService stringMetaDataService = new DefaultStringMetaDataService(dataSender);
 
         String str = "test";
 
         int first = stringMetaDataService.cacheString(str);
 
         Assert.assertNotEquals("not exist", first, 0);
-        verify(dataSender, times(1)).request(any(TBase.class));
+        verify(dataSender, times(1)).request(any(StringMetaData.class));
 
         int second = stringMetaDataService.cacheString(str);
         Assert.assertEquals("check cache", first, second);
-        verify(dataSender, times(1)).request(any(TBase.class));
+        verify(dataSender, times(1)).request(any(StringMetaData.class));
     }
 
 }

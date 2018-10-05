@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import com.google.inject.TypeLiteral;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.plugin.ServerPluginLoader;
@@ -66,9 +67,10 @@ public class MockApplicationContextModule extends AbstractModule {
 
         bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
 
-        EnhancedDataSender enhancedDataSender = new TestTcpDataSender();
+        EnhancedDataSender<Object> enhancedDataSender = new TestTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        bind(EnhancedDataSender.class).toInstance(enhancedDataSender);
+        TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {};
+        bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
 
         ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
         bind(ServerMetaDataRegistryService.class).toInstance(serverMetaDataRegistryService);

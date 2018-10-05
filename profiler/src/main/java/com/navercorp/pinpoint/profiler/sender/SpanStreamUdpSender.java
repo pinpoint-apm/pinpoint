@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.sender;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.planer.SendDataPlaner;
 import com.navercorp.pinpoint.profiler.sender.planer.SpanChunkStreamSendDataPlaner;
 import com.navercorp.pinpoint.profiler.util.ByteBufferUtils;

@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
-import com.navercorp.pinpoint.profiler.context.storage.SpanThriftMessageConverter;
-import com.navercorp.pinpoint.profiler.context.storage.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.SpanThriftMessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import org.apache.thrift.TBase;
 
 import javax.inject.Inject;
@@ -35,7 +35,7 @@ import javax.inject.Provider;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ThriftMessageConverterProvider implements Provider<MessageConverter<TBase<?, ?>>> {
+public class SpanThriftMessageConverterProvider implements Provider<MessageConverter<TBase<?, ?>>> {
 
     private final String applicationName;
     private final String agentId;
@@ -45,9 +45,9 @@ public class ThriftMessageConverterProvider implements Provider<MessageConverter
     private final SpanPostProcessor<Context> spanPostProcessor;
 
     @Inject
-    public ThriftMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
-                                          @ApplicationServerType ServiceType applicationServiceType,
-                                          TransactionIdEncoder transactionIdEncoder, SpanPostProcessor<Context> spanPostProcessor) {
+    public SpanThriftMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
+                                              @ApplicationServerType ServiceType applicationServiceType,
+                                              TransactionIdEncoder transactionIdEncoder, SpanPostProcessor<Context> spanPostProcessor) {
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
         this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.agentStartTime = agentStartTime;
