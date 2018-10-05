@@ -1,12 +1,10 @@
 :host {
     display: block;
-}
-.l-chart-item {
     width: 152px;
     height: 84px;
-    margin: 5px;
+    margin: 0 15px 10px 0px;
 }
-.l-chart-item dt {
+dt {
     color: #fff;
     padding: 10px 20px 10px 2px;
     display: block;
@@ -24,7 +22,7 @@ i {
     cursor: pointer;
     margin-right: -16px;
 }
-.l-chart-item dd {
+dd {
     display: flex;
     flex-flow: row wrap;
     background: #fff;

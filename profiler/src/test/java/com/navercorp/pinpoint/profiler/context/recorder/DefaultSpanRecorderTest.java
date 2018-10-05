@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,10 +53,6 @@ public class DefaultSpanRecorderTest {
     @Mock
     private JsonMetaDataService jsonMetaDataService;
 
-    @Before
-    public void setUp() throws Exception {
-        Mockito.when(traceRoot.getTraceId()).thenReturn(traceId);
-    }
 
     @Test
     public void testRecordApiId() throws Exception {
@@ -82,7 +78,6 @@ public class DefaultSpanRecorderTest {
         final String endPoint = "endPoint";
         recorder.recordEndPoint(endPoint);
 
-        Assert.assertEquals(span.getEndPoint(), endPoint);
         verify(traceRoot.getShared()).setEndPoint(endPoint);
     }
 

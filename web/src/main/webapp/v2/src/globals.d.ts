@@ -322,3 +322,20 @@ interface ITimelineInfo {
     selectedTime: number;
     selectionRange: number[];
 }
+
+interface IServerErrorFormat {
+    exception: {
+        request: {
+            url: string;
+            method: string;
+            heads: {
+                [key: string]: string[];
+            },
+            parameters: {
+                [key: string]: string[];
+            }
+        },
+        stacktrace?: string;
+        message: string;
+    }
+}

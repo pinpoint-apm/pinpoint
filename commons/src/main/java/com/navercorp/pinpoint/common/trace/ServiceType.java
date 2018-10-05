@@ -162,7 +162,11 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9059</td><td>OK_HTTP_CLIENT_INTERNAL</td></tr>
  * <tr><td>9060</td><td><i>RESERVED</i></td></tr>
  * <tr><td>9070</td><td><i>RESERVED</i></td></tr>
- * <tr><td>9080</td><td><i>APACHE_CXF_CLIENT</i></td></tr>
+ * <tr><td><s>9080</s></td><td><s>APACHE_CXF_CLIENT</s></td></tr>
+ * <tr><td>9081</td><td>APACHE_CXF_SERVICE_INVOKER</td></tr>
+ * <tr><td>9082</td><td>APACHE_CXF_MESSAGE_SENDER</td></tr>
+ * <tr><td>9083</td><td>APACHE_CXF_LOGGING_IN</td></tr>
+ * <tr><td>9084</td><td>APACHE_CXF_LOGGING_OUT</td></tr>
  * <tr><td>9100</td><td>THRIFT_CLIENT</td></tr>
  * <tr><td>9101</td><td>THRIFT_CLIENT_INTERNAL</td></tr>
  * <tr><td>9110</td><td>DUBBO_CONSUMER</td></tr>

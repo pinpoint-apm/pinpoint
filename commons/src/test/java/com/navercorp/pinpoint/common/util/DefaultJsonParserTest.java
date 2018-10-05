@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,7 +39,7 @@ public class DefaultJsonParserTest {
         jsonParser.normalizeJson(null);
     }
 
-    @Test
+//    @Test
     public void indentCheck() {
 
         String test = "{\"collection\": {\"id\": [\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\"],\"passwordProtected\": false,\"typeLabel\": \"blog\"}}";
@@ -104,6 +104,7 @@ public class DefaultJsonParserTest {
         assertIndented(test3, result3);
         assertIndented(test4, result4);
     }
+
     private void assertIndented(String actual, String expected) {
         ObjectMapper mapper = new ObjectMapper();
         Object json;
@@ -115,7 +116,7 @@ public class DefaultJsonParserTest {
             json = mapper.readValue(actual, Object.class);
             indented = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
             //logger.warn("Indent Success = \n{} ", indented);
-        }catch(Exception e){
+        } catch (Exception e) {
             logger.warn("Indent failed Exception: ", e);
             indented = null;
         }
@@ -123,7 +124,7 @@ public class DefaultJsonParserTest {
         try {
             Assert.assertEquals("normalizeJson check", expected, indented);
         } catch (AssertionError e) {
-            logger.warn("Original :{}", expected);
+            logger.warn("Original :\n{}\n{}", expected, indented);
             throw e;
         }
     }
@@ -131,27 +132,26 @@ public class DefaultJsonParserTest {
 
     @Test
     public void nomalizeJson() {
-
-
         String test = "{\"items\" : [\n { \"title\" : \"First Item\", \n \"description\" : \"This is the first, item description.\" \n }, { \"title\" : \"Second Item\", \n \"description\" : \"This is the second item description.\" }]}";
         String testexpect = "{\"items\" : [\n { \"title\" : ?, \n \"description\" : ? \n }, { \"title\" : ?, \n \"description\" : ? }]}";
         String testparam = "\"First Item\",\"This is the first, item description.\",\"Second Item\",\"This is the second item description.\"";
 
-        assertEqual(test,testexpect,testparam);
+        assertEqual(test, testexpect, testparam);
 
 
         assertEqual("{ \"_id\" : { \"$oid\" : \"5b4efec5097684a1d1d5c658\" }, \"name\" : \"bsonDocument\", \"company\" : \"Naver\" }",
                 "{ \"_id\" : { \"$oid\" : ? }, \"name\" : ?, \"company\" : ? }", "\"5b4efec5097684a1d1d5c658\",\"bsonDocument\",\"Naver\"");
 
-        assertEqual( "{\"collection\": {\"id\": [\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\"],\"passwordProtected\": false,\"typeLabel\": \"blog\"}}"
-                 , "{\"collection\": {\"id\": [?,?,?,?,?],\"passwordProtected\": ?,\"typeLabel\": ?}}"
-                ,"\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\",false,\"blog\"");
+        assertEqual("{\"collection\": {\"id\": [\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\"],\"passwordProtected\": false,\"typeLabel\": \"blog\"}}"
+                , "{\"collection\": {\"id\": [?,?,?,?,?],\"passwordProtected\": ?,\"typeLabel\": ?}}"
+                , "\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\",false,\"blog\"");
 
-        assertEqual( "{\"collection\": {\"id\": \"5048fde7c4aa917cbd4d8e13\",\"websiteId\": \"50295e80e4b096e761d7e4d3\",\"enabled\": true,\"starred\": false,\"type\": 1,\"ordering\": 2,\"title\": \"Blog\",\"navigationTitle\": \"Blog\",\"urlId\": \"blog\",\"itemCount\": 2,\"updatedOn\": 1454432700858,\"pageSize\": 20,\"folder\": false,\"dropdown\": false,\"tags\": [\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\"],\"categories\": [\"category1\",\"category2\"],\"homepage\": false,\"typeName\": \"blog\",\"synchronizing\": false,\"fullUrl\": \"/blog/\",\"passwordProtected\": false,\"typeLabel\": \"blog\"}}"
-        , "{\"collection\": {\"id\": ?,\"websiteId\": ?,\"enabled\": ?,\"starred\": ?,\"type\": ?,\"ordering\": ?,\"title\": ?,\"navigationTitle\": ?,\"urlId\": ?,\"itemCount\": ?,\"updatedOn\": ?,\"pageSize\": ?,\"folder\": ?,\"dropdown\": ?,\"tags\": [?,?,?,?,?],\"categories\": [?,?],\"homepage\": ?,\"typeName\": ?,\"synchronizing\": ?,\"fullUrl\": ?,\"passwordProtected\": ?,\"typeLabel\": ?}}"
-        ,"\"5048fde7c4aa917cbd4d8e13\",\"50295e80e4b096e761d7e4d3\",true,false,1,2,\"Blog\",\"Blog\",\"blog\",2,1454432700858,20,false,false,\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\",\"category1\",\"category2\",false,\"blog\",false,\"/blog/\",false,\"blog\"");
+        assertEqual("{\"collection\": {\"id\": \"5048fde7c4aa917cbd4d8e13\",\"websiteId\": \"50295e80e4b096e761d7e4d3\",\"enabled\": true,\"starred\": false,\"type\": 1,\"ordering\": 2,\"title\": \"Blog\",\"navigationTitle\": \"Blog\",\"urlId\": \"blog\",\"itemCount\": 2,\"updatedOn\": 1454432700858,\"pageSize\": 20,\"folder\": false,\"dropdown\": false,\"tags\": [\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\"],\"categories\": [\"category1\",\"category2\"],\"homepage\": false,\"typeName\": \"blog\",\"synchronizing\": false,\"fullUrl\": \"/blog/\",\"passwordProtected\": false,\"typeLabel\": \"blog\"}}"
+                , "{\"collection\": {\"id\": ?,\"websiteId\": ?,\"enabled\": ?,\"starred\": ?,\"type\": ?,\"ordering\": ?,\"title\": ?,\"navigationTitle\": ?,\"urlId\": ?,\"itemCount\": ?,\"updatedOn\": ?,\"pageSize\": ?,\"folder\": ?,\"dropdown\": ?,\"tags\": [?,?,?,?,?],\"categories\": [?,?],\"homepage\": ?,\"typeName\": ?,\"synchronizing\": ?,\"fullUrl\": ?,\"passwordProtected\": ?,\"typeLabel\": ?}}"
+                , "\"5048fde7c4aa917cbd4d8e13\",\"50295e80e4b096e761d7e4d3\",true,false,1,2,\"Blog\",\"Blog\",\"blog\",2,1454432700858,20,false,false,\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\",\"category1\",\"category2\",false,\"blog\",false,\"/blog/\",false,\"blog\"");
 
     }
+
     private void assertEqual(String actual, String expected, String outputExpected) {
         NormalizedJson parsingResult = jsonParser.normalizeJson(actual);
         String normalizeJson = parsingResult.getNormalizedJson();
@@ -180,9 +180,9 @@ public class DefaultJsonParserTest {
         assertCombine("{ \"_id\" : { \"$oid\" : \"5b4efec5097684a1d1d5c658\" }, \"name\" : \"bsonDocument\", \"company\" : \"Naver\" }",
                 "{ \"_id\" : { \"$oid\" : ? }, \"name\" : ?, \"company\" : ? }", "\"5b4efec5097684a1d1d5c658\",\"bsonDocument\",\"Naver\"");
 
-        assertCombine( "{\"collection\": {\"id\": [\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\"],\"passwordProtected\": false,\"typeLabel\": \"blog\"}}"
+        assertCombine("{\"collection\": {\"id\": [\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\"],\"passwordProtected\": false,\"typeLabel\": \"blog\"}}"
                 , "{\"collection\": {\"id\": [?,?,?,?,?],\"passwordProtected\": ?,\"typeLabel\": ?}}"
-                ,"\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\",false,\"blog\"");
+                , "\"tag1\",\"pizza\",\"coffee\",\"snacks\",\"tag2\",false,\"blog\"");
 
     }
 

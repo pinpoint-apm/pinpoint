@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,19 +32,19 @@ public class DefaultApiMetaDataServiceTest {
 
     @Test
     public void cacheApi() throws Exception {
-        EnhancedDataSender dataSender = mock(EnhancedDataSender.class);
-        ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService("agentId", System.currentTimeMillis(), dataSender);
+        EnhancedDataSender<Object> dataSender = mock(EnhancedDataSender.class);
+        ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService(dataSender);
 
         MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method", null, null);
 
         int first = apiMetaDataService.cacheApi(methodDescriptor);
 
         Assert.assertNotEquals("not exist", first, 0);
-        verify(dataSender, times(1)).request(any(TBase.class));
+        verify(dataSender, times(1)).request(any(ApiMetaData.class));
 
         int second = apiMetaDataService.cacheApi(methodDescriptor);
         Assert.assertEquals("check cache", first, second);
-        verify(dataSender, times(1)).request(any(TBase.class));
+        verify(dataSender, times(1)).request(any(ApiMetaData.class));
     }
 
 }

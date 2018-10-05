@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
-import com.navercorp.pinpoint.bootstrap.context.SpanId;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Span represent RPC
@@ -32,34 +30,129 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
  * @author netspider
  * @author emeroad
  */
-public class Span extends TSpan implements FrameAttachment {
+public class Span extends DefaultFrameAttachment {
     private boolean timeRecording = true;
-    private Object frameObject;
 
     private final TraceRoot traceRoot;
+
+    private long startTime; // required
+    private int elapsedTime; // optional
+
+    private int apiId; // optional
+    private short serviceType; // required
+
+    private List<Annotation> annotations; // optional
+    private List<SpanEvent> spanEventList; // optional
+
+    private String remoteAddr; // optional
+
+    private String parentApplicationName; // optional
+    private short parentApplicationType; // optional
+    private String acceptorHost; // optional
+
+    private IntStringValue exceptionInfo; // optional
+
 
     public Span(final TraceRoot traceRoot) {
         if (traceRoot == null) {
             throw new NullPointerException("traceRoot must not be null");
         }
         this.traceRoot = traceRoot;
-
-        final TraceId traceId = traceRoot.getTraceId();
-        this.setSpanId(traceId.getSpanId());
-        final long parentSpanId = traceId.getParentSpanId();
-        if (parentSpanId != SpanId.NULL) {
-            this.setParentSpanId(parentSpanId);
-        }
-        this.setFlag(traceId.getFlags());
     }
 
     public TraceRoot getTraceRoot() {
         return traceRoot;
     }
 
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public int getElapsedTime() {
+        return elapsedTime;
+    }
+
+    public void setElapsedTime(int elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
+
+    public short getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(short serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
+    }
+
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+
+    public List<SpanEvent> getSpanEventList() {
+        return spanEventList;
+    }
+
+    public void setSpanEventList(List<SpanEvent> spanEventList) {
+        this.spanEventList = spanEventList;
+    }
+
+    public String getParentApplicationName() {
+        return parentApplicationName;
+    }
+
+    public void setParentApplicationName(String parentApplicationName) {
+        this.parentApplicationName = parentApplicationName;
+    }
+
+    public short getParentApplicationType() {
+        return parentApplicationType;
+    }
+
+    public void setParentApplicationType(short parentApplicationType) {
+        this.parentApplicationType = parentApplicationType;
+    }
+
+    public String getAcceptorHost() {
+        return acceptorHost;
+    }
+
+    public void setAcceptorHost(String acceptorHost) {
+        this.acceptorHost = acceptorHost;
+    }
+
+    public int getApiId() {
+        return apiId;
+    }
+
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
+    }
+
+    public IntStringValue getExceptionInfo() {
+        return exceptionInfo;
+    }
+
+    public void setExceptionInfo(IntStringValue exceptionInfo) {
+        this.exceptionInfo = exceptionInfo;
+    }
+
     public void markBeforeTime() {
         final long spanStartTime = traceRoot.getTraceStartTime();
         this.setStartTime(spanStartTime);
+    }
+
+    public void setStartTime(long spanStartTime) {
+        this.startTime = spanStartTime;
     }
 
     public void markAfterTime() {
@@ -68,41 +161,21 @@ public class Span extends TSpan implements FrameAttachment {
 
     public void markAfterTime(long currentTime) {
         final int after = (int)(currentTime - this.getStartTime());
-
-        // TODO  have to change int to long
-        if (after != 0) {
-            this.setElapsed(after);
-        }
+        this.setElapsedTime(after);
     }
-
-    public long getAfterTime() {
-        return this.getStartTime() + this.getElapsed();
-    }
-
 
     public void addAnnotation(Annotation annotation) {
-        this.addToAnnotations(annotation);
+        if (this.annotations == null) {
+            this.annotations = new ArrayList<Annotation>();
+        }
+        this.annotations.add(annotation);
     }
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
-        final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
-        if (StringUtils.hasLength(exceptionMessage)) {
-            exceptionInfo.setStringValue(exceptionMessage);
-        }
-        super.setExceptionInfo(exceptionInfo);
+        final IntStringValue exceptionInfo = new IntStringValue(exceptionClassId, exceptionMessage);
+        this.setExceptionInfo(exceptionInfo);
     }
 
-    public boolean isSetErrCode() {
-        return isSetErr();
-    }
-
-    public int getErrCode() {
-        return getErr();
-    }
-
-    public void setErrCode(int exception) {
-        super.setErr(exception);
-    }
 
     public boolean isTimeRecording() {
         return timeRecording;
@@ -112,35 +185,35 @@ public class Span extends TSpan implements FrameAttachment {
         this.timeRecording = timeRecording;
     }
 
-    @Override
-    public Object attachFrameObject(Object attachObject) {
-        final Object before = this.frameObject;
-        this.frameObject = attachObject;
-        return before;
-    }
-
-    @Override
-    public Object getFrameObject() {
-        return this.frameObject;
-    }
-
-    @Override
-    public Object detachFrameObject() {
-        final Object delete = this.frameObject;
-        this.frameObject = null;
-        return delete;
-    }
-
     public void finish() {
         // snapshot last image
         final Shared shared = traceRoot.getShared();
-        final int errorCode = shared.getErrorCode();
-        this.setErrCode(errorCode);
         if (shared.getStatusCode() != 0) {
-            this.addAnnotation(new Annotation(AnnotationKey.HTTP_STATUS_CODE.getCode(), shared.getStatusCode()));
+            Annotation annotation = new Annotation(AnnotationKey.HTTP_STATUS_CODE.getCode(), shared.getStatusCode());
+            this.addAnnotation(annotation);
         }
+    }
 
-        final byte loggingInfo = shared.getLoggingInfo();
-        this.setLoggingTransactionInfo(loggingInfo);
+    public void clear() {
+
+    }
+
+    @Override
+    public String toString() {
+        return "Span{" +
+                "timeRecording=" + timeRecording +
+                ", traceRoot=" + traceRoot +
+                ", startTime=" + startTime +
+                ", elapsed=" + elapsedTime +
+                ", serviceType=" + serviceType +
+                ", remoteAddr='" + remoteAddr + '\'' +
+                ", annotations=" + annotations +
+                ", spanEventList=" + spanEventList +
+                ", parentApplicationName='" + parentApplicationName + '\'' +
+                ", parentApplicationType=" + parentApplicationType +
+                ", acceptorHost='" + acceptorHost + '\'' +
+                ", apiId=" + apiId +
+                ", exceptionInfo=" + exceptionInfo +
+                "} " + super.toString();
     }
 }

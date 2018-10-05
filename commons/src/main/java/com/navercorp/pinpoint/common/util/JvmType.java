@@ -23,7 +23,9 @@ import java.util.EnumSet;
  */
 public enum JvmType {
     UNKNOWN(null),
-    IBM("IBM"),
+    // ibm-j9 java.vm.name=IBM J9 VM;
+    // openj9 java.vm.name=Eclipse OpenJ9 VM
+    IBM("J9"),
     OPENJDK("OpenJDK"),
     ORACLE("HotSpot");
 

@@ -12,6 +12,7 @@ import { ServerMapDataService } from './server-map-data.service';
 import { ServerMapForFilteredMapDataService } from './server-map-for-filtered-map-data.service';
 import { LinkContextPopupModule } from 'app/core/components/link-context-popup';
 import { ServerMapContextPopupModule } from 'app/core/components/server-map-context-popup';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -24,6 +25,7 @@ import { ServerMapContextPopupModule } from 'app/core/components/server-map-cont
     ],
     imports: [
         SharedModule,
+        ServerErrorPopupModule,
         LinkContextPopupModule,
         ServerMapContextPopupModule
     ],

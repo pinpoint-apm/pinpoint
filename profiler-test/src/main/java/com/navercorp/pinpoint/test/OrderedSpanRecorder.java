@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,130 +22,67 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.apache.thrift.TBase;
-
+import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+
 
 /**
  * @author Jongho Moon
  */
-public class OrderedSpanRecorder implements ListenableDataSender.Listener, Iterable<TBase<?, ?>> {
-    private static final int ROOT_SEQUENCE = -1;
-    private static final int ASYNC_ID_NOT_SET = -1;
-    private static final int ASYNC_SEQUENCE_NOT_SET = -1;
+public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object>, Iterable<Object> {
+    public static final int ROOT_SEQUENCE = -1;
+    public static final int ASYNC_ID_NOT_SET = -1;
+    public static final int ASYNC_SEQUENCE_NOT_SET = -1;
 
     private final List<Item> list = new ArrayList<Item>();
 
-    private static final class Item implements Comparable<Item> {
-
-        private final TBase<?, ?> value;
-        private final long time;
-        private final long spanId;
-        private final int sequence;
-        private final int asyncId;
-        private final int asyncSequence;
-
-        public Item(TBase<?, ?> value, long time, long spanId, int sequence) {
-            this(value, time, spanId, sequence, ASYNC_ID_NOT_SET, ASYNC_SEQUENCE_NOT_SET);
-        }
-
-        public Item(TBase<?, ?> value, long time, long spanId, int sequence, int asyncId, int asyncSequence) {
-            this.value = value;
-            this.time = time;
-            this.spanId = spanId;
-            this.sequence = sequence;
-            this.asyncId = asyncId;
-            this.asyncSequence = asyncSequence;
-        }
-
-        @Override
-        public int compareTo(Item o) {
-            if (this.asyncId == ASYNC_ID_NOT_SET && o.asyncId == ASYNC_ID_NOT_SET) {
-                return compareItems(this, o);
-            } else if (this.asyncId != ASYNC_ID_NOT_SET && o.asyncId != ASYNC_ID_NOT_SET) {
-                return compareAsyncItems(this, o);
-            } else {
-                if (this.asyncId == ASYNC_ID_NOT_SET) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        }
-
-        private static int compareItems(Item lhs, Item rhs) {
-            if (lhs.time < rhs.time) {
-                return -1;
-            } else if (lhs.time > rhs.time) {
-                return 1;
-            } else {
-                if (lhs.spanId < rhs.spanId) {
-                    return -1;
-                } else if (lhs.spanId > rhs.spanId) {
-                    return 1;
-                } else {
-                    if (lhs.sequence < rhs.sequence) {
-                        return -1;
-                    } else if (lhs.sequence > rhs.sequence) {
-                        return 1;
-                    } else {
-                        return compareHashes(lhs, rhs);
-                    }
-                }
-            }
-        }
-
-        private static int compareAsyncItems(Item lhs, Item rhs) {
-            if (lhs.asyncId < rhs.asyncId) {
-                return -1;
-            } else if (lhs.asyncId > rhs.asyncId) {
-                return 1;
-            } else {
-                if (lhs.asyncSequence < rhs.asyncSequence) {
-                    return -1;
-                } else if (lhs.asyncSequence > rhs.asyncSequence) {
-                    return 1;
-                } else {
-                    if (lhs.sequence < rhs.sequence) {
-                        return -1;
-                    } else if (lhs.sequence > rhs.sequence) {
-                        return 1;
-                    } else {
-                        return compareHashes(lhs, rhs);
-                    }
-                }
-            }
-        }
-
-        private static int compareHashes(Item lhs, Item rhs) {
-            int h1 = System.identityHashCode(lhs.value);
-            int h2 = System.identityHashCode(rhs.value);
-
-            return h1 < h2 ? -1 : (h1 > h2 ? 1 : 0);
-        }
+    public OrderedSpanRecorder() {
     }
 
+
     @Override
-    public synchronized boolean handleSend(TBase<?, ?> data) {
+    public synchronized boolean handleSend(Object data) {
+
         if (data instanceof Span) {
             insertSpan((Span) data);
             return true;
-        } else if (data instanceof SpanEvent) {
-            handleSpanEvent((SpanEvent) data);
+        }
+        if (data instanceof SpanChunk) {
+            handleSpanEvent((SpanChunk) data);
             return true;
         }
-
+//        throw new IllegalStateException("unknown data type:" + data);
         return false;
+    }
+
+    public synchronized Span findTSpan(long spanId) {
+        Span tSpan = null;
+        for (Item item : list) {
+            final Object value = item.getValue();
+            if (value instanceof Span) {
+                if (tSpan != null) {
+                    throw new IllegalStateException("duplicate span found " + list);
+                }
+                final Span span = (Span) value;
+                if (span.getTraceRoot().getTraceId().getSpanId() == spanId) {
+                    tSpan = span;
+                }
+            }
+        }
+        if (tSpan == null) {
+            throw new IllegalStateException("tSpan not found " + list);
+        }
+        return tSpan;
     }
 
     private void insertSpan(Span span) {
         long startTime = span.getStartTime();
-        long spanId = span.getSpanId();
+        long spanId = span.getTraceRoot().getTraceId().getSpanId();
 
-        insertItem(new Item(span, startTime, spanId, ROOT_SEQUENCE));
+        Item item = new Item(span, startTime, spanId, ROOT_SEQUENCE);
+        insertItem(item);
     }
 
     private void insertItem(Item item) {
@@ -159,26 +96,47 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         list.add(index, item);
     }
 
-    private void handleSpanEvent(SpanEvent event) {
-        TraceRoot span = event.getTraceRoot();
-        int asyncId = event.isSetAsyncId() ? event.getAsyncId() : ASYNC_ID_NOT_SET;
-        TraceId traceId = span.getTraceId();
-        int asyncSequence = event.isSetAsyncSequence() ? event.getAsyncSequence() : ASYNC_SEQUENCE_NOT_SET;
-        insertItem(new Item(event, span.getTraceStartTime() + event.getStartElapsed(), traceId.getSpanId(), event.getSequence(), asyncId, asyncSequence));
+    private void handleSpanEvent(SpanChunk spanChunk) {
+        List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
+        for (SpanEvent event : spanEventList) {
+            final LocalAsyncId localAsyncId = event.getLocalAsyncId();
+            int asyncId = ASYNC_ID_NOT_SET;
+            int asyncSequence = ASYNC_SEQUENCE_NOT_SET;
+            if (localAsyncId != null) {
+                asyncId = localAsyncId.getAsyncId();
+                asyncSequence = localAsyncId.getSequence();
+            }
+
+            long startTime = event.getStartTime();
+            long spanId = spanChunk.getTraceRoot().getTraceId().getSpanId();
+            Item item = new Item(event, startTime, spanId, event.getSequence(), asyncId, asyncSequence);
+            insertItem(item);
+        }
     }
 
-    public synchronized TBase<?, ?> pop() {
+    public synchronized Object pop() {
+        final Item item = popItem();
+        if (item == null) {
+            return null;
+        }
+        return item.getValue();
+    }
+
+    public synchronized Item popItem() {
         if (list.isEmpty()) {
             return null;
         }
 
-        return list.remove(0).value;
+        return list.remove(0);
     }
 
     public synchronized void print(PrintStream out) {
         out.println("TRACES(" + list.size() + "):");
 
-        for (TBase<?, ?> obj : this) {
+        for (Item item : list) {
+            out.println(item);
+        }
+        for (Object obj : this) {
             out.println(obj);
         }
     }
@@ -192,11 +150,11 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
     }
 
     @Override
-    public synchronized Iterator<TBase<?, ?>> iterator() {
+    public synchronized Iterator<Object> iterator() {
         return new RecorderIterator();
     }
 
-    private final class RecorderIterator implements Iterator<TBase<?, ?>> {
+    private final class RecorderIterator implements Iterator<Object> {
         private int current = -1;
         private int index = 0;
 
@@ -208,11 +166,12 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         }
 
         @Override
-        public TBase<?, ?> next() {
+        public Object next() {
             synchronized (OrderedSpanRecorder.this) {
                 current = index;
                 index++;
-                return list.get(current).value;
+                Item item = list.get(current);
+                return item.getValue();
             }
         }
 

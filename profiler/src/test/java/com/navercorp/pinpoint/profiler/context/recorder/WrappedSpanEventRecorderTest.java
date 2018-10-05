@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,8 +59,8 @@ public class WrappedSpanEventRecorderTest {
     public void testSetExceptionInfo_RootMarkError() throws Exception {
         when(traceRoot.getShared()).thenReturn(shared);
 
-        SpanEvent spanEvent = new SpanEvent(traceRoot);
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, jsonMetaDataService, null);
+        SpanEvent spanEvent = new SpanEvent();
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, jsonMetaDataService, null);
         recorder.setWrapped(spanEvent);
 
         final String exceptionMessage1 = "exceptionMessage1";
@@ -81,8 +81,8 @@ public class WrappedSpanEventRecorderTest {
 
     @Test
     public void testRecordAPIId() throws Exception {
-        SpanEvent spanEvent = new SpanEvent(traceRoot);
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, jsonMetaDataService, null);
+        SpanEvent spanEvent = new SpanEvent();
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, jsonMetaDataService, null);
         recorder.setWrapped(spanEvent);
 
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context;
 
 import static org.junit.Assert.*;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,37 +32,30 @@ public abstract class CallStackTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    protected CallStack.Factory<SpanEvent> factory = new SpanEventFactory();
 
-    abstract CallStack newCallStack();
-    abstract CallStack newCallStack(int depth);
+    abstract CallStack<SpanEvent> newCallStack();
+    abstract CallStack<SpanEvent> newCallStack(int depth);
 
-
-    abstract TraceRoot getLocalTraceId();
-    abstract SpanEvent getSpanEvent();
-
-
-    private SpanEvent createSpanEventStackFrame(TraceRoot traceRoot) {
-        SpanEvent spanEvent = new SpanEvent(traceRoot);
-        return spanEvent;
+    public SpanEvent getSpanEvent() {
+        return factory.newInstance();
     }
 
     @Test
     public void testPush() throws Exception {
-        CallStack callStack = newCallStack();
+        CallStack<SpanEvent> callStack = newCallStack();
         int initialIndex = callStack.getIndex();
         assertEquals("initial index", initialIndex, 0);
-        SpanEvent spanEvent = createSpanEventStackFrame(getLocalTraceId());
+        SpanEvent spanEvent = factory.newInstance();
         int index = callStack.push(spanEvent);
         assertEquals("initial index", index, 1);
         callStack.pop();
     }
 
 
-
-
     @Test
     public void testLargePush() {
-        CallStack callStack = newCallStack();
+        CallStack<SpanEvent> callStack = newCallStack();
         int initialIndex = callStack.getIndex();
         Assert.assertEquals("initial index", initialIndex, 0);
 
@@ -82,7 +74,7 @@ public abstract class CallStackTest {
 
     @Test
     public void testPushPop1() {
-        CallStack callStack = newCallStack();
+        CallStack<SpanEvent> callStack = newCallStack();
 
         callStack.push(getSpanEvent());
         callStack.pop();
@@ -90,7 +82,7 @@ public abstract class CallStackTest {
 
     @Test
     public void testPushPop2() {
-        CallStack callStack = newCallStack();
+        CallStack<SpanEvent> callStack = newCallStack();
 
         callStack.push(getSpanEvent());
         callStack.push(getSpanEvent());
@@ -101,7 +93,7 @@ public abstract class CallStackTest {
 
     @Test
     public void testPop_Fail() {
-        CallStack callStack = newCallStack();
+        CallStack<SpanEvent> callStack = newCallStack();
 
         callStack.push(getSpanEvent());
         callStack.push(getSpanEvent());
@@ -115,7 +107,7 @@ public abstract class CallStackTest {
     public void overflow() {
         final int maxDepth = 3;
 
-        DefaultCallStack callStack = (DefaultCallStack) newCallStack(maxDepth);
+        DefaultCallStack<SpanEvent> callStack = (DefaultCallStack<SpanEvent>) newCallStack(maxDepth);
         assertEquals(maxDepth, callStack.getMaxDepth());
 
         for(int i = 0; i < maxDepth; i++) {

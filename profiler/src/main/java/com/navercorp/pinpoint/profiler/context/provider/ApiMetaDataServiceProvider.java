@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,23 +28,20 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
  * @author Woonduk Kang(emeroad)
  */
 public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> {
-    private final String agentId;
-    private final long agentStartTime;
-    private final Provider<EnhancedDataSender> enhancedDataSenderProvider;
+
+    private final Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider;
 
     @Inject
-    public ApiMetaDataServiceProvider(@AgentId String agentId, @AgentStartTime long agentStartTime, Provider<EnhancedDataSender> enhancedDataSenderProvider) {
+    public ApiMetaDataServiceProvider(Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider) {
         if (enhancedDataSenderProvider == null) {
             throw new NullPointerException("enhancedDataSenderProvider must not be null");
         }
-        this.agentId = agentId;
-        this.agentStartTime = agentStartTime;
         this.enhancedDataSenderProvider = enhancedDataSenderProvider;
     }
 
     @Override
     public ApiMetaDataService get() {
-        final EnhancedDataSender enhancedDataSender = this.enhancedDataSenderProvider.get();
-        return new DefaultApiMetaDataService(agentId, agentStartTime, enhancedDataSender);
+        final EnhancedDataSender<Object> enhancedDataSender = this.enhancedDataSenderProvider.get();
+        return new DefaultApiMetaDataService(enhancedDataSender);
     }
 }
