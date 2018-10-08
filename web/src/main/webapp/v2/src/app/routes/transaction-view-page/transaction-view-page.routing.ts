@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { TransactionViewTopContentsContainerComponent } from 'app/core/components/transaction-view-top-contents/transaction-view-top-contents-container.component';
-import { TransactionViewBottomContentsContainerComponent } from 'app/core/components/transaction-view-bottom-contents/transaction-view-bottom-contents-container.component';
 import { SystemConfigurationResolverService, ApplicationListResolverService } from 'app/shared/services';
 import { TransactionViewPageComponent } from './transaction-view-page.component';
 
@@ -42,11 +41,6 @@ export const routing: Routes = [
                     {
                         path: '',
                         component: TransactionViewTopContentsContainerComponent
-                    },
-                    {
-                        path: '',
-                        component: TransactionViewBottomContentsContainerComponent,
-                        outlet: 'transaction-view-detail'
                     }
                 ]
             }

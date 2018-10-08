@@ -3,7 +3,6 @@ import { Routes } from '@angular/router';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { TransactionListEmptyComponent } from './transaction-list-empty.component';
 import { TransactionListBottomContentsContainerComponent } from 'app/core/components/transaction-list-bottom-contents/transaction-list-bottom-contents-container.component';
-import { TransactionTableGridContainerComponent } from 'app/core/components/transaction-table-grid/transaction-table-grid-container.component';
 import { SystemConfigurationResolverService, ApplicationListResolverService } from 'app/shared/services';
 import { TransactionListPageComponent } from './transaction-list-page.component';
 
@@ -39,11 +38,6 @@ export const routing: Routes = [
                     {
                         path: '',
                         component: TransactionListEmptyComponent
-                    },
-                    {
-                        path: '',
-                        component: TransactionTableGridContainerComponent,
-                        outlet: 'transaction-table'
                     },
                     {
                         path: ':' + UrlPathId.TRANSACTION_INFO,

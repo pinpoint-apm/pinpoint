@@ -2,8 +2,6 @@
 import { Routes } from '@angular/router';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { MainContentsContainerComponent } from 'app/core/components/main-contents/main-contents-container.component';
-import { SideBarContainerComponent } from 'app/core/components/side-bar/side-bar-container.component';
-import { RealTimeContainerComponent } from 'app/core/components/real-time/real-time-container.component';
 import { EmptyContentsComponent, NoneComponent } from 'app/shared/components/empty-contents';
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector';
 // import { UrlValidateGuard } from 'app/shared/services';
@@ -29,11 +27,6 @@ export const routing: Routes = [
                 },
             },
             {
-                path: '',
-                component: SideBarContainerComponent,
-                outlet: 'sidebar'
-            },
-            {
                 path: ':' + UrlPathId.APPLICATION,
                 children: [
                     {
@@ -56,11 +49,6 @@ export const routing: Routes = [
                                     showRealTimeButton: true,
                                     enableRealTimeMode: true
                                 }
-                            },
-                            {
-                                path: '',
-                                component: RealTimeContainerComponent,
-                                outlet: 'realtime'
                             }
                         ]
                     },

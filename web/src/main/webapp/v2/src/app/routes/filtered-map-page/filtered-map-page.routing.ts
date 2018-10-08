@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { FilteredMapContentsContainerComponent } from 'app/core/components/filtered-map-contents/filtered-map-contents-container.component';
-import { SideBarForFilteredMapContainerComponent } from 'app/core/components/side-bar/side-bar-for-filtered-map-container.component';
 // import { NoneComponent } from 'app/shared/components/empty-contents';
 import { SystemConfigurationResolverService, ApplicationListResolverService } from 'app/shared/services';
 // import { UrlValidateGuard } from 'app/shared/services';
@@ -43,11 +42,6 @@ export const routing: Routes = [
                     {
                         path: '',
                         component: FilteredMapContentsContainerComponent
-                    },
-                    {
-                        path: '',
-                        component: SideBarForFilteredMapContainerComponent,
-                        outlet: 'sidebar'
                     },
                     {
                         path: ':' + UrlPathId.FILTER,
