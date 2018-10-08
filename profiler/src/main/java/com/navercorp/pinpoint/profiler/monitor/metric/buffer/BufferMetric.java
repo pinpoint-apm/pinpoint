@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.directbuffer;
+package com.navercorp.pinpoint.profiler.monitor.metric.buffer;
 
 /**
  * @author Roy Kim
  */
-public interface DirectBufferMetric {
+public interface BufferMetric {
 
     long UNCOLLECTED_VALUE = -1L;
 
-    DirectBufferMetric UNSUPPORTED_DIRECT_BUFFER_METRIC = new DirectBufferMetric() {
+    BufferMetric UNSUPPORTED_BUFFER_METRIC = new BufferMetric() {
 
-        private final DirectBufferMetricSnapshot uncollectedSnapshot = new DirectBufferMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
+        private final BufferMetricSnapshot uncollectedSnapshot = new BufferMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
 
         @Override
-        public DirectBufferMetricSnapshot getSnapshot() {
+        public BufferMetricSnapshot getSnapshot() {
             return uncollectedSnapshot;
         }
 
         @Override
         public String toString() {
-            return "Unsupported DirectBufferMetric";
+            return "Unsupported BufferMetric";
         }
     };
 
-    DirectBufferMetricSnapshot getSnapshot();
+    BufferMetricSnapshot getSnapshot();
 }
