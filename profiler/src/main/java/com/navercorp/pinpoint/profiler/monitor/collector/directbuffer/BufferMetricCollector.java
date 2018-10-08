@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,20 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.directbuffer;
 
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
 
 /**
  * @author Roy Kim
  */
-public class UnsupportedDirectBufferMetricCollector implements DirectBufferMetricCollector {
-
-    @Override
-    public TDirectBuffer collect() {
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return "UnsupportedDirectBufferMetricCollector";
-    }
+public interface BufferMetricCollector extends AgentStatMetricCollector<TDirectBuffer> {
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.collector.directbuffer;
-
-import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
-import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
+package com.navercorp.pinpoint.profiler.monitor.metric.directbuffer;
 
 /**
- * @author Roy Kim
+ * @author Roy kim
  */
-public interface DirectBufferMetricCollector extends AgentStatMetricCollector<TDirectBuffer> {
+public enum BufferType {
+    DIRECT("direct"),
+    MAPPED("mapped");
+
+    private final String name;
+
+
+    BufferType(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

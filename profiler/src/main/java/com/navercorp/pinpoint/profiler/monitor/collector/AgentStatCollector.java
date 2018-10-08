@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTrac
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.deadlock.DeadlockMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.directbuffer.DirectBufferMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.directbuffer.BufferMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.FileDescriptorMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.response.ResponseTimeMetricCollector;
@@ -45,7 +45,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
     private final ResponseTimeMetricCollector responseTimeMetricCollector;
     private final DeadlockMetricCollector deadlockMetricCollector;
     private final FileDescriptorMetricCollector fileDescriptorMetricCollector;
-    private final DirectBufferMetricCollector directBufferMetricCollector;
+    private final BufferMetricCollector bufferMetricCollector;
 
     @Inject
     public AgentStatCollector(
@@ -59,7 +59,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
             ResponseTimeMetricCollector responseTimeMetricCollector,
             DeadlockMetricCollector deadlockMetricCollector,
             FileDescriptorMetricCollector fileDescriptorMetricCollector,
-            DirectBufferMetricCollector directBufferMetricCollector) {
+            BufferMetricCollector bufferMetricCollector) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -87,8 +87,8 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         if (fileDescriptorMetricCollector == null) {
             throw new NullPointerException("fileDescriptorMetricCollector may not be null");
         }
-        if (directBufferMetricCollector == null) {
-            throw new NullPointerException("directBufferMetricCollector may not be null");
+        if (bufferMetricCollector == null) {
+            throw new NullPointerException("bufferMetricCollector may not be null");
         }
 
         this.agentId = agentId;
@@ -101,7 +101,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         this.responseTimeMetricCollector = responseTimeMetricCollector;
         this.deadlockMetricCollector = deadlockMetricCollector;
         this.fileDescriptorMetricCollector = fileDescriptorMetricCollector;
-        this.directBufferMetricCollector = directBufferMetricCollector;
+        this.bufferMetricCollector = bufferMetricCollector;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         agentStat.setResponseTime(responseTimeMetricCollector.collect());
         agentStat.setDeadlock(deadlockMetricCollector.collect());
         agentStat.setFileDescriptor(fileDescriptorMetricCollector.collect());
-        agentStat.setDirectBuffer(directBufferMetricCollector.collect());
+        agentStat.setDirectBuffer(bufferMetricCollector.collect());
 
         return agentStat;
     }
@@ -135,7 +135,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         sb.append(", responseTimeMetricCollector=").append(responseTimeMetricCollector);
         sb.append(", deadlockMetricCollector=").append(deadlockMetricCollector);
         sb.append(", fileDescriptorMetricCollector=").append(fileDescriptorMetricCollector);
-        sb.append(", directBufferMetricCollector=").append(directBufferMetricCollector);
+        sb.append(", bufferMetricCollector=").append(bufferMetricCollector);
         sb.append('}');
         return sb.toString();
     }
