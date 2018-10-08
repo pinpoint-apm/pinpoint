@@ -16,11 +16,15 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.shaded.org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.hadoop.hbase.shaded.org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -46,8 +50,26 @@ public class PooledHTableFactory implements TableFactory, DisposableBean {
         this.executor = Objects.requireNonNull(executor, "executor must not be null");
 
         try {
+            String authEnable = config.get("hbase.kerberos.auth");
+            if (!StringUtils.isEmpty(authEnable) && Boolean.parseBoolean(authEnable)){
+                if (StringUtils.isEmpty(config.get("hbase.kerberos.keytab.path"))){
+                    throw new KerberosException(ErrorType.KDC_ERR_NONE);
+                }
+                System.out.println("hbase.kerberos.keytab.path:"+config.get("hbase.zookeeper.quorum"));
+                System.out.println("hbase.kerberos.keytab.path:"+config.get("hbase.kerberos.keytab.path"));
+                System.out.println("hbase.kerberos.user:"+config.get("hbase.kerberos.user"));
+
+                config.set("hbase.security.authentication", "kerberos");
+                config.set("hadoop.security.authentication", "kerberos");
+                config.set("hbase.master.kerberos.principal",config.get("hbase.master.kerberos.principal"));
+                config.set("hbase.regionserver.kerberos.principal",config.get("hbase.regionserver.kerberos.principal"));
+                UserGroupInformation.setConfiguration(config);
+                String kerberosUser = config.get("hbase.kerberos.user");
+                String kerberosPath = config.get("hbase.kerberos.keytab.path");
+                UserGroupInformation.loginUserFromKeytab(kerberosUser, kerberosPath);
+            }
             this.connection = ConnectionFactory.createConnection(config, executor);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new HbaseSystemException(e);
         }
     }
