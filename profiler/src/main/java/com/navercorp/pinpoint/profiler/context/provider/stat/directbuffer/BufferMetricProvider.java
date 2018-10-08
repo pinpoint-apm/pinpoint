@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
-import com.navercorp.pinpoint.profiler.monitor.metric.directbuffer.DirectBufferMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.directbuffer.BufferMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,51 +29,47 @@ import java.lang.reflect.Constructor;
 /**
  * @author Roy Kim
  */
-public class DirectBufferMetricProvider implements Provider<DirectBufferMetric> {
+public class BufferMetricProvider implements Provider<BufferMetric> {
 
     private static final String DIRECT_BUFFER_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.directbuffer.DefaultDirectBufferMetric";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Inject
-    public DirectBufferMetricProvider() {
+    public BufferMetricProvider() {
     }
 
     @Override
-    public DirectBufferMetric get() {
+    public BufferMetric get() {
 
-        String classToLoad = null;
-        JvmVersion jvmVersion = JvmUtils.getVersion();
-
-        if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-            classToLoad = DIRECT_BUFFER_METRIC;
-        }else{
+        final JvmVersion jvmVersion = JvmUtils.getVersion();
+        if (!jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
             logger.warn("Unsupported JVM version.");
-            return DirectBufferMetric.UNSUPPORTED_DIRECT_BUFFER_METRIC;
+            return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
         }
 
-        DirectBufferMetric directBufferMetric = createDirectBufferMetric(classToLoad);
-        logger.info("loaded : {}", directBufferMetric);
-        return directBufferMetric;
+        BufferMetric bufferMetric = createBufferMetric(DIRECT_BUFFER_METRIC);
+        logger.info("loaded : {}", bufferMetric);
+        return bufferMetric;
     }
 
-    private DirectBufferMetric createDirectBufferMetric(String classToLoad) {
+    private BufferMetric createBufferMetric(String classToLoad) {
         if (classToLoad == null) {
-            return DirectBufferMetric.UNSUPPORTED_DIRECT_BUFFER_METRIC;
+            return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
         }
         try {
             @SuppressWarnings("unchecked")
-            Class<DirectBufferMetric> directBufferMetricClass = (Class<DirectBufferMetric>) Class.forName(classToLoad);
+            Class<BufferMetric> directBufferMetricClass = (Class<BufferMetric>) Class.forName(classToLoad);
             try {
-                Constructor<DirectBufferMetric> directBufferMetricConstructor = directBufferMetricClass.getConstructor();
+                Constructor<BufferMetric> directBufferMetricConstructor = directBufferMetricClass.getConstructor();
                 return directBufferMetricConstructor.newInstance();
             } catch (NoSuchMethodException e) {
-                logger.warn("Unknown DirectBufferMetric : {}", classToLoad);
-                return DirectBufferMetric.UNSUPPORTED_DIRECT_BUFFER_METRIC;
+                logger.warn("Unknown BufferMetric : {}", classToLoad);
+                return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
             }
         } catch (Exception e) {
-            logger.warn("Error creating DirectBufferMetric [" + classToLoad + "]", e);
-            return DirectBufferMetric.UNSUPPORTED_DIRECT_BUFFER_METRIC;
+            logger.warn("Error creating BufferMetric [" + classToLoad + "]", e);
+            return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
         }
     }
 }
