@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 const validUrlList: string[] = [];
 const urlPrefix = '/';
@@ -28,7 +28,21 @@ export class MarkingInterceptor implements HttpInterceptor {
                     }
                 }
                 return event;
-            }))
+            })),
+            catchError((error: HttpErrorResponse) => {
+                if (error.status < 500) {
+                    return throwError({
+                        exception: {
+                            request: {
+                                url: error.url
+                            },
+                            message: error.message
+                        }
+                    });
+                } else {
+                    return throwError(error.error);
+                }
+            })
         );
     }
     private isValidUrl(url: string): boolean {

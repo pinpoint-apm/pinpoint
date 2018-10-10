@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
 
 export interface IAgentTimeline {
     agentEventTimeline: {
@@ -25,18 +26,17 @@ export class AgentTimelineDataService {
     requestURL = 'getAgentStatusTimeline.pinpoint';
     constructor(private http: HttpClient) { }
     getData(agentId: string, retrieveTime: IRetrieveTime): Observable<IAgentTimeline> {
-        return this.http.get<IAgentTimeline>(this.requestURL, this.makeRequestOptionsArgs(agentId, retrieveTime));
+        return this.http.get<IAgentTimeline>(this.requestURL, this.makeRequestOptionsArgs(agentId, retrieveTime)).pipe(
+            retry(3)
+        );
     }
     private makeRequestOptionsArgs(agentId: string, { start: from, end: to }: IRetrieveTime): { 'params': { [key: string]: any } } {
         return {
-            params: {
-                agentId,
-                from,
-                to,
-                exclude: 10199
-                // DESC:
-                // [exclude] 요청에 대한 응답에서 제외하고 싶은 eventCode를 넣어줌.
-            }
+            params: new HttpParams()
+                .set('agentId', agentId)
+                .set('from', from + '')
+                .set('to', to + '')
+                .set('exclude', 10199 + '')
         };
     }
 }
