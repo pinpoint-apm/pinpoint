@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.test;
 
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,15 +29,17 @@ public class Item implements Comparable<Item> {
     private final int sequence;
     private final int asyncId;
     private final int asyncSequence;
+    private final TraceRoot traceRoot;
 
-    public Item(Object value, long time, long spanId, int sequence) {
-        this(value, time, spanId, sequence, OrderedSpanRecorder.ASYNC_ID_NOT_SET, OrderedSpanRecorder.ASYNC_SEQUENCE_NOT_SET);
+    public Item(Object value, long time, TraceRoot traceRoot, int sequence) {
+        this(value, time, traceRoot, sequence, OrderedSpanRecorder.ASYNC_ID_NOT_SET, OrderedSpanRecorder.ASYNC_SEQUENCE_NOT_SET);
     }
 
-    public Item(Object value, long time, long spanId, int sequence, int asyncId, int asyncSequence) {
+    public Item(Object value, long time, TraceRoot traceRoot, int sequence, int asyncId, int asyncSequence) {
         this.value = value;
         this.time = time;
-        this.spanId = spanId;
+        this.traceRoot = traceRoot;
+        this.spanId = traceRoot.getTraceId().getSpanId();
         this.sequence = sequence;
         this.asyncId = asyncId;
         this.asyncSequence = asyncSequence;
@@ -49,6 +51,10 @@ public class Item implements Comparable<Item> {
 
     public long getSpanId() {
         return spanId;
+    }
+
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
     }
 
     @Override
@@ -126,7 +132,7 @@ public class Item implements Comparable<Item> {
                 ", sequence=" + sequence +
                 ", asyncId=" + asyncId +
                 ", asyncSequence=" + asyncSequence +
+                ", traceRoot=" + traceRoot +
                 '}';
     }
-
 }

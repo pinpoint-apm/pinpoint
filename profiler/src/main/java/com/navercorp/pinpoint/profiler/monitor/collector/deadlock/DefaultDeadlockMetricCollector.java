@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.deadlock;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
@@ -28,7 +29,7 @@ import java.util.Set;
 /**
  * @author Taejin Koo
  */
-public class DefaultDeadlockMetricCollector implements DeadlockMetricCollector {
+public class DefaultDeadlockMetricCollector implements AgentStatMetricCollector<TDeadlock> {
 
     private Set<Long> prevDeadlockedThreadIdSet = new HashSet<Long>();
 

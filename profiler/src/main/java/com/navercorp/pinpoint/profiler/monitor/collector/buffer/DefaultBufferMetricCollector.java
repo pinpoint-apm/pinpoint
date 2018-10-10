@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.buffer;
 
 
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
 import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
@@ -24,7 +25,7 @@ import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
 /**
  * @author Roy Kim
  */
-public class DefaultBufferMetricCollector implements BufferMetricCollector {
+public class DefaultBufferMetricCollector implements AgentStatMetricCollector<TDirectBuffer> {
 
     private final BufferMetric bufferMetric;
 
@@ -37,8 +38,9 @@ public class DefaultBufferMetricCollector implements BufferMetricCollector {
 
     @Override
     public TDirectBuffer collect() {
+        final BufferMetricSnapshot snapshot = bufferMetric.getSnapshot();
+
         TDirectBuffer tdirectBuffer = new TDirectBuffer();
-        BufferMetricSnapshot snapshot = bufferMetric.getSnapshot();
         tdirectBuffer.setDirectCount(snapshot.getDirectCount());
         tdirectBuffer.setDirectMemoryUsed(snapshot.getDirectMemoryUsed());
         tdirectBuffer.setMappedCount(snapshot.getMappedCount());
