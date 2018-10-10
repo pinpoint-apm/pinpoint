@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.datasource;
 
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -26,7 +26,7 @@ public interface DataSourceMetric {
 
     DataSourceMetric UNSUPPORTED_DATA_SOURCE_METRIC = new DataSourceMetric() {
         @Override
-        public TDataSourceList dataSourceList() {
+        public List<DataSource> dataSourceList() {
             return null;
         }
 
@@ -36,5 +36,5 @@ public interface DataSourceMetric {
         }
     };
 
-    TDataSourceList dataSourceList();
+    List<DataSource> dataSourceList();
 }

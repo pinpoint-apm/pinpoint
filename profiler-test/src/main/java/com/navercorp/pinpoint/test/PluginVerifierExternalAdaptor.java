@@ -48,6 +48,7 @@ import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -878,8 +879,8 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                     + " but loggingTransactionInfo value invalid.");
         }
 
-        final Span span = findSpan(item);
-        final byte loggingTransactionInfo = span.getTraceRoot().getShared().getLoggingInfo();
+        final TraceRoot traceRoot = item.getTraceRoot();
+        final byte loggingTransactionInfo = traceRoot.getShared().getLoggingInfo();
         if (loggingTransactionInfo != loggingInfo.getCode()) {
             LoggingInfo code = LoggingInfo.searchByCode(loggingTransactionInfo);
             if (code != null) {
@@ -893,24 +894,5 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
     }
 
-    private Span findSpan(Item item) {
-        final Object tBase = item.getValue();
-        if (tBase instanceof Span) {
-            final Span span = (Span) tBase;
-            return span;
-        } else if (tBase instanceof SpanEvent) {
-            OrderedSpanRecorder recorder = getRecorder();
-            return recorder.findTSpan(item.getSpanId());
-        } else {
-            throw new IllegalArgumentException("Unexpected type: " + getActual(item));
-        }
-    }
-
-    private String getActual(Object actual) {
-        if (actual == null) {
-            return "actual is null";
-        }
-        return actual.getClass().getName();
-    }
 
 }

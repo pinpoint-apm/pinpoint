@@ -17,18 +17,19 @@
 package com.navercorp.pinpoint.profiler.monitor.collector;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTraceMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.deadlock.DeadlockMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.buffer.BufferMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.FileDescriptorMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.response.ResponseTimeMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.transaction.TransactionMetricCollector;
+import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
+import com.navercorp.pinpoint.thrift.dto.TDeadlock;
+import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
+import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TResponseTime;
+import com.navercorp.pinpoint.thrift.dto.TTransaction;
 
 /**
  * @author HyunGil Jeong
@@ -37,71 +38,40 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
 
     private final String agentId;
     private final long agentStartTimestamp;
-    private final JvmGcMetricCollector jvmGcMetricCollector;
-    private final CpuLoadMetricCollector cpuLoadMetricCollector;
-    private final TransactionMetricCollector transactionMetricCollector;
-    private final ActiveTraceMetricCollector activeTraceMetricCollector;
-    private final DataSourceMetricCollector dataSourceMetricCollector;
-    private final ResponseTimeMetricCollector responseTimeMetricCollector;
-    private final DeadlockMetricCollector deadlockMetricCollector;
-    private final FileDescriptorMetricCollector fileDescriptorMetricCollector;
-    private final BufferMetricCollector bufferMetricCollector;
+    private final AgentStatMetricCollector<TJvmGc> jvmGcMetricCollector;
+    private final AgentStatMetricCollector<TCpuLoad> cpuLoadMetricCollector;
+    private final AgentStatMetricCollector<TTransaction> transactionMetricCollector;
+    private final AgentStatMetricCollector<TActiveTrace> activeTraceMetricCollector;
+    private final AgentStatMetricCollector<TDataSourceList> dataSourceMetricCollector;
+    private final AgentStatMetricCollector<TResponseTime> responseTimeMetricCollector;
+    private final AgentStatMetricCollector<TDeadlock> deadlockMetricCollector;
+    private final AgentStatMetricCollector<TFileDescriptor> fileDescriptorMetricCollector;
+    private final AgentStatMetricCollector<TDirectBuffer> bufferMetricCollector;
 
     @Inject
     public AgentStatCollector(
             @AgentId String agentId,
             @AgentStartTime long agentStartTimestamp,
-            JvmGcMetricCollector jvmGcMetricCollector,
-            CpuLoadMetricCollector cpuLoadMetricCollector,
-            TransactionMetricCollector transactionMetricCollector,
-            ActiveTraceMetricCollector activeTraceMetricCollector,
-            DataSourceMetricCollector dataSourceMetricCollector,
-            ResponseTimeMetricCollector responseTimeMetricCollector,
-            DeadlockMetricCollector deadlockMetricCollector,
-            FileDescriptorMetricCollector fileDescriptorMetricCollector,
-            BufferMetricCollector bufferMetricCollector) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (jvmGcMetricCollector == null) {
-            throw new NullPointerException("jvmGcMetricCollector must not be null");
-        }
-        if (cpuLoadMetricCollector == null) {
-            throw new NullPointerException("cpuLoadMetricCollector must not be null");
-        }
-        if (transactionMetricCollector == null) {
-            throw new NullPointerException("transactionMetricCollector must not be null");
-        }
-        if (activeTraceMetricCollector == null) {
-            throw new NullPointerException("activeTraceMetricCollector must not be null");
-        }
-        if (dataSourceMetricCollector == null) {
-            throw new NullPointerException("dataSourceMetricCollector must not be null");
-        }
-        if (responseTimeMetricCollector == null) {
-            throw new NullPointerException("responseTimeMetricCollector must not be null");
-        }
-        if (deadlockMetricCollector == null) {
-            throw new NullPointerException("deadlockMetricCollector may not be null");
-        }
-        if (fileDescriptorMetricCollector == null) {
-            throw new NullPointerException("fileDescriptorMetricCollector may not be null");
-        }
-        if (bufferMetricCollector == null) {
-            throw new NullPointerException("bufferMetricCollector may not be null");
-        }
-
-        this.agentId = agentId;
+            AgentStatMetricCollector<TJvmGc> jvmGcMetricCollector,
+            AgentStatMetricCollector<TCpuLoad> cpuLoadMetricCollector,
+            AgentStatMetricCollector<TTransaction> transactionMetricCollector,
+            AgentStatMetricCollector<TActiveTrace> activeTraceMetricCollector,
+            AgentStatMetricCollector<TDataSourceList> dataSourceMetricCollector,
+            AgentStatMetricCollector<TResponseTime> responseTimeMetricCollector,
+            AgentStatMetricCollector<TDeadlock> deadlockMetricCollector,
+            AgentStatMetricCollector<TFileDescriptor> fileDescriptorMetricCollector,
+            AgentStatMetricCollector<TDirectBuffer> bufferMetricCollector) {
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.agentStartTimestamp = agentStartTimestamp;
-        this.jvmGcMetricCollector = jvmGcMetricCollector;
-        this.cpuLoadMetricCollector = cpuLoadMetricCollector;
-        this.transactionMetricCollector = transactionMetricCollector;
-        this.activeTraceMetricCollector = activeTraceMetricCollector;
-        this.dataSourceMetricCollector = dataSourceMetricCollector;
-        this.responseTimeMetricCollector = responseTimeMetricCollector;
-        this.deadlockMetricCollector = deadlockMetricCollector;
-        this.fileDescriptorMetricCollector = fileDescriptorMetricCollector;
-        this.bufferMetricCollector = bufferMetricCollector;
+        this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector must not be null");
+        this.cpuLoadMetricCollector = Assert.requireNonNull(cpuLoadMetricCollector, "cpuLoadMetricCollector must not be null");
+        this.transactionMetricCollector = Assert.requireNonNull(transactionMetricCollector, "transactionMetricCollector must not be null");
+        this.activeTraceMetricCollector = Assert.requireNonNull(activeTraceMetricCollector, "activeTraceMetricCollector must not be null");
+        this.dataSourceMetricCollector = Assert.requireNonNull(dataSourceMetricCollector, "dataSourceMetricCollector must not be null");
+        this.responseTimeMetricCollector = Assert.requireNonNull(responseTimeMetricCollector, "responseTimeMetricCollector must not be null");
+        this.deadlockMetricCollector = Assert.requireNonNull(deadlockMetricCollector, "deadlockMetricCollector must not be null");
+        this.fileDescriptorMetricCollector = Assert.requireNonNull(fileDescriptorMetricCollector, "fileDescriptorMetricCollector must not be null");
+        this.bufferMetricCollector = Assert.requireNonNull(bufferMetricCollector, "bufferMetricCollector must not be null");
     }
 
     @Override

@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,9 +21,8 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
-import com.navercorp.pinpoint.thrift.dto.TDataSource;
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,17 +48,17 @@ public class DefaultDataSourceMetric implements DataSourceMetric {
     }
 
     @Override
-    public TDataSourceList dataSourceList() {
-        TDataSourceList dataSourceList = new TDataSourceList();
+    public List<DataSource> dataSourceList() {
 
-        List<DataSourceMonitorWrapper> dataSourceMonitorList = dataSourceMonitorRegistryService.getPluginMonitorWrapperList();
-        if (!CollectionUtils.isEmpty(dataSourceMonitorList)) {
-            for (DataSourceMonitorWrapper dataSourceMonitor : dataSourceMonitorList) {
-                TDataSource dataSource = collectDataSource(dataSourceMonitor);
-                dataSourceList.addToDataSourceList(dataSource);
-            }
-        } else {
-            dataSourceList.setDataSourceList(Collections.<TDataSource>emptyList());
+        final List<DataSourceMonitorWrapper> dataSourceMonitorList = dataSourceMonitorRegistryService.getPluginMonitorWrapperList();
+        if (CollectionUtils.isEmpty(dataSourceMonitorList)) {
+            return Collections.emptyList();
+        }
+
+        List<DataSource> dataSourceList = new ArrayList<DataSource>(dataSourceMonitorList.size());
+        for (DataSourceMonitorWrapper dataSourceMonitor : dataSourceMonitorList) {
+            DataSource dataSource = collectDataSource(dataSourceMonitor);
+            dataSourceList.add(dataSource);
         }
         return dataSourceList;
     }
@@ -69,9 +68,8 @@ public class DefaultDataSourceMetric implements DataSourceMetric {
         return "Default DataSourceMetric";
     }
 
-    private TDataSource collectDataSource(DataSourceMonitorWrapper dataSourceMonitor) {
-        TDataSource dataSource = new TDataSource();
-        dataSource.setId(dataSourceMonitor.getId());
+    private DataSource collectDataSource(DataSourceMonitorWrapper dataSourceMonitor) {
+        final DataSource dataSource = new DataSource(dataSourceMonitor.getId());
         dataSource.setServiceTypeCode(dataSourceMonitor.getServiceType().getCode());
 
         String jdbcUrl = dataSourceMonitor.getUrl();

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 
 /**
@@ -57,31 +58,12 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
         return false;
     }
 
-    public synchronized Span findTSpan(long spanId) {
-        Span tSpan = null;
-        for (Item item : list) {
-            final Object value = item.getValue();
-            if (value instanceof Span) {
-                if (tSpan != null) {
-                    throw new IllegalStateException("duplicate span found " + list);
-                }
-                final Span span = (Span) value;
-                if (span.getTraceRoot().getTraceId().getSpanId() == spanId) {
-                    tSpan = span;
-                }
-            }
-        }
-        if (tSpan == null) {
-            throw new IllegalStateException("tSpan not found " + list);
-        }
-        return tSpan;
-    }
 
     private void insertSpan(Span span) {
         long startTime = span.getStartTime();
-        long spanId = span.getTraceRoot().getTraceId().getSpanId();
+        TraceRoot traceRoot = span.getTraceRoot();
 
-        Item item = new Item(span, startTime, spanId, ROOT_SEQUENCE);
+        Item item = new Item(span, startTime, traceRoot, ROOT_SEQUENCE);
         insertItem(item);
     }
 
@@ -108,8 +90,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
             }
 
             long startTime = event.getStartTime();
-            long spanId = spanChunk.getTraceRoot().getTraceId().getSpanId();
-            Item item = new Item(event, startTime, spanId, event.getSequence(), asyncId, asyncSequence);
+            Item item = new Item(event, startTime, spanChunk.getTraceRoot(), event.getSequence(), asyncId, asyncSequence);
             insertItem(item);
         }
     }

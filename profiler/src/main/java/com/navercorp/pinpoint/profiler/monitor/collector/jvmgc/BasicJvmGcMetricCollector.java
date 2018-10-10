@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.jvmgc;
 
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetricSnapshot;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
@@ -26,7 +28,7 @@ import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 /**
  * @author HyunGil Jeong
  */
-public class BasicJvmGcMetricCollector implements JvmGcMetricCollector {
+public class BasicJvmGcMetricCollector implements AgentStatMetricCollector<TJvmGc> {
 
     private final MemoryMetric memoryMetric;
     private final GarbageCollectorMetric garbageCollectorMetric;
@@ -44,19 +46,25 @@ public class BasicJvmGcMetricCollector implements JvmGcMetricCollector {
 
     @Override
     public TJvmGc collect() {
-        TJvmGc jvmGc = new TJvmGc();
-        TJvmGcType jvmGcType = garbageCollectorMetric.getGcType();
+
+        JvmGcType jvmGcType = garbageCollectorMetric.getGcType();
+        TJvmGcType tJvmGcType = TJvmGcTypeUtils.toTJvmGcType(jvmGcType.getValue());
+
         MemoryMetricSnapshot memoryMetricSnapshot = memoryMetric.getSnapshot();
         GarbageCollectorMetricSnapshot garbageCollectorMetricSnapshot = garbageCollectorMetric.getSnapshot();
+
+        TJvmGc jvmGc = new TJvmGc();
         jvmGc.setJvmMemoryHeapMax(memoryMetricSnapshot.getHeapMax());
         jvmGc.setJvmMemoryHeapUsed(memoryMetricSnapshot.getHeapUsed());
         jvmGc.setJvmMemoryNonHeapMax(memoryMetricSnapshot.getNonHeapMax());
         jvmGc.setJvmMemoryNonHeapUsed(memoryMetricSnapshot.getNonHeapUsed());
         jvmGc.setJvmGcOldCount(garbageCollectorMetricSnapshot.getGcOldCount());
         jvmGc.setJvmGcOldTime(garbageCollectorMetricSnapshot.getGcOldTime());
-        jvmGc.setType(jvmGcType);
+        jvmGc.setType(tJvmGcType);
         return jvmGc;
     }
+
+
 
     @Override
     public String toString() {

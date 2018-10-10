@@ -18,31 +18,30 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.buffer;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.monitor.collector.buffer.BufferMetricCollector;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.buffer.DefaultBufferMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.buffer.UnsupportedBufferMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
+import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
 
 
 /**
  * @author Roy Kim
  */
-public class BufferMetricCollectorProvider implements Provider<BufferMetricCollector> {
+public class BufferMetricCollectorProvider implements Provider<AgentStatMetricCollector<TDirectBuffer>> {
 
     private final BufferMetric bufferMetric;
 
     @Inject
     public BufferMetricCollectorProvider(BufferMetric bufferMetric) {
-        if (bufferMetric == null) {
-            throw new NullPointerException("bufferMetric must not be null");
-        }
-        this.bufferMetric = bufferMetric;
+        this.bufferMetric = Assert.requireNonNull(bufferMetric, "bufferMetric must not be null");
     }
 
     @Override
-    public BufferMetricCollector get() {
+    public AgentStatMetricCollector<TDirectBuffer> get() {
         if (bufferMetric == BufferMetric.UNSUPPORTED_BUFFER_METRIC) {
-            return new UnsupportedBufferMetricCollector();
+            return new UnsupportedMetricCollector<TDirectBuffer>();
         }
         return new DefaultBufferMetricCollector(bufferMetric);
     }

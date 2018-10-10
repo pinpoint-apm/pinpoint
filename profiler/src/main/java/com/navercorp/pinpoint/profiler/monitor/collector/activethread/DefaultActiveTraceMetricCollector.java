@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.activethread;
 
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
+import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
+
+import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public class DefaultActiveTraceMetricCollector implements ActiveTraceMetricCollector {
+public class DefaultActiveTraceMetricCollector implements AgentStatMetricCollector<TActiveTrace> {
 
     private final ActiveTraceMetric activeTraceMetric;
 
@@ -35,8 +41,19 @@ public class DefaultActiveTraceMetricCollector implements ActiveTraceMetricColle
 
     @Override
     public TActiveTrace collect() {
+        final ActiveTraceHistogram histogram = activeTraceMetric.activeTraceHistogram();
+
+        final int histogramSchemaTypeCode = histogram.getHistogramSchema().getTypeCode();
+
+        TActiveTraceHistogram tActiveTraceHistogram = new TActiveTraceHistogram();
+        tActiveTraceHistogram.setHistogramSchemaType(histogramSchemaTypeCode);
+
+        final List<Integer> activeTraceCounts = ActiveTraceHistogramUtils.asList(histogram);
+        tActiveTraceHistogram.setActiveTraceCount(activeTraceCounts);
+
+
         TActiveTrace activeTrace = new TActiveTrace();
-        activeTrace.setHistogram(activeTraceMetric.activeTraceHistogram());
+        activeTrace.setHistogram(tActiveTraceHistogram);
         return activeTrace;
     }
 }

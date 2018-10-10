@@ -26,7 +26,7 @@ public class DefaultBufferMetricTest {
 
     @Test
     public void getSnapshot() {
-        DefaultBufferMetric defaultBufferMetric = new DefaultBufferMetric();
+        BufferMetric defaultBufferMetric = new DefaultBufferMetric();
         BufferMetricSnapshot snapshot = defaultBufferMetric.getSnapshot();
 
         Assert.assertNotEquals(snapshot.getDirectCount(), BufferMetric.UNCOLLECTED_VALUE);

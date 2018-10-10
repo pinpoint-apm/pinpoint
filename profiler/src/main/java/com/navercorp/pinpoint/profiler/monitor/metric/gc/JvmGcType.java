@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,29 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor;
+package com.navercorp.pinpoint.profiler.monitor.metric.gc;
 
-import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
-import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
+
+import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 
 /**
- * @author Roy Kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface FileDescriptorMetricCollector extends AgentStatMetricCollector<TFileDescriptor> {
+public enum JvmGcType {
+    UNKNOWN(0),
+    SERIAL(1),
+    PARALLEL(2),
+    CMS(3),
+    G1(4);
+
+    private final int value;
+
+    private JvmGcType(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
 }

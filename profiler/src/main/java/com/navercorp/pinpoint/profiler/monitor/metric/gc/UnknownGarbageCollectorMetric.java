@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.gc;
 
-import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 
 /**
  * Unknown garbage collector metrics
@@ -28,8 +27,8 @@ public class UnknownGarbageCollectorMetric implements GarbageCollectorMetric {
     private static final GarbageCollectorMetricSnapshot UNSUPPORTED_SNAPSHOT = new GarbageCollectorMetricSnapshot(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
 
     @Override
-    public TJvmGcType getGcType() {
-        return TJvmGcType.UNKNOWN;
+    public JvmGcType getGcType() {
+        return JvmGcType.UNKNOWN;
     }
 
     @Override

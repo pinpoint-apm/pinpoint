@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.UnknownGarbageCollectorMetric;
-import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 
 /**
  * @author HyunGil Jeong
@@ -45,7 +45,7 @@ public class JvmInformationProvider implements Provider<JvmInformation> {
     }
 
     public JvmInformation get() {
-        TJvmGcType gcType = garbageCollectorMetric.getGcType();
+        JvmGcType gcType = garbageCollectorMetric.getGcType();
         return new JvmInformation(jvmVersion, gcType.getValue());
     }
 }
