@@ -125,6 +125,9 @@ export class UrlRouteManagerService {
             this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
         ].join('/'));
     }
+    reload(): void {
+        this.windowRef.nativeWindow.location.reload();
+    }
     private getBaseHref(): string {
         if (this.baseHref === '/') {
             return '';

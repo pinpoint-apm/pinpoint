@@ -327,11 +327,11 @@ interface IServerErrorFormat {
     exception: {
         request: {
             url: string;
-            method: string;
-            heads: {
+            method?: string;
+            heads?: {
                 [key: string]: string[];
             },
-            parameters: {
+            parameters?: {
                 [key: string]: string[];
             }
         },

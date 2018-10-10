@@ -8,11 +8,13 @@ import {
     WebAppSettingDataService,
     StoreHelperService,
     AnalyticsService,
+    DynamicPopupService,
     TRACKED_EVENT_LIST
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerAndAgentListDataService } from './server-and-agent-list-data.service';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Component({
     selector: 'pp-server-and-agent-list-container',
@@ -36,6 +38,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
         private webAppSettingDataService: WebAppSettingDataService,
         private storeHelperService: StoreHelperService,
         private serverAndAgentListDataService: ServerAndAgentListDataService,
+        private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
     ) {}
     ngOnInit() {
@@ -49,13 +52,21 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                 this.agentId = urlService.hasValue(UrlPathId.AGENT_ID) ? urlService.getPathValue(UrlPathId.AGENT_ID) : '';
                 return this.serverAndAgentListDataService.getData();
             })
-        ).subscribe((res: { [key: string]: IServerAndAgentData[] }) => {
+        ).subscribe((res: {[key: string]: IServerAndAgentData[]}) => {
             this.serverKeyList = this.filteredServerKeyList = Object.keys(res).sort();
             this.serverList = this.filteredServerList = res;
             if (this.agentId) {
                 this.dispatchAgentData();
             }
             this.changeDetectorRef.detectChanges();
+        }, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent
+            });
         });
         this.storeHelperService.getServerAndAgentQuery<string>(this.unsubscribe).subscribe((query: string) => {
             this.filteringServerList(query);
