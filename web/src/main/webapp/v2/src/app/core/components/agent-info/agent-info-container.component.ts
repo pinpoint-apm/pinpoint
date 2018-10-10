@@ -21,8 +21,10 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
     private selectedTime$: Observable<number>;
     private urlAgentId$: Observable<string>;
+    private lastRequestParam: [string, number];
+    dataRequestSuccess: boolean;
     urlApplicationName$: Observable<string>;
-    agentData$: Observable<IServerAndAgentData>;
+    agentData: IServerAndAgentData;
     timezone$: Observable<string>;
     dateFormat$: Observable<string>;
     showLoading = true;
@@ -58,7 +60,7 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 1);
         this.selectedTime$ = this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe);
-        this.agentData$ = combineLatest(
+        combineLatest(
             this.urlAgentId$,
             this.selectedTime$
         ).pipe(
@@ -66,19 +68,38 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
                 this.showLoading = true;
                 this.changeDetectorRef.detectChanges();
             }),
-            switchMap((data: [string, number]) => {
-                return this.agentInfoDataService.getData(data[0], data[1]);
+            switchMap(([agentId, endTime]: [string, number]) => {
+                this.lastRequestParam = [agentId, endTime];
+                return this.agentInfoDataService.getData(agentId, endTime);
             }),
             filter((agentData: IServerAndAgentData) => {
                 return !!(agentData && agentData.applicationName);
-            }),
-            tap(() => {
-                this.showLoading = false;
-                this.changeDetectorRef.detectChanges();
             })
-        );
+        ).subscribe((agentData: IServerAndAgentData) => {
+            this.agentData = agentData;
+            this.dataRequestSuccess = true;
+            this.completed();
+        }, (error: IServerErrorFormat) => {
+            this.dataRequestSuccess = false;
+            this.completed();
+        });
     }
-
+    private completed(): void {
+        this.showLoading = false;
+        this.changeDetectorRef.detectChanges();
+    }
+    onRequestAgain(): void {
+        const [agentId, endTime] = this.lastRequestParam;
+        this.showLoading = true;
+        this.agentInfoDataService.getData(agentId, endTime).subscribe((agentData: IServerAndAgentData) => {
+            this.agentData = agentData;
+            this.dataRequestSuccess = true;
+            this.completed();
+        }, (error: IServerErrorFormat) => {
+            this.dataRequestSuccess = false;
+            this.completed();
+        });
+    }
     onClickApplicationNameIssue({data, coord}: {data: {[key: string]: string}, coord: ICoordinate}): void {
         this.dynamicPopupService.openPopup({
             data,

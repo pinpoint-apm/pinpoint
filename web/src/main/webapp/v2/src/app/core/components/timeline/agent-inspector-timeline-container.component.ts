@@ -4,12 +4,12 @@ import { takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
 import { Actions } from 'app/shared/store';
-import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, DynamicPopupService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { Timeline, ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
 import { TimelineInteractionService, ITimelineCommandParam, TimelineCommand } from './timeline-interaction.service';
 import { AgentTimelineDataService, IAgentTimeline, IRetrieveTime } from './agent-timeline-data.service';
-
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 @Component({
     selector: 'pp-agent-inspector-timeline-container',
     templateUrl: './agent-inspector-timeline-container.component.html',
@@ -34,8 +34,10 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
         private changeDetector: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private urlRouteManagerService: UrlRouteManagerService,
         private agentTimelineDataService: AgentTimelineDataService,
         private timelineInteractionService: TimelineInteractionService,
+        private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
     ) {}
 
@@ -98,6 +100,17 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
                 this.timelineData = response;
                 this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
                 this.changeDetector.detectChanges();
+            }, (error: IServerErrorFormat) => {
+                this.dynamicPopupService.openPopup({
+                    data: {
+                        title: 'Error',
+                        contents: error
+                    },
+                    component: ServerErrorPopupContainerComponent,
+                    onCloseCallback: () => {
+                        this.urlRouteManagerService.reload();
+                    }
+                });
             });
         });
     }
