@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument.classloading;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.common.plugin.JarPlugin;
 import com.navercorp.pinpoint.common.plugin.Plugin;
+import com.navercorp.pinpoint.common.plugin.PluginJar;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
@@ -102,8 +103,8 @@ public class JarProfilerPluginClassInjectorTest {
         final URL location = CodeSourceUtils.getCodeLocation(clazz);
 
         logger.debug("url:{}", location);
-        JarFile jarFile = new JarFile(location.getPath());
-        return new JarPlugin<Object>(location, jarFile, Collections.emptyList(), Collections.<String>emptyList());
+        PluginJar pluginJar = PluginJar.fromFilePath(location.getPath());
+        return new JarPlugin<Object>(pluginJar, Collections.emptyList(), Collections.<String>emptyList());
     }
 
 }
