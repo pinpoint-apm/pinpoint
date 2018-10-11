@@ -58,7 +58,7 @@ public class DefaultBufferMetric implements BufferMetric {
 
     @Override
     public String toString() {
-        return "default direct buffer metric";
+        return "DefaultBufferMetric";
     }
 
     private static class EmptyBufferPoolMXBean implements BufferPoolMXBean {

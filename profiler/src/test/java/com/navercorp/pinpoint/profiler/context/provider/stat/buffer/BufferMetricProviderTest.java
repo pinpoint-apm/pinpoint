@@ -14,35 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.buffer;
+package com.navercorp.pinpoint.profiler.context.provider.stat.buffer;
 
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.provider.stat.buffer.BufferMetricProvider;
+import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultBufferMetricTest {
+public class BufferMetricProviderTest {
 
     @Test
-    public void getSnapshot() {
-        BufferMetric defaultBufferMetric = new DefaultBufferMetric();
-        BufferMetricSnapshot snapshot = defaultBufferMetric.getSnapshot();
-
-        Assert.assertNotEquals(snapshot.getDirectCount(), BufferMetric.UNCOLLECTED_VALUE);
-        Assert.assertNotEquals(snapshot.getDirectMemoryUsed(), BufferMetric.UNCOLLECTED_VALUE);
-        Assert.assertNotEquals(snapshot.getMappedCount(), BufferMetric.UNCOLLECTED_VALUE);
-        Assert.assertNotEquals(snapshot.getMappedMemoryUsed(), BufferMetric.UNCOLLECTED_VALUE);
-    }
-
-    @Test
-    public void provider() {
+    public void get() {
         Provider<BufferMetric> provider = new BufferMetricProvider();
         BufferMetric bufferMetric = provider.get();
         BufferMetricSnapshot snapshot = bufferMetric.getSnapshot();
-
-        Assert.assertNotEquals(snapshot.getDirectCount(), BufferMetric.UNCOLLECTED_VALUE);
+        Assert.assertEquals(snapshot.getDirectCount(), BufferMetric.UNCOLLECTED_VALUE);
     }
 }

@@ -31,7 +31,7 @@ import java.lang.reflect.Constructor;
  */
 public class BufferMetricProvider implements Provider<BufferMetric> {
 
-    private static final String DIRECT_BUFFER_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.buffer.DefaultDirectBufferMetric";
+    private static final String BUFFER_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.buffer.DefaultBufferMetric";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,11 +44,11 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
 
         final JvmVersion jvmVersion = JvmUtils.getVersion();
         if (!jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-            logger.warn("Unsupported JVM version.");
+            logger.debug("Unsupported JVM version. {}", jvmVersion);
             return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
         }
 
-        BufferMetric bufferMetric = createBufferMetric(DIRECT_BUFFER_METRIC);
+        BufferMetric bufferMetric = createBufferMetric(BUFFER_METRIC);
         logger.info("loaded : {}", bufferMetric);
         return bufferMetric;
     }
@@ -59,16 +59,11 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
         }
         try {
             @SuppressWarnings("unchecked")
-            Class<BufferMetric> directBufferMetricClass = (Class<BufferMetric>) Class.forName(classToLoad);
-            try {
-                Constructor<BufferMetric> directBufferMetricConstructor = directBufferMetricClass.getConstructor();
-                return directBufferMetricConstructor.newInstance();
-            } catch (NoSuchMethodException e) {
-                logger.warn("Unknown BufferMetric : {}", classToLoad);
-                return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
-            }
+            Class<BufferMetric> bufferMetricClass = (Class<BufferMetric>) Class.forName(classToLoad);
+            Constructor<BufferMetric> bufferMetricConstructor = bufferMetricClass.getConstructor();
+            return bufferMetricConstructor.newInstance();
         } catch (Exception e) {
-            logger.warn("Error creating BufferMetric [" + classToLoad + "]", e);
+            logger.warn("BufferMetric initialize fail: {}", classToLoad, e);
             return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
         }
     }
