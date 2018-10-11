@@ -175,6 +175,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private String applicationServerType;
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
+    private List<String> pluginLoadOrder = Collections.emptyList();
     private List<String> disabledPlugins = Collections.emptyList();
 
     private boolean propagateInterceptorException = false;
@@ -461,6 +462,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public List<String> getPluginLoadOrder() {
+        return pluginLoadOrder;
+    }
+
+    @Override
     public List<String> getDisabledPlugins() {
         return disabledPlugins;
     }
@@ -625,6 +631,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // application type detector order
         this.applicationTypeDetectOrder = readList("profiler.type.detect.order");
+
+        this.pluginLoadOrder = readList("profiler.plugin.load.order");
 
         this.disabledPlugins = readList("profiler.plugin.disable");
 
@@ -810,6 +818,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
         sb.append(", applicationServerType='").append(applicationServerType).append('\'');
         sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);
+        sb.append(", pluginLoadOrder=").append(pluginLoadOrder);
         sb.append(", disabledPlugins=").append(disabledPlugins);
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);

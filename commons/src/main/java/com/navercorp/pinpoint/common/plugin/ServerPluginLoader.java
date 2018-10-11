@@ -20,13 +20,11 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
-import java.util.jar.JarFile;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -66,18 +64,9 @@ public class ServerPluginLoader implements PluginLoader {
         }
 
         if (file.getName().endsWith(".jar")) {
-            JarFile jarFile = toJarFile(file);
-            return new JarPlugin<T>(pluginURL, jarFile, Collections.singletonList(plugin), Collections.<String>emptyList());
+            PluginJar pluginJar = PluginJar.fromFile(file);
+            return new JarPlugin<T>(pluginJar, Collections.singletonList(plugin), Collections.<String>emptyList());
         }
         throw new IllegalArgumentException("unknown plugin " + pluginURL);
-    }
-
-
-    private JarFile toJarFile(File file) {
-        try {
-            return new JarFile(file);
-        } catch (IOException e) {
-            throw new RuntimeException("jarFile create fail " + e.getMessage(), e);
-        }
     }
 }
