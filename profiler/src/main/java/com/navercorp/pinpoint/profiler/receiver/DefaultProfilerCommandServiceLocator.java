@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
-import com.navercorp.pinpoint.thrift.io.TCommandType;
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
+import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -29,27 +28,24 @@ import java.util.Set;
  */
 public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServiceLocator {
 
-    private  final Map<Class<? extends TBase>, ProfilerCommandService> profilerCommandServiceRepository;
+    private final IntHashMap<ProfilerCommandService> profilerCommandServiceRepository;
+    private final Set<Short> codeSet;
 
     DefaultProfilerCommandServiceLocator(ProfilerCommandLocatorBuilder builder) {
-        this.profilerCommandServiceRepository = Collections.unmodifiableMap(builder.getProfilerCommandServiceRepository());
+        Map<Short, ProfilerCommandService> commandServiceRepository = builder.getProfilerCommandServiceRepository();
+        this.profilerCommandServiceRepository = IntHashMapUtils.copyShortMap(commandServiceRepository);
+        this.codeSet = buildCodeSet(commandServiceRepository);
     }
 
     @Override
-    public ProfilerCommandService getService(TBase tBase) {
-        if (tBase == null) {
-            return null;
-        }
-        return profilerCommandServiceRepository.get(tBase.getClass());
+    public ProfilerCommandService getService(short commandCode) {
+        return profilerCommandServiceRepository.get(commandCode);
     }
 
     @Override
-    public ProfilerSimpleCommandService getSimpleService(TBase tBase) {
-        if (tBase == null) {
-            return null;
-        }
+    public ProfilerSimpleCommandService getSimpleService(short commandCode) {
 
-        final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
+        final ProfilerCommandService service = profilerCommandServiceRepository.get(commandCode);
         if (service instanceof ProfilerSimpleCommandService) {
             return (ProfilerSimpleCommandService) service;
         }
@@ -58,12 +54,9 @@ public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServ
     }
 
     @Override
-    public ProfilerRequestCommandService getRequestService(TBase tBase) {
-        if (tBase == null) {
-            return null;
-        }
+    public ProfilerRequestCommandService getRequestService(short commandCode) {
 
-        final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
+        final ProfilerCommandService service = profilerCommandServiceRepository.get(commandCode);
         if (service instanceof ProfilerRequestCommandService) {
             return (ProfilerRequestCommandService) service;
         }
@@ -72,12 +65,9 @@ public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServ
     }
 
     @Override
-    public ProfilerStreamCommandService getStreamService(TBase tBase) {
-        if (tBase == null) {
-            return null;
-        }
+    public ProfilerStreamCommandService getStreamService(short commandCode) {
 
-        final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
+        final ProfilerCommandService service = profilerCommandServiceRepository.get(commandCode);
         if (service instanceof ProfilerStreamCommandService) {
             return (ProfilerStreamCommandService) service;
         }
@@ -85,23 +75,18 @@ public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServ
         return null;
     }
 
-    @Override
-    public Set<Class<? extends TBase>> getCommandServiceClasses() {
-        return profilerCommandServiceRepository.keySet();
+    int getCommandServiceSize() {
+        return profilerCommandServiceRepository.size();
     }
 
     @Override
     public Set<Short> getCommandServiceCodes() {
-        Set<Short> commandServiceCodes = new HashSet<Short>(profilerCommandServiceRepository.size());
+        return this.codeSet;
+    }
 
-        Set<Class<? extends TBase>> clazzSet = profilerCommandServiceRepository.keySet();
-        for (Class<? extends TBase> clazz : clazzSet) {
-            TCommandType commandType = TCommandType.getType(clazz);
-            if (commandType != null) {
-                commandServiceCodes.add(commandType.getCode());
-            }
-        }
-        return commandServiceCodes;
+    private Set<Short> buildCodeSet(Map<Short, ProfilerCommandService> codes) {
+        return new HashSet<Short>(codes.keySet());
+
     }
 
 }

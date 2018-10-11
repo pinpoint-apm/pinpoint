@@ -198,13 +198,13 @@ public class AgentInfoSender {
         }
 
         private boolean getResult(ResponseMessage responseMessage) {
-            byte[] message = responseMessage.getMessage();
-            Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(message, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, EmptyMessage.INSTANCE);
-            TBase<?, ?> tbase = deserialize.getData();
-            if (tbase == null) {
-                logger.warn("tbase is null");
+            byte[] byteMessage = responseMessage.getMessage();
+            Message<TBase<?, ?>> message = SerializationUtils.deserialize(byteMessage, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, null);
+            if (message == null) {
+                logger.warn("message is null");
                 return false;
             }
+            final TBase<?, ?> tbase = message.getData();
             if (!(tbase instanceof TResult)) {
                 logger.warn("Invalid response : {}", tbase.getClass());
                 return false;

@@ -54,4 +54,13 @@ public class DefaultMessage<T> implements Message<T> {
     public T getData() {
         return data;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultMessage{" +
+                "header=" + header +
+                ", headerEntity=" + headerEntity +
+                ", data=" + data +
+                '}';
+    }
 }

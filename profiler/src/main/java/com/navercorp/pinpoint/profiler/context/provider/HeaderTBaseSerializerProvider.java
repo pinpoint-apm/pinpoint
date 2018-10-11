@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.thrift.io.AgentEventTBaseLocator;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
@@ -28,7 +26,7 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
  */
 public class HeaderTBaseSerializerProvider implements Provider<HeaderTBaseSerializer> {
 
-    private static final HeaderTBaseSerializerFactory DEFAULT_FACTORY = new HeaderTBaseSerializerFactory();
+    private final HeaderTBaseSerializerFactory serializerFactory = new HeaderTBaseSerializerFactory();
 
     @Inject
     public HeaderTBaseSerializerProvider() {
@@ -36,7 +34,7 @@ public class HeaderTBaseSerializerProvider implements Provider<HeaderTBaseSerial
 
     @Override
     public HeaderTBaseSerializer get() {
-        return DEFAULT_FACTORY.createSerializer();
+        return serializerFactory.createSerializer();
     }
 
 }
