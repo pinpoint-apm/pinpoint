@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.io.request.EmptyMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
@@ -213,7 +212,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
             LOGGING.handleStreamData(streamChannelContext, packet);
 
-            TBase response = agentService.deserializeResponse(packet.getPayload(), EmptyMessage.emptyMessage());
+            TBase response = agentService.deserializeResponse(packet.getPayload(), null);
             AgentActiveThreadCount activeThreadCount = getAgentActiveThreadCount(response);
             responseAggregator.response(activeThreadCount);
         }
@@ -227,7 +226,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         private AgentActiveThreadCount getAgentActiveThreadCount(TBase routeResponse) {
             if (routeResponse instanceof TCommandTransferResponse) {
                 byte[] payload = ((TCommandTransferResponse) routeResponse).getPayload();
-                TBase<?, ?> activeThreadCountResponse = agentService.deserializeResponse(payload, EmptyMessage.emptyMessage());
+                TBase<?, ?> activeThreadCountResponse = agentService.deserializeResponse(payload, null);
 
                 AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
                 factory.setAgentId(agentId);

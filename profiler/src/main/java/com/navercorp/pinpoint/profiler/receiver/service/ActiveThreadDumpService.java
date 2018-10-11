@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
+import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
 
 import java.lang.management.ThreadInfo;
@@ -34,7 +35,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class ActiveThreadDumpService implements ProfilerRequestCommandService {
+public class ActiveThreadDumpService implements ProfilerRequestCommandService<TBase<?, ?>, TBase<?, ?>> {
 
     static final String JAVA = "JAVA";
 
@@ -100,8 +101,8 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
     }
 
     @Override
-    public Class<? extends TBase> getCommandClazz() {
-        return TCmdActiveThreadDump.class;
+    public short getCommandServiceCode() {
+        return TCommandType.ACTIVE_THREAD_DUMP.getCode();
     }
 
 }
