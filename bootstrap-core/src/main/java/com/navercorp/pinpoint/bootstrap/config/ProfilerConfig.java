@@ -132,6 +132,8 @@ public interface ProfilerConfig {
 
     List<String> getApplicationTypeDetectOrder();
 
+    List<String> getPluginLoadOrder();
+
     List<String> getDisabledPlugins();
 
     String getApplicationServerType();

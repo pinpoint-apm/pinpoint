@@ -26,22 +26,21 @@ import java.util.jar.JarFile;
  * @author Woonduk Kang(emeroad)
  */
 public class JarPlugin<T> implements Plugin<T> {
-    private final URL pluginUrl;
-    private final JarFile pluginJarFIle;
+
+    private final PluginJar pluginJar;
 
     private final List<T> instanceList;
     private final List<String> packageList;
 
-    public JarPlugin(URL pluginUrl, JarFile pluginJarFIle, List<T> instanceList, List<String> packageList) {
-        this.pluginUrl = Assert.requireNonNull(pluginUrl, "plugin must not be null");
-        this.pluginJarFIle = Assert.requireNonNull(pluginJarFIle, "pluginJar must not be null");
+    public JarPlugin(PluginJar pluginJar, List<T> instanceList, List<String> packageList) {
+        this.pluginJar = Assert.requireNonNull(pluginJar, "pluginJar must not be null");
         this.instanceList = Assert.requireNonNull(instanceList, "instanceList must not be null");
         this.packageList = Assert.requireNonNull(packageList, "packageList must not be null");
     }
 
     @Override
     public URL getURL() {
-        return pluginUrl;
+        return pluginJar.getUrl();
     }
 
     @Override
@@ -56,16 +55,16 @@ public class JarPlugin<T> implements Plugin<T> {
 
 
     public JarFile getJarFile() {
-        return pluginJarFIle;
+        return pluginJar.getJarFile();
     }
 
     @Override
     public String toString() {
-        return "Plugin{" +
-                "pluginUrl=" + pluginUrl +
-                ", pluginJarFIle=" + pluginJarFIle +
-                ", instanceList=" + instanceList +
-                ", packageList=" + packageList +
-                '}';
+        final StringBuilder sb = new StringBuilder("JarPlugin{");
+        sb.append("pluginJar=").append(pluginJar);
+        sb.append(", instanceList=").append(instanceList);
+        sb.append(", packageList=").append(packageList);
+        sb.append('}');
+        return sb.toString();
     }
 }

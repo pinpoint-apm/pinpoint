@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.plugin.Plugin;
+import com.navercorp.pinpoint.common.plugin.PluginJar;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
@@ -82,7 +83,7 @@ public class ProfilerPluginLoader {
         List<SetupResult> result = new ArrayList<SetupResult>();
         for (ProfilerPlugin profilerPlugin : filterProfilerPlugin) {
             if (logger.isInfoEnabled()) {
-                logger.info("{} Plugin {}:{}", profilerPlugin.getClass(), PluginConfig.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
+                logger.info("{} Plugin {}:{}", profilerPlugin.getClass(), PluginJar.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
                 logger.info("Loading plugin:{} pluginPackage:{}", profilerPlugin.getClass().getName(), profilerPlugin);
             }
 
