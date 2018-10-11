@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.common.plugin.PluginJar;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 
@@ -33,11 +34,10 @@ public class PluginLoaderProvider implements Provider<PluginLoader> {
     private final PluginLoader pluginLoader;
 
     @Inject
-    public PluginLoaderProvider(@PluginJars List<String> urls) {
+    public PluginLoaderProvider(@PluginJars List<PluginJar> pluginJars) {
         // TODO configuration support
         this.parentClassLoader = Object.class.getClassLoader();
-
-        this.pluginLoader = new JarPluginLoader(urls, parentClassLoader);
+        this.pluginLoader = new JarPluginLoader(pluginJars, parentClassLoader);
     }
 
     @Override
