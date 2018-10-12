@@ -2,9 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { Subject, Observable, of } from 'rxjs';
 import { take, takeUntil, switchMap } from 'rxjs/operators';
 
+import {
+    StoreHelperService,
+    RouteInfoCollectorService,
+    UrlRouteManagerService,
+    NewUrlStateNotificationService,
+    TransactionDetailDataService,
+    DynamicPopupService,
+    GutterEventService
+} from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { UrlPathId } from 'app/shared/models';
-import { StoreHelperService, RouteInfoCollectorService, NewUrlStateNotificationService, TransactionDetailDataService, GutterEventService } from 'app/shared/services';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Component({
     selector: 'pp-transaction-view-page',
@@ -19,8 +28,10 @@ export class TransactionViewPageComponent implements OnInit {
         private routeInfoCollectorService: RouteInfoCollectorService,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private urlRouteManagerService: UrlRouteManagerService,
         private transactionDetailDataService: TransactionDetailDataService,
         private gutterEventService: GutterEventService,
+        private dynamicPopupService: DynamicPopupService
     ) { }
 
     ngOnInit() {
@@ -45,6 +56,17 @@ export class TransactionViewPageComponent implements OnInit {
             })
         ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
             this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
+        }, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.urlRouteManagerService.reload();
+                }
+            });
         });
     }
     onAjaxError(err: Error): Observable<any> {
