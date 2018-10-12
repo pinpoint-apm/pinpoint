@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { Observable, Subject } from 'rxjs';
-import { tap, shareReplay } from 'rxjs/operators';
+import { tap, shareReplay, retry } from 'rxjs/operators';
 
 export interface ITransactionDetailPartInfo {
     completeState: string;
@@ -15,11 +15,11 @@ export interface ITransactionDetailPartInfo {
 
 @Injectable()
 export class TransactionDetailDataService {
+    private requestURL = 'transactionInfo.pinpoint';
     private partInfo: Subject<any> = new Subject();
-    lastKey: string;
+    private lastKey: string;
     cachedData: { [key: string]: Observable<ITransactionDetailData> } = {};
     partInfo$: Observable<any>;
-    requestURL = 'transactionInfo.pinpoint';
     constructor(private http: HttpClient) {
         this.partInfo$ = this.partInfo.asObservable();
     }
@@ -40,7 +40,7 @@ export class TransactionDetailDataService {
                         completeState: transactionInfo.completeState,
                     });
                 }),
-                shareReplay(1)
+                shareReplay(3)
             );
             return this.cachedData[this.lastKey];
         }
@@ -50,12 +50,11 @@ export class TransactionDetailDataService {
     }
     private makeRequestOptionsArgs(agentId: string, spanId: string, traceId: string, focusTimestamp: number): object {
         return {
-            params: {
-                agentId: agentId,
-                spanId: spanId,
-                traceId: traceId,
-                focusTimestamp: focusTimestamp
-            }
+            params: new HttpParams()
+                .set('agentId', agentId)
+                .set('spanId', spanId)
+                .set('traceId', traceId)
+                .set('focusTimestamp', focusTimestamp + '')
         };
     }
 }
