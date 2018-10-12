@@ -191,4 +191,7 @@
         <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.appender.worker.queueSize'] ?: 1024}"/>
         <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
     </bean>
+    <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
+        <constructor-arg index="0" value="true"/>
+    </bean>
 </beans>

@@ -14,14 +14,13 @@ Our team is redeveloping the UI with a new design using the latest Angular Frame
 If you want to experience the new UI in advance, 
 please follow the instructions below.
 
-* Add the following Valve setting to Tomcat's `context.xml`.
+* Update the following `RewriteForV2Filter` setting to Spring's `applicationContext-web.xml`.
 
 ```` xml
-<Context>
-  ...
-  <Valve className="org.apache.catalina.valves.rewrite.RewriteValve" />
-  ...
-</Context>
+// applicationContext-web.xml
+<bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
+  <constructor-arg index="0" value="true"/>
+</bean>
 
 ````
 
@@ -39,15 +38,13 @@ please follow the instructions below.
 Pinpoint 팀은 새로운 디자인과 최신 Angular Framework 을 이용하여 UI 를 재 개발하고 있습니다.    
 만약 새로운 UI를 미리 체험하고 싶다면 다음과 같은 설정이 필요합니다. 
 
-* 톰캣의 context.xml 에 아래와 같이 Valve 설정을 추가합니다.
+* applicationContext-web.xml 의 `contructor-arg` 값을 `true`로 설정합니다.
 
 ```` xml
-<Context>
-  ...
-  <Valve className="org.apache.catalina.valves.rewrite.RewriteValve" />
-  ...
-</Context>
-
+// applicationContext-web.xml
+<bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
+  <constructor-arg index="0" value="true"/>
+</bean>
 ````
 * Maven 빌드 시 `-Pv2` 옵션을 추가 합니다.  
 > mvn clean install -Pv2  
@@ -58,7 +55,7 @@ Pinpoint 팀은 새로운 디자인과 최신 Angular Framework 을 이용하여
 
 ![UI Example](images/ui.png)
 
-* 개발 시 watch & build 실행   
+* 개발 시 watch & build 실행 방법   
 `./web/src/main/webapp/v2/` 에서 `npm install` 후  다음 명령 실행
  
 ```` 
