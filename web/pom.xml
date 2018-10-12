@@ -345,8 +345,12 @@
                     <webResources>
                         <resource>
                             <directory>target/main/webapp</directory>
+                            <excludes>
+                                <exclude>v2/node_modules/</exclude>
+                            </excludes>
                         </resource>
                     </webResources>
+                    <warSourceExcludes>v2/node_modules/</warSourceExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -366,7 +370,9 @@
                                     <fileset dir="${basedir}/src/grunt"/>
                                 </copy>
                                 <copy todir="${basedir}/target/main/webapp" failonerror="true" verbose="true">
-                                    <fileset dir="${basedir}/src/main/webapp"/>
+                                    <fileset dir="${basedir}/src/main/webapp">
+                                        <exclude name="v2/node_modules/**"/>
+                                    </fileset>
                                 </copy>
                                 <copy file="${basedir}/src/Gruntfile.js" tofile="${basedir}/target/Gruntfile.js"
                                       failonerror="true" verbose="true"/>
