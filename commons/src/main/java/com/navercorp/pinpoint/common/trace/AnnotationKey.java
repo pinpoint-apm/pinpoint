@@ -107,6 +107,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>210</td><td>cxf.payload</td></tr>
  * <tr><td>300</td><td>PROXY_HTTP_HEADER</td></tr>
  * <tr><td>310</td><td>REDIS.IO</td></tr>
+ * <tr><td>320</td><td>hbase.client.params</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
  * <tr><td>9001</td><td>jackson.json.length</td></tr>
  * <tr><td>9002</td><td>json-lib.json.length</td></tr>
