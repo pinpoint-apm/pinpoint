@@ -1,0 +1,28 @@
+package com.navercorp.pinpoint.plugin.hbase;
+
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.verify;
+
+@RunWith(MockitoJUnitRunner.class)
+public class HbasePluginMetadataProviderTest {
+
+    @Mock
+    private TraceMetadataSetupContext context;
+
+    @Test
+    public void setup() {
+
+        HbasePluginMetadataProvider provider = new HbasePluginMetadataProvider();
+        provider.setup(context);
+
+        verify(context).addServiceType(HbasePluginConstants.HBASE);
+        verify(context).addServiceType(HbasePluginConstants.HBASE_ADMIN);
+        verify(context).addServiceType(HbasePluginConstants.HBASE_TABLE);
+        verify(context).addAnnotationKey(HbasePluginConstants.HBASE_PARAMS);
+    }
+}
