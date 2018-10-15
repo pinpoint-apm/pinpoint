@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
-import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedJson;
+import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedMongoJson;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedSql;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
@@ -681,8 +681,8 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
             if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
                 verifySql((ExpectedSql) expect, actualAnnotation);
-            } else if (expectedAnnotationKey == AnnotationKey.JSON && expect instanceof ExpectedJson) {
-                verifyJson((ExpectedJson) expect, actualAnnotation);
+            } else if (expectedAnnotationKey == AnnotationKey.MONGO_JSON && expect instanceof ExpectedMongoJson) {
+                verifyJson((ExpectedMongoJson) expect, actualAnnotation);
             } else {
                 Object expectedValue = expect.getValue();
 
@@ -737,7 +737,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
     }
 
-    private void verifyJson(ExpectedJson expected, Annotation actual) {
+    private void verifyJson(ExpectedMongoJson expected, Annotation actual) {
         StringStringValue value = ((StringStringValue) actual.getValue());
 
         if (!Objects.equal(value.getStringValue1(), expected.getQuery())) {

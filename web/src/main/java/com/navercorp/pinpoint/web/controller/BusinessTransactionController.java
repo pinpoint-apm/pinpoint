@@ -16,18 +16,23 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.util.DefaultJsonParser;
+import com.navercorp.pinpoint.common.util.DefaultMongoJsonParser;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
-import com.navercorp.pinpoint.common.util.JsonParser;
-import com.navercorp.pinpoint.common.util.OutputParameterJsonParser;
+import com.navercorp.pinpoint.common.util.MongoJsonParser;
+import com.navercorp.pinpoint.common.util.OutputParameterMongoJsonParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
+import com.navercorp.pinpoint.web.service.FilteredMapService;
+import com.navercorp.pinpoint.web.service.SpanResult;
+import com.navercorp.pinpoint.web.service.SpanService;
+import com.navercorp.pinpoint.web.service.TransactionInfoService;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
+import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +44,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
-import com.navercorp.pinpoint.web.service.FilteredMapService;
-import com.navercorp.pinpoint.web.service.SpanResult;
-import com.navercorp.pinpoint.web.service.SpanService;
-import com.navercorp.pinpoint.web.service.TransactionInfoService;
-import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -80,8 +79,8 @@ public class BusinessTransactionController {
     private SqlParser sqlParser = new DefaultSqlParser();
     private OutputParameterParser parameterParser = new OutputParameterParser();
 
-    private JsonParser jsonParser = new DefaultJsonParser();
-    private OutputParameterJsonParser parameterJsonParser = new OutputParameterJsonParser();
+    private MongoJsonParser mongoJsonParser = new DefaultMongoJsonParser();
+    private OutputParameterMongoJsonParser parameterJsonParser = new OutputParameterMongoJsonParser();
 
     /**
      * info lookup for a selected transaction
@@ -134,22 +133,22 @@ public class BusinessTransactionController {
         return StringEscapeUtils.escapeHtml4(combineSql);
     }
 
-    @RequestMapping(value = "/jsonBind", method = RequestMethod.POST)
+    @RequestMapping(value = "/mongoJsonBind", method = RequestMethod.POST)
     @ResponseBody
-    public String jsonBind(@RequestParam("json") String json,
+    public String mongoJsonBind(@RequestParam("mongoJson") String mongoJson,
                            @RequestParam("bind") String bind) {
         if (logger.isDebugEnabled()) {
-            logger.debug("POST /jsonBind params {json={}, bind={}}", json, bind);
+            logger.debug("POST /mongoJsonBind params {json={}, bind={}}", mongoJson, bind);
         }
 
-        if (json == null) {
+        if (mongoJson == null) {
             return "";
         }
 
-        final List<String> bindValues = parameterParser.parseOutputParameter(bind);
-        final String combinedJson = jsonParser.combineBindValues(json, bindValues);
+        final List<String> bindValues = parameterJsonParser.parseOutputParameter(bind);
+        final String combinedJson = mongoJsonParser.combineBindValues(mongoJson, bindValues);
         if (logger.isDebugEnabled()) {
-            logger.debug("Combine SQL. sql={}", combinedJson);
+            logger.debug("Combine MONGO_JSON. json={}", combinedJson);
         }
 
         ObjectMapper mapper = new ObjectMapper();
