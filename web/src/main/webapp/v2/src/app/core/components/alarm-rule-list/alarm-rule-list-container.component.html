@@ -8,7 +8,10 @@
                 <th>
                     <div class="l-table-title">
                         Alarm
-                        <button class="btn btn-sm" [ngClass]="getAddButtonClass()" (click)="onShowCreateAlarmPopup()">+ Add</button>
+                        <div>
+                            <button class="btn btn-sm btn-blue" *ngIf="currentApplication" (click)="onReload()"><i class="fas fa-sync"></i></button>
+                            <button class="btn btn-sm" [ngClass]="getAddButtonClass()" (click)="onShowCreateAlarmPopup()">+ Add</button>
+                        </div>
                     </div>
                     <div class="l-alarm-rules-th">
                         <div>Rule Name</div>

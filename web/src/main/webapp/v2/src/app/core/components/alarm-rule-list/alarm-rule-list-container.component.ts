@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, combineLatest, Observable } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Subject, combineLatest } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { TranslateReplaceService } from 'app/shared/services';
@@ -12,7 +12,8 @@ import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleResponse
 @Component({
     selector: 'pp-alarm-rule-list-container',
     templateUrl: './alarm-rule-list-container.component.html',
-    styleUrls: ['./alarm-rule-list-container.component.css']
+    styleUrls: ['./alarm-rule-list-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
@@ -22,8 +23,8 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     showLoading = false;
     showCreate = false;
     message = '';
-    checkerList$: Observable<string[]>;
-    userGroupList$: Observable<string[]>;
+    checkerList: string[];
+    userGroupList: string[];
     alarmRuleList: IAlarmRule[];
 
     i18nLabel = {
@@ -42,21 +43,35 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     editAlarm: any;
 
     constructor(
+        private changeDetectorRef: ChangeDetectorRef,
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
         private alarmRuleDataService: AlarmRuleDataService,
         private userGroupDataSerivce: UserGroupDataService,
         private applicationListInteractionForConfigurationService: ApplicationListInteractionForConfigurationService
-    ) { }
+    ) {}
     ngOnInit() {
-        this.checkerList$ = this.alarmRuleDataService.getCheckerList();
-        this.userGroupList$ = this.userGroupDataSerivce.retrieve().pipe(
-            map((userGroupList: IUserGroup[]) => {
-                return userGroupList.map((userGroup: IUserGroup) => {
+        this.alarmRuleDataService.getCheckerList().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((checkerList: string[] | IServerErrorShortFormat) => {
+            if ((checkerList as IServerErrorShortFormat).errorCode) {
+            } else {
+                this.checkerList = checkerList as string[];
+            }
+        });
+        this.userGroupDataSerivce.retrieve().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((userGroupList: IUserGroup[] | IServerErrorShortFormat) => {
+            if ((userGroupList as IServerErrorShortFormat).errorCode) {
+                // (userGroupList as IServerErrorShortFormat).errorMessage;
+            } else {
+                this.userGroupList = (userGroupList as IUserGroup[]).map((userGroup: IUserGroup) => {
                     return userGroup.id;
                 });
-            })
-        );
+            }
+        }, (error: IServerErrorFormat) => {
+
+        });
         this.applicationListInteractionForConfigurationService.onSelectApplication$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((selectedApplication: IApplication) => {
@@ -93,9 +108,18 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     }
     private getAlarmData(): void {
         this.showProcessing();
-        this.alarmRuleDataService.retrieve(this.currentApplication.getApplicationName()).subscribe((alarmRuleList: IAlarmRule[]) => {
-            this.alarmRuleList = alarmRuleList;
+        this.alarmRuleDataService.retrieve(this.currentApplication.getApplicationName()).subscribe((alarmRuleList: IAlarmRule[] | IServerErrorShortFormat) => {
+            if ((alarmRuleList as IServerErrorShortFormat).errorCode) {
+                this.message = (alarmRuleList as IServerErrorShortFormat).errorMessage;
+            } else {
+                this.alarmRuleList = alarmRuleList as IAlarmRule[];
+            }
             this.hideProcessing();
+            this.changeDetectorRef.detectChanges();
+        }, (error: IServerErrorFormat) => {
+            this.hideProcessing();
+            this.message = error.exception.message;
+            this.changeDetectorRef.detectChanges();
         });
     }
     private getAlarmIndexByRuleId(ruleId: string): number {
@@ -132,11 +156,16 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             smsSend: alarm.smsSend,
             emailSend: alarm.emailSend,
             notes: alarm.notes
-        } as IAlarmRule).subscribe((response: IAlarmRuleCreated) => {
-            this.getAlarmData();
-        }, (error: string) => {
+        } as IAlarmRule).subscribe((response: IAlarmRuleCreated | IServerErrorShortFormat) => {
+            if ((response as IServerErrorShortFormat).errorCode) {
+                this.hideProcessing();
+                this.message = (response as IServerErrorShortFormat).errorMessage;
+            } else {
+                this.getAlarmData();
+            }
+        }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error;
+            this.message = error.exception.message;
         });
     }
     onUpdateAlarm(alarm: Alarm): void {
@@ -151,11 +180,16 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             smsSend: alarm.smsSend,
             emailSend: alarm.emailSend,
             notes: alarm.notes
-        } as IAlarmRule).subscribe((response: IAlarmRuleResponse) => {
-            this.getAlarmData();
-        }, (error: string) => {
+        } as IAlarmRule).subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
+            if ((response as IServerErrorShortFormat).errorCode) {
+                this.hideProcessing();
+                this.message = (response as IServerErrorShortFormat).errorMessage;
+            } else {
+                this.getAlarmData();
+            }
+        }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error;
+            this.message = error.exception.message;
         });
     }
     onShowCreateAlarmPopup(): void {
@@ -170,13 +204,21 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     onCloseMessage(): void {
         this.message = '';
     }
+    onReload(): void {
+        this.getAlarmData();
+    }
     onRemoveAlarm(ruleId: string): void {
         this.showProcessing();
-        this.alarmRuleDataService.remove(ruleId).subscribe((response: IAlarmRuleResponse) => {
-            this.getAlarmData();
-        }, (error: string) => {
+        this.alarmRuleDataService.remove(ruleId).subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
+            if ((response as IServerErrorShortFormat).errorCode) {
+                this.hideProcessing();
+                this.message = (response as IServerErrorShortFormat).errorMessage;
+            } else {
+                this.getAlarmData();
+            }
+        }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error;
+            this.message = error.exception.message;
         });
     }
     onEditAlarm(ruleId: string): void {
