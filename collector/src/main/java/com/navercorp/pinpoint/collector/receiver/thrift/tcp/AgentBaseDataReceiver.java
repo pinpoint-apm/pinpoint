@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -106,12 +106,15 @@ public class AgentBaseDataReceiver {
 
     private void prepare(PinpointServerAcceptor acceptor) {
         if (clusterService != null && clusterService.isEnable()) {
-            logger.debug("Add Cluster channel state change event handlers {}", clusterService.getChannelStateChangeEventHandler());
-            acceptor.addStateChangeEventHandler(clusterService.getChannelStateChangeEventHandler());
+            final ServerStateChangeEventHandler channelStateChangeEventHandler = clusterService.getChannelStateChangeEventHandler();
+            logger.info("Add Cluster channel state change event handlers {}", channelStateChangeEventHandler);
+            acceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
+        } else {
+            logger.info("clusterService is disabled");
         }
 
         for (ServerStateChangeEventHandler channelStateChangeEventHandler : this.channelStateChangeEventHandlers) {
-            logger.debug("Add channel state change event handlers {}", channelStateChangeEventHandler);
+            logger.info("Add channel state change event handlers {}", channelStateChangeEventHandler);
             acceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
         }
     }
