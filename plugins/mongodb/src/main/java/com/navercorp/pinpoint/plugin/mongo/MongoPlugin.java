@@ -47,12 +47,9 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private TransformTemplate transformTemplate;
 
-    boolean collectJson;
-
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         MongoConfig config = new MongoConfig(context.getConfig());
-        collectJson = config.isCollectJson();
 
         if (!config.isEnable()) {
             logger.info("MongoDB plugin is not executed because plugin enable value is false.");
@@ -62,8 +59,8 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();
         addConnectionTransformer3_8_X();
-        addSessionTransformer3_0_X();
-        addSessionTransformer3_7_X();
+        addSessionTransformer3_0_X(config);
+        addSessionTransformer3_7_X(config);
     }
 
     private void addConnectionTransformer3_0_X() {
@@ -256,7 +253,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addSessionTransformer3_0_X() {
+    private void addSessionTransformer3_0_X(final MongoConfig config) {
         TransformCallback transformCallback = new TransformCallback() {
 
             @Override
@@ -271,11 +268,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistR3_0_x())))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor", va(collectJson), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor", va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistCUD3_0_x())))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor", va(collectJson) ,MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor", va(config.isCollectJson(), config.istraceBsonBindValue()) ,MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
                 }
 
                 InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference", "com.mongodb.ReadPreference");
@@ -295,7 +292,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         // java driver 3.0.0 ~ 3.6.4
         transformTemplate.transform("com.mongodb.MongoCollectionImpl", transformCallback);
     }
-    private void addSessionTransformer3_7_X() {
+    private void addSessionTransformer3_7_X(final MongoConfig config) {
         TransformCallback transformCallback = new TransformCallback() {
 
             @Override
@@ -310,11 +307,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistR3_7_x())))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor", va(collectJson), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor", va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistCUD3_7_x())))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor", va(collectJson), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor", va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
                 }
 
                 InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference", "com.mongodb.ReadPreference");

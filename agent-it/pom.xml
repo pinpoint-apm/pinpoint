@@ -316,13 +316,21 @@
 
         <dependency>
             <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
+            <version>3.7.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
+            <version>3.7.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <version>1.50.5</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- for apache cxf -->

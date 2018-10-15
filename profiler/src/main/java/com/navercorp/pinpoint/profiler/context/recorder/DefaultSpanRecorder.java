@@ -15,19 +15,17 @@
  */
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.common.trace.LoggingInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.common.trace.LoggingInfo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * 
@@ -42,8 +40,8 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     private final boolean isRoot;
     private final boolean sampling;
     
-    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, JsonMetaDataService jsonMetaDataService) {
-        super(stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
+    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
+        super(stringMetaDataService, sqlMetaDataService);
         this.span = span;
         this.isRoot = isRoot;
         this.sampling = sampling;

@@ -21,15 +21,12 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,15 +47,12 @@ public class DefaultSpanRecorderTest {
     private StringMetaDataService stringMetaDataService;
     @Mock
     private SqlMetaDataService sqlMetaDataService;
-    @Mock
-    private JsonMetaDataService jsonMetaDataService;
-
 
     @Test
     public void testRecordApiId() throws Exception {
         Span span = new Span(traceRoot);
 
-        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
 
         final int API_ID = 1000;
         recorder.recordApiId(API_ID);
@@ -73,7 +67,7 @@ public class DefaultSpanRecorderTest {
 
         Span span = new Span(traceRoot);
 
-        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
 
         final String endPoint = "endPoint";
         recorder.recordEndPoint(endPoint);

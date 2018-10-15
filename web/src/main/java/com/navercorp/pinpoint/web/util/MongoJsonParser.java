@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.web.util;
 
 import java.util.List;
 
 /**
  * @author Roy Kim
  */
-public interface JsonParser {
+public interface MongoJsonParser {
 
-    NormalizedJson normalizeJson(String json);
-
-    String combineBindValues(String json, List<String> bindValues);
+    String combineBindValues(String sql, List<String> bindValues);
 }
