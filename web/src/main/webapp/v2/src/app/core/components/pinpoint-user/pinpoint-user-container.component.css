@@ -21,6 +21,9 @@
     background-color: #f6f8fb;
     border-bottom: 1px solid #e5e8f0;
 }
+.l-pinpoint-user-title button:last-child {
+    margin-left: 2px;
+}
 .l-pinpoint-user-search {
     padding: 10px 15px;
     border-bottom: 1px solid #e5e8f0;

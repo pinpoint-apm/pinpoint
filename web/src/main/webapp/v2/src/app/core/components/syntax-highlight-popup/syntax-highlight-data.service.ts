@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 enum TYPE {
     SQL = 'SQL',
@@ -30,6 +31,8 @@ export class SyntaxHighlightDataService {
             {
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
             }
+        ).pipe(
+            retry(3)
         );
     }
 }
