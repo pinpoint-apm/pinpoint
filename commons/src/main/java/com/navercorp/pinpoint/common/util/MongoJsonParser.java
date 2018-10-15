@@ -21,9 +21,7 @@ import java.util.List;
 /**
  * @author Roy Kim
  */
-public interface JsonParser {
+public interface MongoJsonParser {
 
-    NormalizedJson normalizeJson(String json);
-
-    String combineBindValues(String json, List<String> bindValues);
+    String combineBindValues(String sql, List<String> bindValues);
 }

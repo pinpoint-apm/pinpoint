@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 
 /**
@@ -35,9 +35,6 @@ public class MongoDriverGetDatabaseInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MethodDescriptor methodDescriptor;
-    private final TraceContext traceContext;
-
     public MongoDriverGetDatabaseInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
@@ -45,8 +42,6 @@ public class MongoDriverGetDatabaseInterceptor implements AroundInterceptor {
         if (descriptor == null) {
             throw new NullPointerException("descriptor must not be null");
         }
-        this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
     }
 
     @Override
@@ -66,11 +61,11 @@ public class MongoDriverGetDatabaseInterceptor implements AroundInterceptor {
         if (target instanceof DatabaseInfoAccessor) {
             databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
         } else {
-            databaseInfo = null;
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
 
         databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGO, MongoConstants.MONGO_EXECUTE_QUERY,
-            null, null, databaseInfo.getHost(), args[0].toString(), null, ((MongoDatabaseInfo)databaseInfo).getReadPreference(), ((MongoDatabaseInfo)databaseInfo).getWriteConcern());
+                null, null, databaseInfo.getHost(), args[0].toString(), null, ((MongoDatabaseInfo) databaseInfo).getReadPreference(), ((MongoDatabaseInfo) databaseInfo).getWriteConcern());
 
         if (result instanceof DatabaseInfoAccessor) {
             ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);

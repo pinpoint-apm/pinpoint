@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 
 /**
  * @author Roy Kim
@@ -34,9 +35,6 @@ public class MongoReadPreferenceInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MethodDescriptor methodDescriptor;
-    private final TraceContext traceContext;
-
     public MongoReadPreferenceInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
@@ -44,8 +42,6 @@ public class MongoReadPreferenceInterceptor implements AroundInterceptor {
         if (descriptor == null) {
             throw new NullPointerException("descriptor must not be null");
         }
-        this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
     }
 
     @Override
@@ -65,14 +61,14 @@ public class MongoReadPreferenceInterceptor implements AroundInterceptor {
         if (target instanceof DatabaseInfoAccessor) {
             databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
         } else {
-            databaseInfo = null;
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
 
         String readPreference = ((ReadPreference) args[0]).getName().toUpperCase();
 
         databaseInfo = new MongoDatabaseInfo(databaseInfo.getType(), databaseInfo.getExecuteQueryType()
                 , databaseInfo.getRealUrl(), databaseInfo.getUrl(), databaseInfo.getHost(), databaseInfo.getDatabaseId()
-                , ((MongoDatabaseInfo)databaseInfo).getCollectionName(), readPreference, ((MongoDatabaseInfo)databaseInfo).getWriteConcern());
+                , ((MongoDatabaseInfo) databaseInfo).getCollectionName(), readPreference, ((MongoDatabaseInfo) databaseInfo).getWriteConcern());
 
         if (result instanceof DatabaseInfoAccessor) {
             ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
