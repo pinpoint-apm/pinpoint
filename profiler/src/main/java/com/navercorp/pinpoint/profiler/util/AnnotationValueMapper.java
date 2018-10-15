@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
-
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
@@ -70,6 +69,8 @@ public final class AnnotationValueMapper {
         } else if (value instanceof LongIntIntByteByteStringValue) {
             return value;
         } else if (value instanceof IntBooleanIntBooleanValue) {
+            return value;
+        } else if (value instanceof StringStringValue) {
             return value;
         } else if (value instanceof TBase) {
             throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());

@@ -20,8 +20,8 @@ package com.navercorp.pinpoint.common.util;
  * @author Roy Kim
  */
 public class StringStringValue {
-    private final String stringValue1;
-    private final String stringValue2;
+    private String stringValue1;
+    private String stringValue2;
 
     public StringStringValue(String stringValue1, String stringValue2) {
         this.stringValue1 = stringValue1;
@@ -34,5 +34,14 @@ public class StringStringValue {
 
     public String getStringValue2() {
         return stringValue2;
+    }
+
+    public void appendStringStringValue(StringStringValue stringStringValue){
+
+        StringBuilder str1 = new StringBuilder();
+        StringBuilder str2 = new StringBuilder();
+
+        this.stringValue1 = str1.append(stringValue1).append(", ").append(stringStringValue.getStringValue1()).toString();
+        this.stringValue2 = str2.append(stringValue2).append(", ").append(stringStringValue.getStringValue2()).toString();
     }
 }
