@@ -339,3 +339,8 @@ interface IServerErrorFormat {
         message: string;
     }
 }
+
+interface IServerErrorShortFormat {
+    errorCode: string;
+    errorMessage: string;
+}

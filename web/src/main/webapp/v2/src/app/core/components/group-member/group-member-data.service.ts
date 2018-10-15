@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 export interface IGroupMember {
     department: string;
@@ -16,16 +16,11 @@ export interface IGroupMemberResponse {
 
 @Injectable()
 export class GroupMemberDataService {
-    url = 'userGroup/member.pinpoint';
+    private url = 'userGroup/member.pinpoint';
     constructor(private http: HttpClient) { }
     retrieve(userGroupId: string): Observable<IGroupMember[]> {
-        return this.http.get<IGroupMember[]>(this.url, { params: { userGroupId }}).pipe(
-            tap((data: any) => {
-                if (data.errorCode) {
-                    throw data.errorMessage;
-                }
-            }),
-            catchError(this.handleError)
+        return this.http.get<IGroupMember[]>(this.url, { params: new HttpParams().set('userGroupId', userGroupId) }).pipe(
+            retry(3)
         );
     }
     create(memberId: string, userGroupId: string): Observable<IGroupMemberResponse> {
@@ -33,12 +28,7 @@ export class GroupMemberDataService {
             memberId,
             userGroupId
         }).pipe(
-            tap((data: any) => {
-                if (data.errorCode) {
-                    throw data.errorMessage;
-                }
-            }),
-            catchError(this.handleError)
+            retry(3)
         );
     }
     remove(memberId: string, userGroupId: string): Observable<IGroupMemberResponse> {
@@ -48,15 +38,7 @@ export class GroupMemberDataService {
                 userGroupId
             }
         }).pipe(
-            tap((data: any) => {
-                if (data.errorCode) {
-                    throw data.errorMessage;
-                }
-            }),
-            catchError(this.handleError)
+            retry(3)
         );
-    }
-    private handleError(error: HttpErrorResponse) {
-        return throwError(error.statusText || error);
     }
 }

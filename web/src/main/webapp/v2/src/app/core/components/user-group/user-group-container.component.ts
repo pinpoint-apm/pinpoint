@@ -12,6 +12,7 @@ import { UserGroupDataService, IUserGroup, IUserGroupCreated, IUserGroupDeleted 
 })
 export class UserGroupContainerComponent implements OnInit {
     private searchQuery = '';
+    private userId = '';
     i18nText: { [key: string]: string } = {
         NAME_LABEL: '',
         USER_GROUP_NAME_REQUIRED: '',
@@ -37,9 +38,8 @@ export class UserGroupContainerComponent implements OnInit {
     ngOnInit() {
         this.getI18NText();
         this.webAppSettingDataService.getUserId().subscribe((userId: string = '') => {
-            this.getUserGroupList(userId === '' ? null : {
-                userId: userId
-            });
+            this.userId = userId;
+            this.getUserGroupList({ userId: this.userId});
         });
     }
     private getI18NText(): void {
@@ -54,51 +54,60 @@ export class UserGroupContainerComponent implements OnInit {
             this.i18nText.NAME_LABEL = i18n[2];
         });
     }
-    private getUserGroupList(param: any): void  {
-        this.userGroupDataService.retrieve(param).subscribe((userGroupData: IUserGroup[]) => {
-            this.userGroupList = userGroupData;
+    private getUserGroupList(params: any): void  {
+        this.userGroupDataService.retrieve(params).subscribe((userGroupData: IUserGroup[] | IServerErrorShortFormat) => {
+            if ((userGroupData as IServerErrorShortFormat).errorCode) {
+                this.message = (userGroupData as IServerErrorShortFormat).errorMessage;
+            } else {
+                this.userGroupList = userGroupData as IUserGroup[];
+            }
             this.hideProcessing();
-        }, (error: string) => {
+        }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error;
+            this.message = error.exception.message;
         });
     }
-    private makeUserGroupQuery(userId: string): any {
+    private makeUserGroupQuery(): any {
         return this.searchQuery === '' ? {
-            userId: userId
+            userId: this.userId
         } : {
             userGroupId: this.searchQuery
         };
     }
     onRemoveUserGroup(id: string): void {
         this.showProcessing();
-        this.webAppSettingDataService.getUserId().subscribe((userId: string = '') => {
-            this.userGroupDataService.remove(id, userId).subscribe((response: IUserGroupDeleted) => {
-                if (response.result === 'SUCCESS') {
+        this.userGroupDataService.remove(id, this.userId).subscribe((response: IUserGroupDeleted | IServerErrorShortFormat) => {
+            if ((response as IServerErrorShortFormat).errorCode) {
+                this.message = (response as IServerErrorShortFormat).errorMessage;
+                this.hideProcessing();
+            } else {
+                if ((response as IUserGroupDeleted).result === 'SUCCESS') {
                     this.userGroupInteractionService.setSelectedUserGroup('');
-                    this.getUserGroupList(this.makeUserGroupQuery(userId));
+                    this.getUserGroupList(this.makeUserGroupQuery());
                 } else {
                     this.hideProcessing();
                 }
-            }, (error: string) => {
-                this.hideProcessing();
-                this.message = error;
-            });
+            }
+        }, (error: IServerErrorFormat) => {
+            this.hideProcessing();
+            this.message = error.exception.message;
         });
     }
     onCreateUserGroup(newUserGroupName: string): void {
         this.showProcessing();
-        this.webAppSettingDataService.getUserId().subscribe((userId: string = '') => {
-            this.userGroupDataService.create(newUserGroupName, userId).subscribe((userGroupData: IUserGroupCreated) => {
+        this.userGroupDataService.create(newUserGroupName, this.userId).subscribe((userGroupData: IUserGroupCreated | IServerErrorShortFormat) => {
+            if ((userGroupData as IServerErrorShortFormat).errorCode) {
+                this.message = (userGroupData as IServerErrorShortFormat).errorMessage;
+            } else {
                 this.userGroupList.push({
                     id: newUserGroupName,
-                    number: userGroupData.number
+                    number: (userGroupData as IUserGroupCreated).number
                 });
-                this.hideProcessing();
-            }, (error: string) => {
-                this.hideProcessing();
-                this.message = error;
-            });
+            }
+            this.hideProcessing();
+        }, (error: IServerErrorFormat) => {
+            this.hideProcessing();
+            this.message = error.exception.message;
         });
     }
     onCloseCreateUserPopup(): void {
@@ -117,11 +126,14 @@ export class UserGroupContainerComponent implements OnInit {
     onCloseMessage(): void {
         this.message = '';
     }
+    onReload(): void {
+        this.showProcessing();
+        this.getUserGroupList(this.makeUserGroupQuery());
+    }
     onSearch(query: string): void {
+        this.showProcessing();
         this.searchQuery = query;
-        this.webAppSettingDataService.getUserId().subscribe((userId: string = '') => {
-            this.getUserGroupList(this.makeUserGroupQuery(userId));
-        });
+        this.getUserGroupList(this.makeUserGroupQuery());
     }
     private showProcessing(): void {
         this.useDisable = true;

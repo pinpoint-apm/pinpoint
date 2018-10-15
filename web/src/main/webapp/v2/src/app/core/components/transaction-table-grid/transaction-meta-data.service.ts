@@ -12,6 +12,7 @@ import {
     DynamicPopupService
 } from 'app/shared/services';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Injectable()
 export class TransactionMetaDataService {
@@ -100,6 +101,17 @@ export class TransactionMetaDataService {
                     this.outTransactionDataLoad.next(responseData.metadata);
                 }
                 this.outTransactionDataCount.next(this.countStatus);
+            }, (error: IServerErrorFormat) => {
+                this.dynamicPopupService.openPopup({
+                    data: {
+                        title: 'Error',
+                        contents: error
+                    },
+                    component: ServerErrorPopupContainerComponent,
+                    onCloseCallback: () => {
+                        this.urlRouteManagerService.reload();
+                    }
+                });
             });
         }
     }

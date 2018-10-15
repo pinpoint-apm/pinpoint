@@ -1,7 +1,10 @@
 <div class="l-group-member-wrapper">
     <div class="l-group-member-title">
         <span>Group Member ({{groupMemberList.length}})</span>
-        <button class="fas fa-exchange-alt l-group-member-sort-exchange" (click)="onSort()"></button>
+        <div>
+            <button *ngIf="currentUserGroupId" class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button>
+            <button class="fas fa-exchange-alt l-group-member-sort-exchange" (click)="onSort()"></button>
+        </div>
     </div>
     <div class="l-group-member-list">
         <pp-group-member

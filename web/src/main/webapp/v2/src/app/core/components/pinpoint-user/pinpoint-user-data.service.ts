@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 export interface IPinpointUser {
     department?: string;
@@ -17,51 +17,33 @@ export interface IPinpointUserResponse {
 
 @Injectable()
 export class PinpointUserDataService {
-    url = 'user.pinpoint';
+    private url = 'user.pinpoint';
     constructor(private http: HttpClient) { }
     retrieve(department?: string): Observable<IPinpointUser[] | {}> {
         return this.http.get<IPinpointUser[] | {}>(this.url, this.makeRequestOptionsArgs(department)).pipe(
-            tap((data) => {
-                if (data['errorCode']) {
-                    throw data['errorMessage'];
-                }
-            }),
-            catchError(this.handleError)
+            retry(3)
         );
     }
     create(params: IPinpointUser): Observable<IPinpointUserResponse> {
         return this.http.post<IPinpointUserResponse>(this.url, params).pipe(
-            tap(this.checkError),
-            catchError(this.handleError)
+            retry(3)
         );
     }
     update(params: IPinpointUser): Observable<IPinpointUserResponse> {
         return this.http.put<IPinpointUserResponse>(this.url, params).pipe(
-            tap(this.checkError),
-            catchError(this.handleError)
+            retry(3)
         );
     }
     remove(userId: string): Observable<IPinpointUserResponse> {
         return this.http.request<IPinpointUserResponse>('delete', this.url, {
             body: { userId }
         }).pipe(
-            tap(this.checkError),
-            catchError(this.handleError)
+            retry(3)
         );
     }
-    private checkError(data: any) {
-        if (data['errorCode']) {
-            throw data['errorMessage'];
-        } else if (data['result'] !== 'SUCCESS') {
-            throw data;
-        }
-    }
-    private handleError(error: HttpErrorResponse | string) {
-        return throwError(error['statusText'] || error);
-    }
     private makeRequestOptionsArgs(department?: string): object {
-        return {
-            params: department ? { searchKey: department } : {}
-        };
+        return department ? {
+            params: new HttpParams().set('searchKey', department)
+        } : {};
     }
 }
