@@ -262,8 +262,8 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugins</artifactId>
-                <type>zip</type>
+                <artifactId>pinpoint-plugins-assembly</artifactId>
+                <type>pom</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
