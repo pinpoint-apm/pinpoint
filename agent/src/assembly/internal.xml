@@ -3,11 +3,20 @@
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
     <id>pinpoint-naver-agent</id>
     <formats>
-        <format>zip</format>
-        <format>tar.gz</format>
+        <format>dir</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <componentDescriptors>
         <componentDescriptor>component/core.xml</componentDescriptor>
     </componentDescriptors>
+    <dependencySets>
+        <dependencySet>
+            <includes>
+                <include>com.navercorp.pinpoint:pinpoint-profiler-test</include>
+            </includes>
+            <outputDirectory>lib</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+        </dependencySet>
+    </dependencySets>
 </assembly>

@@ -61,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugins</artifactId>
+            <artifactId>pinpoint-plugins-assembly</artifactId>
             <type>pom</type>
         </dependency>
         <dependency>
