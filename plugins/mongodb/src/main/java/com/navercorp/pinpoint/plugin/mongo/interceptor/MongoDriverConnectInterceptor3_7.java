@@ -31,12 +31,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
+import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.navercorp.pinpoint.plugin.mongo.interceptor.MongoWriteConcernInterceptor.getWriteConcern0;
 
 /**
  * @author Roy Kim
@@ -60,29 +59,29 @@ public class MongoDriverConnectInterceptor3_7 extends SpanEventSimpleAroundInter
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
-            Throwable throwable) {
+                                  Throwable throwable) {
 
         final boolean success = InterceptorUtils.isSuccess(throwable);
 
         if (success) {
             // Must not check if current transaction is trace target or not. Connection can be made by other thread.
-            final List<String> hostList = getHostList(args[0]);
-            String readPreference = getReadPreference(args[0]);
-            String writeConcern = getWriteConcern(args[0]);
 
             if (args == null) {
                 return;
             }
 
+            final List<String> hostList = getHostList(args[0]);
+            String readPreference = getReadPreference(args[0]);
+            String writeConcern = getWriteConcern(args[0]);
+
             DatabaseInfo databaseInfo = createDatabaseInfo(hostList, readPreference, writeConcern);
-
-            if (result instanceof DatabaseInfoAccessor) {
-                ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
-            }
-
 
             if (databaseInfo == null) {
                 databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            }
+
+            if (result instanceof DatabaseInfoAccessor) {
+                ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             }
 
             recorder.recordServiceType(databaseInfo.getType());
@@ -116,7 +115,7 @@ public class MongoDriverConnectInterceptor3_7 extends SpanEventSimpleAroundInter
         List<ServerAddress> lists = mongoClientSettings.getClusterSettings().getHosts();
 
         final List<String> hostList = new ArrayList<String>();
-        for(ServerAddress sa : lists) {
+        for (ServerAddress sa : lists) {
             final String hostAddress = HostAndPort.toHostAndPortString(sa.getHost(), sa.getPort());
             hostList.add(hostAddress);
         }
@@ -133,6 +132,7 @@ public class MongoDriverConnectInterceptor3_7 extends SpanEventSimpleAroundInter
 
         return mongoClientSettings.getReadPreference().getName();
     }
+
     private String getWriteConcern(Object arg) {
         if (!(arg instanceof MongoClientSettings)) {
             return null;
@@ -140,6 +140,6 @@ public class MongoDriverConnectInterceptor3_7 extends SpanEventSimpleAroundInter
 
         final MongoClientSettings mongoClientSettings = (MongoClientSettings) arg;
 
-        return getWriteConcern0(mongoClientSettings.getWriteConcern());
+        return MongoUtil.getWriteConcern0(mongoClientSettings.getWriteConcern());
     }
 }

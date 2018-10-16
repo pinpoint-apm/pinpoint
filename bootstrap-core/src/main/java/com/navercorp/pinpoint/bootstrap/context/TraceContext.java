@@ -95,8 +95,6 @@ public interface TraceContext {
 
     boolean cacheSql(ParsingResult parsingResult);
 
-    ParsingResult parseJson(String json);
-
     TraceId createTraceId(String transactionId, long parentSpanId, long spanId, short flags);
 
     Trace disableSampling();

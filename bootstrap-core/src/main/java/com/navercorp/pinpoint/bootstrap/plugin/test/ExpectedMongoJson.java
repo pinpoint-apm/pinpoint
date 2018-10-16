@@ -16,17 +16,15 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
-import java.util.Arrays;
-
 /**
  * @author Roy Kim
  *
  */
-public class ExpectedJson extends ExpectedAnnotation {
+public class ExpectedMongoJson extends ExpectedAnnotation {
     private final String output;
 
-    public ExpectedJson(String query, String output, Object[] bindValues) {
-        super(AnnotationKey.JSON.getName(), query);
+    public ExpectedMongoJson(String query, String output, Object[] bindValues) {
+        super(AnnotationKey.MONGO_JSON.getName(), query);
         this.output = output;
     }
 

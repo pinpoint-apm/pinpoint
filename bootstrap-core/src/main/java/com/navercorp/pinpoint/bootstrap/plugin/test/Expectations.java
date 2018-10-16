@@ -118,6 +118,6 @@ public final class Expectations {
     }
 
     public static ExpectedAnnotation json(String query, String output, Object... bindValues) {
-        return new ExpectedJson(query, output, bindValues);
+        return new ExpectedMongoJson(query, output, bindValues);
     }
 }
