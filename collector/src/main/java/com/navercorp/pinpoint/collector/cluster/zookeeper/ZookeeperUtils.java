@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstatns;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
@@ -25,8 +26,6 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
  * @author koo.taejin
  */
 public final class ZookeeperUtils {
-
-    private static final String ZOOKEEPER_PATH_SEPARATOR = "/";
 
     // would be a good idea to move to commons-hbase (if implemented) in the future
     private ZookeeperUtils() {
@@ -63,7 +62,7 @@ public final class ZookeeperUtils {
     }
 
     public static String bindingPathAndNode(String path, String zNodeName) {
-        return bindingPathAndNode(path, zNodeName, ZOOKEEPER_PATH_SEPARATOR);
+        return bindingPathAndNode(path, zNodeName, ZookeeperConstatns.PATH_SEPARATOR);
     }
 
     public static String bindingPathAndNode(String path, String zNodeName, String pathSeparator) {
