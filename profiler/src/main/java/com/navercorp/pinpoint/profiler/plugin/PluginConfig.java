@@ -31,7 +31,7 @@ import java.util.jar.JarFile;
  */
 public class PluginConfig {
 
-
+    public static final String PINPOINT_PLUGIN_ID = "Pinpoint-Plugin-Id";
     public static final String PINPOINT_PLUGIN_PACKAGE = "Pinpoint-Plugin-Package";
     public static final String DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME = "com.navercorp.pinpoint.plugin";
 
