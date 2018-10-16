@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, retry, tap } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 export interface IActiveThreadDump {
     threadId: string;
@@ -27,21 +27,12 @@ export interface IActiveThreadDumpResponse {
 
 @Injectable()
 export class ActiveThreadDumpDetailInfoDataService {
-    requestURL = 'agent/activeThreadDump.pinpoint';
+    private requestURL = 'agent/activeThreadDump.pinpoint';
     constructor(private http: HttpClient) {}
     getData(applicationName: string, agentId: string, threadName: string, localTraceId: number): Observable<any | AjaxException> {
         return this.http.get<any>(this.requestURL, this.makeRequestOptionsArgs(applicationName, agentId, threadName, localTraceId)).pipe(
-            retry(3),
-            tap((data: any) => {
-                if (data.exception) {
-                    throw data.exception.message;
-                }
-            }),
-            catchError(this.handleError)
+            retry(3)
         );
-    }
-    private handleError(error: HttpErrorResponse | string) {
-        return throwError(error['message'] || error);
     }
     private makeRequestOptionsArgs(applicationName: string, agentId: string, threadName: string, localTraceId: number): object {
         return {

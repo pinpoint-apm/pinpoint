@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, retry } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
 import { UrlQuery, UrlPathId } from 'app/shared/models';
-import { WebAppSettingDataService, NewUrlStateNotificationService, StoreHelperService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService, StoreHelperService, DynamicPopupService, UrlRouteManagerService } from 'app/shared/services';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Injectable()
 export class ServerMapForFilteredMapDataService {
@@ -23,7 +24,9 @@ export class ServerMapForFilteredMapDataService {
         private http: HttpClient,
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService
+        private urlRouteManagerService: UrlRouteManagerService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private dynamicPopupService: DynamicPopupService
     ) {
         this.onServerMapData$ = this.serverMapData.asObservable();
     }
@@ -43,6 +46,7 @@ export class ServerMapForFilteredMapDataService {
         this.requsting = true;
         this.storeHelperService.dispatch(new Actions.UpdateServerMapLoadingState('loading'));
         this.http.get(this.url, this.makeRequestOptionsArgs(to)).pipe(
+            retry(3),
             map(res => {
                 return res || {};
             })
@@ -59,25 +63,40 @@ export class ServerMapForFilteredMapDataService {
             }
             this.serverMapData.next(res);
             this.requsting = false;
+        }, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.urlRouteManagerService.move({
+                        url: [
+                            this.newUrlStateNotificationService.getStartPath()
+                        ],
+                        needServerTimeRequest: false
+                    });
+                }
+            });
         });
     }
     private makeRequestOptionsArgs(to?: number): any {
         return {
-            params: {
-                applicationName: this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).applicationName,
-                serviceTypeName: this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).serviceType,
-                from: this.newUrlStateNotificationService.getStartTimeToNumber(),
-                to: (to || this.newUrlStateNotificationService.getEndTimeToNumber()),
-                originTo: this.newUrlStateNotificationService.getEndTimeToNumber(),
-                calleeRange: this.newUrlStateNotificationService.hasValue(UrlQuery.INBOUND) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.INBOUND) : this.webAppSettingDataService.getUserDefaultInbound(),
-                callerRange: this.newUrlStateNotificationService.hasValue(UrlQuery.OUTBOUND) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.OUTBOUND) : this.webAppSettingDataService.getUserDefaultOutbound(),
-                filter: this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? encodeURIComponent(this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER)) : '',
-                hint: this.newUrlStateNotificationService.hasValue(UrlPathId.HINT) ? encodeURIComponent(this.newUrlStateNotificationService.getPathValue(UrlPathId.HINT)) : '',
-                v: 4,
-                limit: this.REQUEST_LIMIT,
-                xGroupUnit: this.X_GROUP_UNIT, // for scatter-chart
-                yGroupUnit: this.Y_GROUP_UNIT // for scatter-chart
-            }
+            params: new HttpParams()
+                .set('applicationName', this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).applicationName)
+                .set('serviceTypeName', this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).serviceType)
+                .set('from', this.newUrlStateNotificationService.getStartTimeToNumber() + '')
+                .set('to', (to || this.newUrlStateNotificationService.getEndTimeToNumber()) + '')
+                .set('originTo', this.newUrlStateNotificationService.getEndTimeToNumber() + '')
+                .set('calleeRange', this.newUrlStateNotificationService.hasValue(UrlQuery.INBOUND) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.INBOUND) : this.webAppSettingDataService.getUserDefaultInbound())
+                .set('callerRange', this.newUrlStateNotificationService.hasValue(UrlQuery.OUTBOUND) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.OUTBOUND) : this.webAppSettingDataService.getUserDefaultOutbound())
+                .set('filter', this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? encodeURIComponent(this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER)) : '')
+                .set('hint', this.newUrlStateNotificationService.hasValue(UrlPathId.HINT) ? encodeURIComponent(this.newUrlStateNotificationService.getPathValue(UrlPathId.HINT)) : '')
+                .set('v', '4')
+                .set('limit', this.REQUEST_LIMIT + '')
+                .set('xGroupUnit', this.X_GROUP_UNIT + '') // for scatter-chart
+                .set('yGroupUnit', this.Y_GROUP_UNIT + '') // for scatter-chart
         };
     }
 }

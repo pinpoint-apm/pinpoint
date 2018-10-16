@@ -5,6 +5,8 @@ import { SharedModule } from 'app/shared';
 import { AgentManagerContainerComponent } from './agent-manager-container.component';
 import { AgentManagerComponent } from './agent-manager.component';
 import { AgentManagerDataService } from './agent-manager-data.service';
+import { ApplicationListModule } from 'app/core/components/application-list';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -14,7 +16,9 @@ import { AgentManagerDataService } from './agent-manager-data.service';
     imports: [
         MatSlideToggleModule,
         MatTooltipModule,
-        SharedModule
+        SharedModule,
+        ApplicationListModule,
+        ServerErrorPopupModule
     ],
     exports: [
         AgentManagerContainerComponent
