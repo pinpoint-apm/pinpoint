@@ -262,8 +262,8 @@ public class DefaultSqlParserTest {
         Assert.assertEquals(expected, result);
 
         sql = "select * from table a = ? and b=? and c=? and d=?";
-        expected = "select * from table a = '1' and b='50' and c='foo' and d='11'";
-        bindValues = parameterParser.parseOutputParameter("1, 50, foo, 11");
+        expected = "select * from table a = '1' and b='50' and c=' foo ' and d='11'";
+        bindValues = parameterParser.parseOutputParameter("1,50, foo ,11");
         result = sqlParser.combineBindValues(sql, bindValues);
         Assert.assertEquals(expected, result);
 
@@ -279,6 +279,7 @@ public class DefaultSqlParserTest {
         result = sqlParser.combineBindValues(sql, bindValues);
         Assert.assertEquals(expected, result);
 
+        // check comment
         sql = "/** comment ? */ select * from table id = ?";
         expected = "/** comment ? */ select * from table id = 'foo,bar'";
         bindValues = parameterParser.parseOutputParameter("foo,,bar");
