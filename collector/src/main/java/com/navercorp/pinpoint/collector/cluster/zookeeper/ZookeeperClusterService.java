@@ -18,11 +18,16 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.AbstractClusterService;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRouter;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.collector.cluster.connection.*;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterAcceptor;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionFactory;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionRepository;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnector;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.KeeperException;
@@ -44,8 +49,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ZookeeperClusterService extends AbstractClusterService {
 
-    static final long DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED = 30000;
-    
     private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
     private static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";
     private static final String PINPOINT_PROFILER_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/profiler";

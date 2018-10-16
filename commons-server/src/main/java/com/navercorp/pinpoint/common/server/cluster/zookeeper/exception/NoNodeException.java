@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.cluster.zookeeper.exception;
+package com.navercorp.pinpoint.common.server.cluster.zookeeper.exception;
 
 /**
  * @author koo.taejin
  */
-public class PinpointZookeeperException extends Exception {
+public class NoNodeException extends PinpointZookeeperException {
 
-    public PinpointZookeeperException() {
+    public NoNodeException() {
     }
 
-    public PinpointZookeeperException(String message) {
+    public NoNodeException(String message) {
         super(message);
     }
 
-    public PinpointZookeeperException(String message, Throwable cause) {
+    public NoNodeException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public PinpointZookeeperException(Throwable cause) {
+    public NoNodeException(Throwable cause) {
         super(cause);
-    }
+    } 
 
 }
