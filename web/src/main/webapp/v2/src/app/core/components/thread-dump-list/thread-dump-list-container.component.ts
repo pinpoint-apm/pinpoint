@@ -66,10 +66,10 @@ export class ThreadDumpListContainerComponent implements OnInit, OnDestroy {
                 });
             }
             this.showLoading = false;
-        }, (errorMessage: string) => {
+        }, (error: IServerErrorFormat) => {
             this.serverResponseError = false;
             this.hasErrorResponse = true;
-            this.errorMessage = errorMessage;
+            this.errorMessage = error.exception.message;
             this.showLoading = false;
         });
     }
