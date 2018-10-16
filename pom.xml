@@ -103,6 +103,7 @@
         <spring.batch.version>3.0.9.RELEASE</spring.batch.version>
         <spring.security.version>4.2.8.RELEASE</spring.security.version>
         <asm.version>6.2.1</asm.version>
+        <thrift.version>0.11.0</thrift.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.0</plugin.compiler.version>
@@ -116,7 +117,7 @@
 
         <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
         <plugin.clover.version>4.2.1</plugin.clover.version>
-        <plugin.spotbugs.version>3.1.8</plugin.spotbugs.version>
+        <plugin.spotbugs.version>3.1.8-SNAPSHOT</plugin.spotbugs.version>
         <plugin.pmd.version>3.10.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
@@ -645,7 +646,7 @@
             <dependency>
                 <groupId>org.apache.thrift</groupId>
                 <artifactId>libthrift</artifactId>
-                <version>0.10.0</version>
+                <version>${thrift.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.httpcomponents</groupId>
