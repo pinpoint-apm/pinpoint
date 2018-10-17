@@ -41,6 +41,7 @@ public class RewriteForV2Filter implements Filter {
 
     private final String[] rewriteTargetArray = {
             "/v2/admin",
+            "/v2/error",
             "/v2/filteredMap",
             "/v2/inspector",
             "/v2/main",
