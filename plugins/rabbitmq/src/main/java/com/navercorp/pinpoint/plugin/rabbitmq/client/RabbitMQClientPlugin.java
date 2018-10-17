@@ -384,6 +384,11 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
                     if (constructor != null) {
                         constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.DeliveryConstructInterceptor", RabbitMQClientConstants.RABBITMQ_CONSUMER_SCOPE, ExecutionPolicy.INTERNAL);
                     }
+                    // spring-rabbit 2.1.0+
+                    InstrumentMethod constructor_2_1_0 = target.getConstructor("java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]", "java.lang.String");
+                    if (constructor_2_1_0 != null) {
+                        constructor_2_1_0.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.DeliveryConstructInterceptor", RabbitMQClientConstants.RABBITMQ_CONSUMER_SCOPE, ExecutionPolicy.INTERNAL);
+                    }
                     target.addField(AsyncContextAccessor.class.getName());
                     return target.toBytecode();
                 }
