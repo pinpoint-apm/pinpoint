@@ -1,0 +1,21 @@
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-title">API Check</div>
+</header>
+<section>
+    <div class="l-api-check">
+        <button *ngIf="hasError()" class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-redo"></i></button>
+        <button *ngIf="!hasError()" class="btn btn-sm btn-blue" (click)="onMoveBack()"><i class="fas fa-chevron-left"></i></button>
+    
+        <div class="l-apis">
+            <div class="l-api">
+                <i [ngClass]="getConfigurationStateClass()"></i> configuration.pinpoint
+            </div>
+            <div class="l-error" *ngIf="showErrorMessage('configuration')">{{configurationErrorMessage}}</div>
+            <div class="l-api">
+                <i [ngClass]="getApplicationStateClass()"></i> applicationList.pinpoint
+            </div>
+            <div class="l-error" *ngIf="showErrorMessage('applicationList')">{{applicationListErrorMessage}}</div>
+        </div>
+    </div>
+</section>

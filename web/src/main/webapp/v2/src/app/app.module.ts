@@ -31,6 +31,10 @@ export const appRoutes: Routes = [
         loadChildren: './routes/admin-page/index#AdminPageModule'
     },
     {
+        path: UrlPath.ERROR,
+        loadChildren: './routes/error-page/index#ErrorPageModule'
+    },
+    {
         path: UrlPath.BROWSER_NOT_SUPPORT,
         loadChildren: './routes/browser-support-page/index#BrowserSupportPageModule'
     },
