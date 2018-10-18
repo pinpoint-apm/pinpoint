@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.sender.planer;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -30,6 +29,7 @@ import com.navercorp.pinpoint.profiler.sender.SpanStreamSendData;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataSerializer;
 import com.navercorp.pinpoint.profiler.util.ObjectPool;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
@@ -68,8 +68,8 @@ public class SpanStreamSendDataPlanerTest {
 
         HeaderTBaseSerializerFactory headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory();
 
-        List<SpanEvent> originalSpanEventList = createSpanEventList(spanEventSize);
-        Span span = createSpan(originalSpanEventList);
+        List<TSpanEvent> originalSpanEventList = createSpanEventList(spanEventSize);
+        TSpan span = createSpan(originalSpanEventList);
 
         PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanStream(headerTBaseSerializerFactory.createSerializer(), span);
         SpanStreamSendDataFactory factory = new SpanStreamSendDataFactory(100, 50, objectPool);
@@ -83,29 +83,27 @@ public class SpanStreamSendDataPlanerTest {
         Assert.assertEquals(spanEventSize, spanEventList2.size());
     }
 
-    private Span createSpan(List<SpanEvent> spanEventList) {
+    private TSpan createSpan(List<TSpanEvent> spanEventList) {
         final String agentId = "agentId";
-        TraceId traceId = new DefaultTraceId(agentId, 0, 1);
-        TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, System.currentTimeMillis(), 0);
 
-        Span span = new Span(traceRoot);
-        for (SpanEvent spanEvent : spanEventList) {
+
+        final TSpan span = new TSpan();
+        span.setAgentId(agentId);
+
+        for (TSpanEvent spanEvent : spanEventList) {
             span.addToSpanEventList(spanEvent);
         }
 
-        span.setAgentId("agentId");
+
         return span;
     }
 
-    private List<SpanEvent> createSpanEventList(int size) throws InterruptedException {
-        TraceRoot traceRoot = mock(TraceRoot.class);
-
-        List<SpanEvent> spanEventList = new ArrayList<SpanEvent>(size);
+    private List<TSpanEvent> createSpanEventList(int size) {
+        List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(size);
         for (int i = 0; i < size; i++) {
-            SpanEvent spanEvent = new SpanEvent(traceRoot);
-            spanEvent.markStartTime();
-            Thread.sleep(1);
-            spanEvent.markAfterTime();
+            TSpanEvent spanEvent = new TSpanEvent();
+            spanEvent.setStartElapsed(1);
+            spanEvent.setEndElapsed(2);
 
             spanEventList.add(spanEvent);
         }

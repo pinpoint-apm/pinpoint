@@ -1,0 +1,14 @@
+<div class="l-title-group">
+    <dl>
+        <dt>Pinpoint Configuration</dt>
+    </dl>
+    <button class="l-sql-popup-close" (click)="onClickClose()"></button>
+</div>
+<div class="l-contents-group">
+    <div class="l-tab-menu">
+        <ul class="fclear font-opensans">
+            <li *ngFor="let tab of tabList" [class.active]="tab.isActive"><a (click)="onTabClick(tab.id)">{{tab.displayText}}</a></li>
+        </ul>
+    </div>         
+    <ng-container #contentContainer></ng-container>
+</div>

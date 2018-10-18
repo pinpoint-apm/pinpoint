@@ -1,0 +1,12 @@
+<div class="l-command-group">
+    <div class="l-current-time">
+        <label (click)="onClickNow()">NOW</label>
+        <input type="text" readonly value="{{pointingTime}}">
+    </div>
+</div>
+<div class="l-command-group">
+    <button (click)="onClickZoomIn()" class="btn btn-sm btn-blue"><span class="fas fa-plus"></span></button><button (click)="onClickZoomOut()" class="btn btn-sm btn-blue"><span class="fas fa-minus"></span></button>
+</div>
+<div class="l-command-group">
+    <button (click)="onClickPrev()" class="btn btn-sm btn-blue"><span class="fas fa-backward"></span></button><button (click)="onClickNext()" class="btn btn-sm btn-blue"><span class="fas fa-forward"></span></button><button (click)="onClickNow()" class="btn btn-sm btn-blue"><span class="fas fa-fast-forward"></span></button>
+</div>

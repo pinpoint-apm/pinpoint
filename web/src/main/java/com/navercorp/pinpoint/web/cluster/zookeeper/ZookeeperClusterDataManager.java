@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstatns;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.NoNodeException;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.ClusterDataManager;
 import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
 import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.zookeeper.WatchedEvent;
@@ -79,7 +81,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     @Override
     public void start() throws Exception {
         this.timer = createTimer();
-        this.client = new ZookeeperClient(connectAddress, sessionTimeout, this, ZookeeperClient.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+        this.client = new ZookeeperClient(connectAddress, sessionTimeout, this, ZookeeperConstatns.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
         this.client.connect();
     }
 

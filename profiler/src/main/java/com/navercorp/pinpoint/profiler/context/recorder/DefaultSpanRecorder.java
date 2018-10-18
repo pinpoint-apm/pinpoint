@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
@@ -41,8 +42,8 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     private final boolean isRoot;
     private final boolean sampling;
     
-    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
-        super(stringMetaDataService, sqlMetaDataService);
+    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, JsonMetaDataService jsonMetaDataService) {
+        super(stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
         this.span = span;
         this.isRoot = isRoot;
         this.sampling = sampling;
@@ -89,7 +90,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     public void recordRpcName(String rpc) {
-        span.setRpc(rpc);
+//        span.setRpc(rpc);
         span.getTraceRoot().getShared().setRpcName(rpc);
     }
 
@@ -100,7 +101,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     public void recordEndPoint(String endPoint) {
-        span.setEndPoint(endPoint);
+//        span.setEndPoint(endPoint);
         span.getTraceRoot().getShared().setEndPoint(endPoint);
     }
 
@@ -141,14 +142,12 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     public void recordTime(boolean autoTimeRecoding) {
         span.setTimeRecording(autoTimeRecoding);
         if (autoTimeRecoding) {
-            if (!span.isSetStartTime()) {
+            if (!(span.getStartTime() == 0)) {
                 span.markBeforeTime();
             }
         } else {
-            span.setElapsed(0);
-            span.setElapsedIsSet(false);
+            span.setElapsedTime(0);
             span.setStartTime(0);
-            span.setStartTimeIsSet(false);
         }
     }
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,11 @@ package com.navercorp.pinpoint.web.controller;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.util.DefaultJsonParser;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
+import com.navercorp.pinpoint.common.util.JsonParser;
+import com.navercorp.pinpoint.common.util.OutputParameterJsonParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -76,6 +80,9 @@ public class BusinessTransactionController {
     private SqlParser sqlParser = new DefaultSqlParser();
     private OutputParameterParser parameterParser = new OutputParameterParser();
 
+    private JsonParser jsonParser = new DefaultJsonParser();
+    private OutputParameterJsonParser parameterJsonParser = new OutputParameterJsonParser();
+
     /**
      * info lookup for a selected transaction
      *
@@ -111,7 +118,7 @@ public class BusinessTransactionController {
     public String sqlBind(@RequestParam("sql") String sql,
                           @RequestParam("bind") String bind) {
         if (logger.isDebugEnabled()) {
-            logger.debug("GET /sqlBind params {sql={}, bind={}}", sql, bind);
+            logger.debug("POST /sqlBind params {sql={}, bind={}}", sql, bind);
         }
 
         if (sql == null) {
@@ -120,10 +127,48 @@ public class BusinessTransactionController {
 
         final List<String> bindValues = parameterParser.parseOutputParameter(bind);
         final String combineSql = sqlParser.combineBindValues(sql, bindValues);
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Combine SQL. sql={}", combineSql);
         }
 
         return StringEscapeUtils.escapeHtml4(combineSql);
+    }
+
+    @RequestMapping(value = "/jsonBind", method = RequestMethod.POST)
+    @ResponseBody
+    public String jsonBind(@RequestParam("json") String json,
+                           @RequestParam("bind") String bind) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("POST /jsonBind params {json={}, bind={}}", json, bind);
+        }
+
+        if (json == null) {
+            return "";
+        }
+
+        final List<String> bindValues = parameterParser.parseOutputParameter(bind);
+        final String combinedJson = jsonParser.combineBindValues(json, bindValues);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Combine SQL. sql={}", combinedJson);
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        Object readJson;
+        String indented;
+        try {
+            readJson = mapper.readValue(combinedJson, Object.class);
+            indented = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(readJson);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Indent Success = {} ", indented);
+            }
+        } catch (Exception e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Indent failed Exception: ", e);
+            }
+            indented = combinedJson;
+        }
+
+        return StringEscapeUtils.escapeHtml4(indented);
+
     }
 }

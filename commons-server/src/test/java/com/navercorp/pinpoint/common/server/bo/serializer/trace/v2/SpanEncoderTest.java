@@ -157,8 +157,8 @@ public class SpanEncoderTest {
         decodingContext.setCollectorAcceptedTime(spanBo.getCollectorAcceptTime());
 
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
-
-        logger.debug("span dump \noriginal spanBo:{} \ndecode spanBo:{} ", spanBo, decode);
+        // TODO Check CI log
+        // logger.debug("span dump \noriginal spanBo:{} \ndecode spanBo:{} ", spanBo, decode);
 
         List<String> notSerializedField = Lists.newArrayList("parentApplicationId", "parentApplicationServiceType");
         List<String> excludeField = Lists.newArrayList("annotationBoList", "spanEventBoList");
@@ -185,8 +185,8 @@ public class SpanEncoderTest {
         decodingContext.setCollectorAcceptedTime(spanChunkBo.getCollectorAcceptTime());
 
         SpanChunkBo decode = (SpanChunkBo) spanDecoder.decode(qualifier, column, decodingContext);
-
-        logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
+        // TODO Check CI log
+        // logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
 
         List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType");
         List<String> excludeField = Lists.newArrayList("spanEventBoList");

@@ -4,7 +4,7 @@ keywords: history
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: perrequestfeatureguide.html
-disqus: true
+disqus: false
 ---
 
 # ENGLISH GUIDE
@@ -279,18 +279,18 @@ For details in how the log buttons are generated, please refer to Pinpoint Web�
 
 ### 1. 기능 설명
 
-Pinpoint에서는 log message를 request 단위로 구분할 수 있도록 log message 에 추가정보를 저장 해준다.
+Pinpoint에서는 log message를 request 단위로 구분할 수 있도록 log message 에 추가정보를 저장해준다.
 
 다수의 요청을 처리하는 tomcat을 사용할 경우 로그 파일을 보면 시간순으로 출력된 로그를 확인할 수 있다.
 그러나 동시에 요청된 다수의 request 각각에 대한 로그를 구분 해서 볼 수 없다.
-예를 들어 로그에서 exception message가 출력됐을때 그 exception이 발생한 request의 모든 log를 확인 하기 힘들다.
+예를 들어 로그에서 exception message가 출력됐을 때 그 exception이 발생한 request의 모든 log를 확인하기 힘들다.
 
-Pinpoint는 로그 메세지 마다 request와 연관된 정보(transactionId, spanId)를 MDC에 넣어줘서 request 단위로 log message를 구분할 수 있도록 해준다.
-로그에 출력된 transactionId는 pinpoint web의 transaction List 화면에 출려된 transactionId와 일치한다.
+Pinpoint는 log message 마다 request와 연관된 정보(transactionId, spanId)를 MDC에 넣어줘서 request 단위로 log message를 구분할 수 있도록 해준다.
+로그에 출력된 transactionId는 pinpoint web의 transaction List 화면에 출력된 transactionId와 일치한다.
 
 구체적으로 예를 들어보자.
-Pinpoint를 사용하지 않았을때 exception이 발생했을 경우 로그 메시지를 살펴 보자.
-요청된 다수의 request 각각을 구분하여 로그를 확인 할 수가 없다.
+Pinpoint를 사용하지 않았을 때 exception이 발생했을 경우 로그 메시지를 살펴 보자.
+요청된 다수의 request 각각을 구분하여 로그를 확인할 수가 없다.
 
 ex) Without Pinpoint
 ```
@@ -391,7 +391,7 @@ ex) With Pinpoint
 
 **2-1 Pinpoint agent 설정**
 
-Pinpoint를 사용하려면 Pinpoint agent 설정파일(Pinpoint.config)의 logging 설정 값을 true로 변경해야한다.
+Pinpoint를 사용하려면 Pinpoint agent 설정파일(Pinpoint.config)의 logging 설정 값을 true로 변경해야 한다.
 사용하는 logging 라이브러리에 해당하는 설정값만 true로 변경하면 된다.
 아래 설정에 대한 예시가 있다.
 
@@ -508,7 +508,7 @@ log.button.name=log
 **step 3**
 pinpoint 1.5 이후 버전부터 log 기록 여부에 따라 log 버튼의 활성화가 결정되도록 개선 됐기 때문에
 당신이 사용하는 logging appender의 로깅 메소드에 logging 여부를 저장하는 interceptor를 추가하는 플러그인을 개발해야 한다.
-플러그인 개발 방법은 다음 링크를 참고하면 된다([Link](https://github.com/naver/pinpoint-plugin-sample)). interceptor 로직이 추가되야 하는 위치는 appender class 내에 LoggingEvent 객체의 데이터를 이용하여 로깅을 하는 메소드다.
+플러그인 개발 방법은 다음 링크를 참고하면 된다([Link](https://github.com/naver/pinpoint-plugin-sample)). interceptor 로직이 추가돼야 하는 위치는 appender class 내에 LoggingEvent 객체의 데이터를 이용하여 로깅을 하는 메소드다.
 아래는 interceptor 예제이다.
 ```
 public class AppenderInterceptor implements AroundInterceptor0 {

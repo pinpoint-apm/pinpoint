@@ -18,11 +18,20 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
+import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.thrift.PinpointServerAcceptorProvider;
+import com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean;
+import com.navercorp.pinpoint.collector.receiver.thrift.UDPReceiverBean;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.sender.ByteMessage;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import com.navercorp.pinpoint.profiler.sender.ThriftUdpMessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
@@ -92,7 +101,10 @@ public class DataReceiverGroupTest {
 
     public UdpDataSender newUdpDataSender(DataReceiverGroupConfiguration mockConfig) {
         String threadName = this.getClass().getName();
-        return new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), threadName, 10, 1000, 1024 * 64 * 100);
+        MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
+        final MessageSerializer<ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
+        return new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), threadName, 10, 1000, 1024 * 64 * 100,
+                thriftMessageSerializer);
     }
 
     private PinpointServerAcceptorProvider createPinpointAcceptorProvider() {

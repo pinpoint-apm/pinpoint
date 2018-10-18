@@ -1,0 +1,14 @@
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+</header>
+<section class="l-support-page-contents">
+    <p class="l-info-text">{{i18nText$ | async}}</p>
+    <ul class="l-browser-list">
+        <li *ngFor="let browserInfo of getFilteredBrowserInfoList()" class="l-browser-list-item">
+            <a [attr.href]="browserInfo.downloadLink" class="l-browser-link">
+                <img [src]="funcImagePath(browserInfo.name)" class="l-browser-img">
+                <span class="l-browser-name">{{browserInfo.displayName}}</span>
+            </a>
+        </li>
+    </ul>
+</section>

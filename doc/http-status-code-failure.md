@@ -4,7 +4,7 @@ keywords: http, code fail, failure, http status
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: httpstatuscodefailure.html
-disqus: true
+disqus: false
 ---
 
 # HTTP Status Code with Request Failure.

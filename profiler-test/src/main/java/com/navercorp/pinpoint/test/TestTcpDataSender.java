@@ -1,10 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +18,13 @@ package com.navercorp.pinpoint.test;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
-import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
-import org.apache.thrift.TBase;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -39,9 +39,9 @@ import java.util.NoSuchElementException;
  * @author Jongho Moon
  * @author jaehong.kim
  */
-public class TestTcpDataSender implements EnhancedDataSender {
+public class TestTcpDataSender implements EnhancedDataSender<Object> {
 
-    private final List<TBase<?, ?>> datas = Collections.synchronizedList(new ArrayList<TBase<?, ?>>());
+    private final List<Object> datas = Collections.synchronizedList(new ArrayList<Object>());
 
     private final BiMap<Integer, String> apiIdMap = newSynchronizedBiMap();
 
@@ -65,27 +65,27 @@ public class TestTcpDataSender implements EnhancedDataSender {
 
 
     @Override
-    public boolean send(TBase<?, ?> data) {
+    public boolean send(Object data) {
         addData(data);
         return false;
     }
 
-    private void addData(TBase<?, ?> data) {
-        if (data instanceof TApiMetaData) {
-            TApiMetaData md = (TApiMetaData)data;
+    private void addData(Object data) {
+        if (data instanceof ApiMetaData) {
+            ApiMetaData md = (ApiMetaData)data;
 
             final String javaMethodDescriptor = toJavaMethodDescriptor(md);
             apiIdMap.put(md.getApiId(), javaMethodDescriptor);
 
-        } else if (data instanceof TSqlMetaData) {
-            TSqlMetaData md = (TSqlMetaData)data;
+        } else if (data instanceof SqlMetaData) {
+            SqlMetaData md = (SqlMetaData)data;
 
             int id = md.getSqlId();
             String sql = md.getSql();
 
             sqlIdMap.put(id, sql);
-        } else if (data instanceof TStringMetaData) {
-            TStringMetaData md = (TStringMetaData)data;
+        } else if (data instanceof StringMetaData) {
+            StringMetaData md = (StringMetaData)data;
 
             int id = md.getStringId();
             String string = md.getStringValue();
@@ -96,7 +96,7 @@ public class TestTcpDataSender implements EnhancedDataSender {
         datas.add(data);
     }
 
-    private String toJavaMethodDescriptor(TApiMetaData apiMetaData) {
+    private String toJavaMethodDescriptor(ApiMetaData apiMetaData) {
 //        1st method type check
 //        int type = apiMetaData.getType();
 //        if (type != MethodType.DEFAULT) {
@@ -119,19 +119,19 @@ public class TestTcpDataSender implements EnhancedDataSender {
     }
 
     @Override
-    public boolean request(TBase<?, ?> data) {
+    public boolean request(Object data) {
         addData(data);
         return true;
     }
 
     @Override
-    public boolean request(TBase<?, ?> data, int retry) {
+    public boolean request(Object data, int retry) {
         addData(data);
         return true;
     }
 
     @Override
-    public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
+    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
         addData(data);
         return true;
     }
@@ -191,7 +191,7 @@ public class TestTcpDataSender implements EnhancedDataSender {
         return id;
     }
 
-    public List<TBase<?, ?>> getDatas() {
+    public List<Object> getDatas() {
         return datas;
     }
 

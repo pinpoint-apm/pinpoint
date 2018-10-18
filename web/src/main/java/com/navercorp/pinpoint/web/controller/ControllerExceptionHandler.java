@@ -26,8 +26,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,6 +47,8 @@ public class ControllerExceptionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    private ConfigProperties webProperties;
 
     @ExceptionHandler(value = Exception.class)
     public ModelAndView defaultErrorHandler(HttpServletRequest request, Exception exception) throws Exception {
@@ -66,7 +70,9 @@ public class ControllerExceptionHandler {
         Map<String, Object> exceptionMap = new HashMap<>();
 
         exceptionMap.put("message", getExceptionMessage(throwable));
-        exceptionMap.put("stacktrace", getExceptionStackTrace(throwable));
+        if (webProperties.isShowStackTraceOnError()) {
+            exceptionMap.put("stacktrace", getExceptionStackTrace(throwable));
+        }
         exceptionMap.put("request", createRequestResource(request));
 
         return exceptionMap;

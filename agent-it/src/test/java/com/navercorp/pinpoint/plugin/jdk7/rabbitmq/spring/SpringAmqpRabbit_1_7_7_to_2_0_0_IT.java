@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.plugin.AgentPath;
 import com.navercorp.pinpoint.plugin.jdk7.rabbitmq.util.RabbitMQTestConstants;
 import com.navercorp.pinpoint.plugin.jdk7.rabbitmq.util.TestBroker;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -50,13 +49,12 @@ import java.lang.reflect.Method;
  * <tt>BlockingQueueConsumer$ConsumerDecorator</tt> added in 2.0.3 has been backported to 1.7.7 as well.
  *
  * @author HyunGil Jeong
- * @see SpringAmqpRabbit_2_0_3_to_2_x_IT
+ * @see SpringAmqpRabbit_2_0_3_to_2_1_0_IT
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @Dependency({"org.springframework.amqp:spring-rabbit:[1.7.7.RELEASE,2.0.0.RELEASE)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
-@JvmArgument({"-Dpinpoint.configcenter=false"})
 public class SpringAmqpRabbit_1_7_7_to_2_0_0_IT {
 
     private static final TestBroker BROKER = new TestBroker();

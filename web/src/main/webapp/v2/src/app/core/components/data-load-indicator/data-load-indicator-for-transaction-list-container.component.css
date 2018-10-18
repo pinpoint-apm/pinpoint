@@ -1,0 +1,8 @@
+:host {
+    width: 100%
+}
+.l-wrapper {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 10px 10px 0px 10px;
+}

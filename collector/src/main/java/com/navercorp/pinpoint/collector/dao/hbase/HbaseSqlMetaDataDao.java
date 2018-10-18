@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import org.apache.hadoop.hbase.TableName;
@@ -52,7 +51,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
-    public void insert(TSqlMetaData sqlMetaData) {
+    public void insert(SqlMetaDataBo sqlMetaData) {
         if (sqlMetaData == null) {
             throw new NullPointerException("sqlMetaData must not be null");
         }
@@ -60,17 +59,13 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
             logger.debug("insert:{}", sqlMetaData);
         }
 
-        SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getAgentStartTime(), sqlMetaData.getSqlId());
-        final byte[] rowKey = getDistributedKey(sqlMetaDataBo.toRowKey());
-
-
-        Put put = new Put(rowKey);
-        String sql = sqlMetaData.getSql();
-        byte[] sqlBytes = Bytes.toBytes(sql);
-
+        final byte[] rowKey = getDistributedKey(sqlMetaData.toRowKey());
+        final Put put = new Put(rowKey);
+        final String sql = sqlMetaData.getSql();
+        final byte[] sqlBytes = Bytes.toBytes(sql);
         put.addColumn(HBaseTables.SQL_METADATA_VER2_CF_SQL, HBaseTables.SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT, sqlBytes);
 
-        TableName sqlMetaDataTableName = tableNameProvider.getTableName(HBaseTables.SQL_METADATA_VER2_STR);
+        final TableName sqlMetaDataTableName = tableNameProvider.getTableName(HBaseTables.SQL_METADATA_VER2_STR);
         hbaseTemplate.put(sqlMetaDataTableName, put);
     }
 

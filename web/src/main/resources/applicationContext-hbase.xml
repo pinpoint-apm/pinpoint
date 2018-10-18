@@ -36,7 +36,7 @@
                 <prop key="hbase.kerberos.keytab.path">${hbase.kerberos.keytab.path:/tmp}</prop>
                 <prop key="hbase.master.kerberos.principal">${hbase.master.kerberos.principal:test}</prop>
                 <prop key="hbase.regionserver.kerberos.principal">${hbase.regionserver.kerberos.principal:test}</prop>
-
+              
             </props>
         </property>
     </bean>

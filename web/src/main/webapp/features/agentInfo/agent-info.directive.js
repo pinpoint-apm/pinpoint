@@ -33,7 +33,7 @@
 								"handleSrc": "images/handle.png",
 								"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries(aSelectionFromTo),
 								"handleTimeSeries": aSelectionFromTo,
-								"selectTime": aSelectionFromTo[1],
+								"selectTime": selectedTime || aSelectionFromTo[1],
 								"timelineData": {}
 							}).addEvent("clickEvent", function (aEvent) {// [x, y, obj]
 								loadEventInfo(aEvent[2]);
@@ -104,6 +104,30 @@
 							"agentId": scope.agent.agentId,
 							"timestamp": time
 						}, function( result ) {
+							if ( result === '' ) {
+								result = {
+									"agentId": scope.agent.agentId,
+									"agentVersion": "",
+									"applicationName": "",
+									"hostName": "",
+									"initialStartTimestamp": 0,
+									"ip": "",
+									"jvmInfo": {
+										"gcTypeName": "",
+										"jvmVersion": ""
+									},
+									"pid": "",
+									"ports": "",
+									"status": {
+										"agentId": "",
+										"state": {
+											"desc": ""
+										}
+									},
+									"jvmGcType": "",
+									"vmVersion": ""
+								};
+							}
 							var jvmGcType = scope.agent.jvmGcType;
 							scope.agent = result;
 							scope.agent.jvmGcType = jvmGcType;
@@ -349,6 +373,7 @@
 								oAlertService.showError('There is some error.');
 							} else {
 								timeSlider.addData(result);
+								sendUpTimeSliderTimeInfo(timeSlider.getSliderTimeSeries(), timeSlider.getSelectionTimeSeries(), scope.selectTime);
 							}
 						});
 					}
@@ -455,19 +480,25 @@
 						scope.currentServiceInfo = initServiceInfo(agent);
 
 						var aFromTo, period, aSelectionFromTo = [], selectedTime;
-						if ( timeSlider === null || bInvokedByTop ) {
+						if ( bInvokedByTop ) {
 							aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
 							aSelectionFromTo[1] = UrlVoService.getQueryEndTime();
 							period = UrlVoService.getPeriod();
 						} else {
 							if ( sliderTimeSeriesOption === undefined || sliderTimeSeriesOption === null ) {
-								aSelectionFromTo = timeSlider.getSelectionTimeSeries();
-								aFromTo = timeSlider.getSliderTimeSeries();
+								if ( timeSlider === null ) {
+									aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
+									aSelectionFromTo[1] = UrlVoService.getQueryEndTime();
+								} else {
+									aSelectionFromTo = timeSlider.getSelectionTimeSeries();
+									aFromTo = timeSlider.getSliderTimeSeries();
+								}
 								period = UrlVoService.getPeriod();
 							} else {
 								aSelectionFromTo = sliderTimeSeriesOption["selectionTimeSeries"];
 								aFromTo = sliderTimeSeriesOption["timeSeries"];
 								selectedTime = sliderTimeSeriesOption["selectedTime"];
+								scope.selectTime = selectedTime;
 							}
 						}
 						if ( scope.selectTime === -1 || bInvokedByTop ) {

@@ -44,12 +44,19 @@ public class J9BootLoader implements BootLoader {
     }
 
     private static ClassLoader findBootstrapClassLoader() {
+        Field bootstrapClassLoader;
         try {
-            Field bootstrapClassLoader = ClassLoader.class.getDeclaredField("bootstrapClassLoader");
+            bootstrapClassLoader = ClassLoader.class.getDeclaredField("bootstrapClassLoader");
+        } catch (NoSuchFieldException e) {
+            try {
+                bootstrapClassLoader = ClassLoader.class.getDeclaredField("systemClassLoader");
+            } catch (NoSuchFieldException e2) {
+                throw new IllegalStateException("bootstrapClassLoader not found Caused by:" + e.getMessage() + ", and " + e2.getMessage(), e2);
+            }
+        }
+        try {
             bootstrapClassLoader.setAccessible(true);
             return (ClassLoader) bootstrapClassLoader.get(ClassLoader.class);
-        } catch (NoSuchFieldException e) {
-            throw new IllegalStateException("bootstrapClassLoader not found Caused by:" + e.getMessage(), e);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("bootstrapClassLoader access fail Caused by:" + e.getMessage(), e);
         }

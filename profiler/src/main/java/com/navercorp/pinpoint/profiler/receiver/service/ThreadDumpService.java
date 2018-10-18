@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDumpType;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
+import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ import java.util.Set;
 /**
  * @author koo.taejin
  */
-public class ThreadDumpService implements ProfilerRequestCommandService {
+public class ThreadDumpService implements ProfilerRequestCommandService<TBase<?, ?>, TBase<?, ?>> {
 
     private static final Set<TThreadState> THREAD_STATES = EnumSet.allOf(TThreadState.class);
 
@@ -180,8 +181,8 @@ public class ThreadDumpService implements ProfilerRequestCommandService {
     }
 
     @Override
-    public Class<? extends TBase> getCommandClazz() {
-        return TCommandThreadDump.class;
+    public short getCommandServiceCode() {
+        return TCommandType.THREAD_DUMP.getCode();
     }
 
 }

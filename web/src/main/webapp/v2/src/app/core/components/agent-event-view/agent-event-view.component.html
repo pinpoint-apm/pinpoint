@@ -1,0 +1,23 @@
+<div class="l-title-group">Event - {{eventData?.length}} <button class="fas fa-times" (click)="onClickClose()"></button></div>
+<div>
+    <table class="table">
+        <caption>Events</caption>
+        <colgroup>
+            <col width="30%">
+            <col width="30%">
+            <col width="40%">
+        </colgroup>
+        <thead>
+            <th>Time</th>
+            <th>Description</th>
+            <th>Message</th>
+        </thead>
+        <tbody>
+            <tr *ngFor="let eventStatus of eventData">
+                <td>{{formatDate(eventStatus.eventTimestamp)}}</td>
+                <td>{{eventStatus.eventTypeDesc}}</td>
+                <td><div>{{eventStatus!.eventMessage}}</div></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

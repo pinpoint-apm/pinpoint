@@ -23,7 +23,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.1-SNAPSHOT</version>
     </parent>
     
     <artifactId>pinpoint-rpc</artifactId>
@@ -90,6 +90,9 @@
                 <version>${plugin.jar.version}</version>
                 <executions>
                     <execution>
+                        <configuration>
+                            <skip>false</skip>
+                        </configuration>
                         <goals>
                             <goal>test-jar</goal>
                         </goals>

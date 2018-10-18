@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.DnsSocketAddressProvider;
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,46 +35,36 @@ import java.net.SocketException;
  * @author emeroad
  * @author koo.taejin
  */
-public class UdpDataSender extends AbstractDataSender implements DataSender {
+public class UdpDataSender implements DataSender {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
-    public static final int SOCKET_TIMEOUT = 1000 * 5;
-    public static final int SEND_BUFFER_SIZE = 1024 * 64 * 16;
-    public static final int UDP_MAX_PACKET_LENGTH = 65507;
-
     // Caution. not thread safe
-    protected final DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
+    private final DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
-    protected final DatagramSocket udpSocket;
-
-    // Caution. not thread safe
-    private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, UDP_MAX_PACKET_LENGTH, false).createSerializer();
+    private final DatagramSocket udpSocket;
 
     private final AsyncQueueingExecutor<Object> executor;
 
     private final UdpSocketAddressProvider socketAddressProvider;
 
-    public UdpDataSender(String host, int port, String threadName, int queueSize) {
-        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
-    }
+    private final MessageSerializer<ByteMessage> messageSerializer;
 
-    public UdpDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
+
+    public UdpDataSender(String host, int port, String threadName,
+                         int queueSize, int timeout, int sendBufferSize,
+                         MessageSerializer<ByteMessage> messageSerializer) {
         Assert.requireNonNull(host, "host must not be null");
         if (!HostAndPort.isValidPort(port)) {
             throw new IllegalArgumentException("port out of range:" + port);
         }
         Assert.requireNonNull(host, "host must not be null");
-        if (queueSize <= 0) {
-            throw new IllegalArgumentException("queueSize");
-        }
-        if (timeout <= 0) {
-            throw new IllegalArgumentException("timeout");
-        }
-        if (sendBufferSize <= 0) {
-            throw new IllegalArgumentException("sendBufferSize");
-        }
+        Assert.isTrue(queueSize > 0, "queueSize");
+        Assert.isTrue(timeout > 0, "timeout");
+        Assert.isTrue(sendBufferSize > 0, "sendBufferSize");
+
+        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer must not be null");
 
         final SocketAddressProvider socketAddressProvider = new DnsSocketAddressProvider(host, port);
         this.socketAddressProvider = new RefreshStrategy(socketAddressProvider);
@@ -88,11 +74,23 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
         this.udpSocket = createSocket(timeout, sendBufferSize);
 
         this.executor = createAsyncQueueingExecutor(queueSize, threadName);
+
     }
 
     @Override
-    public boolean send(TBase<?, ?> data) {
+    public boolean send(Object data) {
         return executor.execute(data);
+    }
+
+    private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
+        AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener() {
+            @Override
+            public void execute(Object message) {
+                UdpDataSender.this.sendPacket(message);
+            }
+        };
+        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
+        return executor;
     }
 
     @Override
@@ -119,54 +117,45 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
         }
     }
 
-    protected void sendPacket(Object message) {
-        if (!(message instanceof TBase)) {
-            logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
-            return;
-        }
+    private void sendPacket(Object message) {
+
         final InetSocketAddress inetSocketAddress = socketAddressProvider.resolve();
         if (inetSocketAddress.getAddress() == null) {
             logger.info("dns lookup fail host:{}", inetSocketAddress);
             return;
         }
 
-        final TBase dto = (TBase) message;
-        // do not copy bytes because it's single threaded
-        final byte[] internalBufferData = serialize(this.serializer, dto);
-        if (internalBufferData == null) {
-            logger.warn("interBufferData is null");
+        final ByteMessage byteMessage = messageSerializer.serializer(message);
+        if (byteMessage == null) {
+            logger.warn("sendPacket fail. message:{}", message != null ? message.getClass() : null);
+            if (logger.isDebugEnabled()) {
+                logger.debug("unknown message:{}", message);
+            }
             return;
         }
+        final DatagramPacket packet = preparePacket(inetSocketAddress, byteMessage);
 
-        final int internalBufferSize = this.serializer.getInterBufferSize();
-        if (isLimit(internalBufferSize)) {
-            // When packet size is greater than UDP packet size limit, it's better to discard packet than let the socket API fails.
-            logger.warn("discard packet. Caused:too large message. size:{}, {}", internalBufferSize, dto);
-            return;
-        }
-        // it's safe to reuse because it's single threaded
-        reusePacket.setData(internalBufferData, 0, internalBufferSize);
-        reusePacket.setAddress(inetSocketAddress.getAddress());
-        reusePacket.setPort(inetSocketAddress.getPort());
         try {
-            udpSocket.send(reusePacket);
+            udpSocket.send(packet);
             if (isDebug) {
-                logger.debug("Data sent. size:{}, {}", internalBufferSize, dto);
+                logger.debug("Data sent. size:{}, {}", byteMessage.getLength(), message);
             }
         } catch (PortUnreachableException pe) {
             this.socketAddressProvider.handlePortUnreachable();
-            logger.info("packet send error. size:{}, {}", internalBufferSize, dto, pe);
+            logger.info("packet send error. size:{}, {}", byteMessage.getLength(), message, pe);
         } catch (IOException e) {
-            logger.info("packet send error. size:{}, {}", internalBufferSize, dto, e);
+            logger.info("packet send error. size:{}, {}", byteMessage.getLength(), message, e);
         }
 
     }
 
-    @VisibleForTesting
-    protected boolean isLimit(int interBufferSize) {
-        if (interBufferSize > UDP_MAX_PACKET_LENGTH) {
-            return true;
-        }
-        return false;
+    private DatagramPacket preparePacket(InetSocketAddress targetAddress, ByteMessage byteMessage) {
+        // it's safe to reuse because it's single threaded
+        reusePacket.setAddress(targetAddress.getAddress());
+        reusePacket.setPort(targetAddress.getPort());
+
+        reusePacket.setData(byteMessage.getMessage(), 0, byteMessage.getLength());
+        return reusePacket;
     }
+
 }

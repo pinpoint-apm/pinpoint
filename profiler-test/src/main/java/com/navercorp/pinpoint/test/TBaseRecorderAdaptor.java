@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,24 +21,24 @@ import org.apache.thrift.TBase;
 /**
  * @author emeroad
  */
-public class TBaseRecorderAdaptor<T extends TBase<?, ?>> implements ListenableDataSender.Listener {
+public class TBaseRecorderAdaptor<T> implements ListenableDataSender.Listener<T> {
 
-    private final TBaseRecorder<TBase<?, ?>> recorder;
+    private final TBaseRecorder<T> recorder;
 
     public TBaseRecorderAdaptor() {
-        this.recorder = new TBaseRecorder<TBase<?, ?>>();
+        this.recorder = new TBaseRecorder<T>();
     }
 
-    public TBaseRecorderAdaptor(TBaseRecorder<TBase<?, ?>> recorder) {
+    public TBaseRecorderAdaptor(TBaseRecorder<T> recorder) {
         this.recorder = recorder;
     }
 
     @Override
-    public boolean handleSend(TBase<?, ?> data) {
+    public boolean handleSend(T data) {
         return recorder.add(data);
     }
 
-    public TBaseRecorder<TBase<?, ?>> getRecorder() {
+    public TBaseRecorder<T> getRecorder() {
         return recorder;
     }
 }

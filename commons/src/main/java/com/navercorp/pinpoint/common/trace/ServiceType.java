@@ -108,6 +108,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5010</td><td>GSON</td></tr>
  * <tr><td>5011</td><td>JACKSON</td></tr>
  * <tr><td>5012</td><td>JSON-LIB</td></tr>
+ * <tr><td>5013</td><td>FASTJSON</td></tr>
  * <tr><td>5050</td><td>SPRING</td></tr>
  * <tr><td>5051</td><td>SPRING_MVC</td></tr>
  * <tr><td>5052</td><td>SPRING_ASYNC</td></tr>
@@ -119,6 +120,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6050</td><td>DBCP</td></tr>
  * <tr><td>6052</td><td>DBCP2</td></tr>
  * <tr><td>6060</td><td>HIKARICP</td></tr>
+ * <tr><td>6062</td><td>DRUID</td></tr>
  * <tr><td>6500</td><td>RXJAVA</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
  * </table>
@@ -160,7 +162,11 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9059</td><td>OK_HTTP_CLIENT_INTERNAL</td></tr>
  * <tr><td>9060</td><td><i>RESERVED</i></td></tr>
  * <tr><td>9070</td><td><i>RESERVED</i></td></tr>
- * <tr><td>9080</td><td><i>APACHE_CXF_CLIENT</i></td></tr>
+ * <tr><td><s>9080</s></td><td><s>APACHE_CXF_CLIENT</s></td></tr>
+ * <tr><td>9081</td><td>APACHE_CXF_SERVICE_INVOKER</td></tr>
+ * <tr><td>9082</td><td>APACHE_CXF_MESSAGE_SENDER</td></tr>
+ * <tr><td>9083</td><td>APACHE_CXF_LOGGING_IN</td></tr>
+ * <tr><td>9084</td><td>APACHE_CXF_LOGGING_OUT</td></tr>
  * <tr><td>9100</td><td>THRIFT_CLIENT</td></tr>
  * <tr><td>9101</td><td>THRIFT_CLIENT_INTERNAL</td></tr>
  * <tr><td>9110</td><td>DUBBO_CONSUMER</td></tr>

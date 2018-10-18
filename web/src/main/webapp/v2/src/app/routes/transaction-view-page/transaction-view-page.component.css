@@ -1,0 +1,10 @@
+.l-main-container {
+    display: flex;
+    flex-flow: row wrap;
+    overflow-y: hidden;
+    height: calc(100vh - 50px);
+}
+.l-component-wrapper {
+    position: relative;
+    width: 100%;
+}

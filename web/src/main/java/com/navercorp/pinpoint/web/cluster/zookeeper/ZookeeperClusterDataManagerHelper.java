@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstatns;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import org.apache.zookeeper.CreateMode;
@@ -31,8 +32,6 @@ import java.util.Map;
  * @author Taejin Koo
  */
 public class ZookeeperClusterDataManagerHelper {
-
-    private static final String PATH_SEPARATOR = "/";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -67,8 +66,8 @@ public class ZookeeperClusterDataManagerHelper {
         StringBuilder fullPath = new StringBuilder();
 
         fullPath.append(path);
-        if (!path.endsWith(PATH_SEPARATOR)) {
-            fullPath.append(PATH_SEPARATOR);
+        if (!path.endsWith(ZookeeperConstatns.PATH_SEPARATOR)) {
+            fullPath.append(ZookeeperConstatns.PATH_SEPARATOR);
         }
         fullPath.append(zNodeName);
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +19,15 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.module.SpanStatClientFactory;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSenderFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,17 +49,13 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
     private final int sendBufferSize;
     private final String ioType;
     private final String transportType;
+    private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public SpanDataSenderProvider(ProfilerConfig profilerConfig, @SpanStatClientFactory Provider<PinpointClientFactory> clientFactoryProvider) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (clientFactoryProvider == null) {
-            throw new NullPointerException("clientFactoryProvider must not be null");
-        }
-
-        this.clientFactoryProvider = clientFactoryProvider;
+    public SpanDataSenderProvider(ProfilerConfig profilerConfig, @SpanStatClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
+                                  @SpanConverter MessageConverter<TBase<?, ?>> messageConverter) {
+        Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
 
         this.ip = profilerConfig.getCollectorSpanServerIp();
         this.port = profilerConfig.getCollectorSpanServerPort();
@@ -64,6 +64,7 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
         this.sendBufferSize = profilerConfig.getSpanDataSenderSocketSendBufferSize();
         this.ioType = profilerConfig.getSpanDataSenderSocketType();
         this.transportType = profilerConfig.getSpanDataSenderTransportType();
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
     }
 
     @Override
@@ -76,7 +77,7 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
             PinpointClientFactory pinpointClientFactory = clientFactoryProvider.get();
             return new TcpDataSender("SpanDataSender", ip, port, pinpointClientFactory);
         } else {
-            UdpDataSenderFactory factory = new UdpDataSenderFactory(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize);
+            UdpDataSenderFactory factory = new UdpDataSenderFactory(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize, messageConverter);
             return factory.create(ioType);
         }
     }

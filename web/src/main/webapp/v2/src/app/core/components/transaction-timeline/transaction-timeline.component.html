@@ -1,0 +1,14 @@
+<div class="l-wrapper">
+    <div class="l-timeline-bar" *ngFor="let call of data; index as i" [ngStyle]="getLineStyle(call)">
+        <div class="clickable-bar" [class.l-timeline-bar-selected]="isSelectedRow(i)" [ngStyle]="getStyles(call)" (click)="onSelectCall(i, call)">
+            <div class="l-timeline-bar-frame">
+                <span>
+                    <span class="before"><i class="fas fa-arrows-alt-h"></i> <span class="startTime">{{getStartTime(call)}}</span>ms</span>
+                    <span class="nameType" *ngIf="showApplicationName(call, i)">[{{call[keyIndex.applicationName]}}] / {{call[keyIndex.apiType]}} ({{call[keyIndex.end] - call[keyIndex.begin]}}ms)</span>
+                    <span class="nameType" *ngIf="!showApplicationName(call, i)">/ {{call[keyIndex.apiType]}} ({{call[keyIndex.end] - call[keyIndex.begin]}}ms)</span>
+                    <span class="after">( <i class="fas fa-arrows-alt-h"></i> <span class="startTime">{{getStartTime(call)}}</span>ms )</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

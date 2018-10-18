@@ -1,0 +1,3 @@
+<div class="l-wrapper">
+    <button (click)="onClick()" [style.width.px]="width" class="btn btn-black">{{currentStateText}} <span *ngIf="showCountInfo">({{countInfo[0]}}/{{countInfo[1]}})</span></button>
+</div>

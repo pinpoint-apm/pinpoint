@@ -18,20 +18,24 @@ package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class EmptyMessage<T> implements Message {
     public static final Message INSTANCE = new EmptyMessage();
+
+    private static final Header EMPTY_HEADER = new HeaderV1((short) -1);
+
     @Override
     public Header getHeader() {
-        return null;
+        return EMPTY_HEADER;
     }
 
     @Override
     public HeaderEntity getHeaderEntity() {
-        return null;
+        return HeaderEntity.EMPTY_HEADER_ENTITY;
     }
 
     @Override

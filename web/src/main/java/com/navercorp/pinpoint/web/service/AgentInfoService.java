@@ -33,13 +33,9 @@ import java.util.Set;
  */
 public interface AgentInfoService {
 
-    ApplicationAgentsList getAllApplicationAgentsList();
+    ApplicationAgentsList getAllApplicationAgentsList(ApplicationAgentsList.Filter filter, long timestamp);
 
-    ApplicationAgentsList getAllApplicationAgentsList(long timestamp);
-
-    ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy key, String applicationName);
-
-    ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy key, String applicationName, long timestamp);
+    ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy key, ApplicationAgentsList.Filter filter, String applicationName, long timestamp);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit);
 

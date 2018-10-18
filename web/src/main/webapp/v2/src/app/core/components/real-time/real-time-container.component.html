@@ -1,0 +1,40 @@
+<div class="l-thread-chart-wrap" [style.height.px]="lastHeight" [hidden]="hiddenComponent">
+    <div ppResizeTop [minHeight]="minHeight" [maxHeightPadding]="maxHeightPadding" class="l-title-group font-opensans">
+        <div class="l-title">
+            <span class="fas fa-chart-area"></span>Realtime Active Thread Chart
+        </div>
+        <div class="l-tool-box">
+            <button class="fas fa-thumbtack" [class.l-pin-up]="pinUp" (click)="onPinUp()"></button>
+            <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+        </div>
+    </div>
+    <div class="l-chart-group-wrap font-opensans">
+        <article class="l-chart-item">
+            <ng-container #totalChartPlaceHolder></ng-container>
+        </article>
+        <div class="l-chart-group-list">
+            <div class="l-paging" *ngIf="needPaging()">
+                <span class="l-txt">Total Servers : </span>
+                <span class="l-txt-bold">{{totalCount}}</span>
+                <span>[ 1 ~ {{pagingSize}} ]</span>
+                <span class="l-page" *ngFor="let page of getTotalPage()" (click)="openPage(page)">{{page}}</span>
+                <span class="l-page">1</span>
+            </div>
+            <ng-container #agentChartPlaceHolder></ng-container>
+        </div>
+        <ng-container [ngSwitch]="messageTemplate">
+            <div class="l-message l-waiting" *ngSwitchCase="'LOADING'">
+                <h4><span>Waiting Connection...</span></h4>
+                <i class="fas fa-spinner fa-spin fa-2x fa-fw"></i>
+            </div>
+            <div class="l-message l-retry" *ngSwitchCase="'RETRY'">
+                <h4><span>Closed connection</span></h4>
+                <button type="button" class="pinpoint-btn" (click)="retryConnection()"><span><i class="fas fa-redo"></i></span> Retry</button>
+            </div>            
+            <div class="l-message l-no-data" *ngSwitchCase="'NO_DATA'">
+                <h4><span>This node is not WAS</span></h4>
+            </div>
+            <ng-container *ngSwitchDefault></ng-container>
+        </ng-container>
+    </div>
+</div>

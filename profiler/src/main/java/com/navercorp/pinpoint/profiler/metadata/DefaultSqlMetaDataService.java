@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,7 @@ package com.navercorp.pinpoint.profiler.metadata;
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,25 +33,17 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
     private final CachingSqlNormalizer cachingSqlNormalizer;
 
-    private final String agentId;
-    private final long agentStartTime;
-    private final EnhancedDataSender enhancedDataSender;
+    private final EnhancedDataSender<Object> enhancedDataSender;
 
     @Inject
-    public DefaultSqlMetaDataService(ProfilerConfig profilerConfig, @AgentId String agentId,
-                                     @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
-        this(agentId, agentStartTime, enhancedDataSender, profilerConfig.getJdbcSqlCacheSize());
+    public DefaultSqlMetaDataService(ProfilerConfig profilerConfig, EnhancedDataSender<Object> enhancedDataSender) {
+        this(enhancedDataSender, profilerConfig.getJdbcSqlCacheSize());
     }
 
-    public DefaultSqlMetaDataService(String agentId, long agentStartTime, EnhancedDataSender enhancedDataSender, int jdbcSqlCacheSize) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
+    public DefaultSqlMetaDataService(EnhancedDataSender<Object> enhancedDataSender, int jdbcSqlCacheSize) {
         if (enhancedDataSender == null) {
             throw new NullPointerException("enhancedDataSender must not be null");
         }
-        this.agentId = agentId;
-        this.agentStartTime = agentStartTime;
         this.enhancedDataSender = enhancedDataSender;
         this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(jdbcSqlCacheSize);
     }
@@ -82,12 +71,7 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
             // isNewValue means that the value is newly cached.
             // So the sql could be new one. We have to send sql metadata to collector.
-            final TSqlMetaData sqlMetaData = new TSqlMetaData();
-            sqlMetaData.setAgentId(agentId);
-            sqlMetaData.setAgentStartTime(agentStartTime);
-
-            sqlMetaData.setSqlId(parsingResult.getId());
-            sqlMetaData.setSql(parsingResult.getSql());
+            final SqlMetaData sqlMetaData = new SqlMetaData(parsingResult.getId(), parsingResult.getSql());
 
             this.enhancedDataSender.request(sqlMetaData);
         }

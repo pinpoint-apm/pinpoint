@@ -4,7 +4,7 @@ keywords: start, begin, quickstart, quick
 last_updated: Feb 1, 2018
 sidebar: mydoc_sidebar
 permalink: quickstart.html
-disqus: true
+disqus: false
 ---
 
 If you are using docker, [Take a look at pinpoint docker](./docker.html) which is the easiest way to look around.
@@ -36,7 +36,7 @@ QuickStart supports Linux, OSX, and Windows.
 ## Starting 
 Download Pinpoint with `git clone https://github.com/naver/pinpoint.git` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
 
-Install Pinpoint by running `./mvnw install -Dmaven.test.skip=true`
+Install Pinpoint by running `./mvnw install -DskipTests=true`
 
 ### Install & Start HBase
 

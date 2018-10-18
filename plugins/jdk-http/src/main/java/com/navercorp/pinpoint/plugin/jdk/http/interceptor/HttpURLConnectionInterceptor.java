@@ -16,31 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.jdk.http.interceptor;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
-import com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter;
-import com.navercorp.pinpoint.plugin.jdk.http.HttpURLConnectionClientHeaderAdaptor;
-import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientRequestAdaptor;
-import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
-import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.request.*;
+import com.navercorp.pinpoint.plugin.jdk.http.*;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * @author netspider

@@ -21,9 +21,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -33,9 +35,9 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-public class SpringAsyncPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private TransformTemplate transformTemplate;
+    private MatchableTransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -47,7 +49,9 @@ public class SpringAsyncPlugin implements ProfilerPlugin, TransformTemplateAware
         logger.info("SpringAsyncPlugin config={}", config);
 
         // Add task class
-        addAsyncExecutionInterceptor$1();
+        addAsyncExecutionInterceptorTask(Matchers.newClassNameMatcher("org.springframework.aop.interceptor.AsyncExecutionInterceptor$1"));
+        // Apply to spring framework 5.0 or later.
+        addAsyncExecutionInterceptorTask(Matchers.newPackageBasedMatcher("org.springframework.aop.interceptor.AsyncExecutionInterceptor$$Lambda$"));
         // Add AsyncTaskExecutor classes
         final List<String> asyncTaskExecutorClassNameList = config.getAsyncTaskExecutorClassNameList();
         for (String className : asyncTaskExecutorClassNameList) {
@@ -57,8 +61,8 @@ public class SpringAsyncPlugin implements ProfilerPlugin, TransformTemplateAware
         }
     }
 
-    private void addAsyncExecutionInterceptor$1() {
-        transformTemplate.transform("org.springframework.aop.interceptor.AsyncExecutionInterceptor$1", new TransformCallback() {
+    private void addAsyncExecutionInterceptorTask(final Matcher matcher) {
+        transformTemplate.transform(matcher, new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -89,9 +93,8 @@ public class SpringAsyncPlugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
 
-
     @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
+    public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
         this.transformTemplate = transformTemplate;
     }
 }

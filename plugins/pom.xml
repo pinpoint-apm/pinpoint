@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.8.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins</artifactId>
@@ -80,6 +80,9 @@
         <module>akka-http</module>
         <module>undertow</module>
         <module>kafka</module>
+        <module>mongodb</module>
+        <module>fastjson</module>
+        <module>druid</module>
     </modules>
 
     <dependencies>
@@ -326,6 +329,21 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-kafka-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-mongodb-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-fastjson-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-druid-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

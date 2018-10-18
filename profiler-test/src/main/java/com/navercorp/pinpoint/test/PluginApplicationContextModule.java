@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
-import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
-import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressorV1;
+import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -56,15 +56,15 @@ public class PluginApplicationContextModule extends AbstractModule {
         logger.debug("statDataSender:{}", statDataSender);
         bind(DataSender.class).annotatedWith(StatDataSender.class).toInstance(statDataSender);
 
-        StorageFactory storageFactory = newStorageFactory(spanDataSender);
-        logger.debug("spanFactory:{}", spanDataSender);
-        bind(StorageFactory.class).toInstance(storageFactory);
+        bind(TraceDataFormatVersion.class).toInstance(TraceDataFormatVersion.V1);
+        bind(StorageFactory.class).to(TestSpanStorageFactory.class);
 
         bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
 
-        EnhancedDataSender enhancedDataSender = newTcpDataSender();
+        EnhancedDataSender<Object> enhancedDataSender = newTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        bind(EnhancedDataSender.class).toInstance(enhancedDataSender);
+        TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {};
+        bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
 
         ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
         bind(ServerMetaDataRegistryService.class).toInstance(serverMetaDataRegistryService);
@@ -83,7 +83,7 @@ public class PluginApplicationContextModule extends AbstractModule {
         return sender;
     }
 
-    private EnhancedDataSender newTcpDataSender() {
+    private EnhancedDataSender<Object> newTcpDataSender() {
         TestTcpDataSender tcpDataSender = new TestTcpDataSender();
         return tcpDataSender;
     }
@@ -94,11 +94,5 @@ public class PluginApplicationContextModule extends AbstractModule {
         return serverMetaDataRegistryService;
     }
 
-    private StorageFactory newStorageFactory(DataSender spanDataSender) {
-        logger.debug("newStorageFactory dataSender:{}", spanDataSender);
-        SpanEventCompressor<Long> spanEventCompressor = new SpanEventCompressorV1();
-        StorageFactory storageFactory = new SimpleSpanStorageFactory(spanDataSender, spanEventCompressor);
-        return storageFactory;
-    }
 
 }

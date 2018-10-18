@@ -15,11 +15,16 @@
  */
 package com.navercorp.pinpoint.flink.cluster;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstatns;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import com.navercorp.pinpoint.web.cluster.zookeeper.*;
+import com.navercorp.pinpoint.web.cluster.zookeeper.PushZnodeJob;
+import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClient;
+import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManagerHelper;
+import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperUtils;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
@@ -74,7 +79,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
         }
 
         this.timer = createTimer();
-        this.client = new ZookeeperClient(connectAddress, sessionTimeout, this, ZookeeperClient.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+        this.client = new ZookeeperClient(connectAddress, sessionTimeout, this, ZookeeperConstatns.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
         this.client.connect();
 
         registerFlinkNode();

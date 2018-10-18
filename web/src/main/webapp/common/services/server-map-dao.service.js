@@ -197,7 +197,7 @@
 	     */
 	    this.addFilterProperty = function (filters, applicationMapData) {
 	        var parsedFilters = this.parseFilterText(filters, applicationMapData);
-	
+
 	        // node
 	        angular.forEach(applicationMapData.nodeDataArray, function (val) {
 	            if (angular.isDefined(_.findWhere(parsedFilters, {nodeKey: val.key}))) {

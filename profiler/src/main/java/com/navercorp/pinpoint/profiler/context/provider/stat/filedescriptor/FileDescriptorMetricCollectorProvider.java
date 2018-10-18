@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,30 +18,29 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.DefaultFileDescriptorMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.FileDescriptorMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.UnsupportedFileDescriptorMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
+import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
 
 /**
  * @author Roy Kim
  */
-public class FileDescriptorMetricCollectorProvider implements Provider<FileDescriptorMetricCollector> {
+public class FileDescriptorMetricCollectorProvider implements Provider<AgentStatMetricCollector<TFileDescriptor>> {
 
     private final FileDescriptorMetric fileDescriptorMetric;
 
     @Inject
     public FileDescriptorMetricCollectorProvider(FileDescriptorMetric fileDescriptorMetric) {
-        if (fileDescriptorMetric == null) {
-            throw new NullPointerException("fileDescriptorMetric must not be null");
-        }
-        this.fileDescriptorMetric = fileDescriptorMetric;
+        this.fileDescriptorMetric = Assert.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric must not be null");
     }
 
     @Override
-    public FileDescriptorMetricCollector get() {
+    public AgentStatMetricCollector<TFileDescriptor> get() {
         if (fileDescriptorMetric == FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC) {
-            return new UnsupportedFileDescriptorMetricCollector();
+            return new UnsupportedMetricCollector<TFileDescriptor>();
         }
         return new DefaultFileDescriptorMetricCollector(fileDescriptorMetric);
     }

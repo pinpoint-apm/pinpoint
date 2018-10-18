@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,27 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
-import com.navercorp.pinpoint.profiler.context.SpanPostProcessorV1;
-import com.navercorp.pinpoint.profiler.context.SpanPostProcessorV2;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.compress.Context;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV2;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanPostProcessorProvider implements Provider<SpanPostProcessor> {
+public class SpanPostProcessorProvider implements Provider<SpanPostProcessor<Context>> {
 
     private final TraceDataFormatVersion version;
 
     @Inject
-    public SpanPostProcessorProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-
-        this.version = TraceDataFormatVersion.getTraceDataFormatVersion(profilerConfig);
+    public SpanPostProcessorProvider(TraceDataFormatVersion version) {
+        this.version = Assert.requireNonNull(version, "version must not be null");
     }
 
     @Override
-    public SpanPostProcessor get() {
+    public SpanPostProcessor<Context> get() {
         if (version == TraceDataFormatVersion.V2) {
             return new SpanPostProcessorV2();
         }

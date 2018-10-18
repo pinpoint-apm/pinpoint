@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class AsyncChildTrace implements Trace {
 
     private final boolean sampling;
 
-    private final CallStack callStack;
+    private final CallStack<SpanEvent> callStack;
 
     private final Storage storage;
 
@@ -50,11 +50,10 @@ public class AsyncChildTrace implements Trace {
 
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
-    private final int asyncId;
-    private final short asyncSequence;
+    private final LocalAsyncId localAsyncId;
 
-    public AsyncChildTrace(final TraceRoot traceRoot, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
-                             SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final int asyncId, final short asyncSequence) {
+    public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
+                             SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
 
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
@@ -63,9 +62,7 @@ public class AsyncChildTrace implements Trace {
         this.sampling = sampling;
         this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
         this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
-        this.asyncId = asyncId;
-        this.asyncSequence = asyncSequence;
-
+        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId must not be null");
         traceBlockBegin(ASYNC_BEGIN_STACK_ID);
     }
 
@@ -130,7 +127,7 @@ public class AsyncChildTrace implements Trace {
     }
 
     private SpanEvent newSpanEvent(int stackId) {
-        final SpanEvent spanEvent = new SpanEvent(traceRoot);
+        final SpanEvent spanEvent = new SpanEvent();
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
         return spanEvent;
@@ -144,8 +141,8 @@ public class AsyncChildTrace implements Trace {
     @Override
     public SpanEventRecorder traceBlockBegin(int stackId) {
         final SpanEvent spanEvent = traceBlockBegin0(stackId);
-        spanEvent.setAsyncId(asyncId);
-        spanEvent.setAsyncSequence(asyncSequence);
+
+        spanEvent.setLocalAsyncId(localAsyncId);
 
         return wrappedSpanEventRecorder(wrappedSpanEventRecorder, spanEvent);
     }
@@ -267,7 +264,7 @@ public class AsyncChildTrace implements Trace {
                 stackDump("call stack is empty");
             }
             // make dummy.
-            spanEvent = new SpanEvent(traceRoot);
+            spanEvent = new SpanEvent();
         }
 
         return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
@@ -297,8 +294,7 @@ public class AsyncChildTrace implements Trace {
     public String toString() {
         return "AsyncChildTrace{" +
                 "traceRoot=" + traceRoot +
-                ", asyncId=" + asyncId +
-                ", asyncSequence=" + asyncSequence +
+                ", localAsyncId=" + localAsyncId +
                 '}';
     }
 }

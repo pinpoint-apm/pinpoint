@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
     private final boolean sampling;
 
-    private final CallStack callStack;
+    private final CallStack<SpanEvent> callStack;
 
     private final Storage storage;
 
@@ -59,13 +59,13 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
 
-    public DefaultTrace(Span span, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
+    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
 
         this.span = Assert.requireNonNull(span, "span must not be null");
         this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
         this.storage = Assert.requireNonNull(storage, "storage must not be null");
-        this.sampling = Assert.requireNonNull(sampling, "sampling must not be null");
+        this.sampling = sampling;
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
 
         this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
@@ -107,7 +107,7 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
     }
 
     private SpanEvent newSpanEvent(int stackId) {
-        final SpanEvent spanEvent = new SpanEvent(getTraceRoot());
+        final SpanEvent spanEvent = newSpanEvent();
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
         return spanEvent;
@@ -282,10 +282,14 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
                 stackDump("call stack is empty");
             }
             // make dummy.
-            spanEvent = new SpanEvent(getTraceRoot());
+            spanEvent = newSpanEvent();
         }
 
         return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
+    }
+
+    private SpanEvent newSpanEvent() {
+        return callStack.getFactory().newInstance();
     }
 
     @Override

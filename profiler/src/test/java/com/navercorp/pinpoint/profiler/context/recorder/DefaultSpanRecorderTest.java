@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
@@ -49,17 +50,15 @@ public class DefaultSpanRecorderTest {
     private StringMetaDataService stringMetaDataService;
     @Mock
     private SqlMetaDataService sqlMetaDataService;
+    @Mock
+    private JsonMetaDataService jsonMetaDataService;
 
-    @Before
-    public void setUp() throws Exception {
-        Mockito.when(traceRoot.getTraceId()).thenReturn(traceId);
-    }
 
     @Test
     public void testRecordApiId() throws Exception {
         Span span = new Span(traceRoot);
 
-        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
 
         final int API_ID = 1000;
         recorder.recordApiId(API_ID);
@@ -74,12 +73,11 @@ public class DefaultSpanRecorderTest {
 
         Span span = new Span(traceRoot);
 
-        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService, jsonMetaDataService);
 
         final String endPoint = "endPoint";
         recorder.recordEndPoint(endPoint);
 
-        Assert.assertEquals(span.getEndPoint(), endPoint);
         verify(traceRoot.getShared()).setEndPoint(endPoint);
     }
 

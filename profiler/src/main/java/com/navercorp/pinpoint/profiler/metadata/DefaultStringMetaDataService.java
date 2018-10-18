@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,20 +26,13 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
 
     private final SimpleCache<String> stringCache = new SimpleCache<String>();
 
-    private final String agentId;
-    private final long agentStartTime;
-    private final EnhancedDataSender enhancedDataSender;
+    private final EnhancedDataSender<Object> enhancedDataSender;
 
     @Inject
-    public DefaultStringMetaDataService(@AgentId String agentId, @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
+    public DefaultStringMetaDataService(EnhancedDataSender<Object> enhancedDataSender) {
         if (enhancedDataSender == null) {
             throw new NullPointerException("enhancedDataSender must not be null");
         }
-        this.agentId = agentId;
-        this.agentStartTime = agentStartTime;
         this.enhancedDataSender = enhancedDataSender;
     }
 
@@ -53,12 +43,7 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
         }
         final Result result = this.stringCache.put(value);
         if (result.isNewValue()) {
-            final TStringMetaData stringMetaData = new TStringMetaData();
-            stringMetaData.setAgentId(agentId);
-            stringMetaData.setAgentStartTime(agentStartTime);
-
-            stringMetaData.setStringId(result.getId());
-            stringMetaData.setStringValue(value);
+            final StringMetaData stringMetaData = new StringMetaData(result.getId(), value);
             this.enhancedDataSender.request(stringMetaData);
         }
         return result.getId();

@@ -18,9 +18,13 @@ package com.navercorp.pinpoint.profiler.monitor.metric.cpu.oracle;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuUsageProvider;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.JvmCpuUsageCalculator;
+import com.sun.management.OperatingSystemMXBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 
 /**
@@ -28,32 +32,58 @@ import java.lang.management.RuntimeMXBean;
  */
 public class Java6CpuLoadMetric implements CpuLoadMetric {
 
-    private final JvmCpuUsageCalculator jvmCpuUsageCalculator = new JvmCpuUsageCalculator();
-    private final com.sun.management.OperatingSystemMXBean operatingSystemMXBean;
-    private final RuntimeMXBean runtimeMXBean;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public Java6CpuLoadMetric(OperatingSystemMXBean operatingSystemMXBean, RuntimeMXBean runtimeMXBean) {
+    private final CpuUsageProvider jvmCpuUsageProvider;
+
+    public Java6CpuLoadMetric() {
+        final OperatingSystemMXBean operatingSystemMXBean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         if (operatingSystemMXBean == null) {
-            throw new NullPointerException("operatingSystemMXBean must not be null");
+            throw new IllegalStateException("OperatingSystemMXBean not available");
         }
-        this.operatingSystemMXBean = (com.sun.management.OperatingSystemMXBean) operatingSystemMXBean;
-        this.runtimeMXBean = runtimeMXBean;
+        final RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        if (runtimeMXBean == null) {
+            throw new IllegalStateException("RuntimeMXBean not available");
+        }
+
+        CpuUsageProvider jvmCpuUsageProvider = new JvmCpuUsageProvider(operatingSystemMXBean, runtimeMXBean);
+        try {
+            jvmCpuUsageProvider.getCpuUsage();
+        } catch (NoSuchMethodError e) {
+            logger.warn("Expected method not found for retrieving jvm cpu usage. Cause : {}", e.getMessage());
+            jvmCpuUsageProvider = CpuUsageProvider.UNSUPPORTED;
+        }
+        this.jvmCpuUsageProvider = jvmCpuUsageProvider;
     }
 
     @Override
     public CpuLoadMetricSnapshot getSnapshot() {
-        double jvmCpuUsage = UNCOLLECTED_USAGE;
-        if (runtimeMXBean != null) {
-            long cpuTimeNS = operatingSystemMXBean.getProcessCpuTime();
-            long upTimeMS = runtimeMXBean.getUptime();
-            jvmCpuUsage = jvmCpuUsageCalculator.getJvmCpuUsage(cpuTimeNS, upTimeMS);
-        }
-        double systemCpuUsage = UNCOLLECTED_USAGE;
-        return new CpuLoadMetricSnapshot(jvmCpuUsage, systemCpuUsage);
+        double jvmCpuUsage = jvmCpuUsageProvider.getCpuUsage();
+        return new CpuLoadMetricSnapshot(jvmCpuUsage, UNCOLLECTED_USAGE);
     }
 
     @Override
     public String toString() {
         return "CpuLoadMetric for Oracle Java 1.6";
+    }
+
+    private static class JvmCpuUsageProvider implements CpuUsageProvider {
+
+        private final JvmCpuUsageCalculator jvmCpuUsageCalculator = new JvmCpuUsageCalculator();
+
+        private final OperatingSystemMXBean operatingSystemMXBean;
+        private final RuntimeMXBean runtimeMXBean;
+
+        private JvmCpuUsageProvider(OperatingSystemMXBean operatingSystemMXBean, RuntimeMXBean runtimeMXBean) {
+            this.operatingSystemMXBean = operatingSystemMXBean;
+            this.runtimeMXBean = runtimeMXBean;
+        }
+
+        @Override
+        public double getCpuUsage() {
+            long cpuTimeNS = operatingSystemMXBean.getProcessCpuTime();
+            long upTimeMS = runtimeMXBean.getUptime();
+            return jvmCpuUsageCalculator.getJvmCpuUsage(cpuTimeNS, upTimeMS);
+        }
     }
 }

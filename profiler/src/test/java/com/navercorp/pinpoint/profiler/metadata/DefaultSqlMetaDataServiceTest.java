@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,7 +34,7 @@ public class DefaultSqlMetaDataServiceTest {
     @Test
     public void cacheSql() throws Exception {
         final EnhancedDataSender dataSender = mock(EnhancedDataSender.class);
-        final SqlMetaDataService sqlMetaDataService = new DefaultSqlMetaDataService("agentId", System.currentTimeMillis(), dataSender, 100);
+        final SqlMetaDataService sqlMetaDataService = new DefaultSqlMetaDataService(dataSender, 100);
 
         final String sql = "select * from A";
         final ParsingResult parsingResult = sqlMetaDataService.parseSql(sql);
@@ -43,10 +42,10 @@ public class DefaultSqlMetaDataServiceTest {
         boolean newValue = sqlMetaDataService.cacheSql(parsingResult);
 
         Assert.assertTrue(newValue);
-        verify(dataSender, times(1)).request(any(TBase.class));
+        verify(dataSender, times(1)).request(any(SqlMetaData.class));
 
         boolean notNewValue = sqlMetaDataService.cacheSql(parsingResult);
         Assert.assertFalse(notNewValue);
-        verify(dataSender, times(1)).request(any(TBase.class));
+        verify(dataSender, times(1)).request(any(SqlMetaData.class));
     }
 }
