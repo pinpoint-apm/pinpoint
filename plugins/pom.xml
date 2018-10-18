@@ -103,4 +103,21 @@
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Pinpoint-Plugin-Id>${project.groupId}:${project.artifactId}</Pinpoint-Plugin-Id>
+                            <Pinpoint-Plugin-Compiler-Version>${jdk.version}</Pinpoint-Plugin-Compiler-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
