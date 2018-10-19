@@ -29,9 +29,6 @@
     <name>pinpoint-plugin-bom</name>
 
     <properties>
-        <!-- jdk 6 compatibility version -->
-        <jackson.version>2.6.6</jackson.version>
-
         <jedis.version>2.4.2</jedis.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <dubbo.version>2.5.3</dubbo.version>
@@ -297,6 +294,22 @@
                 <groupId>io.undertow</groupId>
                 <artifactId>undertow-core</artifactId>
                 <version>2.0.1.Final</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${fastxml.jackson-jdk6.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${fastxml.jackson-jdk6.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${fastxml.jackson-jdk6.version}</version>
             </dependency>
 
         </dependencies>
