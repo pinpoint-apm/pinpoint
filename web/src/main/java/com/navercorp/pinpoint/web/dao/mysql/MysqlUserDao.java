@@ -48,8 +48,8 @@ public class MysqlUserDao implements UserDao {
     }
 
     @Override
-    public void deleteUser(User user) {
-        sqlSessionTemplate.delete(NAMESPACE + "deleteUser", user);
+    public void deleteUser(String userId) {
+        sqlSessionTemplate.delete(NAMESPACE + "deleteUser", userId);
         
     }
 
@@ -61,6 +61,11 @@ public class MysqlUserDao implements UserDao {
     @Override
     public void updateUser(User user) {
         sqlSessionTemplate.update(NAMESPACE + "updateUser", user);
+    }
+
+    @Override
+    public boolean isExistUserId(String userId) {
+        return sqlSessionTemplate.selectOne(NAMESPACE + "isExistUserId", userId);
     }
 
     @Override

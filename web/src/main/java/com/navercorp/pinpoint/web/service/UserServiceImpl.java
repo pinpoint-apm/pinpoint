@@ -40,8 +40,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(User user) {
-        userDao.deleteUser(user);
+    public void deleteUser(String userId) {
+        userDao.deleteUser(userId);
     }
 
 
@@ -72,6 +72,12 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<User> selectUserByDepartment(String department) {
         return userDao.selectUserByDepartment(department);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isExistUserId(String userId) {
+        return userDao.isExistUserId(userId);
     }
 
     @Override
