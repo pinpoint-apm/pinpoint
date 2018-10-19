@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
 
 import java.net.InetSocketAddress;
@@ -43,14 +44,14 @@ public class HbaseClientMethodInterceptor extends SpanEventSimpleAroundIntercept
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.recordServiceType(HbasePluginConstants.HBASE);
+        recorder.recordServiceType(HbasePluginConstants.HBASE_CLIENT);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         String endPoint = getEndPoint(args);
         recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
-        recorder.recordDestinationId(HbasePluginConstants.HBASE.getName());
+        recorder.recordDestinationId(HbasePluginConstants.HBASE_DESTINATION_ID);
         recorder.recordApi(getMethodDescriptor());
         recorder.recordException(throwable);
     }
@@ -69,7 +70,7 @@ public class HbaseClientMethodInterceptor extends SpanEventSimpleAroundIntercept
 
             if (args[5] instanceof InetSocketAddress) {
 
-                return args[5].toString();
+                return SocketAddressUtils.getHostNameFirst((InetSocketAddress) args[5]);
             }
         }
         return null;

@@ -31,26 +31,32 @@ import java.util.List;
  */
 public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
+    private boolean paramsProfile;
+
     /**
      * Instantiates a new Hbase table method interceptor.
      *
-     * @param traceContext the trace context
-     * @param descriptor   the descriptor
+     * @param traceContext  the trace context
+     * @param descriptor    the descriptor
+     * @param paramsProfile
      */
-    public HbaseTableMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public HbaseTableMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, boolean paramsProfile) {
         super(traceContext, descriptor);
+        this.paramsProfile = paramsProfile;
     }
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.recordServiceType(HbasePluginConstants.HBASE_TABLE);
+        recorder.recordServiceType(HbasePluginConstants.HBASE_CLIENT_TABLE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        String attributes = parseAttributes(args);
-        if (attributes != null)
-            recorder.recordAttribute(HbasePluginConstants.HBASE_PARAMS, attributes);
+        if (paramsProfile) {
+            String attributes = parseAttributes(args);
+            if (attributes != null)
+                recorder.recordAttribute(HbasePluginConstants.HBASE_CLIENT_PARAMS, attributes);
+        }
         recorder.recordApi(getMethodDescriptor());
         recorder.recordException(throwable);
     }

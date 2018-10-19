@@ -20,10 +20,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 /**
- * 
- * 
+ *
+ *
  * <h3>Pinpoint Internal (0 ~ 999)</h3>
- * 
+ *
  * <table>
  * <tr><td>-1</td><td>UNDEFINED</td></tr>
  * <tr><td>1</td><td>UNKNOWN</td></tr>
@@ -34,9 +34,9 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>100</td><td>ASYNC</td></tr>
  * </table>
  *
- * 
+ *
  * <h3>Server (1000 ~ 1899)</h3>
- * 
+ *
  * <table>
  * <tr><td>1000</td><td>STAND_ALONE</td></tr>
  * <tr><td>1005</td><td>TEST_STAND_ALONE</td></tr>
@@ -68,10 +68,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
  *
  * </table>
- * 
+ *
  * <h3>Server Sandbox (1900 ~ 1999)</h3>
- * 
- * 
+ *
+ *
  * <h3>Database (2000 ~ 2899)</h3>
  * <table>
  * <tr><td>2050</td><td>UNKNOWN_DB</td></tr>
@@ -144,13 +144,14 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8311</td><td><i>ACTIVEMQ_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>8660</td><td><i>KAFKA_CLIENT</i></td></tr>
  * <tr><td>8661</td><td><i>KAFKA_CLIENT_INTERNAL</i></td></tr>
- * <tr><td>8800</td><td>HBASE</td></tr>
- * <tr><td>8801</td><td><i>HBASE_ADMIN</i></td></tr>
- * <tr><td>8802</td><td><i>HBASE_TABLE</i></td></tr>
+ * <tr><td>8800</td><td>HBASE_CLIENT</td></tr>
+ * <tr><td>8801</td><td><i>HBASE_CLIENT_ADMIN</i></td></tr>
+ * <tr><td>8802</td><td><i>HBASE_CLIENT_TABLE</i></td></tr>
+ * <tr><td>8803</td><td>HBASE_ASYNC_CLIENT</td></tr>
  * </table>
  * <h3>Cache Library Sandbox (8900 ~ 8999) Histogram type: Fast </h3>
- * 
- * 
+ *
+ *
  * <h3>RPC (9000 ~ 9899)</h3>
  * <table>
  * <tr><td>9050</td><td>HTTP_CLIENT_3</td></tr>
@@ -181,12 +182,12 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
  * </table>
- * 
+ *
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
  *
- * 
+ *
  * <tr><td></td><td></td></tr>
- * 
+ *
  * @author emeroad
  * @author netspider
  * @author Jongho Moon
@@ -247,9 +248,9 @@ public interface ServiceType {
     ServiceType TEST = of(5, "TEST");
 
     ServiceType COLLECTOR = of(7, "COLLECTOR");
-    
+
     ServiceType ASYNC = of(100, "ASYNC");
-    
+
     // Java applications, WAS
     ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
     ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
@@ -274,7 +275,7 @@ public interface ServiceType {
     // FIXME it's not clear to put internal method here. but do that for now.
     ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD");
     ServiceType SERVLET = of(5004, "SERVLET");
-    
+
 
     // Spring framework
     ServiceType SPRING = of(5050, "SPRING");

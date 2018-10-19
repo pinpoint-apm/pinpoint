@@ -31,26 +31,32 @@ import java.util.Arrays;
  */
 public class HbaseAdminMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
+    private final boolean paramsProfile;
+
     /**
      * Instantiates a new Hbase admin method interceptor.
      *
-     * @param traceContext the trace context
-     * @param descriptor   the descriptor
+     * @param traceContext  the trace context
+     * @param descriptor    the descriptor
+     * @param paramsProfile
      */
-    public HbaseAdminMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public HbaseAdminMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, boolean paramsProfile) {
         super(traceContext, descriptor);
+        this.paramsProfile = paramsProfile;
     }
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.recordServiceType(HbasePluginConstants.HBASE_ADMIN);
+        recorder.recordServiceType(HbasePluginConstants.HBASE_CLIENT_ADMIN);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        String attributes = parseAttributes(args);
-        if (attributes != null)
-            recorder.recordAttribute(HbasePluginConstants.HBASE_PARAMS, attributes);
+        if (paramsProfile) {
+            String attributes = parseAttributes(args);
+            if (attributes != null)
+                recorder.recordAttribute(HbasePluginConstants.HBASE_CLIENT_PARAMS, attributes);
+        }
         recorder.recordApi(getMethodDescriptor());
         recorder.recordException(throwable);
     }

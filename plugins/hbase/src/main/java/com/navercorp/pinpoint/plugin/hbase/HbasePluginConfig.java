@@ -21,12 +21,14 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  *
  * @author Victor.Zxy
  * @version 1.8.1
- * @since 2018/10/12
+ * @since 2018 /10/12
  */
 public class HbasePluginConfig {
 
-    private final boolean hbaseProfile;
-    private final boolean operationProfile;
+    private final boolean clientProfile;
+    private final boolean adminProfile;
+    private final boolean tableProfile;
+    private final boolean paramsProfile;
 
     /**
      * Instantiates a new Hbase plugin config.
@@ -34,35 +36,59 @@ public class HbasePluginConfig {
      * @param config the config
      */
     public HbasePluginConfig(ProfilerConfig config) {
-        this.hbaseProfile = config.readBoolean(HbasePluginConstants.HBASE_CONFIG, true);
-        this.operationProfile = config.readBoolean(HbasePluginConstants.HBASE_OPS_CONFIG, true);
+        this.clientProfile = config.readBoolean(HbasePluginConstants.HBASE_CLIENT_CONFIG, true);
+        this.adminProfile = config.readBoolean(HbasePluginConstants.HBASE_CLIENT_ADMIN_CONFIG, true);
+        this.tableProfile = config.readBoolean(HbasePluginConstants.HBASE_CLIENT_TABLE_CONFIG, true);
+        this.paramsProfile = config.readBoolean(HbasePluginConstants.HBASE_CLIENT_PARAMS_CONFIG, false);
     }
 
     /**
-     * Is hbase profile boolean.
+     * Is client profile boolean.
      *
      * @return the boolean
      */
-    public boolean isHbaseProfile() {
-        return hbaseProfile;
+    public boolean isClientProfile() {
+        return clientProfile;
     }
 
     /**
-     * Is operation profile boolean.
+     * Is admin profile boolean.
      *
      * @return the boolean
      */
-    public boolean isOperationProfile() {
-        return operationProfile;
+    public boolean isAdminProfile() {
+        return adminProfile;
+    }
+
+    /**
+     * Is table profile boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isTableProfile() {
+        return tableProfile;
+    }
+
+    /**
+     * Is params profile boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isParamsProfile() {
+        return paramsProfile;
     }
 
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("HbasePluginConfig [hbaseProfile=");
-        builder.append(hbaseProfile);
-        builder.append(", operationProfile=");
-        builder.append(operationProfile);
+        builder.append("HbasePluginConfig [clientProfile=");
+        builder.append(clientProfile);
+        builder.append(", adminProfile=");
+        builder.append(adminProfile);
+        builder.append(", tableProfile=");
+        builder.append(tableProfile);
+        builder.append(", paramsProfile=");
+        builder.append(paramsProfile);
         builder.append("]");
         return builder.toString();
     }

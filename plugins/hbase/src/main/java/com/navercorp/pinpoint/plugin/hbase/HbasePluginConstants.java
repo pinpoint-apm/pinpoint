@@ -36,38 +36,68 @@ public final class HbasePluginConstants {
     }
 
     /**
-     * The constant HBASE.
+     * The constant HBASE_CLIENT.
      */
-    public static final ServiceType HBASE = ServiceTypeFactory.of(8800, "HBASE", TERMINAL, RECORD_STATISTICS);
+    public static final ServiceType HBASE_CLIENT = ServiceTypeFactory.of(8800, "HBASE_CLIENT", TERMINAL, RECORD_STATISTICS);
 
     /**
-     * The constant HBASE_ADMIN.
+     * The constant HBASE_CLIENT_ADMIN.
      */
-    public static final ServiceType HBASE_ADMIN = ServiceTypeFactory.of(8801, "HBASE_ADMIN");
+    public static final ServiceType HBASE_CLIENT_ADMIN = ServiceTypeFactory.of(8801, "HBASE_CLIENT_ADMIN");
 
     /**
-     * The constant HBASE_TABLE.
+     * The constant HBASE_CLIENT_TABLE.
      */
-    public static final ServiceType HBASE_TABLE = ServiceTypeFactory.of(8802, "HBASE_TABLE");
+    public static final ServiceType HBASE_CLIENT_TABLE = ServiceTypeFactory.of(8802, "HBASE_CLIENT_TABLE");
 
     /**
-     * The constant HBASE_PARAMS.
+     * The constant HBASE_ASYNC_CLIENT.
      */
-    public static final AnnotationKey HBASE_PARAMS = AnnotationKeyFactory.of(320, "hbase.params", VIEW_IN_RECORD_SET);
+    public static final ServiceType HBASE_ASYNC_CLIENT = ServiceTypeFactory.of(8803, "HBASE_ASYNC_CLIENT");
 
     /**
-     * The constant HBASE_SCOPE.
+     * The constant HBASE_CLIENT_PARAMS.
      */
-    public static final String HBASE_SCOPE = "HBASE_SCOPE";
+    public static final AnnotationKey HBASE_CLIENT_PARAMS = AnnotationKeyFactory.of(320, "hbase.client.params", VIEW_IN_RECORD_SET);
 
     /**
-     * The constant HBASE_CONFIG.
+     * The constant HBASE_DESTINATION_ID.
      */
-    public static final String HBASE_CONFIG = "profiler.hbase.enable";
+    public static final String HBASE_DESTINATION_ID = "HBASE";
 
     /**
-     * The constant HBASE_OPS_CONFIG.
+     * The constant HBASE_CLIENT_SCOPE.
      */
-    public static final String HBASE_OPS_CONFIG = "profiler.hbase.operation.enable";
+    public static final String HBASE_CLIENT_SCOPE = "HBASE_CLIENT_SCOPE";
+
+    /**
+     * The constant HBASE_CLIENT_CONFIG.
+     */
+    public static final String HBASE_CLIENT_CONFIG = "profiler.hbase.client.enable";
+
+    /**
+     * The constant HBASE_CLIENT_ADMIN_CONFIG.
+     */
+    public static final String HBASE_CLIENT_ADMIN_CONFIG = "profiler.hbase.client.admin.enable";
+
+    /**
+     * The constant HBASE_CLIENT_TABLE_CONFIG.
+     */
+    public static final String HBASE_CLIENT_TABLE_CONFIG = "profiler.hbase.client.table.enable";
+
+    /**
+     * The constant HBASE_CLIENT_PARAMS_CONFIG.
+     */
+    public static final String HBASE_CLIENT_PARAMS_CONFIG = "profiler.hbase.client.params.enable";
+
+    /**
+     * The constant tableMethodNames.
+     */
+    public static final String[] tableMethodNames = new String[]{"append", "increment", "exists", "existsAll", "get", "getScanner", "put", "checkAndPut", "delete", "checkAndDelete", "mutateRow", "checkAndMutate"};
+
+    /**
+     * The constant adminMethodNames.
+     */
+    public static final String[] adminMethodNames = new String[]{"tableExists", "listTables", "listTableNames", "getTableDescriptor", "createTable", "deleteTable", "modifyTable", "truncateTable", "enableTable", "enableTableAsync", "enableTables", "disableTableAsync", "disableTable", "disableTables", "getAlterStatus", "addColumn", "deleteColumn", "modifyColumn", "compact", "majorCompact", "split", "getTableRegions", "snapshot", "restoreSnapshot", "cloneSnapshot", "listSnapshots", "deleteSnapshot"};
 
 }

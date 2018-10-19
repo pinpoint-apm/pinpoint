@@ -28,9 +28,10 @@ public class HbasePluginMetadataProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(HbasePluginConstants.HBASE);
-        context.addServiceType(HbasePluginConstants.HBASE_ADMIN);
-        context.addServiceType(HbasePluginConstants.HBASE_TABLE);
-        context.addAnnotationKey(HbasePluginConstants.HBASE_PARAMS);
+        context.addServiceType(HbasePluginConstants.HBASE_CLIENT);
+        context.addServiceType(HbasePluginConstants.HBASE_CLIENT_ADMIN);
+        context.addServiceType(HbasePluginConstants.HBASE_CLIENT_TABLE);
+        context.addServiceType(HbasePluginConstants.HBASE_ASYNC_CLIENT);
+        context.addAnnotationKey(HbasePluginConstants.HBASE_CLIENT_PARAMS);
     }
 }

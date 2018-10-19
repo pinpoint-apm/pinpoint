@@ -31,9 +31,9 @@ public class HbaseTableMethodInterceptorTest {
         Object target = new Object();
         Object[] args = new Object[]{};
 
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor,true);
         interceptor.doInBeforeTrace(recorder, target, args);
-        verify(recorder).recordServiceType(HbasePluginConstants.HBASE_TABLE);
+        verify(recorder).recordServiceType(HbasePluginConstants.HBASE_CLIENT_TABLE);
     }
 
     @Test
@@ -42,9 +42,9 @@ public class HbaseTableMethodInterceptorTest {
         Object target = new Object();
         Object[] args = new Object[]{Collections.singletonList("test")};
 
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true);
         interceptor.doInAfterTrace(recorder, target, args, null, null);
-        verify(recorder).recordAttribute(HbasePluginConstants.HBASE_PARAMS, "size: 1");
+        verify(recorder).recordAttribute(HbasePluginConstants.HBASE_CLIENT_PARAMS, "size: 1");
         verify(recorder).recordApi(descriptor);
         verify(recorder).recordException(null);
     }

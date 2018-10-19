@@ -20,9 +20,10 @@ public class HbasePluginMetadataProviderTest {
         HbasePluginMetadataProvider provider = new HbasePluginMetadataProvider();
         provider.setup(context);
 
-        verify(context).addServiceType(HbasePluginConstants.HBASE);
-        verify(context).addServiceType(HbasePluginConstants.HBASE_ADMIN);
-        verify(context).addServiceType(HbasePluginConstants.HBASE_TABLE);
-        verify(context).addAnnotationKey(HbasePluginConstants.HBASE_PARAMS);
+        verify(context).addServiceType(HbasePluginConstants.HBASE_CLIENT);
+        verify(context).addServiceType(HbasePluginConstants.HBASE_CLIENT_ADMIN);
+        verify(context).addServiceType(HbasePluginConstants.HBASE_CLIENT_TABLE);
+        verify(context).addServiceType(HbasePluginConstants.HBASE_ASYNC_CLIENT);
+        verify(context).addAnnotationKey(HbasePluginConstants.HBASE_CLIENT_PARAMS);
     }
 }
