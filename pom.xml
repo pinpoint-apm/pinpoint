@@ -105,6 +105,7 @@
         <spring.security.version>4.2.8.RELEASE</spring.security.version>
         <asm.version>6.2.1</asm.version>
         <thrift.version>0.11.0</thrift.version>
+        <ehcache.version>2.6.11</ehcache.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.0</plugin.compiler.version>
@@ -440,9 +441,6 @@
                 <version>5.1.45</version>
             </dependency>
 
-
-
-
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty</artifactId>
@@ -458,12 +456,7 @@
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
-                <version>2.6.9</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>1.6.2</version>
+                <version>${ehcache.version}</version>
             </dependency>
 
             <dependency>
