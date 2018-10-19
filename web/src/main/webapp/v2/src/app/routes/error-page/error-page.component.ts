@@ -1,81 +1,91 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SystemConfigurationDataService, UrlRouteManagerService, ISystemConfiguration } from 'app/shared/services';
+import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService, ISystemConfiguration } from 'app/shared/services';
 import { ApplicationListDataService } from 'app/core/components/application-list/application-list-data.service';
 @Component({
     templateUrl: './error-page.component.html',
     styleUrls: ['./error-page.component.css']
 })
 export class ErrorPageComponent implements OnInit {
-    private configurationLoading = true;
-    private applicationListLoading = true;
-    private configurationSuccess = false;
-    private applicationListSuccess = false;
-    configurationErrorMessage = '';
-    applicationListErrorMessage = '';
-    showLoading = true;
-    // funcImagePath: Function;
-    // i18nText$: Observable<string>;
-
+    stateList = ['serverTime', 'configuration', 'applicationList'];
+    state: any = {
+        serverTime: {
+            url: 'serverTime.pinpoint',
+            loading: true,
+            success: false,
+            message: ''
+        },
+        configuration: {
+            url: 'configuration.pinpoint',
+            loading: true,
+            success: false,
+            message: ''
+        },
+        applicationList: {
+            url: 'applicationList.pinpoint',
+            loading: true,
+            success: false,
+            message: ''
+        }
+    };
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
         private systemConfigurationDataService: SystemConfigurationDataService,
-        private applicationListDataService: ApplicationListDataService
+        private applicationListDataService: ApplicationListDataService,
+        private serverTimeDataService: ServerTimeDataService
     ) {}
 
     ngOnInit() {
-        this.loadSystemConfiguration();
-        this.loadApplicationList();
+        this.checkServerTime(this.stateList[0]);
+        this.checkSystemConfiguration(this.stateList[1]);
+        this.checkApplicationList(this.stateList[2]);
     }
-    getConfigurationStateClass(): string {
-        if (this.configurationLoading) {
-            return 'fas fa-spinner fa-spin';
-        } else {
-            if (this.configurationSuccess) {
-                return 'far fa-check-square l-success';
-            } else {
-                return 'far fa-times-circle l-fail';
-            }
-        }
+    private setState(type: string, result: boolean, loading: boolean, message: string = ''): void {
+        this.state[type].success = result;
+        this.state[type].loading = loading;
+        this.state[type].message = message;
     }
-    getApplicationStateClass(): string {
-        if (this.applicationListLoading) {
-            return 'fas fa-spinner fa-spin';
-        } else {
-            if (this.applicationListSuccess) {
-                return 'far fa-check-square l-success';
-            } else {
-                return 'far fa-times-circle l-fail';
-            }
-        }
+    private checkServerTime(type: string): void {
+        this.serverTimeDataService.getServerTime().subscribe((time: number) => {
+            this.setState(type, true, false);
+        }, (error: IServerErrorFormat) => {
+            this.setState(type, false, false, error.exception.message);
+        });
     }
-    private loadSystemConfiguration(): void {
+    private checkSystemConfiguration(type: string): void {
         this.systemConfigurationDataService.getConfiguration().subscribe((configuration: ISystemConfiguration) => {
-            this.configurationSuccess = true;
-            this.configurationLoading = false;
+            this.setState(type, true, false);
         }, (error: IServerErrorFormat) => {
-            this.configurationSuccess = false;
-            this.configurationLoading = false;
-            this.configurationErrorMessage = error.exception.message;
+            this.setState(type, false, false, error.exception.message);
         });
     }
-    private loadApplicationList(): void {
+    private checkApplicationList(type: string): void {
         this.applicationListDataService.getApplicationList().subscribe((applicatoinList: IApplication[]) => {
-            this.applicationListSuccess = true;
-            this.applicationListLoading = false;
+            this.setState(type, true, false);
         }, (error: IServerErrorFormat) => {
-            this.applicationListSuccess = false;
-            this.applicationListLoading = false;
-            this.applicationListErrorMessage = error.exception.message;
+            this.setState(type, false, false, error.exception.message);
         });
+    }
+    getErrorMessage(type: string): string {
+        return this.state[type].message;
     }
     showErrorMessage(type: string): boolean {
-        if (type === 'configuration') {
-            return !(this.configurationLoading === false && this.configurationSuccess);
-        } else if (type === 'applicationList') {
-            return !(this.applicationListLoading === false && this.applicationListSuccess);
+        return !(this.state[type].loading === false && this.state[type].success);
+    }
+    getStateClass(type: string): string {
+        const spin = 'fas fa-spinner fa-spin';
+        const success = 'far fa-check-square l-success';
+        const fail = 'far fa-times-circle l-fail';
+        const typeState = this.state[type];
+
+        if (typeState.loading) {
+            return spin;
+        } else {
+            return typeState.success ? success : fail;
         }
-        return false;
+    }
+    getUrl(type: string): string {
+        return this.state[type].url;
     }
     onMoveBack(): void {
         this.urlRouteManagerService.back();
@@ -84,6 +94,8 @@ export class ErrorPageComponent implements OnInit {
         this.urlRouteManagerService.reload();
     }
     hasError(): boolean {
-        return (this.configurationLoading === false && this.applicationListLoading === false) && !(this.configurationSuccess && this.applicationListSuccess);
+        return this.stateList.reduce((prevState: boolean, stateName: string) => {
+            return prevState && (this.state[stateName].loading === false && !this.state[stateName].success);
+        }, true);
     }
 }

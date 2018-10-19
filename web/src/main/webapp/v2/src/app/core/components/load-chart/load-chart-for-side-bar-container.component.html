@@ -12,7 +12,7 @@
             (outClickColumn)="onClickColumn($event)">
         </pp-load-chart>
         <div class="l-no-data" [hidden]="!hiddenChart">
-            <span>{{i18nText.NO_DATA}}</span>
+            <span>{{getChartMessage()}}</span>
         </div>
     </div>
 </article>

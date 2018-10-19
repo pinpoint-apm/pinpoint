@@ -17,6 +17,7 @@
     align-items: center;
 }
 .l-api-check .l-apis {
+    width: 700px;
     display: flex;
     font-size: 30px;
     flex-direction: column;
