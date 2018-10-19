@@ -97,7 +97,11 @@
         <!-- library -->
         <slf4j.version>1.7.21</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
+
+        <!-- jdk 6 compatibility version -->
+        <fastxml.jackson-jdk6.version>2.6.6</fastxml.jackson-jdk6.version>
         <fastxml.jackson.version>2.9.7</fastxml.jackson.version>
+
         <httpcomponents.version>4.5.6</httpcomponents.version>
         <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
         <spring.version>4.3.20.RELEASE</spring.version>
