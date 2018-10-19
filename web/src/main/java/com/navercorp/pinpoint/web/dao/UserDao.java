@@ -30,7 +30,7 @@ public interface UserDao {
 
     void insertUserList(List<User> users);
 
-    void deleteUser(User user);
+    void deleteUser(String userId);
 
     List<User> selectUser();
 
@@ -42,7 +42,5 @@ public interface UserDao {
 
     void updateUser(User user);
 
-
-
-
+    boolean isExistUserId(String userId);
 }

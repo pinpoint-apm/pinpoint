@@ -40,7 +40,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
     @Override
     public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
-//        jgen.writeStringField("id", node.getNodeName());
+//        jgen.writeStringField("id", node.getNodeName());serverInstanceList
         jgen.writeStringField("key", node.getNodeName()); // necessary for go.js
 
         jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
