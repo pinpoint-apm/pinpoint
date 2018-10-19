@@ -18,7 +18,4 @@ export class ServerTimeDataService {
             })
         );
     }
-    getServerTimeToPromise(): Promise<number> {
-        return this.getServerTime().toPromise();
-    }
 }

@@ -37,7 +37,7 @@ export abstract class InspectorChartContainer {
 
     protected initI18nText(): void {
         this.i18nText$ = combineLatest(
-            this.translateService.get('INSPECTOR.FAILED_TO_FETCH_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
             this.translateService.get('INSPECTOR.NO_DATA_COLLECTED'),
         ).pipe(
             map(([FAILED_TO_FETCH_DATA, NO_DATA_COLLECTED]: string[]) => {
