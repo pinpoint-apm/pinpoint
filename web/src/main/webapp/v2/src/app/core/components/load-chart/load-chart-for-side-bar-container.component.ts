@@ -47,7 +47,7 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
         this.chartColors = this.webAppSettingDataService.getColorByRequest();
         combineLatest(
             this.translateService.get('COMMON.NO_DATA'),
-            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
         ).subscribe((text: string[]) => {
             this.i18nText = {
                 NO_DATA: text[0],

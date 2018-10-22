@@ -15,7 +15,6 @@ import {
 import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ScatterChart } from './class/scatter-chart.class';
-import { ScatterChartComponent } from './scatter-chart.component';
 import { ScatterChartInteractionService } from './scatter-chart-interaction.service';
 import { ScatterChartDataService } from './scatter-chart-data.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
@@ -30,9 +29,7 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     private unsubscribe: Subject<null> = new Subject();
     instanceKey = 'filtered-map-side-bar';
     addWindow = true;
-    i18nText: { [key: string]: string } = {
-        NO_DATA: ''
-    };
+    i18nText: { [key: string]: string };
     selectedTarget: ISelectedTarget;
     selectedApplication: string;
     hideSettingPopup = true;
@@ -75,10 +72,12 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     ngOnInit() {
         this.setScatterY();
         combineLatest(
-            this.translateService.get('COMMON.NO_DATA')
+            this.translateService.get('COMMON.NO_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
         ).subscribe((i18n: Array<string>) => {
             this.i18nText = {
-                [ScatterChartComponent.I18NTEXT.NO_DATA]: i18n[0]
+                NO_DATA: i18n[0],
+                FAILED_TO_FETCH_DATA: i18n[1]
             };
         });
         this.connectStore();

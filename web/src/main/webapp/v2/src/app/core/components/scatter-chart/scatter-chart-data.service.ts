@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, Subject } from 'rxjs';
-import { switchMap, delay } from 'rxjs/operators';
+import { switchMap, delay, retry } from 'rxjs/operators';
 import { ScatterChart } from 'app/core/components/scatter-chart/class/scatter-chart.class';
 
 interface IScatterRequest {
@@ -30,10 +30,13 @@ export class ScatterChartDataService {
     private innerDataRequest = new Subject<IScatterRequest>();
     private innerDataRequest$: Observable<IScatterRequest>;
     private outScatterData = new Subject<IScatterData>();
+    private outScatterErrorData = new Subject<IServerErrorFormat>();
     outScatterData$: Observable<IScatterData>;
+    outScatterErrorData$: Observable<IServerErrorFormat>;
     constructor(private http: HttpClient) {
         this.innerDataRequest$ = this.innerDataRequest.asObservable();
         this.outScatterData$ = this.outScatterData.asObservable();
+        this.outScatterErrorData$ = this.outScatterErrorData.asObservable();
         this.connectDataRequest();
     }
     private connectDataRequest(): void {
@@ -46,6 +49,8 @@ export class ScatterChartDataService {
                     params.groupUnitX,
                     params.groupUnitY,
                     params.backwardDirection)
+                ).pipe(
+                    retry(3)
                 );
             })
         ).subscribe((scatterData: IScatterData) => {
@@ -53,6 +58,10 @@ export class ScatterChartDataService {
                 this.subscribeRealTimeRequest(scatterData);
             } else {
                 this.subscribeStaticRequest(scatterData);
+            }
+        }, (error: IServerErrorFormat) => {
+            if ( this.currentMode === ScatterChart.MODE.STATIC) {
+                this.outScatterErrorData.next(error);
             }
         });
     }
@@ -129,16 +138,15 @@ export class ScatterChartDataService {
     }
     private makeRequestOptionsArgs(application: string, fromX: number, toX: number, groupUnitX: number, groupUnitY: number, backwardDirection: boolean): object {
         return {
-            params: {
-                application: application,
-                from: fromX,
-                to: toX,
-                limit: 5000,
-                filter: '',
-                xGroupUnit: groupUnitX,
-                yGroupUnit: groupUnitY,
-                backwardDirection: backwardDirection
-            }
+            params: new HttpParams()
+                .set('application', application)
+                .set('from', fromX + '')
+                .set('to', toX + '')
+                .set('limit', '5000')
+                .set('filter', '')
+                .set('xGroupUnit', groupUnitX + '')
+                .set('yGroupUnit', groupUnitY + '')
+                .set('backwardDirection', backwardDirection + '')
         };
     }
 }

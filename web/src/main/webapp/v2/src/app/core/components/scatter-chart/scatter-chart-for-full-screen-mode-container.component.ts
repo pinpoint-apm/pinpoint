@@ -16,7 +16,6 @@ import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ScatterChartDataService } from './scatter-chart-data.service';
 import { ScatterChart } from './class/scatter-chart.class';
-import { ScatterChartComponent } from './scatter-chart.component';
 import { ScatterChartInteractionService } from './scatter-chart-interaction.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 
@@ -31,9 +30,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     private unsubscribe: Subject<null> = new Subject();
     instanceKey = 'full-screen-mode';
     addWindow = true;
-    i18nText: { [key: string]: string } = {
-        NO_DATA: ''
-    };
+    i18nText: { [key: string]: string };
     selectedTarget: ISelectedTarget;
     selectedApplication: string;
     scatterDataServiceSubscription: Subscription;
@@ -136,10 +133,12 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     }
     private getI18NText(): void {
         combineLatest(
-            this.translateService.get('COMMON.NO_DATA')
-        ).subscribe((i18n: Array<string>) => {
+            this.translateService.get('COMMON.NO_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
+        ).subscribe((i18n: string[]) => {
             this.i18nText = {
-                [ScatterChartComponent.I18NTEXT.NO_DATA]: i18n[0]
+                NO_DATA: i18n[0],
+                FAILED_TO_FETCH_DATA: i18n[1]
             };
         });
     }

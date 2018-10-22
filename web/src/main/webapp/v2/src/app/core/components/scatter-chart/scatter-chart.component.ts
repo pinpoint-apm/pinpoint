@@ -12,9 +12,6 @@ import { ScatterChartInteractionService, IChangedViewTypeParam, IRangeParam, IRe
     styleUrls: ['./scatter-chart.component.css']
 })
 export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
-    static I18NTEXT = {
-        NO_DATA: 'NO_DATA',
-    };
     @ViewChild('scatter') elementScatter: ElementRef;
     @Input() instanceKey: string;
     @Input() addWindow: boolean;
@@ -28,15 +25,14 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
     @Input() application: string;
     @Input() agent: string;
     @Input() typeInfo: ITypeInfo[];
-    @Input() i18nText = {
-        [ScatterChartComponent.I18NTEXT.NO_DATA]: 'No Data'
-    };
+    @Input() i18nText: { [key: string]: string };
     @Input() timezone: string;
     @Input() dateFormat: string[];
     @Output() outTransactionCount: EventEmitter<object> = new EventEmitter();
     @Output() outSelectArea: EventEmitter<any> = new EventEmitter();
     @Output() outChangeRangeX: EventEmitter<any> = new EventEmitter();
     private unsubscribe: Subject<void> = new Subject();
+    private hasError = false;
     dataLoaded = false;
     scatterChartInstance: ScatterChart = null;
     constructor(
@@ -111,6 +107,7 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
         ).subscribe((dataWrapper: {instanceKey: string, data: IScatterData}) => {
             this.scatterChartInstance.addData(new ScatterChartDataBlock(dataWrapper.data, this.scatterChartInstance.getTypeManager()));
             this.dataLoaded = true;
+            this.hasError = false;
         });
         this.scatterChartInteractionService.onViewType$.pipe(
             takeUntil(this.unsubscribe),
@@ -150,12 +147,21 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
                 return data.instanceKey === this.instanceKey ? true : false;
             })
         ).subscribe((params: IResetParam) => {
+            this.hasError = false;
             this.application = params.application;
             this.agent = params.agent;
             this.fromX = params.from;
             this.toX = params.to;
             this.mode = params.mode;
             this.scatterChartInstance.reset(params.application, params.agent, params.from, params.to, params.mode);
+            this.addToWindow();
+        });
+        this.scatterChartInteractionService.onError$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.hasError = true;
+            this.dataLoaded = true;
+            this.scatterChartInstance.reset(this.application, this.agent, this.fromX, this.toX, this.mode);
             this.addToWindow();
         });
     }
@@ -171,5 +177,8 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
             return true;
         }
         return !this.scatterChartInstance.isEmpty();
+    }
+    getMessage(): string {
+        return this.hasError ? this.i18nText.FAILED_TO_FETCH_DATA : this.i18nText.NO_DATA;
     }
 }
