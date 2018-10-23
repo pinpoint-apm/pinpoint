@@ -61,6 +61,7 @@
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-plugins</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-tools</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-grpc</exclude>
                 <exclude>*:pom</exclude>
             </excludes>
             <outputDirectory>lib</outputDirectory>
