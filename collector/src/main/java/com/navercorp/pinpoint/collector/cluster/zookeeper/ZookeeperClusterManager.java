@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionManager;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.AddressParser;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

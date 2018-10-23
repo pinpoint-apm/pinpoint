@@ -204,7 +204,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         if (spanEvent.getDepth() != -1) {
             tSpanEvent.setDepth(spanEvent.getDepth());
         }
-        if (spanEvent.getNextSpanId() == -1) {
+        if (spanEvent.getNextSpanId() != -1) {
             tSpanEvent.setNextSpanId(spanEvent.getNextSpanId());
         }
 

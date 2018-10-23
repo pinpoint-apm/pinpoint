@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.jboss.netty.util.HashedWheelTimer;
@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Taejin Koo
  */
-public class ActiveThreadCountService implements ProfilerRequestCommandService, ProfilerStreamCommandService {
+public class ActiveThreadCountService implements ProfilerRequestCommandService<TBase<?, ?>, TBase<?, ?>>, ProfilerStreamCommandService<TBase<?, ?>> {
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
@@ -76,12 +76,12 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     }
 
     @Override
-    public Class<? extends TBase> getCommandClazz() {
-        return TCmdActiveThreadCount.class;
+    public short getCommandServiceCode() {
+        return TCommandType.ACTIVE_THREAD_COUNT.getCode();
     }
 
     @Override
-    public TBase<?, ?> requestCommandService(TBase activeThreadCountObject) {
+    public TBase<?, ?> requestCommandService(TBase<?, ?> activeThreadCountObject) {
         if (activeThreadCountObject == null) {
             throw new NullPointerException("activeThreadCountObject must not be null.");
         }
@@ -90,7 +90,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     }
 
     @Override
-    public StreamCode streamCommandService(TBase tBase, ServerStreamChannelContext streamChannelContext) {
+    public StreamCode streamCommandService(TBase<?, ?> tBase, ServerStreamChannelContext streamChannelContext) {
         logger.info("streamCommandService object:{}, streamChannelContext:{}", tBase, streamChannelContext);
         streamChannelContext.getStreamChannel().addStateChangeEventHandler(stateChangeEventHandler);
         return StreamCode.OK;

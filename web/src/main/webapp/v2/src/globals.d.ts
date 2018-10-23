@@ -26,6 +26,7 @@ interface IResponseTime {
     '5s': number;
     'Slow': number;
     'Error': number;
+    [key: string]: number;
 }
 // @store
 interface IHistogram {
@@ -39,6 +40,7 @@ interface IResponseMilliSecondTime {
     '500ms': number;
     'Error': number;
     'Slow': number;
+    [key: string]: number;
 }
 interface IInstanceStatus {
     code: number;
@@ -338,4 +340,9 @@ interface IServerErrorFormat {
         stacktrace?: string;
         message: string;
     }
+}
+
+interface IServerErrorShortFormat {
+    errorCode: string;
+    errorMessage: string;
 }

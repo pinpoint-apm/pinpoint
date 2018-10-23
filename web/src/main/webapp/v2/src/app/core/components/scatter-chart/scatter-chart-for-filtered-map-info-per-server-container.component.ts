@@ -29,9 +29,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 export class ScatterChartForFilteredMapInfoPerServerContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     instanceKey = 'filtered-map-info-per-server';
     addWindow = false;
-    i18nText: { [key: string]: string } = {
-        NO_DATA: ''
-    };
+    i18nText: { [key: string]: string };
     isChangedTarget: boolean;
     selectedTarget: ISelectedTarget;
     selectedApplication: string;
@@ -76,10 +74,12 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
     ngOnInit() {
         this.setScatterY();
         combineLatest(
-            this.translateService.get('COMMON.NO_DATA')
+            this.translateService.get('COMMON.NO_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {
-                [ScatterChartComponent.I18NTEXT.NO_DATA]: i18n[0]
+                NO_DATA: i18n[0],
+                FAILED_TO_FETCH_DATA: i18n[1]
             };
         });
         this.connectStore();

@@ -21,6 +21,9 @@
     background-color: #f6f8fb;
     border-bottom: 1px solid #e5e8f0;
 }
+.l-group-member-title button:last-child {
+    margin-left: 12px;
+}
 .l-group-member-sort-exchange {
     color: #b3b6bf;
     transform: rotate(90deg);

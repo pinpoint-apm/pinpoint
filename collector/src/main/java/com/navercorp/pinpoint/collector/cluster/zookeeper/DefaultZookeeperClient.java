@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.AuthException;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.BadOperationException;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.NoNodeException;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.UnknownException;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConnectionManager;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstatns;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperExceptionResolver;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.BadOperationException;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.UnknownException;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.apache.zookeeper.CreateMode;
@@ -53,36 +54,29 @@ public class DefaultZookeeperClient implements ZookeeperClient {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final CommonStateContext stateContext;
+    private final CommonStateContext stateContext = new CommonStateContext();
+
+    private final ZookeeperConnectionManager zookeeperConnectionManager;
+
+    private final long reconnectDelayWhenSessionExpired;
 
     private final HashedWheelTimer timer;
-    
-    private final String hostPort;
-    private final int sessionTimeout;
-    private final ZookeeperEventWatcher watcher;
-    private final long reconnectDelayWhenSessionExpired;
-    
-    // Zookeeper clients are thread-safe
-    private volatile ZooKeeper zookeeper;
-    
+
     public DefaultZookeeperClient(String hostPort, int sessionTimeout, ZookeeperEventWatcher watcher) {
-        this(hostPort, sessionTimeout, watcher, ZookeeperClusterService.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+        this(hostPort, sessionTimeout, watcher, ZookeeperConstatns.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
     }
 
     public DefaultZookeeperClient(String hostPort, int sessionTimeout, ZookeeperEventWatcher watcher, long reconnectDelayWhenSessionExpired) {
-        this.hostPort = hostPort;
-        this.sessionTimeout = sessionTimeout;
-        this.watcher = watcher;
+        this.zookeeperConnectionManager = new ZookeeperConnectionManager(hostPort, sessionTimeout, watcher);
         this.reconnectDelayWhenSessionExpired = reconnectDelayWhenSessionExpired;
 
         this.timer = TimerFactory.createHashedWheelTimer(this.getClass().getSimpleName(), 100, TimeUnit.MILLISECONDS, 512);
-        this.stateContext = new CommonStateContext();
     }
 
     @Override
     public void connect() throws IOException {
         if (stateContext.changeStateInitializing()) {
-            this.zookeeper = new ZooKeeper(hostPort, sessionTimeout, watcher); // server
+            zookeeperConnectionManager.start();
             stateContext.changeStateStarted();
         } else {
             logger.warn("connect() failed. error : Illegal State. State may be {}.", stateContext.getCurrentState());
@@ -95,51 +89,20 @@ public class DefaultZookeeperClient implements ZookeeperClient {
             logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: Already closed.");
             return;
         }
-        
-        ZooKeeper zookeeper = this.zookeeper;
-        if (zookeeper.getState().isConnected()) {
-            logger.warn("ZookeeperClient.reconnect() failed. Error: session(0x{}) is connected.", Long.toHexString(zookeeper.getSessionId()));
-            return;
-        }
 
-        logger.warn("Execute ZookeeperClient.reconnectWhenSessionExpired()(Expired session:0x{}).", Long.toHexString(zookeeper.getSessionId()));
-        try {
-            zookeeper.close();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        
-        ZooKeeper newZookeeper = createNewZookeeper();
-        if (!stateContext.isStarted()) {
-            logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: Already closed.");
-            return;
-        }
-
-        if (newZookeeper == null) {
-            logger.warn("Failed to create new Zookeeper instance. It will be retry  AFTER {}ms.", reconnectDelayWhenSessionExpired);
-            
+        boolean hasConnectedZookeeper = zookeeperConnectionManager.reconnectWhenSessionExpired();
+        if (!hasConnectedZookeeper) {
             timer.newTimeout(new TimerTask() {
                 @Override
                 public void run(Timeout timeout) throws Exception {
                     if (timeout.isCancelled()) {
                         return;
                     }
-                    
+
                     reconnectWhenSessionExpired();
                 }
             }, reconnectDelayWhenSessionExpired, TimeUnit.MILLISECONDS);
-        } else {
-            this.zookeeper = newZookeeper;
         }
-    }
-    
-    private ZooKeeper createNewZookeeper() {
-        try {
-            return new ZooKeeper(hostPort, sessionTimeout, watcher);
-        } catch (IOException ignore) {
-            // ignore
-        }
-        return null;
     }
     
     /**
@@ -159,13 +122,13 @@ public class DefaultZookeeperClient implements ZookeeperClient {
 
         int pos = 1;
         do {
-            pos = path.indexOf('/', pos + 1);
+            pos = path.indexOf(ZookeeperConstatns.PATH_SEPARATOR, pos + 1);
 
             if (pos == -1) {
                 pos = path.length();
             }
 
-            ZooKeeper zookeeper = this.zookeeper;
+            ZooKeeper zookeeper = zookeeperConnectionManager.getZookeeper();
             try {
                 if (pos == path.length()) {
                     if (!createEndNode) {
@@ -181,7 +144,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
                 zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             } catch (KeeperException exception) {
                 if (exception.code() != Code.NODEEXISTS) {
-                    handleException(exception);
+                    ZookeeperExceptionResolver.resolve(exception, true);
                 }
             }
 
@@ -197,7 +160,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
     public String createNode(String zNodePath, byte[] data, boolean throwExceptionIfNodeExists) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
-        ZooKeeper zookeeper = this.zookeeper;
+        ZooKeeper zookeeper = zookeeperConnectionManager.getZookeeper();
         try {
             if (zookeeper.exists(zNodePath, false) != null) {
                 if (throwExceptionIfNodeExists) {
@@ -211,7 +174,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
             String pathName = zookeeper.create(zNodePath, data, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
             return pathName;
         } catch (KeeperException exception) {
-            handleException(exception);
+            ZookeeperExceptionResolver.resolve(exception, true);
         }
         return zNodePath;
     }
@@ -220,11 +183,11 @@ public class DefaultZookeeperClient implements ZookeeperClient {
     public byte[] getData(String path) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
-        ZooKeeper zookeeper = this.zookeeper;
+        ZooKeeper zookeeper = zookeeperConnectionManager.getZookeeper();
         try {
             return zookeeper.getData(path, false, null);
         } catch (KeeperException exception) {
-            handleException(exception);
+            ZookeeperExceptionResolver.resolve(exception, true);
         }
 
         throw new UnknownException("UnknownException.");
@@ -234,7 +197,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
     public void setData(String path, byte[] data) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
-        ZooKeeper zookeeper = this.zookeeper;
+        ZooKeeper zookeeper = zookeeperConnectionManager.getZookeeper();
         try {
             if (zookeeper.exists(path, false) == null) {
                 return;
@@ -242,7 +205,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
 
             zookeeper.setData(path, data, -1);
         } catch (KeeperException exception) {
-            handleException(exception);
+            ZookeeperExceptionResolver.resolve(exception, true);
         }
     }
 
@@ -250,12 +213,12 @@ public class DefaultZookeeperClient implements ZookeeperClient {
     public void delete(String path) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
-        ZooKeeper zookeeper = this.zookeeper;
+        ZooKeeper zookeeper = zookeeperConnectionManager.getZookeeper();
         try {
             zookeeper.delete(path, -1);
         } catch (KeeperException exception) {
             if (exception.code() != Code.NONODE) {
-                handleException(exception);
+                ZookeeperExceptionResolver.resolve(exception, true);
             }
         }
     }
@@ -264,7 +227,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
     public boolean exists(String path) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
-        ZooKeeper zookeeper = this.zookeeper;
+        ZooKeeper zookeeper = zookeeperConnectionManager.getZookeeper();
         try {
             Stat stat = zookeeper.exists(path, false);
             if (stat == null) {
@@ -272,7 +235,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
             }
         } catch (KeeperException exception) {
             if (exception.code() != Code.NODEEXISTS) {
-                handleException(exception);
+                ZookeeperExceptionResolver.resolve(exception, true);
             }
         }
         return true;
@@ -286,7 +249,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
 
     @Override
     public boolean isConnected() {
-        if (!watcher.isConnected() || !stateContext.isStarted()) {
+        if (!zookeeperConnectionManager.isConnected() || !stateContext.isStarted()) {
             return false;
         }
 
@@ -297,6 +260,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
     public List<String> getChildrenNode(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
+        ZooKeeper zookeeper = zookeeperConnectionManager.getZookeeper();
         try {
             List<String> childNodeList = zookeeper.getChildren(path, watch, null);
 
@@ -304,53 +268,21 @@ public class DefaultZookeeperClient implements ZookeeperClient {
             return childNodeList;
         } catch (KeeperException exception) {
             if (exception.code() != Code.NONODE) {
-                handleException(exception);
+                ZookeeperExceptionResolver.resolve(exception, true);
             }
         }
 
         return Collections.emptyList();
     }
 
-    private void handleException(KeeperException keeperException) throws PinpointZookeeperException {
-        switch (keeperException.code()) {
-            case CONNECTIONLOSS:
-            case SESSIONEXPIRED:
-                throw new ConnectionException(keeperException.getMessage(), keeperException);
-            case AUTHFAILED:
-            case INVALIDACL:
-            case NOAUTH:
-                throw new AuthException(keeperException.getMessage(), keeperException);
-            case BADARGUMENTS:
-            case BADVERSION:
-            case NOCHILDRENFOREPHEMERALS:
-            case NOTEMPTY:
-            case NODEEXISTS:
-                throw new BadOperationException(keeperException.getMessage(), keeperException);
-            case NONODE:
-                throw new NoNodeException(keeperException.getMessage(), keeperException);
-            case OPERATIONTIMEOUT:
-                throw new TimeoutException(keeperException.getMessage(), keeperException);
-            default:
-                throw new UnknownException(keeperException.getMessage(), keeperException);
-            }
-    }
-
     @Override
     public void close() {
         if (stateContext.changeStateDestroying()) {
-            ZooKeeper zookeeper = this.zookeeper;
             if (timer != null) {
                 timer.stop();
             }
 
-            if (zookeeper != null) {
-                try {
-                    zookeeper.close();
-                } catch (InterruptedException ignore) {
-                    logger.info("Interrupted zookeeper.close(). Caused:" + ignore.getMessage(), ignore);
-                    Thread.currentThread().interrupt();
-                }
-            }
+            zookeeperConnectionManager.stop();
             stateContext.changeStateStopped();
         }
     }

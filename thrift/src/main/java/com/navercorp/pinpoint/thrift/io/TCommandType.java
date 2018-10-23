@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.util.BodyFactory;
 import com.navercorp.pinpoint.thrift.dto.command.*;
 import org.apache.thrift.TBase;
@@ -41,6 +39,7 @@ public enum TCommandType {
             return new TResult();
         }
     }),
+
     TRANSFER((short) 700, new BodyFactory<TBase<?, ?>>() {
         @Override
         public TBase<?, ?> getObject() {
@@ -53,12 +52,14 @@ public enum TCommandType {
             return new TCommandTransferResponse();
         }
     }),
+
     ECHO((short) 710, new BodyFactory<TBase<?, ?>>() {
         @Override
         public TBase<?, ?> getObject() {
             return new TCommandEcho();
         }
     }),
+
     THREAD_DUMP((short) 720, new BodyFactory<TBase<?, ?>>() {
         @Override
         public TBase<?, ?> getObject() {
@@ -71,6 +72,7 @@ public enum TCommandType {
             return new TCommandThreadDumpResponse();
         }
     }),
+
     ACTIVE_THREAD_COUNT((short) 730, new BodyFactory<TBase<?, ?>>() {
         @Override
         public TBase<?, ?> getObject() {
@@ -83,6 +85,7 @@ public enum TCommandType {
             return new TCmdActiveThreadCountRes();
         }
     }),
+
     ACTIVE_THREAD_DUMP((short) 740, new BodyFactory<TBase<?, ?>>() {
         @Override
         public TBase<?, ?> getObject() {
@@ -95,6 +98,7 @@ public enum TCommandType {
             return new TCmdActiveThreadDumpRes();
         }
     }),
+
     ACTIVE_THREAD_LIGHT_DUMP((short) 750, new BodyFactory<TBase<?, ?>>() {
         @Override
         public TBase<?, ?> getObject() {
@@ -129,14 +133,12 @@ public enum TCommandType {
         return clazz;
     }
 
-    protected boolean isInstanceOf(Object value) {
-        return this.clazz.isInstance(value);
-    }
 
     public BodyFactory<TBase<?, ?>> getBodyFactory() {
         return bodyFactory;
     }
 
+    @Deprecated
     public static TCommandType getType(Class<? extends TBase> clazz) {
         for (TCommandType commandType : TCOMMAND_TYPES) {
             if (commandType.getClazz() == clazz) {

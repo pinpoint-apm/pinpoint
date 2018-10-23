@@ -88,24 +88,22 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             if (this.hasNodeData() === false) {
                 this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
             }
-        }, (err: any) => {
-            if (err.error.exception) {
-                this.dynamicPopupService.openPopup({
-                    data: {
-                        title: 'Server Error',
-                        contents: err.error
-                    },
-                    component: ServerErrorPopupContainerComponent,
-                    onCloseCallback: () => {
-                        this.urlRouteManagerService.move({
-                            url: [
-                                this.newUrlStateNotificationService.getStartPath()
-                            ],
-                            needServerTimeRequest: false
-                        });
-                    }
-                });
-            }
+        }, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.urlRouteManagerService.move({
+                        url: [
+                            this.newUrlStateNotificationService.getStartPath()
+                        ],
+                        needServerTimeRequest: false
+                    });
+                }
+            });
         });
         this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
             this.useDisable = disabled;

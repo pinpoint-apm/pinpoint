@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,26 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.cluster.zookeeper.exception;
+package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
 /**
- * @author koo.taejin
+ * @author Taejin Koo
  */
-public class TimeoutException extends PinpointZookeeperException {
+public class ZookeeperConstatns {
 
-    public TimeoutException() {
-    }
+    public static final long DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED = 30000;
 
-    public TimeoutException(String message) {
-        super(message);
-    }
-
-    public TimeoutException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public TimeoutException(Throwable cause) {
-        super(cause);
-    }
+    public static final String PATH_SEPARATOR = "/";
 
 }

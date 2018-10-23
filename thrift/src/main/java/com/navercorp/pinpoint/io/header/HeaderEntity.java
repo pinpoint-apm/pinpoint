@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.io.header;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,7 +23,7 @@ import java.util.Map;
  */
 public class HeaderEntity {
 
-    public static final HeaderEntity EMPTY_HEADER_ENTITY = new HeaderEntity(new HashMap<String, String>(0));
+    public static final HeaderEntity EMPTY_HEADER_ENTITY = new HeaderEntity(Collections.<String, String>emptyMap());
 
     private final Map<String, String> entity;
 
@@ -42,5 +41,12 @@ public class HeaderEntity {
 
     public Map<String, String> getEntityAll() {
         return entity;
+    }
+
+    @Override
+    public String toString() {
+        return "HeaderEntity{" +
+                "entity=" + entity +
+                '}';
     }
 }

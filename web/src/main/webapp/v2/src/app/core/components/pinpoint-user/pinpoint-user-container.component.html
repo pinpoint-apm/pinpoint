@@ -1,7 +1,10 @@
 <div class="l-pinpoint-user-wrapper">
     <div class="l-pinpoint-user-title">
         <span>Pinpoint User ({{pinpointUserList.length}})</span>
-        <button [hidden]="!allowedUserEdit" class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()">+ Add</button>
+        <div>
+            <button class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button> 
+            <button [hidden]="!allowedUserEdit" class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()">+ Add</button>
+        </div>
     </div>
     <div class="l-pinpoint-user-search">
         <input type="text" placeholder="{{i18nText.SEARCH_INPUT_GUIDE}}" class="l-search-input" 

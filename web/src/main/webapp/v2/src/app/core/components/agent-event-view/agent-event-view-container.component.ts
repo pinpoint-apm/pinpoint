@@ -2,10 +2,11 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, switchMap } from 'rxjs/operators';
 
-import { StoreHelperService } from 'app/shared/services';
+import { StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { ITimelineEventSegment } from 'app/core/components/timeline/class/timeline-data.class';
 import { TimelineInteractionService } from 'app/core/components/timeline/timeline-interaction.service';
 import { AgentEventsDataService, IEventStatus } from './agent-events-data.service';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Component({
     selector: 'pp-agent-event-view-container',
@@ -23,7 +24,8 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
         private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private timelineInteractionService: TimelineInteractionService,
-        private agentEventsDataService: AgentEventsDataService
+        private agentEventsDataService: AgentEventsDataService,
+        private dynamicPopupService: DynamicPopupService
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -40,6 +42,14 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
             this.eventData = response;
             this.viewComponent = true;
             this.changeDetectorRef.detectChanges();
+        }, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent
+            });
         });
     }
     onClose(): void {

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -19,6 +19,7 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
     private timezone: string;
     private dateFormatMonth: string;
     private dateFormatDay: string;
+    hasRequestError = false;
     hiddenComponent = false;
     hiddenChart = false;
     yMax = -1;
@@ -28,7 +29,8 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
     useDisable = false;
     showLoading = false;
     i18nText = {
-        NO_DATA: ''
+        NO_DATA: '',
+        FAILED_TO_FETCH_DATA: ''
     };
     chartData: IHistogram[];
     chartColors: string[];
@@ -43,8 +45,14 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
     ) {}
     ngOnInit() {
         this.chartColors = this.webAppSettingDataService.getColorByRequest();
-        this.translateService.get('COMMON.NO_DATA').subscribe((txt: string) => {
-            this.i18nText.NO_DATA = txt;
+        combineLatest(
+            this.translateService.get('COMMON.NO_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
+        ).subscribe((text: string[]) => {
+            this.i18nText = {
+                NO_DATA: text[0],
+                FAILED_TO_FETCH_DATA: text[1]
+            };
         });
         this.connectStore();
     }
@@ -115,6 +123,11 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
             this.agentHistogramDataService.getData(target.key, target.applicationName, target.serviceTypeCode, this.serverMapData, from, to).subscribe((chartData: any) => {
                 const chartDataForAgent = this.isAllAgent() ? chartData['timeSeriesHistogram'] : chartData['agentTimeSeriesHistogram'][this.selectedAgent];
                 this.passDownChartData(this.agentHistogramDataService.makeChartDataForLoad(chartDataForAgent, this.timezone, [this.dateFormatMonth, this.dateFormatDay], this.getChartYMax()));
+            }, (error: IServerErrorFormat) => {
+                this.hasRequestError = true;
+                this.hiddenChart = true;
+                this.setDisable(false);
+                this.changeDetector.detectChanges();
             });
         }
     }
@@ -125,6 +138,7 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
         } else {
             this.hiddenChart = true;
         }
+        this.hasRequestError = false;
         this.setDisable(false);
         this.changeDetector.detectChanges();
     }
@@ -137,6 +151,9 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
     }
     private isAllAgent(): boolean {
         return this.selectedAgent === '';
+    }
+    getChartMessage(): string {
+        return this.hasRequestError ? this.i18nText.FAILED_TO_FETCH_DATA : this.i18nText.NO_DATA;
     }
     onNotifyMax(max: number) {
         if (this.yMax === -1) {

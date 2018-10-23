@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 
 @Injectable()
@@ -16,37 +16,19 @@ export class AgentManagerDataService {
         return this.http.get<IAgentList>(this.listUrl, {
             params: new HttpParams().set('application', appName)
         }).pipe(
-            tap((data: any) => {
-                if (data.errorCode) {
-                    throw data.errorMessage;
-                }
-            }),
-            catchError(this.handleError)
+            retry(3)
         );
     }
     removeAgentId(appName: string, agentId: string): Observable<string> {
         return this.http.post<string>(this.removeUrl, {
             params: new HttpParams().set('applicationName', appName).set('agentId', agentId)
         }).pipe(
-            tap((data: any) => {
-                if (data.errorCode) {
-                    throw data.errorMessage;
-                }
-            }),
-            catchError(this.handleError)
+            retry(3)
         );
     }
     removeInactiveAgents(): Observable<string> {
         return this.http.get<string>(this.removeInactiveUrl).pipe(
-            tap((data: any) => {
-                if (data.errorCode) {
-                    throw data.errorMessage;
-                }
-            }),
-            catchError(this.handleError)
+            retry(3)
         );
-    }
-    private handleError(error: HttpErrorResponse) {
-        return throwError(error.statusText || error);
     }
 }

@@ -310,7 +310,7 @@
 	        }
 	        function stopReceive() {
 	        	bShowRealtimeChart = false;
-        		webSocketService.stopReceive( makeRequest("") );
+				webSocketService.close();
 	        }
 	        function stopChart() {
 	        	$rootScope.$broadcast("realtimeChartDirective.clear.sum");
