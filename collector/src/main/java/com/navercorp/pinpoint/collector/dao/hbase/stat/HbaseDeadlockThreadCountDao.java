@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.DeadlockSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.DeadlockThreadCountSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -36,7 +36,7 @@ import java.util.List;
  * @author Taejin Koo
  */
 @Repository
-public class HbaseDeadlockDao implements AgentStatDaoV2<DeadlockBo> {
+public class HbaseDeadlockThreadCountDao implements AgentStatDaoV2<DeadlockThreadCountBo> {
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
@@ -48,17 +48,17 @@ public class HbaseDeadlockDao implements AgentStatDaoV2<DeadlockBo> {
     private AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
 
     @Autowired
-    private DeadlockSerializer deadlockSerializer;
+    private DeadlockThreadCountSerializer deadlockThreadCountSerializer;
 
     @Override
-    public void insert(String agentId, List<DeadlockBo> deadlockBos) {
+    public void insert(String agentId, List<DeadlockThreadCountBo> deadlockThreadCountBos) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        if (CollectionUtils.isEmpty(deadlockBos)) {
+        if (CollectionUtils.isEmpty(deadlockThreadCountBos)) {
             return;
         }
-        List<Put> deadlockPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.DEADLOCK, deadlockBos, this.deadlockSerializer);
+        List<Put> deadlockPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.DEADLOCK, deadlockThreadCountBos, this.deadlockThreadCountSerializer);
         if (!deadlockPuts.isEmpty()) {
             TableName agentStatTableName = tableNameProvider.getTableName(HBaseTables.AGENT_STAT_VER2_STR);
             List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(agentStatTableName, deadlockPuts);

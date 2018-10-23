@@ -17,7 +17,6 @@ import { UrlPath, UrlPathId } from 'app/shared/models';
 import { EndTime } from 'app/core/models';
 import { ScatterChartDataService } from './scatter-chart-data.service';
 import { ScatterChart } from './class/scatter-chart.class';
-import { ScatterChartComponent } from './scatter-chart.component';
 import { ScatterChartInteractionService } from './scatter-chart-interaction.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 
@@ -30,9 +29,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     instanceKey = 'side-bar';
     addWindow = true;
-    i18nText: { [key: string]: string } = {
-        NO_DATA: ''
-    };
+    i18nText: { [key: string]: string };
     currentRange: { from: number, to: number } = {
         from : 0,
         to: 0
@@ -79,10 +76,12 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.setScatterY();
         combineLatest(
-            this.translateService.get('COMMON.NO_DATA')
-        ).subscribe((i18n: Array<string>) => {
+            this.translateService.get('COMMON.NO_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
+        ).subscribe((i18n: string[]) => {
             this.i18nText = {
-                [ScatterChartComponent.I18NTEXT.NO_DATA]: i18n[0]
+                NO_DATA: i18n[0],
+                FAILED_TO_FETCH_DATA: i18n[1]
             };
         });
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -102,30 +101,38 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         this.scatterChartDataService.outScatterData$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((scatterData: IScatterData) => {
-            if (this.scatterChartMode === ScatterChart.MODE.STATIC) {
-                this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
-                if (scatterData.complete === false) {
-                    this.scatterChartDataService.loadData(
-                        this.selectedApplication.split('^')[0],
-                        this.fromX,
-                        scatterData.resultFrom - 1,
-                        this.getGroupUnitX(),
-                        this.getGroupUnitY(),
-                        false
-                    );
-                }
-            } else if (this.scatterChartMode === ScatterChart.MODE.REALTIME) {
-                if (scatterData.reset === true) {
-                    this.fromX = scatterData.currentServerTime - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
-                    this.toX = scatterData.currentServerTime;
-                    this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
-                    of(1).pipe(delay(1000)).subscribe((useless: number) => {
-                        this.getScatterData();
-                    });
-                } else {
+            switch (this.scatterChartMode) {
+                case ScatterChart.MODE.STATIC:
                     this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
-                }
+                    if (scatterData.complete === false) {
+                        this.scatterChartDataService.loadData(
+                            this.selectedApplication.split('^')[0],
+                            this.fromX,
+                            scatterData.resultFrom - 1,
+                            this.getGroupUnitX(),
+                            this.getGroupUnitY(),
+                            false
+                        );
+                    }
+                    break;
+                case ScatterChart.MODE.REALTIME:
+                    if (scatterData.reset === true) {
+                        this.fromX = scatterData.currentServerTime - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
+                        this.toX = scatterData.currentServerTime;
+                        this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+                        of(1).pipe(delay(1000)).subscribe((useless: number) => {
+                            this.getScatterData();
+                        });
+                    } else {
+                        this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
+                    }
+                    break;
             }
+        });
+        this.scatterChartDataService.outScatterErrorData$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.scatterChartInteractionService.setError(error);
         });
         this.connectStore();
     }

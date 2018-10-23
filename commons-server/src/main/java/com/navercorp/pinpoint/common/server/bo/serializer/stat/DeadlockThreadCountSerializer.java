@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.DeadlockEncoder;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,10 +25,10 @@ import org.springframework.stereotype.Component;
  * @author Taejin Koo
  */
 @Component
-public class DeadlockSerializer extends AgentStatSerializer<DeadlockBo> {
+public class DeadlockThreadCountSerializer extends AgentStatSerializer<DeadlockThreadCountBo> {
 
     @Autowired
-    public DeadlockSerializer(DeadlockEncoder deadlockEncoder) {
+    public DeadlockThreadCountSerializer(DeadlockEncoder deadlockEncoder) {
         super(deadlockEncoder);
     }
 

@@ -16,11 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -29,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -120,15 +115,17 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodName))) {
                     try {
                         String[] parameterTypes = method.getParameterTypes();
-                        int consumerRecordSize = 0;
+
                         for (String parameterType : parameterTypes) {
                             if (KafkaConstants.CONSUMER_RECORD_CLASS_NAME.equals(parameterType)) {
-                                consumerRecordSize++;
+                                method.addInterceptor(KafkaConstants.CONSUMER_RECORD_ENTRYPOINT_INTERCEPTOR);
+                                break;
+                            } else if (KafkaConstants.CONSUMER_MULTI_RECORD_CLASS_NAME.equals(parameterType)) {
+                                method.addInterceptor(KafkaConstants.CONSUMER_MULTI_RECORD_ENTRYPOINT_INTERCEPTOR);
+                                break;
                             }
                         }
-                        if (consumerRecordSize == 1) {
-                            method.addInterceptor(KafkaConstants.CONSUMER_RECORD_ENTRYPOINT_INTERCEPTOR);
-                        }
+
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + method, e);

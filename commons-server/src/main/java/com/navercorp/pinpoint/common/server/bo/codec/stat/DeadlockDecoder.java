@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,10 +26,10 @@ import java.util.List;
  * @author Taejin Koo
  */
 @Component
-public class DeadlockDecoder extends AgentStatDecoder<DeadlockBo> {
+public class DeadlockDecoder extends AgentStatDecoder<DeadlockThreadCountBo> {
 
     @Autowired
-    public DeadlockDecoder(List<AgentStatCodec<DeadlockBo>> deadlockCodecs) {
+    public DeadlockDecoder(List<AgentStatCodec<DeadlockThreadCountBo>> deadlockCodecs) {
         super(deadlockCodecs);
     }
 
