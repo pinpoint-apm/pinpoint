@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.util;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,23 +29,14 @@ public final class CodeSourceUtils {
     }
 
     public static URL getCodeLocation(Class<?> clazz) {
-        if (clazz == null) {
-            throw new NullPointerException("clazz must not be null");
-        }
+        Objects.requireNonNull(clazz,"clazz must not be null");
         final ProtectionDomain protectionDomain = clazz.getProtectionDomain();
         return getCodeLocation(protectionDomain);
     }
 
 
     public static URL getCodeLocation(ProtectionDomain protectionDomain) {
-        if (protectionDomain == null) {
-            return null;
-        }
-
-        final CodeSource codeSource = protectionDomain.getCodeSource();
-        if (codeSource == null) {
-            return null;
-        }
-        return codeSource.getLocation();
+        final CodeSource codeSource = protectionDomain == null ? null : protectionDomain.getCodeSource();
+        return codeSource == null ? null : codeSource.getLocation();
     }
 }
