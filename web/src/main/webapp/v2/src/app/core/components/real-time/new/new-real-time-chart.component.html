@@ -1,0 +1,13 @@
+<canvas #real></canvas>
+<ng-container *ngIf="showTooltip">
+    <dl class="l-tooltip" #tooltip>
+        <dt class="l-tooltip-title">{{tooltipDataObj.title}}</dt>
+        <dd class="l-tooltip-body" *ngFor="let value of tooltipDataObj.values; let i = index">
+            <dl>
+                <dt><span class="l-tooltip-label" [style.background-color]="chartColors[i]"></span>{{chartLabels[i]}}:</dt>
+                <dd class="l-tooltip-content">{{value}}</dd>
+            </dl>
+        </dd>
+    </dl>
+    <div class="l-tooltip-caret" #tooltipCaret></div>
+</ng-container>
