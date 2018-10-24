@@ -81,7 +81,9 @@
         <module>undertow</module>
         <module>kafka</module>
         <module>mongodb</module>
-        <module>elasticsearch-bboss</module>
+        <module>fastjson</module>
+        <module>druid</module>
+        <module>hbase</module>
     </modules>
 
     <dependencies>
@@ -337,7 +339,17 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-elasticsearch-bboss-plugin</artifactId>
+            <artifactId>pinpoint-fastjson-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-druid-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-hbase-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
