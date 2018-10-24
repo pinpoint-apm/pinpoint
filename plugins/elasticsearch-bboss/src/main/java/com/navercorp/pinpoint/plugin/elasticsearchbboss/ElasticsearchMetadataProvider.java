@@ -43,7 +43,7 @@ public class ElasticsearchMetadataProvider implements TraceMetadataProvider {
         //context.addServiceType(ELASTICSEARCH_EXECUTOR, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));//参数和方法名称在同一行
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY);//HTTP请求URL参数，在新的一行展示
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY);//HTTP请求URL参数，在新的一行展示
-        context.addAnnotationKey(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY);//HTTP请求DSL参数，在新的一行展示
+//        context.addAnnotationKey(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY);//HTTP请求DSL参数，在新的一行展示
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY);//HTTP请求ACTION参数，在新的一行展示
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY);//HTTP请求Response处理器参数，
         context.addAnnotationKey(ElasticsearchPlugin.ARGS_ANNOTATION_KEY);//HTTP请求URL参数，在新的一行展示

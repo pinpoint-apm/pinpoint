@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.*;
 
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
@@ -46,71 +45,20 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 
 	public static final ServiceType ELASTICSEARCH_EVENT = ServiceTypeFactory.of(1972, "ElasticsearchBBossEvent");
 	public static final AnnotationKey ARGS_URL_ANNOTATION_KEY = AnnotationKeyFactory.of(972, "es.url", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(973, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+//	public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(973, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final AnnotationKey ARGS_ACTION_ANNOTATION_KEY = AnnotationKeyFactory.of(974, "es.action", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final AnnotationKey ARGS_RESPONSEHANDLE_ANNOTATION_KEY = AnnotationKeyFactory.of(975, "es.responseHandle", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(976, "es.version", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(9977, "ElasticsearchBBossExecutor");
 	private static final String ELASTICSEARCH_SCOPE = "ElasticsearchBBoss_SCOPE";
 	private static final String ELASTICSEARCH_EXECUTOR_SCOPE = "ElasticsearchBBossExecutor_SCOPE";
-	private static final List<ElasticsearchInterceptorClassInfo> clazzInterceptors = new ArrayList<ElasticsearchInterceptorClassInfo>();
+	private static final String[] clazzInterceptors = new String[]{
+			"org.frameworkset.elasticsearch.client.ConfigRestClientUtil",
+			"org.frameworkset.elasticsearch.client.RestClientUtil"
+	};
 
-	static {
-		init();
-	}
-	static void init(){
-		ElasticsearchInterceptorClassInfo interceptorClassInfo = null;
-		List<ElasticsearchMethodInfo> methodInfos = null;
-		ElasticsearchMethodInfo methodInfo = null;
-		interceptorClassInfo = new ElasticsearchInterceptorClassInfo();
-		interceptorClassInfo.setInterceptorClass("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
-		methodInfo = new ElasticsearchMethodInfo();
-		methodInfo.setFilterType(1);
-		methodInfo.setName("*");
-		methodInfo.setPattern(true);
-		interceptorClassInfo.setAllAccept(methodInfo);
 
-		methodInfos = null;
-		methodInfos = new ArrayList<ElasticsearchMethodInfo>();
-		methodInfo = new ElasticsearchMethodInfo();
-		methodInfo.setFilterType(1);
-		methodInfo.setName("*");
-		methodInfo.setPattern(true);
-		methodInfos.add(methodInfo);
-		methodInfo = new ElasticsearchMethodInfo();
-		methodInfo.setFilterType(0);
-		methodInfo.setName("discover");
-		methodInfo.setPattern(false);
-		methodInfos.add(methodInfo);
-		interceptorClassInfo.setInterceptorMehtods(methodInfos);
-		interceptorClassInfo.setMethodFilter(new ElasticsearchCustomMethodFilter(null, interceptorClassInfo));
-		clazzInterceptors.add(interceptorClassInfo);
-		interceptorClassInfo = new ElasticsearchInterceptorClassInfo();
-		interceptorClassInfo.setInterceptorClass("org.frameworkset.elasticsearch.client.RestClientUtil");
-		methodInfo = new ElasticsearchMethodInfo();
-		methodInfo.setFilterType(1);
-		methodInfo.setName("*");
-		methodInfo.setPattern(true);
-		interceptorClassInfo.setAllAccept(methodInfo);
-
-		methodInfos = null;
-		methodInfos = new ArrayList<ElasticsearchMethodInfo>();
-		methodInfo = new ElasticsearchMethodInfo();
-		methodInfo.setFilterType(1);
-		methodInfo.setName("*");
-		methodInfo.setPattern(true);
-		methodInfos.add(methodInfo);
-		methodInfo = new ElasticsearchMethodInfo();
-		methodInfo.setFilterType(0);
-		methodInfo.setName("discover");
-		methodInfo.setPattern(false);
-		methodInfos.add(methodInfo);
-		interceptorClassInfo.setInterceptorMehtods(methodInfos);
-		interceptorClassInfo.setMethodFilter(new ElasticsearchCustomMethodFilter(null, interceptorClassInfo));
-		clazzInterceptors.add(interceptorClassInfo);
-	}
-
-	public static List<ElasticsearchInterceptorClassInfo> getClazzInterceptors(){
+	public static String[] getClazzInterceptors(){
 		return clazzInterceptors;
 	}
 
@@ -146,17 +94,18 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 
 	//  implementations
 	private void addElasticsearchInterceptors() {
-		for (final ElasticsearchInterceptorClassInfo interceptorClassInfo : clazzInterceptors) {
-			transformTemplate.transform(interceptorClassInfo.getInterceptorClass(), new TransformCallback() {
+		final ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
+		for (final String interceptorClass: clazzInterceptors) {
+			transformTemplate.transform(interceptorClass, new TransformCallback() {
 
 				@Override
 				public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
 											String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
 											byte[] classfileBuffer) throws InstrumentException {
 
-					final InstrumentClass target = instrumentor.getInstrumentClass(loader, interceptorClassInfo.getInterceptorClass(), classfileBuffer);
+					final InstrumentClass target = instrumentor.getInstrumentClass(loader, interceptorClass, classfileBuffer);
 
-					final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(interceptorClassInfo.getMethodFilter());
+					final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(elasticsearchCustomMethodFilter);
 					for (InstrumentMethod methodToTrace : methodsToTrace) {
 						String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ElasticsearchOperationInterceptor";
 						methodToTrace.addScopedInterceptor(operationInterceptor, ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);

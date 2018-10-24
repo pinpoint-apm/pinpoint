@@ -108,7 +108,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 //                recorder.recordDestinationId(String.valueOf(args[0]));
@@ -117,7 +117,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 //                recorder.recordDestinationId(String.valueOf(args[0]));
@@ -126,7 +126,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 
@@ -134,7 +134,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
         else if(methodDescriptor.getMethodName().equals("executeRequest")) {
 //            recorder.recordApi(getMethodDescriptor());
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2] );
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 
@@ -146,7 +146,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 //                recorder.recordDestinationId(String.valueOf(args[0]));
         }
@@ -154,7 +154,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 //                recorder.recordDestinationId(String.valueOf(args[0]));
@@ -163,7 +163,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 
@@ -171,7 +171,7 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
         else if(methodDescriptor.getMethodName().equals("executeRequest")) {
 //            recorder.recordApi(getMethodDescriptor());
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2] );
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 

@@ -19,56 +19,24 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 
-import java.util.List;
-
 /**
  * @author yinbp[yin-bp@163.com]
  */
 public class ElasticsearchCustomMethodFilter implements MethodFilter {
-	private List<ElasticsearchMethodInfo> interceptorMehtods ;
-	private ElasticsearchInterceptorClassInfo interceptorClassInfo;
-	public ElasticsearchCustomMethodFilter(int[] rejectModifiers, ElasticsearchInterceptorClassInfo interceptorClassInfo) {
-		this.interceptorClassInfo = interceptorClassInfo;
-		if(interceptorClassInfo != null)
-			this.interceptorMehtods = interceptorClassInfo.getInterceptorMehtods();
+
+	public ElasticsearchCustomMethodFilter( ) {
+
 
 	}
 
 	@Override
 	public boolean accept(InstrumentMethod method) {
-		if (interceptorMehtods == null || interceptorMehtods.size() == 0) {
-			return ACCEPT;
-		}
-		for (ElasticsearchMethodInfo methodInfo : interceptorMehtods) {
-			if(methodInfo.isPattern()){
-				if(methodInfo.getName().equals("*")){
-					continue;
-				}
-				else if (method.getName().startsWith(methodInfo.getName())) {
-					if(methodInfo.getFilterType() == ElasticsearchMethodInfo.FILTER_ACCEPT_TYPE) {
-						return ACCEPT;
-					}
-					else{
-						return REJECT;
-					}
-				}
-			}
-			else {
-				if (methodInfo.getName().equals(method.getName())) {
-					if(methodInfo.getFilterType() == ElasticsearchMethodInfo.FILTER_ACCEPT_TYPE) {
-						return ACCEPT;
-					}
-					else {
-						return REJECT;
-					}
-				}
-			}
-		}
-		if(this.interceptorClassInfo.getAllAccept() != null){
-			return ACCEPT;
+
+		if(method.getName().equals("discover")){
+			return REJECT;
 		}
 		else {
-			return REJECT;
+			return ACCEPT;
 		}
 	}
 

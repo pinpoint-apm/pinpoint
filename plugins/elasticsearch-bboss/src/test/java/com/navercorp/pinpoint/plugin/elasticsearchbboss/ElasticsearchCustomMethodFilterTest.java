@@ -31,7 +31,7 @@ public class ElasticsearchCustomMethodFilterTest{
 
 	@Test
 	public void testAccept() {
-		ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter(null,ElasticsearchPlugin.getClazzInterceptors().get(0));
+		ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
 		InstrumentMethod instrumentMethod = new InstrumentMethod(){
 
 			@Override

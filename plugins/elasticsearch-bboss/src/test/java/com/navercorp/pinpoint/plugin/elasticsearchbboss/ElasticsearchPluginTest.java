@@ -41,13 +41,5 @@ public class ElasticsearchPluginTest {
     public void setTransformTemplate() {
         elasticsearchPlugin.setTransformTemplate(null);
     }
-    @Test
-    public void testInit(){
-        try {
-            ElasticsearchPlugin.init();
-        }
-        catch (Exception e){
 
-        }
-    }
 }

@@ -148,20 +148,8 @@ public class SpanEventRecorderIT implements SpanEventRecorder {
 		return null;
 	}
 
-	@Override
-	public void recordAsyncId(int asyncId) {
 
-	}
 
-	@Override
-	public void recordNextAsyncId(int asyncId) {
-
-	}
-
-	@Override
-	public void recordAsyncSequence(short sequence) {
-
-	}
 
 	@Override
 	public Object attachFrameObject(Object frameObject) {

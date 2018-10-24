@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import java.util.List;
 
 
 /**
@@ -25,9 +24,9 @@ import java.util.List;
  */
 public final class ElasticsearchProviderDetector implements ApplicationTypeDetector {
 
-    private List<ElasticsearchInterceptorClassInfo> bootstrapMains;
+    private String[] bootstrapMains;
 
-    public ElasticsearchProviderDetector(List<ElasticsearchInterceptorClassInfo> bootstrapMains) {
+    public ElasticsearchProviderDetector(String[] bootstrapMains) {
         this.bootstrapMains = bootstrapMains;
     }
 
@@ -42,8 +41,8 @@ public final class ElasticsearchProviderDetector implements ApplicationTypeDetec
         if(bootstrapMains == null){
             return false;
         }
-        for(ElasticsearchInterceptorClassInfo clazz : bootstrapMains) {
-            if(provider.checkForClass(clazz.getInterceptorClass())) {
+        for(String InterceptorClass : bootstrapMains) {
+            if(provider.checkForClass(InterceptorClass)) {
                 detected = true;
                 break;
             }
