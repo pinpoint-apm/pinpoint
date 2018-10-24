@@ -1,4 +1,3 @@
-import { environment } from './../../../../../environments/environment.prod';
 import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 
 // import { IRealTimeChartData } from './real-time-chart.component';
@@ -53,6 +52,11 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         yRatio: 3 / 5,
         gridLineSpeedControl: 25,
         chartSpeedControl: 25,
+        linkIconCode: '\uf35d',
+        linkIconWidth: 0,
+        marginRightForLinkIcon: 10,
+        ellipsis: '...',
+        ellipsisWidth: 0,
     };
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -71,9 +75,15 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         this.ctx = this.canvas.getContext('2d');
 
         this.resize();
+        this.initConstant();
         this.addEventListener();
 
         requestAnimationFrame((t) => this.draw(t));
+    }
+
+    initConstant(): void {
+        this.chartConstant.linkIconWidth = this.ctx.measureText(this.chartConstant.linkIconCode).width;
+        this.chartConstant.ellipsisWidth = this.ctx.measureText(this.chartConstant.ellipsis).width;
     }
 
     draw(timestamp: number): void {
@@ -99,9 +109,6 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
     }
 
     drawChartTitle(): void {
-        const iconCode = '\uf35d';
-        const marginRightForIcon = 10;
-
         Object.keys(this._activeThreadCounts).forEach((agentName: string, i: number) => {
             this.ctx.fillStyle = '#74879a';
             this.ctx.fillRect(this.getXPos(i), this.getYPos(i), this.chartConstant.chartWidth, this.chartConstant.titleHeight);
@@ -110,22 +117,42 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
             this.ctx.fillStyle = '#fff';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(agentName, this.getXPos(i) + this.chartConstant.chartWidth / 2, this.getYPos(i) + this.chartConstant.titleHeight / 2);
+            this.ctx.fillText(this.getChartTitleText(agentName), this.getXPos(i) + this.chartConstant.chartWidth / 2, this.getYPos(i) + this.chartConstant.titleHeight / 2);
 
             this.ctx.font = '600 9px "Font Awesome 5 Free"';
             this.ctx.textAlign = 'right';
-            this.ctx.fillText(iconCode, this.getXPos(i) + this.chartConstant.chartWidth - marginRightForIcon, this.getYPos(i) + this.chartConstant.titleHeight / 2);
-
-            const iconWidth = Math.ceil(this.ctx.measureText(iconCode).width);
+            this.ctx.fillText(this.chartConstant.linkIconCode, this.getXPos(i) + this.chartConstant.chartWidth - this.chartConstant.marginRightForLinkIcon, this.getYPos(i) + this.chartConstant.titleHeight / 2);
 
             this.linkIconInfoList.push({
-                leftX: this.getXPos(i) + this.chartConstant.chartWidth - marginRightForIcon - iconWidth,
-                rightX: this.getXPos(i) + this.chartConstant.chartWidth - marginRightForIcon,
-                topY: this.getYPos(i) + this.chartConstant.titleHeight / 2 - iconWidth / 2,
-                bottomY: this.getYPos(i) + this.chartConstant.titleHeight / 2 + iconWidth / 2,
+                leftX: this.getXPos(i) + this.chartConstant.chartWidth - this.chartConstant.marginRightForLinkIcon - this.chartConstant.linkIconWidth,
+                rightX: this.getXPos(i) + this.chartConstant.chartWidth - this.chartConstant.marginRightForLinkIcon,
+                topY: this.getYPos(i) + this.chartConstant.titleHeight / 2 - this.chartConstant.linkIconWidth / 2,
+                bottomY: this.getYPos(i) + this.chartConstant.titleHeight / 2 + this.chartConstant.linkIconWidth / 2,
                 key: agentName
             });
         });
+    }
+
+    getChartTitleText(text: string): string {
+        const textWidth = this.ctx.measureText(text).width;
+        const maxWidth = this.chartConstant.chartWidth / 2 - this.chartConstant.linkIconWidth - this.chartConstant.marginRightForLinkIcon;
+        const isOverflow = textWidth / 2  > maxWidth;
+
+        if (isOverflow) {
+            let length = text.length;
+            let newText;
+            let newTextWidth;
+
+            do {
+                newText = text.substring(0, length - 1);
+                newTextWidth = this.ctx.measureText(newText).width;
+                length--;
+            } while (newTextWidth / 2 + this.chartConstant.ellipsisWidth > maxWidth);
+
+            return newText + this.chartConstant.ellipsis;
+        } else {
+            return text;
+        }
     }
 
     drawChartContainerRect(): void {
@@ -158,9 +185,9 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         }
 
         const startingXPos = this.chartConstant.chartWidth - Math.floor((timestamp - this.chartStart) / this.chartConstant.chartSpeedControl); // 최초의 시작하는 점의 x좌표
-        const isOverFlow = this._timeStampList.length >= 2 && startingXPos + Math.floor((this._timeStampList[1] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl) < 0;
+        const isOverflow = this._timeStampList.length >= 2 && startingXPos + Math.floor((this._timeStampList[1] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl) < 0;
 
-        if (isOverFlow) {
+        if (isOverflow) {
             this._timeStampList.shift();
         }
 
@@ -175,7 +202,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
                 const contentRatio = this.chartConstant.chartHeight * this.chartConstant.yRatio / max;
                 const length = dataList.length;
 
-                if (isOverFlow) {
+                if (isOverflow) {
                     dataList.forEach((dataArr: number[]) => {
                         dataArr.shift();
                     });
