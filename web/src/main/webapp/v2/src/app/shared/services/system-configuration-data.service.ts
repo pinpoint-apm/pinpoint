@@ -2,19 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-export interface ISystemConfiguration {
-    editUserInfo: boolean;
-    enableServerMapRealTime: boolean;
-    openSource: boolean;
-    sendUsage: boolean;
-    showActiveThread: boolean;
-    showActiveThreadDump: boolean;
-    showApplicationStat: boolean;
-    version: string;
-    userId?: string;
-    userName?: string;
-    userDepartment?: string;
-}
 
 @Injectable()
 export class SystemConfigurationDataService {
