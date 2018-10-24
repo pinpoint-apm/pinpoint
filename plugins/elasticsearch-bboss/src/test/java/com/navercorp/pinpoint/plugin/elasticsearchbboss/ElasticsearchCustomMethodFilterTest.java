@@ -30,13 +30,106 @@ import org.junit.Test;
 public class ElasticsearchCustomMethodFilterTest{
 
 	@Test
+	public void testReject() {
+		ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
+		InstrumentMethod instrumentMethod = new InstrumentMethod(){
+
+			@Override
+			public String getName() {
+				return "discover";
+			}
+
+			@Override
+			public String[] getParameterTypes() {
+				return new String[0];
+			}
+
+			@Override
+			public String getReturnType() {
+				return null;
+			}
+
+			@Override
+			public int getModifiers() {
+				return 0;
+			}
+
+			@Override
+			public boolean isConstructor() {
+				return false;
+			}
+
+			@Override
+			public MethodDescriptor getDescriptor() {
+				return null;
+			}
+
+			@Override
+			public int addInterceptor(String interceptorClassName) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addScopedInterceptor(String interceptorClassName, String scopeName) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addScopedInterceptor(String interceptorClassName, InterceptorScope scope) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addScopedInterceptor(String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addScopedInterceptor(String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
+				return 0;
+			}
+
+			@Override
+			public void addInterceptor(int interceptorId) throws InstrumentException {
+
+			}
+		};
+		Assert.assertFalse(elasticsearchCustomMethodFilter.accept(instrumentMethod));
+	}
+
+	@Test
 	public void testAccept() {
 		ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
 		InstrumentMethod instrumentMethod = new InstrumentMethod(){
 
 			@Override
 			public String getName() {
-				return null;
+				return "execute";
 			}
 
 			@Override
