@@ -19,3 +19,7 @@
     justify-content: space-between;
     background: #f6f8fb;
 }
+.l-reload-btn { 
+    color: #f06c6b;
+    float: right;
+}

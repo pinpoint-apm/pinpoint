@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
@@ -47,7 +48,7 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
     private final Provider<AsyncContextFactory> asyncContextFactoryProvider;
 
 
-    private final CallStackFactory callStackFactory;
+    private final CallStackFactory<SpanEvent> callStackFactory;
     private final SpanFactory spanFactory;
     private final RecorderFactory recorderFactory;
 
@@ -56,7 +57,7 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
     @Inject
     public BaseTraceFactoryProvider(TraceRootFactory traceRootFactory, StorageFactory storageFactory, Sampler sampler,
                                     IdGenerator idGenerator, Provider<AsyncContextFactory> asyncContextFactoryProvider,
-                                    CallStackFactory callStackFactory, SpanFactory spanFactory, RecorderFactory recorderFactory, ActiveTraceRepository activeTraceRepository) {
+                                    CallStackFactory<SpanEvent> callStackFactory, SpanFactory spanFactory, RecorderFactory recorderFactory, ActiveTraceRepository activeTraceRepository) {
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
 
         this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");

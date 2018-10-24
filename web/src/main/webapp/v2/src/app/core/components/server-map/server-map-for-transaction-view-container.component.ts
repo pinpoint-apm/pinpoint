@@ -15,7 +15,7 @@ import { SERVER_MAP_TYPE, ServerMapType } from './class/server-map-factory';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServerMapForTransactionViewContainerComponent implements OnInit {
-    private unsubscribe$: Subject<void> = new Subject<void>();
+    private unsubscribe: Subject<void> = new Subject<void>();
     baseApplicationKey = '';
     mapData$: Observable<ServerMapData>;
     funcServerMapImagePath: Function;
@@ -44,7 +44,7 @@ export class ServerMapForTransactionViewContainerComponent implements OnInit {
             })
         );
         this.gutterEventService.onGutterResized$.pipe(
-            takeUntil(this.unsubscribe$)
+            takeUntil(this.unsubscribe)
         ).subscribe(() => this.serverMapInteractionService.setRefresh());
     }
     onRenderCompleted(msg: string): void {

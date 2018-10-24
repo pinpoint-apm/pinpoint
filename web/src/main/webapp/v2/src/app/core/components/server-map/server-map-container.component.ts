@@ -7,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {
     StoreHelperService,
     NewUrlStateNotificationService,
+    UrlRouteManagerService,
     WebAppSettingDataService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
@@ -19,6 +20,7 @@ import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData } from 'app/co
 import { ServerMapDataService } from './server-map-data.service';
 import { LinkContextPopupContainerComponent } from 'app/core/components/link-context-popup/link-context-popup-container.component';
 import { ServerMapContextPopupContainerComponent } from 'app/core/components/server-map-context-popup/server-map-context-popup-container.component';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Component({
     selector: 'pp-server-map-container',
@@ -42,6 +44,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         private router: Router,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
+        private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private serverMapDataService: ServerMapDataService,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -85,6 +88,22 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             if (this.hasNodeData() === false) {
                 this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
             }
+        }, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.urlRouteManagerService.move({
+                        url: [
+                            this.newUrlStateNotificationService.getStartPath()
+                        ],
+                        needServerTimeRequest: false
+                    });
+                }
+            });
         });
         this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
             this.useDisable = disabled;

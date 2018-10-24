@@ -18,7 +18,20 @@ export interface ISystemConfiguration {
 
 @Injectable()
 export class SystemConfigurationDataService {
-    url = 'configuration.pinpoint';
+    private url = 'configuration.pinpoint';
+    private defaultConfiguration: ISystemConfiguration = {
+        editUserInfo: false,
+        enableServerMapRealTime: false,
+        openSource: true,
+        sendUsage: true,
+        showActiveThread: false,
+        showActiveThreadDump: false,
+        showApplicationStat: false,
+        version: '',
+        userId: '',
+        userName: '',
+        userDepartment: ''
+    };
     constructor(private http: HttpClient) {}
     getConfiguration(): Observable<ISystemConfiguration> {
         return this.http.get<ISystemConfiguration>(this.url).pipe(
@@ -26,19 +39,7 @@ export class SystemConfigurationDataService {
                 if (res) {
                     return res;
                 } else {
-                    return {
-                        editUserInfo: false,
-                        enableServerMapRealTime: false,
-                        openSource: true,
-                        sendUsage: true,
-                        showActiveThread: false,
-                        showActiveThreadDump: false,
-                        showApplicationStat: false,
-                        version: '',
-                        userId: '',
-                        userName: '',
-                        userDepartment: ''
-                    };
+                    return this.defaultConfiguration;
                 }
             })
         );

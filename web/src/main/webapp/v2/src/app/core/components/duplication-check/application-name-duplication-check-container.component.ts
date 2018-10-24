@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 import { map, filter, switchMap, pluck } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { ApplicationNameDuplicationCheckInteractionService } from './application
     selector: 'pp-application-name-duplication-check-container',
     templateUrl: './duplication-check-container.component.html',
     styleUrls: ['./duplication-check-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationNameDuplicationCheckContainerComponent implements OnInit {
     labelText = 'Application Name';
@@ -22,6 +23,7 @@ export class ApplicationNameDuplicationCheckContainerComponent implements OnInit
     private MAX_CHAR = 24;
 
     constructor(
+        private changeDetectorRef: ChangeDetectorRef,
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
         private applicationNameDuplicationCheckDataService: ApplicationNameDuplicationCheckDataService,
@@ -65,8 +67,8 @@ export class ApplicationNameDuplicationCheckContainerComponent implements OnInit
             pluck('value')
         ).subscribe((value: string) => {
             this.onCheckSuccess(value, '');
-        }, (errorMessage: string) => {
-            this.onCheckFail(errorMessage);
+        }, (error: IServerErrorFormat) => {
+            this.onCheckFail(error.exception.message);
         });
     }
 
@@ -85,12 +87,14 @@ export class ApplicationNameDuplicationCheckContainerComponent implements OnInit
     private onCheckFail(message: string): void {
         this.message = message;
         this.isValueValid = false;
+        this.changeDetectorRef.detectChanges();
     }
 
     private onCheckSuccess(value: string, message: string): void {
         this.message = message;
         this.isValueValid = true;
         this.notifyCheckSuccess(value);
+        this.changeDetectorRef.detectChanges();
     }
 
     private notifyCheckSuccess(value: string): void {

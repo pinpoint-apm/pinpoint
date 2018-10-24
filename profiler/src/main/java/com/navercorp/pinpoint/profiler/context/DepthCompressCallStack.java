@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,29 +16,27 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DepthCompressCallStack extends DefaultCallStack {
+public class DepthCompressCallStack<T> extends DefaultCallStack<T> {
 
     private int latestStackIndex = 0;
 
-    public DepthCompressCallStack(TraceRoot traceRoot) {
-        this(traceRoot, -1);
+    public DepthCompressCallStack(Factory<T> factory) {
+        this(factory, -1);
     }
     
-    public DepthCompressCallStack(TraceRoot traceRoot, int maxDepth) {
-        super(traceRoot, maxDepth);
+    public DepthCompressCallStack(Factory<T> factory, int maxDepth) {
+        super(factory, maxDepth);
     }
 
     @Override
-    protected void markDepth(SpanEvent spanEvent, int depth) {
+    protected void markDepth(T element, int depth) {
         // compact same depth
         if (latestStackIndex != index) {
             latestStackIndex = index;
-            spanEvent.setDepth(latestStackIndex);
+            this.factory.markDepth(element, latestStackIndex);
         }
     }
 

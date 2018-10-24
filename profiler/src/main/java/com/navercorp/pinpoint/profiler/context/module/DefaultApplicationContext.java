@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -124,7 +125,9 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.clientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, DefaultClientFactory.class));
         logger.info("clientFactory:{}", clientFactory);
 
-        this.tcpDataSender = injector.getInstance(EnhancedDataSender.class);
+        TypeLiteral<EnhancedDataSender<Object>> enhancedDataSenderLiteral = new TypeLiteral<EnhancedDataSender<Object>>(){};
+        Key<EnhancedDataSender<Object>> enhancedDataSenderKey = Key.get(enhancedDataSenderLiteral);
+        this.tcpDataSender = injector.getInstance(enhancedDataSenderKey);
         logger.info("tcpDataSender:{}", tcpDataSender);
 
         this.traceContext = injector.getInstance(TraceContext.class);

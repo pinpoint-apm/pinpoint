@@ -37,7 +37,7 @@ export abstract class InspectorChartContainer {
 
     protected initI18nText(): void {
         this.i18nText$ = combineLatest(
-            this.translateService.get('INSPECTOR.FAILED_TO_FETCH_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
             this.translateService.get('INSPECTOR.NO_DATA_COLLECTED'),
         ).pipe(
             map(([FAILED_TO_FETCH_DATA, NO_DATA_COLLECTED]: string[]) => {
@@ -97,20 +97,16 @@ export abstract class InspectorChartContainer {
     }
 
     protected getChartData(range: number[]): void {
-        this.chartDataService.getData(range).pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((data: IChartDataFromServer | IChartDataFromServer[] | AjaxException) => {
+        this.chartDataService.getData(range).subscribe((data: IChartDataFromServer | IChartDataFromServer[] | AjaxException) => {
             if (this.ajaxExceptionCheckerService.isAjaxException(data)) {
                 this.setErrObj(data);
             } else {
                 this.chartData = data;
                 this.setChartConfig(this.makeChartData(data));
             }
-        },
-            (err) => {
-                this.setErrObj();
-            }
-        );
+        }, () => {
+            this.setErrObj();
+        });
     }
 
     protected setChartConfig(data: {[key: string]: any} | {[key: string]: any}[]): void {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 public class DefaultAsyncId implements AsyncId {
 
     private static final AtomicIntegerFieldUpdater<DefaultAsyncId> ASYNC_SEQUENCE_UPDATER
-            = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncId.class, "asyncSequence");
+            = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncId.class, "sequence");
 
     private final int asyncId;
 
     @SuppressWarnings("unused")
-    private volatile int asyncSequence = 0;
+    private volatile int sequence = 0;
 
     public DefaultAsyncId(int asyncId) {
         this.asyncId = asyncId;
@@ -46,10 +46,17 @@ public class DefaultAsyncId implements AsyncId {
     }
 
     @Override
+    public LocalAsyncId nextLocalAsyncId() {
+        final int asyncId = getAsyncId();
+        final short sequence = nextAsyncSequence();
+        return new DefaultLocalAsyncId(asyncId, sequence);
+    }
+
+    @Override
     public String toString() {
         return "DefaultAsyncId{" +
                 "asyncId=" + asyncId +
-                ", asyncSequence=" + asyncSequence +
+                ", sequence=" + sequence +
                 '}';
     }
 }

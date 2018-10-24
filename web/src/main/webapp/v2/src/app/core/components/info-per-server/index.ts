@@ -8,6 +8,7 @@ import { LoadChartModule } from 'app/core/components/load-chart';
 import { ServerListModule } from 'app/core/components/server-list';
 import { InfoPerServerContainerComponent } from './info-per-server-container.component';
 import { InfoPerServerForFilteredMapContainerComponent } from './info-per-server-for-filtered-map-container.component';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { InfoPerServerForFilteredMapContainerComponent } from './info-per-server
         ScatterChartModule,
         ResponseSummaryChartModule,
         LoadChartModule,
-        ServerListModule
+        ServerListModule,
+        ServerErrorPopupModule
     ],
     exports: [
         InfoPerServerContainerComponent,

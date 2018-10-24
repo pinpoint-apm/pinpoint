@@ -1,0 +1,50 @@
+.l-title {
+    display: flex;
+    flex: 1;
+    color: #FFF;
+    font-size: 20px;
+    align-items: center;
+    padding-left: 20px;
+}
+.l-api-check {
+    width: 100%;
+    height: calc(100% - 50px);
+    padding-top: 5%;
+    display: flex;
+    position: absolute;
+    align-items: center;
+    flex-direction: column;
+    align-items: center;
+}
+.l-api-check .l-apis {
+    width: 700px;
+    display: flex;
+    font-size: 30px;
+    flex-direction: column;
+}
+.l-api-check .l-api {
+    display: flex;
+    padding: 0px 20px;
+    align-items: center;
+    flex-direction: row;
+}
+.l-api-check .l-api i {
+    margin: 10px 10px 0px 0px;
+}
+.l-api-check button {
+    width: 100px;
+    height: 100px;
+    margin: 20px 0px;
+    font-size: 40px;
+    border-radius: 50px;
+}
+.l-success {
+    color: #03a203;
+}
+.l-fail {
+    color: #c10404;
+}
+.l-error {
+    padding: 20px;
+    font-size: 14px;
+}

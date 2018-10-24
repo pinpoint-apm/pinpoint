@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,9 +19,6 @@ package com.navercorp.pinpoint.profiler.receiver;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
@@ -54,13 +51,13 @@ public class ProfilerCommandServiceLocatorTest {
     @Test(expected = NullPointerException.class)
     public void throwNullTest3() throws Exception {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
-        builder.addService(null, null);
+        builder.addService((short) -1, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void throwNullTest4() throws Exception {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
-        builder.addService(TResult.class, null);
+        builder.addService(TCommandType.RESULT.getCode(), null);
     }
 
     @Test
@@ -68,10 +65,10 @@ public class ProfilerCommandServiceLocatorTest {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         ProfilerCommandServiceLocator commandServiceLocator = builder.build();
 
-        Assert.assertNull(commandServiceLocator.getService(null));
-        Assert.assertNull(commandServiceLocator.getSimpleService(null));
-        Assert.assertNull(commandServiceLocator.getRequestService(null));
-        Assert.assertNull(commandServiceLocator.getStreamService(null));
+        Assert.assertNull(commandServiceLocator.getService((short) -1));
+        Assert.assertNull(commandServiceLocator.getSimpleService((short) -1));
+        Assert.assertNull(commandServiceLocator.getRequestService((short) -1));
+        Assert.assertNull(commandServiceLocator.getStreamService((short) -1));
     }
 
     @Test
@@ -79,13 +76,13 @@ public class ProfilerCommandServiceLocatorTest {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(new EchoService());
         builder.addService(new EchoService());
-        ProfilerCommandServiceLocator commandServiceLocator = builder.build();
+        DefaultProfilerCommandServiceLocator commandServiceLocator = (DefaultProfilerCommandServiceLocator) builder.build();
 
-        TCommandEcho commandEcho = new TCommandEcho();
+        short commandEcho = TCommandType.ECHO.getCode();
 
-        Assert.assertEquals(1, commandServiceLocator.getCommandServiceClasses().size());
+        Assert.assertEquals(1, commandServiceLocator.getCommandServiceSize());
         Assert.assertEquals(1, commandServiceLocator.getCommandServiceCodes().size());
-        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(TCommandType.getType(commandEcho.getClass()).getCode()));
+        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandEcho));
 
         Assert.assertNotNull(commandServiceLocator.getService(commandEcho));
         Assert.assertNotNull(commandServiceLocator.getRequestService(commandEcho));
@@ -98,15 +95,16 @@ public class ProfilerCommandServiceLocatorTest {
     public void basicFunctionTest2() throws Exception {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(new MockCommandServiceGroup());
-        ProfilerCommandServiceLocator commandServiceLocator = builder.build();
+        DefaultProfilerCommandServiceLocator commandServiceLocator = (DefaultProfilerCommandServiceLocator) builder.build();
 
-        TResult commandResult = new TResult();
-        TCommandTransfer commandTransfer = new TCommandTransfer();
+        short commandResult = TCommandType.RESULT.getCode();
 
-        Assert.assertEquals(2, commandServiceLocator.getCommandServiceClasses().size());
+        short commandTransfer = TCommandType.TRANSFER.getCode();
+
+        Assert.assertEquals(2, commandServiceLocator.getCommandServiceSize());
         Assert.assertEquals(2, commandServiceLocator.getCommandServiceCodes().size());
-        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(TCommandType.getType(commandResult.getClass()).getCode()));
-        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(TCommandType.getType(commandTransfer.getClass()).getCode()));
+        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandResult));
+        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandTransfer));
 
         Assert.assertNotNull(commandServiceLocator.getService(commandResult));
         Assert.assertNotNull(commandServiceLocator.getSimpleService(commandResult));
@@ -119,7 +117,7 @@ public class ProfilerCommandServiceLocatorTest {
         Assert.assertNull(commandServiceLocator.getRequestService(commandTransfer));
     }
 
-    private static class MockSimpleCommandService implements ProfilerSimpleCommandService {
+    private static class MockSimpleCommandService implements ProfilerSimpleCommandService<TBase<?, ?>> {
 
         @Override
         public void simpleCommandService(TBase<?, ?> tbase) {
@@ -127,22 +125,22 @@ public class ProfilerCommandServiceLocatorTest {
         }
 
         @Override
-        public Class<? extends TBase> getCommandClazz() {
-            return TResult.class;
+        public short getCommandServiceCode() {
+            return TCommandType.RESULT.getCode();
         }
 
     }
 
-    private static class MockStreamCommandService implements ProfilerStreamCommandService {
+    private static class MockStreamCommandService implements ProfilerStreamCommandService<TBase<?, ?>> {
 
         @Override
-        public StreamCode streamCommandService(TBase tBase, ServerStreamChannelContext streamChannelContext) {
+        public StreamCode streamCommandService(TBase<?, ?> tBase, ServerStreamChannelContext streamChannelContext) {
             return StreamCode.OK;
         }
 
         @Override
-        public Class<? extends TBase> getCommandClazz() {
-            return TCommandTransfer.class;
+        public short getCommandServiceCode() {
+            return TCommandType.TRANSFER.getCode();
         }
 
     }

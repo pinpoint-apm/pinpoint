@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,20 +48,20 @@ public class DefaultAsyncTraceContext implements AsyncTraceContext {
     }
 
     @Override
-    public Reference<Trace> continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
+    public Reference<Trace> continueAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
         final Reference<Trace> reference = checkAndGet();
 
         final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
-        final Trace trace = baseTraceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
+        final Trace trace = baseTraceFactory.continueAsyncTraceObject(traceRoot, localAsyncId);
 
         bind(reference, trace);
         return reference;
     }
 
     @Override
-    public Trace newAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
+    public Trace newAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
         final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
-        return baseTraceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
+        return baseTraceFactory.continueAsyncTraceObject(traceRoot, localAsyncId);
     }
 
 
@@ -71,8 +71,9 @@ public class DefaultAsyncTraceContext implements AsyncTraceContext {
 
         final TraceRoot traceRoot = getTraceRoot(asyncTraceId, startTime);
         final short asyncSequence = asyncTraceId.nextAsyncSequence();
+        final LocalAsyncId localAsyncId = new DefaultLocalAsyncId(asyncId, asyncSequence);
 
-        return this.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
+        return this.continueAsyncTraceObject(traceRoot, localAsyncId);
     }
 
     @Override

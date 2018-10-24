@@ -49,7 +49,7 @@ import java.lang.reflect.Method;
  * <tt>BlockingQueueConsumer$ConsumerDecorator</tt> added in 2.0.3 has been backported to 1.7.7 as well.
  *
  * @author HyunGil Jeong
- * @see SpringAmqpRabbit_2_0_3_to_2_x_IT
+ * @see SpringAmqpRabbit_2_0_3_to_2_1_0_IT
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)

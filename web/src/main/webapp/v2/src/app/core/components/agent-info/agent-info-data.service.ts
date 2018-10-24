@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 @Injectable()
 export class AgentInfoDataService {
@@ -9,14 +10,15 @@ export class AgentInfoDataService {
         private http: HttpClient
     ) {}
     getData(agentId: string, timestamp: number): Observable<IServerAndAgentData> {
-        return this.http.get<IServerAndAgentData>(this.requestURL, this.makeRequestOptionsArgs(agentId, timestamp));
+        return this.http.get<IServerAndAgentData>(this.requestURL, this.makeRequestOptionsArgs(agentId, timestamp)).pipe(
+            retry(3)
+        );
     }
     private makeRequestOptionsArgs(agentId: string, timestamp: number): object {
         return {
-            params: {
-                agentId,
-                timestamp
-            }
+            params: new HttpParams()
+                .set('agentId', agentId)
+                .set('timestamp', timestamp + '')
         };
     }
 }

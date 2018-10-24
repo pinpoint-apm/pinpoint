@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,18 @@
 package com.navercorp.pinpoint.io.header;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
 public class HeaderEntity {
-    public static final HeaderEntity EMPTY_HEADER_ENTITY = new HeaderEntity(new HashMap<String, String>(0));
+
+    public static final HeaderEntity EMPTY_HEADER_ENTITY = new HeaderEntity(Collections.<String, String>emptyMap());
 
     private final Map<String, String> entity;
 
-    public HeaderEntity(Map<String,String> headerEntityData) {
+    public HeaderEntity(Map<String, String> headerEntityData) {
         if (headerEntityData == null) {
             throw new NullPointerException("headerEntityData must not be null.");
         }
@@ -41,5 +41,12 @@ public class HeaderEntity {
 
     public Map<String, String> getEntityAll() {
         return entity;
+    }
+
+    @Override
+    public String toString() {
+        return "HeaderEntity{" +
+                "entity=" + entity +
+                '}';
     }
 }

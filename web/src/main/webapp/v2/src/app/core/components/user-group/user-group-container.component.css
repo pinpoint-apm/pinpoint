@@ -22,6 +22,9 @@
     background-color: #f6f8fb;
     border-bottom: 1px solid #e5e8f0;
 }
+.l-user-group-title button:last-child {
+    margin-left: 2px;
+}
 .l-user-group-search {
     padding: 10px 15px;
     border-bottom: 1px solid #e5e8f0;

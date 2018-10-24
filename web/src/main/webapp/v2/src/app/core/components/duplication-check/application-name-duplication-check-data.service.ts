@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export interface IApplicationAvailable {
     code: number;
@@ -11,21 +10,10 @@ export interface IApplicationAvailable {
 @Injectable()
 export class ApplicationNameDuplicationCheckDataService {
     private requestURL = 'isAvailableApplicationName.pinpoint';
-
-    constructor(
-        private http: HttpClient,
-    ) {}
+    constructor(private http: HttpClient) {}
     getResponseWithParams(value: string): Observable<IApplicationAvailable> {
-        return this.http.get<IApplicationAvailable>(this.requestURL, this.makeParams({applicationName: value})).pipe(
-            catchError(this.handleError)
-        );
-    }
-    private makeParams(paramObj: object): object {
-        return {
-            params: { ...paramObj }
-        };
-    }
-    private handleError(error: HttpErrorResponse | string) {
-        return throwError(error['statusText'] || error);
+        return this.http.get<IApplicationAvailable>(this.requestURL, {
+            params: new HttpParams().set('applicationName', value)
+        });
     }
 }

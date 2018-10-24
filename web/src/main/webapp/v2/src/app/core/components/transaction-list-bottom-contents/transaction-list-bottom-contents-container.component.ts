@@ -12,7 +12,7 @@ import {
 import { Actions } from 'app/shared/store';
 import { UrlPath } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Component({
     selector: 'pp-transaction-list-bottom-contents-container',
@@ -64,6 +64,14 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
             ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
                 this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
                 this.setDisplayGuide(false);
+            }, (error: IServerErrorFormat) => {
+                this.dynamicPopupService.openPopup({
+                    data: {
+                        title: 'Error',
+                        contents: error
+                    },
+                    component: ServerErrorPopupContainerComponent
+                });
             });
         });
     }

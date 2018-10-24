@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
-import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
-import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.TraceLogDelegateStorage;
 import com.navercorp.pinpoint.profiler.context.storage.TraceLogDelegateStorageFactory;
@@ -38,25 +36,11 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
 
     private final ProfilerConfig profilerConfig;
     private final DataSender spanDataSender;
-    private final SpanPostProcessor spanPostProcessor;
-    private final SpanChunkFactory spanChunkFactory;
 
     @Inject
-    public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (spanDataSender == null) {
-            throw new NullPointerException("spanDataSender must not be null");
-        }
-        if (spanChunkFactory == null) {
-            throw new NullPointerException("spanChunkFactory must not be null");
-        }
-
-        this.profilerConfig = profilerConfig;
-        this.spanDataSender = spanDataSender;
-        this.spanPostProcessor = spanPostProcessor;
-        this.spanChunkFactory = spanChunkFactory;
+    public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.spanDataSender = Assert.requireNonNull(spanDataSender, "spanDataSender must not be null");
     }
 
     @Override
@@ -71,9 +55,9 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
     private StorageFactory newStorageFactory() {
         if (profilerConfig.isIoBufferingEnable()) {
             int ioBufferingBufferSize = this.profilerConfig.getIoBufferingBufferSize();
-            return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender, this.spanPostProcessor, this.spanChunkFactory);
+            return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender);
         } else {
-            return new SpanStorageFactory(spanDataSender);
+            return new BufferedStorageFactory(Integer.MAX_VALUE, this.spanDataSender);
         }
     }
 
@@ -82,7 +66,6 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
         return "StorageFactoryProvider{" +
                 "profilerConfig=" + profilerConfig +
                 ", spanDataSender=" + spanDataSender +
-                ", spanChunkFactory=" + spanChunkFactory +
                 '}';
     }
 

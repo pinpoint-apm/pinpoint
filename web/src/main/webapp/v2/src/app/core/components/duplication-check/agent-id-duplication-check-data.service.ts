@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export interface IAgentIdAvailable {
     code: number;
@@ -17,16 +16,8 @@ export class AgentIdDuplicationCheckDataService {
     ) {}
 
     getResponseWithParams(value: string): Observable<IAgentIdAvailable> {
-        return this.http.get<IAgentIdAvailable>(this.requestURL, this.makeParams({agentId: value})).pipe(
-            catchError(this.handleError)
-        );
-    }
-    private makeParams(paramObj: object): object {
-        return {
-            params: { ...paramObj }
-        };
-    }
-    private handleError(error: HttpErrorResponse) {
-        return throwError(error.statusText);
+        return this.http.get<IAgentIdAvailable>(this.requestURL, {
+            params: new HttpParams().set('agentId', value)
+        });
     }
 }

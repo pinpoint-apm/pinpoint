@@ -26,6 +26,7 @@ interface IResponseTime {
     '5s': number;
     'Slow': number;
     'Error': number;
+    [key: string]: number;
 }
 // @store
 interface IHistogram {
@@ -39,6 +40,7 @@ interface IResponseMilliSecondTime {
     '500ms': number;
     'Error': number;
     'Slow': number;
+    [key: string]: number;
 }
 interface IInstanceStatus {
     code: number;
@@ -321,4 +323,26 @@ interface ITimelineInfo {
     range: number[];
     selectedTime: number;
     selectionRange: number[];
+}
+
+interface IServerErrorFormat {
+    exception: {
+        request: {
+            url: string;
+            method?: string;
+            heads?: {
+                [key: string]: string[];
+            },
+            parameters?: {
+                [key: string]: string[];
+            }
+        },
+        stacktrace?: string;
+        message: string;
+    }
+}
+
+interface IServerErrorShortFormat {
+    errorCode: string;
+    errorMessage: string;
 }

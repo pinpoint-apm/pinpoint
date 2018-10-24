@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, combineLatest } from 'rxjs';
 import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
@@ -14,7 +14,7 @@ import { ServerMapSearchResultViewerComponent } from './server-map-search-result
     styleUrls: ['./server-map-search-result-viewer-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ServerMapSearchResultViewerContainerComponent implements OnInit {
+export class ServerMapSearchResultViewerContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
     private minLength = 3;
     i18nText: { [key: string]: string } = {};
@@ -29,6 +29,7 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
         private serverMapInteractionService: ServerMapInteractionService,
         private analyticsService: AnalyticsService
     ) {}
+
     ngOnInit() {
         this.getI18NText();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -50,6 +51,12 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
             this.changeDetectorRef.detectChanges();
         });
     }
+
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
+    }
+
     private getI18NText() {
         combineLatest(
             this.translateService.get('MAIN.SEARCH_SERVER_MAP_PLACE_HOLDER'),

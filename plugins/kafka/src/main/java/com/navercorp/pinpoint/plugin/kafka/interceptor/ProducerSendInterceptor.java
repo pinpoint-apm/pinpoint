@@ -193,14 +193,14 @@ public class ProducerSendInterceptor implements AroundInterceptor {
                 final TraceId nextId = trace.getTraceId().getNextTraceId();
                 recorder.recordNextSpanId(nextId.getSpanId());
 
-                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId().getBytes()));
-                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()).getBytes()));
-                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()).getBytes()));
-                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()).getBytes()));
-                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), String.valueOf(applicationName).getBytes()));
-                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode).getBytes()));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId().getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), String.valueOf(applicationName).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
             } else {
-                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE.getBytes()));
+                kafkaHeaders.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE.getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
             }
         }
 

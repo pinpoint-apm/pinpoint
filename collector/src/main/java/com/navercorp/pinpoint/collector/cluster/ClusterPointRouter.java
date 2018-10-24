@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler;
 import com.navercorp.pinpoint.collector.cluster.route.RequestEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
-import com.navercorp.pinpoint.io.request.EmptyMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
@@ -173,7 +172,10 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     }
 
     private TBase<?,?> deserialize(byte[] objectData) {
-        Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(objectData, commandDeserializerFactory, EmptyMessage.emptyMessage());
+        final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(objectData, commandDeserializerFactory, null);
+        if (deserialize == null) {
+            return null;
+        }
         return deserialize.getData();
     }
 
