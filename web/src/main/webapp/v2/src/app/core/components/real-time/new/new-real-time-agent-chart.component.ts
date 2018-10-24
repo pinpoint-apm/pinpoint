@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 
 // import { IRealTimeChartData } from './real-time-chart.component';
 import { IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
@@ -8,7 +8,7 @@ import { IActiveThreadCounts } from 'app/core/components/real-time/real-time-web
     templateUrl: './new-real-time-agent-chart.component.html',
     styleUrls: ['./new-real-time-agent-chart.component.css']
 })
-export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
+export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input()
     set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
         this.numOfAgent = Object.keys(activeThreadCounts).length;
@@ -64,6 +64,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
     linkIconInfoList: { [key: string]: any }[] = []; // { leftX, rightX, topY, bottomY, agentKey } 를 담은 object의 배열
     gridLineStart: number = null;
     chartStart: number = null;
+    animationFrameId: number;
 
     constructor(
         private el: ElementRef,
@@ -78,7 +79,11 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         this.initConstant();
         this.addEventListener();
 
-        requestAnimationFrame((t) => this.draw(t));
+        this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
+    }
+
+    ngOnDestroy() {
+        cancelAnimationFrame(this.animationFrameId);
     }
 
     initConstant(): void {
@@ -95,7 +100,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
             this.drawChart(timestamp);
         }
 
-        requestAnimationFrame((t) => this.draw(t));
+        this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
     }
 
     getXPos(i: number): number {
@@ -192,11 +197,13 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         }
 
         const xPos0 = startingXPos + Math.floor((this._timeStampList[0] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl);
+
         if (xPos0 < this.chartConstant.chartWidth) {
             Object.keys(this._dataList).forEach((agentName: string, i: number) => {
                 const xPos = this.getXPos(i) + startingXPos; // 각 차트에서의 기준점(t0) x좌표
                 const yPos = this.getYPos(i); // 왼쪽위 꼭짓점 y좌표
                 const yAxisFlipValue = yPos + this.chartConstant.titleHeight + this.chartConstant.chartHeight; // for upside down
+
                 const dataList = this._dataList[agentName];
                 const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
                 const contentRatio = this.chartConstant.chartHeight * this.chartConstant.yRatio / max;
@@ -216,6 +223,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
                     if (xPos0 < 0) {
                         // 앞 경계면 처리
                         const xPos1 = startingXPos + Math.floor((this._timeStampList[1] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl);
+
                         this.ctx.moveTo(this.getXPos(i), yAxisFlipValue); // 시작
                         this.ctx.lineTo(this.getXPos(i), yAxisFlipValue - (data[0] * xPos1 - data[1] * xPos0) / (xPos1 - xPos0) * contentRatio);
                     } else {
