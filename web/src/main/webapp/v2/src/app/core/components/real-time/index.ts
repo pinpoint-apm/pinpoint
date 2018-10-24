@@ -10,6 +10,11 @@ import { RealTimeWebSocketService } from './real-time-websocket.service';
 import { ResizeTopDirective } from './resize-top.directive';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 
+import { NewRealTimeAgentChartComponent } from 'app/core/components/real-time/new/new-real-time-agent-chart.component';
+import { NewRealTimeChartComponent } from 'app/core/components/real-time/new/new-real-time-chart.component';
+import { NewRealTimeContainerComponent } from 'app/core/components/real-time/new/new-real-time-container.component';
+import { NewRealTimeTotalChartComponent } from 'app/core/components/real-time/new/new-real-time-total-chart.component';
+
 @NgModule({
     declarations: [
         ResizeTopDirective,
@@ -17,7 +22,11 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         RealTimeAgentChartComponent,
         RealTimeTotalChartComponent,
         RealTimeContainerComponent,
-        RealTimePagingContainerComponent
+        RealTimePagingContainerComponent,
+        NewRealTimeAgentChartComponent,
+        NewRealTimeChartComponent,
+        NewRealTimeContainerComponent,
+        NewRealTimeTotalChartComponent
     ],
     imports: [
         SharedModule,
@@ -25,11 +34,14 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
     ],
     exports: [
         RealTimeContainerComponent,
+        NewRealTimeContainerComponent,
         RealTimePagingContainerComponent
     ],
     entryComponents: [
         RealTimeTotalChartComponent,
-        RealTimeAgentChartComponent
+        RealTimeAgentChartComponent,
+        NewRealTimeAgentChartComponent,
+        NewRealTimeTotalChartComponent
     ],
     providers: [
         RealTimeWebSocketService
