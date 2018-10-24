@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import org.junit.Assert;
 
 /**
  * @author Taejin Koo
  */
-public class DeadlockBoMapperTest extends ThriftBoMapperTestBase<TDeadlock, DeadlockBo> {
+public class DeadlockThreadCountBoMapperTest extends ThriftBoMapperTestBase<TDeadlock, DeadlockThreadCountBo> {
 
     private static final int MAX_DEADLOCKED_THREAD_COUNT = 100;
 
@@ -36,13 +36,13 @@ public class DeadlockBoMapperTest extends ThriftBoMapperTestBase<TDeadlock, Dead
     }
 
     @Override
-    protected DeadlockBo convert(TDeadlock original) {
-        DeadlockBoMapper deadlockBoMapper = new DeadlockBoMapper();
-        return deadlockBoMapper.map(original);
+    protected DeadlockThreadCountBo convert(TDeadlock original) {
+        DeadlockThreadCountBoMapper deadlockThreadCountBoMapper = new DeadlockThreadCountBoMapper();
+        return deadlockThreadCountBoMapper.map(original);
     }
 
     @Override
-    protected void verify(TDeadlock original, DeadlockBo mappedStatDataPoint) {
+    protected void verify(TDeadlock original, DeadlockThreadCountBo mappedStatDataPoint) {
         Assert.assertEquals("deadlockedThreadCount", original.getDeadlockedThreadCount(), mappedStatDataPoint.getDeadlockedThreadCount());
     }
 

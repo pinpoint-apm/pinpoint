@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.collector.dao.AgentEventDao;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.junit.Before;
@@ -49,13 +46,7 @@ public class AgentEventHandlerTest {
     private PinpointServer pinpointServer;
 
     @Mock
-    private AgentEventDao agentEventDao;
-
-    @Mock
     private AgentEventService agentEventService;
-
-    @Mock
-    private AgentEventMessageSerializer agentEventMessageSerializer;
 
     @InjectMocks
     private AgentEventHandler agentEventHandler = new AgentEventHandler();
@@ -85,29 +76,7 @@ public class AgentEventHandlerTest {
         assertEquals(TEST_START_TIMESTAMP, actualAgentEventBo.getStartTimestamp());
         assertEquals(TEST_EVENT_TIMESTAMP, actualAgentEventBo.getEventTimestamp());
         assertEquals(expectedEventType, actualAgentEventBo.getEventType());
-        assertNull(actualAgentEventBo.getEventBody());
-    }
-
-    @Test
-    public void handler_should_handle_serialization_of_messages_appropriately() throws Exception {
-        // given
-        final AgentEventType expectedEventType = AgentEventType.OTHER;
-        final String expectedMessageBody = "test event message";
-        final byte[] expectedMessageBodyBytes = BytesUtils.toBytes(expectedMessageBody);
-        ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
-        when(this.agentEventMessageSerializer.serialize(expectedEventType, expectedMessageBody)).thenReturn(
-                expectedMessageBodyBytes);
-        // when
-        this.agentEventHandler.handleEvent(this.pinpointServer, TEST_EVENT_TIMESTAMP, expectedEventType,
-                expectedMessageBody);
-        verify(this.agentEventService, times(1)).insert(argCaptor.capture());
-        // then
-        AgentEventBo actualAgentEventBo = argCaptor.getValue();
-        assertEquals(TEST_AGENT_ID, actualAgentEventBo.getAgentId());
-        assertEquals(TEST_START_TIMESTAMP, actualAgentEventBo.getStartTimestamp());
-        assertEquals(TEST_EVENT_TIMESTAMP, actualAgentEventBo.getEventTimestamp());
-        assertEquals(expectedEventType, actualAgentEventBo.getEventType());
-        assertEquals(expectedMessageBodyBytes, actualAgentEventBo.getEventBody());
+        assertEquals(0, actualAgentEventBo.getEventBody().length);
     }
 
     private static Map<Object, Object> createTestChannelProperties() {

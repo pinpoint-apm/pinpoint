@@ -81,6 +81,8 @@
         </constructor-arg>
     </bean>
 
+    <bean id="agentEventMessageDeserializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1"/>
+
     <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
     </bean>
 
