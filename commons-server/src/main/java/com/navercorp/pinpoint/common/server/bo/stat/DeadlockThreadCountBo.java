@@ -16,14 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
-
-import java.util.List;
-
 /**
  * @author Taejin Koo
+ * @author jaehong.kim - Remove TThreadDump List
  */
-public class DeadlockBo implements AgentWarningStatDataPoint {
+public class DeadlockThreadCountBo implements AgentWarningStatDataPoint {
 
     public static final int UNCOLLECTED_INT_VALUE = -1;
 
@@ -31,7 +28,6 @@ public class DeadlockBo implements AgentWarningStatDataPoint {
     private long startTimestamp;
     private long timestamp;
     private int deadlockedThreadCount = UNCOLLECTED_INT_VALUE;
-    private List<TThreadDump> threadDumpList;
 
     @Override
     public String getAgentId() {
@@ -76,22 +72,13 @@ public class DeadlockBo implements AgentWarningStatDataPoint {
         this.deadlockedThreadCount = deadlockedThreadCount;
     }
 
-    public List<TThreadDump> getThreadDumpList() {
-        return threadDumpList;
-    }
-
-    public void setThreadDumpList(List<TThreadDump> threadDumpList) {
-        this.threadDumpList = threadDumpList;
-    }
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DeadlockBo{");
+        final StringBuilder sb = new StringBuilder("DeadlockThreadCountBo{");
         sb.append("agentId='").append(agentId).append('\'');
         sb.append(", startTimestamp=").append(startTimestamp);
         sb.append(", timestamp=").append(timestamp);
         sb.append(", deadlockedThreadCount=").append(deadlockedThreadCount);
-        sb.append(", threadDumpList=").append(threadDumpList);
         sb.append('}');
         return sb.toString();
     }

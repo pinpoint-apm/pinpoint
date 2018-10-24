@@ -34,7 +34,7 @@ public class AgentStatBo {
     private List<ActiveTraceBo> activeTraceBos;
     private List<DataSourceListBo> dataSourceListBos;
     private List<ResponseTimeBo> responseTimeBos;
-    private List<DeadlockBo> deadlockBos;
+    private List<DeadlockThreadCountBo> deadlockThreadCountBos;
     private List<FileDescriptorBo> fileDescriptorBos;
     private List<DirectBufferBo> directBufferBos;
 
@@ -110,12 +110,12 @@ public class AgentStatBo {
         this.responseTimeBos = responseTimeBos;
     }
 
-    public List<DeadlockBo> getDeadlockBos() {
-        return deadlockBos;
+    public List<DeadlockThreadCountBo> getDeadlockThreadCountBos() {
+        return deadlockThreadCountBos;
     }
 
-    public void setDeadlockBos(List<DeadlockBo> deadlockBos) {
-        this.deadlockBos = deadlockBos;
+    public void setDeadlockThreadCountBos(List<DeadlockThreadCountBo> deadlockThreadCountBos) {
+        this.deadlockThreadCountBos = deadlockThreadCountBos;
     }
 
     public List<FileDescriptorBo> getFileDescriptorBos() {
@@ -141,7 +141,7 @@ public class AgentStatBo {
         sb.append(", activeTraceBos=").append(activeTraceBos);
         sb.append(", dataSourceListBos=").append(dataSourceListBos);
         sb.append(", responseTimeBos=").append(responseTimeBos);
-        sb.append(", deadlockBos=").append(deadlockBos);
+        sb.append(", deadlockThreadCountBos=").append(deadlockThreadCountBos);
         sb.append(", fileDescriptorBos=").append(fileDescriptorBos);
         sb.append(", directBufferBos=").append(directBufferBos);
         sb.append('}');

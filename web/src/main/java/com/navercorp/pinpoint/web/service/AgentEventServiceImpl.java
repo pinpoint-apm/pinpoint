@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
+import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -41,6 +42,7 @@ import java.util.Set;
 
 /**
  * @author HyunGil Jeong
+ * @author jaehong.kim - Add agentEventMessageDeserializerV1
  */
 @Service
 public class AgentEventServiceImpl implements AgentEventService {
@@ -52,6 +54,9 @@ public class AgentEventServiceImpl implements AgentEventService {
 
     @Autowired
     private AgentEventMessageDeserializer agentEventMessageDeserializer;
+
+    @Autowired
+    private AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1;
 
     @Override
     public List<AgentEvent> getAgentEvents(String agentId, Range range, int... excludeEventTypeCodes) {
@@ -142,7 +147,13 @@ public class AgentEventServiceImpl implements AgentEventService {
 
     private Object deserializeEventMessage(AgentEventBo agentEventBo) {
         try {
-            return this.agentEventMessageDeserializer.deserialize(agentEventBo.getEventType(), agentEventBo.getEventBody());
+            if (agentEventBo.getVersion() == 0) {
+                return this.agentEventMessageDeserializer.deserialize(agentEventBo.getEventType(), agentEventBo.getEventBody());
+            } else if (agentEventBo.getVersion() == AgentEventBo.CURRENT_VERSION) {
+                return this.agentEventMessageDeserializerV1.deserialize(agentEventBo.getEventType(), agentEventBo.getEventBody());
+            } else {
+                throw new UnsupportedEncodingException("invalid version " + agentEventBo.getVersion());
+            }
         } catch (UnsupportedEncodingException e) {
             logger.warn("error deserializing event message", e);
             return null;
