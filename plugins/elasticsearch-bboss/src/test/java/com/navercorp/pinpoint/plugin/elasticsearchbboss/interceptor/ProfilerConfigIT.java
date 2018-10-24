@@ -100,27 +100,27 @@ public class ProfilerConfigIT implements ProfilerConfig {
 
 	@Override
 	public boolean isTcpDataSenderCommandAcceptEnable() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isTcpDataSenderCommandActiveThreadEnable() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isTcpDataSenderCommandActiveThreadCountEnable() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isTcpDataSenderCommandActiveThreadDumpEnable() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isTcpDataSenderCommandActiveThreadLightDumpEnable() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -150,12 +150,12 @@ public class ProfilerConfigIT implements ProfilerConfig {
 
 	@Override
 	public boolean isTraceAgentActiveThread() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isTraceAgentDataSource() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -165,7 +165,7 @@ public class ProfilerConfigIT implements ProfilerConfig {
 
 	@Override
 	public boolean isDeadlockMonitorEnable() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -300,7 +300,7 @@ public class ProfilerConfigIT implements ProfilerConfig {
 
 	@Override
 	public boolean isPropagateInterceptorException() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -310,12 +310,12 @@ public class ProfilerConfigIT implements ProfilerConfig {
 
 	@Override
 	public boolean isSupportLambdaExpressions() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isInstrumentMatcherEnable() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -325,7 +325,7 @@ public class ProfilerConfigIT implements ProfilerConfig {
 
 	@Override
 	public boolean isProxyHttpHeaderEnable() {
-		return false;
+		return true;
 	}
 
 	@Override

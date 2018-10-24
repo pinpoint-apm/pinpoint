@@ -32,12 +32,18 @@ import java.lang.reflect.Method;
 public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBaseOperationInterceptor {
     private boolean recordResult = false;
     private boolean recordArgs = false;
+    private boolean recordDsl = false;
+    private boolean recordResponseHandler = false;
+    private boolean recordESVersion = false;
     private Method getClusterVersionInfo;
 
     public ElasticsearchExecutorOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
         recordResult = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordResult",false);
         recordArgs = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordArgs",true);
+        recordDsl =  this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordDsl",true);
+        recordResponseHandler =  this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordResponseHandlerClass",false);
+        recordESVersion = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordESVersion",true);
     }
 
     @Override
@@ -86,7 +92,8 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
         String elasticsearchClusterVersionInfo = getClusterVersionInfo( target);
         recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH_EXECUTOR);
 		recorder.recordApi(getMethodDescriptor());
-        recorder.recordAttribute(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY,elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
+        if(recordESVersion)
+            recorder.recordAttribute(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY,elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
 //        recorder.recordApiCachedString(getMethodDescriptor(),elasticsearchClusterVersionInfo,0);
         recorder.recordException(throwable);
         if (recordArgs && args != null && args.length > 0) {
@@ -108,35 +115,43 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            if(recordDsl)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
+            if(recordResponseHandler)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 //                recorder.recordDestinationId(String.valueOf(args[0]));
         }
         else if(methodDescriptor.getMethodName().equals("executeHttp")) {
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            if(recordDsl)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
+            if(recordResponseHandler)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 //                recorder.recordDestinationId(String.valueOf(args[0]));
         }
         else if(methodDescriptor.getMethodName().equals("executeSimpleRequest")) {
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            if(recordDsl)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
+            if(recordResponseHandler)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 
         }
         else if(methodDescriptor.getMethodName().equals("executeRequest")) {
 //            recorder.recordApi(getMethodDescriptor());
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            if(recordDsl)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2] );
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
+            if(recordResponseHandler)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 
         }
     }
@@ -146,34 +161,42 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
+            if(recordDsl)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            if(recordResponseHandler)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 //                recorder.recordDestinationId(String.valueOf(args[0]));
         }
         else if(methodDescriptor.getMethodName().equals("executeHttp")) {
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            if(recordDsl)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
+            if(recordResponseHandler)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 //                recorder.recordDestinationId(String.valueOf(args[0]));
         }
         else if(methodDescriptor.getMethodName().equals("executeSimpleRequest")) {
 //            recorder.recordApi(getMethodDescriptor());
             //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            if(recordDsl)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
+            if(recordResponseHandler)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 
         }
         else if(methodDescriptor.getMethodName().equals("executeRequest")) {
 //            recorder.recordApi(getMethodDescriptor());
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            if(recordDsl)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2] );
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
+            if(recordResponseHandler)
+                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 
         }
     }
@@ -182,7 +205,8 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
         recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH_EXECUTOR);
 		recorder.recordApi(getMethodDescriptor());
         String elasticsearchClusterVersionInfo = getClusterVersionInfo( target);
-        recorder.recordAttribute(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY,elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
+        if(recordESVersion)
+            recorder.recordAttribute(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY,elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
         recorder.recordException(throwable);
 
 //        recorder.recordApiCachedString(getMethodDescriptor(),elasticsearchClusterVersionInfo,0);
