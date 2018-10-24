@@ -341,8 +341,20 @@ interface IServerErrorFormat {
         message: string;
     }
 }
-
 interface IServerErrorShortFormat {
     errorCode: string;
     errorMessage: string;
+}
+interface ISystemConfiguration {
+    editUserInfo: boolean;
+    enableServerMapRealTime: boolean;
+    openSource: boolean;
+    sendUsage: boolean;
+    showActiveThread: boolean;
+    showActiveThreadDump: boolean;
+    showApplicationStat: boolean;
+    version: string;
+    userId?: string;
+    userName?: string;
+    userDepartment?: string;
 }
