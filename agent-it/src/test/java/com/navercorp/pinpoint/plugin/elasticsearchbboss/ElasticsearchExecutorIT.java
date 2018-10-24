@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
  * @author yinbp[yin-bp@163.com]
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"com.bbossgroups.plugins:bboss-elasticsearch-rest-jdbc:5.0.9.9"})
+@Dependency({"com.bbossgroups.plugins:bboss-elasticsearch-rest-jdbc:5.1.5"})
 public class ElasticsearchExecutorIT {
 	@Test
 	public void test(){
