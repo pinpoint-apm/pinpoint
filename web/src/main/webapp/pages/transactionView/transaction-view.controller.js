@@ -32,9 +32,11 @@
 	         * initialize
 	         */
 	        $timeout(function () {
-	            if ($routeParams.agentId && $routeParams.traceId && $routeParams.focusTimestamp) {
+//	            if ($routeParams.agentId && $routeParams.traceId && $routeParams.focusTimestamp) {
+                if ($routeParams.traceId) {
 	                oProgressBarService.startLoading();
 	                oProgressBarService.setLoading(30);
+	                var agentId, focusTimestamp;
 	                TransactionDaoService.getTransactionDetail($routeParams.agentId, $routeParams.spanId, $routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
 	                    if (err || result.exception ) {
                             oProgressBarService.stopLoading();
@@ -48,6 +50,10 @@
 	                    parseTransactionDetail(result);
 	                    showCallStacks();
 	                    showServerMap();
+
+	                    agentId = result.agentId;
+                        focusTimestamp = result.callStackStart;
+
 	                    $timeout(function () {
 	                        oProgressBarService.setLoading(100);
 	                        oProgressBarService.stopLoading();
@@ -71,8 +77,9 @@
 	                            center__maskContents: true // IMPORTANT - enable iframe masking
 	                        });
 	                    }, 100);
+	                    showHeapChart(agentId, focusTimestamp);
 	                });
-	                showHeapChart($routeParams.agentId, $routeParams.focusTimestamp);
+	                //showHeapChart($routeParams.agentId, $routeParams.focusTimestamp);
 	            }
 	        }, 500);
 	

@@ -47,6 +47,9 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     }).when('/transactionView/:agentId/:traceId/:focusTimestamp/:spanId', {
         templateUrl: 'pages/transactionView/transactionView.html',
         controller: 'TransactionViewCtrl'
+    }).when('/transactionView/:traceId', {
+        templateUrl: 'pages/transactionView/transactionView.html',
+        controller: 'TransactionViewCtrl'
     }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime/:agentList', {
         templateUrl: 'pages/scatterFullScreenMode/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'

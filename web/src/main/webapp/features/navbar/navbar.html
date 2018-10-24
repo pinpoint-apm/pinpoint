@@ -54,7 +54,7 @@
 					<li class="divider-vertical"></li>
                     <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
-                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:342px;float:left;">
+                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:350px;float:left;">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
 								<button type="button" class="btn btn-default" ng-click="setRealtime()" ng-hide="bIsInspector" ng-disabled="periodDelay" ng-class="isRealtime() ? 'btn-info' : ''" style="padding-top:3px;padding-bottom:3px;line-height:1.1;font-size:10px">REAL<br/>TIME</button>
                                 <button type="button" class="btn btn-default" ng-repeat="period in aReadablePeriodList" ng-class="getPeriodClass( period )" ng-click="setPeriod(period)" ng-disabled="periodDelay">{{period == "5m" ? "Last " + period : period}}</button>
@@ -73,6 +73,11 @@
                                         <a href ng-click="setAutoUpdateTime(t.time)">{{t.label}}</a>
                                     </li>
                                 </ul>
+                            </div>
+                            <div class="servermap-status" style="float:left;margin-left:5px;height:30px;">
+                                <input type="text" class="" ng-model="searchValue" placeholder="Enter traceId" style="display:inline-block;width:260px;padding:2px;"/>
+                                <button class="btn btn-info" style="margin-left:1px;margin-top:-4px" ng-click="searchTraceId()"><span class="glyphicon glyphicon-search"></span></button>
+
                             </div>
                         </div>
                         <div ng-show="periodType == 'range'" class="datetimepicker input-group input-group-sm date" style="width:420px">

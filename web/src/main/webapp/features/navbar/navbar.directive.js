@@ -526,7 +526,12 @@
 							$fromToCalendarPopup.show();
 						}
 	                };
-	
+	                /**
+                    * search by traceId
+                    */
+	                scope.searchTraceId = function () {
+    	                $window.open("//" + location.host + '/#/transactionView/' + scope.searchValue);
+    	            };
 	                /**
 	                 * set period
 	                 * @param readablePeriod
