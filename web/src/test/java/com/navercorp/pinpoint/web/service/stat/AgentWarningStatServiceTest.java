@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
@@ -54,7 +54,7 @@ public class AgentWarningStatServiceTest {
     public void selectTest1() throws Exception {
         Range range = new Range(CURRENT_TIME - TIME, CURRENT_TIME);
 
-        List<DeadlockBo> mockData = createMockData(10, 5000);
+        List<DeadlockThreadCountBo> mockData = createMockData(10, 5000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
         List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("pinpoint", range);
         Assert.assertTrue(timelineSegmentList.size() == 1);
@@ -64,26 +64,26 @@ public class AgentWarningStatServiceTest {
     public void selectTest2() throws Exception {
         Range range = new Range(CURRENT_TIME - TIME, CURRENT_TIME);
 
-        List<DeadlockBo> mockData = createMockData(10, 70000);
+        List<DeadlockThreadCountBo> mockData = createMockData(10, 70000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
         List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("pinpoint", range);
         Assert.assertTrue(timelineSegmentList.size() == 10);
     }
 
-    private List<DeadlockBo> createMockData(int mockSize, long interval) {
+    private List<DeadlockThreadCountBo> createMockData(int mockSize, long interval) {
         long timestamp = ThreadLocalRandom.current().nextLong(START_TIME, CURRENT_TIME);
 
-        List<DeadlockBo> deadlockBoList = new ArrayList<>(mockSize);
+        List<DeadlockThreadCountBo> deadlockThreadCountBoList = new ArrayList<>(mockSize);
         for (int i = 0; i < mockSize; i++) {
-            DeadlockBo deadlockBo = new DeadlockBo();
-            deadlockBo.setAgentId("pinpoint");
-            deadlockBo.setStartTimestamp(START_TIME);
-            deadlockBo.setTimestamp(timestamp + (i * interval));
+            DeadlockThreadCountBo deadlockThreadCountBo = new DeadlockThreadCountBo();
+            deadlockThreadCountBo.setAgentId("pinpoint");
+            deadlockThreadCountBo.setStartTimestamp(START_TIME);
+            deadlockThreadCountBo.setTimestamp(timestamp + (i * interval));
 
-            deadlockBoList.add(deadlockBo);
+            deadlockThreadCountBoList.add(deadlockThreadCountBo);
         }
 
-        return deadlockBoList;
+        return deadlockThreadCountBoList;
     }
 
 }

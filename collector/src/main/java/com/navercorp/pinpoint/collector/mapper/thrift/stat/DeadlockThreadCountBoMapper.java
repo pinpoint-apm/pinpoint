@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import org.springframework.stereotype.Component;
 
@@ -25,14 +25,13 @@ import org.springframework.stereotype.Component;
  * @author Taejin Koo
  */
 @Component
-public class DeadlockBoMapper implements ThriftBoMapper<DeadlockBo, TDeadlock> {
+public class DeadlockThreadCountBoMapper implements ThriftBoMapper<DeadlockThreadCountBo, TDeadlock> {
 
     @Override
-    public DeadlockBo map(TDeadlock tDeadlock) {
-        DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(tDeadlock.getDeadlockedThreadCount());
-        deadlockBo.setThreadDumpList(tDeadlock.getDeadlockedThreadList());
-        return deadlockBo;
+    public DeadlockThreadCountBo map(TDeadlock tDeadlock) {
+        DeadlockThreadCountBo deadlockThreadCountBo = new DeadlockThreadCountBo();
+        deadlockThreadCountBo.setDeadlockedThreadCount(tDeadlock.getDeadlockedThreadCount());
+        return deadlockThreadCountBo;
     }
 
 }

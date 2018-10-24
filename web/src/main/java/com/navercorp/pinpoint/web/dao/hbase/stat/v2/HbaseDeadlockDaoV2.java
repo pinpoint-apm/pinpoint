@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.DeadlockDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -40,14 +40,14 @@ public class HbaseDeadlockDaoV2 implements DeadlockDao {
     private HbaseAgentStatDaoOperationsV2 operations;
 
     @Override
-    public List<DeadlockBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<DeadlockBo> mapper = operations.createRowMapper(deadlockDecoder, range);
+    public List<DeadlockThreadCountBo> getAgentStatList(String agentId, Range range) {
+        AgentStatMapperV2<DeadlockThreadCountBo> mapper = operations.createRowMapper(deadlockDecoder, range);
         return operations.getAgentStatList(AgentStatType.DEADLOCK, mapper, agentId, range);
     }
 
     @Override
     public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<DeadlockBo> mapper = operations.createRowMapper(deadlockDecoder, range);
+        AgentStatMapperV2<DeadlockThreadCountBo> mapper = operations.createRowMapper(deadlockDecoder, range);
         return operations.agentStatExists(AgentStatType.DEADLOCK, mapper, agentId, range);
     }
 

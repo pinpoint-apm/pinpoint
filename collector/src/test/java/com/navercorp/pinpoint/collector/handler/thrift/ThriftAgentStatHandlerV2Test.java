@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -88,7 +88,7 @@ public class ThriftAgentStatHandlerV2Test {
     private AgentStatDaoV2<ResponseTimeBo> responseTimeDao;
 
     @Mock
-    private AgentStatDaoV2<DeadlockBo> deadlockDao;
+    private AgentStatDaoV2<DeadlockThreadCountBo> deadlockDao;
 
     @Mock
     private AgentStatDaoV2<FileDescriptorBo> fileDescriptorDao;
@@ -129,7 +129,7 @@ public class ThriftAgentStatHandlerV2Test {
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
-        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
+        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockThreadCountBos());
         verify(fileDescriptorDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getFileDescriptorBos());
         verify(directBufferDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDirectBufferBos());
 
@@ -154,7 +154,7 @@ public class ThriftAgentStatHandlerV2Test {
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
-        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
+        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockThreadCountBos());
         verify(fileDescriptorDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getFileDescriptorBos());
         verify(directBufferDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDirectBufferBos());
     }

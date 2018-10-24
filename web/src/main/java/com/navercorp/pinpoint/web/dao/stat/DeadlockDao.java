@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.dao.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 
 /**
  * @author Taejin Koo
  */
-public interface DeadlockDao extends AgentStatDao<DeadlockBo> {
+public interface DeadlockDao extends AgentStatDao<DeadlockThreadCountBo> {
 }

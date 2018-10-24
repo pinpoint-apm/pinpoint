@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 public class AgentEventMapper implements ThriftBoMapper<AgentEventBo, TAgentStat> {
 
     @Autowired
-    DeadlockEventBoMapper deadlockEventBoMapper;
+    private DeadlockEventBoMapper deadlockEventBoMapper;
 
     @Override
     public AgentEventBo map(TAgentStat tAgentStat) {

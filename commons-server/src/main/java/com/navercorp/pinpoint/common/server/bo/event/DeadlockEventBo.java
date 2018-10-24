@@ -17,60 +17,29 @@
 package com.navercorp.pinpoint.common.server.bo.event;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 
 /**
  * @author Taejin Koo
+ * @author jaehong.kim - Replace TDeadlock to DeadlockBo
  */
 public class DeadlockEventBo extends AgentEventBo {
 
-    private final TDeadlock deadlock;
+    private final DeadlockBo deadlockBo;
 
-    public DeadlockEventBo(String agentId, long startTimestamp, long eventTimestamp, AgentEventType eventType, TDeadlock deadlock) {
+    public DeadlockEventBo(String agentId, long startTimestamp, long eventTimestamp, AgentEventType eventType, DeadlockBo deadlockBo) {
         super(agentId, startTimestamp, eventTimestamp, eventType);
-        this.deadlock = deadlock;
+        this.deadlockBo = deadlockBo;
     }
 
-    public TDeadlock getDeadlock() {
-        return deadlock;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        DeadlockEventBo that = (DeadlockEventBo) o;
-
-        return deadlock != null ? deadlock.equals(that.deadlock) : that.deadlock == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((getAgentId() == null) ? 0 : getAgentId().hashCode());
-        result = prime * result + (int)(getEventTimestamp() ^ (getEventTimestamp() >>> 32));
-        result = prime * result + ((getEventType() == null) ? 0 : getEventType().hashCode());
-        result = prime * result + (int)(getStartTimestamp() ^ (getStartTimestamp() >>> 32));
-        result = prime * result + getVersion();
-        result = prime * result + (deadlock != null ? deadlock.hashCode() : 0);
-        return result;
+    public DeadlockBo getDeadlockBo() {
+        return deadlockBo;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentEventBo{");
-        sb.append("version=").append(this.getVersion());
-        sb.append(", agentId='").append(this.getAgentId()).append('\'');
-        sb.append(", startTimestamp=").append(this.getStartTimestamp());
-        sb.append(", eventTimestamp=").append(this.getEventTimestamp());
-        sb.append(", eventType='").append(this.getEventType().getDesc()).append('\'');
-        sb.append(", deadlock=").append(deadlock).append('\'');
+        final StringBuilder sb = new StringBuilder("DeadlockEventBo{");
+        sb.append("deadlockBo=").append(deadlockBo);
         sb.append('}');
         return sb.toString();
     }
-
 }
