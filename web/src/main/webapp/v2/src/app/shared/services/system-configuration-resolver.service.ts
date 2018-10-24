@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router, Resolve, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, EMPTY } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { SystemConfigurationDataService, ISystemConfiguration } from './system-configuration-data.service';
+import { SystemConfigurationDataService } from './system-configuration-data.service';
 
 @Injectable()
 export class SystemConfigurationResolverService implements Resolve<ISystemConfiguration> {
