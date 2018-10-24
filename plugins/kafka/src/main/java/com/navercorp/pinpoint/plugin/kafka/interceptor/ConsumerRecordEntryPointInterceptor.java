@@ -360,7 +360,7 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
                     return true;
                 }
 
-                String sampledFlag = new String(sampledHeader.value());
+                String sampledFlag = new String(sampledHeader.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                 return SamplingFlagUtils.isSamplingFlag(sampledFlag);
             }
 
@@ -371,13 +371,13 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
                 String flags = null;
                 for (org.apache.kafka.common.header.Header header : headers.toArray()) {
                     if (header.key().equals(Header.HTTP_TRACE_ID.toString())) {
-                        transactionId = new String(header.value());
+                        transactionId = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                     } else if (header.key().equals(Header.HTTP_PARENT_SPAN_ID.toString())) {
-                        parentSpanID = new String(header.value());
+                        parentSpanID = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                     } else if (header.key().equals(Header.HTTP_SPAN_ID.toString())) {
-                        spanID = new String(header.value());
+                        spanID = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                     } else if (header.key().equals(Header.HTTP_FLAGS.toString())) {
-                        flags = new String(header.value());
+                        flags = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                     }
                 }
 
@@ -402,9 +402,9 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
                 org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
                 for (org.apache.kafka.common.header.Header header : headers.toArray()) {
                     if (header.key().equals(Header.HTTP_PARENT_APPLICATION_NAME.toString())) {
-                        parentApplicationName = new String(header.value());
+                        parentApplicationName = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                     } else if (header.key().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
-                        parentApplicationType = new String(header.value());
+                        parentApplicationType = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                     }
                 }
 

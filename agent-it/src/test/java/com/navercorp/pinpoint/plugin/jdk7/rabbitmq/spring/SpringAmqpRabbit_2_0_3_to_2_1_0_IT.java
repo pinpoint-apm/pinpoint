@@ -59,9 +59,9 @@ import java.lang.reflect.Method;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
-@Dependency({"org.springframework.amqp:spring-rabbit:[2.0.3.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
+@Dependency({"org.springframework.amqp:spring-rabbit:[2.0.3.RELEASE,2.1.0.RELEASE)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
-public class SpringAmqpRabbit_2_0_3_to_2_x_IT {
+public class SpringAmqpRabbit_2_0_3_to_2_1_0_IT {
 
     private static final TestBroker BROKER = new TestBroker();
     private static final TestApplicationContext CONTEXT = new TestApplicationContext();

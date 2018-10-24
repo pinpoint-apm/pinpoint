@@ -8,13 +8,14 @@ import {
     NewUrlStateNotificationService,
     UrlRouteManagerService,
     AgentHistogramDataService,
+    DynamicPopupService,
     AnalyticsService,
     TRACKED_EVENT_LIST
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
-
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Component({
     selector: 'pp-info-per-server-container',
@@ -60,6 +61,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private agentHistogramDataService: AgentHistogramDataService,
+        private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
     ) {}
     ngOnInit() {
@@ -94,6 +96,16 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                         this.storeHelperService.dispatch(new Actions.UpdateServerList(this.agentHistogramData));
                         this.onSelectAgent(this.getFirstAgent());
                         this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(true));
+                    }, (error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent
+                        });
+                        this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(false));
+                        this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(false));
                     });
                 } else {
                     this.hide();

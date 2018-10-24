@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
+
+import java.nio.charset.Charset;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
@@ -49,5 +52,7 @@ public class KafkaConstants {
     public static final String CONSUMER_RECORD_CLASS_NAME = "org.apache.kafka.clients.consumer.ConsumerRecord";
 
     public static final String UNKNOWN = "Unknown";
+
+    public static final Charset DEFAULT_PINPOINT_HEADER_CHARSET = Charsets.UTF_8;
 
 }

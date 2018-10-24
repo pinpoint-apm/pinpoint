@@ -1,0 +1,17 @@
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-title">API Check</div>
+</header>
+<section>
+    <div class="l-api-check">
+        <button *ngIf="hasError()" class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-redo"></i></button>
+        <button *ngIf="!hasError()" class="btn btn-sm btn-blue" (click)="onMoveBack()"><i class="fas fa-chevron-left"></i></button>
+    
+        <div class="l-apis" *ngFor="let stateName of stateList">
+            <div class="l-api">
+                <i [ngClass]="getStateClass(stateName)"></i> {{getUrl(stateName)}}
+            </div>
+            <div class="l-error" *ngIf="showErrorMessage(stateName)">{{getErrorMessage(stateName)}}</div>
+        </div>
+    </div>
+</section>

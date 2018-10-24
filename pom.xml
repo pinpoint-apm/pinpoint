@@ -97,13 +97,19 @@
         <!-- library -->
         <slf4j.version>1.7.21</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
-        <fastxml.jackson.version>2.6.7</fastxml.jackson.version>
-        <httpcomponents.version>4.3</httpcomponents.version>
+
+        <!-- jdk 6 compatibility version -->
+        <fastxml.jackson-jdk6.version>2.6.6</fastxml.jackson-jdk6.version>
+        <fastxml.jackson.version>2.9.7</fastxml.jackson.version>
+
+        <httpcomponents.version>4.5.6</httpcomponents.version>
+        <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
         <spring.version>4.3.20.RELEASE</spring.version>
         <spring.batch.version>3.0.9.RELEASE</spring.batch.version>
         <spring.security.version>4.2.8.RELEASE</spring.security.version>
         <asm.version>6.2.1</asm.version>
         <thrift.version>0.11.0</thrift.version>
+        <ehcache.version>2.6.11</ehcache.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.0</plugin.compiler.version>
@@ -118,7 +124,7 @@
         <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
         <plugin.clover.version>4.2.1</plugin.clover.version>
         <plugin.spotbugs.version>3.1.7</plugin.spotbugs.version>
-        <plugin.pmd.version>3.10.0</plugin.pmd.version>
+        <plugin.pmd.version>3.9.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
         <plugin.animal-sniffer.version>1.16</plugin.animal-sniffer.version>
@@ -387,7 +393,7 @@
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-shaded-client</artifactId>
-                <version>1.2.6.1</version>
+                <version>1.2.7</version>
             </dependency>
 
             <dependency>
@@ -439,9 +445,6 @@
                 <version>5.1.45</version>
             </dependency>
 
-
-
-
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty</artifactId>
@@ -457,12 +460,7 @@
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
-                <version>2.6.9</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>1.6.2</version>
+                <version>${ehcache.version}</version>
             </dependency>
 
             <dependency>
@@ -473,7 +471,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>${httpcomponents.version}</version>
+                <version>${httpcomponents-core.version}</version>
             </dependency>
 
 
@@ -531,12 +529,12 @@
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.22.0-GA</version>
+                <version>3.23.1-GA</version>
             </dependency>
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>
-                <version>2.2</version>
+                <version>3.2.8</version>
             </dependency>
 
             <dependency>
@@ -568,7 +566,7 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.8.10</version>
+                <version>1.9.1</version>
             </dependency>
 
 

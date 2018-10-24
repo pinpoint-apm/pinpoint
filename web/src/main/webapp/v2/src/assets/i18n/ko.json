@@ -1,6 +1,7 @@
 {
     "COMMON": {
         "NO_DATA": "데이터가 없습니다.",
+        "FAILED_TO_FETCH_DATA": "데이터를 가져오지 못했습니다.",
         "NO_AGENTS": "실행 중인 에이전트가 없습니다.",
         "MIN_LENGTH": "!{0}문자 이상 입력하세요.",
         "REQUIRED": "!{0}를(을) 입력하세요.",
@@ -17,7 +18,6 @@
         "EMPTY_RESULT": "찾을 수 없습니다."
     },
     "INSPECTOR": {
-        "FAILED_TO_FETCH_DATA": "데이터를 가져오지 못했습니다.",
         "NO_DATA_COLLECTED": "데이터가 없습니다.",
         "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector 기능이 활성화 되어 있지 않습니다.<br> Application Inspector 기능을 사용하려면,}|[LINK]:{href=https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md\\target=_blank\\style=color:#428bca\\linkText=링크}|[TEXT]:{value=를 참고하세요.}",
         "APPLICAITION_NAME_ISSUE": {
