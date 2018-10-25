@@ -170,13 +170,13 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
         this.unsubscribe.complete();
     }
     hideNoData(): boolean {
-        if (this.dataLoaded === false) {
+        if (this.dataLoaded === true) {
             return true;
         }
         if (this.mode === ScatterChart.MODE.REALTIME) {
             return true;
         }
-        return !this.scatterChartInstance.isEmpty();
+        return this.scatterChartInstance && !this.scatterChartInstance.isEmpty();
     }
     getMessage(): string {
         return this.hasError ? this.i18nText.FAILED_TO_FETCH_DATA : this.i18nText.NO_DATA;
