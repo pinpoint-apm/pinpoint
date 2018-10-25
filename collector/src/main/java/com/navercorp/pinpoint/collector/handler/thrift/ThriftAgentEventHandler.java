@@ -24,10 +24,11 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
+import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,32 +59,33 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase<?, ?>) {
-            handleSimple((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Received AgentEvent={}", data);
+        }
+
+        if (data instanceof TAgentStat) {
+            handleAgentStat((TAgentStat) data);
+        } else if (data instanceof TAgentStatBatch) {
+            handleAgentStatBatch((TAgentStatBatch) data);
+        } else if (data instanceof PAgentStat) {
+            handleAgentStat((PAgentStat) data);
+        } else if (data instanceof PAgentStatBatch) {
+            handleAgentStatBatch((PAgentStatBatch) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
     }
 
-    private void handleSimple(TBase<?, ?> tBase) {
-        // FIXME (2014.08) Legacy - TAgentStat should not be sent over the wire.
-        if (tBase instanceof TAgentStat) {
-            final TAgentStat tAgentStat = (TAgentStat) tBase;
-            this.handleAgentStat(tAgentStat);
-        } else if (tBase instanceof TAgentStatBatch) {
-            final TAgentStatBatch tAgentStatBatch = (TAgentStatBatch) tBase;
-            this.handleAgentStatBatch(tAgentStatBatch);
-        } else {
-            throw new IllegalArgumentException("unexpected tbase:" + tBase + " expected:" + TAgentStat.class.getName() + " or " + TAgentStatBatch.class.getName());
+    private void handleAgentStat(TAgentStat agentStat) {
+        final AgentEventBo agentEventBo = this.agentEventMapper.map(agentStat);
+        if (agentEventBo == null) {
+            return;
         }
+        insert(agentEventBo);
     }
 
-    private void handleAgentStat(TAgentStat tAgentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received TAgentStat={}", tAgentStat);
-        }
-
-        final AgentEventBo agentEventBo = this.agentEventMapper.map(tAgentStat);
+    private void handleAgentStat(PAgentStat agentStat) {
+        final AgentEventBo agentEventBo = this.agentEventMapper.map(agentStat);
         if (agentEventBo == null) {
             return;
         }
@@ -91,11 +93,18 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     }
 
     private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received TAgentStatBatch={}", tAgentStatBatch);
+        final List<AgentEventBo> agentEventBoList = this.agentEventBatchMapper.map(tAgentStatBatch);
+        if (CollectionUtils.isEmpty(agentEventBoList)) {
+            return;
         }
 
-        final List<AgentEventBo> agentEventBoList = this.agentEventBatchMapper.map(tAgentStatBatch);
+        for (AgentEventBo agentEventBo : agentEventBoList) {
+            insert(agentEventBo);
+        }
+    }
+
+    private void handleAgentStatBatch(PAgentStatBatch agentStatBatch) {
+        final List<AgentEventBo> agentEventBoList = this.agentEventBatchMapper.map(agentStatBatch);
         if (CollectionUtils.isEmpty(agentEventBoList)) {
             return;
         }

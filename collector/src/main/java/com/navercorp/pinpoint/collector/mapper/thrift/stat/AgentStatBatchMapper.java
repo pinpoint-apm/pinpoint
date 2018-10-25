@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
@@ -44,7 +45,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentStatBatch> {
+public class AgentStatBatchMapper {
 
     @Autowired
     private JvmGcBoMapper jvmGcBoMapper;
@@ -76,7 +77,6 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
     @Autowired
     private DirectBufferBoMapper directBufferBoMapper;
 
-    @Override
     public AgentStatBo map(TAgentStatBatch tAgentStatBatch) {
         if (!tAgentStatBatch.isSetAgentStats()) {
             return null;
@@ -195,10 +195,13 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         return agentStatBo;
     }
 
+    public AgentStatBo map(PAgentStatBatch tAgentStatBatch) {
+        return null;
+    }
+
     private void setBaseData(AgentStatDataPoint agentStatDataPoint, String agentId, long startTimestamp, long timestamp) {
         agentStatDataPoint.setAgentId(agentId);
         agentStatDataPoint.setStartTimestamp(startTimestamp);
         agentStatDataPoint.setTimestamp(timestamp);
     }
-
 }

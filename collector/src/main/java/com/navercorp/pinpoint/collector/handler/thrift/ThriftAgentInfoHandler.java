@@ -18,9 +18,10 @@ package com.navercorp.pinpoint.collector.handler.thrift;
 
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.AgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
@@ -29,7 +30,6 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -45,14 +45,19 @@ public class ThriftAgentInfoHandler implements SimpleHandler, RequestResponseHan
     private AgentInfoService agentInfoService;
 
     @Autowired
-    @Qualifier("agentInfoBoMapper")
-    private ThriftBoMapper<AgentInfoBo, TAgentInfo> agentInfoBoMapper;
+    private AgentInfoBoMapper agentInfoBoMapper;
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase<?, ?>) {
-            handleRequest((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle simple AgentInfo={}", data);
+        }
+
+        if (data instanceof TAgentInfo) {
+            handleAgentInfo((TAgentInfo) data);
+        } else if (data instanceof PAgentInfo) {
+            handleAgentInfo((PAgentInfo) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
@@ -62,25 +67,37 @@ public class ThriftAgentInfoHandler implements SimpleHandler, RequestResponseHan
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase<?, ?>) {
-            final TBase<?, ?> tBase = handleRequest((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle request AgentInfo={}", data);
+        }
+
+        if (data instanceof TAgentInfo) {
+            final TBase<?, ?> tBase = handleAgentInfo((TAgentInfo) data);
+            serverResponse.write(tBase);
+        } else if (data instanceof PAgentInfo) {
+            final TBase<?, ?> tBase = handleAgentInfo((PAgentInfo) data);
             serverResponse.write(tBase);
         } else {
             logger.warn("invalid serverRequest:{}", serverRequest);
         }
     }
 
-    private TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-        if (!(tbase instanceof TAgentInfo)) {
-            logger.warn("invalid tbase:{}", tbase);
-            // it happens to return null  not only at this BO(Business Object) but also at other BOs.
-            return null;
-        }
-
+    private TResult handleAgentInfo(TAgentInfo agentInfo) {
         try {
-            final TAgentInfo agentInfo = (TAgentInfo) tbase;
-            logger.debug("Received AgentInfo={}", agentInfo);
+            // agent info
+            final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
+            this.agentInfoService.insert(agentInfoBo);
+            return new TResult(true);
+        } catch (Exception e) {
+            logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
+            final TResult result = new TResult(false);
+            result.setMessage(e.getMessage());
+            return result;
+        }
+    }
 
+    private TResult handleAgentInfo(PAgentInfo agentInfo) {
+        try {
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
             this.agentInfoService.insert(agentInfoBo);

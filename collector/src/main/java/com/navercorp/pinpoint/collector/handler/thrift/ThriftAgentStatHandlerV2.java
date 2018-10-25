@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
+import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
@@ -54,8 +56,17 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase<?, ?>) {
-            handleSimple((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Received AgentStat={}", data);
+        }
+
+        if (data instanceof TAgentStat) {
+            handleAgentStat((TAgentStat) data);
+        } else if (data instanceof TAgentStatBatch) {
+            handleAgentStatBatch((TAgentStatBatch) data);
+        } else if(data instanceof PAgentStat) {
+
+        } else if(data instanceof PAgentStatBatch) {
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
@@ -64,7 +75,7 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     void handleSimple(TBase<?, ?> tBase) {
         // FIXME (2014.08) Legacy - TAgentStat should not be sent over the wire.
         if (tBase instanceof TAgentStat) {
-            TAgentStat tAgentStat = (TAgentStat)tBase;
+            TAgentStat tAgentStat = (TAgentStat) tBase;
             this.handleAgentStat(tAgentStat);
         } else if (tBase instanceof TAgentStatBatch) {
             TAgentStatBatch tAgentStatBatch = (TAgentStatBatch) tBase;
@@ -75,10 +86,6 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     }
 
     private void handleAgentStat(TAgentStat tAgentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received TAgentStat={}", tAgentStat);
-        }
-
         final AgentStatBo agentStatBo = this.agentStatMapper.map(tAgentStat);
         if (agentStatBo == null) {
             return;
@@ -89,11 +96,29 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
         }
     }
 
-    private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received TAgentStatBatch={}", tAgentStatBatch);
+    private void handleAgentStat(PAgentStat agentStat) {
+        final AgentStatBo agentStatBo = this.agentStatMapper.map(agentStat);
+        if (agentStatBo == null) {
+            return;
         }
 
+        for (AgentStatService agentStatService : agentStatServiceList) {
+            agentStatService.save(agentStatBo);
+        }
+    }
+
+    private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
+        final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
+        if (agentStatBo == null) {
+            return;
+        }
+
+        for (AgentStatService agentStatService : agentStatServiceList) {
+            agentStatService.save(agentStatBo);
+        }
+    }
+
+    private void handleAgentStatBatch(PAgentStatBatch tAgentStatBatch) {
         final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
         if (agentStatBo == null) {
             return;

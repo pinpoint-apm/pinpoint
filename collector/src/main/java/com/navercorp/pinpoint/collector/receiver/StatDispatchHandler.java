@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.thrift;
+package com.navercorp.pinpoint.collector.receiver;
 
+import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentEventHandler;
+import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentStatHandlerV2;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftSpanChunkHandler;
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftSpanHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleDualHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
@@ -27,26 +29,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author emeroad
+ * @author hyungil.jeong
  */
-public class SpanDispatchHandler implements DispatchHandler {
+public class StatDispatchHandler implements DispatchHandler {
 
-    @Autowired()
-    private ThriftSpanHandler spanDataHandler;
+    @Autowired
+    private ThriftAgentStatHandlerV2 thriftAgentStatHandler;
 
-    @Autowired()
-    private ThriftSpanChunkHandler thriftSpanChunkHandler;
+    @Autowired
+    private ThriftAgentEventHandler thriftAgentEventHandler;
 
-    public SpanDispatchHandler() {
+
+    public StatDispatchHandler() {
+
     }
 
-
     private SimpleHandler getSimpleHandler(Header header) {
+        // To change below code to switch table make it a little bit faster.
+        // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         final short type = header.getType();
-        if (type == DefaultTBaseLocator.SPAN) {
-            return spanDataHandler;
-        }
-        if (type == DefaultTBaseLocator.SPANCHUNK) {
-            return thriftSpanChunkHandler;
+        if (type == DefaultTBaseLocator.AGENT_STAT || type == DefaultTBaseLocator.AGENT_STAT_BATCH) {
+            return new SimpleDualHandler(thriftAgentStatHandler, thriftAgentEventHandler);
         }
 
         throw new UnsupportedOperationException("unsupported header:" + header);
@@ -58,9 +61,10 @@ public class SpanDispatchHandler implements DispatchHandler {
         simpleHandler.handleSimple(serverRequest);
     }
 
-
     @Override
     public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
 
     }
+
+
 }

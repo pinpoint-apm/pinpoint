@@ -27,6 +27,9 @@ import java.util.Properties;
 public final class AgentBaseDataReceiverConfiguration {
 
     private static final String PREFIX = "collector.receiver.base";
+    private static final String GRPC_PREFIX = "collector.receiver.grpc";
+    private static final String GRPC_BIND_IP = GRPC_PREFIX + ".ip";
+    private static final String GRPC_BIND_PORT = GRPC_PREFIX + ".port";
 
     private static final String BIND_IP = PREFIX + ".ip";
     private final String bindIp;
@@ -40,6 +43,10 @@ public final class AgentBaseDataReceiverConfiguration {
 
     private static final String WORKER_MONITOR_ENABLE = PREFIX + ".worker.monitor";
     private final boolean workerMonitorEnable;
+
+    private final boolean grpcEnable;
+    private final String grpcBindIp;
+    private final int grpcBindPort;
 
     public AgentBaseDataReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
         Objects.requireNonNull(properties, "properties must not be null");
@@ -58,6 +65,12 @@ public final class AgentBaseDataReceiverConfiguration {
         Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
 
         this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, deprecatedConfiguration);
+
+        this.grpcEnable = getGrpcEnable(properties, false);
+        this.grpcBindIp = getGrpcBindIp(properties, CollectorConfiguration.DEFAULT_LISTEN_IP);
+        Objects.requireNonNull(grpcBindIp);
+        this.grpcBindPort = getGrpcBindPort(properties, 9997);
+        Assert.isTrue(grpcBindPort > 0, "grpcBindPort must be greater than 0");
     }
 
     private String getBindIp(Properties properties, DeprecatedConfiguration deprecatedConfiguration, String defaultValue) {
@@ -81,6 +94,27 @@ public final class AgentBaseDataReceiverConfiguration {
             return deprecatedConfiguration.getTcpListenPort();
         }
 
+        return defaultValue;
+    }
+
+    private boolean getGrpcEnable(Properties properties, boolean defaultValue) {
+        if (properties.containsKey(GRPC_PREFIX)) {
+            return CollectorConfiguration.readBoolean(properties, GRPC_PREFIX);
+        }
+        return defaultValue;
+    }
+
+    private String getGrpcBindIp(Properties properties, String defaultValue) {
+        if (properties.containsKey(GRPC_BIND_IP)) {
+            return CollectorConfiguration.readString(properties, GRPC_BIND_IP, null);
+        }
+        return defaultValue;
+    }
+
+    private int getGrpcBindPort(Properties properties, int defaultValue) {
+        if (properties.containsKey(GRPC_BIND_PORT)) {
+            return CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, -1);
+        }
         return defaultValue;
     }
 
@@ -138,6 +172,18 @@ public final class AgentBaseDataReceiverConfiguration {
 
     public boolean isWorkerMonitorEnable() {
         return workerMonitorEnable;
+    }
+
+    public String getGrpcBindIp() {
+        return grpcBindIp;
+    }
+
+    public int getGrpcBindPort() {
+        return grpcBindPort;
+    }
+
+    public boolean isGrpcEnable() {
+        return grpcEnable;
     }
 
     @Override

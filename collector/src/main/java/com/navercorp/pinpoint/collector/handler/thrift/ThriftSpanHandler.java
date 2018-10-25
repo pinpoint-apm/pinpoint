@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 
+import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,28 +49,34 @@ public class ThriftSpanHandler implements SimpleHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase<?, ?>) {
-            handleSimple((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Received Span={}", data);
+        }
+
+        if (data instanceof TSpan) {
+            handleSpan((TSpan) data);
+        } else if (data instanceof PSpan) {
+            handleSpan((PSpan) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
     }
 
-    private void handleSimple(TBase<?, ?> tbase) {
-        if (!(tbase instanceof TSpan)) {
-            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
-        }
-
+    private void handleSpan(TSpan tSpan) {
         try {
-            final TSpan tSpan = (TSpan) tbase;
-            if (logger.isDebugEnabled()) {
-                logger.debug("Received SPAN={}", tSpan);
-            }
-
             final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
-            logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tbase, e);
+            logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tSpan, e);
+        }
+    }
+
+    private void handleSpan(PSpan tSpan) {
+        try {
+            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
+            traceService.insertSpan(spanBo);
+        } catch (Exception e) {
+            logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tSpan, e);
         }
     }
 }

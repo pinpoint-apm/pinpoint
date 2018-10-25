@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift;
 
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.BaseUDPHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.NetworkAvailabilityCheckPacketFilter;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.PacketHandlerFactory;

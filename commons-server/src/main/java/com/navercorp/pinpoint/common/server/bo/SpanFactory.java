@@ -9,6 +9,8 @@ import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.io.util.AnnotationTranscoder;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -184,6 +187,9 @@ public class SpanFactory {
 //        }
     }
 
+    public SpanBo buildSpanBo(PSpan tSpan) {
+        return null;
+    }
 
 
     public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk) {
@@ -373,5 +379,9 @@ public class SpanFactory {
         annotationBo.setValue(value);
 
         return annotationBo;
+    }
+
+    public SpanChunkBo buildSpanChunkBo(PSpanChunk tSpanChunk) {
+        return null;
     }
 }

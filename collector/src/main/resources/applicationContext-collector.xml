@@ -125,19 +125,19 @@
     </bean>
 
     <!-- DispatchHandler-related Beans -->
-    <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.TcpDispatchHandler"/>
+    <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
     <bean id="tcpDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="tcpDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.StatDispatchHandler"/>
+    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler"/>
     <bean id="statDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="statDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.SpanDispatchHandler"/>
+    <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler"/>
     <bean id="spanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="spanDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
@@ -386,7 +386,34 @@
         <property name="executor" ref="statReceiverExecutor"/>
         <property name="enable" value="#{statReceiverConfig.isTcpEnable()}"/>
     </bean>
+
+    <bean id="grpcAgentReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.AgentServer">
+        <property name="bindIp" value="#{baseDataReceiverConfig.grpcBindIp}"/>
+        <property name="bindPort" value="#{baseDataReceiverConfig.grpcBindPort}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="dispatchHandler" ref="tcpDispatchHandlerFactoryBean"/>
+        <property name="enable" value="#{baseDataReceiverConfig.isGrpcEnable()}"/>
+    </bean>
+
+    <bean id="grpcTraceReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.SpanServer">
+        <property name="bindIp" value="#{spanReceiverConfig.grpcBindIp}"/>
+        <property name="bindPort" value="#{spanReceiverConfig.grpcBindPort}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="dispatchHandler" ref="statDispatchHandlerFactoryBean"/>
+        <property name="enable" value="#{spanReceiverConfig.isGrpcEnable()}"/>
+    </bean>
+
+    <bean id="grpcStatReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.StatServer">
+        <property name="bindIp" value="#{statReceiverConfig.grpcBindIp}"/>
+        <property name="bindPort" value="#{statReceiverConfig.grpcBindPort}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="dispatchHandler" ref="statDispatchHandlerFactoryBean"/>
+        <property name="enable" value="#{statReceiverConfig.isGrpcEnable()}"/>
+    </bean>
+
     <!-- end receiver configuration -->
+
+
 
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>

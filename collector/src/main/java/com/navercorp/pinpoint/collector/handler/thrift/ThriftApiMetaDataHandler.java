@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
+import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
@@ -44,26 +45,22 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase) {
-            TBase<?, ?> tBase = handleRequest((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Received ApiMetaData={}", data);
+        }
+
+        if (data instanceof TApiMetaData) {
+            TBase<?, ?> tBase = handleApiMetaData((TApiMetaData) data);
+            serverResponse.write(tBase);
+        } else if (data instanceof PApiMetaData) {
+            TBase<?, ?> tBase = handleApiMetaData((PApiMetaData) data);
             serverResponse.write(tBase);
         } else {
             logger.warn("invalid serverRequest:{}", serverRequest);
         }
     }
 
-    private TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-        if (!(tbase instanceof TApiMetaData)) {
-            logger.error("invalid tbase:{}", tbase);
-            return null;
-        }
-
-        final TApiMetaData apiMetaData = (TApiMetaData) tbase;
-        // Because api meta data is important , logging it at info level.
-        if (logger.isInfoEnabled()) {
-            logger.info("Received ApiMetaData={}", apiMetaData);
-        }
-
+    private TResult handleApiMetaData(TApiMetaData apiMetaData) {
         try {
             final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getAgentStartTime(), apiMetaData.getApiId());
             apiMetaDataBo.setApiInfo(apiMetaData.getApiInfo());
@@ -82,6 +79,10 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
             result.setMessage(e.getMessage());
             return result;
         }
+        return new TResult(true);
+    }
+
+    private TResult handleApiMetaData(PApiMetaData apiMetaData) {
         return new TResult(true);
     }
 }

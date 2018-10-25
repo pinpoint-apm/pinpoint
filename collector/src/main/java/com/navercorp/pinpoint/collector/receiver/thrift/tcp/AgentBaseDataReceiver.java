@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;

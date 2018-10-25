@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
@@ -42,7 +43,7 @@ import java.util.Arrays;
  * @author HyunGil Jeong
  */
 @Component
-public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> {
+public class AgentStatMapper {
 
     @Autowired
     private JvmGcBoMapper jvmGcBoMapper;
@@ -74,7 +75,6 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
     @Autowired
     private DirectBufferBoMapper directBufferBoMapper;
 
-    @Override
     public AgentStatBo map(TAgentStat tAgentStat) {
         if (tAgentStat == null) {
             return null;
@@ -156,6 +156,10 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
         }
 
         return agentStatBo;
+    }
+
+    public AgentStatBo map(PAgentStat tAgentStat) {
+        return null;
     }
 
     private void setBaseData(AgentStatDataPoint agentStatDataPoint, String agentId, long startTimestamp, long timestamp) {

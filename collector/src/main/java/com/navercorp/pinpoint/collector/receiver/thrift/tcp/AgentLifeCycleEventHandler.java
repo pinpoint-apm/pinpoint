@@ -64,6 +64,7 @@ public class AgentLifeCycleEventHandler {
                     pinpointServer);
             return;
         }
+        logger.debug("## SocketId {}", socketId);
 
         final String agentId = MapUtils.getString(channelProperties, HandshakePropertyType.AGENT_ID.getName());
         final long startTimestamp = MapUtils.getLong(channelProperties, HandshakePropertyType.START_TIMESTAMP.getName());

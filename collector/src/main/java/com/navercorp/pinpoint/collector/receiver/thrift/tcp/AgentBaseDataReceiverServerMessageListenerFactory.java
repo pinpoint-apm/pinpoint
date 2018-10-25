@@ -94,6 +94,7 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
             }
         }
 
+        // TODO ?
         @Override
         public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
             executor.execute(new Runnable() {
@@ -104,6 +105,7 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
             });
         }
 
+        // TODO ?
         @Override
         public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
             executor.execute(new Runnable() {
@@ -114,6 +116,7 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
             });
         }
 
+        // TODO ?
         @Override
         public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
             final int eventCounter = pingPacket.getPingId();
@@ -127,7 +130,5 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
                 logger.warn("Error handling ping event", e);
             }
         }
-
     }
-
 }
