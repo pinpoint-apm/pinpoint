@@ -217,7 +217,7 @@ public abstract class CassandraDatastaxITBase {
             // SessionManager#prepare(String) OR AbstractSession#prepare(String)
             verifier.verifyTrace(event(CASSANDRA, prepare, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(cqlDelete, null)));
             // SessionManager#execute(String, Object[]) OR AbstractSession#execute(String, Object[])
-            verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE));
+            verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(cqlDelete, null)));
         } finally {
             closeSession(myKeyspaceSession);
         }
