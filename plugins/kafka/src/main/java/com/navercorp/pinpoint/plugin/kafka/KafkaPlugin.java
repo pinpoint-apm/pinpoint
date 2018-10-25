@@ -54,7 +54,6 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                     InstrumentMethod constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
                             "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer");
 
-
                     // Version 2.0.0+ is supported.
                     if (constructor == null) {
                         constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
@@ -74,10 +73,6 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         if (config.isConsumerEnable()) {
-            if (StringUtils.isEmpty(config.getKafkaEntryPoint())) {
-                return;
-            }
-
             transformTemplate.transform("org.apache.kafka.clients.consumer.KafkaConsumer", new TransformCallback() {
 
                 @Override
@@ -88,7 +83,12 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                             "org.apache.kafka.common.serialization.Deserializer", "org.apache.kafka.common.serialization.Deserializer");
                     constructor.addInterceptor(KafkaConstants.CONSUMER_CONSTRUCTOR_INTERCEPTOR);
 
-                    InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "long");
+                    // Version 2.0.0+ is supported.
+                    InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "long", "boolean");
+
+                    if (pollMethod == null) {
+                        pollMethod = target.getDeclaredMethod("poll", "long");
+                    }
                     pollMethod.addInterceptor(KafkaConstants.CONSUMER_POLL_INTERCEPTOR);
 
                     target.addField(KafkaConstants.REMOTE_ADDRESS_ACCESSOR);
@@ -107,7 +107,9 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
             });
 
-            transformEntryPoint(config.getKafkaEntryPoint());
+            if (!StringUtils.isEmpty(config.getKafkaEntryPoint())) {
+                transformEntryPoint(config.getKafkaEntryPoint());
+            }
         }
     }
 
