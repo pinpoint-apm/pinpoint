@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
 import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;

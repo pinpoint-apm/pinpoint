@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
+package com.navercorp.pinpoint.collector.receiver;
 
+import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -25,6 +27,8 @@ import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
 
 /**
  * @author HyunGil Jeong
@@ -36,10 +40,10 @@ public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventH
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private AgentLifeCycleEventHandler agentLifeCycleEventHandler;
+    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
 
     @Autowired
-    private AgentEventHandler agentEventHandler;
+    private AgentEventAsyncTaskService agentEventAsyncTaskService;
 
     @Override
     public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception {
@@ -51,10 +55,11 @@ public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventH
 
             long eventTimestamp = System.currentTimeMillis();
 
+            Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
             AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
-            this.agentLifeCycleEventHandler.handleLifeCycleEvent(pinpointServer, eventTimestamp, agentLifeCycleState, managedAgentLifeCycle.getEventCounter());
+            this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, eventTimestamp, agentLifeCycleState, managedAgentLifeCycle.getEventCounter());
             AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();
-            this.agentEventHandler.handleEvent(pinpointServer, eventTimestamp, agentEventType);
+            this.agentEventAsyncTaskService.handleEvent(channelProperties, eventTimestamp, agentEventType);
         }
     }
 

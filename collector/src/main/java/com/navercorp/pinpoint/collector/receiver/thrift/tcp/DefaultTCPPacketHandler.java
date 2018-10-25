@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.Message;

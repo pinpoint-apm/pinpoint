@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
+import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.when;
  * @author HyunGil Jeong
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AgentEventHandlerTest {
+public class AgentEventAsyncTaskServiceTest {
     @Mock
     private PinpointServer pinpointServer;
 
@@ -49,7 +50,7 @@ public class AgentEventHandlerTest {
     private AgentEventService agentEventService;
 
     @InjectMocks
-    private AgentEventHandler agentEventHandler = new AgentEventHandler();
+    private AgentEventAsyncTaskService agentEventAsyncTaskService = new AgentEventAsyncTaskService();
 
     private static final String TEST_AGENT_ID = "TEST_AGENT";
     private static final long TEST_START_TIMESTAMP = System.currentTimeMillis();
@@ -68,7 +69,7 @@ public class AgentEventHandlerTest {
         final AgentEventType expectedEventType = AgentEventType.AGENT_CONNECTED;
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         // when
-        this.agentEventHandler.handleEvent(this.pinpointServer, TEST_EVENT_TIMESTAMP, expectedEventType);
+        this.agentEventAsyncTaskService.handleEvent(this.pinpointServer.getChannelProperties(), TEST_EVENT_TIMESTAMP, expectedEventType);
         verify(this.agentEventService, times(1)).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
+package com.navercorp.pinpoint.collector.service.async;
 
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
@@ -36,21 +36,20 @@ import java.util.Objects;
  * @author jaehong.kim - Remove AgentEventMessageSerializer
  */
 @Service
-public class AgentEventHandler {
+public class AgentEventAsyncTaskService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private AgentEventService agentEventService;
 
     @Async("agentEventWorker")
-    public void handleEvent(PinpointServer pinpointServer, long eventTimestamp, AgentEventType eventType) {
-        Objects.requireNonNull(pinpointServer, "pinpointServer must not be null");
+    public void handleEvent(final Map<Object, Object> channelProperties, long eventTimestamp, AgentEventType eventType) {
+        Objects.requireNonNull(channelProperties, "pinpointServer must not be null");
         Objects.requireNonNull(eventType, "pinpointServer must not be null");
 
-        final Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
         if (MapUtils.isEmpty(channelProperties)) {
             // It can occurs CONNECTED -> RUN_WITHOUT_HANDSHAKE -> CLOSED(UNEXPECTED_CLOSE_BY_CLIENT, ERROR_UNKNOWN)
-            logger.warn("maybe not yet received the handshake data - pinpointServer:{}", pinpointServer);
+            logger.warn("maybe not yet received the handshake data - pinpointServer:{}", channelProperties);
             return;
         }
 
