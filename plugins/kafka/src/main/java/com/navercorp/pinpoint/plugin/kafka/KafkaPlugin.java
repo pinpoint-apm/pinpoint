@@ -73,6 +73,10 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         if (config.isConsumerEnable()) {
+            if (StringUtils.isEmpty(config.getKafkaEntryPoint())) {
+                return;
+            }
+
             transformTemplate.transform("org.apache.kafka.clients.consumer.KafkaConsumer", new TransformCallback() {
 
                 @Override
@@ -107,9 +111,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
             });
 
-            if (!StringUtils.isEmpty(config.getKafkaEntryPoint())) {
-                transformEntryPoint(config.getKafkaEntryPoint());
-            }
+            transformEntryPoint(config.getKafkaEntryPoint());
         }
     }
 
