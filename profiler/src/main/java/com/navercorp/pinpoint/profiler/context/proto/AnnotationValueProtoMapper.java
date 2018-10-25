@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.gpc.trace.PAnnotationValue;
-import com.navercorp.pinpoint.gpc.trace.PIntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.gpc.trace.PIntStringStringValue;
-import com.navercorp.pinpoint.gpc.trace.PIntStringValue;
-import com.navercorp.pinpoint.gpc.trace.PLongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.gpc.trace.PStringStringValue;
+import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
+import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
+import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
+import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 import org.apache.thrift.TBase;
 
 /**

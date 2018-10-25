@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
+package com.navercorp.pinpoint.collector.service.async;
 
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
@@ -36,7 +36,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Service
-public class AgentLifeCycleEventHandler {
+public class AgentLifeCycleAsyncTaskService {
 
     public static final String SOCKET_ID_KEY = "socketId";
 
@@ -48,23 +48,19 @@ public class AgentLifeCycleEventHandler {
     private AgentLifeCycleService agentLifeCycleService;
 
     @Async("agentEventWorker")
-    public void handleLifeCycleEvent(PinpointServer pinpointServer, long eventTimestamp, AgentLifeCycleState agentLifeCycleState, int eventCounter) {
-        Objects.requireNonNull(pinpointServer, "pinpointServer must not be null");
+    public void handleLifeCycleEvent(Map<Object, Object> channelProperties, long eventTimestamp, AgentLifeCycleState agentLifeCycleState, int eventCounter) {
+        Objects.requireNonNull(channelProperties, "pinpointServer must not be null");
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState must not be null");
         if (eventCounter < 0) {
             throw new IllegalArgumentException("eventCounter may not be negative");
         }
-        logger.info("Handle lifecycle event - pinpointServer:{}, state:{}", pinpointServer, agentLifeCycleState);
+        logger.info("Handle lifecycle event - pinpointServer:{}, state:{}", channelProperties, agentLifeCycleState);
 
-        // TODO
-        Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
         final Integer socketId = MapUtils.getInteger(channelProperties, SOCKET_ID_KEY);
         if (socketId == null) {
-            logger.debug("socketId not found, agent does not support life cycle management - pinpointServer:{}",
-                    pinpointServer);
+            logger.debug("socketId not found, agent does not support life cycle management - pinpointServer:{}", channelProperties);
             return;
         }
-
         final String agentId = MapUtils.getString(channelProperties, HandshakePropertyType.AGENT_ID.getName());
         final long startTimestamp = MapUtils.getLong(channelProperties, HandshakePropertyType.START_TIMESTAMP.getName());
         final long eventIdentifier = createEventIdentifier(socketId, eventCounter);
@@ -74,7 +70,7 @@ public class AgentLifeCycleEventHandler {
         agentLifeCycleService.insert(agentLifeCycleBo);
     }
 
-    long createEventIdentifier(int socketId, int eventCounter) {
+    public long createEventIdentifier(int socketId, int eventCounter) {
         if (socketId < 0) {
             throw new IllegalArgumentException("socketId may not be less than 0");
         }

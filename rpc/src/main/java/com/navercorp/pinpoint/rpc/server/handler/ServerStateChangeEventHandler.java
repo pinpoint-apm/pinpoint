@@ -25,8 +25,10 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
  */
 public interface ServerStateChangeEventHandler extends StateChangeEventListener<PinpointServer> {
 
+    // TODO ?
     void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception;
-    
+
+    // TODO ?
     void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e);
 
 }
