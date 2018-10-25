@@ -207,9 +207,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.cassandra</groupId>
-            <artifactId>cassandra-all</artifactId>
-            <version>2.1.13</version>
+            <groupId>org.scassandra</groupId>
+            <artifactId>java-client</artifactId>
+            <version>1.1.2</version>
             <scope>test</scope>
         </dependency>
 

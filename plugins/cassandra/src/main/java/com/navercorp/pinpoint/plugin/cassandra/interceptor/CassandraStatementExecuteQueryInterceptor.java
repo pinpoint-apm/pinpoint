@@ -22,7 +22,7 @@ import java.util.Map;
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.RegularStatement;
-import com.datastax.driver.core.StatementWrapper;
+import com.datastax.driver.core.Statement;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
+import com.navercorp.pinpoint.plugin.cassandra.field.WrappedStatementGetter;
 
 /**
  * @author dawidmalina
@@ -126,9 +127,8 @@ public class CassandraStatementExecuteQueryInterceptor implements AroundIntercep
             return ((BoundStatement) args0).preparedStatement().getQueryString();
         } else if (args0 instanceof RegularStatement) {
             return ((RegularStatement) args0).getQueryString();
-        } else if (args0 instanceof StatementWrapper) {
-            // method to get wrapped statement is package-private, skip.
-            return null;
+        } else if (args0 instanceof WrappedStatementGetter) {
+            return retrieveWrappedStatement((WrappedStatementGetter) args0);
         } else if (args0 instanceof BatchStatement) {
             // we could unroll all the batched statements and append ; between them if need be but it could be too long.
             return null;
@@ -136,6 +136,11 @@ public class CassandraStatementExecuteQueryInterceptor implements AroundIntercep
             return (String) args0;
         }
         return null;
+    }
+
+    private String retrieveWrappedStatement(WrappedStatementGetter wrappedStatementGetter) {
+        Statement wrappedStatement = wrappedStatementGetter._$PINPOINT$_getStatement();
+        return retrieveSql(wrappedStatement);
     }
 
     private void clean(Object target) {
