@@ -53,6 +53,14 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                     InstrumentMethod constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
                             "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer");
+
+
+                    // Version 2.0.0+ is supported.
+                    if (constructor == null) {
+                        constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
+                                "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer",
+                                "org.apache.kafka.clients.Metadata", "org.apache.kafka.clients.KafkaClient");
+                    }
                     constructor.addInterceptor(KafkaConstants.PRODUCER_CONSTRUCTOR_INTERCEPTOR);
 
                     InstrumentMethod sendMethod = target.getDeclaredMethod("send", "org.apache.kafka.clients.producer.ProducerRecord", "org.apache.kafka.clients.producer.Callback");
