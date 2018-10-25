@@ -28,6 +28,10 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
 
     private static final String PREFIX = "collector.receiver.stat";
 
+    private static final String GRPC_ENABLE = PREFIX + ".grpc";
+    private static final String GRPC_BIND_IP = PREFIX + ".grpc.ip";
+    private static final String GRPC_BIND_PORT = PREFIX + ".grpc.port";
+
     private static final String TCP_ENABLE = PREFIX + ".tcp";
     private final boolean isTcpEnable;
     private static final String TCP_BIND_IP = PREFIX + ".tcp.ip";
@@ -52,6 +56,9 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
     private static final String WORKER_MONITOR_ENABLE = PREFIX + ".worker.monitor";
     private final boolean workerMonitorEnable;
 
+    private final boolean isGrpcEnable;
+    private final String grpcBindIp;
+    private final int grpcBindPort;
 
     public StatReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
         Objects.requireNonNull(properties, "properties must not be null");
@@ -65,6 +72,10 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         this.udpBindIp = getUdpBindIp(properties, deprecatedConfiguration, CollectorConfiguration.DEFAULT_LISTEN_IP);
         this.udpBindPort = getUdpBindPort(properties, deprecatedConfiguration, 9995);
         this.udpReceiveBufferSize = getUdpReceiveBufferSize(properties, deprecatedConfiguration, 1024 * 4096);
+
+        this.isGrpcEnable = isGrpcEnable(properties, false);
+        this.grpcBindIp = CollectorConfiguration.readString(properties, GRPC_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
+        this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, -1);
 
         this.workerThreadSize = getWorkerThreadSize(properties, deprecatedConfiguration, 128);
         Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
@@ -131,6 +142,14 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
 
         if (deprecatedConfiguration.isSetUdpStatSocketReceiveBufferSize()) {
             return deprecatedConfiguration.getUdpStatSocketReceiveBufferSize();
+        }
+
+        return defaultValue;
+    }
+
+    private boolean isGrpcEnable(Properties properties, boolean defaultValue) {
+        if (properties.containsKey(GRPC_ENABLE)) {
+            return CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
         }
 
         return defaultValue;
@@ -220,6 +239,21 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
     @Override
     public boolean isWorkerMonitorEnable() {
         return workerMonitorEnable;
+    }
+
+    @Override
+    public boolean isGrpcEnable() {
+        return isGrpcEnable;
+    }
+
+    @Override
+    public String getGrpcBindIp() {
+        return grpcBindIp;
+    }
+
+    @Override
+    public int getGrpcBindPort() {
+        return grpcBindPort;
     }
 
     @Override

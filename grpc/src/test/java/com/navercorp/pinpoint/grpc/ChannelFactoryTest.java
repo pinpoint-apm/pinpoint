@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.grpc;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.gpc.trace.PSpan;
-import com.navercorp.pinpoint.gpc.trace.TraceGrpc;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.TraceGrpc;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.server.AgentInfoContext;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;

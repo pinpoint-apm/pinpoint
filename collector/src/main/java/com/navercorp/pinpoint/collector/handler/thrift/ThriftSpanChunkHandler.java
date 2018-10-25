@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -48,33 +49,41 @@ public class ThriftSpanChunkHandler implements SimpleHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase<?, ?>) {
-            handleSimple((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle simple data={}", data);
+        }
+        if (data instanceof TSpanChunk) {
+            handleSpanChunk((TSpanChunk) data);
+        } else if (data instanceof PSpanChunk) {
+            handleSpanChunk((PSpanChunk) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
     }
 
-    private void handleSimple(TBase<?, ?> tbase) {
+    private void handleSpanChunk(TSpanChunk tbase) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle TSpanChunk={}", tbase);
+        }
 
         try {
-            final SpanChunkBo spanChunkBo = newSpanChunkBo(tbase);
+            final SpanChunkBo spanChunkBo = this.spanFactory.buildSpanChunkBo(tbase);
             this.traceService.insertSpanChunk(spanChunkBo);
         } catch (Exception e) {
             logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
         }
     }
 
-    private SpanChunkBo newSpanChunkBo(TBase<?, ?> tbase) {
-        if (!(tbase instanceof TSpanChunk)) {
-            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
-        }
-
-        final TSpanChunk tSpanChunk = (TSpanChunk) tbase;
+    private void handleSpanChunk(PSpanChunk tbase) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Received SpanChunk={}", tbase);
+            logger.debug("Handle PSpanChunk={}", tbase);
         }
 
-        return this.spanFactory.buildSpanChunkBo(tSpanChunk);
+//        try {
+//            final SpanChunkBo spanChunkBo = this.spanFactory.buildSpanChunkBo(tbase);
+//            this.traceService.insertSpanChunk(spanChunkBo);
+//        } catch (Exception e) {
+//            logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
+//        }
     }
 }

@@ -56,6 +56,10 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-grpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -196,7 +200,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

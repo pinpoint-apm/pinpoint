@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.context.compress;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.gpc.trace.PSpan;
-import com.navercorp.pinpoint.gpc.trace.PSpanChunk;
-import com.navercorp.pinpoint.gpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;

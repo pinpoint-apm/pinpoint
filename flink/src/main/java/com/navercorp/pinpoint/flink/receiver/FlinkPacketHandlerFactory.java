@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.flink.receiver;
 
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.DefaultTCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandlerFactory;
