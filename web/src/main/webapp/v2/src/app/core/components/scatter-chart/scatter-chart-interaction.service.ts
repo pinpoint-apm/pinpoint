@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { BehaviorSubject, Subject, Observable } from 'rxjs';
 
 export interface IChangedAgentParam {
     instanceKey: string;
@@ -27,7 +27,7 @@ export interface IResetParam {
 @Injectable()
 export class ScatterChartInteractionService {
 
-    private outChartData = new Subject<{instanceKey: string, data: IScatterData}>();
+    private outChartData = new BehaviorSubject<{instanceKey: string, data: IScatterData}>({instanceKey: '', data: null});
     public onChartData$: Observable<{instanceKey: string, data: IScatterData}>;
 
     private outViewType = new Subject<IChangedViewTypeParam>();
