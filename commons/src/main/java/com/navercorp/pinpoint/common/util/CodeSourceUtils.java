@@ -37,14 +37,7 @@ public final class CodeSourceUtils {
 
 
     public static URL getCodeLocation(ProtectionDomain protectionDomain) {
-        if (protectionDomain == null) {
-            return null;
-        }
-
-        final CodeSource codeSource = protectionDomain.getCodeSource();
-        if (codeSource == null) {
-            return null;
-        }
-        return codeSource.getLocation();
+        final CodeSource codeSource = protectionDomain == null ? null : protectionDomain.getCodeSource();
+        return codeSource == null ? null : codeSource.getLocation();
     }
 }
