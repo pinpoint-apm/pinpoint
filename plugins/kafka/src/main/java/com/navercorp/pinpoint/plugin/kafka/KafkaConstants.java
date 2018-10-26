@@ -37,6 +37,7 @@ public class KafkaConstants {
     public static final AnnotationKey KAFKA_TOPIC_ANNOTATION_KEY = AnnotationKeyFactory.of(140, "kafka.topic", VIEW_IN_RECORD_SET);
     public static final AnnotationKey KAFKA_PARTITION_ANNOTATION_KEY = AnnotationKeyFactory.of(141, "kafka.partition", VIEW_IN_RECORD_SET);
     public static final AnnotationKey KAFKA_OFFSET_ANNOTATION_KEY = AnnotationKeyFactory.of(142, "kafka.offset", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey KAFKA_BATCH_ANNOTATION_KEY = AnnotationKeyFactory.of(143, "kafka.batch", VIEW_IN_RECORD_SET);
 
     public static final String REMOTE_ADDRESS_ACCESSOR = RemoteAddressFieldAccessor.class.getName();
 
@@ -48,6 +49,10 @@ public class KafkaConstants {
     public static final String CONSUMER_POLL_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor";
 
     public static final String CONSUMER_RECORD_ENTRYPOINT_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordEntryPointInterceptor";
+
+    public static final String CONSUMER_MULTI_RECORD_ENTRYPOINT_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerMultiRecordEntryPointInterceptor";
+
+    public static final String CONSUMER_MULTI_RECORD_CLASS_NAME = "org.apache.kafka.clients.consumer.ConsumerRecords";
 
     public static final String CONSUMER_RECORD_CLASS_NAME = "org.apache.kafka.clients.consumer.ConsumerRecord";
 
