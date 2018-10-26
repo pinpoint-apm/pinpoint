@@ -19,6 +19,10 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Mutation;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.List;
 
@@ -75,27 +79,29 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
             param = args[0];
         } else if (args != null && args.length > 1) { // last param
             param = args[args.length - 1];
+        } else {
+            return null;
         }
 
-        if (param != null) {
-            // if param instanceof List.
-            if (param instanceof List) {
-                List list = (List) param;
-                return "size: " + list.size();
-            }
-            // if has getRow method. e.g. Get/Put/Delete/Append/Increment/...
-            try {
-                byte[] rowkey = (byte[]) param.getClass().getMethod("getRow").invoke(param);
-                return "rowKey: " + new String(rowkey);
-            } catch (Exception e) {
-            }
-            // if has getStartRow and getStopRow method. e.g. Scan
-            try {
-                byte[] startRowkey = (byte[]) param.getClass().getMethod("getStartRow").invoke(param);
-                byte[] stopRowkey = (byte[]) param.getClass().getMethod("getStopRow").invoke(param);
-                return "startRowKey: " + new String(startRowkey) + " stopRowKey: " + new String(stopRowkey);
-            } catch (Exception e) {
-            }
+        // Put/Delete/Append/Increment
+        if (param instanceof Mutation) {
+            Mutation mutation = (Mutation) param;
+            return "rowKey: " + Bytes.toStringBinary(mutation.getRow());
+        }
+        if (param instanceof Get) {
+            Get get = (Get) param;
+            return "rowKey: " + Bytes.toStringBinary(get.getRow());
+        }
+        if (param instanceof Scan) {
+            Scan scan = (Scan) param;
+            String startRowKey = Bytes.toStringBinary(scan.getStartRow());
+            String stopRowKey = Bytes.toStringBinary(scan.getStopRow());
+            return "startRowKey: " + startRowKey + " stopRowKey: " + stopRowKey;
+        }
+        // if param instanceof List.
+        if (param instanceof List) {
+            List list = (List) param;
+            return "size: " + list.size();
         }
         return null;
     }
