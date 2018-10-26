@@ -88,7 +88,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                     constructor.addInterceptor(KafkaConstants.CONSUMER_CONSTRUCTOR_INTERCEPTOR);
 
                     // Version 2.0.0+ is supported.
-                    InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "java.time.Duration");
+                    InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "long", "boolean");
 
                     if (pollMethod == null) {
                         pollMethod = target.getDeclaredMethod("poll", "long");
