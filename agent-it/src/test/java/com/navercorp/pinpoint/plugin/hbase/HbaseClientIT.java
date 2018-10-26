@@ -20,7 +20,7 @@ import static org.mockito.Mockito.doReturn;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@Dependency({"org.apache.hbase:hbase-shaded-client:[1.2.6.1]", "org.mockito:mockito-all:1.8.4"})
+@Dependency({"org.apache.hbase:hbase-shaded-client:[1.2.6.1]", "org.mockito:mockito-core:2.7.22"})
 @PinpointConfig("hbase/pinpoint-hbase-test.config")
 public class HbaseClientIT {
 
@@ -48,8 +48,8 @@ public class HbaseClientIT {
 
         verifier.printCache();
 
-        verifier.verifyTrace(event("HBASE_ADMIN", HBaseAdmin.class.getDeclaredMethod("tableExists", TableName.class),
-                annotation("hbase.params", "[test]")));
+        verifier.verifyTrace(event("HBASE_CLIENT_ADMIN", HBaseAdmin.class.getDeclaredMethod("tableExists", TableName.class),
+                annotation("hbase.client.params", "[test]")));
 
         verifier.verifyTraceCount(0);
     }
@@ -72,8 +72,8 @@ public class HbaseClientIT {
 
         verifier.printCache();
 
-        verifier.verifyTrace(event("HBASE_TABLE", HTable.class.getDeclaredMethod("put", Put.class),
-                annotation("hbase.params", "rowKey: row")));
+        verifier.verifyTrace(event("HBASE_CLIENT_TABLE", HTable.class.getDeclaredMethod("put", Put.class),
+                annotation("hbase.client.params", "rowKey: row")));
 
         verifier.verifyTraceCount(0);
     }
