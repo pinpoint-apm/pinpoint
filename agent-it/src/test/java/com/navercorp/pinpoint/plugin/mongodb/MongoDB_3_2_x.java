@@ -41,11 +41,11 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.0.0,3.1.max]",
+        "org.mongodb:mongodb-driver:[3.2.0,3.6.max]",
         "org.mongodb:bson:3.6.4",
         "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.5"
 })
-public class MongoDB_3_0_x extends MongoDBBase {
+public class MongoDB_3_2_x extends MongoDBBase {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -64,7 +64,6 @@ public class MongoDB_3_0_x extends MongoDBBase {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
-        //create DB
         com.mongodb.MongoClient mongoClient = new com.mongodb.MongoClient("localhost", 27018);
         verifier.printCache();
         Class<?> clusterClass = Class.forName("com.mongodb.Mongo");
@@ -78,15 +77,12 @@ public class MongoDB_3_0_x extends MongoDBBase {
         Class<?> mongoDatabaseImpl = Class.forName("com.mongodb.MongoCollectionImpl");
 
         insertData(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
-        insertData(verifier, collection2, mongoDatabaseImpl, "customers2", "SAFE");
+        insertData(verifier, collection2, mongoDatabaseImpl, "customers2", "ACKNOWLEDGED");
         updateData(verifier, collection, mongoDatabaseImpl);
         readData(verifier, collection, mongoDatabaseImpl);
         deleteData(verifier, collection, mongoDatabaseImpl);
 
-        //close connection
         mongoClient.close();
         stopDB();
     }
-
-
 }
