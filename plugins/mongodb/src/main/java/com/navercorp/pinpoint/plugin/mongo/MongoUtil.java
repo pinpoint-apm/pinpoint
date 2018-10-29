@@ -39,13 +39,8 @@ public class MongoUtil {
     }
 
     public static void recordMongoCollection(SpanEventRecorder recorder, String collectionName, String readPreferenceOrWriteConcern) {
-        StringBuilder input = new StringBuilder();
-
-        input.append(collectionName);
-        if (readPreferenceOrWriteConcern != null) {
-            input.append(",").append(readPreferenceOrWriteConcern);
-        }
-        recorder.recordAttribute(MongoConstants.MONGO_COLLECTION_INFO, input);
+        recorder.recordAttribute(MongoConstants.MONGO_COLLECTION_INFO, collectionName);
+        recorder.recordAttribute(MongoConstants.MONGO_COLLECTION_OPTION, readPreferenceOrWriteConcern);
     }
 
     public static String getWriteConcern0(WriteConcern writeConcern) {

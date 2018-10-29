@@ -211,6 +211,7 @@ public class SpanServiceImpl implements SpanService {
             @Override
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
                 AnnotationBo collectionInfo = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_INFO.getCode());
+                AnnotationBo collectionOption = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_OPTION.getCode());
 
                 if (collectionInfo != null) {
                     StringBuilder stringBuilder = new StringBuilder();
@@ -218,6 +219,10 @@ public class SpanServiceImpl implements SpanService {
                             .append(".")
                             .append((String) collectionInfo.getValue());
 
+                    if (collectionOption != null) {
+                        stringBuilder.append(" with ")
+                                .append(((String) collectionOption.getValue()).toUpperCase());
+                    }
                     collectionInfo.setValue(stringBuilder);
                 }
 
