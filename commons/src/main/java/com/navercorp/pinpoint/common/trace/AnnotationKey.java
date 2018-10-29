@@ -96,7 +96,6 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>120</td><td>netty.address</td></tr>
  * <tr><td><s>200</s></td><td><s>cxf.operation</s></td></tr>
  * <tr><td><s>201</s></td><td><s>cxf.args</s></td></tr>
- * <tr><td>202</td><td>cxf.log.id</td></tr>
  * <tr><td>203</td><td>cxf.address</td></tr>
  * <tr><td>204</td><td>cxf.response.code</td></tr>
  * <tr><td>205</td><td>cxf.encoding</td></tr>
