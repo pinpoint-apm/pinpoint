@@ -74,18 +74,7 @@ public class MongoCUDSessionInterceptor extends SpanEventSimpleAroundInterceptor
             final boolean success = InterceptorUtils.isSuccess(throwable);
             if (success) {
                 if (args != null) {
-                    StringStringValue parsedBson = null;
-
-                    for (Object arg : args) {
-                        if (arg instanceof Bson) {
-                            if (parsedBson == null) {
-                                parsedBson = MongoUtil.parseBson((Bson) arg, traceBsonBindValue);
-                            } else {
-                                StringStringValue appendParsedBson = MongoUtil.parseBson((Bson) arg, traceBsonBindValue);
-                                parsedBson.appendStringStringValue(appendParsedBson);
-                            }
-                        }
-                    }
+                    StringStringValue parsedBson = MongoUtil.parseBson(args, traceBsonBindValue);
                     MongoUtil.recordParsedBson(recorder, parsedBson);
                 }
             }

@@ -36,12 +36,20 @@ public class StringStringValue {
         return stringValue2;
     }
 
-    public void appendStringStringValue(StringStringValue stringStringValue){
+    @Override
+    public String toString() {
+        return "StringStringValue{" +
+                "stringValue1='" + stringValue1 + '\'' +
+                ", stringValue2='" + stringValue2 + '\'' +
+                '}';
+    }
 
-        StringBuilder str1 = new StringBuilder();
-        StringBuilder str2 = new StringBuilder();
-
-        this.stringValue1 = str1.append(stringValue1).append(", ").append(stringStringValue.getStringValue1()).toString();
-        this.stringValue2 = str2.append(stringValue2).append(", ").append(stringStringValue.getStringValue2()).toString();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StringStringValue that = (StringStringValue) o;
+        return stringValue1.equals(that.getStringValue1()) &&
+                stringValue2.equals(that.getStringValue2());
     }
 }
