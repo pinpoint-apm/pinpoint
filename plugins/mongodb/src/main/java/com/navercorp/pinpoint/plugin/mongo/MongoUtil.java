@@ -34,6 +34,7 @@ import java.util.Map;
 public class MongoUtil {
 
     public static final char SEPARATOR = ',';
+    private static MongoWriteConcernMapper mongoWriteConcernMapper = new MongoWriteConcernMapper();
 
     private MongoUtil() {
     }
@@ -45,19 +46,7 @@ public class MongoUtil {
 
     public static String getWriteConcern0(WriteConcern writeConcern) {
 
-        for (final Field f : WriteConcern.class.getFields()) {
-            if (Modifier.isStatic(f.getModifiers()) && f.getType().equals(WriteConcern.class)) {
-
-                try {
-                    if (writeConcern.equals(f.get(null))) {
-                        return f.getName().toUpperCase();
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);//TODO
-                }
-            }
-        }
-        return null;
+        return mongoWriteConcernMapper.getName(writeConcern);
     }
 
     public static StringStringValue parseBson(Bson bson, boolean traceBsonBindValue) {
