@@ -28,7 +28,7 @@ public class MongoConfig{
     public MongoConfig(ProfilerConfig config) {
         this.enable = config.readBoolean("profiler.mongo", false);
         this.collectJson = config.readBoolean("profiler.mongo.collectjson", false);
-        this.traceBsonBindValue = config.readBoolean("profiler.mongo.tracebsonbindvalue", config.isTraceSqlBindValue());
+        this.traceBsonBindValue = config.readBoolean("profiler.mongo.tracebsonbindvalue", false);
     }
 
     public boolean isEnable() {
