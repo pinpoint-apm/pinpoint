@@ -41,7 +41,6 @@ public final class CxfPluginConstants {
     public static final ServiceType CXF_LOGGING_IN_SERVICE_TYPE = ServiceTypeFactory.of(9083, "CXF_LOGGING_IN");
     public static final ServiceType CXF_LOGGING_OUT_SERVICE_TYPE = ServiceTypeFactory.of(9084, "CXF_LOGGING_OUT");
 
-    public static final AnnotationKey CXF_LOG_ID = AnnotationKeyFactory.of(202, "cxf.log.id", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
     public static final AnnotationKey CXF_ADDRESS = AnnotationKeyFactory.of(203, "cxf.address", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
     public static final AnnotationKey CXF_RESPONSE_CODE = AnnotationKeyFactory.of(204, "cxf.response.code", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
     public static final AnnotationKey CXF_ENCODING = AnnotationKeyFactory.of(205, "cxf.encoding", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
