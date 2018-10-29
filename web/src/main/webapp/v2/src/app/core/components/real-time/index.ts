@@ -14,6 +14,7 @@ import { NewRealTimeAgentChartComponent } from 'app/core/components/real-time/ne
 import { NewRealTimeChartComponent } from 'app/core/components/real-time/new/new-real-time-chart.component';
 import { NewRealTimeContainerComponent } from 'app/core/components/real-time/new/new-real-time-container.component';
 import { NewRealTimeTotalChartComponent } from 'app/core/components/real-time/new/new-real-time-total-chart.component';
+import { NewRealTimePagingContainerComponent } from 'app/core/components/real-time/new/new-real-time-paging-container.component';
 
 @NgModule({
     declarations: [
@@ -26,7 +27,8 @@ import { NewRealTimeTotalChartComponent } from 'app/core/components/real-time/ne
         NewRealTimeAgentChartComponent,
         NewRealTimeChartComponent,
         NewRealTimeContainerComponent,
-        NewRealTimeTotalChartComponent
+        NewRealTimeTotalChartComponent,
+        NewRealTimePagingContainerComponent
     ],
     imports: [
         SharedModule,
@@ -35,7 +37,8 @@ import { NewRealTimeTotalChartComponent } from 'app/core/components/real-time/ne
     exports: [
         RealTimeContainerComponent,
         NewRealTimeContainerComponent,
-        RealTimePagingContainerComponent
+        RealTimePagingContainerComponent,
+        NewRealTimePagingContainerComponent
     ],
     entryComponents: [
         RealTimeTotalChartComponent,

@@ -1,4 +1,5 @@
 :host {
+    display: block;
     z-index: 30;
 }
 .l-thread-chart-wrap {
@@ -45,7 +46,6 @@
     display: flex;
     flex-flow: row wrap;
     padding: 20px 10px 20px 25px;
-    /* max-height: calc(100% - 34px); */
     height: calc(100% - 34px);
 }
 .l-chart-group-wrap > .l-total-chart {
@@ -54,18 +54,9 @@
     margin-right: 20px;
 }
 .l-agent-chart {
-    /* 297px : total chart width + margin-right */
     width: calc(100% - 297px);
-    /* height: 100%; */
     max-height: 100%;
     overflow-y: auto;
-}
-.l-chart-group-wrap .l-chart-group-list {
-    /* display: flex;
-    flex-flow: row wrap;
-    flex: 1;
-    overflow-y: auto; */
-    /* justify-content: space-between; */
 }
 .l-message {
     top: 0px;
@@ -99,6 +90,7 @@
     font-size: 15px;
     margin: 0px 0px 5px 0px;
     padding: 11px;
+    position: relative;
 }
 .l-paging .l-txt {
     font-weight: lighter;
@@ -106,21 +98,45 @@
 .l-paging .l-txt-bold {
     font-weight: bolder;
     font-size: 18px;
+    margin-right: 2px;
 }
-.l-paging .l-page {
-    float: right;
-    cursor: pointer;
-    padding: 0px 6px;
+.fa-chart-area {
+    margin-right: 2px;
 }
-.l-paging .l-page:hover {
-    color: #4b99e3;
+
+.l-paging nav {
+    height: calc(100% - 22px);
+    display: inline-block;
+    position: absolute;
+    right: 10px;
 }
-.l-paging .l-page:last-child {
+
+.l-pagination {
+    display: flex;
+    list-style: none;
+    height: 100%;
+}
+
+.l-page-item {
+    display: block;
+    height: 100%;
+}
+
+.l-page-item:first-child .l-page-link {
     color: #000;
     cursor: initial;
     text-decoration: initial;
     background-color: #FFF;
 }
-.fa-chart-area {
-    margin-right: 2px;
+
+.l-page-link {
+    padding: 0 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.l-page-link:hover {
+    color: #4b99e3;
 }

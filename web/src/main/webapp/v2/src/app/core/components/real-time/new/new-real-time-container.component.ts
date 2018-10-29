@@ -42,6 +42,8 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
     private agentComponentRef: ComponentRef<any> = null;
     private componentRefMap: any = {};
     totalCount = 0;
+    firstChartIndex = 0;
+    lastChartIndex: number;
     pinUp = true;
     lastHeight: number;
     minHeight = 343;
@@ -197,7 +199,7 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         if (data.applicationName && data.applicationName !== this.applicationName) {
             return;
         }
-        this.totalCount = Object.keys(data.activeThreadCounts).length;
+
         this.publishData(data);
     }
     private setAgentChart(data: IWebSocketDataResult): void {
@@ -208,8 +210,18 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         const { timeStamp, activeThreadCounts } = data;
         const componentInstance = this.agentComponentRef.instance;
 
-        componentInstance.activeThreadCounts = activeThreadCounts;
+        this.totalCount = Object.keys(activeThreadCounts).length;
+
+        componentInstance.activeThreadCounts = this.needPaging() ? this.sliceAgentData(activeThreadCounts) : activeThreadCounts;
         componentInstance.timeStamp = timeStamp;
+    }
+    private sliceAgentData(data: { [key: string]: IActiveThreadCounts }): { [key: string]: IActiveThreadCounts } {
+        this.lastChartIndex = this.realTimeWebSocketService.getPagingSize() - 1;
+        const keys = Object.keys(data).slice(this.firstChartIndex, this.lastChartIndex + 1);
+
+        return keys.reduce((acc: { [key: string]: IActiveThreadCounts }, curr: string) => {
+            return { ...acc, [curr]: data[curr] };
+        }, {});
     }
     private setTotalChart(data: IWebSocketDataResult): void {
         if (this.totalComponentRef === null) {
@@ -244,40 +256,29 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         }, [0, 0, 0, 0]);
     }
     private publishData(data: IWebSocketDataResult): void {
-        // Object.keys(data.activeThreadCounts).forEach((key: string) => {
-        //     console.log(data.activeThreadCounts[key].status);
-        // });
         this.setTotalChart(data);
         this.setAgentChart(data);
     }
     private initTotalComponent(): void {
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(NewRealTimeTotalChartComponent);
+
         this.totalComponentRef = this.totalChartViewContainerRef.createComponent(componentFactory);
     }
     private initAgentComponent(): void {
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(NewRealTimeAgentChartComponent);
-        // const componentRef = this.agentChartViewContainerRef.createComponent(componentFactory);
+
         this.agentComponentRef = this.agentChartViewContainerRef.createComponent(componentFactory);
         this.agentComponentRef.instance.outOpenThreadDump.subscribe((agentId: string) => {
             this.openThreadDump(agentId);
         });
-
-        // this.componentRefMap[namespace] = {
-        //     componentRef: componentRef,
-        //     index: this.agentChartViewContainerRef.length - 1,
-        //     unsubscription: unsubscription
-        // };
     }
     needPaging(): boolean {
         return this.totalCount > this.realTimeWebSocketService.getPagingSize();
     }
     getTotalPage(): number[] {
         const totalPage = Math.ceil(this.totalCount / this.realTimeWebSocketService.getPagingSize());
-        const pages = [];
-        for (let i = totalPage ; i > 1 ; i-- ) {
-            pages.push(i);
-        }
-        return pages;
+
+        return Array(totalPage).fill(0).map((v: number, i: number) => i + 1);
     }
     retryConnection(): void {
         this.messageTemplate = MessageTemplate.LOADING;
