@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
+import org.apache.cxf.interceptor.LoggingMessage;
 
 /**
  * The type Cxf logging in message method interceptor.
@@ -42,7 +43,9 @@ public class CxfLoggingInMessageMethodInterceptor extends CxfLoggingMessageMetho
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(CxfPluginConstants.CXF_LOGGING_IN_SERVICE_TYPE);
-        recordAttributes(recorder, args[0]);
+        if (args[0] instanceof LoggingMessage) {
+            recordAttributes(recorder, (LoggingMessage) args[0]);
+        }
     }
 
     @Override

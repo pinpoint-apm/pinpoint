@@ -91,7 +91,6 @@ public class CxfClientIT {
         verifier.verifyTrace(event("CXF_MESSAGE_SENDER", MessageSenderInterceptor.class.getDeclaredMethod("handleMessage", Message.class)));
 
         verifier.verifyTrace(event("CXF_LOGGING_OUT", LoggingOutInterceptor.class.getDeclaredMethod("formatLoggingMessage", LoggingMessage.class),
-                annotation("cxf.log.id", "1"),
                 annotation("cxf.address", address + "/test1"),
                 annotation("cxf.http.method", "POST"),
                 annotation("cxf.content.type", "application/json; charset=UTF-8"),
@@ -100,7 +99,6 @@ public class CxfClientIT {
         ));
 
 //        verifier.verifyTrace(event("CXF_LOGGING_IN", LoggingInInterceptor.class.getDeclaredMethod("formatLoggingMessage", LoggingMessage.class),
-//                annotation("cxf.log.id", "1"),
 //                annotation("cxf.response.code", "200"),
 //                annotation("cxf.encoding", "ISO-8859-1"),
 //                annotation("cxf.content.type", "text/html"),
