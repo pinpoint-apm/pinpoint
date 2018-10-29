@@ -225,7 +225,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
     private void addConnectionTransformer3_8_X(){
-        //3.7.8+
+        //3.8.0+
         transformTemplate.transform("com.mongodb.client.internal.MongoClientImpl", new TransformCallback() {
 
             @Override
@@ -265,7 +265,6 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistR3_0_x())))) {
                     method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor", va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
@@ -304,7 +303,6 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistR3_7_x())))) {
                     method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor", va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
