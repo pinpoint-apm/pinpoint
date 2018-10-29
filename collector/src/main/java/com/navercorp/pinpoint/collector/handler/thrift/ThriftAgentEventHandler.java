@@ -106,8 +106,8 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     }
 
     private void insert(final AgentEventBo agentEventBo) {
-        final Object eventMessage = getEventMessage(agentEventBo);
         try {
+            final Object eventMessage = getEventMessage(agentEventBo);
             final byte[] eventBody = agentEventMessageSerializerV1.serialize(agentEventBo.getEventType(), eventMessage);
             agentEventBo.setEventBody(eventBody);
         } catch (Exception e) {
@@ -121,6 +121,6 @@ public class ThriftAgentEventHandler implements SimpleHandler {
         if (agentEventBo instanceof DeadlockEventBo) {
             return ((DeadlockEventBo) agentEventBo).getDeadlockBo();
         }
-        return null;
+        throw new IllegalArgumentException("unsupported message " + agentEventBo);
     }
 }

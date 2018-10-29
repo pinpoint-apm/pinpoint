@@ -22,15 +22,13 @@ import com.navercorp.pinpoint.common.server.bo.event.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.event.MonitorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 
-import java.io.UnsupportedEncodingException;
-
 /**
  * @author jaehong.kim
  * AgentEventBo.version is 1
  */
 public class AgentEventMessageSerializerV1 {
 
-    public byte[] serialize(AgentEventType agentEventType, Object eventMessage) throws UnsupportedEncodingException {
+    public byte[] serialize(AgentEventType agentEventType, Object eventMessage) {
         if (agentEventType == null) {
             throw new NullPointerException("agentEventType must not be null");
         }
@@ -39,7 +37,7 @@ public class AgentEventMessageSerializerV1 {
             return serializeDeadlockBo((DeadlockBo) eventMessage);
         }
 
-        throw new UnsupportedEncodingException("Unsupported event message type [" + eventMessage.getClass().getName() + "]");
+        throw new IllegalArgumentException("Unsupported event message type [" + eventMessage.getClass().getName() + "]");
     }
 
     private byte[] serializeDeadlockBo(final DeadlockBo deadlockBo) {
