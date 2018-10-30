@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.redis.interceptor;
 
-import redis.clients.jedis.Client;
+package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
+
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import io.lettuce.core.RedisURI;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -27,11 +29,11 @@ import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
 /**
  * @author jaehong.kim
  */
-public class AttachEndPointInterceptor implements AroundInterceptor {
+public class RedisClientConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public AttachEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public RedisClientConstructorInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
     }
 
     @Override
@@ -45,33 +47,20 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
                 return;
             }
 
-            final String endPoint = ((EndPointAccessor) args[0])._$PINPOINT$_getEndPoint();
-            if (endPoint != null) {
-                ((EndPointAccessor) target)._$PINPOINT$_setEndPoint(endPoint);
-            }
+            final RedisURI redisURI = (RedisURI) args[1];
+            final String endPoint = HostAndPort.toHostAndPortString(redisURI.getHost(), redisURI.getPort());
+            ((EndPointAccessor) target)._$PINPOINT$_setEndPoint(endPoint);
         } catch (Throwable t) {
-            logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
+            }
         }
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args == null || args.length == 0 || args[0] == null) {
+        if (args == null || args.length < 2 || args[1] == null) {
             if (isDebug) {
                 logger.debug("Invalid arguments. Null or not found args({}).", args);
-            }
-            return false;
-        }
-
-        if (!(args[0] instanceof Client)) {
-            if (isDebug) {
-                logger.debug("Invalid arguments. Expect Client but args[0]({}).", args[0]);
-            }
-            return false;
-        }
-
-        if (!(args[0] instanceof EndPointAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. Need field accessor({}).", EndPointAccessor.class.getName());
             }
             return false;
         }
@@ -83,6 +72,12 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
             return false;
         }
 
+        if (!(args[1] instanceof RedisURI)) {
+            if (isDebug) {
+                logger.debug("Invalid args[1] object. args[1]={}", args[1]);
+            }
+            return false;
+        }
         return true;
     }
 
