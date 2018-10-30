@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
-import com.navercorp.pinpoint.plugin.okhttp.v2.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 import com.navercorp.pinpoint.plugin.okhttp.v2.OkHttpClientRequestAdaptor;
@@ -115,13 +114,6 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         if (!(target instanceof UserResponseGetter)) {
             if (isDebug) {
                 logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_RESPONSE);
-            }
-            return false;
-        }
-
-        if (!(target instanceof ConnectionGetter)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
             }
             return false;
         }
