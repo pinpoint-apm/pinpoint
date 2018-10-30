@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
-import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
@@ -65,12 +64,9 @@ public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
     public InstrumentEngine get() {
         final String instrumentEngine = profilerConfig.getProfileInstrumentEngine().toUpperCase();
         if (DefaultProfilerConfig.INSTRUMENT_ENGINE_ASM.equals(instrumentEngine)) {
-            logger.info("ASM InstrumentEngine.");
+            logger.info("ASM InstrumentEngine");
             return new ASMEngine(instrumentation, objectBinderFactory, interceptorRegistryBinder, apiMetaDataServiceProvider, bootstrapJarPath);
 
-        } else if (DefaultProfilerConfig.INSTRUMENT_ENGINE_JAVASSIST.equals(instrumentEngine)) {
-            logger.info("JAVASSIST InstrumentEngine.");
-            return new JavassistEngine(instrumentation, objectBinderFactory, interceptorRegistryBinder, apiMetaDataServiceProvider, bootstrapJarPath);
         } else {
             logger.warn("Unknown InstrumentEngine:{}", instrumentEngine);
 
