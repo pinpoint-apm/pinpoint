@@ -22,11 +22,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.LoaderClassPath;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,25 +37,6 @@ public class TestBootstrapClass {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Test
-    public void test() throws IOException, CannotCompileException {
-
-        TestClassLoader classLoader = new TestClassLoader(new URL[]{}, null);
-
-        LoaderClassPath loaderClassPath = new LoaderClassPath(classLoader);
-
-        ClassPool cp = new ClassPool();
-        cp.appendClassPath(loaderClassPath);
-
-        CtClass ctClass = cp.makeClass(TEST_CLASS_NAME);
-        byte[] bytes = ctClass.toBytecode();
-
-        logger.debug(classLoader.getClass().getName());
-        Class<?> aClass = classLoader.defineClass(TEST_CLASS_NAME, bytes);
-
-        logger.debug("{}", aClass.getName());
-
-    }
 
     private class TestClassLoader extends URLClassLoader {
         public TestClassLoader(URL[] urls, ClassLoader parent) {
