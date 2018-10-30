@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.plugin.okhttp.v2.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.v2.UserRequestGetter;
 import com.navercorp.pinpoint.plugin.okhttp.v2.UserResponseGetter;
@@ -74,13 +73,6 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
         if (!(target instanceof UserResponseGetter)) {
             if (isDebug) {
                 logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_RESPONSE);
-            }
-            return false;
-        }
-
-        if (!(target instanceof ConnectionGetter)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
             }
             return false;
         }
