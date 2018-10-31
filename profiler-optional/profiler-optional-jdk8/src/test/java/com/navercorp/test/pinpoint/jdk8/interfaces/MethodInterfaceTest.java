@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.instrument.ASMClassNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.ASMClassWriter;
 import com.navercorp.pinpoint.profiler.instrument.ASMFieldNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.ASMMethodNodeAdapter;
+import com.navercorp.pinpoint.profiler.instrument.EngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
@@ -185,7 +186,8 @@ public class MethodInterfaceTest {
     public void isInterceptable() throws Exception {
         ClassNode classNode = TestClassLoader.get("com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterface");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        ASMClass clazz = new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, classLoader, classNode);
+        EngineComponent engineComponent = mock(EngineComponent.class);
+        ASMClass clazz = new ASMClass(engineComponent, pluginContext, classLoader, classNode);
         assertTrue(clazz.isInterceptable());
     }
 

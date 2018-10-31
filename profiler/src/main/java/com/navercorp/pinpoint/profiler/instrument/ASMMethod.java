@@ -27,11 +27,8 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.CaptureType;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
-import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorType;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.tree.MethodNode;
@@ -42,43 +39,26 @@ import org.slf4j.LoggerFactory;
  * @author jaehong.kim
  */
 public class ASMMethod implements InstrumentMethod {
-    // TODO fix inject InterceptorDefinitionFactory
-    private static final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ObjectBinderFactory objectBinderFactory;
+    private final EngineComponent engineComponent;
     private final InstrumentContext pluginContext;
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ASMClass declaringClass;
     private final ASMMethodNodeAdapter methodNode;
     private final MethodDescriptor descriptor;
-    private final ApiMetaDataService apiMetaDataService;
-
-    // TODO fix inject ScopeFactory
-    private static final ScopeFactory scopeFactory = new ScopeFactory();
 
 
-    public ASMMethod(ObjectBinderFactory objectBinderFactory, InstrumentContext pluginContext, ApiMetaDataService apiMetaDataService, InterceptorRegistryBinder interceptorRegistryBinder, ASMClass declaringClass, MethodNode methodNode) {
-        this(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, declaringClass, new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(declaringClass.getName()), methodNode));
+
+    public ASMMethod(EngineComponent engineComponent, InstrumentContext pluginContext, ASMClass declaringClass, MethodNode methodNode) {
+        this(engineComponent, pluginContext, declaringClass, new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(declaringClass.getName()), methodNode));
 
     }
 
-    public ASMMethod(ObjectBinderFactory objectBinderFactory, InstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ApiMetaDataService apiMetaDataService, ASMClass declaringClass, ASMMethodNodeAdapter methodNode) {
-        if (objectBinderFactory == null) {
-            throw new NullPointerException("objectBinderFactory must not be null");
-        }
-        if (pluginContext == null) {
-            throw new NullPointerException("pluginContext must not be null");
-        }
-        if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService must not be null");
-        }
-        this.objectBinderFactory = objectBinderFactory;
-        this.pluginContext = pluginContext;
-        this.interceptorRegistryBinder = interceptorRegistryBinder;
-        this.apiMetaDataService = apiMetaDataService;
+    public ASMMethod(EngineComponent engineComponent, InstrumentContext pluginContext, ASMClass declaringClass, ASMMethodNodeAdapter methodNode) {
+        this.engineComponent = Assert.requireNonNull(engineComponent, "engineComponent must not be null");
+        this.pluginContext = Assert.requireNonNull(pluginContext, "pluginContext must not be null");
         this.declaringClass = declaringClass;
         this.methodNode = methodNode;
 
@@ -224,9 +204,10 @@ public class ASMMethod implements InstrumentMethod {
 
     private int addInterceptor0(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
         final ClassLoader classLoader = this.declaringClass.getClassLoader();
+        final ScopeFactory scopeFactory = this.engineComponent.getScopeFactory();
         final ScopeInfo scopeInfo = scopeFactory.newScopeInfo(classLoader, pluginContext, interceptorClassName, scope, executionPolicy);
         final Interceptor interceptor = createInterceptor(classLoader, interceptorClassName, scopeInfo, constructorArgs);
-        final int interceptorId = this.interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
+        final int interceptorId = this.engineComponent.addInterceptor(interceptor);
 
         addInterceptor0(interceptor, interceptorId);
         return interceptorId;
@@ -234,6 +215,7 @@ public class ASMMethod implements InstrumentMethod {
 
     private Interceptor createInterceptor(ClassLoader classLoader, String interceptorClassName, ScopeInfo scopeInfo, Object[] constructorArgs) {
         // exception handling.
+        ObjectBinderFactory objectBinderFactory = this.engineComponent.getObjectBinderFactory();
         final AnnotatedInterceptorFactory factory = objectBinderFactory.newAnnotatedInterceptorFactory(this.pluginContext);
         final Interceptor interceptor = factory.getInterceptor(classLoader, interceptorClassName, constructorArgs, scopeInfo, this.declaringClass, this);
 
@@ -245,7 +227,7 @@ public class ASMMethod implements InstrumentMethod {
             throw new NullPointerException("interceptor must not be null");
         }
 
-        final InterceptorDefinition interceptorDefinition = this.interceptorDefinitionFactory.createInterceptorDefinition(interceptor.getClass());
+        final InterceptorDefinition interceptorDefinition = this.engineComponent.createInterceptorDefinition(interceptor.getClass());
         final Class<?> interceptorClass = interceptorDefinition.getInterceptorClass();
         final CaptureType captureType = interceptorDefinition.getCaptureType();
         if (this.methodNode.hasInterceptor()) {
@@ -260,7 +242,7 @@ public class ASMMethod implements InstrumentMethod {
 
         int apiId = -1;
         if (interceptorDefinition.getInterceptorType() == InterceptorType.API_ID_AWARE) {
-            apiId = this.apiMetaDataService.cacheApi(this.descriptor);
+            apiId = this.engineComponent.cacheApi(this.descriptor);
         }
 
         // add before interceptor.
