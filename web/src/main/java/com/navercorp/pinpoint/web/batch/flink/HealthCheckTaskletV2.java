@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.web.batch.flink;
 
-import com.navercorp.pinpoint.web.alarm.AlarmMessageSender;
-import com.navercorp.pinpoint.web.alarm.EmptyMessageSender;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,15 +28,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
-public class HealthCheckTasklet implements Tasklet {
+public class HealthCheckTaskletV2 implements Tasklet {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final static String URL_FORMAT = "http://%s:8081/joboverview";
+    private final static String URL_FORMAT = "http://%s:8081/jobs/overview";
+    private final static String NAME = "name";
+    private final static String STATE = "state";
+    private final static String RUNNING = "RUNNING";
     private final List<String> jobNameList;
 
     @Autowired
@@ -47,7 +51,7 @@ public class HealthCheckTasklet implements Tasklet {
     @Autowired
     private BatchConfiguration batchConfiguration;
 
-    public HealthCheckTasklet() {
+    public HealthCheckTaskletV2() {
         this.jobNameList = new ArrayList<>(1);
         jobNameList.add("Aggregation Stat Data");
     }
@@ -93,17 +97,16 @@ public class HealthCheckTasklet implements Tasklet {
 
     private void checkJobExecuteStatus(ResponseEntity<Map> responseEntity, Map<String, Boolean> jobExecuteStatus) {
         Map<Object, Object> responseData = responseEntity.getBody();
-        List<Object> runningJob = (List<Object>)responseData.get("running");
+        List<Object> jobs = (List<Object>)responseData.get("jobs");
 
-        if (runningJob != null) {
-            for (Object job : runningJob) {
+        if (jobs != null) {
+            for (Object job : jobs) {
                 Map<String, Object> jobInfo = (Map<String, Object>)job;
-                String jobName = (String) jobInfo.get("name");
-
-                Boolean status = jobExecuteStatus.get(jobName);
-
-                if (status != null) {
-                    jobExecuteStatus.put(jobName, true);
+                final String jobName = (String) jobInfo.get(NAME);
+                if (jobExecuteStatus.containsKey(jobName)) {
+                    if (RUNNING.equals(jobInfo.get(STATE))) {
+                        jobExecuteStatus.put(jobName, true);
+                    }
                 }
             }
         }
