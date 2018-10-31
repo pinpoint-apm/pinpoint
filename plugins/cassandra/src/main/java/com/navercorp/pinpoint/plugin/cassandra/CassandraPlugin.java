@@ -114,7 +114,7 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
 
                 if (className.equals(CLASS_SESSION_MANAGER)) {
-                    if (instrumentor.exist(loader, CLASS_ABSTRACT_SESSION)) {
+                    if (instrumentor.exist(loader, CLASS_ABSTRACT_SESSION, protectionDomain)) {
                         return null;
                     }
                 }

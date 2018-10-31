@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
+import java.security.ProtectionDomain;
+
 /**
  * @author emeroad
  */
@@ -49,16 +51,29 @@ public class GuardInstrumentor implements Instrumentor {
     }
 
     @Override
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+        checkOpen();
+        return instrumentContext.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
+    }
+
+    @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer) {
         checkOpen();
-        return instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+        return instrumentContext.getInstrumentClass(classLoader, className, null, classfileBuffer);
+    }
+
+    @Override
+    public boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain) {
+        checkOpen();
+        return instrumentContext.exist(classLoader, className, protectionDomain);
     }
 
     @Override
     public boolean exist(ClassLoader classLoader, String className) {
         checkOpen();
-        return instrumentContext.exist(classLoader, className);
+        return instrumentContext.exist(classLoader, className, null);
     }
+
 
     @Override
     public InterceptorScope getInterceptorScope(String scopeName) {

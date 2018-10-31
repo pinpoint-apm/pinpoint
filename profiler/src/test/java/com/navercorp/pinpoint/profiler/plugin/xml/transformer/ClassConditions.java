@@ -185,7 +185,7 @@ public class ClassConditions {
 
         @Override
         public boolean check(InstrumentContext context, ClassLoader classLoader, InstrumentClass target) {
-            return context.exist(classLoader, name);
+            return context.exist(classLoader, name, null);
         }
 
         @Override
