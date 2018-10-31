@@ -171,7 +171,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 final InstrumentMethod buildMethod = target.getDeclaredMethod("build");
                 if (buildMethod != null) {
-                    if (instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl")) {
+                    if (instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl", protectionDomain)) {
                         // over 2.4.0
                         target.addGetter(OkHttpConstants.HTTP_URL_GETTER, OkHttpConstants.FIELD_HTTP_URL);
                         buildMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.RequestBuilderBuildMethodInterceptor", OkHttpConstants.SEND_REQUEST_SCOPE, ExecutionPolicy.INTERNAL);

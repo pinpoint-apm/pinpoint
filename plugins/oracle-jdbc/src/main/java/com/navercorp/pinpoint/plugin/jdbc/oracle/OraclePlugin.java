@@ -159,7 +159,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 if (className.equals(CLASS_PREPARED_STATEMENT)) {
-                    if (instrumentor.exist(loader, CLASS_PREPARED_STATEMENT_WRAPPER)) {
+                    if (instrumentor.exist(loader, CLASS_PREPARED_STATEMENT_WRAPPER, protectionDomain)) {
                         return null;
                     }
                 }
@@ -203,7 +203,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 if (className.equals(CLASS_CALLABLE_STATEMENT)) {
-                    if (instrumentor.exist(loader, CLASS_CALLABLE_STATEMENT_WRAPPER)) {
+                    if (instrumentor.exist(loader, CLASS_CALLABLE_STATEMENT_WRAPPER, protectionDomain)) {
                         return null;
                     }
                 }
@@ -234,7 +234,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 if (className.equals(CLASS_STATEMENT)) {
-                    if (instrumentor.exist(loader, CLASS_STATEMENT_WRAPPER)) {
+                    if (instrumentor.exist(loader, CLASS_STATEMENT_WRAPPER, protectionDomain)) {
                         return null;
                     }
                 }
