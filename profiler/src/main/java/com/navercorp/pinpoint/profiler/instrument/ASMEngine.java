@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
 import java.util.jar.JarFile;
 
 /**
@@ -45,7 +47,7 @@ public class ASMEngine implements InstrumentEngine {
     }
 
     @Override
-    public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String className, byte[] classFileBuffer) throws NotFoundInstrumentException {
+    public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws NotFoundInstrumentException {
         if (className == null) {
             throw new NullPointerException("class name must not be null.");
         }
@@ -71,11 +73,6 @@ public class ASMEngine implements InstrumentEngine {
         }
     }
 
-    @Override
-    public boolean hasClass(ClassLoader classLoader, String className) {
-        // TODO deprecated
-        return classLoader.getResource(JavaAssistUtils.javaNameToJvmName(className) + ".class") != null;
-    }
 
     @Override
     public void appendToBootstrapClassPath(JarFile jarFile) {
