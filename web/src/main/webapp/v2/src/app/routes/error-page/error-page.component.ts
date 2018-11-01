@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService } from 'app/shared/services';
+import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService, ISystemConfiguration } from 'app/shared/services';
 import { ApplicationListDataService } from 'app/core/components/application-list/application-list-data.service';
 @Component({
     templateUrl: './error-page.component.html',
