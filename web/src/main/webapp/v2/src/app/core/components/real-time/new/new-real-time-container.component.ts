@@ -41,7 +41,7 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
     private totalComponentRef: ComponentRef<any> = null;
     private agentComponentRef: ComponentRef<any> = null;
     private componentRefMap: any = {};
-    totalCount = 0;
+    totalCount: number;
     firstChartIndex = 0;
     lastChartIndex: number;
     pinUp = true;
