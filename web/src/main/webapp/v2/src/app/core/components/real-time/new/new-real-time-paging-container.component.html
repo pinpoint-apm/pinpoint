@@ -1,11 +1,13 @@
 <div class="l-thread-chart-wrap">
     <div class="l-chart-group-wrap font-opensans">
         <article class="l-agent-chart">
-            <div class="l-paging">
-                <span class="l-txt">Total Servers : </span>
-                <span class="l-txt-bold">{{totalCount}}</span>
-                <span>[ {{firstChartIndex + 1}} ~ {{lastChartIndex + 1}} ]</span>
-            </div>
+            <ng-container *ngIf="totalCount">
+                <div class="l-paging">
+                    <span class="l-txt">Total Servers : </span>
+                    <span class="l-txt-bold">{{totalCount}}</span>
+                    <span>[ {{firstChartIndex + 1}} ~ {{lastChartIndex + 1}} ]</span>
+                </div>
+            </ng-container>
             <ng-container #agentChartPlaceHolder></ng-container>
         </article>
         <ng-container [ngSwitch]="messageTemplate">
