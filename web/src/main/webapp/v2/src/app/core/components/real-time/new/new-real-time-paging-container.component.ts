@@ -28,7 +28,7 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
     private serviceType = '';
     private componentRefMap: any = {};
     private agentComponentRef: ComponentRef<any> = null;
-    totalCount = 0;
+    totalCount: number;
     firstChartIndex: number;
     lastChartIndex: number;
     indexLimit: number;
