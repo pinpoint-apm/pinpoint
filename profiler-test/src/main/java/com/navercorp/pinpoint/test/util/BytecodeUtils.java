@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.test.util;
 
-import com.navercorp.pinpoint.profiler.util.IOUtils;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 import java.io.IOException;

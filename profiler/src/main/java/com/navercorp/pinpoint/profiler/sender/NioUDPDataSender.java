@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.buffer.ByteBufferFactory;
 import com.navercorp.pinpoint.rpc.buffer.ByteBufferFactoryLocator;
@@ -116,16 +117,8 @@ public class NioUDPDataSender implements DataSender {
 
             return datagramChannel;
         } catch (IOException e) {
-            if (socket != null) {
-                socket.close();
-            }
-
-            if (datagramChannel != null) {
-                try {
-                    datagramChannel.close();
-                } catch (IOException ignored) {
-                }
-            }
+            IOUtils.closeQuietly(socket);
+            IOUtils.closeQuietly(datagramChannel);
 
             throw new IllegalStateException("DatagramChannel create fail. Cause" + e.getMessage(), e);
         }
