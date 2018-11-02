@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util;
+package com.navercorp.pinpoint.common.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.DatagramSocket;
+import java.net.Socket;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -61,7 +64,7 @@ public final class IOUtils {
         }
     }
 
-    private static void copy(InputStream inputStream, ByteArrayOutputStream outputStream, byte[] buffer) throws IOException {
+    public static void copy(InputStream inputStream, OutputStream outputStream, byte[] buffer) throws IOException {
         int readCount;
         while ((readCount = inputStream.read(buffer, 0, buffer.length)) != EOF) {
             outputStream.write(buffer, 0, readCount);
@@ -77,4 +80,34 @@ public final class IOUtils {
             }
         }
     }
+
+    public static void close(Closeable closeable) throws IOException {
+        if (closeable != null) {
+            closeable.close();
+        }
+    }
+
+    public static void closeQuietly(Socket socket) {
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException ignore) {
+                // skip
+            }
+        }
+    }
+
+    public static void close(Socket socket) throws IOException {
+        if (socket != null) {
+            socket.close();
+        }
+    }
+
+    public static void closeQuietly(DatagramSocket datagramSocket) {
+        if (datagramSocket != null) {
+            datagramSocket.close();
+        }
+    }
+
+
 }

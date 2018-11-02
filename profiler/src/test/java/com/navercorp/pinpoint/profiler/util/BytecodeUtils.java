@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 

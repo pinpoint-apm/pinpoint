@@ -30,7 +30,7 @@
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.util.IOUtils;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
@@ -61,17 +62,10 @@ public class NioUdpDataSenderTest {
     }
 
     @After
-    public void setDown() throws InterruptedException {
-        close(receiver);
+    public void setDown()  {
+        IOUtils.closeQuietly(receiver);
         // port conflict happens when testcases run continuously so port number is increased.
         PORT = SocketUtils.findAvailableUdpPort(61112);
-    }
-
-    private void close(DatagramSocket socket) {
-        if (socket == null) {
-            return;
-        }
-        socket.close();
     }
 
     @Test
