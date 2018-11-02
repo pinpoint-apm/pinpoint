@@ -88,7 +88,7 @@ export class TransactionTimelineComponent implements OnInit {
         return resultCount;
     }
     showApplicationName(call: any, index: number): boolean {
-        if (index === 0) {
+        if (index === 0 || index >= this.data.length) {
             return true;
         } else {
             if (this.data[index - 1][this.keyIndex.applicationName] === call[this.keyIndex.applicationName]) {

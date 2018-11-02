@@ -1,5 +1,6 @@
 
 import { NgModule } from '@angular/core';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { SharedModule } from 'app/shared';
 import { TransactionTimelineComponent } from './transaction-timeline.component';
 import { TransactionTimelineContainerComponent } from './transaction-timeline-container.component';
@@ -10,7 +11,8 @@ import { TransactionTimelineContainerComponent } from './transaction-timeline-co
         TransactionTimelineContainerComponent
     ],
     imports: [
-        SharedModule
+        SharedModule,
+        ScrollingModule
     ],
     exports: [
         TransactionTimelineContainerComponent
