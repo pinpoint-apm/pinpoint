@@ -30,7 +30,6 @@
                             "src/styles.css"
                         ],
                         "scripts": [
-                            "./node_modules/hammerjs/hammer.min.js",
                             "./node_modules/snapsvg/dist/snap.svg-min.js"
                         ]
                     },

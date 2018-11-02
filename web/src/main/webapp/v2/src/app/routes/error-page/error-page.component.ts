@@ -60,7 +60,7 @@ export class ErrorPageComponent implements OnInit {
         });
     }
     private checkApplicationList(type: string): void {
-        this.applicationListDataService.getApplicationList().subscribe((applicatoinList: IApplication[]) => {
+        this.applicationListDataService.getApplicationList().subscribe((applicationList: IApplication[]) => {
             this.setState(type, true, false);
         }, (error: IServerErrorFormat) => {
             this.setState(type, false, false, error.exception.message);

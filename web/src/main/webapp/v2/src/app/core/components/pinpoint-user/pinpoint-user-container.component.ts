@@ -140,7 +140,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
                 return pinpointUser.name.indexOf(this.searchQuery) === -1 ? false : true;
             });
         }
-        this.addListItem(true);
+        this.displayPinpointUserList = this.filteredPinpointUserList;
     }
     isEnable(): boolean {
         return false;
@@ -259,24 +259,5 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     private hideProcessing(): void {
         this.useDisable = false;
         this.showLoading = false;
-    }
-    onScroll($event: MouseEvent): void {
-        this.addListItem();
-    }
-    private addListItem(reset: boolean = false): void {
-        if (reset) {
-            this.displayPinpointUserList.length = 0;
-            this.addScrollItem(0, Math.min(this.defaultScrollSize, this.filteredPinpointUserList.length));
-        } else {
-            if (this.currentSize < this.filteredPinpointUserList.length) {
-                this.addScrollItem(this.currentSize, Math.min(this.currentSize + this.defaultScrollSize, this.filteredPinpointUserList.length));
-            }
-        }
-    }
-    private addScrollItem(start: number, end: number): void {
-        for (let i = start ; i < end ; i++) {
-            this.displayPinpointUserList.push(this.filteredPinpointUserList[i]);
-        }
-        this.currentSize = end;
     }
 }

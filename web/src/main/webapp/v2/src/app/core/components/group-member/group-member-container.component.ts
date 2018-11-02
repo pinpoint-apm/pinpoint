@@ -14,7 +14,7 @@ import { GroupMemberDataService, IGroupMember, IGroupMemberResponse } from './gr
 export class GroupMemberContainerComponent implements OnInit {
     private unsubscribe: Subject<null> = new Subject();
     private ascendSort = true;
-    private currentUserGroupId: string;
+    currentUserGroupId: string;
     groupMemberList: IGroupMember[] = [];
     useDisable = false;
     showLoading = false;
@@ -144,6 +144,9 @@ export class GroupMemberContainerComponent implements OnInit {
             this.ascendSort = !this.ascendSort;
             this.sortGroupMemberList();
         }
+    }
+    onReload(): void {
+        this.getGroupMemberList();
     }
     hasMessage(): boolean {
         return this.message !== '';
