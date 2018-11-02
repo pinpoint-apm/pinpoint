@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.test.classloader;
 
-import com.navercorp.pinpoint.profiler.util.IOUtils;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 import java.io.InputStream;

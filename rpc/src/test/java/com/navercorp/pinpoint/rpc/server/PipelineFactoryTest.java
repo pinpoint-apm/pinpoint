@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.rpc.DiscardServerHandler;
 import com.navercorp.pinpoint.rpc.PipelineFactory;
-import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
@@ -85,9 +85,7 @@ public class PipelineFactoryTest {
             Assert.assertFalse(await);
 
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
+            IOUtils.closeQuietly(socket);
 
             PinpointRPCTestUtils.close(serverAcceptor);
         }
