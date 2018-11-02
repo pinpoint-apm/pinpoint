@@ -367,7 +367,7 @@
 	<dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>5.1.6</version>
+            <version>5.1.7</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
