@@ -108,14 +108,14 @@ public class PluginInstrumentContext implements InstrumentContext {
             throw new NullPointerException("className must not be null");
         }
 
-        final String jvmName = JavaAssistUtils.javaNameToJvmName(className) + ".class";
+        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className) + ".class";
 
-        final Scanner scanner = ClassScannerFactory.newScanner(classLoader, protectionDomain);
+        final Scanner scanner = ClassScannerFactory.newScanner(protectionDomain, classLoader);
         if (logger.isDebugEnabled()) {
             logger.debug("scanner:{}", scanner);
         }
         try {
-            return scanner.exist(jvmName);
+            return scanner.exist(jvmClassName);
         } finally {
             scanner.close();
         }
