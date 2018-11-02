@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, AfterViewInit, ViewChild, ElementRef, OnDestroy, Renderer2 } from '@angular/core';
+import * as moment from 'moment-timezone';
 
 @Component({
     selector: 'pp-new-real-time-total-chart',
@@ -62,6 +63,7 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         chartHeight: 0,
         titleHeight: 46,
         chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
+        chartLabels: ['1s', '3s', '5s', 'Slow'],
         yRatio: 3 / 5,
         gridLineSpeedControl: 25,
         chartSpeedControl: 25,
@@ -72,6 +74,12 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     };
     chartStart: number = null;
     animationFrameId: number;
+    showTooltip = false;
+    tooltipDataObj = {
+        title: '',
+        values: [] as number[],
+    };
+    lastMousePosInCanvas: ICoordinate;
 
     constructor(
         private el: ElementRef,
@@ -304,6 +312,68 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
                 // this.ctx.stroke();
                 this.ctx.fill();
             }
+
+            if (this.lastMousePosInCanvas && this.isMouseInChartArea() && this._timeStampList.length >= 2) {
+                const x = this.lastMousePosInCanvas.coordX;
+                const k = this._timeStampList.findIndex((timeStamp: number, i: number) => {
+                    const func = (index: number): number => xPos + Math.floor((this._timeStampList[index] - this.firstTimeStamp) / chartSpeedControl);
+
+                    return func(i) <= x && func(i + 1) > x;
+                });
+
+                if (k !== -1) {
+                    this.showTooltip = true;
+                    this.setTooltipData(k);
+                }
+            } else {
+                this.showTooltip = false;
+            }
         }
+    }
+
+    calculateTooltipLeft(tooltip: HTMLElement): string {
+        const { coordX } = this.lastMousePosInCanvas;
+        const { chartWidth, chartInnerPadding, axisWidth, marginFromAxis } = this.chartConstant;
+        const originXPos = this.getXPos() + chartInnerPadding + axisWidth + marginFromAxis;
+        const tooltipWidth = tooltip.offsetWidth;
+        const ratio = (coordX - originXPos) / chartWidth;
+
+        return `${coordX - (tooltipWidth * ratio)}px`;
+    }
+
+    calculateTooltipCaretLeft(tooltipCaret: HTMLElement): string {
+        const { coordX } = this.lastMousePosInCanvas;
+
+        return `${coordX - (tooltipCaret.offsetWidth / 2)}px`;
+    }
+
+    setTooltipData(i: number): void {
+        this.tooltipDataObj = {
+            title: moment(this._timeStampList[i]).tz(this.timezone).format(this.dateFormat),
+            values: this._dataList.map((data: number[]) => data[i])
+        };
+    }
+
+    onMouseMove(e: MouseEvent): void {
+        const { left, top } = this.canvas.getBoundingClientRect();
+        const { clientX, clientY } = e;
+        const xPosOnCanvas = clientX - left;
+        const yPosOnCanvas = clientY - top;
+
+        this.lastMousePosInCanvas = {
+            coordX: xPosOnCanvas,
+            coordY: yPosOnCanvas
+        };
+    }
+
+    isMouseInChartArea(): boolean {
+        const { coordX, coordY } = this.lastMousePosInCanvas;
+        const { chartInnerPadding, axisWidth, marginFromAxis, titleHeight, chartHeight, chartWidth } = this.chartConstant;
+        const minX = this.getXPos() + chartInnerPadding + axisWidth + marginFromAxis + 10;
+        const maxX = this.getXPos() + chartInnerPadding + axisWidth + marginFromAxis + chartWidth - 10;
+        const minY = this.getYPos() + titleHeight + chartInnerPadding;
+        const maxY = minY + chartHeight;
+
+        return minX < coordX && coordX < maxX && minY < coordY && coordY < maxY;
     }
 }
