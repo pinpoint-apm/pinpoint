@@ -39,7 +39,7 @@ public class ClassScannerFactoryTest {
     public void hasClass_directory() {
 
         Class<?> testClass = ClassScannerFactoryTest.class;
-        Scanner scanner = ClassScannerFactory.newScanner(this.getClass().getClassLoader(), testClass.getProtectionDomain());
+        Scanner scanner = ClassScannerFactory.newScanner(testClass.getProtectionDomain(), this.getClass().getClassLoader());
         String fileName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
         boolean exist = scanner.exist(fileName);
         scanner.close();
@@ -50,7 +50,7 @@ public class ClassScannerFactoryTest {
     public void hasClass_Jar() {
         Class<?> testClass = Logger.class;
 
-        Scanner scanner = ClassScannerFactory.newScanner(this.getClass().getClassLoader(), testClass.getProtectionDomain());
+        Scanner scanner = ClassScannerFactory.newScanner(testClass.getProtectionDomain(), this.getClass().getClassLoader());
         String fileName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
         boolean exist = scanner.exist(fileName);
         scanner.close();
@@ -61,7 +61,7 @@ public class ClassScannerFactoryTest {
     public void hasClass_classLoader() {
         Class<?> testClass = String.class;
 
-        Scanner scanner = ClassScannerFactory.newScanner(this.getClass().getClassLoader(), testClass.getProtectionDomain());
+        Scanner scanner = ClassScannerFactory.newScanner(testClass.getProtectionDomain(), this.getClass().getClassLoader());
         String fileName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
         boolean exist = scanner.exist(fileName);
         scanner.close();
@@ -72,7 +72,7 @@ public class ClassScannerFactoryTest {
     public void hasClass_classLoader_notfound() {
         Class<?> testClass = String.class;
 
-        Scanner scanner = ClassScannerFactory.newScanner(this.getClass().getClassLoader(), testClass.getProtectionDomain());
+        Scanner scanner = ClassScannerFactory.newScanner(testClass.getProtectionDomain(), this.getClass().getClassLoader());
         String fileName = JavaAssistUtils.javaNameToJvmName("test.Test") + ".class";
         boolean exist = scanner.exist(fileName);
         scanner.close();

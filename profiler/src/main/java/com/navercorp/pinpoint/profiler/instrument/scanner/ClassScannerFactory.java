@@ -26,23 +26,24 @@ import java.security.ProtectionDomain;
  */
 public class ClassScannerFactory {
 
-    public static Scanner newScanner(ClassLoader classLoader, ProtectionDomain protectionDomain) {
+    public static Scanner newScanner(ProtectionDomain protectionDomain, ClassLoader classLoader) {
         final URL codeLocation = CodeSourceUtils.getCodeLocation(protectionDomain);
         if (codeLocation == null) {
             return new ClassLoaderScanner(classLoader);
         }
 
-        final String path = codeLocation.getPath();
-
-        final boolean isDirectory = path.endsWith("/");
-        if (isDirectory) {
-            return new DirectoryScanner(path);
+        if (codeLocation.getProtocol().equals("file")) {
+            final String path = codeLocation.getPath();
+            final boolean isJarFile = path.endsWith(".jar");
+            if (isJarFile) {
+                return new JarFileScanner(path);
+            }
+            final boolean isDirectory = path.endsWith("/");
+            if (isDirectory) {
+                return new DirectoryScanner(path);
+            }
         }
-        final boolean isJarFile = path.endsWith(".jar");
-        if (isJarFile) {
-            return new JarFileScanner(path);
-        }
-        throw new IllegalStateException("unknown scanner type classLoader:" + classLoader + " protectionDomain:" + protectionDomain);
+        throw new IllegalArgumentException("unknown scanner type classLoader:" + classLoader + " protectionDomain:" + protectionDomain);
     }
 
 
