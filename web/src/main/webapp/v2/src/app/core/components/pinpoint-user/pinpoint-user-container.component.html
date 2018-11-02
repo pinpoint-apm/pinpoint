@@ -13,17 +13,19 @@
             [useEnter]="searchUseEnter"
             (outSearch)="onSearch($event)">
     </div>
-    <div class="l-pinpoint-user-list" infiniteScroll (scrolled)="onScroll($event)" [scrollWindow]="false">
-        <pp-pinpoint-user
-            *ngFor="let pinpointUser of displayPinpointUserList"
-            [pinpointUser]="pinpointUser"
-            [isEnabled]="isUserGroupSelected"
-            [isChecked]="isChecked(pinpointUser.userId)"
-            [allowedUserEdit]="allowedUserEdit"
-            (outRemove)="onRemovePinpointUser($event)"
-            (outEditUser)="onEditPinpointUser($event)"
-            (outAddUser)="onAddUser($event)">
-        </pp-pinpoint-user>
+    <div class="l-pinpoint-user-list">
+        <cdk-virtual-scroll-viewport itemSize="28" style="height: 100%;" *ngIf="filteredPinpointUserList.length > 0">
+            <pp-pinpoint-user
+                *cdkVirtualFor="let pinpointUser of filteredPinpointUserList; templateCacheSize: 22"
+                [pinpointUser]="pinpointUser"
+                [isEnabled]="isUserGroupSelected"
+                [isChecked]="isChecked(pinpointUser.userId)"
+                [allowedUserEdit]="allowedUserEdit"
+                (outRemove)="onRemovePinpointUser($event)"
+                (outEditUser)="onEditPinpointUser($event)"
+                (outAddUser)="onAddUser($event)">
+            </pp-pinpoint-user>
+        </cdk-virtual-scroll-viewport>
     </div>
     <div class="l-message" [hidden]="!hasMessage()">
         <button class="btn btn-black" (click)="onCloseMessage()"><i class="fas fa-times"></i></button>
@@ -42,3 +44,4 @@
     <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
     <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
 </div>
+    

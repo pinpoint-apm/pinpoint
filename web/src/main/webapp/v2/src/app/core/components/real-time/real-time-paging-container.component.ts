@@ -47,7 +47,7 @@ export class RealTimePagingContainerComponent implements OnInit, OnDestroy {
         ).subscribe(() => {
             this.applicationName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
             this.serviceType = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getServiceType();
-            this.currentPage = Number.parseInt(this.newUrlStateNotificationService.getPathValue(UrlPathId.PAGE));
+            this.currentPage = Number(this.newUrlStateNotificationService.getPathValue(UrlPathId.PAGE));
             this.startCount = this.currentPage * (this.realTimeWebSocketService.getPagingSize() - 1);
             this.endCount = this.startCount + this.realTimeWebSocketService.getPagingSize();
 
