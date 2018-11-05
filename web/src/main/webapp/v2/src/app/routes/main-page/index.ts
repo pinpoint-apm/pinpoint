@@ -9,6 +9,7 @@ import { PeriodSelectorModule } from 'app/core/components/period-selector';
 import { CommandGroupModule } from 'app/core/components/command-group';
 import { MainContentsModule } from 'app/core/components/main-contents';
 import { RealTimeModule } from 'app/core/components/real-time';
+import { NewRealTimeModule } from 'app/core/components/real-time-new';
 import { SideBarModule } from 'app/core/components/side-bar';
 import { MainPageComponent } from './main-page.component';
 import { routing } from './main-page.routing';
@@ -27,6 +28,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         CommandGroupModule,
         MainContentsModule,
         RealTimeModule,
+        NewRealTimeModule,
         SideBarModule,
         HelpViewerPopupModule,
         RouterModule.forChild(routing)
