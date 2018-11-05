@@ -161,7 +161,7 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy, AfterViewI
         const nextValue = nextRowData[this.callTreeOriginalData.callStackIndex.title];
         let bindValue;
 
-        if (nextRowData && (nextValue === 'SQL-BindValue' || nextValue === 'JSON-BindValue')) {
+        if (nextRowData && (nextValue === 'SQL-BindValue' || nextValue === 'MONGO-JSON-BindValue')) {
             bindValue = nextRowData[this.callTreeOriginalData.callStackIndex.arguments];
         }
 
