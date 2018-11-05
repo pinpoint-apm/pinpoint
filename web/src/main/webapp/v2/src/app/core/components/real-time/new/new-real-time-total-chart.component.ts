@@ -66,13 +66,11 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         titleHeight: 46,
         chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
         chartLabels: ['1s', '3s', '5s', 'Slow'],
-        yRatio: 3 / 5,
         gridLineSpeedControl: 25,
         chartSpeedControl: 25,
         ellipsis: '...',
         ellipsisWidth: 0,
         legendWidth: 0,
-        // defaultYMaxLabel: 10
     };
     chartStart: number = null;
     animationFrameId: number;
@@ -82,6 +80,7 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         values: [] as number[],
     };
     lastMousePosInCanvas: ICoordinate;
+    yRatio = 3 / 5; // 차트의 높이에 대한 데이터의 max 비율
 
     constructor(
         private el: ElementRef,
@@ -139,13 +138,11 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
 
     getXPos(): number {
         // 차트 컨테이너 왼쪽 위 꼭짓점 x좌표를 리턴
-        // return this.chartConstant.canvasLeftPadding + (this.chartConstant.chartWidth + this.chartConstant.gapBtnChart) * (i % this.chartNumPerRow);
         return this.chartConstant.canvasLeftPadding;
     }
 
     getYPos(): number {
         // 차트 컨테이너 왼쪽 위 꼭짓점 y좌표를 리턴
-        // return this.chartConstant.canvasTopPadding + (this.chartConstant.chartHeight + this.chartConstant.titleHeight + this.chartConstant.gapBtnChart) * Math.floor(i / this.chartNumPerRow);
         return this.chartConstant.canvasTopPadding;
     }
 
@@ -250,23 +247,27 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     }
 
     drawYAxisLabel(max: number): void {
-        const { chartInnerPadding, axisWidth, titleHeight, chartHeight, yRatio } = this.chartConstant;
+        const { chartInnerPadding, axisWidth, titleHeight, chartHeight } = this.chartConstant;
         const xPos = this.getXPos() + chartInnerPadding + axisWidth;
         const yPos = this.getYPos();
         const yAxisFlipValue = yPos + titleHeight + chartInnerPadding + chartHeight;
-        // const maxLabel = max === 0 ? defaultYMaxLabel : max / yRatio;
-        const maxLabel = max === 0 ? null : (max / yRatio).toFixed(2);
+        let maxLabel = max === 0 ? null : max / this.yRatio;
+        let midLabel = max === 0 ? null : maxLabel / 2;
+
+        if (maxLabel && !Number.isInteger(midLabel)) {
+            midLabel = Math.round(midLabel);
+            maxLabel = 2 * midLabel;
+            this.yRatio = max / maxLabel;
+        }
 
         this.ctx.font = '9px Nanum Gothic';
         this.ctx.textBaseline = 'middle';
         this.ctx.textAlign = 'right';
         this.ctx.fillStyle = '#333';
-        this.ctx.fillText('0', xPos, yAxisFlipValue);
+        this.ctx.fillText(`0`, xPos, yAxisFlipValue);
         if (maxLabel) {
-            // this.ctx.fillText(`${Math.floor(maxLabel / 2)}`, xPos, yPos + titleHeight + chartInnerPadding + chartHeight / 2);
-            // this.ctx.fillText(`${maxLabel}`, xPos, yPos + titleHeight + chartInnerPadding);
-            this.ctx.fillText((Number(maxLabel) / 2).toFixed(2), xPos, yPos + titleHeight + chartInnerPadding + chartHeight / 2);
-            this.ctx.fillText(maxLabel, xPos, yPos + titleHeight + chartInnerPadding);
+            this.ctx.fillText(`${midLabel}`, xPos, yPos + titleHeight + chartInnerPadding + chartHeight / 2);
+            this.ctx.fillText(`${maxLabel}`, xPos, yPos + titleHeight + chartInnerPadding);
         }
     }
 
@@ -288,7 +289,7 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
             this.chartStart = timestamp;
         }
 
-        const { chartInnerPadding, chartWidth, axisWidth, titleHeight, chartHeight, yRatio, marginFromAxis, chartColors, chartSpeedControl } = this.chartConstant;
+        const { chartInnerPadding, chartWidth, axisWidth, titleHeight, chartHeight, marginFromAxis, chartColors, chartSpeedControl } = this.chartConstant;
         const startingXPos = chartWidth - Math.floor((timestamp - this.chartStart) / chartSpeedControl); // 최초의 시작하는 점의 x좌표
         const isOverflow = this._timeStampList.length >= 2 && startingXPos + Math.floor((this._timeStampList[1] - this.firstTimeStamp) / chartSpeedControl) < 0;
 
@@ -314,8 +315,8 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
 
             const length = dataList.length;
             const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
-            const contentRatio = max === 0 ? 1 : chartHeight * yRatio / max;
             this.drawYAxisLabel(max);
+            const contentRatio = max === 0 ? 1 : chartHeight * this.yRatio / max;
 
             for (let j = 0; j < length; j++) {
                 const data = dataList[j];
