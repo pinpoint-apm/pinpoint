@@ -234,14 +234,10 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         const hasError = successData.length === 0;
 
         componentInstance.applicationName = applicationName ? applicationName : this.applicationName;
-        // componentInstance.hasError = successData.length === 0 ? true : false;
-        // componentInstance.errorMessage = successData.length === 0 ? activeThreadCounts[Object.keys(activeThreadCounts)[0]].message : '';
+        componentInstance.hasError = hasError;
+        componentInstance.errorMessage = hasError ? activeThreadCounts[Object.keys(activeThreadCounts)[0]].message : '';
         componentInstance.timezone = this.timezone;
         componentInstance.dateFormat = this.dateFormat;
-        // componentInstance.chartData = {
-        //     timeStamp,
-        //     responseCount: successData.length === 0 ? [] : this.getTotalResponseCount(successData)
-        // };
         componentInstance.timeStamp = timeStamp;
         componentInstance.data = hasError ? [] : this.getTotalResponseCount(successData);
     }
