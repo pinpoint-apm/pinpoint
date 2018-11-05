@@ -16,15 +16,17 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
-import org.apache.zookeeper.Watcher;
-
 /**
  * @author Taejin Koo
  */
-public interface ZookeeperEventWatcher extends Watcher {
+public class ZookeeperConstants {
 
-    boolean handleConnected();
+    public static final String PATH_SEPARATOR = "/";
 
-    boolean handleDisconnected();
+    public static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
+
+    public static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";
+
+    public static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
 
 }

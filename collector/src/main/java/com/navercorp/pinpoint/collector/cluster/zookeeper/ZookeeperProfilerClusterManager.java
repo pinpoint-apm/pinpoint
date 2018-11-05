@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -40,7 +42,7 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
 
     private final ZookeeperJobWorker worker;
 
-    private final CommonStateContext workerState;
+    private final CommonStateContext workerState = new CommonStateContext();
 
     private final ClusterPointRepository profileCluster;
 
@@ -49,8 +51,7 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
     // keep it simple - register on RUN, remove on FINISHED, skip otherwise
     // should only be instantiated when cluster is enabled.
     public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRepository profileCluster) {
-        this.workerState = new CommonStateContext();
-        this.profileCluster = profileCluster;
+        this.profileCluster = Assert.requireNonNull(profileCluster, "profileCluster must not be null");
 
         this.worker = new ZookeeperJobWorker(client, serverIdentifier);
     }
