@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 
-// import { IRealTimeChartData } from './real-time-chart.component';
-import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
+import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time-new/new-real-time-websocket.service';
 
 @Component({
     selector: 'pp-new-real-time-agent-chart',

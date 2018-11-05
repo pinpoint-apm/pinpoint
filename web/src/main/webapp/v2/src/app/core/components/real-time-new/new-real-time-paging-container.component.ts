@@ -4,8 +4,8 @@ import { takeUntil, filter } from 'rxjs/operators';
 
 import { UrlPathId, UrlPath } from 'app/shared/models';
 import { WebAppSettingDataService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
-import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, ResponseCode, IActiveThreadCounts } from '../real-time-websocket.service';
-import { NewRealTimeAgentChartComponent } from 'app/core/components/real-time/new/new-real-time-agent-chart.component';
+import { NewRealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
+import { NewRealTimeAgentChartComponent } from 'app/core/components/real-time-new/new-real-time-agent-chart.component';
 
 // TODO: 나중에 공통으로 추출.
 const enum MessageTemplate {
@@ -26,7 +26,6 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<null>();
     private applicationName = '';
     private serviceType = '';
-    private componentRefMap: any = {};
     private agentComponentRef: ComponentRef<any> = null;
     totalCount: number;
     firstChartIndex: number;
@@ -38,7 +37,7 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
         private componentFactoryResolver: ComponentFactoryResolver,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private webAppSettingDataService: WebAppSettingDataService,
-        private realTimeWebSocketService: RealTimeWebSocketService,
+        private realTimeWebSocketService: NewRealTimeWebSocketService,
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService,
     ) {}
@@ -52,10 +51,7 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
             this.applicationName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
             this.serviceType = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getServiceType();
             this.currentPage = Number.parseInt(this.newUrlStateNotificationService.getPathValue(UrlPathId.PAGE));
-            // this.startCount = this.currentPage * (this.realTimeWebSocketService.getPagingSize() - 1);
-            // this.endCount = this.startCount + this.realTimeWebSocketService.getPagingSize();
             this.firstChartIndex = (this.currentPage - 1) * this.realTimeWebSocketService.getPagingSize();
-            // this.endCount = this.currentPage * this.realTimeWebSocketService.getPagingSize();
             this.indexLimit = this.currentPage * this.realTimeWebSocketService.getPagingSize() - 1;
 
             this.webAppSettingDataService.useActiveThreadChart().subscribe((use: boolean) => {
@@ -98,7 +94,6 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
     }
     private resetAgentComponentRef(): void {
         this.agentChartViewContainerRef.clear();
-        this.componentRefMap = {};
     }
     private resetState() {
         this.applicationName = '';
