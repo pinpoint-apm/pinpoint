@@ -12,11 +12,11 @@ import {
     DynamicPopupService
 } from 'app/shared/services';
 import { UrlPath, UrlPathId } from 'app/shared/models';
-import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, ResponseCode, IActiveThreadCounts } from '../real-time-websocket.service';
+import { NewRealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, ResponseCode, IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
 
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-import { NewRealTimeAgentChartComponent } from 'app/core/components/real-time/new/new-real-time-agent-chart.component';
-import { NewRealTimeTotalChartComponent } from 'app/core/components/real-time/new/new-real-time-total-chart.component';
+import { NewRealTimeAgentChartComponent } from 'app/core/components/real-time-new/new-real-time-agent-chart.component';
+import { NewRealTimeTotalChartComponent } from 'app/core/components/real-time-new/new-real-time-total-chart.component';
 
 // TODO: 나중에 공통으로 추출.
 const enum MessageTemplate {
@@ -40,7 +40,6 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
     private serviceType = '';
     private totalComponentRef: ComponentRef<any> = null;
     private agentComponentRef: ComponentRef<any> = null;
-    private componentRefMap: any = {};
     totalCount: number;
     firstChartIndex = 0;
     lastChartIndex: number;
@@ -58,7 +57,7 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         private urlRouteManagerService: UrlRouteManagerService,
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
-        private realTimeWebSocketService: RealTimeWebSocketService,
+        private realTimeWebSocketService: NewRealTimeWebSocketService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService
     ) {}
@@ -157,7 +156,6 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         this.agentChartViewContainerRef.clear();
         this.totalComponentRef = null;
         this.agentComponentRef = null;
-        this.componentRefMap = {};
     }
     private resetState() {
         this.applicationName = '';
