@@ -48,7 +48,7 @@ public class MongoUtil {
 
     public static void recordParsedBson(SpanEventRecorder recorder, StringStringValue stringStringValue) {
         if (stringStringValue != null) {
-            recorder.recordAttribute(MongoConstants.MONGO_JSON, stringStringValue);
+            recorder.recordAttribute(MongoConstants.MONGO_JSON_DATA, stringStringValue);
         }
     }
 
