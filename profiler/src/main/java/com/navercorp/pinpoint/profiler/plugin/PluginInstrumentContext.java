@@ -30,14 +30,21 @@ import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
 import com.navercorp.pinpoint.profiler.context.scope.Pool;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.PluginClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.scanner.ClassScannerFactory;
+import com.navercorp.pinpoint.profiler.instrument.scanner.Scanner;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.security.ProtectionDomain;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class PluginInstrumentContext implements InstrumentContext {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ProfilerConfig profilerConfig;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
@@ -82,25 +89,36 @@ public class PluginInstrumentContext implements InstrumentContext {
 
 
     @Override
-    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classFileBuffer) {
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
         if (className == null) {
             throw new NullPointerException("className must not be null");
         }
         try {
             final InstrumentEngine instrumentEngine = getInstrumentEngine();
-            return instrumentEngine.getClass(this, classLoader, className, classFileBuffer);
+            return instrumentEngine.getClass(this, classLoader, className, protectionDomain, classFileBuffer);
         } catch (NotFoundInstrumentException e) {
             return null;
         }
     }
 
+
     @Override
-    public boolean exist(ClassLoader classLoader, String className) {
+    public boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain) {
         if (className == null) {
             throw new NullPointerException("className must not be null");
         }
-        final InstrumentEngine instrumentEngine = getInstrumentEngine();
-        return instrumentEngine.hasClass(classLoader, className);
+
+        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className) + ".class";
+
+        final Scanner scanner = ClassScannerFactory.newScanner(protectionDomain, classLoader);
+        if (logger.isDebugEnabled()) {
+            logger.debug("scanner:{}", scanner);
+        }
+        try {
+            return scanner.exist(jvmClassName);
+        } finally {
+            scanner.close();
+        }
     }
 
     private InstrumentEngine getInstrumentEngine() {

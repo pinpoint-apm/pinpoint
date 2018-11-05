@@ -27,11 +27,11 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
-import com.navercorp.pinpoint.common.util.OutputParameterJsonParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.web.calltree.span.CallTree;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
@@ -66,10 +66,10 @@ public class SpanServiceImpl implements SpanService {
     @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
-//    @Autowired
+    //    @Autowired
     private SqlMetaDataDao sqlMetaDataDao;
-    
-    @Autowired(required=false)
+
+    @Autowired(required = false)
     private MetaDataFilter metaDataFilter;
 
     @Autowired
@@ -80,7 +80,6 @@ public class SpanServiceImpl implements SpanService {
 
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
-    private final OutputParameterJsonParser outputParameterJsonParser = new OutputParameterJsonParser();
 
     public void setSqlMetaDataDao(SqlMetaDataDao sqlMetaDataDao) {
         this.sqlMetaDataDao = sqlMetaDataDao;
@@ -100,7 +99,7 @@ public class SpanServiceImpl implements SpanService {
         final SpanResult result = order(spans, selectedSpanHint);
         final CallTreeIterator callTreeIterator = result.getCallTree();
         final List<SpanAlign> values = callTreeIterator.values();
-        
+
         transitionDynamicApiId(values);
         transitionSqlId(values);
         transitionJson(values);
@@ -109,7 +108,6 @@ public class SpanServiceImpl implements SpanService {
         // TODO need to at least show the row data when root span is not found. 
         return result;
     }
-
 
 
     private void transitionAnnotation(List<SpanAlign> spans, AnnotationReplacementCallback annotationReplacementCallback) {
@@ -212,40 +210,46 @@ public class SpanServiceImpl implements SpanService {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-                AnnotationBo collectionInfo = findAnnotation(annotationBoList, AnnotationKey.MONGO_COLLECTIONINFO.getCode());
+                AnnotationBo collectionInfo = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_INFO.getCode());
+                AnnotationBo collectionOption = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_OPTION.getCode());
+
                 if (collectionInfo != null) {
                     StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append(spanAlign.getDestinationId()).append(".").append((String) collectionInfo.getValue());
+                    stringBuilder.append(spanAlign.getDestinationId())
+                            .append(".")
+                            .append((String) collectionInfo.getValue());
+
+                    if (collectionOption != null) {
+                        stringBuilder.append(" with ")
+                                .append(((String) collectionOption.getValue()).toUpperCase());
+                    }
                     collectionInfo.setValue(stringBuilder);
                 }
 
-                AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, AnnotationKey.JSON.getCode());
+                AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, MongoConstants.MONGO_JSON.getCode());
                 if (jsonAnnotation == null) {
                     return;
                 }
 
                 final StringStringValue jsonValue = (StringStringValue) jsonAnnotation.getValue();
 
-                final String jsonParam = jsonValue.getStringValue2();
+                final String json = jsonValue.getStringValue1();
+                final String jsonbindValue = jsonValue.getStringValue2();
 
-                if (StringUtils.isEmpty(jsonParam)) {
-                    logger.debug("No values in Json:{}", jsonValue.getStringValue1());
+                if (StringUtils.isEmpty(json)) {
+                    logger.debug("No values in Json:{}", json);
                 } else {
-
-                    final String outputParams = jsonParam;
-                    List<String> parsedOutputParams = outputParameterJsonParser.parseOutputJsonParameter(outputParams);
-                    logger.debug("outputPrams:{}, parsedOutputPrams:{}", outputParams, parsedOutputParams);
-
                     AnnotationBo jsonMeta = new AnnotationBo();
-                    jsonMeta.setKey(AnnotationKey.JSON.getCode());
-                    jsonMeta.setValue(jsonValue.getStringValue1());
+                    jsonMeta.setKey(MongoConstants.MONGO_JSON.getCode());
+                    jsonMeta.setValue(json);
                     annotationBoList.add(jsonMeta);
+                }
 
+                if (StringUtils.isNotEmpty(jsonbindValue)) {
                     AnnotationBo bindValueAnnotation = new AnnotationBo();
-                    bindValueAnnotation.setKey(AnnotationKey.JSON_BINDVALUE.getCode());
-                    bindValueAnnotation.setValue(jsonValue.getStringValue2());
+                    bindValueAnnotation.setKey(MongoConstants.MONGO_JSON_BINDVALUE.getCode());
+                    bindValueAnnotation.setValue(jsonbindValue);
                     annotationBoList.add(bindValueAnnotation);
-
                 }
             }
         });
@@ -438,7 +442,7 @@ public class SpanServiceImpl implements SpanService {
             return apiMetaDataBo.getApiInfo();
         }
     }
-    
+
     private String getApiTagInfo(ApiMetaDataBo apiMetaDataBo) {
         return apiMetaDataBo.getApiInfo();
     }

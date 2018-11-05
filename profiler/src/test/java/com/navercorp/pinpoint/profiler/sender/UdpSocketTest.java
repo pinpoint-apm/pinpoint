@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,18 +55,10 @@ public class UdpSocketTest {
 
     @After
     public void setDown() throws InterruptedException {
-        close(sender);
-        close(receiver);
+        IOUtils.closeQuietly(sender);
+        IOUtils.closeQuietly(receiver);
         // port conflict happens when testcases run continuously so port number is increased.
         PORT = SocketUtils.findAvailableUdpPort(61112);
-    }
-
-    private void close(DatagramSocket socket) {
-        if (socket == null) {
-            return;
-        }
-        socket.close();
-
     }
 
     private DatagramPacket newDatagramPacket(int size) {
@@ -143,7 +136,7 @@ public class UdpSocketTest {
     }
 
     // @Test
-    public void testRemoteSend() throws IOException, InterruptedException {
+    public void testRemoteSend() throws IOException {
         DatagramSocket so = new DatagramSocket();
         so.connect(new InetSocketAddress("10.66.18.78", PORT));
 

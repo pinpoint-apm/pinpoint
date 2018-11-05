@@ -24,12 +24,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
-import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.objectweb.asm.tree.ClassNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,16 +33,15 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class ASMNestedClass implements InstrumentClass {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ASMClass aClass;
 
-    public ASMNestedClass(ObjectBinderFactory objectBinderFactory, final InstrumentContext pluginContext, final InterceptorRegistryBinder interceptorRegistryBinder, ApiMetaDataService apiMetaDataService, final ClassLoader classLoader, final ClassNode classNode) {
-        this.aClass = new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, classLoader, classNode);
+    public ASMNestedClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, final ClassNode classNode) {
+        this.aClass = new ASMClass(engineComponent, pluginContext, classLoader, classNode);
     }
 
-    public ASMNestedClass(ObjectBinderFactory objectBinderFactory, final InstrumentContext pluginContext, final InterceptorRegistryBinder interceptorRegistryBinder, ApiMetaDataService apiMetaDataService, final ClassLoader classLoader, final ASMClassNodeAdapter classNodeAdapter) {
-        this.aClass = new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, classLoader, classNodeAdapter);
+    public ASMNestedClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, final ASMClassNodeAdapter classNodeAdapter) {
+        this.aClass = new ASMClass(engineComponent, pluginContext, classLoader, classNodeAdapter);
     }
 
     public ClassLoader getClassLoader() {

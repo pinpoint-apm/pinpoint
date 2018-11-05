@@ -20,8 +20,8 @@ package com.navercorp.pinpoint.common.util;
  * @author Roy Kim
  */
 public class StringStringValue {
-    private final String stringValue1;
-    private final String stringValue2;
+    private String stringValue1;
+    private String stringValue2;
 
     public StringStringValue(String stringValue1, String stringValue2) {
         this.stringValue1 = stringValue1;
@@ -34,5 +34,22 @@ public class StringStringValue {
 
     public String getStringValue2() {
         return stringValue2;
+    }
+
+    @Override
+    public String toString() {
+        return "StringStringValue{" +
+                "stringValue1='" + stringValue1 + '\'' +
+                ", stringValue2='" + stringValue2 + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StringStringValue that = (StringStringValue) o;
+        return stringValue1.equals(that.getStringValue1()) &&
+                stringValue2.equals(that.getStringValue2());
     }
 }

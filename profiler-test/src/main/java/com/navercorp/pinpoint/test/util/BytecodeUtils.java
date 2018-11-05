@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.test.util;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -35,78 +35,16 @@ public final class BytecodeUtils {
         }
         classLoader = getClassLoader(classLoader);
 
-        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
-        final InputStream is = classLoader.getResourceAsStream(classInternalName + ".class");
+        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className) + ".class";
+        final InputStream is = classLoader.getResourceAsStream(classInternalName);
         if (is == null) {
             throw new RuntimeException("No such class file: " + className);
         }
 
         try {
-            return readClass(is, false);
+            return IOUtils.toByteArray(is);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            close(is);
-        }
-    }
-
-    /**
-     * COPY ASM method. reference : org.objectweb.asm.ClassReader
-     *
-     * Reads the bytecode of a class.
-     *
-     * @param is
-     *            an input stream from which to read the class.
-     * @param close
-     *            true to close the input stream after reading.
-     * @return the bytecode read from the given input stream.
-     * @throws IOException
-     *             if a problem occurs during reading.
-     */
-    public static byte[] readClass(final InputStream is, boolean close)
-            throws IOException {
-        if (is == null) {
-            throw new IOException("Class not found");
-        }
-        try {
-            byte[] b = new byte[is.available()];
-            int len = 0;
-            while (true) {
-                int n = is.read(b, len, b.length - len);
-                if (n == -1) {
-                    if (len < b.length) {
-                        byte[] c = new byte[len];
-                        System.arraycopy(b, 0, c, 0, len);
-                        b = c;
-                    }
-                    return b;
-                }
-                len += n;
-                if (len == b.length) {
-                    int last = is.read();
-                    if (last < 0) {
-                        return b;
-                    }
-                    byte[] c = new byte[b.length + 1000];
-                    System.arraycopy(b, 0, c, 0, len);
-                    c[len++] = (byte) last;
-                    b = c;
-                }
-            }
-        } finally {
-            if (close) {
-                close(is);
-            }
-        }
-    }
-
-    private static void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException ignore) {
-                // skip
-            }
+            throw new RuntimeException("class read fail file: " + className, e);
         }
     }
 

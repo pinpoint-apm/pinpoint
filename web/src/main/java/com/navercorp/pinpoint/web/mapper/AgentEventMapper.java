@@ -33,6 +33,7 @@ import java.util.List;
 
 /**
  * @author HyunGil Jeong
+ * @author jaehong.kim - Add case for version 1
  */
 @Component
 public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
@@ -57,6 +58,7 @@ public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
             final int version = buffer.readInt();
             switch (version) {
                 case 0 :
+                case 1 :
                     final String agentId = buffer.readPrefixedString();
                     final long startTimestamp = buffer.readLong();
                     final long eventTimestamp = buffer.readLong();

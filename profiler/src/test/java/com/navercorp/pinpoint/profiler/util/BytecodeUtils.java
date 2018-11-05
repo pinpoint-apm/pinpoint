@@ -1,23 +1,23 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.profiler.util;
 
-import java.io.Closeable;
+import com.navercorp.pinpoint.common.util.IOUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -37,78 +37,16 @@ public final class BytecodeUtils {
             throw new NullPointerException("className must not be null");
         }
 
-        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
-        final InputStream is = classLoader.getResourceAsStream(classInternalName + ".class");
+        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className) + ".class";
+        final InputStream is = classLoader.getResourceAsStream(classInternalName);
         if (is == null) {
             throw new RuntimeException("No such class file: " + className);
         }
-
         try {
-            return readClass(is, false);
+            return IOUtils.toByteArray(is);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            close(is);
+            throw new RuntimeException(classInternalName + " class read fail");
         }
     }
 
-    /**
-     * COPY ASM method. reference : org.objectweb.asm.ClassReader
-     *
-     * Reads the bytecode of a class.
-     *
-     * @param is
-     *            an input stream from which to read the class.
-     * @param close
-     *            true to close the input stream after reading.
-     * @return the bytecode read from the given input stream.
-     * @throws IOException
-     *             if a problem occurs during reading.
-     */
-    public static byte[] readClass(final InputStream is, boolean close)
-            throws IOException {
-        if (is == null) {
-            throw new IOException("Class not found");
-        }
-        try {
-            byte[] b = new byte[is.available()];
-            int len = 0;
-            while (true) {
-                int n = is.read(b, len, b.length - len);
-                if (n == -1) {
-                    if (len < b.length) {
-                        byte[] c = new byte[len];
-                        System.arraycopy(b, 0, c, 0, len);
-                        b = c;
-                    }
-                    return b;
-                }
-                len += n;
-                if (len == b.length) {
-                    int last = is.read();
-                    if (last < 0) {
-                        return b;
-                    }
-                    byte[] c = new byte[b.length + 1000];
-                    System.arraycopy(b, 0, c, 0, len);
-                    c[len++] = (byte) last;
-                    b = c;
-                }
-            }
-        } finally {
-            if (close) {
-                close(is);
-            }
-        }
-    }
-
-    private static void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException ignore) {
-                // skip
-            }
-        }
-    }
 }

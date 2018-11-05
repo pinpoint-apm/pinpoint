@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.thrift;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
@@ -72,19 +73,20 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
     public TBase<?, ?> toMessage(Object message) {
         if (message instanceof SpanChunk) {
             final SpanChunk spanChunk = (SpanChunk) message;
-            final TSpanChunk tSpanChunk = buildSpanChunk(spanChunk);
+            final TSpanChunk tSpanChunk = buildTSpanChunk(spanChunk);
             return tSpanChunk;
         }
         if (message instanceof Span) {
             final Span span = (Span) message;
 
-            return buildSpan(span);
+            return buildTSpan(span);
         }
         return null;
     }
 
 
-    private TSpan buildSpan(Span span) {
+    @VisibleForTesting
+    TSpan buildTSpan(Span span) {
         final TSpan tSpan = new TSpan();
 
 //        tSpan.setVersion(span.getVersion());
@@ -156,7 +158,8 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         return tSpanEventList;
     }
 
-    private TSpanChunk buildSpanChunk(SpanChunk spanChunk) {
+    @VisibleForTesting
+    TSpanChunk buildTSpanChunk(SpanChunk spanChunk) {
         final TSpanChunk tSpanChunk = new TSpanChunk();
 
         tSpanChunk.setApplicationName(applicationName);
@@ -185,7 +188,8 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         return tSpanChunk;
     }
 
-    private TSpanEvent buildTSpanEvent(SpanEvent spanEvent, Context context) {
+    @VisibleForTesting
+    TSpanEvent buildTSpanEvent(SpanEvent spanEvent, Context context) {
         final TSpanEvent tSpanEvent = new TSpanEvent();
 
 //        if (spanEvent.getStartElapsed() != 0) {
@@ -246,8 +250,9 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         return tIntStringValue;
     }
 
-    private List<TAnnotation> buildTAnnotation(List<Annotation> annotations) {
-        final List<TAnnotation> tAnnotationList = new ArrayList<TAnnotation>();
+    @VisibleForTesting
+    List<TAnnotation> buildTAnnotation(List<Annotation> annotations) {
+        final List<TAnnotation> tAnnotationList = new ArrayList<TAnnotation>(annotations.size());
         for (Annotation annotation : annotations) {
             final TAnnotation tAnnotation = new TAnnotation(annotation.getAnnotationKey());
             final TAnnotationValue tAnnotationValue = AnnotationValueMapper.buildTAnnotationValue(annotation.getValue());

@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -212,23 +213,17 @@ public final class ASMClassWriter extends ClassWriter {
             return null;
         }
 
-        InputStream in = null;
-        try {
-            in = pluginContext.getResourceAsStream(this.classLoader, classInternalName + ".class");
-            if (in != null) {
-                return new ClassReader(in);
-            }
-        } catch (IOException ignored) {
-            // not found class.
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
-            }
+        final String classFileName = classInternalName + ".class";
+        final InputStream in = pluginContext.getResourceAsStream(this.classLoader, classFileName);
+        if (in == null) {
+            return null;
         }
 
-        return null;
+        try {
+            final byte[] bytes =IOUtils.toByteArray(in);
+            return new ClassReader(bytes);
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

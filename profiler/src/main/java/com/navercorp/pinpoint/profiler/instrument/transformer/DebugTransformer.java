@@ -54,7 +54,7 @@ public class DebugTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
-            final InstrumentClass target = instrumentEngine.getClass(instrumentContext, loader, className, classfileBuffer);
+            final InstrumentClass target = instrumentEngine.getClass(instrumentContext, loader, className, protectionDomain, classfileBuffer);
             if (target == null) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("targetClass not found. className:{}, classBeingRedefined:{} :{} ", className, classBeingRedefined, loader);

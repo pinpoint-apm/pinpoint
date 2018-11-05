@@ -98,20 +98,10 @@ public final class PropertyUtils {
             reader = new InputStreamReader(in, encoding);
             properties.load(reader);
         } finally {
-            close(reader);
-            close(in);
+            IOUtils.closeQuietly(reader);
+            IOUtils.closeQuietly(in);
         }
         return properties;
-    }
-
-    private static void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException ignore) {
-                // skip
-            }
-        }
     }
 
 }

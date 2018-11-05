@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.ERROR_API_METADATA;
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 
 /**
  * AnnotationKey sandbox is from 900 to 999. These values will not be assigned to anything.
- * 
+ *
  * <table>
  * <tr><td>-1</td><td>args[0]</td></tr>
  * <tr><td>-2</td><td>args[1]</td></tr>
@@ -48,7 +49,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>-51</td><td>ExceptionClass</td></tr>
  * <tr><td>-100</td><td>Asynchronous Invocation</td></tr>
  * <tr><td>-9999</td><td>UNKNOWN</td></tr>
- * 
+ *
  * <tr><td>12</td><td>API</td></tr>
  * <tr><td>13</td><td>API_METADATA</td></tr>
  * <tr><td>14</td><td>RETURN_DATA</td></tr>
@@ -96,7 +97,6 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>120</td><td>netty.address</td></tr>
  * <tr><td><s>200</s></td><td><s>cxf.operation</s></td></tr>
  * <tr><td><s>201</s></td><td><s>cxf.args</s></td></tr>
- * <tr><td>202</td><td>cxf.log.id</td></tr>
  * <tr><td>203</td><td>cxf.address</td></tr>
  * <tr><td>204</td><td>cxf.response.code</td></tr>
  * <tr><td>205</td><td>cxf.encoding</td></tr>
@@ -119,8 +119,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>10000013</td><td>API-METADATA-NOT-FOUND</td></tr>
  * <tr><td>10000014</td><td>API-METADATA-DID-COLLSION</td></tr>
  * </table>
- * 
- * 
+ *
  * @author netspider
  * @author emeroad
  * @author Jongho Moon
@@ -131,12 +130,12 @@ public interface AnnotationKey {
     String getName();
 
     int getCode();
-    
+
     boolean isErrorApiMetadata();
 
     boolean isViewInRecordSet();
 
-    
+
     // because of using variable-length encoding,
     // a small number should be used mainly for data contained in network packets and a big number for internal used code.
 
@@ -152,7 +151,7 @@ public interface AnnotationKey {
     AnnotationKey API_METADATA = AnnotationKeyFactory.of(13, "API-METADATA");
     AnnotationKey RETURN_DATA = AnnotationKeyFactory.of(14, "RETURN_DATA", VIEW_IN_RECORD_SET);
     AnnotationKey API_TAG = AnnotationKeyFactory.of(10015, "API-TAG");
-    
+
     // when you don't know the correct cause of errors.
     AnnotationKey ERROR_API_METADATA_ERROR = AnnotationKeyFactory.of(10000010, "API-METADATA-ERROR", ERROR_API_METADATA);
     // when agentInfo not found
@@ -184,10 +183,6 @@ public interface AnnotationKey {
     AnnotationKey HTTP_INTERNAL_DISPLAY = AnnotationKeyFactory.of(48, "http.internal.display");
     AnnotationKey HTTP_IO = AnnotationKeyFactory.of(49, "http.io", VIEW_IN_RECORD_SET);
     // post method parameter of httpclient
-
-    AnnotationKey JSON = AnnotationKeyFactory.of(51, "JSON");
-    AnnotationKey MONGO_COLLECTIONINFO = AnnotationKeyFactory.of(52, "Collection-Info", VIEW_IN_RECORD_SET);
-    AnnotationKey JSON_BINDVALUE = AnnotationKeyFactory.of(54, "JSON-BindValue", VIEW_IN_RECORD_SET);
 
     AnnotationKey MESSAGE_QUEUE_URI = AnnotationKeyFactory.of(100, "message.queue.url");
 

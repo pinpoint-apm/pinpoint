@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,7 +131,10 @@ public class ASMAspectWeaverTest {
             public Class<?> loadClass(String name) throws ClassNotFoundException {
                 if (name.equals(originalName)) {
                     try {
-                        final ClassReader cr = new ClassReader(getClass().getResourceAsStream("/" + JavaAssistUtils.javaNameToJvmName(name) + ".class"));
+                        final String jvmClassName = "/" + JavaAssistUtils.javaNameToJvmName(name) + ".class";
+                        final InputStream stream = getClass().getResourceAsStream(jvmClassName);
+                        byte[] classBytes = IOUtils.toByteArray(stream);
+                        final ClassReader cr = new ClassReader(classBytes);
                         final ClassNode classNode = new ClassNode();
                         cr.accept(classNode, 0);
 

@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -55,32 +56,25 @@ public class ASMClassNodeAdapter {
             throw new NullPointerException("classInternalName must not be null");
         }
 
-        InputStream in = null;
+        final InputStream in = pluginContext.getResourceAsStream(classLoader, classInternalName + ".class");
+        if (in == null) {
+            return null;
+        }
+        final byte[] bytes;
         try {
-            in = pluginContext.getResourceAsStream(classLoader, classInternalName + ".class");
-            if (in != null) {
-                final ClassReader classReader = new ClassReader(in);
-                final ClassNode classNode = new ClassNode();
-                if (skipCode) {
-                    classReader.accept(classNode, ClassReader.SKIP_CODE);
-                } else {
-                    classReader.accept(classNode, 0);
-                }
-
-                return new ASMClassNodeAdapter(pluginContext, classLoader, classNode, skipCode);
-            }
-        } catch (IOException ignored) {
-            // not found class.
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
-            }
+            bytes = IOUtils.toByteArray(in);
+        } catch (IOException ignore) {
+            return null;
+        }
+        final ClassReader classReader = new ClassReader(bytes);
+        final ClassNode classNode = new ClassNode();
+        if (skipCode) {
+            classReader.accept(classNode, ClassReader.SKIP_CODE);
+        } else {
+            classReader.accept(classNode, 0);
         }
 
-        return null;
+        return new ASMClassNodeAdapter(pluginContext, classLoader, classNode, skipCode);
     }
 
     private final InstrumentContext pluginContext;

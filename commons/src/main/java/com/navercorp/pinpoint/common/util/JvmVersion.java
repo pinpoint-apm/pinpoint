@@ -25,13 +25,18 @@ import java.util.Set;
  * @author hyungil.jeong
  */
 public enum JvmVersion {
+    JAVA_1(1.1f, 45),
+    JAVA_2(1.2f, 46),
+    JAVA_3(1.3f, 47),
+    JAVA_4(1.4f, 48),
     JAVA_5(1.5f, 49),
     JAVA_6(1.6f, 50),
     JAVA_7(1.7f, 51),
     JAVA_8(1.8f, 52),
-    JAVA_9(9f, 53),
-    JAVA_10(10f, 54),
-    JAVA_11(11f, 55),
+    JAVA_9(9.0f, 53),
+    JAVA_10(10.0f, 54),
+    JAVA_11(11.0f, 55),
+    JAVA_RECENT(99.0f, 99),
     UNSUPPORTED(-1, -1);
 
     private final float version;
@@ -62,22 +67,17 @@ public enum JvmVersion {
         }
     }
 
-     /**
-     * @deprecated Since 1.7.0. Use {@link JvmVersion#getFromVersion(float)}
-     */
-    @Deprecated
-    public static JvmVersion getFromVersion(double javaVersion) {
-        return getFromVersion((float)javaVersion);
-    }
-
     public static JvmVersion getFromVersion(float javaVersion) {
         for (JvmVersion version : JVM_VERSION) {
             if (Float.compare(version.version, javaVersion) == 0) {
                 return version;
-
             }
         }
-        return JvmVersion.UNSUPPORTED;
+        if (JAVA_1.version > javaVersion) {
+            return UNSUPPORTED;
+        } else {
+            return JAVA_RECENT;
+        }
     }
 
 
@@ -92,7 +92,11 @@ public enum JvmVersion {
     public static JvmVersion getFromClassVersion(int classVersion) {
         final JvmVersion jvmVersion = CLASS_VERSION_MAP.get(classVersion);
         if (jvmVersion == null) {
-            return JvmVersion.UNSUPPORTED;
+            if (JAVA_1.classVersion > classVersion) {
+                return JvmVersion.UNSUPPORTED;
+            } else {
+                return JAVA_RECENT;
+            }
         }
 
         return jvmVersion;

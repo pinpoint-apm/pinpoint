@@ -18,9 +18,9 @@ public class DruidDataSourceMonitorTest extends DataSourceMonitorAccessorTest {
 
         Assert.assertEquals(monitor.getServiceType(), DruidConstants.SERVICE_TYPE);
 
-        Assert.assertEquals(monitor.getUrl(), "");
-        Assert.assertEquals(monitor.getActiveConnectionSize(), 0);
-        Assert.assertEquals(monitor.getMaxConnectionSize(), 0);
+        Assert.assertEquals(monitor.getUrl(), null);
+        Assert.assertEquals(monitor.getActiveConnectionSize(), -1);
+        Assert.assertEquals(monitor.getMaxConnectionSize(), -1);
     }
 
 }

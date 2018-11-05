@@ -197,10 +197,34 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                final InstrumentMethod connectMethod = target.getDeclaredMethod("connect", "int", "int", "int", "boolean");
-                if (connectMethod != null) {
+                boolean addRouteGetter = false;
+                // 3.4.x, 3.5.x
+                final InstrumentMethod connectMethod1 = target.getDeclaredMethod("connect", "int", "int", "int", "java.util.List", "boolean");
+                if (connectMethod1 != null) {
+                    connectMethod1.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.RealConnectionConnectMethodInterceptor");
+                    addRouteGetter = true;
+                }
+                // 3.6.x - 3.8.x
+                final InstrumentMethod connectMethod2 = target.getDeclaredMethod("connect", "int", "int", "int", "boolean");
+                if (connectMethod2 != null) {
+                    connectMethod2.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.RealConnectionConnectMethodInterceptor");
+                    addRouteGetter = true;
+                }
+                // 3.9.0
+                final InstrumentMethod connectMethod3 = target.getDeclaredMethod("connect", "int", "int", "int", "boolean", "okhttp3.Call", "okhttp3.EventListener");
+                if (connectMethod3 != null) {
+                    connectMethod3.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.RealConnectionConnectMethodInterceptor");
+                    addRouteGetter = true;
+                }
+                // 3.10.0+
+                final InstrumentMethod connectMethod4 = target.getDeclaredMethod("connect", "int", "int", "int", "int", "boolean", "okhttp3.Call", "okhttp3.EventListener");
+                if (connectMethod4 != null) {
+                    connectMethod4.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.RealConnectionConnectMethodInterceptor");
+                    addRouteGetter = true;
+                }
+
+                if (addRouteGetter) {
                     target.addGetter("com.navercorp.pinpoint.plugin.okhttp.v3.RouteGetter", "route");
-                    connectMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.RealConnectionConnectMethodInterceptor");
                 }
 
                 return target.toBytecode();

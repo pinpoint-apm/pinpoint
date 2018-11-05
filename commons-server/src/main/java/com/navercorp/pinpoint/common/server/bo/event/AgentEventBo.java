@@ -20,10 +20,11 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 
 /**
  * @author HyunGil Jeong
+ * @author jaehong.kim - Update version & Remove hashcode, equals
  */
 public class AgentEventBo {
 
-    public static final int CURRENT_VERSION = 0;
+    public static final int CURRENT_VERSION = 1;
 
     private final byte version;
     private final String agentId;
@@ -55,7 +56,7 @@ public class AgentEventBo {
         if (eventType == null) {
             throw new IllegalArgumentException("agentEventType cannot be null");
         }
-        this.version = (byte)(version & 0xFF);
+        this.version = (byte) (version & 0xFF);
         this.agentId = agentId;
         this.startTimestamp = startTimestamp;
         this.eventTimestamp = eventTimestamp;
@@ -88,43 +89,6 @@ public class AgentEventBo {
 
     public void setEventBody(byte[] eventBody) {
         this.eventBody = eventBody;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-        result = prime * result + (int)(eventTimestamp ^ (eventTimestamp >>> 32));
-        result = prime * result + ((eventType == null) ? 0 : eventType.hashCode());
-        result = prime * result + (int)(startTimestamp ^ (startTimestamp >>> 32));
-        result = prime * result + version;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        AgentEventBo other = (AgentEventBo)obj;
-        if (agentId == null) {
-            if (other.agentId != null)
-                return false;
-        } else if (!agentId.equals(other.agentId))
-            return false;
-        if (eventTimestamp != other.eventTimestamp)
-            return false;
-        if (eventType != other.eventType)
-            return false;
-        if (startTimestamp != other.startTimestamp)
-            return false;
-        if (version != other.version)
-            return false;
-        return true;
     }
 
     @Override

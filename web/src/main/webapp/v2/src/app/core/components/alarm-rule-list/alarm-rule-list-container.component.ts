@@ -17,8 +17,8 @@ import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleResponse
 })
 export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
-    private currentApplication: IApplication = null;
     private editAlarmIndex: number;
+    currentApplication: IApplication = null;
     useDisable = false;
     showLoading = false;
     showCreate = false;
