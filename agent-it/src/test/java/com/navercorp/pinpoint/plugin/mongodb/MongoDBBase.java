@@ -97,7 +97,7 @@ public abstract class MongoDBBase {
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOne, null, MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
-                , new ExpectedAnnotation(MongoConstants.MONGO_JSON.getName(), parsedBson)));
+                , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), parsedBson)));
     }
 
     public void updateData(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
@@ -123,7 +123,7 @@ public abstract class MongoDBBase {
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, updateOne, null, MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
-                , new ExpectedAnnotation(MongoConstants.MONGO_JSON.getName(), parsedBson)));
+                , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), parsedBson)));
     }
 
 
@@ -174,7 +174,7 @@ public abstract class MongoDBBase {
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, deleteMany, null, MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
-                , new ExpectedAnnotation(MongoConstants.MONGO_JSON.getName(), parsedBson)));
+                , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), parsedBson)));
 
         Assert.assertEquals(1, deleteResult.getDeletedCount());
     }
