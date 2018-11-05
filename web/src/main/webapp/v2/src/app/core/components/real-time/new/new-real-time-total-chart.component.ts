@@ -9,6 +9,8 @@ import * as moment from 'moment-timezone';
 export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() timezone: string;
     @Input() dateFormat: string;
+    @Input() hasError: boolean;
+    @Input() errorMessage: string;
     @Input() applicationName: string;
     @Input()
     set data(data: number[]) {
@@ -116,10 +118,15 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         this.drawChartContainerRect();
         this.drawGridLine();
         this.drawXAxis();
-        if (this._timeStampList.length !== 0) {
-            this.drawChart(timestamp);
-        }
+        if (this.hasError) {
+            this.drawErrorText();
+        } else {
+            // TODO: _dataList.length !== 0일때로 해야하나?
+            if (this._timeStampList.length !== 0) {
+                this.drawChart(timestamp);
+            }
 
+        }
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
     }
 
@@ -140,6 +147,42 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         // 차트 컨테이너 왼쪽 위 꼭짓점 y좌표를 리턴
         // return this.chartConstant.canvasTopPadding + (this.chartConstant.chartHeight + this.chartConstant.titleHeight + this.chartConstant.gapBtnChart) * Math.floor(i / this.chartNumPerRow);
         return this.chartConstant.canvasTopPadding;
+    }
+
+    drawErrorText(): void {
+        this.ctx.font = '600 15px Nanum Gothic';
+        this.ctx.fillStyle = '#c04e3f';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+
+        const { chartInnerPadding, axisWidth, marginFromAxis, titleHeight, chartHeight, chartWidth } = this.chartConstant;
+        const x = this.getXPos() + chartInnerPadding + axisWidth + marginFromAxis + chartWidth / 2;
+        const isOverflow = (str: string) => this.ctx.measureText(str).width > chartWidth - 10;
+
+        const words = this.errorMessage.split(' ');
+        const arrangedText: string[] = []; // 여기에 message를 루프돌면서 overflow하지않는 단위로 잘라서 넣어줄 예정. 그리고, 이걸로 마지막에 fillText()
+        let startIndex = 0;
+        let lastIndex = words.length - 1;
+
+        while (this.errorMessage !== arrangedText.join(' ')) {
+            const substr = words.slice(startIndex, lastIndex + 1).join(' ');
+
+            if (isOverflow(substr)) {
+                lastIndex--;
+            } else {
+                arrangedText.push(substr);
+                startIndex = lastIndex + 1;
+                lastIndex = words.length - 1;
+            }
+        }
+
+        const length = arrangedText.length;
+
+        arrangedText.forEach((text: string, j: number) => {
+            const y = this.getYPos() + titleHeight + chartInnerPadding + (j + 1) * chartHeight / (length + 1);
+
+            this.ctx.fillText(text, x, y);
+        });
     }
 
     drawChartTitle(): void {

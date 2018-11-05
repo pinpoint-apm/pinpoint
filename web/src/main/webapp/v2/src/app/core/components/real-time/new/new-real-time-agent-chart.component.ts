@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 
 // import { IRealTimeChartData } from './real-time-chart.component';
-import { IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
+import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
 
 @Component({
     selector: 'pp-new-real-time-agent-chart',
@@ -38,7 +38,6 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
     _timeStampList: number[] = [];
     _dataList: { [key: string]: number[][] } = {};
 
-    showAxis = false;
     chartConstant = {
         canvasLeftPadding: 0,
         canvasTopPadding: 0,
@@ -96,9 +95,11 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
         this.drawChartTitle();
         this.drawChartContainerRect();
         this.drawGridLine(timestamp);
+
         if (this._timeStampList.length !== 0) {
             this.drawChart(timestamp);
         }
+        this.drawErrorText();
 
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
     }
@@ -111,6 +112,50 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
     getYPos(i: number): number {
         // 차트 컨테이너 왼쪽 위 꼭짓점 y좌표를 리턴
         return this.chartConstant.canvasTopPadding + (this.chartConstant.chartHeight + this.chartConstant.titleHeight + this.chartConstant.gapBtnChart) * Math.floor(i / this.chartNumPerRow);
+    }
+
+    drawErrorText(): void {
+        this.ctx.font = '600 13px Nanum Gothic';
+        this.ctx.fillStyle = '#c04e3f';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+
+        const { titleHeight, chartWidth, chartHeight } = this.chartConstant;
+
+        Object.keys(this._activeThreadCounts).forEach((agentName: string, i: number) => {
+            const { code, message } = this._activeThreadCounts[agentName];
+            const isResponseSuccess = code === ResponseCode.SUCCESS;
+
+            if (!isResponseSuccess) {
+                const x = this.getXPos(i) + chartWidth / 2;
+                const isOverflow = (str: string) => this.ctx.measureText(str).width > chartWidth - 10;
+
+                const words = message.split(' ');
+                const arrangedText: string[] = []; // 여기에 message를 루프돌면서 overflow하지않는 단위로 잘라서 넣어줄 예정. 그리고, 이걸로 마지막에 fillText()
+                let startIndex = 0;
+                let lastIndex = words.length - 1;
+
+                while (message !== arrangedText.join(' ')) {
+                    const substr = words.slice(startIndex, lastIndex + 1).join(' ');
+
+                    if (isOverflow(substr)) {
+                        lastIndex--;
+                    } else {
+                        arrangedText.push(substr);
+                        startIndex = lastIndex + 1;
+                        lastIndex = words.length - 1;
+                    }
+                }
+
+                const length = arrangedText.length;
+
+                arrangedText.forEach((text: string, j: number) => {
+                    const y = this.getYPos(i) + titleHeight + (j + 1) * chartHeight / (length + 1);
+
+                    this.ctx.fillText(text, x, y);
+                });
+            }
+        });
     }
 
     drawChartTitle(): void {
@@ -140,8 +185,9 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
 
     getChartTitleText(text: string): string {
         const textWidth = this.ctx.measureText(text).width;
-        const maxWidth = this.chartConstant.chartWidth / 2 - this.chartConstant.linkIconWidth - this.chartConstant.marginRightForLinkIcon;
-        const isOverflow = textWidth / 2  > maxWidth;
+        const maxWidth = this.chartConstant.chartWidth / 2 - this.chartConstant.linkIconWidth - this.chartConstant.marginRightForLinkIcon - 5;
+        // TODO: isOverflow를 내부메서드로 추출?
+        const isOverflow = textWidth / 2 > maxWidth;
 
         if (isOverflow) {
             let length = text.length;
@@ -200,20 +246,23 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
 
         if (xPos0 < this.chartConstant.chartWidth) {
             Object.keys(this._dataList).forEach((agentName: string, i: number) => {
-                const xPos = this.getXPos(i) + startingXPos; // 각 차트에서의 기준점(t0) x좌표
-                const yPos = this.getYPos(i); // 왼쪽위 꼭짓점 y좌표
-                const yAxisFlipValue = yPos + this.chartConstant.titleHeight + this.chartConstant.chartHeight; // for upside down
-
                 const dataList = this._dataList[agentName];
-                const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
-                const contentRatio = this.chartConstant.chartHeight * this.chartConstant.yRatio / max;
-                const length = dataList.length;
 
                 if (isOverflow) {
                     dataList.forEach((dataArr: number[]) => {
                         dataArr.shift();
                     });
                 }
+                // TODO: 레이아웃 잡아주기
+
+                const xPos = this.getXPos(i) + startingXPos; // 각 차트에서의 기준점(t0) x좌표
+                const yPos = this.getYPos(i); // 왼쪽위 꼭짓점 y좌표
+                const yAxisFlipValue = yPos + this.chartConstant.titleHeight + this.chartConstant.chartHeight; // for upside down
+
+                const length = dataList.length;
+
+                const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
+                const contentRatio = this.chartConstant.chartHeight * this.chartConstant.yRatio / max;
 
                 for (let j = 0; j < length; j++) {
                     const data = dataList[j];
