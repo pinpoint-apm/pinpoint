@@ -395,18 +395,21 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     }
 
     drawTooltipPoint(xPos: number, i: number, ratio: number): void {
-        const { chartInnerPadding, titleHeight, chartHeight, chartColors, chartSpeedControl } = this.chartConstant;
+        const { chartInnerPadding, titleHeight, chartHeight, chartColors, chartSpeedControl, axisWidth, marginFromAxis } = this.chartConstant;
         const yAxisFlipValue = this.getYPos() + titleHeight + chartInnerPadding + chartHeight;
         const yPosList = this._dataList.map((data: number[]) => yAxisFlipValue - (data[i] * ratio));
+        const originXPos = this.getXPos() + chartInnerPadding + axisWidth + marginFromAxis;
         const x = xPos + Math.floor((this._timeStampList[i] - this.firstTimeStamp) / chartSpeedControl);
         const r = 3;
 
-        yPosList.forEach((y: number, index: number) => {
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, r, 0, 2 * Math.PI);
-            this.ctx.fillStyle = chartColors[index];
-            this.ctx.fill();
-        });
+        if (x > originXPos) {
+            yPosList.forEach((y: number, index: number) => {
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+                this.ctx.fillStyle = chartColors[index];
+                this.ctx.fill();
+            });
+        }
     }
 
     setTooltipData(i: number): void {
