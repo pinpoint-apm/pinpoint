@@ -105,7 +105,9 @@
 	                        html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
 	                    } else if (!item.isMethod) {
 	                    	if( item.method === "SQL" ) {
-	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success sql" style="padding:0px 2px 0px 2px"><span class="glyphicon glyphicon-eye-open sql"></span></button>&nbsp;');
+								html.push('<button type="button" class="btn btn-default btn-xs btn-success sql" style="padding:0px 2px 0px 2px"><span class="glyphicon glyphicon-eye-open sql"></span></button>&nbsp;');
+							} else if( item.method === "MONGO-JSON" ) {
+	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success json" style="padding:0px 2px 0px 2px"><span class="glyphicon glyphicon-eye-open json"></span></button>&nbsp;');
 	                    	} else {
 	                    		html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
 	                    	}
@@ -340,7 +342,7 @@
 	                    grid = new Slick.Grid(element.get(0), dataView, columns, options);
 	                    grid.setSelectionModel(new Slick.RowSelectionModel());
 	
-	                    var isSingleClick = true, clickTimeout = false;
+	                    var isSingleSQ = true, clickTimeout = false;
 	                    grid.onClick.subscribe(function (e, args) {
 							var item;
 	                        if ($(e.target).hasClass("toggle")) {
@@ -393,6 +395,44 @@
 									).end().modal("show");
 								}
 	                        }
+							if ( $(e.target).hasClass("json") ) {
+								item = dataView.getItem(args.row);
+								var itemNext = dataView.getItem(args.row+1);
+								var data = "json=" + encodeURIComponent( item.argument );
+
+								if ( item.isAuthorized ) {
+									if ( angular.isDefined( itemNext ) && itemNext.method === "MONGO-JSON-BindValue" ) {
+										data += "&bind=" + encodeURIComponent( itemNext.argument );
+										CommonAjaxService.getSQLBind( "jsonBind.pinpoint", data, function( result ) {
+											$("#customLogPopup").find("h4").html("JSON").end().find("div.modal-body").html(
+												'<h4>Binded JSON <button class="btn btn-default btn-xs json">Copy</button></h4>' +
+												'<div style="position:absolute;left:10000px">' + result + '</div>' +
+												'<pre class="prettyprint lang-json" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' +
+												'<hr>' +
+												'<h4>Original JSON <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+												'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
+												'<pre class="prettyprint lang-json" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
+												'<h4>JSON Bind Value <button class="btn btn-default btn-xs json">Copy</button></h4>' +
+												'<div style="position:absolute;left:10000px">' + itemNext.argument + '</div>' +
+												'<pre class="prettyprint lang-json" style="margin-top:0px">' + itemNext.argument + '</pre>'
+											).end().modal("show");
+											prettyPrint();
+										});
+									} else {
+										$("#customLogPopup").find("h4").html("JSON").end().find("div.modal-body").html(
+											'<h4>Original JSON <button class="btn btn-default btn-xs json">Copy</button></h4>' +
+											'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
+											'<pre class="prettyprint lang-json" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>'
+										).end().modal("show");
+										prettyPrint();
+									}
+								} else {
+									$("#customLogPopup").find("h4").html("JSON").end().find("div.modal-body").html(
+										'<h4>Original JSON</h4>' +
+										'<div style="margin-top:0px;padding:6px 10px;border-radius:4px;background-color:#C56A6A;color:#D7FBBA;">' + item.argument.replace(/\t\t/g, "") + '</div>'
+									).end().modal("show");
+								}
+							}
 	
 	                        if (!clickTimeout) {
 	                            clickTimeout = $timeout(function () {
@@ -582,7 +622,7 @@
 	                	grid.scrollRowIntoView( row, true );
 	                };
 	            }
-	        };
+	        }
 	    }
 	]);
 })();
