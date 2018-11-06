@@ -94,41 +94,61 @@ public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
         if (trace == null) {
             return;
         }
+
+        InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+        Object attachment = currentTransaction.getAttachment();
+        if (!(attachment instanceof ThriftClientCallContext)) {
+            return;
+        }
+
         // logging here as some Thrift servers depend on TTransportException being thrown for normal operations.
         // log only when current transaction is being traced.
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        this.traceContext.removeTraceObject();
+
+        ThriftClientCallContext clientCallContext = (ThriftClientCallContext) attachment;
+        if (clientCallContext.isEntryPoint()) {
+            traceContext.removeTraceObject();
+        }
+
         if (trace.canSampled()) {
-            try {
-                processTraceObject(trace, target, args, throwable);
-            } catch (Throwable t) {
-                logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
-            } finally {
-                trace.close();
+            String methodUri = getMethodUri(target);
+            if (clientCallContext.isEntryPoint()) {
+                finalizeSpan(trace, methodUri, throwable);
+            } else {
+                finalizeSpanEvent(trace, methodUri, throwable);
             }
         }
     }
 
-    private void processTraceObject(final Trace trace, Object target, Object[] args, Throwable throwable) {
-        // end spanEvent
+    private void finalizeSpan(final Trace trace, String methodUri, Throwable throwable) {
+        try {
+            finalizeSpanEvent(trace, null, throwable);
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordRpcName(methodUri);
+        } catch (Throwable t) {
+            logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
+        } finally {
+            trace.close();
+        }
+    }
+
+    private void finalizeSpanEvent(final Trace trace, String methodUri, Throwable throwable) {
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             // TODO Might need a way to collect and record method arguments
             // trace.recordAttribute(...);
             recorder.recordException(throwable);
             recorder.recordApi(this.descriptor);
+            if (methodUri != null) {
+                recorder.recordAttribute(ThriftConstants.THRIFT_URL, methodUri);
+            }
         } catch (Throwable t) {
             logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
         } finally {
             trace.traceBlockEnd();
         }
-
-        // end root span
-        SpanRecorder recorder = trace.getSpanRecorder();
-        String methodUri = getMethodUri(target);
-        recorder.recordRpcName(methodUri);
     }
 
     private String getMethodUri(Object target) {
