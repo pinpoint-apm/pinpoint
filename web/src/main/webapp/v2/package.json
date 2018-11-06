@@ -44,7 +44,6 @@
     "ng-click-outside": "^4.0.0",
     "ng2-nouislider": "^1.7.13",
     "ngx-clipboard": "^11.1.9",
-    "ngx-highlightjs": "^2.1.2",
     "nouislider": "^12.1.0",
     "rxjs": "^6.3.3",
     "snapsvg": "^0.5.1",

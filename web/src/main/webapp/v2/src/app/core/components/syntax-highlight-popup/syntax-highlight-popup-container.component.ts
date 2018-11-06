@@ -25,7 +25,7 @@ export class SyntaxHighlightPopupContainerComponent implements OnInit, AfterView
         this.data$ = iif(() => !!this.data.bindValue,
             this.syntaxHighlightDataService.getData(this.data).pipe(
                 map((bindedContents: string) => {
-                    return { ...this.data, bindedContents: bindedContents.replace(/\&quot\;/g, '"') };
+                    return { ...this.data, bindedContents };
                 })
             ),
             of(this.data)
