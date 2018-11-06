@@ -124,7 +124,7 @@ public final class MongoUtil {
 
     private static String toStringValue(Object value) {
         if (value instanceof String) {
-            return (String) value;
+            return "\"" + value +"\"";
         } else {
             return String.valueOf(value);
         }
