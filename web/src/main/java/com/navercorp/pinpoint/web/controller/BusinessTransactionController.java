@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
@@ -112,62 +111,34 @@ public class BusinessTransactionController {
         return result;
     }
 
-    @RequestMapping(value = "/sqlBind", method = RequestMethod.POST)
+    @RequestMapping(value = "/bind", method = RequestMethod.POST)
     @ResponseBody
-    public String sqlBind(@RequestParam("sql") String sql,
-                          @RequestParam("bind") String bind) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("POST /sqlBind params {sql={}, bind={}}", sql, bind);
-        }
-
-        if (sql == null) {
-            return "";
-        }
-
-        final List<String> bindValues = parameterParser.parseOutputParameter(bind);
-        final String combineSql = sqlParser.combineBindValues(sql, bindValues);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Combine SQL. sql={}", combineSql);
-        }
-
-        return StringEscapeUtils.escapeHtml4(combineSql);
-    }
-
-    @RequestMapping(value = "/mongoJsonBind", method = RequestMethod.POST)
-    @ResponseBody
-    public String mongoJsonBind(@RequestParam("mongoJson") String mongoJson,
+    public String metaDataBind(@RequestParam("type") String type,
+                                @RequestParam("metaData") String metaData,
                                 @RequestParam("bind") String bind) {
         if (logger.isDebugEnabled()) {
-            logger.debug("POST /mongoJsonBind params {json={}, bind={}}", mongoJson, bind);
+            logger.debug("POST /bind params {metaData={}, bind={}}", metaData, bind);
         }
 
-        if (mongoJson == null) {
+        if (metaData == null) {
             return "";
         }
 
-        final List<String> bindValues = parameterJsonParser.parseOutputParameter(bind);
-        final String combinedJson = mongoJsonParser.combineBindValues(mongoJson, bindValues);
+        List<String> bindValues;
+        String combinedResult = "";
+
+        if (type.equals("sql")) {
+            bindValues = parameterParser.parseOutputParameter(bind);
+            combinedResult = sqlParser.combineBindValues(metaData, bindValues);
+        } else if (type.equals("mongoJson")) {
+            bindValues = parameterJsonParser.parseOutputParameter(bind);
+            combinedResult = mongoJsonParser.combineBindValues(metaData, bindValues);
+        }
+
         if (logger.isDebugEnabled()) {
-            logger.debug("Combine MONGO_JSON. json={}", combinedJson);
+            logger.debug("Combined result={}", combinedResult);
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-        Object readJson;
-        String indented;
-        try {
-            readJson = mapper.readValue(combinedJson, Object.class);
-            indented = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(readJson);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Indent Success = {} ", indented);
-            }
-        } catch (Exception e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Indent failed Exception: ", e);
-            }
-            indented = combinedJson;
-        }
-
-        return StringEscapeUtils.escapeHtml4(indented);
-
+        return StringEscapeUtils.escapeHtml4(combinedResult);
     }
 }
