@@ -25,7 +25,7 @@ https://my.oschina.net/bboss/blog/1835601
 2. For normal maven or gradle project see
 https://my.oschina.net/bboss/blog/1801273 
 
-[bs]: https://www.oschina.net/p/bboss-elastic
+[bs]: https://github.com/bbossgroups/bboss-elastic
 [es]: http://www.elasticsearch.org
 
 
