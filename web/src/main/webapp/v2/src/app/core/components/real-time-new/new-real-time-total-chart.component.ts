@@ -368,7 +368,10 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
                 if (k !== -1) {
                     this.showTooltip = true;
                     this.setTooltipData(k);
+                    // TODO: xPos를 리턴하는 내부메서드 작성?
+                    this.drawTooltipPoint(xPos, k, contentRatio);
                 }
+
             } else {
                 this.showTooltip = false;
             }
@@ -389,6 +392,21 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         const { coordX } = this.lastMousePosInCanvas;
 
         return `${coordX - (tooltipCaret.offsetWidth / 2)}px`;
+    }
+
+    drawTooltipPoint(xPos: number, i: number, ratio: number): void {
+        const { chartInnerPadding, titleHeight, chartHeight, chartColors, chartSpeedControl } = this.chartConstant;
+        const yAxisFlipValue = this.getYPos() + titleHeight + chartInnerPadding + chartHeight;
+        const yPosList = this._dataList.map((data: number[]) => yAxisFlipValue - (data[i] * ratio));
+        const x = xPos + Math.floor((this._timeStampList[i] - this.firstTimeStamp) / chartSpeedControl);
+        const r = 3;
+
+        yPosList.forEach((y: number, index: number) => {
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+            this.ctx.fillStyle = chartColors[index];
+            this.ctx.fill();
+        });
     }
 
     setTooltipData(i: number): void {
