@@ -360,12 +360,12 @@
 	                        if ( $(e.target).hasClass("sql") ) {
 	                        	item = dataView.getItem(args.row);
 	                        	var itemNext = dataView.getItem(args.row+1);
-	                        	var data = "sql=" + encodeURIComponent( item.argument );
+	                        	var data = "type=sql&metaData=" + encodeURIComponent( item.argument );
 
 								if ( item.isAuthorized ) {
 									if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
 										data += "&bind=" + encodeURIComponent( itemNext.argument );
-										CommonAjaxService.getSQLBind( "sqlBind.pinpoint", data, function( result ) {
+										CommonAjaxService.getSQLBind( "bind.pinpoint", data, function( result ) {
 											$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
 													'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
 													'<div style="position:absolute;left:10000px">' + result + '</div>' +
@@ -398,12 +398,12 @@
 							if ( $(e.target).hasClass("json") ) {
 								item = dataView.getItem(args.row);
 								var itemNext = dataView.getItem(args.row+1);
-								var data = "json=" + encodeURIComponent( item.argument );
+								var data = "type=mongoJson&metaData=" + encodeURIComponent( item.argument );
 
 								if ( item.isAuthorized ) {
 									if ( angular.isDefined( itemNext ) && itemNext.method === "MONGO-JSON-BindValue" ) {
 										data += "&bind=" + encodeURIComponent( itemNext.argument );
-										CommonAjaxService.getSQLBind( "jsonBind.pinpoint", data, function( result ) {
+										CommonAjaxService.getSQLBind( "bind.pinpoint", data, function( result ) {
 											$("#customLogPopup").find("h4").html("JSON").end().find("div.modal-body").html(
 												'<h4>Binded JSON <button class="btn btn-default btn-xs json">Copy</button></h4>' +
 												'<div style="position:absolute;left:10000px">' + result + '</div>' +
