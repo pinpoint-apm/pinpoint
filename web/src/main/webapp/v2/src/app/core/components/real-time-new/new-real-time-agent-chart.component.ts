@@ -12,24 +12,13 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
     set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
         this.numOfAgent = Object.keys(activeThreadCounts).length;
         this._activeThreadCounts = activeThreadCounts;
-        // this._dataList = Object.keys(activeThreadCounts).reduce((acc: { [key: string]: number[][] }, curr: string) => {
-        //     // TODO: agentName가 key로 왜 필요할까?
-        //     const status = activeThreadCounts[curr].status;
-        //     const dataList = status ?
-        //     (this._dataList[curr] ? this._dataList[curr].map((data: number[], i: number) => [ ...data, status[i] ]) : status.map((v: number) => [v])) :
-        //     [[], [], [], []];
+        this._dataList = Object.keys(activeThreadCounts).map((key: string, i: number) => {
+            const status = activeThreadCounts[key].status;
 
-        //     return { ...acc, [curr]: dataList };
-        // }, {});
-        this._dataList = Object.keys(activeThreadCounts).reduce((acc: { [key: string]: number[][] }, curr: string) => {
-            // TODO: agentName가 key로 왜 필요할까? A) 꼭 필요한건아닌데, 일단은 key-value로 묶어논거
-            const status = activeThreadCounts[curr].status;
-            const dataList = status ?
-            (this._dataList[curr] ? this._dataList[curr].map((data: number[], i: number) => [ ...data, status[i] ]) : status.map((v: number) => [v])) :
-            [[], [], [], []];
-
-            return { ...acc, [curr]: dataList };
-        }, {});
+            return status ?
+                this._dataList[i] ? this._dataList[i].map((data: number[], j: number) => [ ...data, status[j] ]) : status.map((v: number) => [v]) :
+                [ [], [], [], [] ];
+        });
     }
     @Input()
     set timeStamp(timeStamp: number) {
@@ -45,7 +34,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
     firstTimeStamp: number;
     _activeThreadCounts: { [key: string]: IActiveThreadCounts };
     _timeStampList: number[] = [];
-    _dataList: { [key: string]: number[][] } = {};
+    _dataList: number[][][] = [];
 
     chartConstant = {
         canvasLeftPadding: 0,
@@ -127,8 +116,8 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
 
         const { titleHeight, chartWidth, chartHeight } = this.chartConstant;
 
-        Object.keys(this._activeThreadCounts).forEach((agentName: string, i: number) => {
-            const { code, message } = this._activeThreadCounts[agentName];
+        Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
+            const { code, message } = this._activeThreadCounts[key];
             const isResponseSuccess = code === ResponseCode.SUCCESS;
 
             if (!isResponseSuccess) {
@@ -167,7 +156,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
         const { containerWidth, titleHeight, marginRightForLinkIcon, linkIconCode } = this.chartConstant;
         const linkIconWidth = this.ctx.measureText(linkIconCode).width;
 
-        Object.keys(this._activeThreadCounts).forEach((agentName: string, i: number) => {
+        Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
             this.ctx.fillStyle = '#74879a';
             this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i), containerWidth, titleHeight);
 
@@ -175,7 +164,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
             this.ctx.fillStyle = '#fff';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(this.getChartTitleText(agentName), this.getLeftEdgeXPos(i) + containerWidth / 2, this.getTopEdgeYPos(i) + titleHeight / 2);
+            this.ctx.fillText(this.getChartTitleText(key), this.getLeftEdgeXPos(i) + containerWidth / 2, this.getTopEdgeYPos(i) + titleHeight / 2);
 
             this.ctx.font = '600 9px "Font Awesome 5 Free"';
             this.ctx.textAlign = 'right';
@@ -186,7 +175,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
                 rightX: this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon,
                 topY: this.getTopEdgeYPos(i) + titleHeight / 2 - linkIconWidth / 2,
                 bottomY: this.getTopEdgeYPos(i) + titleHeight / 2 + linkIconWidth / 2,
-                key: agentName
+                key
             });
         });
     }
@@ -260,9 +249,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
         const xPos0 = this.getXPosInChart(0);
 
         if (xPos0 < chartWidth) {
-            Object.keys(this._dataList).forEach((agentName: string, i: number) => {
-                const dataList = this._dataList[agentName];
-
+            this._dataList.forEach((dataList: number[][], i: number) => {
                 if (isOverflow) {
                     dataList.forEach((dataArr: number[]) => {
                         dataArr.shift();
