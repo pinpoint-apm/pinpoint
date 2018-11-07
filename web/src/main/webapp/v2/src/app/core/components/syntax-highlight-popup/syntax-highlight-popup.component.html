@@ -6,14 +6,14 @@
     <dl class="l-sql-list" [hidden]="!hasBind()">
         <dt>Binded {{data.type}}</dt>
         <dd>
-            <pre class="prettyprint" [ngClass]="getClassName()" [textContent]="data.bindedContents"></pre>
+            <pre class="prettyprint" [ngClass]="getClassName()" [textContent]="formatting(data.bindedContents)"></pre>
             <button class="btn active" (click)="onCopyBindedContents()">Copy</button>
         </dd>
     </dl>
     <dl class="l-sql-list">
         <dt>Original {{data.type}}</dt>
         <dd>
-            <pre class="prettyprint" [ngClass]="getClassName()" [textContent]="data.originalContents"></pre>
+            <pre class="prettyprint" [ngClass]="getClassName()" [textContent]="formatting(data.originalContents)"></pre>
             <button class="btn active" (click)="onCopyOriginalContents()">Copy</button>
         </dd>
     </dl>
