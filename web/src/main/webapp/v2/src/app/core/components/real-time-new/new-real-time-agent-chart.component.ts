@@ -12,7 +12,17 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
     set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
         this.numOfAgent = Object.keys(activeThreadCounts).length;
         this._activeThreadCounts = activeThreadCounts;
+        // this._dataList = Object.keys(activeThreadCounts).reduce((acc: { [key: string]: number[][] }, curr: string) => {
+        //     // TODO: agentName가 key로 왜 필요할까?
+        //     const status = activeThreadCounts[curr].status;
+        //     const dataList = status ?
+        //     (this._dataList[curr] ? this._dataList[curr].map((data: number[], i: number) => [ ...data, status[i] ]) : status.map((v: number) => [v])) :
+        //     [[], [], [], []];
+
+        //     return { ...acc, [curr]: dataList };
+        // }, {});
         this._dataList = Object.keys(activeThreadCounts).reduce((acc: { [key: string]: number[][] }, curr: string) => {
+            // TODO: agentName가 key로 왜 필요할까? A) 꼭 필요한건아닌데, 일단은 key-value로 묶어논거
             const status = activeThreadCounts[curr].status;
             const dataList = status ?
             (this._dataList[curr] ? this._dataList[curr].map((data: number[], i: number) => [ ...data, status[i] ]) : status.map((v: number) => [v])) :
@@ -42,19 +52,18 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
         canvasTopPadding: 0,
         canvasRightPadding: 0,
         canvasBottomPadding: 0,
+        containerWidth: 152,
+        containerHeight: 52,
         chartWidth: 152,
         chartHeight: 52,
         titleHeight: 32,
         gapBtnChart: 10,
         chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
-        yRatio: 3 / 5,
         gridLineSpeedControl: 25,
         chartSpeedControl: 25,
         linkIconCode: '\uf35d',
-        linkIconWidth: 0,
         marginRightForLinkIcon: 10,
         ellipsis: '...',
-        ellipsisWidth: 0,
     };
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -63,6 +72,9 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
     gridLineStart: number = null;
     chartStart: number = null;
     animationFrameId: number;
+    maxRatio = 3 / 5; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
+    ratio: number; // maxRatio를 바탕으로 각 데이터에 적용되는 비율
+    startingXPos: number; // 최초로 움직이기 시작하는 점의 x좌표
 
     constructor(
         private el: ElementRef,
@@ -74,7 +86,6 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
         this.ctx = this.canvas.getContext('2d');
 
         this.resize();
-        this.initConstant();
         this.addEventListener();
 
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
@@ -84,31 +95,26 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
         cancelAnimationFrame(this.animationFrameId);
     }
 
-    initConstant(): void {
-        this.chartConstant.linkIconWidth = this.ctx.measureText(this.chartConstant.linkIconCode).width;
-        this.chartConstant.ellipsisWidth = this.ctx.measureText(this.chartConstant.ellipsis).width;
-    }
-
     draw(timestamp: number): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawChartTitle();
         this.drawChartContainerRect();
-        this.drawGridLine(timestamp);
+        this.drawVGridLine(timestamp);
 
         if (this._timeStampList.length !== 0) {
             this.drawChart(timestamp);
         }
-        this.drawErrorText();
 
+        this.drawErrorText();
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
     }
 
-    getXPos(i: number): number {
+    getLeftEdgeXPos(i: number): number {
         // 차트 컨테이너 왼쪽 위 꼭짓점 x좌표를 리턴
         return this.chartConstant.canvasLeftPadding + (this.chartConstant.chartWidth + this.chartConstant.gapBtnChart) * (i % this.chartNumPerRow);
     }
 
-    getYPos(i: number): number {
+    getTopEdgeYPos(i: number): number {
         // 차트 컨테이너 왼쪽 위 꼭짓점 y좌표를 리턴
         return this.chartConstant.canvasTopPadding + (this.chartConstant.chartHeight + this.chartConstant.titleHeight + this.chartConstant.gapBtnChart) * Math.floor(i / this.chartNumPerRow);
     }
@@ -126,7 +132,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
             const isResponseSuccess = code === ResponseCode.SUCCESS;
 
             if (!isResponseSuccess) {
-                const x = this.getXPos(i) + chartWidth / 2;
+                const x = this.getLeftEdgeXPos(i) + chartWidth / 2;
                 const isOverflow = (str: string) => this.ctx.measureText(str).width > chartWidth - 10;
 
                 const words = message.split(' ');
@@ -149,7 +155,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
                 const length = arrangedText.length;
 
                 arrangedText.forEach((text: string, j: number) => {
-                    const y = this.getYPos(i) + titleHeight + (j + 1) * chartHeight / (length + 1);
+                    const y = this.getTopEdgeYPos(i) + titleHeight + (j + 1) * chartHeight / (length + 1);
 
                     this.ctx.fillText(text, x, y);
                 });
@@ -158,34 +164,39 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
     }
 
     drawChartTitle(): void {
+        const { containerWidth, titleHeight, marginRightForLinkIcon, linkIconCode } = this.chartConstant;
+        const linkIconWidth = this.ctx.measureText(linkIconCode).width;
+
         Object.keys(this._activeThreadCounts).forEach((agentName: string, i: number) => {
             this.ctx.fillStyle = '#74879a';
-            this.ctx.fillRect(this.getXPos(i), this.getYPos(i), this.chartConstant.chartWidth, this.chartConstant.titleHeight);
+            this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i), containerWidth, titleHeight);
 
             this.ctx.font = '11px Nanum Gothic';
             this.ctx.fillStyle = '#fff';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(this.getChartTitleText(agentName), this.getXPos(i) + this.chartConstant.chartWidth / 2, this.getYPos(i) + this.chartConstant.titleHeight / 2);
+            this.ctx.fillText(this.getChartTitleText(agentName), this.getLeftEdgeXPos(i) + containerWidth / 2, this.getTopEdgeYPos(i) + titleHeight / 2);
 
             this.ctx.font = '600 9px "Font Awesome 5 Free"';
             this.ctx.textAlign = 'right';
-            this.ctx.fillText(this.chartConstant.linkIconCode, this.getXPos(i) + this.chartConstant.chartWidth - this.chartConstant.marginRightForLinkIcon, this.getYPos(i) + this.chartConstant.titleHeight / 2);
+            this.ctx.fillText(linkIconCode, this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon, this.getTopEdgeYPos(i) + titleHeight / 2);
 
             this.linkIconInfoList.push({
-                leftX: this.getXPos(i) + this.chartConstant.chartWidth - this.chartConstant.marginRightForLinkIcon - this.chartConstant.linkIconWidth,
-                rightX: this.getXPos(i) + this.chartConstant.chartWidth - this.chartConstant.marginRightForLinkIcon,
-                topY: this.getYPos(i) + this.chartConstant.titleHeight / 2 - this.chartConstant.linkIconWidth / 2,
-                bottomY: this.getYPos(i) + this.chartConstant.titleHeight / 2 + this.chartConstant.linkIconWidth / 2,
+                leftX: this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon - linkIconWidth,
+                rightX: this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon,
+                topY: this.getTopEdgeYPos(i) + titleHeight / 2 - linkIconWidth / 2,
+                bottomY: this.getTopEdgeYPos(i) + titleHeight / 2 + linkIconWidth / 2,
                 key: agentName
             });
         });
     }
 
     getChartTitleText(text: string): string {
+        const { containerWidth, marginRightForLinkIcon, linkIconCode, ellipsis } = this.chartConstant;
+        const linkIconWidth = this.ctx.measureText(linkIconCode).width;
+        const ellipsisWidth = this.ctx.measureText(ellipsis).width;
         const textWidth = this.ctx.measureText(text).width;
-        const maxWidth = this.chartConstant.chartWidth / 2 - this.chartConstant.linkIconWidth - this.chartConstant.marginRightForLinkIcon - 5;
-        // TODO: isOverflow를 내부메서드로 추출?
+        const maxWidth = containerWidth / 2 - linkIconWidth - marginRightForLinkIcon - 5;
         const isOverflow = textWidth / 2 > maxWidth;
 
         if (isOverflow) {
@@ -197,33 +208,37 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
                 newText = text.substring(0, length - 1);
                 newTextWidth = this.ctx.measureText(newText).width;
                 length--;
-            } while (newTextWidth / 2 + this.chartConstant.ellipsisWidth > maxWidth);
+            } while (newTextWidth / 2 + ellipsisWidth > maxWidth);
 
-            return newText + this.chartConstant.ellipsis;
+            return newText + ellipsis;
         } else {
             return text;
         }
     }
 
     drawChartContainerRect(): void {
+        const { containerWidth, containerHeight, titleHeight } = this.chartConstant;
+
         for (let i = 0; i < this.numOfAgent; i++) {
             this.ctx.fillStyle = '#e8e5f0';
-            this.ctx.fillRect(this.getXPos(i), this.getYPos(i) + this.chartConstant.titleHeight, this.chartConstant.chartWidth, this.chartConstant.chartHeight);
+            this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i) + titleHeight, containerWidth, containerHeight);
         }
     }
 
     // Vertical Grid Line
-    drawGridLine(timestamp: number): void {
+    drawVGridLine(timestamp: number): void {
+        const { chartWidth, gridLineSpeedControl, titleHeight, chartHeight } = this.chartConstant;
+
         for (let i = 0; i < this.numOfAgent; i++) {
             if (!this.gridLineStart) {
                 this.gridLineStart = timestamp;
             }
 
-            const xPos = this.getXPos(i) + this.chartConstant.chartWidth - Math.floor((timestamp - this.gridLineStart) / this.chartConstant.gridLineSpeedControl) % this.chartConstant.chartWidth;
+            const xPos = this.getLeftEdgeXPos(i) + chartWidth - Math.floor((timestamp - this.gridLineStart) / gridLineSpeedControl) % chartWidth;
 
             this.ctx.beginPath();
-            this.ctx.moveTo(xPos, this.getYPos(i) + this.chartConstant.titleHeight);
-            this.ctx.lineTo(xPos, this.getYPos(i) + this.chartConstant.titleHeight + this.chartConstant.chartHeight);
+            this.ctx.moveTo(xPos, this.getTopEdgeYPos(i) + titleHeight);
+            this.ctx.lineTo(xPos, this.getTopEdgeYPos(i) + titleHeight + chartHeight);
             this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
             this.ctx.stroke();
         }
@@ -234,16 +249,17 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
             this.chartStart = timestamp;
         }
 
-        const startingXPos = this.chartConstant.chartWidth - Math.floor((timestamp - this.chartStart) / this.chartConstant.chartSpeedControl); // 최초의 시작하는 점의 x좌표
-        const isOverflow = this._timeStampList.length >= 2 && startingXPos + Math.floor((this._timeStampList[1] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl) < 0;
+        const { chartWidth, titleHeight, chartHeight, chartColors, chartSpeedControl } = this.chartConstant;
+        this.startingXPos = chartWidth - Math.floor((timestamp - this.chartStart) / chartSpeedControl);
+        const isOverflow = this._timeStampList.length >= 2 && this.getXPosInChart(1) < 0;
 
         if (isOverflow) {
             this._timeStampList.shift();
         }
 
-        const xPos0 = startingXPos + Math.floor((this._timeStampList[0] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl);
+        const xPos0 = this.getXPosInChart(0);
 
-        if (xPos0 < this.chartConstant.chartWidth) {
+        if (xPos0 < chartWidth) {
             Object.keys(this._dataList).forEach((agentName: string, i: number) => {
                 const dataList = this._dataList[agentName];
 
@@ -252,16 +268,13 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
                         dataArr.shift();
                     });
                 }
-                // TODO: 레이아웃 잡아주기
 
-                const xPos = this.getXPos(i) + startingXPos; // 각 차트에서의 기준점(t0) x좌표
-                const yPos = this.getYPos(i); // 왼쪽위 꼭짓점 y좌표
-                const yAxisFlipValue = yPos + this.chartConstant.titleHeight + this.chartConstant.chartHeight; // for upside down
-
+                const originXPos = this.getLeftEdgeXPos(i);
+                const yAxisFlipValue = this.getTopEdgeYPos(i) + titleHeight + chartHeight; // for upside down
+                const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
                 const length = dataList.length;
 
-                const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
-                const contentRatio = this.chartConstant.chartHeight * this.chartConstant.yRatio / max;
+                this.ratio = max === 0 ? 1 : chartHeight * this.maxRatio / max;
 
                 for (let j = 0; j < length; j++) {
                     const data = dataList[j];
@@ -270,45 +283,51 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit, On
 
                     if (xPos0 < 0) {
                         // 앞 경계면 처리
-                        const xPos1 = startingXPos + Math.floor((this._timeStampList[1] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl);
+                        const xPos1 = this.getXPosInChart(1);
 
-                        this.ctx.moveTo(this.getXPos(i), yAxisFlipValue); // 시작
-                        this.ctx.lineTo(this.getXPos(i), yAxisFlipValue - (data[0] * xPos1 - data[1] * xPos0) / (xPos1 - xPos0) * contentRatio);
+                        this.ctx.moveTo(originXPos, yAxisFlipValue); // 시작
+                        this.ctx.lineTo(originXPos, yAxisFlipValue - (data[0] * xPos1 - data[1] * xPos0) / (xPos1 - xPos0) * this.ratio);
                     } else {
-                        this.ctx.moveTo(xPos + Math.floor((this._timeStampList[0] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl), yAxisFlipValue); // 시작
-                        this.ctx.lineTo(xPos + Math.floor((this._timeStampList[0] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl), yAxisFlipValue - (data[0] * contentRatio));
+                        this.ctx.moveTo(originXPos + this.getXPosInChart(0), yAxisFlipValue); // 시작
+                        this.ctx.lineTo(originXPos + this.getXPosInChart(0), yAxisFlipValue - (data[0] * this.ratio));
                     }
 
                     const timeStampLength = this._timeStampList.length;
 
                     for (let k = 1; k < timeStampLength; k++) {
-                        const poskm1 = startingXPos + Math.floor((this._timeStampList[k - 1] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl);
-                        const posk = startingXPos + Math.floor((this._timeStampList[k] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl);
+                        const poskm1 = this.getXPosInChart(k - 1);
+                        const posk = this.getXPosInChart(k);
 
-                        if (poskm1 <= this.chartConstant.chartWidth && posk > this.chartConstant.chartWidth) {
+                        if (poskm1 <= chartWidth && posk > chartWidth) {
                             // 뒷 경계면 처리
-                            this.ctx.lineTo(this.getXPos(i) + this.chartConstant.chartWidth, yAxisFlipValue - (data[k - 1] + (this.chartConstant.chartWidth - poskm1) * (data[k] - data[k - 1]) / (posk - poskm1)) * contentRatio);
+                            this.ctx.lineTo(this.getLeftEdgeXPos(i) + chartWidth, yAxisFlipValue - (data[k - 1] + (chartWidth - poskm1) * (data[k] - data[k - 1]) / (posk - poskm1)) * this.ratio);
                             break;
                         } else {
-                            this.ctx.lineTo(xPos + Math.floor((this._timeStampList[k] - this.firstTimeStamp) / this.chartConstant.chartSpeedControl), yAxisFlipValue - (data[k] * contentRatio));
+                            this.ctx.lineTo(originXPos + this.getXPosInChart(k), yAxisFlipValue - (data[k] * this.ratio));
                         }
                     }
 
-                    this.ctx.lineTo(this.getXPos(i) + this.chartConstant.chartWidth, yAxisFlipValue); // 마지막
+                    this.ctx.lineTo(originXPos + chartWidth, yAxisFlipValue); // 마지막
 
-                    // this.ctx.strokeStyle = this.chartConstant.chartColors[j];
-                    this.ctx.fillStyle = this.chartConstant.chartColors[j];
-                    // this.ctx.stroke();
+                    this.ctx.fillStyle = chartColors[j];
                     this.ctx.fill();
                 }
             });
         }
     }
 
+    getXPosInChart(i: number): number {
+        const { chartSpeedControl } = this.chartConstant;
+
+        return this.startingXPos + Math.floor((this._timeStampList[i] - this.firstTimeStamp) / chartSpeedControl);
+    }
+
     resize(): void {
+        const { canvasLeftPadding, canvasRightPadding, chartWidth, gapBtnChart, titleHeight, chartHeight, canvasBottomPadding } = this.chartConstant;
+
         this.canvas.width = this.el.nativeElement.offsetWidth;
-        this.chartNumPerRow = Math.floor((this.canvas.width - this.chartConstant.canvasLeftPadding - this.chartConstant.canvasRightPadding) / (this.chartConstant.chartWidth + this.chartConstant.gapBtnChart));
-        this.canvas.height = this.getYPos(this.numOfAgent - 1) + this.chartConstant.titleHeight + this.chartConstant.chartHeight + this.chartConstant.canvasBottomPadding;
+        this.chartNumPerRow = Math.floor((this.canvas.width - canvasLeftPadding - canvasRightPadding) / (chartWidth + gapBtnChart));
+        this.canvas.height = this.getTopEdgeYPos(this.numOfAgent - 1) + titleHeight + chartHeight + canvasBottomPadding;
     }
 
     addEventListener(): void {
