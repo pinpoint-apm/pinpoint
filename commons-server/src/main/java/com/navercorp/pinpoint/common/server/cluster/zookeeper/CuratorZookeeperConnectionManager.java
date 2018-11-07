@@ -70,16 +70,17 @@ class CuratorZookeeperConnectionManager {
     }
 
     public void start() throws IOException, PinpointZookeeperException {
-        boolean connected = false;
         try {
             curatorFramework.start();
-            connected = curatorFramework.blockUntilConnected(3000, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            ZookeeperExceptionResolver.resolve(e, true);
-        } finally {
+            boolean connected = curatorFramework.blockUntilConnected(3000, TimeUnit.MILLISECONDS);
             if (!connected) {
+                logger.info("failed while to connect(). it will be retried automatically");
+            }
+        } catch (Exception e) {
+            if (curatorFramework != null) {
                 curatorFramework.close();
             }
+            ZookeeperExceptionResolver.resolve(e, true);
         }
     }
 
