@@ -63,6 +63,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1110</td><td>DUBBO_PROVIDER</td></tr>
  * <tr><td>1120</td><td>UNDERTOW</td></tr>
  * <tr><td>1121</td><td>UNDERTOW_METHOD</td></tr>
+ * <tr><td>1130</td><td>GRPC_SERVER</td></tr>
  *
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
@@ -181,6 +182,9 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9150</td><td>NETTY</td></tr>
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
+ * <tr><td>9160</td><td>GRPC</td></tr>
+ * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
+ * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>

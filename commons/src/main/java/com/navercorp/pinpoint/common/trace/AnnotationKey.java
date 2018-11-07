@@ -100,6 +100,8 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>152</td><td>mongo.collection.option</td></tr>
  * <tr><td>153</td><td>mongo.json</td></tr>
  * <tr><td>154</td><td>mongo.json.bindvalue</td></tr>
+ * <tr><td>160</td><td>grpc.status</td></tr>
+ *
  * <tr><td><s>200</s></td><td><s>cxf.operation</s></td></tr>
  * <tr><td><s>201</s></td><td><s>cxf.args</s></td></tr>
  * <tr><td>203</td><td>cxf.address</td></tr>
