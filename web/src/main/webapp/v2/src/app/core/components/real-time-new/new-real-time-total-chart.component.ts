@@ -1,5 +1,7 @@
-import { Component, OnInit, Input, AfterViewInit, ViewChild, ElementRef, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import * as moment from 'moment-timezone';
+
+import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time-new/new-real-time-websocket.service';
 
 @Component({
     selector: 'pp-new-real-time-total-chart',
@@ -9,27 +11,34 @@ import * as moment from 'moment-timezone';
 export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() timezone: string;
     @Input() dateFormat: string;
-    @Input() hasError: boolean;
-    @Input() errorMessage: string;
     @Input() applicationName: string;
     @Input()
-    set data(data: number[]) {
-        const isEmpty = data.length === 0;
+    set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
+        const successData = this.getSuccessData(activeThreadCounts);
+        const hasError = successData.length === 0;
 
-        if (!isEmpty) {
-            this._dataList = this._dataList.map((_data: number[], i: number) => {
-                return [ ..._data, data[i] ];
-            });
-        }
+        this._activeThreadCounts = {
+            [this.applicationName]: {
+                code: hasError ? ResponseCode.ERROR_BLACK : ResponseCode.SUCCESS,
+                message: hasError ? activeThreadCounts[Object.keys(activeThreadCounts)[0]].message : 'OK',
+                status: hasError ? null : this.getTotalResponseCount(successData)
+            }
+        };
 
-        this._data = data;
-        this.totalCount = isEmpty ? null : data.reduce((acc: number, curr: number) => {
-            return acc + curr;
-        }, 0);
+        this._dataList = Object.keys(this._activeThreadCounts).map((key: string, i: number) => {
+            const status = this._activeThreadCounts[key].status;
+
+            return status ?
+                this._dataList[i] ? this._dataList[i].map((data: number[], j: number) => [ ...data, status[j] ]) : status.map((v: number) => [v]) :
+                [ [], [], [], [] ];
+        });
+
+        this._data = this._activeThreadCounts[Object.keys(this._activeThreadCounts)[0]].status;
+        this.totalCount = this._data ? this._data.reduce((acc: number, curr: number) => acc + curr, 0) : null;
     }
 
     get data(): number[] {
-        return this._data;
+        return this._data ? this._data : [];
     }
 
     @Input()
@@ -42,9 +51,11 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     @ViewChild('canvas') canvasRef: ElementRef;
 
     firstTimeStamp: number;
+    _activeThreadCounts: { [key: string]: IActiveThreadCounts };
     _timeStampList: number[] = [];
+    _dataList: number[][][] = [];
+    // _dataList: number[][][] = [ [ [], [], [], [] ] ];
     _data: number[] = [];
-    _dataList: number[][] = [ [], [], [], [] ] ;
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -99,6 +110,17 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         cancelAnimationFrame(this.animationFrameId);
     }
 
+    private getSuccessData(obj: { [key: string]: IActiveThreadCounts }): IActiveThreadCounts[] {
+        return Object.keys(obj)
+            .filter((agentName: string) => obj[agentName].code === ResponseCode.SUCCESS)
+            .map((agentName: string) => obj[agentName]);
+    }
+    private getTotalResponseCount(data: IActiveThreadCounts[]): number[] {
+        return data.reduce((prev: number[], curr: IActiveThreadCounts) => {
+            return prev.map((a: number, i: number) => a + curr.status[i]);
+        }, [0, 0, 0, 0]);
+    }
+
     draw(timestamp: number): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawChartTitle();
@@ -106,15 +128,12 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         this.drawHGridLine();
         this.drawXAxis();
 
-        if (this.hasError) {
-            this.drawErrorText();
-        } else {
-            if (this._timeStampList.length !== 0) {
-                this.drawChart(timestamp);
-                this.setTooltip();
-            }
+        if (this._timeStampList.length !== 0) {
+            this.drawChart(timestamp);
+            this.setTooltip();
         }
 
+        this.drawErrorText();
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
     }
 
@@ -123,18 +142,18 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         const legendWidth = legend.offsetWidth;
 
         return {
-            left: `${this.getLeftEdgeXPos() + containerWidth - chartInnerPadding - legendWidth}px`,
-            top: `${this.getTopEdgeYPos() + titleHeight + chartInnerPadding - 12}px`
+            left: `${this.getLeftEdgeXPos(0) + containerWidth - chartInnerPadding - legendWidth}px`,
+            top: `${this.getTopEdgeYPos(0) + titleHeight + chartInnerPadding - 12}px`
         };
     }
 
-    getLeftEdgeXPos(): number {
+    getLeftEdgeXPos(i: number): number {
         // 차트 컨테이너 왼쪽 모서리 x좌표를 리턴
         // TODO: AgentChart쪽이랑 같은식으로 돌려도될듯 i = 0으로.
         return this.chartConstant.canvasLeftPadding;
     }
 
-    getTopEdgeYPos(): number {
+    getTopEdgeYPos(i: number): number {
         // 차트 컨테이너 위쪽 모서리 y좌표를 리턴
         // TODO: AgentChart쪽이랑 같은식으로 돌려도될듯 i = 0으로.
         return this.chartConstant.canvasTopPadding;
@@ -147,46 +166,56 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         this.ctx.textBaseline = 'middle';
 
         const { chartInnerPadding, yAxisWidth, marginFromYAxis, titleHeight, chartHeight, chartWidth } = this.chartConstant;
-        const x = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis + chartWidth / 2;
-        const isOverflow = (str: string) => this.ctx.measureText(str).width > chartWidth - 10;
 
-        const words = this.errorMessage.split(' ');
-        const arrangedText: string[] = []; // 여기에 message를 루프돌면서 overflow하지않는 단위로 잘라서 넣어줄 예정. 그리고, 이걸로 마지막에 fillText()
-        let startIndex = 0;
-        let lastIndex = words.length - 1;
+        Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
+            const { code, message } = this._activeThreadCounts[key];
+            const isResponseSuccess = code === ResponseCode.SUCCESS;
 
-        while (this.errorMessage !== arrangedText.join(' ')) {
-            const substr = words.slice(startIndex, lastIndex + 1).join(' ');
+            if (!isResponseSuccess) {
+                const x = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisWidth + marginFromYAxis + chartWidth / 2;
+                const isOverflow = (str: string) => this.ctx.measureText(str).width > chartWidth - 10;
 
-            if (isOverflow(substr)) {
-                lastIndex--;
-            } else {
-                arrangedText.push(substr);
-                startIndex = lastIndex + 1;
-                lastIndex = words.length - 1;
+                const words = message.split(' ');
+                const arrangedText: string[] = []; // 여기에 message를 루프돌면서 overflow하지않는 단위로 잘라서 넣어줄 예정. 그리고, 이걸로 마지막에 fillText()
+                let startIndex = 0;
+                let lastIndex = words.length - 1;
+
+                while (message !== arrangedText.join(' ')) {
+                    const substr = words.slice(startIndex, lastIndex + 1).join(' ');
+
+                    if (isOverflow(substr)) {
+                        lastIndex--;
+                    } else {
+                        arrangedText.push(substr);
+                        startIndex = lastIndex + 1;
+                        lastIndex = words.length - 1;
+                    }
+                }
+
+                const length = arrangedText.length;
+
+                arrangedText.forEach((text: string, j: number) => {
+                    const y = this.getTopEdgeYPos(i) + titleHeight + chartInnerPadding + (j + 1) * chartHeight / (length + 1);
+
+                    this.ctx.fillText(text, x, y);
+                });
             }
-        }
-
-        const length = arrangedText.length;
-
-        arrangedText.forEach((text: string, j: number) => {
-            const y = this.getTopEdgeYPos() + titleHeight + chartInnerPadding + (j + 1) * chartHeight / (length + 1);
-
-            this.ctx.fillText(text, x, y);
         });
     }
 
     drawChartTitle(): void {
         const { containerWidth, titleHeight } = this.chartConstant;
 
-        this.ctx.fillStyle = '#74879a';
-        this.ctx.fillRect(this.getLeftEdgeXPos(), this.getTopEdgeYPos(), containerWidth, titleHeight);
+        Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
+            this.ctx.fillStyle = '#74879a';
+            this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i), containerWidth, titleHeight);
 
-        this.ctx.font = '15px Nanum Gothic';
-        this.ctx.fillStyle = '#fff';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(this.getChartTitleText(this.applicationName), this.getLeftEdgeXPos() + containerWidth / 2, this.getTopEdgeYPos() + titleHeight / 2);
+            this.ctx.font = '15px Nanum Gothic';
+            this.ctx.fillStyle = '#fff';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(this.getChartTitleText(key), this.getLeftEdgeXPos(i) + containerWidth / 2, this.getTopEdgeYPos(i) + titleHeight / 2);
+        });
     }
 
     getChartTitleText(text: string): string {
@@ -217,14 +246,15 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         const { containerWidth, containerHeight, titleHeight } = this.chartConstant;
 
         this.ctx.fillStyle = '#e8e5f0';
-        this.ctx.fillRect(this.getLeftEdgeXPos(), this.getTopEdgeYPos() + titleHeight, containerWidth, containerHeight);
+        this.ctx.fillRect(this.getLeftEdgeXPos(0), this.getTopEdgeYPos(0) + titleHeight, containerWidth, containerHeight);
     }
 
     // Horizontal Grid Line
     drawHGridLine(): void {
+        // TODO: numOfAgent 추가후 for문 + i로 써야함
         const { chartInnerPadding, yAxisWidth, marginFromYAxis, titleHeight, chartHeight, chartWidth } = this.chartConstant;
-        const xPos = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis; // Grid Line 시작 x좌표
-        const yPos = this.getTopEdgeYPos();
+        const xPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis; // Grid Line 시작 x좌표
+        const yPos = this.getTopEdgeYPos(0);
 
         // Horizontal grid line 1 (top)
         this.ctx.beginPath();
@@ -242,9 +272,10 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     }
 
     drawYAxisLabel(max: number): void {
+        // TODO: numOfAgent 추가후 for문 + i로 써야함
         const { chartInnerPadding, yAxisWidth, titleHeight, chartHeight } = this.chartConstant;
-        const xPos = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth;
-        const yPos = this.getTopEdgeYPos();
+        const xPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth;
+        const yPos = this.getTopEdgeYPos(0);
         const yAxisFlipValue = yPos + titleHeight + chartInnerPadding + chartHeight;
         let maxLabel = max === 0 ? null : max / this.maxRatio;
         let midLabel = max === 0 ? null : maxLabel / 2;
@@ -267,9 +298,10 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     }
 
     drawXAxis(): void {
+        // TODO: numOfAgent 추가후 for문 + i로 써야함
         const { chartInnerPadding, yAxisWidth, marginFromYAxis, titleHeight, chartHeight, chartWidth } = this.chartConstant;
-        const xPos = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis;
-        const yPos = this.getTopEdgeYPos();
+        const xPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
+        const yPos = this.getTopEdgeYPos(0);
         const yAxisFlipValue = yPos + titleHeight + chartInnerPadding + chartHeight;
 
         this.ctx.beginPath();
@@ -295,58 +327,58 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
         const xPos0 = this.getXPosInChart(0);
 
         if (xPos0 < chartWidth) {
-            const dataList = this._dataList;
-
-            if (isOverflow) {
-                dataList.forEach((dataArr: number[]) => {
-                    dataArr.shift();
-                });
-            }
-
-            const originXPos = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis;
-            const yAxisFlipValue = this.getTopEdgeYPos() + titleHeight + chartInnerPadding + chartHeight;
-            const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
-            const length = dataList.length;
-
-            this.drawYAxisLabel(max);
-            this.ratio = max === 0 ? 1 : chartHeight * this.maxRatio / max;
-
-            for (let j = 0; j < length; j++) {
-                const data = dataList[j];
-
-                this.ctx.beginPath();
-
-                if (xPos0 < 0) {
-                    // 앞 경계면 처리
-                    const xPos1 = this.getXPosInChart(1);
-
-                    this.ctx.moveTo(originXPos, yAxisFlipValue); // 시작
-                    this.ctx.lineTo(originXPos, yAxisFlipValue - (data[0] * xPos1 - data[1] * xPos0) / (xPos1 - xPos0) * this.ratio);
-                } else {
-                    this.ctx.moveTo(originXPos + this.getXPosInChart(0), yAxisFlipValue); // 시작
-                    this.ctx.lineTo(originXPos + this.getXPosInChart(0), yAxisFlipValue - (data[0] * this.ratio));
+            this._dataList.forEach((dataList: number[][], i: number) => {
+                if (isOverflow) {
+                    dataList.forEach((dataArr: number[]) => {
+                        dataArr.shift();
+                    });
                 }
 
-                const timeStampLength = this._timeStampList.length;
+                const originXPos = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisWidth + marginFromYAxis;
+                const yAxisFlipValue = this.getTopEdgeYPos(i) + titleHeight + chartInnerPadding + chartHeight;
+                const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
+                const length = dataList.length;
 
-                for (let k = 1; k < timeStampLength; k++) {
-                    const poskm1 = this.getXPosInChart(k - 1);
-                    const posk = this.getXPosInChart(k);
+                this.drawYAxisLabel(max);
+                this.ratio = max === 0 ? 1 : chartHeight * this.maxRatio / max;
 
-                    if (poskm1 <= chartWidth && posk > chartWidth) {
-                        // 뒷 경계면 처리
-                        this.ctx.lineTo(originXPos + chartWidth, yAxisFlipValue - (data[k - 1] + (chartWidth - poskm1) * (data[k] - data[k - 1]) / (posk - poskm1)) * this.ratio);
-                        break;
+                for (let j = 0; j < length; j++) {
+                    const data = dataList[j];
+
+                    this.ctx.beginPath();
+
+                    if (xPos0 < 0) {
+                        // 앞 경계면 처리
+                        const xPos1 = this.getXPosInChart(1);
+
+                        this.ctx.moveTo(originXPos, yAxisFlipValue); // 시작
+                        this.ctx.lineTo(originXPos, yAxisFlipValue - (data[0] * xPos1 - data[1] * xPos0) / (xPos1 - xPos0) * this.ratio);
                     } else {
-                        this.ctx.lineTo(originXPos + this.getXPosInChart(k), yAxisFlipValue - (data[k] * this.ratio));
+                        this.ctx.moveTo(originXPos + this.getXPosInChart(0), yAxisFlipValue); // 시작
+                        this.ctx.lineTo(originXPos + this.getXPosInChart(0), yAxisFlipValue - (data[0] * this.ratio));
                     }
+
+                    const timeStampLength = this._timeStampList.length;
+
+                    for (let k = 1; k < timeStampLength; k++) {
+                        const poskm1 = this.getXPosInChart(k - 1);
+                        const posk = this.getXPosInChart(k);
+
+                        if (poskm1 <= chartWidth && posk > chartWidth) {
+                            // 뒷 경계면 처리
+                            this.ctx.lineTo(originXPos + chartWidth, yAxisFlipValue - (data[k - 1] + (chartWidth - poskm1) * (data[k] - data[k - 1]) / (posk - poskm1)) * this.ratio);
+                            break;
+                        } else {
+                            this.ctx.lineTo(originXPos + this.getXPosInChart(k), yAxisFlipValue - (data[k] * this.ratio));
+                        }
+                    }
+
+                    this.ctx.lineTo(originXPos + chartWidth, yAxisFlipValue); // 마지막
+
+                    this.ctx.fillStyle = chartColors[j];
+                    this.ctx.fill();
                 }
-
-                this.ctx.lineTo(originXPos + chartWidth, yAxisFlipValue); // 마지막
-
-                this.ctx.fillStyle = chartColors[j];
-                this.ctx.fill();
-            }
+            });
         }
     }
 
@@ -359,7 +391,7 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     calculateTooltipLeft(tooltip: HTMLElement): string {
         const { coordX } = this.lastMousePosInCanvas;
         const { chartWidth, chartInnerPadding, yAxisWidth, marginFromYAxis } = this.chartConstant;
-        const originXPos = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis;
+        const originXPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
         const tooltipWidth = tooltip.offsetWidth;
         const ratio = (coordX - originXPos) / chartWidth;
 
@@ -374,9 +406,9 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
 
     drawTooltipPoint(i: number): void {
         const { chartInnerPadding, titleHeight, chartHeight, chartColors, yAxisWidth, marginFromYAxis } = this.chartConstant;
-        const yAxisFlipValue = this.getTopEdgeYPos() + titleHeight + chartInnerPadding + chartHeight;
-        const yPosList = this._dataList.map((data: number[]) => yAxisFlipValue - (data[i] * this.ratio));
-        const originXPos = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis;
+        const yAxisFlipValue = this.getTopEdgeYPos(0) + titleHeight + chartInnerPadding + chartHeight;
+        const yPosList = this._dataList[0].map((data: number[]) => yAxisFlipValue - (data[i] * this.ratio));
+        const originXPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
         const x = originXPos + this.getXPosInChart(i);
         const r = 3;
 
@@ -393,7 +425,7 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     setTooltip(): void {
         if (this.isMouseInChartArea() && this._timeStampList.length >= 2) {
             const { chartInnerPadding, yAxisWidth, marginFromYAxis } = this.chartConstant;
-            const originXPos = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis;
+            const originXPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
             const x = this.lastMousePosInCanvas.coordX;
             const k = this._timeStampList.findIndex((timeStamp: number, i: number) => {
                 return originXPos + this.getXPosInChart(i) <= x && originXPos + this.getXPosInChart(i + 1) > x;
@@ -412,7 +444,7 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
     setTooltipData(i: number): void {
         this.tooltipDataObj = {
             title: moment(this._timeStampList[i]).tz(this.timezone).format(this.dateFormat),
-            values: this._dataList.map((data: number[]) => data[i])
+            values: this._dataList[0].map((data: number[]) => data[i])
         };
     }
 
@@ -435,9 +467,9 @@ export class NewRealTimeTotalChartComponent implements OnInit, AfterViewInit, On
 
         const { coordX, coordY } = this.lastMousePosInCanvas;
         const { chartInnerPadding, yAxisWidth, marginFromYAxis, titleHeight, chartHeight, chartWidth } = this.chartConstant;
-        const minX = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis + 10;
-        const maxX = this.getLeftEdgeXPos() + chartInnerPadding + yAxisWidth + marginFromYAxis + chartWidth - 10;
-        const minY = this.getTopEdgeYPos() + titleHeight + chartInnerPadding;
+        const minX = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis + 10;
+        const maxX = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis + chartWidth - 10;
+        const minY = this.getTopEdgeYPos(0) + titleHeight + chartInnerPadding;
         const maxY = minY + chartHeight;
 
         return minX < coordX && coordX < maxX && minY < coordY && coordY < maxY;

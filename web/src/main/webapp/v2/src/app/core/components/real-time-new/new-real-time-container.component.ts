@@ -210,8 +210,8 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
 
         this.totalCount = Object.keys(activeThreadCounts).length;
 
-        componentInstance.activeThreadCounts = this.needPaging() ? this.sliceAgentData(activeThreadCounts) : activeThreadCounts;
         componentInstance.timeStamp = timeStamp;
+        componentInstance.activeThreadCounts = this.needPaging() ? this.sliceAgentData(activeThreadCounts) : activeThreadCounts;
     }
     private sliceAgentData(data: { [key: string]: IActiveThreadCounts }): { [key: string]: IActiveThreadCounts } {
         this.lastChartIndex = this.realTimeWebSocketService.getPagingSize() - 1;
@@ -228,26 +228,12 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
 
         const { timeStamp, applicationName, activeThreadCounts } = data;
         const componentInstance = this.totalComponentRef.instance;
-        const successData = this.getSuccessData(activeThreadCounts);
-        const hasError = successData.length === 0;
 
         componentInstance.applicationName = applicationName ? applicationName : this.applicationName;
-        componentInstance.hasError = hasError;
-        componentInstance.errorMessage = hasError ? activeThreadCounts[Object.keys(activeThreadCounts)[0]].message : '';
         componentInstance.timezone = this.timezone;
         componentInstance.dateFormat = this.dateFormat;
         componentInstance.timeStamp = timeStamp;
-        componentInstance.data = hasError ? [] : this.getTotalResponseCount(successData);
-    }
-    private getSuccessData(obj: { [key: string]: IActiveThreadCounts }): IActiveThreadCounts[] {
-        return Object.keys(obj)
-            .filter((agentName: string) => obj[agentName].code === ResponseCode.SUCCESS)
-            .map((agentName: string) => obj[agentName]);
-    }
-    private getTotalResponseCount(data: IActiveThreadCounts[]): number[] {
-        return data.reduce((prev: number[], curr: IActiveThreadCounts) => {
-            return prev.map((a: number, i: number) => a + curr.status[i]);
-        }, [0, 0, 0, 0]);
+        componentInstance.activeThreadCounts = activeThreadCounts;
     }
     private publishData(data: IWebSocketDataResult): void {
         this.setTotalChart(data);
