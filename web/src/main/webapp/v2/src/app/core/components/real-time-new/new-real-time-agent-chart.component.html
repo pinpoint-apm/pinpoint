@@ -1,4 +1,7 @@
-<canvas #canvas
-    (mousemove)="onMouseMove($event)"
-    (click)="onClick($event)">
-</canvas>
+<pp-new-real-time-chart
+    [activeThreadCounts]="activeThreadCounts"
+    [dataList]="dataList"
+    [timeStamp]="timeStamp"
+    [chartOption]="chartOption"
+    (outClick)="onClick($event)">
+</pp-new-real-time-chart>

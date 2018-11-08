@@ -1,6 +1,11 @@
-<canvas #canvas
-    (mousemove)="onMouseMove($event)">
-</canvas>
+<pp-new-real-time-chart
+    [activeThreadCounts]="activeThreadCounts"
+    [dataList]="dataList"
+    [timezone]="timezone"
+    [dateFormat]="dateFormat"
+    [timeStamp]="timeStamp"
+    [chartOption]="chartOption">
+</pp-new-real-time-chart>
 <ul class="l-legend" #legend [ngStyle]="getLegendStyle(legend)">
     <li>
         <span class="l-text">Total</span>
@@ -21,17 +26,5 @@
     <li>
         <span class="l-text">1s</span>
         <span class="l-circle">{{data[0]}}</span>
-</li>
+    </li>
 </ul>
-<ng-container *ngIf="showTooltip">
-    <dl class="l-tooltip" #tooltip [style.left]="calculateTooltipLeft(tooltip)">
-        <dt class="l-tooltip-title">{{tooltipDataObj.title}}</dt>
-        <dd class="l-tooltip-body" *ngFor="let value of tooltipDataObj.values; let i = index">
-            <dl>
-                <dt><span class="l-tooltip-label" [style.background-color]="chartConstant.chartColors[i]"></span>{{chartConstant.chartLabels[i]}}:</dt>
-                <dd class="l-tooltip-content">{{value}}</dd>
-            </dl>
-        </dd>
-    </dl>
-    <div class="l-tooltip-caret" #tooltipCaret [style.left]="calculateTooltipCaretLeft(tooltipCaret)"></div>
-</ng-container>

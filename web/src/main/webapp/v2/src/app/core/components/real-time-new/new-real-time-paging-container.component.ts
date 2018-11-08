@@ -141,8 +141,8 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
 
         this.totalCount = Object.keys(activeThreadCounts).length;
 
-        componentInstance.activeThreadCounts = this.sliceAgentData(activeThreadCounts);
         componentInstance.timeStamp = timeStamp;
+        componentInstance.activeThreadCounts = this.sliceAgentData(activeThreadCounts);
     }
     private sliceAgentData(data: { [key: string]: IActiveThreadCounts }): { [key: string]: IActiveThreadCounts } {
         this.lastChartIndex = this.totalCount - 1 <= this.indexLimit ? this.totalCount - 1 : this.indexLimit;
