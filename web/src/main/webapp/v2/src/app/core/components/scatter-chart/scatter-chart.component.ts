@@ -148,6 +148,7 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
             })
         ).subscribe((params: IResetParam) => {
             this.hasError = false;
+            this.dataLoaded = false;
             this.application = params.application;
             this.agent = params.agent;
             this.fromX = params.from;
