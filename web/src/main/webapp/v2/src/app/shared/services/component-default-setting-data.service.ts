@@ -17,6 +17,16 @@ export class ComponentDefaultSettingDataService {
             new Period(1440),
             new Period(2880)
         ],
+        [UrlPath.SCATTER_FULL_SCREEN_MODE]: [
+            new Period(5, 'Last'),
+            new Period(20),
+            new Period(60),
+            new Period(180),
+            new Period(360),
+            new Period(720),
+            new Period(1440),
+            new Period(2880)
+        ],
         [UrlPath.INSPECTOR]: [
             new Period(5, 'Last'),
             new Period(20),
@@ -57,7 +67,7 @@ export class ComponentDefaultSettingDataService {
         return this.outboundList;
     }
     getPeriodList(path: string): Period[] {
-        return this.periodList[path];
+        return this.periodList[path] || this.periodList[UrlPath.MAIN] ;
     }
     getSystemDefaultPeriod(): Period {
         return this.periodList[UrlPath.MAIN][0];

@@ -30,8 +30,8 @@ import org.apache.zookeeper.KeeperException;
  */
 public class ZookeeperExceptionResolver {
 
-    public static PinpointZookeeperException resolve(KeeperException keeperException, boolean throwException) throws PinpointZookeeperException {
-        PinpointZookeeperException newException = resolve(keeperException);
+    public static PinpointZookeeperException resolve(Exception exception, boolean throwException) throws PinpointZookeeperException {
+        PinpointZookeeperException newException = resolve(exception);
 
         if (throwException) {
             throw newException;
@@ -40,27 +40,32 @@ public class ZookeeperExceptionResolver {
         }
     }
 
-    private static PinpointZookeeperException resolve(KeeperException keeperException) {
-        switch (keeperException.code()) {
-            case CONNECTIONLOSS:
-            case SESSIONEXPIRED:
-                return new ConnectionException(keeperException.getMessage(), keeperException);
-            case AUTHFAILED:
-            case INVALIDACL:
-            case NOAUTH:
-                return new AuthException(keeperException.getMessage(), keeperException);
-            case BADARGUMENTS:
-            case BADVERSION:
-            case NOCHILDRENFOREPHEMERALS:
-            case NOTEMPTY:
-            case NODEEXISTS:
-                return new BadOperationException(keeperException.getMessage(), keeperException);
-            case NONODE:
-                return new NoNodeException(keeperException.getMessage(), keeperException);
-            case OPERATIONTIMEOUT:
-                return new TimeoutException(keeperException.getMessage(), keeperException);
-            default:
-                return new UnknownException(keeperException.getMessage(), keeperException);
+    static PinpointZookeeperException resolve(Exception exception) {
+        if (exception instanceof KeeperException) {
+            KeeperException keeperException = (KeeperException) exception;
+            switch (keeperException.code()) {
+                case CONNECTIONLOSS:
+                case SESSIONEXPIRED:
+                    return new ConnectionException(keeperException.getMessage(), keeperException);
+                case AUTHFAILED:
+                case INVALIDACL:
+                case NOAUTH:
+                    return new AuthException(keeperException.getMessage(), keeperException);
+                case BADARGUMENTS:
+                case BADVERSION:
+                case NOCHILDRENFOREPHEMERALS:
+                case NOTEMPTY:
+                case NODEEXISTS:
+                    return new BadOperationException(keeperException.getMessage(), keeperException);
+                case NONODE:
+                    return new NoNodeException(keeperException.getMessage(), keeperException);
+                case OPERATIONTIMEOUT:
+                    return new TimeoutException(keeperException.getMessage(), keeperException);
+                default:
+                    return new UnknownException(keeperException.getMessage(), keeperException);
+            }
+        } else {
+            return new UnknownException(exception.getMessage(), exception);
         }
     }
 

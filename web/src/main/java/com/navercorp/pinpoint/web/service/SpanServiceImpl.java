@@ -226,7 +226,7 @@ public class SpanServiceImpl implements SpanService {
                     collectionInfo.setValue(stringBuilder);
                 }
 
-                AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, MongoConstants.MONGO_JSON.getCode());
+                AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, MongoConstants.MONGO_JSON_DATA.getCode());
                 if (jsonAnnotation == null) {
                     return;
                 }

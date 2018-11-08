@@ -16,12 +16,16 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.BadOperationException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+import org.apache.curator.utils.ZKPaths;
+import org.apache.zookeeper.KeeperException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -212,29 +216,28 @@ public class ZookeeperJobWorkerTest {
         }
 
         @Override
-        public synchronized void reconnectWhenSessionExpired() {
-            connected = true;
-        }
-
-        @Override
-        public synchronized void createPath(String path) throws PinpointZookeeperException, InterruptedException {
-            contents.put(path, EMPTY_BYTE);
-        }
-
-        @Override
-        public synchronized void createPath(String path, boolean createEndNode) throws PinpointZookeeperException, InterruptedException {
-            contents.put(path, EMPTY_BYTE);
+        public synchronized void createPath(String value) throws PinpointZookeeperException, InterruptedException {
+            ZKPaths.PathAndNode pathAndNode = ZKPaths.getPathAndNode(value);
+            contents.put(pathAndNode.getPath(), EMPTY_BYTE);
         }
 
         @Override
         public synchronized String createNode(String zNodePath, byte[] data) throws PinpointZookeeperException, InterruptedException {
-            return createNode(zNodePath, data, false);
+            byte[] bytes = contents.putIfAbsent(zNodePath, data);
+            if (bytes != null) {
+                throw new BadOperationException("node already exist");
+            }
+            return zNodePath;
         }
 
         @Override
-        public String createNode(String zNodePath, byte[] data, boolean throwExceptionIfNodeExists) throws PinpointZookeeperException, InterruptedException {
-            contents.put(zNodePath, data);
-            return "";
+        public String createOrSetNode(String path, byte[] payload) throws PinpointZookeeperException, KeeperException, InterruptedException {
+            if (intAdder.incrementAndGet() % 2 == 1) {
+                throw new PinpointZookeeperException("exception");
+            }
+
+            contents.put(path, payload);
+            return path;
         }
 
         @Override
@@ -244,16 +247,8 @@ public class ZookeeperJobWorkerTest {
         }
 
         @Override
-        public synchronized void setData(String path, byte[] data) throws PinpointZookeeperException, InterruptedException {
-            // for check retry
-            if (intAdder.incrementAndGet() % 2 == 1) {
-                throw new PinpointZookeeperException("exception");
-            }
-
-            if (!contents.containsKey(path)) {
-                throw new PinpointZookeeperException("can't find path.");
-            }
-            contents.put(path, data);
+        public byte[] getData(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
+            return contents.get(path);
         }
 
         @Override
@@ -262,17 +257,12 @@ public class ZookeeperJobWorkerTest {
         }
 
         @Override
-        public synchronized boolean exists(String path) throws PinpointZookeeperException, InterruptedException {
-            return contents.containsKey(path);
-        }
-
-        @Override
         public synchronized boolean isConnected() {
             return connected;
         }
 
         @Override
-        public synchronized List<String> getChildrenNode(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
+        public List<String> getChildNodeList(String path, boolean watch) {
             return new ArrayList<>();
         }
 

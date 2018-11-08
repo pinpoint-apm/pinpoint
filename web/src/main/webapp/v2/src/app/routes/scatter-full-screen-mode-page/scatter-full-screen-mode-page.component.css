@@ -10,6 +10,9 @@
 .l-widget-group img {
     margin-right: 10px;
 }
+.l-widget-group .l-title {
+    margin-right: 10px;
+}
 .l-main-container {
     display: flex;
     flex-flow: row wrap;

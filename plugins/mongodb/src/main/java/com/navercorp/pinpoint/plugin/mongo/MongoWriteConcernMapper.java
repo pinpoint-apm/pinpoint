@@ -31,12 +31,14 @@ import java.util.Map;
 
 public class MongoWriteConcernMapper {
 
-    private Map<WriteConcern, String> writeConcernMap;
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final Map<WriteConcern, String> writeConcernMap;
 
     public MongoWriteConcernMapper() {
+        writeConcernMap = buildWriteConcern();
+    }
 
-        writeConcernMap = new HashMap<WriteConcern, String>();
+    private Map<WriteConcern, String> buildWriteConcern() {
+        Map<WriteConcern, String> writeConcernMap = new HashMap<WriteConcern, String>();
         for (final Field f : WriteConcern.class.getFields()) {
             if (Modifier.isStatic(f.getModifiers())
                     && f.getType().equals(WriteConcern.class)
@@ -44,12 +46,15 @@ public class MongoWriteConcernMapper {
 
                 String value = f.getName();
                 try {
-                    writeConcernMap.put((WriteConcern) f.get(null), value);
+                    WriteConcern key = (WriteConcern) f.get(null);
+                    writeConcernMap.put(key, value);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    logger.warn("WriteConcern access error Caused by:" + e.getMessage(), e);
                 }
             }
         }
+        return writeConcernMap;
     }
 
     public String getName(WriteConcern writeConcern) {

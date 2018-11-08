@@ -19,9 +19,13 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.AddressParser;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,15 +51,16 @@ public class ZookeeperClusterManager {
     private final GetAndRegisterTask getAndRegisterTask = new GetAndRegisterTask();
     private final StopTask stopTask = new StopTask();
 
+    private final CommonStateContext workerState = new CommonStateContext();
+
     private final ZookeeperClient client;
     private final ClusterConnectionManager clusterConnectionManager;
-    private final String zNodePath;
+    private final String parentPath;
 
     private final AtomicBoolean retryMode = new AtomicBoolean(false);
 
     private final BlockingQueue<Task> queue = new LinkedBlockingQueue<>(1);
 
-    private final CommonStateContext workerState;
     private final Thread workerThread;
 
     // private final Timer timer;
@@ -64,12 +69,15 @@ public class ZookeeperClusterManager {
     // synchronize current status with Zookeeper when an event(job) is triggered.
     // (the number of events does not matter as long as a single event is triggered - subsequent events may be ignored)
     public ZookeeperClusterManager(ZookeeperClient client, String zookeeperClusterPath, ClusterConnectionManager clusterConnectionManager) {
-        this.client = client;
+        this.client = Assert.requireNonNull(client, "client must not be null");
+        Assert.requireNonNull(zookeeperClusterPath, "client must not be null");
+        this.clusterConnectionManager = Assert.requireNonNull(clusterConnectionManager, "clusterConnectionManager must not be null");
 
-        this.clusterConnectionManager = clusterConnectionManager;
-        this.zNodePath = zookeeperClusterPath;
-
-        this.workerState = new CommonStateContext();
+        if (!zookeeperClusterPath.endsWith("/")) {
+            this.parentPath = zookeeperClusterPath + ZookeeperConstants.PATH_SEPARATOR;
+        } else {
+            this.parentPath = zookeeperClusterPath;
+        }
 
         final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
         this.workerThread = threadFactory.newThread(new Worker());
@@ -141,7 +149,7 @@ public class ZookeeperClusterManager {
 
     public void handleAndRegisterWatcher(String path) {
         if (workerState.isStarted()) {
-            if (zNodePath.equals(path)) {
+            if (parentPath.equals(path) || parentPath.equals(path + ZookeeperConstants.PATH_SEPARATOR)) {
                 final boolean offerSuccess = queue.offer(getAndRegisterTask);
                 if (!offerSuccess) {
                     logger.info("Message Queue is Full.");
@@ -208,29 +216,23 @@ public class ZookeeperClusterManager {
         private boolean handleAndRegisterWatcher0() {
             boolean needNotRetry = false;
             try {
+                client.createPath(parentPath);
 
-                if (!client.exists(zNodePath)) {
-                    client.createPath(zNodePath, true);
-                }
+                List<Address> targetAddressList = getTargetAddressList(parentPath);
+                List<Address> connectedAddressList = clusterConnectionManager.getConnectedAddressList();
 
-                List<String> childNodeList = client.getChildrenNode(zNodePath, true);
-                List<Address> clusterAddressList = AddressParser.parseAddressLIst(childNodeList);
+                logger.info("Handle register and remove Task. Current Address List = {}, Cluster Address List = {}", connectedAddressList, targetAddressList);
 
-
-                List<Address> addressList = clusterConnectionManager.getConnectedAddressList();
-
-                logger.info("Handle register and remove Task. Current Address List = {}, Cluster Address List = {}", addressList, clusterAddressList);
-
-                for (Address clusterAddress : clusterAddressList) {
-                    if (!addressList.contains(clusterAddress)) {
-                        clusterConnectionManager.connectPointIfAbsent(clusterAddress);
+                for (Address targetAddress : targetAddressList) {
+                    if (!connectedAddressList.contains(targetAddress)) {
+                        clusterConnectionManager.connectPointIfAbsent(targetAddress);
                     }
                 }
 
-                for (Address address : addressList) {
+                for (Address connectedAddress : connectedAddressList) {
                     //noinspection SuspiciousMethodCalls,SuspiciousMethodCalls
-                    if (!clusterAddressList.contains(address)) {
-                        clusterConnectionManager.disconnectPoint(address);
+                    if (!targetAddressList.contains(connectedAddress)) {
+                        clusterConnectionManager.disconnectPoint(connectedAddress);
                     }
                 }
 
@@ -244,6 +246,12 @@ public class ZookeeperClusterManager {
 
             return needNotRetry;
         }
+
+        private List<Address> getTargetAddressList(String parentPath) throws PinpointZookeeperException, InterruptedException {
+            List<String> childNodeList = client.getChildNodeList(parentPath, true);
+            return AddressParser.parseAddressLIst(childNodeList);
+        }
+
     }
 
     static class StopTask implements Task {

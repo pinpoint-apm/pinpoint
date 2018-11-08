@@ -5,6 +5,7 @@
     border: none;
 }
 .l-info-table tbody th, .l-info-table td {
+    color: #000;
     border-top:1px solid #e5e8f0;
 }
 .l-info-table tr:nth-child(2n) {

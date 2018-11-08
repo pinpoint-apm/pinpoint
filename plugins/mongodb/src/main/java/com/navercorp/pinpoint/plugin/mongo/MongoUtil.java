@@ -19,18 +19,22 @@ import com.mongodb.WriteConcern;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import org.bson.BsonDocument;
-import org.bson.BsonDocumentWriter;
+import org.bson.BsonWriter;
 import org.bson.Document;
-import org.bson.conversions.Bson;
+import org.bson.json.JsonWriter;
 
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Roy Kim
  */
-public class MongoUtil {
+public final class MongoUtil {
 
-    public static final char SEPARATOR = ',';
+    public static final String SEPARATOR = ",";
     private static MongoWriteConcernMapper mongoWriteConcernMapper = new MongoWriteConcernMapper();
 
     private MongoUtil() {
@@ -48,11 +52,11 @@ public class MongoUtil {
 
     public static void recordParsedBson(SpanEventRecorder recorder, StringStringValue stringStringValue) {
         if (stringStringValue != null) {
-            recorder.recordAttribute(MongoConstants.MONGO_JSON, stringStringValue);
+            recorder.recordAttribute(MongoConstants.MONGO_JSON_DATA, stringStringValue);
         }
     }
 
-    private static Map<String, ?> getBsonKeyValueMap(Bson bson) {
+    private static Map<String, ?> getBsonKeyValueMap(Object bson) {
         if (bson instanceof BasicDBObject) {
             return (BasicDBObject) bson;
         } else if (bson instanceof BsonDocument) {
@@ -79,58 +83,51 @@ public class MongoUtil {
         if (args == null) {
             return null;
         }
-        BsonDocument toSend = new BsonDocument();
 
-
-        StringBuilder parsedBson = new StringBuilder();
-        StringBuilder parameter = new StringBuilder(32);
+        final List<String> parsedBson = new ArrayList<String>(2);
+        final List<String> parameter = new ArrayList<String>(2);
 
         for (Object arg : args) {
-            if (arg instanceof Bson) {
 
-                final Map<String, ?> map = getBsonKeyValueMap((Bson) arg);
-
-                if (map == null) {
-                    continue;
-                }
-                BsonDocumentWriter writer = new BsonDocumentWriter(toSend);
-                writer.writeStartDocument();
-
-                for (Map.Entry<String, ?> entry : map.entrySet()) {
-
-                    writer.writeName(entry.getKey());
-                    writer.writeString("?");
-
-                    if (traceBsonBindValue) {
-
-                        appendOutputSeparator(parameter);
-                        if (entry.getValue() instanceof String) {
-                            parameter.append("\"");
-                            parameter.append(entry.getValue());
-                            parameter.append("\"");
-                        } else {
-                            parameter.append(entry.getValue());
-                        }
-                    }
-                }
-                writer.writeEndDocument();
-
-                if (parsedBson.length() != 0) {
-                    parsedBson.append(",");
-                }
-                parsedBson.append(writer.getDocument().toString());
+            final Map<String, ?> map = getBsonKeyValueMap(arg);
+            if (map == null) {
+                continue;
             }
-        }
 
-        return new StringStringValue(parsedBson.toString(), parameter.toString());
+            final Writer writer = new StringWriter();
+            final BsonWriter bsonWriter = new JsonWriter(writer);
+
+            bsonWriter.writeStartDocument();
+            for (Map.Entry<String, ?> entry : map.entrySet()) {
+
+                bsonWriter.writeName(entry.getKey());
+                bsonWriter.writeString("?");
+
+                if (traceBsonBindValue) {
+                    final Object value = entry.getValue();
+                    String strValue = toStringValue(value);
+                    parameter.add(strValue);
+                }
+            }
+            bsonWriter.writeEndDocument();
+            bsonWriter.flush();
+            String documentString = writer.toString();
+
+            parsedBson.add(documentString);
+
+        }
+        String parsedBsonString = StringJoiner.join(parsedBson, SEPARATOR);
+        String parameterString = StringJoiner.join(parameter, SEPARATOR);
+        return new StringStringValue(parsedBsonString, parameterString);
     }
 
-    private static void appendOutputSeparator(StringBuilder output) {
-        if (output.length() == 0) {
-            // first parameter
-            return;
+
+    private static String toStringValue(Object value) {
+        if (value instanceof String) {
+            return "\"" + value +"\"";
+        } else {
+            return String.valueOf(value);
         }
-        output.append(SEPARATOR);
     }
 }
 

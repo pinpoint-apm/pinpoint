@@ -2,7 +2,8 @@
 <header class="flex-container flex-row">
     <pp-header-logo></pp-header-logo>
     <div class="l-widget-group">
-        <img [src]="applicationImgPath"> {{applicationName}} - {{selectedAgent}}
+        <img [src]="applicationImgPath"> <span class="l-title">{{applicationName}} - {{selectedAgent}}</span>
+        <pp-period-selector-container></pp-period-selector-container>
     </div>
 </header>
 <div class="l-main-container">

@@ -628,11 +628,27 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-framework</artifactId>
+                <version>4.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>zookeeper</artifactId>
+                        <groupId>org.apache.zookeeper</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.curator</groupId>
+                        <artifactId>curator-test</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
             <!-- for zookeeper test -->
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-test</artifactId>
-                <version>2.6.0</version>
+                <version>2.12.0</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>zookeeper</artifactId>
