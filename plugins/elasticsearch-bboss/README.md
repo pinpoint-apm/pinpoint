@@ -1,6 +1,6 @@
 ElasticSearch is an Open Source (Apache 2), Distributed, RESTful, Search Engine built on top of Apache Lucene.
 
-This agent plugin is worked with elasticsearch rest client [BBoss][bs].
+This agent plugin is worked with elasticsearch bboss highlevel rest client [BBoss][bs].
 
 [BBoss][bs] is a best Java Highlevel Rest client for [ElasticSearch][es].
 
@@ -16,7 +16,7 @@ Other Applications
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/91d13619839e9f2d7613afe3e3df09d2cb9.jpg)
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/3717ae9eb8b3cf6846dada06ee20601ab31.jpg)
 
-For more BBoss Elasticsearch detail see :
+For more BBoss Elasticsearch Highlevel Rest Client detail see :
  https://www.oschina.net/p/bboss-elastic
 
 Fast import bboss to your project:
