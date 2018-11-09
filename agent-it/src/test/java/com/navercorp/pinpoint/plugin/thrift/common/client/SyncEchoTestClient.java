@@ -61,13 +61,14 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
 
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
+        // refer to TServiceClientSendBaseInterceptor.getRemoteAddress(...)
         final InetSocketAddress socketAddress = this.environment.getServerAddress();
         final String hostName = SocketAddressUtils.getHostNameFirst(socketAddress);
-        // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getHostPort
         final String remoteAddress = HostAndPort.toHostAndPortString(hostName, socketAddress.getPort());
+
         // SpanEvent - TServiceClient.sendBase
         Method sendBase = TServiceClient.class.getDeclaredMethod("sendBase", String.class, TBase.class);
-        // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getClientServiceName
+
         ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url",
                 remoteAddress + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
         ExpectedAnnotation thriftArgs = Expectations.annotation("thrift.args",
