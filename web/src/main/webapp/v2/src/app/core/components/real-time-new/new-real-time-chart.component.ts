@@ -19,8 +19,15 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
         this.numOfChart = Object.keys(activeThreadCounts).length;
         this._activeThreadCounts = activeThreadCounts;
+
+        Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
+            const status = this._activeThreadCounts[key].status;
+
+            if (status) {
+                this.dataList[i] ? this.dataList[i].push(status) : this.dataList[i] = [status];
+            }
+        });
     }
-    @Input() dataList: number[][][];
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input()
@@ -461,8 +468,8 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
     private setTooltipData(i: number): void {
         this.tooltipDataObj = {
-            title: moment(this._timeStampList[i]).tz(this.timezone).format(this.dateFormat),
-            values: this.dataList[0].map((data: number[]) => data[i])
+            title: moment(this.timeStampList[i]).tz(this.timezone).format(this.dateFormat),
+            values: this.dataList[0][i]
         };
     }
 

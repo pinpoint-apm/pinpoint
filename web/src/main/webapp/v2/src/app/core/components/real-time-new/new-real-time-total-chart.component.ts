@@ -26,14 +26,6 @@ export class NewRealTimeTotalChartComponent implements OnInit {
             }
         };
 
-        this._dataList = Object.keys(this._activeThreadCounts).map((key: string, i: number) => {
-            const status = this._activeThreadCounts[key].status;
-
-            return status ?
-                this._dataList[i] ? this._dataList[i].map((data: number[], j: number) => [ ...data, status[j] ]) : status.map((v: number) => [v]) :
-                [ [], [], [], [] ];
-        });
-
         this._data = this._activeThreadCounts[Object.keys(this._activeThreadCounts)[0]].status;
         this.totalCount = this._data ? this._data.reduce((acc: number, curr: number) => acc + curr, 0) : null;
     }
@@ -42,16 +34,11 @@ export class NewRealTimeTotalChartComponent implements OnInit {
         return this._activeThreadCounts;
     }
 
-    get dataList(): number[][][] {
-        return this._dataList;
-    }
-
     get data(): number[] {
         return this._data ? this._data : [];
     }
 
     _activeThreadCounts: { [key: string]: IActiveThreadCounts };
-    _dataList: number[][][] = [];
     _data: number[] = [];
     totalCount: number;
 
