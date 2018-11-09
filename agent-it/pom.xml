@@ -365,6 +365,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.2.11.v20150529</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
