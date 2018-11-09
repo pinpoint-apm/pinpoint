@@ -33,7 +33,6 @@ import java.security.ProtectionDomain;
  */
 public class ClassFileTransformerModuleHandler implements ClassFileTransformModuleAdaptor {
 
-    private final Instrumentation instrumentation;
     private final ClassFileTransformer delegate;
     private final JavaModuleFactory javaModuleFactory;
     private final JavaModule bootstrapModule;
@@ -48,41 +47,60 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
             throw new NullPointerException("delegate must not be null");
         }
 
-        this.instrumentation = instrumentation;
         this.delegate = delegate;
-        this.javaModuleFactory = JavaModuleFactoryFinder.lookup();
-        this.bootstrapModule = javaModuleFactory.wrapFromClass(instrumentation, JavaModuleFactory.class);
+        this.javaModuleFactory = JavaModuleFactoryFinder.lookup(instrumentation);
+        this.bootstrapModule = javaModuleFactory.wrapFromClass(JavaModuleFactory.class);
     }
 
     @Override
-    public byte[] transform(Object module, ClassLoader loader, String className, Class<?> classBeingRedefined,
+    public byte[] transform(Object transformedModuleObject, ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
         final byte[] transform = delegate.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
         if (transform != null && transform != classfileBuffer) {
-            if (!javaModuleFactory.isNamedModule(module)) {
+            if (!javaModuleFactory.isNamedModule(transformedModuleObject)) {
                 return transform;
             }
+            // bootstrap-core permission
+            final JavaModule transformedModule = javaModuleFactory.wrapFromModule(transformedModuleObject);
+            addModulePermission(transformedModule, className, bootstrapModule);
 
-            final JavaModule javaModule = javaModuleFactory.wrapFromModule(instrumentation, module);
-            if (!javaModule.canRead(bootstrapModule)) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("addReads module:{} target:{}", javaModule, bootstrapModule);
-                }
-                javaModule.addReads(bootstrapModule);
-            }
-            final String packageName = getPackageName(className);
-            if (packageName != null) {
-                if (!javaModule.isExported(packageName, bootstrapModule)) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("addExports module:{} pkg:{} target:{}", javaModule, packageName, bootstrapModule);
-                    }
-                    javaModule.addExports(packageName, bootstrapModule);
-                }
-                // need open?
+
+            if (loader != Object.class.getClassLoader()) {
+                // plugin permission
+                final Object pluginModuleObject = getPluginModule(loader);
+                final JavaModule pluginModule = javaModuleFactory.wrapFromModule(pluginModuleObject);
+
+                addModulePermission(transformedModule, className, pluginModule);
             }
         }
         return transform;
+    }
+
+    private Object getPluginModule(ClassLoader loader) {
+        // current internal implementation
+        // The plugin.jar is loaded into the unnamed module
+        return javaModuleFactory.getUnnamedModule(loader);
+    }
+
+    private void addModulePermission(JavaModule transformedModule, String className, JavaModule targetModule) {
+        if (!transformedModule.canRead(targetModule)) {
+            if (logger.isInfoEnabled()) {
+                logger.info("addReads module:{} target:{}", transformedModule, targetModule);
+            }
+            transformedModule.addReads(targetModule);
+        }
+
+        final String packageName = getPackageName(className);
+        if (packageName != null) {
+            if (!transformedModule.isExported(packageName, targetModule)) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("addExports module:{} pkg:{} target:{}", transformedModule, packageName, targetModule);
+                }
+                transformedModule.addExports(packageName, targetModule);
+            }
+            // need open?
+        }
     }
 
     private String getPackageName(String className) {
