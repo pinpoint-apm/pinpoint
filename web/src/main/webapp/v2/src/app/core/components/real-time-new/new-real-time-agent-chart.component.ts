@@ -10,31 +10,9 @@ import { GridLineType } from './new-real-time-chart.component';
 })
 export class NewRealTimeAgentChartComponent implements OnInit {
     @Input() timeStamp: number;
-    @Input()
-    set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
-        this._activeThreadCounts = activeThreadCounts;
-        this._dataList = Object.keys(activeThreadCounts).map((key: string, i: number) => {
-            const status = activeThreadCounts[key].status;
-
-            return status ?
-                this._dataList[i] ? this._dataList[i].map((data: number[], j: number) => [ ...data, status[j] ]) : status.map((v: number) => [v]) :
-                [ [], [], [], [] ];
-        });
-    }
-
-    get activeThreadCounts(): { [key: string]: IActiveThreadCounts } {
-        return this._activeThreadCounts;
-    }
-
-    get dataList(): number[][][] {
-        return this._dataList;
-    }
-
+    @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
     @Output() outOpenThreadDump: EventEmitter<string> = new EventEmitter();
     @ViewChild('canvas') canvasRef: ElementRef;
-
-    _activeThreadCounts: { [key: string]: IActiveThreadCounts };
-    _dataList: number[][][] = [];
 
     chartOption = {
         canvasLeftPadding: 0,
