@@ -32,34 +32,35 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     @Input() dateFormat: string;
     @Input()
     set timeStamp(timeStamp: number) {
-        this._timeStampList.push(timeStamp);
-        if (this._timeStampList.length === 1) {
-            this.firstTimeStamp = this._timeStampList[0] - 2000;
+        this.timeStampList.push(timeStamp);
+        if (this.timeStampList.length === 1) {
+            this.firstTimeStamp = this.timeStampList[0] - 2000;
         }
     }
     @Input() chartOption: { [key: string]: any };
     @Output() outClick = new EventEmitter<string>();
 
-    canvas: HTMLCanvasElement;
-    ctx: CanvasRenderingContext2D;
-    firstTimeStamp: number;
-    gridLineStart: number = null;
-    chartStart: number = null;
-    animationFrameId: number;
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private firstTimeStamp: number;
+    private gridLineStart: number = null;
+    private chartStart: number = null;
+    private animationFrameId: number;
+    private timeStampList: number[] = [];
+    private _activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    private dataList: number[][][] = [];
+    private numOfChart: number;
+    private maxRatio = 3 / 5; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
+    private ratio: number; // maxRatio를 바탕으로 각 데이터에 적용되는 비율
+    private startingXPos: number; // 최초로 움직이기 시작하는 점의 x좌표
+    private lastMousePosInCanvas: ICoordinate;
+    private chartNumPerRow: number;
+    private linkIconInfoList: { [key: string]: any }[] = []; // { leftX, rightX, topY, bottomY, agentKey } 를 담은 object의 배열
     showTooltip = false;
     tooltipDataObj = {
         title: '',
         values: [] as number[],
     };
-    _timeStampList: number[] = [];
-    _activeThreadCounts: { [key: string]: IActiveThreadCounts };
-    numOfChart: number;
-    maxRatio = 3 / 5; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
-    ratio: number; // maxRatio를 바탕으로 각 데이터에 적용되는 비율
-    startingXPos: number; // 최초로 움직이기 시작하는 점의 x좌표
-    lastMousePosInCanvas: ICoordinate;
-    chartNumPerRow: number;
-    linkIconInfoList: { [key: string]: any }[] = []; // { leftX, rightX, topY, bottomY, agentKey } 를 담은 object의 배열
 
     constructor(
         private el: ElementRef
@@ -126,7 +127,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.drawXAxis();
         }
 
-        if (this._timeStampList.length !== 0) {
+        if (this.timeStampList.length !== 0) {
             this.drawChart(timestamp);
             if (tooltipEnabled) {
                 this.setTooltip();
@@ -200,7 +201,6 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
                 const linkIconWidth = this.ctx.measureText(linkIconCode).width;
 
-                // TODO: linkIcon 정보 꼭 미리 저장해야할지.
                 this.linkIconInfoList.push({
                     leftX: this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon - linkIconWidth,
                     rightX: this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon,
@@ -333,33 +333,38 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         }
     }
 
+    private getOriginYPos(chartIndex: number): number {
+        const { chartInnerPadding, titleHeight, chartHeight } = this.chartOption;
+
+        return this.getTopEdgeYPos(chartIndex) + titleHeight + chartInnerPadding + chartHeight;
+    }
+
     private drawChart(timestamp: number): void {
         if (!this.chartStart) {
             this.chartStart = timestamp;
         }
 
-        const { chartInnerPadding, chartWidth, yAxisWidth, titleHeight, chartHeight, marginFromYAxis, chartColors, chartSpeedControl, showYAxisLabel } = this.chartOption;
+        const { chartInnerPadding, chartWidth, yAxisWidth, chartHeight, marginFromYAxis, chartColors, chartSpeedControl, showYAxisLabel } = this.chartOption;
         this.startingXPos = chartWidth - Math.floor((timestamp - this.chartStart) / chartSpeedControl);
-        const isOverflow = this._timeStampList.length >= 2 && this.getXPosInChart(1) < 0;
+        const isOverflow = this.timeStampList.length >= 2 && this.getXPosInChart(1) < 0;
 
         if (isOverflow) {
-            this._timeStampList.shift();
+            this.timeStampList.shift();
         }
 
-        const xPos0 = this.getXPosInChart(0);
+        const x0 = this.getXPosInChart(0);
 
-        if (xPos0 < chartWidth) {
+        if (x0 < chartWidth) {
             this.dataList.forEach((dataList: number[][], i: number) => {
                 if (isOverflow) {
-                    dataList.forEach((dataArr: number[]) => {
-                        dataArr.shift();
-                    });
+                    dataList.shift();
                 }
 
                 const originXPos = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisWidth + marginFromYAxis;
-                const yAxisFlipValue = this.getTopEdgeYPos(i) + titleHeight + chartInnerPadding + chartHeight;
-                const max = Math.max(...dataList.map((data: number[]) => Math.max(...data)));
-                const length = dataList.length;
+                const originYPos = this.getOriginYPos(i);
+                const max = Math.max(...dataList.map((data: number[]) => data.reduce((acc: number, curr: number) => acc + curr), 0));
+                const dataTypeLength = dataList[0].length;
+                const dataLength = dataList.length;
 
                 if (showYAxisLabel) {
                     this.drawYAxisLabel(max);
@@ -367,38 +372,36 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
                 this.ratio = max === 0 ? 1 : chartHeight * this.maxRatio / max;
 
-                for (let j = 0; j < length; j++) {
-                    const data = dataList[j];
+                for (let j = dataTypeLength - 1; j >= 0; j--) {
+                    const data = dataList.map((d: number[]) => d.slice(0, j + 1).reduce((acc: number, curr: number) => acc + curr, 0));
 
                     this.ctx.beginPath();
 
-                    if (xPos0 < 0) {
+                    if (x0 < 0) {
                         // 앞 경계면 처리
-                        const xPos1 = this.getXPosInChart(1);
+                        const x1 = this.getXPosInChart(1);
 
-                        this.ctx.moveTo(originXPos, yAxisFlipValue); // 시작
-                        this.ctx.lineTo(originXPos, yAxisFlipValue - (data[0] * xPos1 - data[1] * xPos0) / (xPos1 - xPos0) * this.ratio);
+                        this.ctx.moveTo(originXPos, originYPos); // 시작
+                        this.ctx.lineTo(originXPos, originYPos - (data[0] * x1 - data[1] * x0) / (x1 - x0) * this.ratio);
                     } else {
-                        this.ctx.moveTo(originXPos + this.getXPosInChart(0), yAxisFlipValue); // 시작
-                        this.ctx.lineTo(originXPos + this.getXPosInChart(0), yAxisFlipValue - (data[0] * this.ratio));
+                        this.ctx.moveTo(originXPos + this.getXPosInChart(0), originYPos); // 시작
+                        this.ctx.lineTo(originXPos + this.getXPosInChart(0), originYPos - (data[0] * this.ratio));
                     }
 
-                    const timeStampLength = this._timeStampList.length;
+                    for (let k = 1; k < dataLength; k++) {
+                        const xkm1 = this.getXPosInChart(k - 1);
+                        const xk = this.getXPosInChart(k);
 
-                    for (let k = 1; k < timeStampLength; k++) {
-                        const poskm1 = this.getXPosInChart(k - 1);
-                        const posk = this.getXPosInChart(k);
-
-                        if (poskm1 <= chartWidth && posk > chartWidth) {
+                        if (xkm1 <= chartWidth && xk > chartWidth) {
                             // 뒷 경계면 처리
-                            this.ctx.lineTo(originXPos + chartWidth, yAxisFlipValue - (data[k - 1] + (chartWidth - poskm1) * (data[k] - data[k - 1]) / (posk - poskm1)) * this.ratio);
+                            this.ctx.lineTo(originXPos + chartWidth, originYPos - (data[k - 1] + (chartWidth - xkm1) * (data[k] - data[k - 1]) / (xk - xkm1)) * this.ratio);
                             break;
                         } else {
-                            this.ctx.lineTo(originXPos + this.getXPosInChart(k), yAxisFlipValue - (data[k] * this.ratio));
+                            this.ctx.lineTo(originXPos + this.getXPosInChart(k), originYPos - (data[k] * this.ratio));
                         }
                     }
 
-                    this.ctx.lineTo(originXPos + chartWidth, yAxisFlipValue); // 마지막
+                    this.ctx.lineTo(originXPos + chartWidth, originYPos); // 마지막
 
                     this.ctx.fillStyle = chartColors[j];
                     this.ctx.fill();
@@ -410,7 +413,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private getXPosInChart(i: number): number {
         const { chartSpeedControl } = this.chartOption;
 
-        return this.startingXPos + Math.floor((this._timeStampList[i] - this.firstTimeStamp) / chartSpeedControl);
+        return this.startingXPos + Math.floor((this.timeStampList[i] - this.firstTimeStamp) / chartSpeedControl);
     }
 
     calculateTooltipLeft(tooltip: HTMLElement): string {
@@ -430,29 +433,39 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private drawTooltipPoint(i: number): void {
-        const { chartInnerPadding, titleHeight, chartHeight, chartColors, yAxisWidth, marginFromYAxis } = this.chartOption;
-        const yAxisFlipValue = this.getTopEdgeYPos(0) + titleHeight + chartInnerPadding + chartHeight;
-        const yPosList = this.dataList[0].map((data: number[]) => yAxisFlipValue - (data[i] * this.ratio));
+        const { chartInnerPadding, chartColors, yAxisWidth, marginFromYAxis } = this.chartOption;
+        const originYPos = this.getOriginYPos(0);
+        const data = this.dataList[0][i]; // [0, 1, 2, 3]
+        const length = data.length;
         const originXPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
         const x = originXPos + this.getXPosInChart(i);
         const r = 3;
 
         if (x > originXPos) {
-            yPosList.forEach((y: number, index: number) => {
+            for (let j = 0; j < length; j++) {
+                if (data[j] === 0) {
+                    continue;
+                }
+
+                const d = data.slice(0, j + 1).reduce((acc: number, curr: number) => acc + curr, 0);
+                const y = originYPos - (d * this.ratio);
+
                 this.ctx.beginPath();
                 this.ctx.arc(x, y, r, 0, 2 * Math.PI);
-                this.ctx.fillStyle = chartColors[index];
+                this.ctx.fillStyle = chartColors[j];
+                this.ctx.strokeStyle = 'rgb(0, 0, 0, 0.3)';
+                this.ctx.stroke();
                 this.ctx.fill();
-            });
+            }
         }
     }
 
     private setTooltip(): void {
-        if (this.isMouseInChartArea() && this._timeStampList.length >= 2) {
+        if (this.isMouseInChartArea() && this.timeStampList.length >= 2) {
             const { chartInnerPadding, yAxisWidth, marginFromYAxis } = this.chartOption;
             const originXPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
             const x = this.lastMousePosInCanvas.coordX;
-            const k = this._timeStampList.findIndex((timeStamp: number, i: number) => {
+            const k = this.timeStampList.findIndex((timeStamp: number, i: number) => {
                 return originXPos + this.getXPosInChart(i) <= x && originXPos + this.getXPosInChart(i + 1) > x;
             });
 
