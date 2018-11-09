@@ -107,7 +107,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
         // SpanEvent - TAsyncClientManager.call
         Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
         ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url",
-                remoteAddress + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
+                remoteAddress + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
         ExpectedTrace callTrace = event("THRIFT_CLIENT", // ServiceType
                 call, // Method
                 null, // rpc

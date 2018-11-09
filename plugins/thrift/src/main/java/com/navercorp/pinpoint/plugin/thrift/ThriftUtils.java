@@ -76,7 +76,14 @@ public class ThriftUtils {
      */
     public static String getAsyncMethodCallName(TAsyncMethodCall<?> asyncMethodCall) {
         String asyncMethodCallClassName = asyncMethodCall.getClass().getName();
-        return convertDotPathToUriPath(ThriftConstants.ASYNC_METHOD_CALL_PATTERN.matcher(asyncMethodCallClassName).replaceAll("."));
+        String convertedMethodCallName = convertDotPathToUriPath(ThriftConstants.ASYNC_METHOD_CALL_PATTERN.matcher(asyncMethodCallClassName).replaceAll("."));
+        // thrift java generator appends "_call" to the method name when naming the function class
+        // https://github.com/apache/thrift/blob/master/compiler/cpp/src/thrift/generate/t_java_generator.cc#L3151
+        final String callSuffix = "_call";
+        if (convertedMethodCallName.endsWith(callSuffix)) {
+            return convertedMethodCallName.substring(0, convertedMethodCallName.length() - callSuffix.length());
+        }
+        return convertedMethodCallName;
     }
 
     /**
