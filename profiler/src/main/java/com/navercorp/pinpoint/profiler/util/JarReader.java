@@ -65,14 +65,13 @@ public class JarReader {
 
         final BufferedContext bufferedContext = new BufferedContext();
 
-        String jarFileName = jarFile.getName();
         Enumeration<JarEntry> entries = jarFile.entries();
         List<FileBinary> fileBinaryList = new ArrayList<FileBinary>();
         while (entries.hasMoreElements()) {
             final JarEntry jarEntry = entries.nextElement();
             if (jarEntryFilter.filter(jarEntry)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("filter fileName:{}, JarFile:{}", jarEntry.getName(), jarFileName);
+                    logger.debug("filter fileName:{}, JarFile:{}", jarEntry, jarFile.getName());
                 }
                 FileBinary fileBinary = newFileBinary(bufferedContext, jarEntry);
                 fileBinaryList.add(fileBinary);
@@ -100,12 +99,12 @@ public class JarReader {
             try {
                 inputStream = jarFile.getInputStream(jarEntry);
                 if (inputStream == null) {
-                    logger.warn("jarEntry not found. jarFile:{} jarEntry{}", jarFile, jarEntry);
+                    logger.warn("jarEntry not found. jarFile:{} jarEntry{}", jarFile.getName(), jarEntry);
                     return null;
                 }
                 return read(inputStream);
             } catch (IOException ioe) {
-                logger.warn("jarFile read error jarFile:{} jarEntry{} {}", jarFile, jarEntry, ioe.getMessage(), ioe);
+                logger.warn("jarFile read error jarFile:{} jarEntry{} {}", jarFile.getName(), jarEntry, ioe.getMessage(), ioe);
                 throw ioe;
             } finally {
                 IOUtils.closeQuietly(inputStream);
