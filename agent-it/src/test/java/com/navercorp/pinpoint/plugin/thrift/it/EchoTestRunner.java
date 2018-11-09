@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.thrift.it;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.thrift.server.TServer;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -35,21 +34,21 @@ import com.navercorp.pinpoint.plugin.thrift.common.server.EchoTestServer;
 /**
  * @author HyunGil Jeong
  */
-public abstract class EchoTestRunner<T extends TServer> {
+public abstract class EchoTestRunner<T extends EchoTestServer> {
 
     private static ExecutorService SERVER_EXECUTOR;
 
-    private EchoTestServer<T> echoServer;
+    private T echoServer;
 
     PluginTestVerifier verifier;
 
     @BeforeClass
-    public static void setUpBeforeClass() throws InterruptedException {
+    public static void setUpBeforeClass() {
         SERVER_EXECUTOR = Executors.newSingleThreadExecutor();
     }
 
     @Before
-    public void setUp() throws TTransportException, InterruptedException {
+    public void setUp() throws TTransportException {
         this.echoServer = createEchoServer(new TestEnvironment());
         this.verifier = PluginTestVerifierHolder.getInstance();
         this.echoServer.start(SERVER_EXECUTOR);
@@ -67,17 +66,11 @@ public abstract class EchoTestRunner<T extends TServer> {
         SERVER_EXECUTOR.shutdown();
     }
 
-    protected String invokeEcho(String message) throws Exception {
-        final EchoTestClient echoClient = this.echoServer.getSynchronousClient();
-        return invokeAndVerify(echoClient, message);
+    protected T getServer() {
+        return echoServer;
     }
 
-    protected String invokeEchoAsync(String message) throws Exception {
-        final EchoTestClient echoClient = this.echoServer.getAsynchronousClient();
-        return invokeAndVerify(echoClient, message);
-    }
-
-    private String invokeAndVerify(EchoTestClient echoClient, String message) throws Exception {
+    protected String invokeAndVerify(EchoTestClient echoClient, String message) throws Exception {
         try {
             return echoClient.echo(message);
         } finally {
@@ -88,12 +81,13 @@ public abstract class EchoTestRunner<T extends TServer> {
         }
     }
 
-    protected abstract EchoTestServer<T> createEchoServer(TestEnvironment environment) throws TTransportException;
+    protected abstract T createEchoServer(TestEnvironment environment) throws TTransportException;
 
     private void verifyTraces(EchoTestClient echoClient, String expectedMessage) throws Exception {
         this.verifier.printCache(System.out);
         echoClient.verifyTraces(this.verifier, expectedMessage);
         this.echoServer.verifyTraces(this.verifier);
+        this.verifier.verifyTraceCount(0);
     }
 
 }

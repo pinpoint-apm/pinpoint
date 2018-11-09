@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,53 +14,46 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.thrift.it.synchronous;
-
-import static org.junit.Assert.assertEquals;
+package com.navercorp.pinpoint.plugin.thrift.it.http;
 
 import com.navercorp.pinpoint.plugin.AgentPath;
-import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
-import com.navercorp.pinpoint.plugin.thrift.common.server.ThriftEchoTestServer;
-import org.apache.thrift.server.TThreadPoolServer;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
+import com.navercorp.pinpoint.plugin.thrift.common.client.HttpEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.server.HttpEchoTestServer;
+import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
-import com.navercorp.pinpoint.plugin.thrift.common.server.SyncEchoTestServer.SyncEchoTestServerFactory;
-import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import static org.junit.Assert.assertEquals;
 
 /**
- * Integration test for TThreadPoolServer with synchronous processor.
- * 
- * Tests against libthrift 0.9.1+
- * 
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({ "org.apache.thrift:libthrift:[0.9.1,)",
+@JvmVersion(8)
+@Dependency({ "org.apache.thrift:libthrift:[0.9.1,)", "org.eclipse.jetty:jetty-server:9.2.11.v20150529",
         "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
-public class ThriftThreadPoolServerIT extends EchoTestRunner<ThriftEchoTestServer<TThreadPoolServer>> {
+public class ThriftHttpIT extends EchoTestRunner<HttpEchoTestServer> {
 
     @Override
-    protected ThriftEchoTestServer<TThreadPoolServer> createEchoServer(TestEnvironment environment)
-            throws TTransportException {
-        return SyncEchoTestServerFactory.threadedPoolServer(environment);
+    protected HttpEchoTestServer createEchoServer(TestEnvironment environment) throws TTransportException {
+        return HttpEchoTestServer.createServer(environment);
     }
 
     @Test
-    public void testSynchronousRpcCall() throws Exception {
+    public void testThriftHttpCall() throws Exception {
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final SyncEchoTestClient client = getServer().getSynchronousClient();
+        final HttpEchoTestClient client = getServer().getHttpClient();
         final String result = invokeAndVerify(client, expectedMessage);
         // Then
         assertEquals(expectedMessage, result);
     }
-
 }
