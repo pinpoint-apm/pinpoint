@@ -141,14 +141,15 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private drawErrorText(): void {
-        const { chartInnerPadding, yAxisLabelWidth, marginFromYAxis, errorFontSize, titleHeight, chartHeight, chartWidth } = this.chartOption;
+        const { chartInnerPadding, errorFontSize, titleHeight, chartHeight, chartWidth } = this.chartOption;
 
         Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
             const { code, message } = this._activeThreadCounts[key];
             const isResponseSuccess = code === ResponseCode.SUCCESS;
 
             if (!isResponseSuccess) {
-                const x = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisLabelWidth + marginFromYAxis + chartWidth / 2;
+                const originXPos = this.getOriginXPos(i);
+                const x = originXPos + chartWidth / 2;
                 const isOverflow = (str: string) => this.ctx.measureText(str).width > chartWidth - 10;
 
                 const words = message.split(' ');
@@ -243,7 +244,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         const { containerWidth, containerHeight, titleHeight } = this.chartOption;
 
         for (let i = 0; i < this.numOfChart; i++) {
-            this.ctx.fillStyle = '#e8e5f0';
+            this.ctx.fillStyle = '#fff';
             this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i) + titleHeight, containerWidth, containerHeight);
         }
     }
@@ -260,14 +261,14 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.ctx.beginPath();
             this.ctx.moveTo(originXPos, originYPos - chartHeight);
             this.ctx.lineTo(originXPos + chartWidth, originYPos - chartHeight);
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
             this.ctx.stroke();
 
             // Horizontal grid line 2 (middle)
             this.ctx.beginPath();
             this.ctx.moveTo(originXPos, originYPos - chartHeight / 2);
             this.ctx.lineTo(originXPos + chartWidth, originYPos - chartHeight / 2);
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
             this.ctx.stroke();
         }
     }
@@ -287,7 +288,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.ctx.beginPath();
             this.ctx.moveTo(xPos, originYPos - chartHeight);
             this.ctx.lineTo(xPos, originYPos);
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
             this.ctx.stroke();
         }
     }
@@ -329,7 +330,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.ctx.beginPath();
             this.ctx.moveTo(originXPos, originYPos);
             this.ctx.lineTo(originXPos + chartWidth, originYPos);
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
             this.ctx.stroke();
         }
     }
