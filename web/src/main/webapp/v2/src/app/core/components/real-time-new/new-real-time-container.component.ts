@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef, ComponentFactoryResolver, ComponentRef } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject, Observable } from 'rxjs';
+import { takeUntil, filter, switchMap, tap, map } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -12,11 +12,8 @@ import {
     DynamicPopupService
 } from 'app/shared/services';
 import { UrlPath, UrlPathId } from 'app/shared/models';
-import { NewRealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, ResponseCode, IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
-
+import { NewRealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-import { NewRealTimeAgentChartComponent } from 'app/core/components/real-time-new/new-real-time-agent-chart.component';
-import { NewRealTimeTotalChartComponent } from 'app/core/components/real-time-new/new-real-time-total-chart.component';
 
 // TODO: 나중에 공통으로 추출.
 const enum MessageTemplate {
@@ -32,27 +29,24 @@ const enum MessageTemplate {
     styleUrls: ['./new-real-time-container.component.css']
 })
 export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
-    @ViewChild('totalChartPlaceHolder', { read: ViewContainerRef} ) totalChartViewContainerRef: ViewContainerRef;
-    @ViewChild('agentChartPlaceHolder', { read: ViewContainerRef} ) agentChartViewContainerRef: ViewContainerRef;
-
     private unsubscribe = new Subject<null>();
-    private applicationName = '';
     private serviceType = '';
-    private totalComponentRef: ComponentRef<any> = null;
-    private agentComponentRef: ComponentRef<any> = null;
     totalCount: number;
     firstChartIndex = 0;
     lastChartIndex: number;
-    pinUp = true;
+    isPinUp = true;
     lastHeight: number;
     minHeight = 343;
     maxHeightPadding = 50; // Header Height
-    timezone: string;
-    dateFormat: string;
+    timezone$: Observable<string>;
+    dateFormat$: Observable<string>;
+    timeStamp: number;
+    applicationName = '';
+    activeThreadCounts: { [key: string]: IActiveThreadCounts };
     hiddenComponent = true;
     messageTemplate = MessageTemplate.LOADING;
+    // messageTemplate: MessageTemplate;
     constructor(
-        private componentFactoryResolver: ComponentFactoryResolver,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private storeHelperService: StoreHelperService,
@@ -69,9 +63,9 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
                 return this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION);
             })
         ).subscribe(() => {
-            this.hiddenComponent = true;
+            // this.hiddenComponent = true;
+            this.messageTemplate = MessageTemplate.LOADING;
             this.resetState();
-            this.resetAgentComponentRef();
         });
         this.connectStore();
 
@@ -100,67 +94,47 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.complete();
     }
     private connectStore(): void {
-        this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
-            this.timezone = timezone;
-        });
-        this.storeHelperService.getDateFormat(this.unsubscribe, 0).subscribe((dateFormat: string) => {
-            this.dateFormat = dateFormat;
-        });
+        this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
+        this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 0);
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
             filter((target: ISelectedTarget) => {
                 return target && (target.isMerged === true || target.isMerged === false) ? true : false;
+            }),
+            tap(() => this.hiddenComponent = false),
+            switchMap((target: ISelectedTarget) => {
+                return this.webAppSettingDataService.useActiveThreadChart().pipe(
+                    filter((useActiveThreadChart: boolean) => {
+                        return useActiveThreadChart ? true : (this.hide(), false);
+                    }),
+                    filter(() => {
+                        return !(this.isPinUp && this.applicationName !== '');
+                    }),
+                    map(() => target),
+                );
             })
         ).subscribe((target: ISelectedTarget) => {
-            this.webAppSettingDataService.useActiveThreadChart().subscribe((use: boolean) => {
-                this.hiddenComponent = false;
-                const application = target.node[0].split('^');
-                if (use === false) {
-                    // this.resetState();
-                    // this.resetAgentComponentRef();
-                    this.hide();
-                    return;
+            const [applicationName, serviceType] = target.node[0].split('^');
+
+            if (target.isWAS) {
+                if (!this.isSameWithCurrentTarget(applicationName, serviceType)) {
+                    this.applicationName = applicationName;
+                    this.serviceType = serviceType;
+                    this.realTimeWebSocketService.isOpened() ? this.startDataRequest() : this.realTimeWebSocketService.connect();
                 }
-                if (this.pinUp === true) {
-                    if (this.applicationName !== '') {
-                        return;
-                    }
-                }
-                if (target.isWAS) {
-                    if (this.isSameWithCurrentTarget(application[0], application[1]) === false) {
-                    //     this.resetState();
-                    //     this.resetAgentComponentRef();
-                    //     this.hide();
-                    // } else {
-                        this.applicationName = application[0];
-                        this.serviceType = application[1];
-                        if (this.realTimeWebSocketService.isOpened()) {
-                            this.resetAgentComponentRef();
-                            this.startDataRequest();
-                        } else {
-                            this.realTimeWebSocketService.connect();
-                        }
-                    }
-                } else {
-                    this.applicationName = application[0];
-                    this.serviceType = application[1];
-                    this.realTimeWebSocketService.close();
-                    this.stopDataRequest();
-                    this.resetAgentComponentRef();
-                    this.hide();
-                }
-            });
+            } else {
+                this.applicationName = applicationName;
+                this.serviceType = serviceType;
+                this.realTimeWebSocketService.close();
+                this.stopDataRequest();
+                this.hide();
+            }
         });
-    }
-    private resetAgentComponentRef(): void {
-        this.totalChartViewContainerRef.clear();
-        this.agentChartViewContainerRef.clear();
-        this.totalComponentRef = null;
-        this.agentComponentRef = null;
     }
     private resetState() {
         this.applicationName = '';
         this.serviceType = '';
-        this.pinUp = true;
+        this.activeThreadCounts = null;
+        this.isPinUp = true;
     }
     private hide() {
         this.messageTemplate = MessageTemplate.NO_DATA;
@@ -193,25 +167,16 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         this.retryConnection();
     }
     private onMessage(data: IWebSocketDataResult): void {
-        this.messageTemplate = MessageTemplate.NOTHING;
-        if (data.applicationName && data.applicationName !== this.applicationName) {
+        // this.messageTemplate = MessageTemplate.NOTHING;
+        const { timeStamp, applicationName, activeThreadCounts } = data;
+
+        if (applicationName && applicationName !== this.applicationName) {
             return;
         }
 
-        this.publishData(data);
-    }
-    private setAgentChart(data: IWebSocketDataResult): void {
-        if (this.agentComponentRef === null) {
-            this.initAgentComponent();
-        }
-
-        const { timeStamp, activeThreadCounts } = data;
-        const componentInstance = this.agentComponentRef.instance;
-
         this.totalCount = Object.keys(activeThreadCounts).length;
-
-        componentInstance.timeStamp = timeStamp;
-        componentInstance.activeThreadCounts = this.needPaging() ? this.sliceAgentData(activeThreadCounts) : activeThreadCounts;
+        this.timeStamp = timeStamp;
+        this.activeThreadCounts = activeThreadCounts;
     }
     private sliceAgentData(data: { [key: string]: IActiveThreadCounts }): { [key: string]: IActiveThreadCounts } {
         this.lastChartIndex = this.realTimeWebSocketService.getPagingSize() - 1;
@@ -221,36 +186,8 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
             return { ...acc, [curr]: data[curr] };
         }, {});
     }
-    private setTotalChart(data: IWebSocketDataResult): void {
-        if (this.totalComponentRef === null) {
-            this.initTotalComponent();
-        }
-
-        const { timeStamp, applicationName, activeThreadCounts } = data;
-        const componentInstance = this.totalComponentRef.instance;
-
-        componentInstance.applicationName = applicationName ? applicationName : this.applicationName;
-        componentInstance.timezone = this.timezone;
-        componentInstance.dateFormat = this.dateFormat;
-        componentInstance.timeStamp = timeStamp;
-        componentInstance.activeThreadCounts = activeThreadCounts;
-    }
-    private publishData(data: IWebSocketDataResult): void {
-        this.setTotalChart(data);
-        this.setAgentChart(data);
-    }
-    private initTotalComponent(): void {
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(NewRealTimeTotalChartComponent);
-
-        this.totalComponentRef = this.totalChartViewContainerRef.createComponent(componentFactory);
-    }
-    private initAgentComponent(): void {
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(NewRealTimeAgentChartComponent);
-
-        this.agentComponentRef = this.agentChartViewContainerRef.createComponent(componentFactory);
-        this.agentComponentRef.instance.outOpenThreadDump.subscribe((agentId: string) => {
-            this.openThreadDump(agentId);
-        });
+    getActiveThreadCountsForAgentChart(): { [key: string]: IActiveThreadCounts } {
+        return this.needPaging() ? this.sliceAgentData(this.activeThreadCounts) : this.activeThreadCounts;
     }
     needPaging(): boolean {
         return this.totalCount > this.realTimeWebSocketService.getPagingSize();
@@ -265,8 +202,8 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
         this.realTimeWebSocketService.connect();
     }
     onPinUp(): void {
-        this.analyticsService.trackEvent(this.pinUp ? TRACKED_EVENT_LIST.PIN_UP_REAL_TIME_CHART : TRACKED_EVENT_LIST.REMOVE_PIN_ON_REAL_TIME_CHART);
-        this.pinUp = !this.pinUp;
+        this.analyticsService.trackEvent(this.isPinUp ? TRACKED_EVENT_LIST.PIN_UP_REAL_TIME_CHART : TRACKED_EVENT_LIST.REMOVE_PIN_ON_REAL_TIME_CHART);
+        this.isPinUp = !this.isPinUp;
     }
     openPage(page: number): void {
         this.urlRouteManagerService.openPage([
@@ -275,7 +212,7 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
             '' + page
         ]);
     }
-    openThreadDump(agentId: string): void {
+    onOpenThreadDump(agentId: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_THREAD_DUMP);
         this.urlRouteManagerService.openPage([
             UrlPath.THREAD_DUMP,
@@ -296,5 +233,8 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
             },
             component: HelpViewerPopupContainerComponent
         });
+    }
+    onRenderCompleted(): void {
+        this.messageTemplate = MessageTemplate.NOTHING;
     }
 }

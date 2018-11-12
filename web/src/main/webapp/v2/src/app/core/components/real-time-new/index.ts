@@ -27,10 +27,6 @@ import { NewRealTimeWebSocketService } from 'app/core/components/real-time-new/n
         NewRealTimeContainerComponent,
         NewRealTimePagingContainerComponent
     ],
-    entryComponents: [
-        NewRealTimeAgentChartComponent,
-        NewRealTimeTotalChartComponent
-    ],
     providers: [
         NewRealTimeWebSocketService
     ]
