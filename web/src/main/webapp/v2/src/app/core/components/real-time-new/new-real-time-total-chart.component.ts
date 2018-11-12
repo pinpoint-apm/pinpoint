@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time-new/new-real-time-websocket.service';
-import { GridLineType } from './new-real-time-chart.component';
 
 @Component({
     selector: 'pp-new-real-time-total-chart',
@@ -56,15 +55,17 @@ export class NewRealTimeTotalChartComponent implements OnInit {
         gapBtnChart: 0,
         chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
         chartLabels: ['1s', '3s', '5s', 'Slow'],
+        gridLineSpeedControl: 24,
         chartSpeedControl: 20,
         ellipsis: '...',
-        gridLineType: GridLineType.HORIZONTAL,
+        drawHGridLine: true,
+        drawVGridLine: true,
         showXAxis: true,
         showXAxisLabel: false,
         showYAxis: false,
         showYAxisLabel: true,
-        yAxisWidth: 8,
-        marginFromYAxis: 5,
+        yAxisLabelWidth: 8,
+        marginFromYAxis: 5, // Space between y axis and y labels
         marginFromLegend: 10,
         tooltipEnabled: true,
         titleFontSize: '15px',
