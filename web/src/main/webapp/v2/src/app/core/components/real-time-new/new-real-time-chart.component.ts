@@ -475,8 +475,9 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             const k = this.timeStampList.findIndex((timeStamp: number, i: number) => {
                 return originXPos + this.getXPosInChart(i) <= x && originXPos + this.getXPosInChart(i + 1) > x;
             });
+            const isDataEmpty = this.dataList.length === 0;
 
-            if (k !== -1) {
+            if (!(k === -1 || isDataEmpty)) {
                 this.showTooltip = true;
                 this.setTooltipData(k);
                 this.drawTooltipPoint(k);
