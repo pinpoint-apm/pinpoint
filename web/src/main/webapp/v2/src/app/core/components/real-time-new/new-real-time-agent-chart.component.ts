@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 
 import { IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
 import { GridLineType } from './new-real-time-chart.component';
@@ -8,10 +8,11 @@ import { GridLineType } from './new-real-time-chart.component';
     templateUrl: './new-real-time-agent-chart.component.html',
     styleUrls: ['./new-real-time-agent-chart.component.css']
 })
-export class NewRealTimeAgentChartComponent implements OnInit {
+export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
     @Input() timeStamp: number;
     @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
-    @Output() outOpenThreadDump: EventEmitter<string> = new EventEmitter();
+    @Output() outOpenThreadDump = new EventEmitter<string>();
+    @Output() outRenderCompleted = new EventEmitter<void>(true);
     @ViewChild('canvas') canvasRef: ElementRef;
 
     chartOption = {
@@ -47,6 +48,9 @@ export class NewRealTimeAgentChartComponent implements OnInit {
 
     constructor() {}
     ngOnInit() {}
+    ngAfterViewInit() {
+        this.outRenderCompleted.emit();
+    }
     onClick(key: string): void {
         this.outOpenThreadDump.emit(key);
     }
