@@ -3,11 +3,6 @@ import * as moment from 'moment-timezone';
 
 import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
 
-export const enum GridLineType {
-    VERTICAL = 'Vertical',
-    HORIZONTAL = 'Horizontal'
-}
-
 @Component({
     selector: 'pp-new-real-time-chart',
     templateUrl: './new-real-time-chart.component.html',
@@ -117,12 +112,19 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private draw(timestamp: number): void {
-        const { gridLineType, showXAxis, tooltipEnabled } = this.chartOption;
+        const { drawHGridLine, drawVGridLine, showXAxis, tooltipEnabled } = this.chartOption;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawChartTitle();
         this.drawChartContainerRect();
-        gridLineType === GridLineType.HORIZONTAL ? this.drawHGridLine() : this.drawVGridLine(timestamp);
+        if (drawHGridLine) {
+            this.drawHGridLine();
+        }
+
+        if (drawVGridLine) {
+            this.drawVGridLine(timestamp);
+        }
+
         if (showXAxis) {
             this.drawXAxis();
         }
@@ -139,14 +141,14 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private drawErrorText(): void {
-        const { chartInnerPadding, yAxisWidth, marginFromYAxis, errorFontSize, titleHeight, chartHeight, chartWidth } = this.chartOption;
+        const { chartInnerPadding, yAxisLabelWidth, marginFromYAxis, errorFontSize, titleHeight, chartHeight, chartWidth } = this.chartOption;
 
         Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
             const { code, message } = this._activeThreadCounts[key];
             const isResponseSuccess = code === ResponseCode.SUCCESS;
 
             if (!isResponseSuccess) {
-                const x = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisWidth + marginFromYAxis + chartWidth / 2;
+                const x = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisLabelWidth + marginFromYAxis + chartWidth / 2;
                 const isOverflow = (str: string) => this.ctx.measureText(str).width > chartWidth - 10;
 
                 const words = message.split(' ');
@@ -248,23 +250,23 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
     // Horizontal Grid Line
     private drawHGridLine(): void {
-        const { chartInnerPadding, yAxisWidth, marginFromYAxis, titleHeight, chartHeight, chartWidth } = this.chartOption;
+        const { chartHeight, chartWidth } = this.chartOption;
 
         for (let i = 0; i < this.numOfChart; i++) {
-            const xPos = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisWidth + marginFromYAxis; // Grid Line 시작 x좌표
-            const yPos = this.getTopEdgeYPos(i);
+            const originXPos = this.getOriginXPos(i);
+            const originYPos = this.getOriginYPos(i);
 
             // Horizontal grid line 1 (top)
             this.ctx.beginPath();
-            this.ctx.moveTo(xPos, yPos + titleHeight + chartInnerPadding);
-            this.ctx.lineTo(xPos + chartWidth, yPos + titleHeight + chartInnerPadding);
+            this.ctx.moveTo(originXPos, originYPos - chartHeight);
+            this.ctx.lineTo(originXPos + chartWidth, originYPos - chartHeight);
             this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
             this.ctx.stroke();
 
             // Horizontal grid line 2 (middle)
             this.ctx.beginPath();
-            this.ctx.moveTo(xPos, yPos + titleHeight + chartInnerPadding + chartHeight / 2);
-            this.ctx.lineTo(xPos + chartWidth, yPos + titleHeight + chartInnerPadding + chartHeight / 2);
+            this.ctx.moveTo(originXPos, originYPos - chartHeight / 2);
+            this.ctx.lineTo(originXPos + chartWidth, originYPos - chartHeight / 2);
             this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
             this.ctx.stroke();
         }
@@ -272,30 +274,30 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
     // Vertical Grid Line
     private drawVGridLine(timestamp: number): void {
-        const { chartWidth, gridLineSpeedControl, titleHeight, chartHeight } = this.chartOption;
+        const { chartWidth, gridLineSpeedControl, chartHeight } = this.chartOption;
 
         for (let i = 0; i < this.numOfChart; i++) {
             if (!this.gridLineStart) {
                 this.gridLineStart = timestamp;
             }
 
-            const xPos = this.getLeftEdgeXPos(i) + chartWidth - Math.floor((timestamp - this.gridLineStart) / gridLineSpeedControl) % chartWidth;
+            const xPos = this.getOriginXPos(i) + chartWidth - Math.floor((timestamp - this.gridLineStart) / gridLineSpeedControl) % chartWidth;
+            const originYPos = this.getOriginYPos(i);
 
             this.ctx.beginPath();
-            this.ctx.moveTo(xPos, this.getTopEdgeYPos(i) + titleHeight);
-            this.ctx.lineTo(xPos, this.getTopEdgeYPos(i) + titleHeight + chartHeight);
+            this.ctx.moveTo(xPos, originYPos - chartHeight);
+            this.ctx.lineTo(xPos, originYPos);
             this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
             this.ctx.stroke();
         }
     }
 
     private drawYAxisLabel(max: number): void {
-        const { chartInnerPadding, yAxisWidth, titleHeight, chartHeight } = this.chartOption;
+        const { marginFromYAxis, chartHeight } = this.chartOption;
 
         for (let i = 0; i < this.numOfChart; i++) {
-            const xPos = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisWidth;
-            const yPos = this.getTopEdgeYPos(i);
-            const yAxisFlipValue = yPos + titleHeight + chartInnerPadding + chartHeight;
+            const xPos = this.getOriginXPos(i) - marginFromYAxis;
+            const originYPos = this.getOriginYPos(i);
             let maxLabel = max === 0 ? null : max / this.maxRatio;
             let midLabel = max === 0 ? null : maxLabel / 2;
 
@@ -309,28 +311,33 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.ctx.textBaseline = 'middle';
             this.ctx.textAlign = 'right';
             this.ctx.fillStyle = '#333';
-            this.ctx.fillText(`0`, xPos, yAxisFlipValue);
+            this.ctx.fillText(`0`, xPos, originYPos);
             if (maxLabel) {
-                this.ctx.fillText(`${midLabel}`, xPos, yPos + titleHeight + chartInnerPadding + chartHeight / 2);
-                this.ctx.fillText(`${maxLabel}`, xPos, yPos + titleHeight + chartInnerPadding);
+                this.ctx.fillText(`${midLabel}`, xPos, originYPos - chartHeight / 2);
+                this.ctx.fillText(`${maxLabel}`, xPos, originYPos - chartHeight);
             }
         }
     }
 
     private drawXAxis(): void {
-        const { chartInnerPadding, yAxisWidth, marginFromYAxis, titleHeight, chartHeight, chartWidth } = this.chartOption;
+        const { chartWidth } = this.chartOption;
 
         for (let i = 0; i < this.numOfChart; i++) {
-            const xPos = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisWidth + marginFromYAxis;
-            const yPos = this.getTopEdgeYPos(i);
-            const yAxisFlipValue = yPos + titleHeight + chartInnerPadding + chartHeight;
+            const originXPos = this.getOriginXPos(i);
+            const originYPos = this.getOriginYPos(i);
 
             this.ctx.beginPath();
-            this.ctx.moveTo(xPos, yAxisFlipValue);
-            this.ctx.lineTo(xPos + chartWidth, yAxisFlipValue);
+            this.ctx.moveTo(originXPos, originYPos);
+            this.ctx.lineTo(originXPos + chartWidth, originYPos);
             this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
             this.ctx.stroke();
         }
+    }
+
+    private getOriginXPos(chartIndex: number): number {
+        const { chartInnerPadding, yAxisLabelWidth, marginFromYAxis } = this.chartOption;
+
+        return this.getLeftEdgeXPos(chartIndex) + chartInnerPadding + yAxisLabelWidth + marginFromYAxis;
     }
 
     private getOriginYPos(chartIndex: number): number {
@@ -344,7 +351,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.chartStart = timestamp;
         }
 
-        const { chartInnerPadding, chartWidth, yAxisWidth, chartHeight, marginFromYAxis, chartColors, chartSpeedControl, showYAxisLabel } = this.chartOption;
+        const { chartWidth, chartHeight, chartColors, chartSpeedControl, showYAxisLabel } = this.chartOption;
         this.startingXPos = chartWidth - Math.floor((timestamp - this.chartStart) / chartSpeedControl);
         const isOverflow = this.timeStampList.length >= 2 && this.getXPosInChart(1) < 0;
 
@@ -360,7 +367,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                     dataList.shift();
                 }
 
-                const originXPos = this.getLeftEdgeXPos(i) + chartInnerPadding + yAxisWidth + marginFromYAxis;
+                const originXPos = this.getOriginXPos(i);
                 const originYPos = this.getOriginYPos(i);
                 const max = Math.max(...dataList.map((data: number[]) => data.reduce((acc: number, curr: number) => acc + curr), 0));
                 const dataTypeLength = dataList[0].length;
@@ -418,8 +425,8 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
     calculateTooltipLeft(tooltip: HTMLElement): string {
         const { coordX } = this.lastMousePosInCanvas;
-        const { chartWidth, chartInnerPadding, yAxisWidth, marginFromYAxis } = this.chartOption;
-        const originXPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
+        const { chartWidth } = this.chartOption;
+        const originXPos = this.getOriginXPos(0);
         const tooltipWidth = tooltip.offsetWidth;
         const ratio = (coordX - originXPos) / chartWidth;
 
@@ -433,11 +440,11 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private drawTooltipPoint(i: number): void {
-        const { chartInnerPadding, chartColors, yAxisWidth, marginFromYAxis } = this.chartOption;
+        const { chartColors } = this.chartOption;
+        const originXPos = this.getOriginXPos(0);
         const originYPos = this.getOriginYPos(0);
         const data = this.dataList[0][i]; // [0, 1, 2, 3]
         const length = data.length;
-        const originXPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
         const x = originXPos + this.getXPosInChart(i);
         const r = 3;
 
@@ -462,8 +469,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
     private setTooltip(): void {
         if (this.isMouseInChartArea() && this.timeStampList.length >= 2) {
-            const { chartInnerPadding, yAxisWidth, marginFromYAxis } = this.chartOption;
-            const originXPos = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis;
+            const originXPos = this.getOriginXPos(0);
             const x = this.lastMousePosInCanvas.coordX;
             const k = this.timeStampList.findIndex((timeStamp: number, i: number) => {
                 return originXPos + this.getXPosInChart(i) <= x && originXPos + this.getXPosInChart(i + 1) > x;
@@ -492,11 +498,13 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         }
 
         const { coordX, coordY } = this.lastMousePosInCanvas;
-        const { chartInnerPadding, yAxisWidth, marginFromYAxis, titleHeight, chartHeight, chartWidth } = this.chartOption;
-        const minX = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis + 10;
-        const maxX = this.getLeftEdgeXPos(0) + chartInnerPadding + yAxisWidth + marginFromYAxis + chartWidth - 10;
-        const minY = this.getTopEdgeYPos(0) + titleHeight + chartInnerPadding;
-        const maxY = minY + chartHeight;
+        const { chartHeight, chartWidth } = this.chartOption;
+        const originXPos = this.getOriginXPos(0);
+        const originYPos = this.getOriginYPos(0);
+        const minX = originXPos + 10;
+        const maxX = originXPos + chartWidth - 10;
+        const minY = originYPos - chartHeight;
+        const maxY = originYPos;
 
         return minX < coordX && coordX < maxX && minY < coordY && coordY < maxY;
     }
