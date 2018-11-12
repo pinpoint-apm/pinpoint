@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 
 import { IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
-import { GridLineType } from './new-real-time-chart.component';
 
 @Component({
     selector: 'pp-new-real-time-agent-chart',
@@ -34,12 +33,13 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         linkIconCode: '\uf35d',
         marginRightForLinkIcon: 10,
         ellipsis: '...',
-        gridLineType: GridLineType.VERTICAL,
+        drawHGridLine: false,
+        drawVGridLine: true,
         showXAxis: false,
         showXAxisLabel: false,
         showYAxis: false,
         showYAxisLabel: false,
-        yAxisWidth: 0,
+        yAxisLabelWidth: 0,
         marginFromYAxis: 0,
         tooltipEnabled: false,
         titleFontSize: '11px',
