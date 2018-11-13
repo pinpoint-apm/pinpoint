@@ -371,7 +371,12 @@
             <version>9.2.11.v20150529</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
+            <version>5.1.9</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
