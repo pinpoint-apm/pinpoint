@@ -1,11 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef, ComponentFactoryResolver, ComponentRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { takeUntil, filter, switchMap } from 'rxjs/operators';
 
 import { UrlPathId, UrlPath } from 'app/shared/models';
 import { WebAppSettingDataService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { NewRealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
-import { NewRealTimeAgentChartComponent } from 'app/core/components/real-time-new/new-real-time-agent-chart.component';
 
 // TODO: 나중에 공통으로 추출.
 const enum MessageTemplate {
@@ -21,20 +20,18 @@ const enum MessageTemplate {
     styleUrls: ['./new-real-time-paging-container.component.css']
 })
 export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
-    @ViewChild('agentChartPlaceHolder', { read: ViewContainerRef} ) agentChartViewContainerRef: ViewContainerRef;
-
     private unsubscribe = new Subject<null>();
     private applicationName = '';
     private serviceType = '';
-    private agentComponentRef: ComponentRef<any> = null;
     totalCount: number;
     firstChartIndex: number;
     lastChartIndex: number;
     indexLimit: number;
     currentPage: number;
+    timeStamp: number;
+    activeThreadCounts: { [key: string]: IActiveThreadCounts };
     messageTemplate = MessageTemplate.LOADING;
     constructor(
-        private componentFactoryResolver: ComponentFactoryResolver,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private webAppSettingDataService: WebAppSettingDataService,
         private realTimeWebSocketService: NewRealTimeWebSocketService,
@@ -46,29 +43,25 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
             takeUntil(this.unsubscribe),
             filter(() => {
                 return this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION);
+            }),
+            switchMap(() => {
+                return this.webAppSettingDataService.useActiveThreadChart().pipe(
+                    filter((useActiveThreadChart: boolean) => {
+                        return useActiveThreadChart ? true : (this.hide(), false);
+                    })
+                );
             })
         ).subscribe(() => {
+            this.resetState();
+            this.messageTemplate = MessageTemplate.LOADING;
             this.applicationName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
             this.serviceType = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getServiceType();
-            this.currentPage = Number.parseInt(this.newUrlStateNotificationService.getPathValue(UrlPathId.PAGE));
+            this.currentPage = Number(this.newUrlStateNotificationService.getPathValue(UrlPathId.PAGE));
             this.firstChartIndex = (this.currentPage - 1) * this.realTimeWebSocketService.getPagingSize();
             this.indexLimit = this.currentPage * this.realTimeWebSocketService.getPagingSize() - 1;
-
-            this.webAppSettingDataService.useActiveThreadChart().subscribe((use: boolean) => {
-                if (use === false) {
-                    this.resetState();
-                    this.resetAgentComponentRef();
-                    this.hide();
-                    return;
-                }
-                if (this.realTimeWebSocketService.isOpened()) {
-                    this.resetAgentComponentRef();
-                    this.startDataRequest();
-                } else {
-                    this.realTimeWebSocketService.connect();
-                }
-            });
+            this.realTimeWebSocketService.isOpened() ? this.startDataRequest() : this.realTimeWebSocketService.connect();
         });
+
         this.realTimeWebSocketService.onMessage$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((response: IWebSocketResponse) => {
@@ -89,15 +82,14 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
         });
     }
     ngOnDestroy() {
+        this.realTimeWebSocketService.close();
         this.unsubscribe.next();
         this.unsubscribe.complete();
-    }
-    private resetAgentComponentRef(): void {
-        this.agentChartViewContainerRef.clear();
     }
     private resetState() {
         this.applicationName = '';
         this.serviceType = '';
+        this.activeThreadCounts = null;
     }
     private hide() {
         this.messageTemplate = MessageTemplate.NO_DATA;
@@ -124,25 +116,16 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
         this.retryConnection();
     }
     private onMessage(data: IWebSocketDataResult): void {
-        this.messageTemplate = MessageTemplate.NOTHING;
-        if (data.applicationName && data.applicationName !== this.applicationName) {
+        // this.messageTemplate = MessageTemplate.NOTHING;
+        const { timeStamp, applicationName, activeThreadCounts } = data;
+
+        if (applicationName && applicationName !== this.applicationName) {
             return;
         }
 
-        this.publishData(data);
-    }
-    private setAgentChart(data: IWebSocketDataResult): void {
-        if (this.agentComponentRef === null) {
-            this.initAgentComponent();
-        }
-
-        const { timeStamp, activeThreadCounts } = data;
-        const componentInstance = this.agentComponentRef.instance;
-
         this.totalCount = Object.keys(activeThreadCounts).length;
-
-        componentInstance.timeStamp = timeStamp;
-        componentInstance.activeThreadCounts = this.sliceAgentData(activeThreadCounts);
+        this.timeStamp = timeStamp;
+        this.activeThreadCounts = this.sliceAgentData(activeThreadCounts);
     }
     private sliceAgentData(data: { [key: string]: IActiveThreadCounts }): { [key: string]: IActiveThreadCounts } {
         this.lastChartIndex = this.totalCount - 1 <= this.indexLimit ? this.totalCount - 1 : this.indexLimit;
@@ -152,22 +135,11 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
             return { ...acc, [curr]: data[curr] };
         }, {});
     }
-    private publishData(data: IWebSocketDataResult): void {
-        this.setAgentChart(data);
-    }
-    private initAgentComponent() {
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(NewRealTimeAgentChartComponent);
-
-        this.agentComponentRef = this.agentChartViewContainerRef.createComponent(componentFactory);
-        this.agentComponentRef.instance.outOpenThreadDump.subscribe((agentId: string) => {
-            this.openThreadDump(agentId);
-        });
-    }
     retryConnection(): void {
         this.messageTemplate = MessageTemplate.LOADING;
         this.realTimeWebSocketService.connect();
     }
-    openThreadDump(agentId: string): void {
+    onOpenThreadDump(agentId: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_THREAD_DUMP);
         this.urlRouteManagerService.openPage([
             UrlPath.THREAD_DUMP,
@@ -175,5 +147,8 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
             agentId,
             '' + Date.now()
         ]);
+    }
+    onRenderCompleted(): void {
+        this.messageTemplate = MessageTemplate.NOTHING;
     }
 }
