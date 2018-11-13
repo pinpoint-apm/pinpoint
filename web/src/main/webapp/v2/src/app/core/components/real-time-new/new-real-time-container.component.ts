@@ -64,8 +64,8 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
             })
         ).subscribe(() => {
             // this.hiddenComponent = true;
-            this.messageTemplate = MessageTemplate.LOADING;
             this.resetState();
+            this.messageTemplate = MessageTemplate.LOADING;
         });
         this.connectStore();
 
