@@ -119,9 +119,10 @@ export class NewRealTimeWebSocketService {
             filter((message: IWebSocketData) => {
                 return message.type === ResponseType.PING ? (this.send({ type: 'PONG' }), false) : true;
             }),
-            map(({result}: {result: IWebSocketDataResult}) => {
-                return this.parseResult(result);
-            }),
+            // map(({result}: {result: IWebSocketDataResult}) => {
+            //     return this.parseResult(result);
+            // }),
+            map(({result}: {result: IWebSocketDataResult}) => result),
             // map(({timeStamp, applicationName}) => {
             //     const activeThreadCounts = {};
 
@@ -169,7 +170,7 @@ export class NewRealTimeWebSocketService {
         ).subscribe((message: IWebSocketDataResult) => {
             this.outMessage.next({
                 type: 'message',
-                message: message
+                message
             });
         }, (err: any) => {
             console.log(err);
