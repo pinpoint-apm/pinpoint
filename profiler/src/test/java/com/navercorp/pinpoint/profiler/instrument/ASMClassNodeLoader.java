@@ -77,7 +77,7 @@ public class ASMClassNodeLoader {
     // only use for test.
     public static ClassNode get(final String className) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(className) + ".class");
+        InputStream inputStream = classLoader.getResourceAsStream(JavaAssistUtils.javaClassNameToJvmResourceName(className));
         byte[] bytes = IOUtils.toByteArray(inputStream);
         ClassReader cr = new ClassReader(bytes);
         ClassNode classNode = new ClassNode();

@@ -40,7 +40,7 @@ public class ClassScannerFactoryTest {
 
         Class<?> testClass = ClassScannerFactoryTest.class;
         Scanner scanner = ClassScannerFactory.newScanner(testClass.getProtectionDomain(), this.getClass().getClassLoader());
-        String fileName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
+        String fileName = JavaAssistUtils.javaClassNameToJvmResourceName(testClass.getName());
         boolean exist = scanner.exist(fileName);
         scanner.close();
         Assert.assertTrue(exist);
@@ -51,7 +51,7 @@ public class ClassScannerFactoryTest {
         Class<?> testClass = Logger.class;
 
         Scanner scanner = ClassScannerFactory.newScanner(testClass.getProtectionDomain(), this.getClass().getClassLoader());
-        String fileName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
+        String fileName = JavaAssistUtils.javaClassNameToJvmResourceName(testClass.getName());
         boolean exist = scanner.exist(fileName);
         scanner.close();
         Assert.assertTrue(exist);
@@ -62,7 +62,7 @@ public class ClassScannerFactoryTest {
         Class<?> testClass = String.class;
 
         Scanner scanner = ClassScannerFactory.newScanner(testClass.getProtectionDomain(), this.getClass().getClassLoader());
-        String fileName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
+        String fileName = JavaAssistUtils.javaClassNameToJvmResourceName(testClass.getName());
         boolean exist = scanner.exist(fileName);
         scanner.close();
         Assert.assertTrue(exist);
@@ -73,7 +73,7 @@ public class ClassScannerFactoryTest {
         Class<?> testClass = String.class;
 
         Scanner scanner = ClassScannerFactory.newScanner(testClass.getProtectionDomain(), this.getClass().getClassLoader());
-        String fileName = JavaAssistUtils.javaNameToJvmName("test.Test") + ".class";
+        String fileName = JavaAssistUtils.javaClassNameToJvmResourceName("test.Test");
         boolean exist = scanner.exist(fileName);
         scanner.close();
         Assert.assertFalse(exist);

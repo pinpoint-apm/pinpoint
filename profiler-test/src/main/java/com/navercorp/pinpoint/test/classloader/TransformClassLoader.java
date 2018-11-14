@@ -183,7 +183,7 @@ public class TransformClassLoader extends ClassLoader {
                     return null;
                 }
             } else {
-                String jarname = "/" + JavaAssistUtils.javaNameToJvmName(name) + ".class";
+                String jarname = "/" + JavaAssistUtils.javaClassNameToJvmResourceName(name);
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream(jarname);
                 if (in == null) {
                     return null;

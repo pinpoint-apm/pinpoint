@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class Java9DefineClassTest {
         } catch (ClassNotFoundException ignore) {
         }
 
-        String className = Logger.class.getName().replace('.', '/') + ".class";
+        String className = JavaAssistUtils.javaClassNameToJvmResourceName(Logger.class.getName());
         InputStream classStream = Logger.class.getClassLoader().getResourceAsStream(className);
         byte[] bytes = IOUtils.readFully(classStream, classStream.available());
 

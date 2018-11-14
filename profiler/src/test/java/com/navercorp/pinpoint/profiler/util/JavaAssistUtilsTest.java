@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -199,6 +198,11 @@ public class JavaAssistUtilsTest {
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{String.class, Integer.class});
         logger.debug(clsDescription);
         Assert.assertEquals("(java.lang.String, java.lang.Integer)", clsDescription);
+    }
+
+    @Test
+    public void testJavaClassNameToJvmResourceName() throws Exception {
+        Assert.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java.lang.String"));
     }
 
 }

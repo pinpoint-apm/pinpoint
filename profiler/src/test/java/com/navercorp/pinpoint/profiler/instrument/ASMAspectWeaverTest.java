@@ -131,7 +131,7 @@ public class ASMAspectWeaverTest {
             public Class<?> loadClass(String name) throws ClassNotFoundException {
                 if (name.equals(originalName)) {
                     try {
-                        final String jvmClassName = "/" + JavaAssistUtils.javaNameToJvmName(name) + ".class";
+                        final String jvmClassName = "/" + JavaAssistUtils.javaClassNameToJvmResourceName(name);
                         final InputStream stream = getClass().getResourceAsStream(jvmClassName);
                         byte[] classBytes = IOUtils.toByteArray(stream);
                         final ClassReader cr = new ClassReader(classBytes);

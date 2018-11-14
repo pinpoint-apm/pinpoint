@@ -47,7 +47,7 @@ public class Java9BootLoaderTest {
 
     private static String getInternalName(Class<?> clazz) {
         String name = clazz.getName();
-        return name.replace(".", "/") + ".class";
+        return name.replace('.', '/').concat(".class");
     }
 
     @Test

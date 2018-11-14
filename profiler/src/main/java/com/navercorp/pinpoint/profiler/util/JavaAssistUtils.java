@@ -124,6 +124,7 @@ public final class JavaAssistUtils {
 
     /**
      * java.lang.String -> java/lang/String
+     *
      * @param javaName
      * @return
      */
@@ -136,6 +137,7 @@ public final class JavaAssistUtils {
 
     /**
      * java/lang/String -> java.lang.String
+     *
      * @param jvmName
      * @return
      */
@@ -146,8 +148,23 @@ public final class JavaAssistUtils {
         return jvmName.replace('/', '.');
     }
 
+
+    /**
+     * java.lang.String -> java/lang/String.class
+     *
+     * @param javaName
+     * @return
+     */
+    public static String javaClassNameToJvmResourceName(String javaName) {
+        if (javaName == null) {
+            throw new NullPointerException("javaName must not be null");
+        }
+        return javaName.replace('.', '/').concat(".class");
+    }
+
     /**
      * java/lang/String -> java.lang.String
+     *
      * @param jvmNameArray
      * @return
      */
@@ -349,20 +366,20 @@ public final class JavaAssistUtils {
         }
         return paramsString;
     }
-    
+
     public static String[] toPinpointParameterType(Class<?>[] paramClasses) {
         if (paramClasses == null) {
             return null;
         }
-        
+
         String[] paramsString = new String[paramClasses.length];
         for (int i = 0; i < paramClasses.length; i++) {
             paramsString[i] = toPinpointParameterType(paramClasses[i]);
         }
-        
+
         return paramsString;
     }
-    
+
     public static String toPinpointParameterType(Class<?> type) {
         if (type.isArray()) {
             return toPinpointParameterType(type.getComponentType()) + "[]";
