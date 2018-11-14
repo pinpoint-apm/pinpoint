@@ -102,7 +102,7 @@ public class SpanServiceImpl implements SpanService {
 
         transitionDynamicApiId(values);
         transitionSqlId(values);
-        transitionJson(values);
+        transitionMongoJson(values);
         transitionCachedString(values);
         transitionException(values);
         // TODO need to at least show the row data when root span is not found. 
@@ -206,7 +206,7 @@ public class SpanServiceImpl implements SpanService {
         });
     }
 
-    private void transitionJson(final List<SpanAlign> spans) {
+    private void transitionMongoJson(final List<SpanAlign> spans) {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
