@@ -76,6 +76,7 @@ public class CuratorZookeeperClientTest {
             String fullPath = ZKPaths.makePath(PARENT_PATH, node);
             curatorZookeeperClient.delete(fullPath);
         }
+        eventHoldingZookeeperEventWatcher.eventClear();
     }
 
     private static CuratorZookeeperClient createCuratorZookeeperClient(String connectString, EventHoldingZookeeperEventWatcher zookeeperEventWatcher) throws IOException {
@@ -257,14 +258,21 @@ public class CuratorZookeeperClientTest {
 
         @Override
         public void process(WatchedEvent watchedEvent) {
-            LOGGER.info("process() event:{}", watchedEvent);
-            this.watchedEvent = watchedEvent;
+            synchronized (this) {
+                LOGGER.info("process() event:{}", watchedEvent);
+                this.watchedEvent = watchedEvent;
+            }
         }
 
-        WatchedEvent getLastWatchedEvent() {
+        synchronized WatchedEvent getLastWatchedEvent() {
             return watchedEvent;
         }
 
+        void eventClear() {
+            synchronized (this) {
+                watchedEvent = null;
+            }
+        }
     }
 
 }
