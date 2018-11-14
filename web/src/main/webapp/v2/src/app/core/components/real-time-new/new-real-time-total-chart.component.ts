@@ -58,11 +58,11 @@ export class NewRealTimeTotalChartComponent implements OnInit {
         gridLineSpeedControl: 24,
         chartSpeedControl: 20,
         ellipsis: '...',
-        drawHGridLine: true,
+        drawHGridLine: false,
         drawVGridLine: true,
         showXAxis: true,
         showXAxisLabel: false,
-        showYAxis: false,
+        showYAxis: true,
         showYAxisLabel: true,
         yAxisLabelWidth: 8,
         marginFromYAxis: 5, // Space between y axis and y labels
