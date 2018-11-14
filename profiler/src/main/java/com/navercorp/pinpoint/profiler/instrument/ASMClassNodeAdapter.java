@@ -56,7 +56,8 @@ public class ASMClassNodeAdapter {
             throw new NullPointerException("classInternalName must not be null");
         }
 
-        final InputStream in = pluginContext.getResourceAsStream(classLoader, classInternalName + ".class");
+        final String classPath = classInternalName.concat(".class");
+        final InputStream in = pluginContext.getResourceAsStream(classLoader, classPath);
         if (in == null) {
             return null;
         }

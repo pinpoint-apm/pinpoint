@@ -218,7 +218,7 @@ public class MethodInterfaceTest {
         // only use for test.
         public static ClassNode get(final String className) throws Exception {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(className) + ".class"));
+            ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaClassNameToJvmResourceName(className)));
             ClassNode classNode = new ClassNode();
             cr.accept(classNode, ClassReader.EXPAND_FRAMES);
 

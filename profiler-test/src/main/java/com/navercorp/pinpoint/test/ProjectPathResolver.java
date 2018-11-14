@@ -49,7 +49,7 @@ public class ProjectPathResolver {
         logger.debug("testClass:{}", testClass);
 
         final ClassLoader classLoader = getDefaultClassLoader(testClass);
-        final String testClassName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
+        final String testClassName = JavaAssistUtils.javaClassNameToJvmResourceName(testClass.getName());
         final URL testClassResource = classLoader.getResource(testClassName);
         if (testClassResource == null) {
             throw new IllegalArgumentException("testClassName not found." + testClassName);

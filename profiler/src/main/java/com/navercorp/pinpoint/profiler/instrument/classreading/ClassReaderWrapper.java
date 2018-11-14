@@ -72,6 +72,7 @@ public class ClassReaderWrapper {
     // classloader and class internal name.
     public ClassReaderWrapper(final ClassLoader classLoader, final String classInternalName, final boolean readAttributes) throws IOException {
         Assert.requireNonNull(classInternalName, "classInternalName must not be null");
+
         ClassLoader cl = classLoader;
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();
@@ -81,7 +82,8 @@ public class ClassReaderWrapper {
             }
         }
 
-        final InputStream in = cl.getResourceAsStream(classInternalName + ".class");
+        final String classPath = classInternalName.concat(".class");
+        final InputStream in = cl.getResourceAsStream(classPath);
         if (in == null) {
             throw new IOException("not found class. classLoader=" + cl + ", classInternalName=" + classInternalName);
         }

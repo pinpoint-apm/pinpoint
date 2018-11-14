@@ -35,7 +35,7 @@ public final class BytecodeUtils {
         }
         classLoader = getClassLoader(classLoader);
 
-        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className) + ".class";
+        final String classInternalName = JavaAssistUtils.javaClassNameToJvmResourceName(className);
         final InputStream is = classLoader.getResourceAsStream(classInternalName);
         if (is == null) {
             throw new RuntimeException("No such class file: " + className);

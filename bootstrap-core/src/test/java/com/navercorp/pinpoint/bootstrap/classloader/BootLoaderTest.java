@@ -50,7 +50,7 @@ public class BootLoaderTest {
 
     private String getInternalName(Class<?> clazz) {
         String name = clazz.getName();
-        return name.replace(".", "/") + ".class";
+        return name.replace('.', '/').concat(".class");
     }
 
     @Test
