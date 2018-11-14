@@ -159,8 +159,13 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private drawErrorText(): void {
         const { chartInnerPadding, errorFontSize, titleHeight, chartHeight, chartWidth } = this.chartOption;
 
-        Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
-            const { code, message } = this._activeThreadCounts[key];
+        this.ctx.font = `600 ${errorFontSize} Nanum Gothic`;
+        this.ctx.fillStyle = '#c04e3f';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+
+        Object.keys(this.activeThreadCounts).forEach((key: string, i: number) => {
+            const { code, message } = this.activeThreadCounts[key];
             const isResponseSuccess = code === ResponseCode.SUCCESS;
 
             if (!isResponseSuccess) {
@@ -190,10 +195,6 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                 arrangedText.forEach((text: string, j: number) => {
                     const y = this.getTopEdgeYPos(i) + titleHeight + chartInnerPadding + (j + 1) * chartHeight / (length + 1);
 
-                    this.ctx.font = `600 ${errorFontSize} Nanum Gothic`;
-                    this.ctx.fillStyle = '#c04e3f';
-                    this.ctx.textAlign = 'center';
-                    this.ctx.textBaseline = 'middle';
                     this.ctx.fillText(text, x, y);
                 });
             }
