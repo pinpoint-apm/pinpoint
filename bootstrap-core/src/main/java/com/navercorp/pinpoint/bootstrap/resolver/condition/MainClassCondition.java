@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.common.util.SystemPropertyKey;
  */
 public class MainClassCondition implements Condition<String>, ConditionValue<String> {
 
+    public static final MainClassCondition INSTANCE = new MainClassCondition();
+
     private static final String MANIFEST_MAIN_CLASS_KEY = "Main-Class";
     private static final String NOT_FOUND = null;
 
@@ -50,8 +52,6 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
         if (this.applicationMainClassName == NOT_FOUND) {
             logger.info("Main class could not be deduced, please set 'profiler.applicationservertype' in pinpoint.config.");
             logger.info("If you're running on 1.6.0_24 or prior version of Java, consider upgrading to 1.6.0_25+.");
-            logger.info("If you're running Tomcat or Tomcat on Spring Boot, please set 'profiler.tomcat.conditional.transform' to false");
-            logger.info("If you're running Jboss, please set 'profiler.tomcat.conditional.transform' to false");
         }
     }
 
