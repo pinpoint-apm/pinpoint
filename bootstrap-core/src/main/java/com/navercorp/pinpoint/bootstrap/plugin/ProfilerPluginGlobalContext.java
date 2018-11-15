@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.util.List;
-
 /**
- * @author Woonduk Kang(emeroad)
+ * @author HyunGil Jeong
  */
-public interface PluginContextLoadResult {
+public interface ProfilerPluginGlobalContext {
 
-    List<ClassFileTransformer> getClassFileTransformer();
+    ProfilerConfig getConfig();
 
-    List<ApplicationTypeDetector> getApplicationTypeDetectorList();
+    ServiceType getConfiguredApplicationType();
 
     ServiceType getApplicationType();
 
-    List<JdbcUrlParserV2> getJdbcUrlParserList();
-
+    boolean registerApplicationType(ServiceType applicationType);
 }
