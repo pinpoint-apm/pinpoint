@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  *  Provides attributes and objects to interceptors.
@@ -35,10 +36,18 @@ public interface ProfilerPluginSetupContext {
 
     /**
      * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
-     * 
-     * @param detectors
+     *
+     * @param detectors application type detectors to add
+     *
+     * @deprecated As of 1.9.0, {@code ApplicationTypeDetector} has been deprecated.
+     *             Use {@link #setApplicationType(ServiceType)} instead.
      */
+    @Deprecated
     void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
+
+    ServiceType getConfiguredApplicationType();
+
+    void setApplicationType(ServiceType applicationType);
 
     void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParserV2);
 
