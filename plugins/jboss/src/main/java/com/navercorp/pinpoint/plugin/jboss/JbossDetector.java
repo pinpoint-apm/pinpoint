@@ -16,38 +16,31 @@
 
 package com.navercorp.pinpoint.plugin.jboss;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public class JbossDetector implements ApplicationTypeDetector {
+public class JbossDetector {
 
-    private static final String DEFAULT_BOOTSTRAP_MAIN = "org.jboss.modules.Main";
+    private static final String DEFAULT_EXPECTED_MAIN_CLASS = "org.jboss.modules.Main";
 
-    private final List<String> bootstrapMains;
+    private final List<String> expectedMainClasses;
 
-    public JbossDetector(List<String> bootstrapMains) {
-        if (CollectionUtils.isEmpty(bootstrapMains)) {
-            this.bootstrapMains = Arrays.asList(DEFAULT_BOOTSTRAP_MAIN);
+    public JbossDetector(List<String> expectedMainClasses) {
+        if (CollectionUtils.isEmpty(expectedMainClasses)) {
+            this.expectedMainClasses = Collections.singletonList(DEFAULT_EXPECTED_MAIN_CLASS);
         } else {
-            this.bootstrapMains = bootstrapMains;
+            this.expectedMainClasses = expectedMainClasses;
         }
     }
 
-    @Override
-    public ServiceType getApplicationType() {
-        return JbossConstants.JBOSS;
-    }
-
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass(bootstrapMains);
+    public boolean detect() {
+        String bootstrapMainClass = MainClassCondition.INSTANCE.getValue();
+        return expectedMainClasses.contains(bootstrapMainClass);
     }
 }

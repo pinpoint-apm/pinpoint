@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -63,8 +64,15 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         }
 
         // for vertx.io 3.3.x, 3.4.x
-        final VertxDetector vertxDetector = new VertxDetector(config.getBootstrapMains());
-        context.addApplicationTypeDetector(vertxDetector);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final VertxDetector vertxDetector = new VertxDetector(config.getBootstrapMains());
+            if (vertxDetector.detect()) {
+                logger.info("Detected application type : {}", VertxConstants.VERTX);
+                context.setApplicationType(VertxConstants.VERTX);
+            }
+        }
+
+        logger.info("Adding Vertx transformers");
 
         final List<String> basePackageNames = filterBasePackageNames(config.getHandlerBasePackageNames());
         if (!basePackageNames.isEmpty()) {

@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.security.ProtectionDomain;
 
@@ -47,8 +48,15 @@ public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware 
             return;
         }
 
-        context.addApplicationTypeDetector(new SpringBootDetector(config.getSpringBootBootstrapMains()));
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            SpringBootDetector springBootDetector = new SpringBootDetector(config.getSpringBootBootstrapMains());
+            if (springBootDetector.detect()) {
+                logger.info("Detected application type : {}", SpringBootConstants.SERVICE_TYPE);
+                context.setApplicationType(SpringBootConstants.SERVICE_TYPE);
+            }
+        }
 
+        logger.info("Adding SpringBoot transformers");
         addLauncherEditor();
     }
 

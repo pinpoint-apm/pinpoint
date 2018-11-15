@@ -15,38 +15,31 @@
  */
 package com.navercorp.pinpoint.plugin.weblogic;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 /**
  * 
  * @author andyspan
  *
  */
-public class WeblogicDetector implements ApplicationTypeDetector {
+public class WeblogicDetector {
 
-    private static final String DEFAULT_BOOTSTRAP_MAIN = "weblogic.Server";
+    private static final String DEFAULT_EXPECTED_MAIN_CLASSES = "weblogic.Server";
     
-    private final List<String> bootstrapMains;
+    private final List<String> expectedMainClasses;
 
-    public WeblogicDetector(List<String> bootstrapMains) {
-        if (bootstrapMains == null || bootstrapMains.isEmpty()) {
-            this.bootstrapMains = Arrays.asList(DEFAULT_BOOTSTRAP_MAIN);
+    public WeblogicDetector(List<String> expectedMainClasses) {
+        if (expectedMainClasses == null || expectedMainClasses.isEmpty()) {
+            this.expectedMainClasses = Collections.singletonList(DEFAULT_EXPECTED_MAIN_CLASSES);
         } else {
-            this.bootstrapMains = bootstrapMains;
+            this.expectedMainClasses = expectedMainClasses;
         }
-}
-
-    @Override
-    public ServiceType getApplicationType() {
-        return WeblogicConstants.WEBLOGIC;
     }
 
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass(bootstrapMains);
+    public boolean detect() {
+        String bootstrapMainClass = MainClassCondition.INSTANCE.getValue();
+        return expectedMainClasses.contains(bootstrapMainClass);
     }
 }

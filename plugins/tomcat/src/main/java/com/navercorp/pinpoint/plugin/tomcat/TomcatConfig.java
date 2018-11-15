@@ -32,7 +32,6 @@ public class TomcatConfig {
 
     private final boolean enable;
     private final List<String> bootstrapMains;
-    private final boolean conditionalTransformEnable;
     private final boolean hidePinpointHeader;
 
     private final boolean traceRequestParam;
@@ -40,9 +39,6 @@ public class TomcatConfig {
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
-
-    // for transform conditional check
-    private final List<String> springBootBootstrapMains;
 
     public TomcatConfig(ProfilerConfig config) {
         if (config == null) {
@@ -52,7 +48,6 @@ public class TomcatConfig {
         // plugin
         this.enable = config.readBoolean("profiler.tomcat.enable", true);
         this.bootstrapMains = config.readList("profiler.tomcat.bootstrap.main");
-        this.conditionalTransformEnable = config.readBoolean("profiler.tomcat.conditional.transform", true);
         this.hidePinpointHeader = config.readBoolean("profiler.tomcat.hidepinpointheader", true);
 
         // runtime
@@ -72,8 +67,6 @@ public class TomcatConfig {
         } else {
             this.excludeProfileMethodFilter = new SkipFilter<String>();
         }
-
-        this.springBootBootstrapMains = config.readList("profiler.springboot.bootstrap.main");
     }
 
     public boolean isEnable() {
@@ -82,10 +75,6 @@ public class TomcatConfig {
 
     public List<String> getBootstrapMains() {
         return bootstrapMains;
-    }
-
-    public boolean isConditionalTransformEnable() {
-        return conditionalTransformEnable;
     }
 
     public boolean isHidePinpointHeader() {
@@ -112,23 +101,17 @@ public class TomcatConfig {
         return excludeProfileMethodFilter;
     }
 
-    public List<String> getSpringBootBootstrapMains() {
-        return springBootBootstrapMains;
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TomcatConfig{");
         sb.append("enable=").append(enable);
         sb.append(", bootstrapMains=").append(bootstrapMains);
-        sb.append(", conditionalTransformEnable=").append(conditionalTransformEnable);
         sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
         sb.append(", traceRequestParam=").append(traceRequestParam);
         sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
         sb.append(", realIpHeader='").append(realIpHeader).append('\'');
         sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
         sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
-        sb.append(", springBootBootstrapMains=").append(springBootBootstrapMains);
         sb.append('}');
         return sb.toString();
     }

@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.security.ProtectionDomain;
 
@@ -31,7 +32,15 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
 
-        this.addApplicationTypeDetector(context, config);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final DubboProviderDetector dubboProviderDetector = new DubboProviderDetector(config.getDubboBootstrapMains());
+            if (dubboProviderDetector.detect()) {
+                logger.info("Detected application type : {}", DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE);
+                context.setApplicationType(DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE);
+            }
+        }
+
+        logger.info("Adding Dubbo transformers");
         this.addTransformers();
     }
 
@@ -58,13 +67,6 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
                 return target.toBytecode();
             }
         });
-    }
-
-    /**
-     * Pinpoint profiler agent uses this detector to find out the service type of current application.
-     */
-    private void addApplicationTypeDetector(ProfilerPluginSetupContext context, DubboConfiguration config) {
-        context.addApplicationTypeDetector(new DubboProviderDetector(config.getDubboBootstrapMains()));
     }
 
     @Override

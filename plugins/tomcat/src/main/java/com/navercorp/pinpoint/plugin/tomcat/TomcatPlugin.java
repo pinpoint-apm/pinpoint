@@ -27,7 +27,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.spring.boot.SpringBootConfiguration;
+import com.navercorp.pinpoint.plugin.spring.boot.SpringBootConstants;
+import com.navercorp.pinpoint.plugin.spring.boot.SpringBootDetector;
 
 /**
  * @author Jongho Moon
@@ -52,29 +55,40 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         final TomcatDetector tomcatDetector = new TomcatDetector(config.getBootstrapMains());
-        context.addApplicationTypeDetector(tomcatDetector);
+        final SpringBootConfiguration springBootConfig = new SpringBootConfiguration(context.getConfig());
+        final SpringBootDetector springBootDetector = new SpringBootDetector(springBootConfig.getSpringBootBootstrapMains());
 
-        if (shouldAddTransformers(config)) {
+        if (shouldAddTransformers(context, tomcatDetector, springBootDetector)) {
             logger.info("Adding Tomcat transformers");
             addTransformers(config);
         } else {
-            logger.info("Not adding Tomcat transfomers");
+            logger.info("Not adding Tomcat transformers");
         }
     }
 
-    private boolean shouldAddTransformers(TomcatConfig config) {
-        // Transform if conditional check is disabled
-        if (!config.isConditionalTransformEnable()) {
+    private boolean shouldAddTransformers(ProfilerPluginSetupContext context, TomcatDetector tomcatDetector, SpringBootDetector springBootDetector) {
+        final ServiceType configuredApplicationType = context.getConfiguredApplicationType();
+        if (TomcatConstants.TOMCAT.equals(configuredApplicationType)) {
             return true;
         }
-        // Only transform if it's a Tomcat application or SpringBoot application
-        final ConditionProvider conditionProvider = ConditionProvider.DEFAULT_CONDITION_PROVIDER;
-        final boolean isTomcatApplication = conditionProvider.checkMainClass(config.getBootstrapMains());
-        final boolean isSpringBootApplication = conditionProvider.checkMainClass(config.getSpringBootBootstrapMains());
-        return isTomcatApplication || isSpringBootApplication;
+        if (SpringBootConstants.SERVICE_TYPE.equals(configuredApplicationType)) {
+            return true;
+        }
+
+        if (ServiceType.UNDEFINED.equals(configuredApplicationType)) {
+            if (tomcatDetector.detect()) {
+                logger.info("Detected application type : {}", TomcatConstants.TOMCAT);
+                context.setApplicationType(TomcatConstants.TOMCAT);
+                return true;
+            }
+            if (springBootDetector.detect()) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private void addTransformers(TomcatConfig config) {
+    public void addTransformers(TomcatConfig config) {
         // Add server metadata
         addStandardService();
         addTomcatConnector();
