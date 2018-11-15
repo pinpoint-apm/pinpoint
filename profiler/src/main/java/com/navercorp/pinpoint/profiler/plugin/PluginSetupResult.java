@@ -25,12 +25,12 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SetupResult {
+public class PluginSetupResult {
 
     private final DefaultProfilerPluginSetupContext setupContext;
     private final ClassFileTransformerLoader transformerRegistry;
 
-    public SetupResult(DefaultProfilerPluginSetupContext setupContext, ClassFileTransformerLoader transformerRegistry) {
+    public PluginSetupResult(DefaultProfilerPluginSetupContext setupContext, ClassFileTransformerLoader transformerRegistry) {
         this.setupContext = setupContext;
         this.transformerRegistry = transformerRegistry;
     }
