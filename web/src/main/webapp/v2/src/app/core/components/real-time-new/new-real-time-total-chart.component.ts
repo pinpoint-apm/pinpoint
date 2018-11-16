@@ -25,20 +25,16 @@ export class NewRealTimeTotalChartComponent implements OnInit {
             }
         };
 
-        this._data = this._activeThreadCounts[Object.keys(this._activeThreadCounts)[0]].status;
-        this.totalCount = this._data ? this._data.reduce((acc: number, curr: number) => acc + curr, 0) : null;
+        this.data = hasError ? [] : this._activeThreadCounts[Object.keys(this._activeThreadCounts)[0]].status;
+        this.totalCount = hasError ? null : this.data.reduce((acc: number, curr: number) => acc + curr, 0);
     }
 
     get activeThreadCounts(): { [key: string]: IActiveThreadCounts } {
         return this._activeThreadCounts;
     }
 
-    get data(): number[] {
-        return this._data ? this._data : [];
-    }
-
     _activeThreadCounts: { [key: string]: IActiveThreadCounts };
-    _data: number[] = [];
+    data: number[];
     totalCount: number;
 
     chartOption = {
