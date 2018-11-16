@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit, OnDestroy, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit, OnDestroy, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import * as moment from 'moment-timezone';
 
 import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
@@ -8,30 +8,32 @@ import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time
     templateUrl: './new-real-time-chart.component.html',
     styleUrls: ['./new-real-time-chart.component.css']
 })
-export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy {
+export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     @ViewChild('realTime') canvasRef: ElementRef;
-    @Input()
-    set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
-        this.numOfChart = Object.keys(activeThreadCounts).length;
-        this._activeThreadCounts = activeThreadCounts;
+    // @Input()
+    // set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
+    //     this.numOfChart = Object.keys(activeThreadCounts).length;
+    //     this._activeThreadCounts = activeThreadCounts;
 
-        Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
-            const status = this._activeThreadCounts[key].status;
+        // Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
+        //     const status = this._activeThreadCounts[key].status;
 
-            if (status) {
-                this.dataList[i] ? this.dataList[i].push(status) : this.dataList[i] = [status];
-            }
-        });
-    }
+        //     if (status) {
+        //         this.dataList[i] ? this.dataList[i].push(status) : this.dataList[i] = [status];
+        //     }
+        // });
+    // }
+    @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
     @Input() timezone: string;
     @Input() dateFormat: string;
-    @Input()
-    set timeStamp(timeStamp: number) {
-        this.timeStampList.push(timeStamp);
-        if (this.timeStampList.length === 1) {
-            this.firstTimeStamp = this.timeStampList[0] - 2000;
-        }
-    }
+    @Input() timeStamp: number;
+    // @Input()
+    // set timeStamp(timeStamp: number) {
+    //     this.timeStampList.push(timeStamp);
+    //     if (this.timeStampList.length === 1) {
+    //         this.firstTimeStamp = this.timeStampList[0] - 2000;
+    //     }
+    // }
     @Input() chartOption: { [key: string]: any };
     @Output() outClick = new EventEmitter<string>();
 
@@ -42,7 +44,8 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private chartStart: number = null;
     private animationFrameId: number;
     private timeStampList: number[] = [];
-    private _activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    // private _activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    // private dataList: { [key: string]: number[][] } = {};
     private dataList: number[][][] = [];
     private numOfChart: number;
     private maxRatio = 3 / 5; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
@@ -61,6 +64,40 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         private el: ElementRef
     ) {}
     ngOnInit() {}
+    ngOnChanges(changes: SimpleChanges) {
+        Object.keys(changes)
+            .filter((propName: string) => {
+                return changes[propName].currentValue;
+            })
+            .map((propName: string) => {
+                const changedProp = changes[propName];
+                const value = changedProp.currentValue;
+
+                switch (propName) {
+                    case 'activeThreadCounts':
+                        this.numOfChart = Object.keys(value).length;
+                        // Object.keys(value).forEach((key: string, i: number) => {
+                        //     const status = value[key].status ? value[key].status : [];
+
+                        //     this.dataList[key] ? this.dataList[key].push(status) : this.dataList[key] = [status];
+                        // });
+                        Object.keys(value).forEach((key: string, i: number) => {
+                            const data = value[key].status ? value[key].status : [];
+
+                            this.dataList[i] ? this.dataList[i].push(data) : this.dataList[i] = [data];
+                        });
+
+                        break;
+                    case 'timeStamp':
+                        this.timeStampList.push(value);
+                        if (changedProp.isFirstChange()) {
+                            this.firstTimeStamp = value - 2000;
+                        }
+
+                        break;
+                }
+        });
+    }
     ngAfterViewInit() {
         this.canvas = this.canvasRef.nativeElement;
         this.ctx = this.canvas.getContext('2d');
@@ -145,6 +182,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.drawYAxis();
         }
 
+        // TODO: dataList도 고려해서 조건 수정
         if (this.timeStampList.length !== 0) {
             this.drawChart(timeStamp);
             if (tooltipEnabled) {
@@ -160,7 +198,6 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         const { chartInnerPadding, errorFontSize, titleHeight, chartHeight, chartWidth } = this.chartOption;
 
         this.ctx.font = `600 ${errorFontSize} Nanum Gothic`;
-        this.ctx.fillStyle = '#c04e3f';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
 
@@ -170,6 +207,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
             if (!isResponseSuccess) {
                 const originXPos = this.getOriginXPos(i);
+                const originYPos = this.getOriginYPos(i);
                 const x = originXPos + chartWidth / 2;
                 const isOverflow = (str: string) => this.ctx.measureText(str).width > chartWidth - 10;
 
@@ -190,11 +228,15 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                     }
                 }
 
+                this.ctx.fillStyle = 'rgba(232, 229, 240, 0.9)';
+                this.ctx.fillRect(originXPos, originYPos - chartHeight, chartWidth, chartHeight);
+
                 const length = arrangedText.length;
 
                 arrangedText.forEach((text: string, j: number) => {
                     const y = this.getTopEdgeYPos(i) + titleHeight + chartInnerPadding + (j + 1) * chartHeight / (length + 1);
 
+                    this.ctx.fillStyle = '#c04e3f';
                     this.ctx.fillText(text, x, y);
                 });
             }
@@ -204,7 +246,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private drawChartTitle(): void {
         const { containerWidth, titleHeight, titleFontSize, marginRightForLinkIcon, linkIconCode } = this.chartOption;
 
-        Object.keys(this._activeThreadCounts).forEach((key: string, i: number) => {
+        Object.keys(this.activeThreadCounts).forEach((key: string, i: number) => {
             this.ctx.fillStyle = '#74879a';
             this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i), containerWidth, titleHeight);
 
@@ -390,8 +432,8 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
                 const originXPos = this.getOriginXPos(i);
                 const originYPos = this.getOriginYPos(i);
-                const max = Math.max(...dataList.map((data: number[]) => data.reduce((acc: number, curr: number) => acc + curr), 0));
-                const dataTypeLength = dataList[0].length;
+                const max = Math.max(...dataList.map((data: number[]) => data.reduce((acc: number, curr: number) => acc + curr, 0)));
+                const dataTypeLength = chartColors.length;
                 const dataLength = dataList.length;
 
                 if (showYAxisLabel) {
@@ -401,38 +443,52 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                 this.ratio = max === 0 ? 1 : chartHeight * this.maxRatio / max;
 
                 for (let j = dataTypeLength - 1; j >= 0; j--) {
-                    const data = dataList.map((d: number[]) => d.slice(0, j + 1).reduce((acc: number, curr: number) => acc + curr, 0));
+                    this.ctx.fillStyle = chartColors[j];
+                    const data = dataList.map((d: number[]) => {
+                        return d.length === 0 ? null : d.slice(0, j + 1).reduce((acc: number, curr: number) => acc + curr, 0);
+                    }); // ex) [ null, 6, 2, null ]
 
                     this.ctx.beginPath();
 
-                    if (x0 < 0) {
-                        // 앞 경계면 처리
-                        const x1 = this.getXPosInChart(1);
+                    if (data[0] !== null) {
+                        if (x0 < 0 && data[1] !== null) {
+                            // 앞 경계면 처리
+                            const x1 = this.getXPosInChart(1);
 
-                        this.ctx.moveTo(originXPos, originYPos); // 시작
-                        this.ctx.lineTo(originXPos, originYPos - (data[0] * x1 - data[1] * x0) / (x1 - x0) * this.ratio);
-                    } else {
-                        this.ctx.moveTo(originXPos + this.getXPosInChart(0), originYPos); // 시작
-                        this.ctx.lineTo(originXPos + this.getXPosInChart(0), originYPos - (data[0] * this.ratio));
+                            this.ctx.moveTo(originXPos, originYPos); // 시작
+                            this.ctx.lineTo(originXPos, originYPos - (data[0] * x1 - data[1] * x0) / (x1 - x0) * this.ratio);
+                        } else if (x0 >= 0) {
+                            this.ctx.moveTo(originXPos + x0, originYPos); // 시작
+                            this.ctx.lineTo(originXPos + x0, originYPos - (data[0] * this.ratio));
+                        }
                     }
 
                     for (let k = 1; k < dataLength; k++) {
                         const xkm1 = this.getXPosInChart(k - 1);
                         const xk = this.getXPosInChart(k);
 
+                        if (data[k] === null || (data[k - 1] === null && xk > chartWidth)) {
+                            continue;
+                        }
+
+                        if (data[k - 1] === null) {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(originXPos + xk, originYPos);
+                        }
+
                         if (xkm1 <= chartWidth && xk > chartWidth) {
-                            // 뒷 경계면 처리
                             this.ctx.lineTo(originXPos + chartWidth, originYPos - (data[k - 1] + (chartWidth - xkm1) * (data[k] - data[k - 1]) / (xk - xkm1)) * this.ratio);
+                            this.ctx.lineTo(originXPos + chartWidth, originYPos);
+                            this.ctx.fill();
                             break;
                         } else {
-                            this.ctx.lineTo(originXPos + this.getXPosInChart(k), originYPos - (data[k] * this.ratio));
+                            this.ctx.lineTo(originXPos + xk, originYPos - (data[k] * this.ratio));
+                            if (data[k + 1] === null) {
+                                this.ctx.lineTo(originXPos + xk, originYPos);
+                                this.ctx.fill();
+                            }
                         }
                     }
-
-                    this.ctx.lineTo(originXPos + chartWidth, originYPos); // 마지막
-
-                    this.ctx.fillStyle = chartColors[j];
-                    this.ctx.fill();
                 }
             });
         }
@@ -495,9 +551,9 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             const k = this.timeStampList.findIndex((timeStamp: number, i: number) => {
                 return originXPos + this.getXPosInChart(i) <= x && originXPos + this.getXPosInChart(i + 1) > x;
             });
-            const isDataEmpty = this.dataList.length === 0;
+            const isDataEmpty = (i: number) => this.dataList[0][i].length === 0;
 
-            if (!(k === -1 || isDataEmpty)) {
+            if (!(k === -1 || isDataEmpty(k))) {
                 this.showTooltip = true;
                 this.setTooltipData(k);
                 this.drawTooltipPoint(k);
