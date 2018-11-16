@@ -14,14 +14,14 @@ export class NewRealTimeTotalChartComponent implements OnInit {
     @Input() applicationName: string;
     @Input()
     set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
-        const successData = this.getSuccessData(activeThreadCounts);
-        const hasError = successData.length === 0;
+        const successDataList = this.getSuccessDataList(activeThreadCounts);
+        const hasError = successDataList.length === 0;
 
         this._activeThreadCounts = {
             [this.applicationName]: {
                 code: hasError ? ResponseCode.ERROR_BLACK : ResponseCode.SUCCESS,
                 message: hasError ? activeThreadCounts[Object.keys(activeThreadCounts)[0]].message : 'OK',
-                status: hasError ? null : this.getTotalResponseCount(successData)
+                status: hasError ? null : this.getTotalResponseCount(successDataList)
             }
         };
 
@@ -71,14 +71,15 @@ export class NewRealTimeTotalChartComponent implements OnInit {
     constructor() {}
     ngOnInit() {}
 
-    private getSuccessData(obj: { [key: string]: IActiveThreadCounts }): IActiveThreadCounts[] {
+    private getSuccessDataList(obj: { [key: string]: IActiveThreadCounts }): number[][] {
         return Object.keys(obj)
             .filter((agentName: string) => obj[agentName].code === ResponseCode.SUCCESS)
-            .map((agentName: string) => obj[agentName]);
+            .map((agentName: string) => obj[agentName].status);
     }
-    private getTotalResponseCount(data: IActiveThreadCounts[]): number[] {
-        return data.reduce((prev: number[], curr: IActiveThreadCounts) => {
-            return prev.map((a: number, i: number) => a + curr.status[i]);
+
+    private getTotalResponseCount(dataList: number[][]): number[] {
+        return dataList.reduce((acc: number[], curr: number[]) => {
+            return acc.map((a: number, i: number) => a + curr[i]);
         }, [0, 0, 0, 0]);
     }
 
