@@ -253,7 +253,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         const ellipsisWidth = this.ctx.measureText(ellipsis).width;
         const textWidth = this.ctx.measureText(text).width;
         const maxWidth = linkIconCode ? containerWidth / 2 - linkIconWidth - marginRightForLinkIcon - 5 : containerWidth / 2;
-        const isOverflow = textWidth / 2  > maxWidth;
+        const isOverflow = textWidth / 2 > maxWidth;
 
         if (isOverflow) {
             let length = text.length;
@@ -373,13 +373,11 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         }
 
         const { chartWidth, chartHeight, chartColors, chartSpeedControl, showYAxisLabel } = this.chartOption;
+        const dataList = this.dataList[key];
 
         this.startingXPos[key] = chartWidth - Math.floor((timeStamp - this.chartStart[key]) / chartSpeedControl);
 
-        const dataList = this.dataList[key];
-        const isOverflow = this.timeStampList[key].length >= 2 && this.getXPosInChart(key, 1) < 0;
-
-        if (isOverflow) {
+        while (this.isChartOverflow(key)) {
             this.timeStampList[key].shift();
             dataList.shift();
         }
@@ -454,6 +452,10 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         const { chartSpeedControl } = this.chartOption;
 
         return this.startingXPos[key] + Math.floor((this.timeStampList[key][i] - this.firstTimeStamp[key]) / chartSpeedControl);
+    }
+
+    private isChartOverflow(key: string): boolean {
+        return this.timeStampList[key].length >= 2 && this.getXPosInChart(key, 1) < 0;
     }
 
     calculateTooltipLeft(tooltip: HTMLElement): string {
