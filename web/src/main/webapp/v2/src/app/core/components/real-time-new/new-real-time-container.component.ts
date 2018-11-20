@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
-import { takeUntil, filter, switchMap, tap, map } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Subject, Observable, fromEvent } from 'rxjs';
+import { takeUntil, filter, switchMap, tap, map, delay } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -28,7 +28,7 @@ const enum MessageTemplate {
     templateUrl: './new-real-time-container.component.html',
     styleUrls: ['./new-real-time-container.component.css']
 })
-export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
+export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     private unsubscribe = new Subject<null>();
     private serviceType = '';
     totalCount: number;
@@ -88,6 +88,9 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
             }
         });
     }
+    ngAfterViewInit() {
+        this.addEventListener();
+    }
     ngOnDestroy() {
         this.realTimeWebSocketService.close();
         this.unsubscribe.next();
@@ -130,6 +133,27 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
             }
         });
     }
+    private addEventListener(): void {
+        const visible$ = fromEvent(document, 'visibilitychange').pipe(filter(() => !document.hidden));
+        const hidden$ = fromEvent(document, 'visibilitychange').pipe(filter(() => document.hidden));
+
+        visible$.pipe(
+            filter(() => {
+                return !this.realTimeWebSocketService.isOpened();
+            })
+        ).subscribe(() => {
+            this.onRetry();
+        });
+
+        hidden$.pipe(
+            delay(60000),
+            filter(() => {
+                return document.hidden;
+            })
+        ).subscribe(() => {
+            this.realTimeWebSocketService.close();
+        });
+    }
     private resetState() {
         this.applicationName = '';
         this.serviceType = '';
@@ -162,6 +186,7 @@ export class NewRealTimeContainerComponent implements OnInit, OnDestroy {
     }
     private onClose(): void {
         this.messageTemplate = MessageTemplate.RETRY;
+        this.activeThreadCounts = null;
     }
     private onRetry(): void {
         this.retryConnection();
