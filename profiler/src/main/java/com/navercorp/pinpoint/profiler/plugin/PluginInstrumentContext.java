@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
 import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
 import com.navercorp.pinpoint.profiler.context.scope.Pool;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
-import com.navercorp.pinpoint.profiler.instrument.classloading.PluginClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.scanner.ClassScannerFactory;
 import com.navercorp.pinpoint.profiler.instrument.scanner.Scanner;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -75,15 +74,6 @@ public class PluginInstrumentContext implements InstrumentContext {
         this.dynamicTransformTrigger = dynamicTransformTrigger;
         this.classInjector = classInjector;
         this.transformerRegistry = transformerRegistry;
-    }
-
-
-
-    public PluginConfig getPluginConfig() {
-        if (classInjector instanceof PluginClassInjector) {
-            return ((PluginClassInjector) classInjector).getPluginConfig();
-        }
-        return null;
     }
 
 

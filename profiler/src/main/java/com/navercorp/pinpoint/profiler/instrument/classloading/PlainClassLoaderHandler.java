@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.jsr166.ConcurrentWeakHashMap;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.instrument.BootstrapPackage;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
 import com.navercorp.pinpoint.profiler.plugin.ClassLoadingChecker;
@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,20 +48,19 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private final JarReader pluginJarReader;
 
-    private final BootstrapPackage bootstrapPackage = new BootstrapPackage();
-
     // TODO remove static field
     private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<ClassLoader, ClassLoaderAttachment>();
 
 
     private final PluginConfig pluginConfig;
+    private final BootstrapCore bootstrapCore;
 
-    public PlainClassLoaderHandler(PluginConfig pluginConfig) {
-        if (pluginConfig == null) {
-            throw new NullPointerException("pluginConfig must not be null");
-        }
-        this.pluginConfig = pluginConfig;
+    public PlainClassLoaderHandler(PluginConfig pluginConfig, BootstrapCore bootstrapCore) {
+        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
+
         this.pluginJarReader = new JarReader(pluginConfig.getPluginJarFile());
+        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
+
     }
 
     @Override
@@ -73,7 +71,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
 
         try {
-            if (bootstrapPackage.isBootstrapPackage(className)) {
+            if (bootstrapCore.isBootstrapPackage(className)) {
                 final ClassLoader bootstrapClassLoader = Object.class.getClassLoader();
                 return loadClass(bootstrapClassLoader, className);
             }
@@ -88,27 +86,29 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
-            String name = JavaAssistUtils.jvmNameToJavaName(classPath);
-            if (bootstrapPackage.isBootstrapPackage(name)) {
-                // TODO search from BootStrapClassLoader
-                return ClassLoader.getSystemResourceAsStream(classPath);
+            if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {
+                return bootstrapCore.openStream(internalName);
             }
+            final String name = JavaAssistUtils.jvmNameToJavaName(internalName);
             if (!isPluginPackage(name)) {
-                return targetClassLoader.getResourceAsStream(classPath);
+                return targetClassLoader.getResourceAsStream(internalName);
             }
-            final InputStream inputStream = getInputStream(targetClassLoader, classPath);
-            if (inputStream == null) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("can not find resource : {} {} ", classPath, pluginConfig.getPluginJarURLExternalForm());
-                }
-                // fallback
-                return targetClassLoader.getResourceAsStream(classPath);
+
+            getClassLoaderAttachment(targetClassLoader, internalName);
+            final InputStream inputStream = getPluginInputStream(internalName);
+            if (inputStream != null) {
+                return inputStream;
             }
-            return inputStream;
+
+            if (logger.isInfoEnabled()) {
+                logger.info("can not find resource : {} {} ", internalName, pluginConfig.getPluginJarURLExternalForm());
+            }
+            // fallback
+            return targetClassLoader.getResourceAsStream(internalName);
         } catch (Exception e) {
-            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
+            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", internalName, targetClassLoader, e);
             return null;
         }
     }
@@ -118,7 +118,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
 
-
     private Class<?> injectClass0(ClassLoader classLoader, String className) throws IllegalArgumentException {
         if (isDebug) {
             logger.debug("Inject class className:{} cl:{}", className, classLoader);
@@ -126,20 +125,20 @@ public class PlainClassLoaderHandler implements ClassInjector {
         final String pluginJarPath = pluginConfig.getPluginJarURLExternalForm();
         final ClassLoaderAttachment attachment = getClassLoaderAttachment(classLoader, pluginJarPath);
         final Class<?> findClazz = attachment.getClass(className);
-        if (findClazz == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("can not find class : {} {} ", className, pluginConfig.getPluginJarURLExternalForm());
-            }
-            // fallback
-            return loadClass(classLoader, className);
+        if (findClazz != null) {
+            return findClazz;
         }
-        return findClazz;
 
+        if (logger.isInfoEnabled()) {
+            logger.info("can not find class : {} {} ", className, pluginConfig.getPluginJarURLExternalForm());
+        }
+        // fallback
+        return loadClass(classLoader, className);
     }
 
-    private InputStream getInputStream(ClassLoader classLoader, String classPath) throws IllegalArgumentException {
+    private InputStream getPluginInputStream(String classPath) throws IllegalArgumentException {
         if (isDebug) {
-            logger.debug("Get input stream className:{} cl:{}", classPath, classLoader);
+            logger.debug("Get input stream className:{}", classPath);
 
         }
         try {

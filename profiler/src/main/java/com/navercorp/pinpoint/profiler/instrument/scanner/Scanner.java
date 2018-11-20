@@ -16,12 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
+import java.io.InputStream;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface Scanner {
 
-    boolean exist(String className);
+    boolean exist(String fileName);
+
+    InputStream openStream(String fileName);
 
     void close();
 }

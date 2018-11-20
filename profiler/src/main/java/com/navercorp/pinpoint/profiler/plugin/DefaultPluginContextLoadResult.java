@@ -24,11 +24,11 @@ import com.navercorp.pinpoint.profiler.context.provider.plugin.ProfilerPluginLoa
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +40,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final InstrumentEngine instrumentEngine;
+    private final ClassInjectorFactory classInjectorFactory;
 
     private final ProfilerConfig profilerConfig;
     private final DynamicTransformTrigger dynamicTransformTrigger;
@@ -47,10 +48,13 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     private final List<SetupResult> setupResultList;
 
     public DefaultPluginContextLoadResult(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
-                                          PluginLoader pluginLoader) {
+                                          PluginLoader pluginLoader, ClassInjectorFactory classInjectorFactory) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
         this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
+
+
+        this.classInjectorFactory = Assert.requireNonNull(classInjectorFactory, "bootstrapCore must not be null");
 
         this.setupResultList = load(pluginLoader);
     }
@@ -63,7 +67,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
         logger.info("load plugin");
         PluginSetup pluginSetup = new DefaultPluginSetup(profilerConfig, instrumentEngine, dynamicTransformTrigger);
-        final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, instrumentEngine, pluginLoader);
+        final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, classInjectorFactory, pluginLoader);
         List<SetupResult> load = loader.load();
         return load;
     }

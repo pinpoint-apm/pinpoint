@@ -100,7 +100,7 @@ public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 final BeanMethodTransformer beanTransformer = new BeanMethodTransformer(errorMark);
-                final ObjectFactory beanFilterFactory = ObjectFactory.byStaticFactory("com.navercorp.pinpoint.plugin.spring.beans.interceptor.TargetBeanFilter", "of", context.getConfig());
+                final ObjectFactory beanFilterFactory = ObjectFactory.byStaticFactory("com.navercorp.pinpoint.plugin.spring.beans.interceptor.TargetBeanFilter", "of", config);
 
                 final InstrumentMethod method = target.getDeclaredMethod("doScan", "java.lang.String[]");
                 method.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.ClassPathDefinitionScannerDoScanInterceptor", va(loader, beanTransformer, beanFilterFactory));

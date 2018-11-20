@@ -36,6 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
@@ -146,7 +147,7 @@ public class MethodInterfaceTest {
             public void handle(ClassNode classNode) {
                 logger.debug("Add field class={}", classNode.name);
                 ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, classNode);
-                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), int.class);
+                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), Type.getDescriptor(int.class));
                 classNodeAdapter.addInterface(accessorClassName);
                 ASMFieldNodeAdapter fieldNodeAdapter = classNodeAdapter.getField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), null);
                 classNodeAdapter.addGetterMethod("_$PINPOINT$_getTraceInt", fieldNodeAdapter);
@@ -218,7 +219,7 @@ public class MethodInterfaceTest {
         // only use for test.
         public static ClassNode get(final String className) throws Exception {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaClassNameToJvmResourceName(className)));
+            ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(className) + ".class"));
             ClassNode classNode = new ClassNode();
             cr.accept(classNode, ClassReader.EXPAND_FRAMES);
 

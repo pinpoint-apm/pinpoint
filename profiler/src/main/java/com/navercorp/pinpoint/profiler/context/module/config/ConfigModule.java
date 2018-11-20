@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.profiler.context.module.Container;
 import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
+import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +74,20 @@ public class ConfigModule extends AbstractModule {
         TypeLiteral<List<String>> pluginJarFile = new TypeLiteral<List<String>>() {};
         bind(pluginJarFile).annotatedWith(PluginJars.class).toInstance(agentOption.getPluginJars());
 
-        TypeLiteral<List<String>> bootstrapJarFIle = new TypeLiteral<List<String>>() {};
-        bind(bootstrapJarFIle).annotatedWith(BootstrapJarPaths.class).toInstance(agentOption.getBootstrapJarPaths());
+
+        bindBootstrapCoreInformation();
 
         bindAgentInformation(agentOption.getAgentId(), agentOption.getApplicationName(), agentOption.isContainer());
+    }
+
+    private void bindBootstrapCoreInformation() {
+        List<String> bootstrapJarPaths = agentOption.getBootstrapJarPaths();
+
+        TypeLiteral<List<String>> bootstrapJarFIle = new TypeLiteral<List<String>>() {};
+        bind(bootstrapJarFIle).annotatedWith(BootstrapJarPaths.class).toInstance(bootstrapJarPaths);
+
+        BootstrapCore bootstrapCore = new BootstrapCore(bootstrapJarPaths);
+        bind(BootstrapCore.class).toInstance(bootstrapCore);
     }
 
     private void bindConstants(ProfilerConfig profilerConfig) {

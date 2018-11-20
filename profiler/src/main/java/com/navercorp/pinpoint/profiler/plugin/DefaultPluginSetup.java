@@ -63,7 +63,7 @@ public class DefaultPluginSetup implements PluginSetup {
         final DefaultProfilerPluginSetupContext setupContext = new DefaultProfilerPluginSetupContext(profilerConfig);
         final GuardProfilerPluginContext guardSetupContext = new GuardProfilerPluginContext(setupContext);
 
-        final InstrumentContext instrumentContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, transformerRegistry );
+        final InstrumentContext instrumentContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, transformerRegistry);
         final GuardInstrumentContext guardInstrumentContext = preparePlugin(profilerPlugin, instrumentContext);
         try {
             // WARN external plugin api
