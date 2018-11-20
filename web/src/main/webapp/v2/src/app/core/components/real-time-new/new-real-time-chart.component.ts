@@ -59,7 +59,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                     const data = status ? status : [];
 
                     this.dataList[key] ? this.dataList[key].push(data) : this.dataList[key] = [data];
-                    this.timeStampList[key] ? this.timeStampList[key].push(timeStamp) : (this.timeStampList[key] = [timeStamp], this.firstTimeStamp[key] = timeStamp - 2000);
+                    this.timeStampList[key] ? this.timeStampList[key].push(timeStamp) : (this.timeStampList[key] = [timeStamp], this.firstTimeStamp[key] = timeStamp - 1000);
                 } else {
                     // 해당 key에 대한 dataList, timeStampList, firstStamp, startingXPos, chartStart 제거
                     delete this.dataList[key];
@@ -438,7 +438,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                         break;
                     } else {
                         this.ctx.lineTo(originXPos + xk, originYPos - (data[k] * this.ratio));
-                        if (data[k + 1] === null) {
+                        if (data[k + 1] == null) {
                             this.ctx.lineTo(originXPos + xk, originYPos);
                             this.ctx.fill();
                         }
