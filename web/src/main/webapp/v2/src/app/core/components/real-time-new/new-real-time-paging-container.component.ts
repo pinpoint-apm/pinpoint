@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil, filter, switchMap } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Subject, fromEvent } from 'rxjs';
+import { takeUntil, filter, switchMap, delay } from 'rxjs/operators';
 
 import { UrlPathId, UrlPath } from 'app/shared/models';
 import { WebAppSettingDataService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
@@ -19,7 +19,7 @@ const enum MessageTemplate {
     templateUrl: './new-real-time-paging-container.component.html',
     styleUrls: ['./new-real-time-paging-container.component.css']
 })
-export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
+export class NewRealTimePagingContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     private unsubscribe = new Subject<null>();
     private applicationName = '';
     private serviceType = '';
@@ -81,10 +81,34 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
             }
         });
     }
+    ngAfterViewInit() {
+        this.addEventListener();
+    }
     ngOnDestroy() {
         this.realTimeWebSocketService.close();
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+    private addEventListener(): void {
+        const visible$ = fromEvent(document, 'visibilitychange').pipe(filter(() => !document.hidden));
+        const hidden$ = fromEvent(document, 'visibilitychange').pipe(filter(() => document.hidden));
+
+        visible$.pipe(
+            filter(() => {
+                return !this.realTimeWebSocketService.isOpened();
+            })
+        ).subscribe(() => {
+            this.onRetry();
+        });
+
+        hidden$.pipe(
+            delay(60000),
+            filter(() => {
+                return document.hidden;
+            })
+        ).subscribe(() => {
+            this.realTimeWebSocketService.close();
+        });
     }
     private resetState() {
         this.applicationName = '';
@@ -111,6 +135,7 @@ export class NewRealTimePagingContainerComponent implements OnInit, OnDestroy {
     }
     private onClose(): void {
         this.messageTemplate = MessageTemplate.RETRY;
+        this.activeThreadCounts = null;
     }
     private onRetry(): void {
         this.retryConnection();
