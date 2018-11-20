@@ -36,9 +36,9 @@ public class TestProfilerPluginClassLoader implements ClassInjector {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         targetClassLoader = getClassLoader(targetClassLoader);
-        return targetClassLoader.getResourceAsStream(classPath);
+        return targetClassLoader.getResourceAsStream(internalName);
     }
 
     private static ClassLoader getClassLoader(ClassLoader classLoader) {

@@ -262,13 +262,15 @@ public class ASMClassNodeAdapter {
         return null;
     }
 
-    public ASMFieldNodeAdapter addField(final String fieldName, final Class<?> fieldClass) {
-        if (fieldName == null || fieldClass == null) {
-            throw new IllegalArgumentException("fieldNode name or fieldNode class must not be null.");
+    public ASMFieldNodeAdapter addField(final String fieldName, final String fieldDesc) {
+        if (fieldName == null) {
+            throw new IllegalArgumentException("fieldName must not be null");
+        }
+        if (fieldDesc == null) {
+            throw new IllegalArgumentException("fieldDesc must not be null");
         }
 
-        final Type type = Type.getType(fieldClass);
-        final FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, fieldName, type.getDescriptor(), null, null);
+        final FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, fieldName, fieldDesc, null, null);
         if (this.classNode.fields == null) {
             this.classNode.fields = new ArrayList<FieldNode>();
         }
