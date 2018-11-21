@@ -540,7 +540,7 @@
 			heap: {
 				mainStyle: "",
 				title: "Heap",
-				desc: "JVM의 heap 정보와 full garbage collection 소요 시간",
+				desc: "JVM의 heap 정보와 major garbage collection 소요 시간",
 				category: [{
 					title: "[범례]",
 					items: [{
@@ -550,15 +550,15 @@
 						name: "Used",
 						desc: "현재 사용 중인 heap 사이즈"
 					},{
-						name: "FGC",
-						desc: "Full garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
+						name: "Major GC",
+						desc: "Major garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
 					}]
 				}]
 			},
 			permGen: {
 				mainStyle: "",
 				title: "Non-Heap",
-				desc: "JVM의 non-heap 정보와 full garbage collection 소요 시간",
+				desc: "JVM의 non-heap 정보와 major garbage collection 소요 시간",
 				category: [{
 					title: "[범례]",
 					items: [{
@@ -568,8 +568,8 @@
 						name: "Used",
 						desc: "현재 사용 중인 non-heap 사이즈"
 					},{
-						name: "FGC",
-						desc: "Full garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
+						name: "Major GC",
+						desc: "Major garbage collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
 					}]
 				}]
 			},
