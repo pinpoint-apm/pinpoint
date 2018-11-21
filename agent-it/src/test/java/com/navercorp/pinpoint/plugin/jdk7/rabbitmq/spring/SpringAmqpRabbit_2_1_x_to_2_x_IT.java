@@ -47,14 +47,16 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * <p>Spring-amqp rabbit 2.1.0 removed previously added <tt>BlockingQueueConsumer$ConsumerDecorator</tt>.
+ * Spring-amqp rabbit 2.1.0 removed previously added <tt>BlockingQueueConsumer$ConsumerDecorator</tt>.
+ * <p>
+ * Skip 2.1.1.RELEASE as it has spring 5.1.2.BUILD-SNAPSHOT dependencies not in maven central.
  *
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
-@Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
+@Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE,2.1.1.RELEASE),(2.1.1.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
 
