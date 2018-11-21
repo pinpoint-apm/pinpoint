@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time-new/new-real-time-websocket.service';
+import { getSuccessDataList, getTotalResponseCount } from './new-real-time-util';
 
 @Component({
     selector: 'pp-new-real-time-total-chart',
@@ -14,14 +15,14 @@ export class NewRealTimeTotalChartComponent implements OnInit {
     @Input() applicationName: string;
     @Input()
     set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
-        const successDataList = this.getSuccessDataList(activeThreadCounts);
+        const successDataList = getSuccessDataList(activeThreadCounts);
         const hasError = successDataList.length === 0;
 
         this._activeThreadCounts = {
             [this.applicationName]: {
                 code: hasError ? ResponseCode.ERROR_BLACK : ResponseCode.SUCCESS,
                 message: hasError ? activeThreadCounts[Object.keys(activeThreadCounts)[0]].message : 'OK',
-                status: hasError ? null : this.getTotalResponseCount(successDataList)
+                status: hasError ? null : getTotalResponseCount(successDataList)
             }
         };
 
@@ -70,19 +71,6 @@ export class NewRealTimeTotalChartComponent implements OnInit {
 
     constructor() {}
     ngOnInit() {}
-
-    private getSuccessDataList(obj: { [key: string]: IActiveThreadCounts }): number[][] {
-        return Object.keys(obj)
-            .filter((agentName: string) => obj[agentName].code === ResponseCode.SUCCESS)
-            .map((agentName: string) => obj[agentName].status);
-    }
-
-    private getTotalResponseCount(dataList: number[][]): number[] {
-        return dataList.reduce((acc: number[], curr: number[]) => {
-            return acc.map((a: number, i: number) => a + curr[i]);
-        }, [0, 0, 0, 0]);
-    }
-
     getLegendStyle(legend: HTMLElement): { [key: string]: string } {
         const { containerWidth, chartInnerPadding, titleHeight } = this.chartOption;
         const legendWidth = legend.offsetWidth;

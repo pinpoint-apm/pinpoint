@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit,
 import * as moment from 'moment-timezone';
 
 import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
+import { getTotalResponseCount, getSuccessDataList } from './new-real-time-util';
 
 @Component({
     selector: 'pp-new-real-time-chart',
@@ -31,6 +32,8 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private lastMousePosInCanvas: ICoordinate;
     private chartNumPerRow: number;
     private linkIconInfoList: { [key: string]: any }[] = []; // { leftX, rightX, topY, bottomY, agentKey } 를 담은 object의 배열
+    private dataSumList: number[][] = [];
+
     showTooltip = false;
     tooltipDataObj = {
         title: '',
@@ -69,6 +72,8 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                     delete this.chartStart[key];
                 }
             });
+
+            this.dataSumList.push(getTotalResponseCount(getSuccessDataList(currATC)));
         }
     }
 
@@ -380,6 +385,9 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         while (this.isChartOverflow(key)) {
             this.timeStampList[key].shift();
             dataList.shift();
+            if (this.dataSumList.length > dataList.length) {
+                this.dataSumList.shift();
+            }
         }
 
         const x0 = this.getXPosInChart(key, 0);
@@ -387,7 +395,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         if (x0 < chartWidth) {
             const originXPos = this.getOriginXPos(i);
             const originYPos = this.getOriginYPos(i);
-            const max = Math.max(...dataList.map((data: number[]) => data.reduce((acc: number, curr: number) => acc + curr, 0)));
+            const max = Math.max(...this.dataSumList.map((data: number[]) => data.reduce((acc: number, curr: number) => acc + curr, 0)));
             const dataTypeLength = chartColors.length;
             const dataLength = dataList.length;
 
