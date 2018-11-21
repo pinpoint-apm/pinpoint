@@ -360,7 +360,7 @@
             "AGENT_CHART": {
                 "HEAP": [{
                     "TITLE": "Heap",
-                    "DESC": "JVM의 Heap 정보와 Full Garbage Collection 소요 시간",
+                    "DESC": "JVM의 Heap 정보와 Major Garbage Collection 소요 시간",
                     "CATEGORY": [{
                         "TITLE": "범례",
                         "ITEMS": [{
@@ -370,14 +370,14 @@
                             "NAME": "Used",
                             "DESC": "현재 사용 중인 Heap 사이즈"
                         }, {
-                            "NAME": "FGC",
-                            "DESC": "Full Garbage Collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
+                            "NAME": "Major GC",
+                            "DESC": "Major Garbage Collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
                         }]
                     }]
                 }],
                 "NON_HEAP": [{
                     "TITLE": "Non-Heap",
-                    "DESC": "JVM의 Non-Heap 정보와 Full Garbage Collection 소요 시간",
+                    "DESC": "JVM의 Non-Heap 정보와 Major Garbage Collection 소요 시간",
                     "CATEGORY": [{
                         "TITLE": "범례",
                         "ITEMS": [{
@@ -387,8 +387,8 @@
                             "NAME": "Used",
                             "DESC": "현재 사용 중인 Non-Heap 사이즈"
                         }, {
-                            "NAME": "FGC",
-                            "DESC": "Full Garbage Collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
+                            "NAME": "Major GC",
+                            "DESC": "Major Garbage Collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
                         }]
                     }]
                 }],

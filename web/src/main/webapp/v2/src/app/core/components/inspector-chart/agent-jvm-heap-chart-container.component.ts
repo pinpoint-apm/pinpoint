@@ -135,7 +135,7 @@ export class AgentJVMHeapChartContainerComponent extends InspectorChartContainer
                 pointHoverRadius: 3
             }, {
                 type: 'bar',
-                label: 'FGC',
+                label: 'Major GC',
                 data: data.fgcTime,
                 borderWidth: 1,
                 borderColor: 'rgb(255, 42, 0)',
