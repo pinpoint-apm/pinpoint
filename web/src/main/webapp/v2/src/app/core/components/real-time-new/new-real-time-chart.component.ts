@@ -26,7 +26,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private animationFrameId: number;
     private timeStampList: { [key: string]: number[] } = {};
     private dataList: { [key: string]: number[][] } = {};
-    private maxRatio = 3 / 5; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
+    private maxRatio = 3 / 4; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
     private ratio: number; // maxRatio를 바탕으로 각 데이터에 적용되는 비율
     private startingXPos: { [key: string]: number } = {}; // 최초로 움직이기 시작하는 점의 x좌표
     private lastMousePosInCanvas: ICoordinate;
@@ -414,7 +414,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                 this.ctx.beginPath();
 
                 if (data[0] !== null) {
-                    if (x0 < 0 && data[1] !== null) {
+                    if (x0 < 0 && data[1] != null) {
                         // 앞 경계면 처리
                         const x1 = this.getXPosInChart(key, 1);
 
@@ -449,6 +449,17 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                         if (data[k + 1] == null) {
                             this.ctx.lineTo(originXPos + xk, originYPos);
                             this.ctx.fill();
+                            if (data[k + 1] === undefined && xk <= chartWidth * 0.95) {
+                                // When it's delayed
+                                const x = originXPos + 5 / 6 * chartWidth;
+                                const y = originYPos - 1 / 6 * chartHeight;
+
+                                this.ctx.font = '9px Nanum Gothic';
+                                this.ctx.fillStyle = '#c04e3f';
+                                this.ctx.textAlign = 'center';
+                                this.ctx.textBaseline = 'middle';
+                                this.ctx.fillText('Delayed', x, y);
+                            }
                         }
                     }
                 }
