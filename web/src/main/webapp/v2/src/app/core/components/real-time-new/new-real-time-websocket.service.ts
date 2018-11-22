@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable, of, throwError } from 'rxjs';
+import { Subject, Observable, of, throwError, iif } from 'rxjs';
 import { WebSocketSubject, WebSocketSubjectConfig } from 'rxjs/webSocket';
-import { timeout, catchError, map, filter } from 'rxjs/operators';
+import { timeout, catchError, map, filter, tap, delay, concatMap } from 'rxjs/operators';
 
 import { WindowRefService } from 'app/shared/services';
 
@@ -12,8 +12,8 @@ interface IWebSocketData {
 }
 
 export interface IWebSocketDataResult {
-    timeStamp?: number;
-    applicationName?: string;
+    timeStamp: number;
+    applicationName: string;
     activeThreadCounts: { [key: string]: IActiveThreadCounts };
 }
 
@@ -43,21 +43,16 @@ export const enum ResponseCode {
 @Injectable()
 export class NewRealTimeWebSocketService {
     private url = 'agent/activeThread.pinpointws';
-    private timeoutLimit = 10; // 서버로부터의 timeout response를 무시하는 최대횟수
-    private timeoutCount: { [key: string]: number } = {}; // 각 agent별 timeout된 횟수
-    private delayLimit = 10000; // 서버로부터의 응답을 기다리는 최대시간(ms)
-    private prevData: { [key: string]: IActiveThreadCounts } = {}; // Success일때의 데이터({ code, message, status })를 킵
-
+    private delayLimit = 5000; // 서버로부터의 응답을 기다리는 최대시간(ms)
     private retryTimeout = 3000;
     private retryCount = 0;
     private maxRetryCount = 1;
     private connectTime: number;
     private isOpen = false;
     private pagingSize = 30;
-
     private socket$: WebSocketSubject<any> = null;
-
     private outMessage: Subject<IWebSocketResponse> = new Subject();
+
     onMessage$: Observable<IWebSocketResponse>;
 
     constructor(
@@ -95,6 +90,7 @@ export class NewRealTimeWebSocketService {
         const location = this.windowRefService.nativeWindow.location;
         const protocol = location.protocol.indexOf('https') === -1 ? 'ws' : 'wss';
         const url = `${protocol}://${location.host}/${this.url}`;
+        // let j = -1;
 
         this.socket$ = new WebSocketSubject<any>({
             url: url,
@@ -116,46 +112,36 @@ export class NewRealTimeWebSocketService {
         } as WebSocketSubjectConfig<any>);
 
         this.socket$.pipe(
+            // concatMap((m: IWebSocketData) => {
+            //     j++;
+            //     return iif(() => j >= 2 && j < 6, of(m).pipe(delay(1000)), of(m).pipe(delay(0)));
+            // }),
             filter((message: IWebSocketData) => {
                 return message.type === ResponseType.PING ? (this.send({ type: 'PONG' }), false) : true;
             }),
-            // map(({result}: {result: IWebSocketDataResult}) => {
-            //     return this.parseResult(result);
-            // }),
             map(({result}: {result: IWebSocketDataResult}) => result),
             // map(({timeStamp, applicationName}) => {
             //     const activeThreadCounts = {};
 
-            //     // for (let i = 0; i < 40; i++) {
-            //     //     activeThreadCounts[i] = {
-            //     //         code: 0,
-            //     //         message: 'OK',
-            //     //         status: [
-            //     //             Math.floor(4 * Math.random()),
-            //     //             Math.floor(4 * Math.random()),
-            //     //             Math.floor(4 * Math.random()),
-            //     //             Math.floor(4 * Math.random())
-            //     //         ]
-            //     //     };
-            //     // }
-            //     // for (let i = 0; i < 40; i++) {
-            //     //     activeThreadCounts[i] = {
-            //     //         code: ResponseCode.SUCCESS,
-            //     //         message: 'OK',
-            //     //         status: [
-            //     //             Math.floor(4 * Math.random()),
-            //     //             Math.floor(4 * Math.random()),
-            //     //             Math.floor(4 * Math.random()),
-            //     //             Math.floor(4 * Math.random())
-            //     //         ]
-            //     //     };
-            //     // }
-            //     for (let i = 0; i < 40; i++) {
+            //     for (let i = 0; i < 1; i++) {
             //         activeThreadCounts[i] = {
-            //             code: ResponseCode.ERROR_BLACK,
-            //             message: 'ERROR ERROR SUPERERROR',
+            //             code: ResponseCode.SUCCESS,
+            //             message: 'OK',
+            //             status: [
+            //                 Math.floor(3 * Math.random()),
+            //                 Math.floor(3 * Math.random()),
+            //                 Math.floor(3 * Math.random()),
+            //                 Math.floor(3 * Math.random())
+            //                 // 5, 5, 5, 5
+            //             ]
             //         };
             //     }
+            //     // for (let i = 0; i < 40; i++) {
+            //     //     activeThreadCounts[i] = {
+            //     //         code: ResponseCode.ERROR_BLACK,
+            //     //         message: 'ERROR ERROR SUPERERROR',
+            //     //     };
+            //     // }
             //     return {
             //         timeStamp,
             //         applicationName,
@@ -181,57 +167,11 @@ export class NewRealTimeWebSocketService {
         });
     }
 
-    private parseResult(result: IWebSocketDataResult): IWebSocketDataResult {
-        const activeThreadCounts = Object.keys(result.activeThreadCounts).reduce((prev: IWebSocketDataResult, curr: string) => {
-            const responseCode = result.activeThreadCounts[curr].code;
-            let agentData: IActiveThreadCounts;
-
-            switch (responseCode) {
-                case ResponseCode.SUCCESS:
-                    this.timeoutCount[curr] = 0;
-                    this.prevData[curr] = result.activeThreadCounts[curr];
-                    agentData = result.activeThreadCounts[curr];
-                    break;
-                case ResponseCode.TIMEOUT:
-                    this.timeoutCount[curr] = this.timeoutCount[curr] ? this.timeoutCount[curr] + 1 : 1;
-                    agentData = this.prevData[curr] && this.timeoutCount[curr] < this.timeoutLimit ? this.prevData[curr] : result.activeThreadCounts[curr];
-                    break;
-                default:
-                    agentData = result.activeThreadCounts[curr];
-                    break;
-            }
-            return {
-                ...prev,
-                ...{ [curr]: agentData }
-            };
-        }, {});
-
-        return { ...result, ...{ activeThreadCounts } };
-    }
-
-    private onTimeout(): Observable<IWebSocketDataResult | null> {
+    // TODO: No Response 메시지 띄워주기
+    private onTimeout(): Observable<null> {
         this.close();
-        return this.getDelayMessage();
-    }
 
-    private getDelayMessage(): Observable<IWebSocketDataResult | null> {
-        const delayObj = {
-            code: ResponseCode.OVER_DELAY,
-            message: 'No Response'
-        };
-
-        if (Object.keys(this.prevData).length !== 0) {
-            return of({
-                activeThreadCounts: Object.keys(this.prevData).reduce((prev: IWebSocketDataResult, curr: string) => {
-                    return {
-                        ...prev,
-                        ...{ [curr]: delayObj }
-                    };
-                }, {})
-            });
-        } else {
-            return of(null);
-        }
+        return of(null);
     }
 
     private closed(): void {
