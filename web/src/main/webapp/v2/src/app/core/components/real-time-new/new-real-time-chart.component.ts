@@ -33,6 +33,9 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private chartNumPerRow: number;
     private linkIconInfoList: { [key: string]: any }[] = []; // { leftX, rightX, topY, bottomY, agentKey } 를 담은 object의 배열
     private dataSumList: number[][] = [];
+    private removedKeys: string[] = [];
+    private addedKeys: string[] = [];
+    private mergedKeys: string[] = [];
 
     showTooltip = false;
     tooltipDataObj = {
@@ -49,31 +52,50 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         const changesOnTimeStamp = changes['timeStamp'];
 
         if (changesOnATC && changesOnTimeStamp) {
-            const { previousValue: prevATC, currentValue: currATC, isFirstChange } = changesOnATC;
+            const { previousValue: prevATC, currentValue: currATC, firstChange } = changesOnATC;
             const { currentValue: timeStamp } = changesOnTimeStamp;
-            const prevATCKeys = isFirstChange ? [] : Object.keys(prevATC);
+            const prevATCKeys = firstChange ? [] : Object.keys(prevATC);
             const currATCKeys = Object.keys(currATC);
-            const mergedKeySet = new Set([...prevATCKeys, ...currATCKeys]);
 
-            mergedKeySet.forEach((key: string) => {
-                if (currATC.hasOwnProperty(key)) {
-                    // 기존의 key에 생성 혹은 추가
+            this.mergedKeys = [...new Set([...prevATCKeys, ...currATCKeys])];
+            this.addedKeys = [];
+            this.removedKeys = [];
+
+            this.mergedKeys.forEach((key: string) => {
+                if (!prevATCKeys.includes(key)) {
+                    // 새로 추가된 agent
                     const { status } = currATC[key];
                     const data = status ? status : [];
 
-                    this.dataList[key] ? this.dataList[key].push(data) : this.dataList[key] = [data];
-                    this.timeStampList[key] ? this.timeStampList[key].push(timeStamp) : (this.timeStampList[key] = [timeStamp], this.firstTimeStamp[key] = timeStamp - 1000);
-                } else {
+                    this.dataList[key] = [data];
+                    this.timeStampList[key] = [timeStamp];
+                    this.firstTimeStamp[key] = timeStamp - 1000;
+                    if (!firstChange) {
+                        this.addedKeys.push(key);
+                    }
+                } else if (!currATCKeys.includes(key)) {
+                    // 삭제된 agent
                     // 해당 key에 대한 dataList, timeStampList, firstStamp, startingXPos, chartStart 제거
                     delete this.dataList[key];
                     delete this.timeStampList[key];
                     delete this.firstTimeStamp[key];
                     delete this.startingXPos[key];
                     delete this.chartStart[key];
+                    this.removedKeys.push(key);
+                } else {
+                    // 변동없는 agent
+                    const { status } = currATC[key];
+                    const data = status ? status : [];
+
+                    this.dataList[key].push(data);
+                    this.timeStampList[key].push(timeStamp);
                 }
             });
 
             this.dataSumList.push(getTotalResponseCount(getSuccessDataList(currATC)));
+            if (this.canvas && (prevATCKeys.length !== currATCKeys.length)) {
+                this.setCanvasSize();
+            }
         }
     }
 
@@ -93,7 +115,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
     private setCanvasSize(): void {
         const { titleHeight, containerHeight, canvasBottomPadding } = this.chartOption;
-        const numOfChart = Object.keys(this.activeThreadCounts).length;
+        const numOfChart = this.mergedKeys.length;
 
         this.canvas.width = this.el.nativeElement.offsetWidth;
         this.setChartNumPerRow();
@@ -144,9 +166,14 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         const { drawHGridLine, drawVGridLine, showXAxis, showYAxis, tooltipEnabled } = this.chartOption;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        Object.keys(this.activeThreadCounts).forEach((key: string, i: number) => {
+        this.mergedKeys.forEach((key: string, i: number) => {
             this.drawChartTitle(key, i);
             this.drawChartContainerRect(i);
+            if (this.removedKeys.includes(key)) {
+                this.drawRemovedText(i);
+                return;
+            }
+
             if (drawHGridLine) {
                 this.drawHGridLine(i);
             }
@@ -174,6 +201,23 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         });
 
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
+    }
+
+    private drawRemovedText(i: number): void {
+        const { chartHeight, chartWidth } = this.chartOption;
+        const originXPos = this.getOriginXPos(i);
+        const originYPos = this.getOriginYPos(i);
+        const x = originXPos + chartWidth / 2;
+        const y = originYPos - chartHeight / 2;
+
+        this.ctx.fillStyle = 'rgba(232, 229, 240, 0.9)';
+        this.ctx.fillRect(originXPos, originYPos - chartHeight, chartWidth, chartHeight);
+
+        this.ctx.font = `600 13px Nanum Gothic`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillStyle = '#c04e3f';
+        this.ctx.fillText('Removed', x, y);
     }
 
     private drawErrorText(key: string, i: number): void {
@@ -225,8 +269,10 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
     private drawChartTitle(key: string, i: number): void {
         const { containerWidth, titleHeight, titleFontSize, marginRightForLinkIcon, linkIconCode } = this.chartOption;
+        const isRemovedKey = this.removedKeys.includes(key);
+        const isAddedKey = this.addedKeys.includes(key);
 
-        this.ctx.fillStyle = '#74879a';
+        this.ctx.fillStyle = isAddedKey ? '#34b994' : isRemovedKey ? '#e95459' : '#74879a';
         this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i), containerWidth, titleHeight);
 
         this.ctx.font = `${titleFontSize} Nanum Gothic`;
