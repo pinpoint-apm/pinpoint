@@ -25,7 +25,6 @@ public final class Expectations {
 
     private static final Object ANY_ANNOTATION_VALUE = new Object();
 
-
     private Expectations() {
     }
 
@@ -34,55 +33,131 @@ public final class Expectations {
     }
 
     public static ExpectedTrace root(String serviceType, Member method, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.ROOT, serviceType, method, null, null, rpc, endPoint, remoteAddr, null, annotations, null);
+        ExpectedTrace.Builder rootBuilder = ExpectedTrace.createRootBuilder(serviceType);
+        rootBuilder.setMethod(method);
+        rootBuilder.setRpc(rpc);
+        rootBuilder.setEndPoint(endPoint);
+        rootBuilder.setRemoteAddr(remoteAddr);
+        rootBuilder.setAnnotations(annotations);
+        return rootBuilder.build();
     }
 
     public static ExpectedTrace root(String serviceType, Member method, Exception exception, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.ROOT, serviceType, method, null, exception, rpc, endPoint, remoteAddr, null, annotations, null);
+        ExpectedTrace.Builder rootBuilder = ExpectedTrace.createRootBuilder(serviceType);
+        rootBuilder.setMethod(method);
+        rootBuilder.setException(exception);
+        rootBuilder.setRpc(rpc);
+        rootBuilder.setEndPoint(endPoint);
+        rootBuilder.setRemoteAddr(remoteAddr);
+        rootBuilder.setAnnotations(annotations);
+        return rootBuilder.build();
     }
 
     public static ExpectedTrace root(String serviceType, String methodDescriptor, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.ROOT, serviceType, null, methodDescriptor, null, rpc, endPoint, remoteAddr, null, annotations, null);
+        ExpectedTrace.Builder rootBuilder = ExpectedTrace.createRootBuilder(serviceType);
+        rootBuilder.setMethodSignature(methodDescriptor);
+        rootBuilder.setRpc(rpc);
+        rootBuilder.setEndPoint(endPoint);
+        rootBuilder.setRemoteAddr(remoteAddr);
+        rootBuilder.setAnnotations(annotations);
+        return rootBuilder.build();
     }
 
     public static ExpectedTrace root(String serviceType, String methodDescriptor, Exception exception, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.ROOT, serviceType, null, methodDescriptor, exception, rpc, endPoint, remoteAddr, null, annotations, null);
+        ExpectedTrace.Builder rootBuilder = ExpectedTrace.createRootBuilder(serviceType);
+        rootBuilder.setMethodSignature(methodDescriptor);
+        rootBuilder.setException(exception);
+        rootBuilder.setRpc(rpc);
+        rootBuilder.setEndPoint(endPoint);
+        rootBuilder.setRemoteAddr(remoteAddr);
+        rootBuilder.setAnnotations(annotations);
+        return rootBuilder.build();
     }
 
     public static ExpectedTrace event(String serviceType, Member method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, method, null, null, rpc, endPoint, null, destinationId, annotations, null);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setMethod(method);
+        eventBuilder.setRpc(rpc);
+        eventBuilder.setEndPoint(endPoint);
+        eventBuilder.setDestinationId(destinationId);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
     }
 
     public static ExpectedTrace event(String serviceType, Member method, Exception exception, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, method, null, exception, rpc, endPoint, null, destinationId, annotations, null);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setMethod(method);
+        eventBuilder.setException(exception);
+        eventBuilder.setRpc(rpc);
+        eventBuilder.setEndPoint(endPoint);
+        eventBuilder.setDestinationId(destinationId);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
     }
 
     public static ExpectedTrace event(String serviceType, Member method, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, method, null, null, null, null, null, null, annotations, null);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setMethod(method);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
     }
 
     public static ExpectedTrace event(String serviceType, Member method, Exception exception, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, method, null, exception, null, null, null, null, annotations, null);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setMethod(method);
+        eventBuilder.setException(exception);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
     }
 
     public static ExpectedTrace event(String serviceType, String methodDescriptor, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, null, methodDescriptor, null, null, null, null, null, annotations, null);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setMethodSignature(methodDescriptor);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
     }
 
     public static ExpectedTrace event(String serviceType, String methodDescriptor, Exception exception, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, null, methodDescriptor, exception, null, null, null, null, annotations, null);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setMethodSignature(methodDescriptor);
+        eventBuilder.setException(exception);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
     }
 
     public static ExpectedTrace event(String serviceType, String methodDescriptor, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, null, methodDescriptor, null, rpc, endPoint, null, destinationId, annotations, null);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setMethodSignature(methodDescriptor);
+        eventBuilder.setRpc(rpc);
+        eventBuilder.setEndPoint(endPoint);
+        eventBuilder.setDestinationId(destinationId);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
     }
 
     public static ExpectedTrace event(String serviceType, String methodDescriptor, Exception exception, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, null, methodDescriptor, exception, rpc, endPoint, null, destinationId, annotations, null);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setMethodSignature(methodDescriptor);
+        eventBuilder.setException(exception);
+        eventBuilder.setRpc(rpc);
+        eventBuilder.setEndPoint(endPoint);
+        eventBuilder.setDestinationId(destinationId);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
     }
 
     public static ExpectedTrace async(ExpectedTrace initiator, ExpectedTrace... asyncTraces) {
-        return new ExpectedTrace(initiator.getType(), initiator.getServiceType(), initiator.getMethod(), initiator.getMethodSignature(), initiator.getException(), initiator.getRpc(), initiator.getEndPoint(), initiator.getRemoteAddr(), initiator.getDestinationId(), initiator.getAnnotations(), asyncTraces);
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createBuilder(initiator.getType(), initiator.getServiceType());
+        eventBuilder.setMethod(initiator.getMethod());
+        eventBuilder.setMethodSignature(initiator.getMethodSignature());
+        eventBuilder.setException(initiator.getException());
+        eventBuilder.setRpc(initiator.getRpc());
+        eventBuilder.setEndPoint(initiator.getEndPoint());
+        eventBuilder.setRemoteAddr(initiator.getRemoteAddr());
+        eventBuilder.setDestinationId(initiator.getDestinationId());
+        eventBuilder.setAnnotations(initiator.getAnnotations());
+        eventBuilder.setAsyncTraces(asyncTraces);
+        return eventBuilder.build();
     }
 
     public static ExpectedAnnotation[] annotations(ExpectedAnnotation... annotations) {
