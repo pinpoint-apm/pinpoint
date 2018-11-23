@@ -31,11 +31,11 @@ public final class MongoConstants {
 
     public static final String MONGO_SCOPE = "MONGO_JAVA_DRIVER";
 
-    public static final AnnotationKey MONGO_JSON_DATA = AnnotationKeyFactory.of(51, "MONGO-JSON-Data");
-    public static final AnnotationKey MONGO_COLLECTION_INFO = AnnotationKeyFactory.of(52, "Collection-Info", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey MONGO_COLLECTION_OPTION = AnnotationKeyFactory.of(53, "Collection-Option");
-    public static final AnnotationKey MONGO_JSON = AnnotationKeyFactory.of(54, "MONGO-JSON", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey MONGO_JSON_BINDVALUE = AnnotationKeyFactory.of(55, "MONGO-JSON-BindValue", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey MONGO_JSON_DATA = AnnotationKeyFactory.of(150, "MONGO-JSON-Data");
+    public static final AnnotationKey MONGO_COLLECTION_INFO = AnnotationKeyFactory.of(151, "Collection-Info", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey MONGO_COLLECTION_OPTION = AnnotationKeyFactory.of(152, "Collection-Option");
+    public static final AnnotationKey MONGO_JSON = AnnotationKeyFactory.of(153, "MONGO-JSON", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey MONGO_JSON_BINDVALUE = AnnotationKeyFactory.of(154, "MONGO-JSON-BindValue", VIEW_IN_RECORD_SET);
 
     public static final ServiceType MONGODB = ServiceTypeFactory.of(2650, "MONGO", TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType MONGO_EXECUTE_QUERY = ServiceTypeFactory.of(2651, "MONGO_EXECUTE_QUERY", "MONGO", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
