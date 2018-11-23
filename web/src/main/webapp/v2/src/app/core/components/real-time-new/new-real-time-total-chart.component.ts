@@ -52,8 +52,6 @@ export class NewRealTimeTotalChartComponent implements OnInit {
         gapBtnChart: 0,
         chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
         chartLabels: ['1s', '3s', '5s', 'Slow'],
-        gridLineSpeedControl: 24,
-        chartSpeedControl: 20,
         ellipsis: '...',
         drawHGridLine: false,
         drawVGridLine: true,

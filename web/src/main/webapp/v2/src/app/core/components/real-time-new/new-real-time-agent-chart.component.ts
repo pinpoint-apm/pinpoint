@@ -28,8 +28,6 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         gapBtnChart: 10,
         chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
         chartLabels: ['1s', '3s', '5s', 'Slow'],
-        gridLineSpeedControl: 25,
-        chartSpeedControl: 25,
         linkIconCode: '\uf35d',
         marginRightForLinkIcon: 10,
         ellipsis: '...',
