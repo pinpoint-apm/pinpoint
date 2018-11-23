@@ -90,7 +90,8 @@ export class NewRealTimeWebSocketService {
         const location = this.windowRefService.nativeWindow.location;
         const protocol = location.protocol.indexOf('https') === -1 ? 'ws' : 'wss';
         const url = `${protocol}://${location.host}/${this.url}`;
-        // let j = -1;
+        // let k = -1;
+        // let t = 0;
 
         this.socket$ = new WebSocketSubject<any>({
             url: url,
@@ -113,8 +114,8 @@ export class NewRealTimeWebSocketService {
 
         this.socket$.pipe(
             // concatMap((m: IWebSocketData) => {
-            //     j++;
-            //     return iif(() => j >= 2 && j < 6, of(m).pipe(delay(1000)), of(m).pipe(delay(0)));
+            //     k++;
+            //     return iif(() => k >= 2 && k < 6, of(m).pipe(delay(1000)), of(m).pipe(delay(0)));
             // }),
             filter((message: IWebSocketData) => {
                 return message.type === ResponseType.PING ? (this.send({ type: 'PONG' }), false) : true;
@@ -123,7 +124,7 @@ export class NewRealTimeWebSocketService {
             // map(({timeStamp, applicationName}) => {
             //     const activeThreadCounts = {};
 
-            //     for (let i = 0; i < 1; i++) {
+            //     for (let i = 0; i < 12; i++) {
             //         activeThreadCounts[i] = {
             //             code: ResponseCode.SUCCESS,
             //             message: 'OK',
@@ -147,6 +148,19 @@ export class NewRealTimeWebSocketService {
             //         applicationName,
             //         activeThreadCounts
             //     };
+            // }),
+            // tap(() => t++),
+            // map((d: IWebSocketDataResult) => {
+            //     const { timeStamp, applicationName, activeThreadCounts } = d;
+
+            //     if (t % 3 === 0) {
+            //         delete activeThreadCounts[t];
+
+            //         return {
+            //             timeStamp, applicationName, activeThreadCounts
+            //         };
+            //     }
+            //     return d;
             // }),
             timeout(this.delayLimit),
             catchError((err: any) => err.name === 'TimeoutError' ? this.onTimeout() : throwError(err)),
