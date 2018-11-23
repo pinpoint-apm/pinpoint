@@ -28,6 +28,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private dataList: { [key: string]: number[][] } = {};
     private maxRatio = 3 / 4; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
     private ratio: number; // maxRatio를 바탕으로 각 데이터에 적용되는 비율
+    private duration = 4000; // 차트 Area에서 데이터가 흐르는 시간(ms)
     private startingXPos: { [key: string]: number } = {}; // 최초로 움직이기 시작하는 점의 x좌표
     private lastMousePosInCanvas: ICoordinate;
     private chartNumPerRow: number;
@@ -354,13 +355,13 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     // Vertical Grid Line
     // TODO: 데이터(서버의 timestamp) 고려해서 위치 수정하기
     private drawVGridLine(timeStamp: number, i: number): void {
-        const { chartWidth, gridLineSpeedControl, chartHeight } = this.chartOption;
+        const { chartWidth, chartHeight } = this.chartOption;
 
         if (!this.gridLineStart) {
             this.gridLineStart = timeStamp;
         }
 
-        const xPos = this.getOriginXPos(i) + chartWidth - Math.floor((timeStamp - this.gridLineStart) / gridLineSpeedControl) % chartWidth;
+        const xPos = this.getOriginXPos(i) + chartWidth - Math.floor(chartWidth / this.duration * (timeStamp - this.gridLineStart)) % chartWidth;
         const originYPos = this.getOriginYPos(i);
 
         this.ctx.beginPath();
@@ -423,10 +424,10 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.chartStart[key] = timeStamp;
         }
 
-        const { chartWidth, chartHeight, chartColors, chartSpeedControl, showYAxisLabel } = this.chartOption;
+        const { chartWidth, chartHeight, chartColors, showYAxisLabel } = this.chartOption;
         const dataList = this.dataList[key];
 
-        this.startingXPos[key] = chartWidth - Math.floor((timeStamp - this.chartStart[key]) / chartSpeedControl);
+        this.startingXPos[key] = chartWidth - Math.floor(chartWidth / this.duration * (timeStamp - this.chartStart[key]));
 
         while (this.isChartOverflow(key)) {
             this.timeStampList[key].shift();
@@ -514,9 +515,9 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private getXPosInChart(key: string, i: number): number {
-        const { chartSpeedControl } = this.chartOption;
+        const { chartWidth } = this.chartOption;
 
-        return this.startingXPos[key] + Math.floor((this.timeStampList[key][i] - this.firstTimeStamp[key]) / chartSpeedControl);
+        return this.startingXPos[key] + Math.floor(chartWidth / this.duration * (this.timeStampList[key][i] - this.firstTimeStamp[key]));
     }
 
     private isChartOverflow(key: string): boolean {
