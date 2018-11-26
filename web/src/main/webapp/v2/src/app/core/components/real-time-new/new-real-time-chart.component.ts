@@ -21,7 +21,6 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private firstTimeStamp: { [key: string]: number } = {};
-    private gridLineStart: number = null;
     private chartStart: { [key: string]: number } = {};
     private animationFrameId: number;
     private timeStampList: { [key: string]: number[] } = {};
@@ -164,7 +163,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private draw(timeStamp: number): void {
-        const { drawHGridLine, drawVGridLine, showXAxis, showYAxis, tooltipEnabled } = this.chartOption;
+        const { drawVGridLine, showXAxis, showYAxis, tooltipEnabled } = this.chartOption;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.mergedKeys.forEach((key: string, i: number) => {
@@ -175,12 +174,8 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                 return;
             }
 
-            if (drawHGridLine) {
-                this.drawHGridLine(i);
-            }
-
-            // if (drawVGridLine) {
-            //     this.drawVGridLine(timeStamp, i);
+            // if (drawHGridLine) {
+            //     this.drawHGridLine(i);
             // }
 
             if (showXAxis) {
@@ -192,7 +187,20 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             }
 
             if (this.timeStampList[key].length !== 0) {
-                this.drawChart(timeStamp, key, i);
+                this.setStartingXPos(timeStamp, key);
+                while (this.isChartOverflow(key)) {
+                    this.timeStampList[key].shift();
+                    this.dataList[key].shift();
+                    if (this.dataSumList.length > this.dataList[key].length) {
+                        this.dataSumList.shift();
+                    }
+                }
+
+                if (drawVGridLine) {
+                    this.drawVGridLine(key, i);
+                }
+
+                this.drawChart(key, i);
                 if (tooltipEnabled) {
                     this.setTooltip(key);
                 }
@@ -202,6 +210,16 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         });
 
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
+    }
+
+    private setStartingXPos(timeStamp: number, key: string): void {
+        const { chartWidth } = this.chartOption;
+
+        if (!this.chartStart[key]) {
+            this.chartStart[key] = timeStamp;
+        }
+
+        this.startingXPos[key] = chartWidth - Math.floor(chartWidth / this.duration * (timeStamp - this.chartStart[key]));
     }
 
     private drawRemovedText(i: number): void {
@@ -353,22 +371,24 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     // Vertical Grid Line
-    // TODO: 데이터(서버의 timestamp) 고려해서 위치 수정하기
-    private drawVGridLine(timeStamp: number, i: number): void {
+    private drawVGridLine(key: string, i: number): void {
         const { chartWidth, chartHeight } = this.chartOption;
-
-        if (!this.gridLineStart) {
-            this.gridLineStart = timeStamp;
-        }
-
-        const xPos = this.getOriginXPos(i) + chartWidth - Math.floor(chartWidth / this.duration * (timeStamp - this.gridLineStart)) % chartWidth;
+        const originXPos = this.getOriginXPos(i);
         const originYPos = this.getOriginYPos(i);
 
-        this.ctx.beginPath();
-        this.ctx.moveTo(xPos, originYPos - chartHeight);
-        this.ctx.lineTo(xPos, originYPos);
-        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-        this.ctx.stroke();
+        this.timeStampList[key].forEach((t: number, j: number) => {
+            const x = this.getXPosInChart(key, j);
+
+            if (!(x > 0 && x < chartWidth)) {
+                return;
+            }
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(originXPos + x, originYPos - chartHeight);
+            this.ctx.lineTo(originXPos + x, originYPos);
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+            this.ctx.stroke();
+        });
     }
 
     private drawXAxis(i: number): void {
@@ -419,24 +439,9 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         }
     }
 
-    private drawChart(timeStamp: number, key: string, i: number): void {
-        if (!this.chartStart[key]) {
-            this.chartStart[key] = timeStamp;
-        }
-
-        const { chartWidth, chartHeight, chartColors, showYAxisLabel, drawVGridLine } = this.chartOption;
+    private drawChart(key: string, i: number): void {
+        const { chartWidth, chartHeight, chartColors, showYAxisLabel } = this.chartOption;
         const dataList = this.dataList[key];
-
-        this.startingXPos[key] = chartWidth - Math.floor(chartWidth / this.duration * (timeStamp - this.chartStart[key]));
-
-        while (this.isChartOverflow(key)) {
-            this.timeStampList[key].shift();
-            dataList.shift();
-            if (this.dataSumList.length > dataList.length) {
-                this.dataSumList.shift();
-            }
-        }
-
         const x0 = this.getXPosInChart(key, 0);
 
         if (x0 < chartWidth) {
@@ -448,22 +453,6 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
             if (showYAxisLabel) {
                 this.drawYAxisLabel(i, max);
-            }
-
-            if (drawVGridLine) {
-                this.timeStampList[key].forEach((t: number, j: number) => {
-                    const x = this.getXPosInChart(key, j);
-
-                    if (!(x > 0 && x < chartWidth)) {
-                        return;
-                    }
-
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(originXPos + x, originYPos - chartHeight);
-                    this.ctx.lineTo(originXPos + x, originYPos);
-                    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-                    this.ctx.stroke();
-                });
             }
 
             this.ratio = max === 0 ? 1 : chartHeight * this.maxRatio / max;
