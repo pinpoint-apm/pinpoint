@@ -25,6 +25,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private animationFrameId: number;
     private timeStampList: { [key: string]: number[] } = {};
     private dataList: { [key: string]: number[][] } = {};
+    private max: number;
     private maxRatio = 3 / 4; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
     private ratio: number; // maxRatio를 바탕으로 각 데이터에 적용되는 비율
     private duration = 4000; // 차트 Area에서 데이터가 흐르는 시간(ms)
@@ -163,7 +164,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private draw(timeStamp: number): void {
-        const { drawVGridLine, showXAxis, showYAxis, tooltipEnabled } = this.chartOption;
+        const { drawVGridLine, showXAxis, showYAxis, showYAxisLabel, tooltipEnabled, chartWidth } = this.chartOption;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.mergedKeys.forEach((key: string, i: number) => {
@@ -196,6 +197,12 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                     }
                 }
 
+                this.setMaxValue();
+                this.setRatio();
+                if (showYAxisLabel && this.getXPosInChart(key, 0) < chartWidth) {
+                    this.drawYAxisLabel(i);
+                }
+
                 if (drawVGridLine) {
                     this.drawVGridLine(key, i);
                 }
@@ -210,6 +217,25 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         });
 
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
+    }
+
+    private setMaxValue(): void {
+        this.max = Math.max(...this.dataSumList.map((data: number[]) => data.reduce((acc: number, curr: number) => acc + curr, 0)));
+    }
+
+    private setRatio(): void {
+        if (this.max === 0) {
+            this.ratio = 1;
+        } else {
+            const { chartHeight } = this.chartOption;
+            const midValue = this.max / this.maxRatio / 2;
+
+            if (!Number.isInteger(midValue)) {
+                this.maxRatio = this.max / (Math.round(midValue) * 2);
+            }
+
+            this.ratio = chartHeight * this.maxRatio / this.max;
+        }
     }
 
     private setStartingXPos(timeStamp: number, key: string): void {
@@ -415,18 +441,12 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         this.ctx.stroke();
     }
 
-    private drawYAxisLabel(i: number, max: number): void {
+    private drawYAxisLabel(i: number): void {
         const { marginFromYAxis, chartHeight } = this.chartOption;
         const xPos = this.getOriginXPos(i) - marginFromYAxis;
         const originYPos = this.getOriginYPos(i);
-        let maxLabel = max === 0 ? null : max / this.maxRatio;
-        let midLabel = max === 0 ? null : maxLabel / 2;
-
-        if (maxLabel && !Number.isInteger(midLabel)) {
-            midLabel = Math.round(midLabel);
-            maxLabel = 2 * midLabel;
-            this.maxRatio = max / maxLabel;
-        }
+        const maxLabel = this.max === 0 ? null : this.max / this.maxRatio;
+        const midLabel = this.max === 0 ? null : maxLabel / 2;
 
         this.ctx.font = '9px Nanum Gothic';
         this.ctx.textBaseline = 'middle';
@@ -440,22 +460,15 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private drawChart(key: string, i: number): void {
-        const { chartWidth, chartHeight, chartColors, showYAxisLabel } = this.chartOption;
+        const { chartWidth, chartHeight, chartColors } = this.chartOption;
         const dataList = this.dataList[key];
         const x0 = this.getXPosInChart(key, 0);
 
         if (x0 < chartWidth) {
             const originXPos = this.getOriginXPos(i);
             const originYPos = this.getOriginYPos(i);
-            const max = Math.max(...this.dataSumList.map((data: number[]) => data.reduce((acc: number, curr: number) => acc + curr, 0)));
             const dataTypeLength = chartColors.length;
             const dataLength = dataList.length;
-
-            if (showYAxisLabel) {
-                this.drawYAxisLabel(i, max);
-            }
-
-            this.ratio = max === 0 ? 1 : chartHeight * this.maxRatio / max;
 
             for (let j = dataTypeLength - 1; j >= 0; j--) {
                 this.ctx.fillStyle = chartColors[j];
