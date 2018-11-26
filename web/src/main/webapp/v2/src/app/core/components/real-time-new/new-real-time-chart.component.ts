@@ -179,9 +179,9 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                 this.drawHGridLine(i);
             }
 
-            if (drawVGridLine) {
-                this.drawVGridLine(timeStamp, i);
-            }
+            // if (drawVGridLine) {
+            //     this.drawVGridLine(timeStamp, i);
+            // }
 
             if (showXAxis) {
                 this.drawXAxis(i);
@@ -424,7 +424,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             this.chartStart[key] = timeStamp;
         }
 
-        const { chartWidth, chartHeight, chartColors, showYAxisLabel } = this.chartOption;
+        const { chartWidth, chartHeight, chartColors, showYAxisLabel, drawVGridLine } = this.chartOption;
         const dataList = this.dataList[key];
 
         this.startingXPos[key] = chartWidth - Math.floor(chartWidth / this.duration * (timeStamp - this.chartStart[key]));
@@ -448,6 +448,22 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
             if (showYAxisLabel) {
                 this.drawYAxisLabel(i, max);
+            }
+
+            if (drawVGridLine) {
+                this.timeStampList[key].forEach((t: number, j: number) => {
+                    const x = this.getXPosInChart(key, j);
+
+                    if (!(x > 0 && x < chartWidth)) {
+                        return;
+                    }
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(originXPos + x, originYPos - chartHeight);
+                    this.ctx.lineTo(originXPos + x, originYPos);
+                    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+                    this.ctx.stroke();
+                });
             }
 
             this.ratio = max === 0 ? 1 : chartHeight * this.maxRatio / max;
