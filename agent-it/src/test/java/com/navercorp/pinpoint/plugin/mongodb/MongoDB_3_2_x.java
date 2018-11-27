@@ -41,9 +41,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.2.0,3.6.max]",
-        "org.mongodb:bson:3.6.4",
-        "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.5"
+        "org.mongodb:mongodb-driver:[3.2.0,3.4.max]",
+        "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.1.1"
 })
 public class MongoDB_3_2_x extends MongoDBBase {
 
@@ -76,6 +75,7 @@ public class MongoDB_3_2_x extends MongoDBBase {
         MongoCollection<Document> collection2 = database.getCollection("customers2").withWriteConcern(WriteConcern.ACKNOWLEDGED);
         Class<?> mongoDatabaseImpl = Class.forName("com.mongodb.MongoCollectionImpl");
 
+        insertComlexBsonValueData30(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
         insertData(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
         insertData(verifier, collection2, mongoDatabaseImpl, "customers2", "ACKNOWLEDGED");
         updateData(verifier, collection, mongoDatabaseImpl);

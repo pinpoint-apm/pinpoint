@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author Roy Kim
  */
-public class MongoJsonParserTest {
+public class MongoJsonCombineTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
