@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.javamodule;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 
 /**
@@ -28,11 +29,15 @@ public final class JavaModuleFactoryFinder {
     private JavaModuleFactoryFinder() {
     }
 
-    public static JavaModuleFactory lookup() {
+    public static JavaModuleFactory lookup(Instrumentation instrumentation) {
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
+
         final Class<JavaModuleFactory> javaModuleFactory = getJavaModuleFactory();
         try {
-            Constructor<JavaModuleFactory> constructor = javaModuleFactory.getDeclaredConstructor();
-            return constructor.newInstance();
+            Constructor<JavaModuleFactory> constructor = javaModuleFactory.getDeclaredConstructor(Instrumentation.class);
+            return constructor.newInstance(instrumentation);
         } catch (Exception e) {
             throw new IllegalStateException("JavaModuleFactory() invoke fail Caused by:" + e.getMessage(), e);
         }

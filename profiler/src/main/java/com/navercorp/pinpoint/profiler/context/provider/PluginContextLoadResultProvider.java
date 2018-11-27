@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjectorFactory;
 import com.navercorp.pinpoint.profiler.plugin.DefaultPluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
@@ -37,19 +39,21 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final PluginLoader pluginLoader;
+    private final BootstrapCore bootstrapCore;
 
     @Inject
     public PluginContextLoadResultProvider(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
-                                           PluginLoader pluginLoader) {
+                                           PluginLoader pluginLoader, BootstrapCore bootstrapCore) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
         this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
         this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
-
+        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
     }
 
     @Override
     public PluginContextLoadResult get() {
-        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, pluginLoader);
+        ClassInjectorFactory classInjectorFactory = new ClassInjectorFactory(instrumentEngine, bootstrapCore);
+        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, pluginLoader, classInjectorFactory);
     }
 }

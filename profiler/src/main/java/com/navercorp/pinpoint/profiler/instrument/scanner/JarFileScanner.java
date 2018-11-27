@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument.scanner;
 import com.navercorp.pinpoint.common.util.Assert;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -47,12 +48,26 @@ public class JarFileScanner implements Scanner {
         return true;
     }
 
+
+    @Override
+    public InputStream openStream(String fileName) {
+        final JarEntry jarEntry = jarFile.getJarEntry(fileName);
+        if (jarEntry == null) {
+            return null;
+        }
+        try {
+            return jarFile.getInputStream(jarEntry);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public void close() {
         if (jarFile != null) {
             try {
                 jarFile.close();
             } catch (IOException ignore) {
-
+                ;
             }
         }
     }

@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedSql;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
+import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTraceField;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.TraceType;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
@@ -543,13 +544,13 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         private final LocalAsyncId localAsyncId;
         private final Integer apiId;
         private final Exception exception;
-        private final String rpc;
-        private final String endPoint;
-        private final String remoteAddr;
-        private final String destinationId;
+        private final ExpectedTraceField rpc;
+        private final ExpectedTraceField endPoint;
+        private final ExpectedTraceField remoteAddr;
+        private final ExpectedTraceField destinationId;
         private final ExpectedAnnotation[] annotations;
 
-        public ResolvedExpectedTrace(Class<?> type, ServiceType serviceType, Integer apiId, Exception exception, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation[] annotations, Integer asyncId) {
+        public ResolvedExpectedTrace(Class<?> type, ServiceType serviceType, Integer apiId, Exception exception, ExpectedTraceField rpc, ExpectedTraceField endPoint, ExpectedTraceField remoteAddr, ExpectedTraceField destinationId, ExpectedAnnotation[] annotations, Integer asyncId) {
             this.type = type;
             this.serviceType = serviceType;
             this.apiId = apiId;
@@ -611,6 +612,15 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
     private static boolean equals(Object expected, Object actual) {
+        // if expected is null, no need to compare.
+        return expected == null || (expected.equals(actual));
+    }
+
+    private static boolean equals(Object expected, String actual) {
+        if (expected instanceof ExpectedTraceField) {
+            return ((ExpectedTraceField) expected).isEquals(actual);
+        }
+
         // if expected is null, no need to compare.
         return expected == null || (expected.equals(actual));
     }

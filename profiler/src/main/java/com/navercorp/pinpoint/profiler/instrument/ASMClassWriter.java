@@ -213,7 +213,7 @@ public final class ASMClassWriter extends ClassWriter {
             return null;
         }
 
-        final String classFileName = classInternalName + ".class";
+        final String classFileName = classInternalName.concat(".class");
         final InputStream in = pluginContext.getResourceAsStream(this.classLoader, classFileName);
         if (in == null) {
             return null;

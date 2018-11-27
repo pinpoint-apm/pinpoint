@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.profiler.instrument.scanner;
 import com.navercorp.pinpoint.common.util.Assert;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,10 +36,28 @@ public class DirectoryScanner implements Scanner {
 
     @Override
     public boolean exist(String fileName) {
-        final String fullPath = directory + fileName;
+        Assert.requireNonNull(fileName, "fileName must not be null");
+
+        final String fullPath = getFullPath(fileName);
         final File file = new File(fullPath);
 
         return file.isFile();
+    }
+
+    private String getFullPath(String fileName) {
+        return directory + fileName;
+    }
+
+    @Override
+    public InputStream openStream(String fileName) {
+        Assert.requireNonNull(fileName, "fileName must not be null");
+
+        final String fullPath = getFullPath(fileName);
+        try {
+            return new FileInputStream(fullPath);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
     }
 
     @Override

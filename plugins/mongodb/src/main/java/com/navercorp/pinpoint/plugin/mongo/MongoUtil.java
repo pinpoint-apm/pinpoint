@@ -17,15 +17,22 @@ package com.navercorp.pinpoint.plugin.mongo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.WriteConcern;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringStringValue;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.bson.BsonDocument;
+import org.bson.BsonType;
+import org.bson.BsonValue;
 import org.bson.BsonWriter;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.json.JsonWriter;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -35,9 +42,20 @@ import java.util.Map;
 public final class MongoUtil {
 
     public static final String SEPARATOR = ",";
-    private static MongoWriteConcernMapper mongoWriteConcernMapper = new MongoWriteConcernMapper();
+    private static final MongoWriteConcernMapper mongoWriteConcernMapper = new MongoWriteConcernMapper();
+
+    private static final boolean decimal128Enabled = decimal128Enabled();
 
     private MongoUtil() {
+    }
+
+    private static boolean decimal128Enabled() {
+        for (BsonType bsonType : BsonType.values()) {
+            if (bsonType.name().equalsIgnoreCase("DECIMAL128")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void recordMongoCollection(SpanEventRecorder recorder, String collectionName, String readPreferenceOrWriteConcern) {
@@ -84,50 +102,201 @@ public final class MongoUtil {
             return null;
         }
 
-        final List<String> parsedBson = new ArrayList<String>(2);
-        final List<String> parameter = new ArrayList<String>(2);
+        final List<String> parsedJson = new ArrayList<String>(2);
+        final List<String> jsonParameter = new ArrayList<String>(16);
 
         for (Object arg : args) {
 
+            WriteContext writeContext = new WriteContext(jsonParameter, decimal128Enabled, traceBsonBindValue);
+            String documentString = writeContext.parse(arg);
+
+            parsedJson.add(documentString);
+        }
+
+        String parsedJsonString = StringJoiner.join(parsedJson, SEPARATOR);
+        String jsonParameterString = StringJoiner.join(jsonParameter, SEPARATOR);
+        return new StringStringValue(parsedJsonString, jsonParameterString);
+    }
+
+    private static class WriteContext {
+
+        private final Writer writer = new StringWriter();
+        private final BsonWriter bsonWriter = new JsonWriter(writer);
+
+        private final List<String> jsonParameter;
+
+        private final boolean traceBsonBindValue;
+        private final boolean decimal128Enabled;
+
+        public WriteContext(List<String> jsonParameterAppender, boolean decimal128Enabled, boolean traceBsonBindValue) {
+            this.jsonParameter = Assert.requireNonNull(jsonParameterAppender, "jsonParameterAppender must not be null");
+            this.decimal128Enabled = decimal128Enabled;
+            this.traceBsonBindValue = traceBsonBindValue;
+        }
+
+        public String parse(Object arg) {
+            parseBsonObject(arg);
+            return writer.toString();
+        }
+
+        private void parseBsonObject(Object arg) {
             final Map<String, ?> map = getBsonKeyValueMap(arg);
             if (map == null) {
-                continue;
+                return;
             }
-
-            final Writer writer = new StringWriter();
-            final BsonWriter bsonWriter = new JsonWriter(writer);
 
             bsonWriter.writeStartDocument();
             for (Map.Entry<String, ?> entry : map.entrySet()) {
 
                 bsonWriter.writeName(entry.getKey());
-                bsonWriter.writeString("?");
 
-                if (traceBsonBindValue) {
-                    final Object value = entry.getValue();
-                    String strValue = toStringValue(value);
-                    parameter.add(strValue);
-                }
+                final Object value = entry.getValue();
+                writeValue(value);
             }
             bsonWriter.writeEndDocument();
-            bsonWriter.flush();
-            String documentString = writer.toString();
-
-            parsedBson.add(documentString);
-
         }
-        String parsedBsonString = StringJoiner.join(parsedBson, SEPARATOR);
-        String parameterString = StringJoiner.join(parameter, SEPARATOR);
-        return new StringStringValue(parsedBsonString, parameterString);
+
+        private void parsePrimitiveArrayObject(Object arg) {
+            bsonWriter.writeStartArray();
+
+            int length = Array.getLength(arg);
+
+            for (int i = 0; i < length; i++) {
+                writeValue(Array.get(arg, i));
+            }
+            bsonWriter.writeEndArray();
+        }
+
+        private <T> void parseCollection(Collection<T> arg) {
+            bsonWriter.writeStartArray();
+
+            for (T value : arg) {
+                writeValue(value);
+            }
+            bsonWriter.writeEndArray();
+        }
+
+        private void parseBsonValueObject(BsonValue arg) {
+
+            BsonType bsonType = arg.getBsonType();
+
+            bsonWriter.writeStartDocument();
+
+            if (bsonType.equals(BsonType.DOUBLE)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asDouble().getValue());
+
+            } else if (bsonType.equals(BsonType.STRING)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asString().getValue());
+
+            } else if (bsonType.equals(BsonType.BINARY)) {
+
+                bsonWriter.writeName("type");
+                writeValue(arg.asBinary().getType());
+
+                bsonWriter.writeName("data");
+                writeValue(arg.asBinary().getData());
+
+            } else if (bsonType.equals(BsonType.OBJECT_ID)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asObjectId().getValue());
+
+            } else if (bsonType.equals(BsonType.BOOLEAN)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asBoolean().getValue());
+
+            } else if (bsonType.equals(BsonType.DATE_TIME)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asDateTime().getValue());
+
+            } else if (bsonType.equals(BsonType.REGULAR_EXPRESSION)) {
+
+                bsonWriter.writeName("pattern");
+                writeValue(arg.asRegularExpression().getPattern());
+                bsonWriter.writeName("options");
+                writeValue(arg.asRegularExpression().getOptions());
+
+            } else if (bsonType.equals(BsonType.DB_POINTER)) {
+
+                bsonWriter.writeName("namespace");
+                writeValue(arg.asDBPointer().getNamespace());
+                bsonWriter.writeName("id");
+                writeValue(arg.asDBPointer().getId());
+
+            } else if (bsonType.equals(BsonType.JAVASCRIPT)) {
+
+                bsonWriter.writeName("code");
+                writeValue(arg.asJavaScript().getCode());
+
+            } else if (bsonType.equals(BsonType.SYMBOL)) {
+
+                bsonWriter.writeName("symbol");
+                writeValue(arg.asSymbol().getSymbol());
+
+            } else if (bsonType.equals(BsonType.JAVASCRIPT_WITH_SCOPE)) {
+
+                bsonWriter.writeName("code");
+                writeValue(arg.asJavaScriptWithScope().getCode());
+                bsonWriter.writeName("scope");
+                writeValue(arg.asJavaScriptWithScope().getScope());
+
+            } else if (bsonType.equals(BsonType.INT32)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asInt32().getValue());
+
+            } else if (bsonType.equals(BsonType.TIMESTAMP)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asTimestamp().getValue());
+
+            } else if (bsonType.equals(BsonType.INT64)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asInt64().getValue());
+
+            } else if (decimal128Enabled && bsonType.equals(BsonType.DECIMAL128)) {
+
+                bsonWriter.writeName("value");
+                writeValue(arg.asDecimal128().getValue());
+
+            }
+//        BsonType.DOCUMENT //taken care of in Bson
+//        BsonType.ARRAY //taken care of in collection
+//        BsonType.END_OF_DOCUMENT //do nothing
+//        BsonType.UNDEFINED //do nothing
+//        BsonType.NULL //do nothing
+
+            bsonWriter.writeEndDocument();
+        }
+
+        private void writeValue(Object arg) {
+            if (arg instanceof String) {
+                bsonWriter.writeString("?");
+                if (traceBsonBindValue) {
+                    jsonParameter.add("\"" + StringUtils.replace((String) arg, "\"", "\"\"") + "\"");
+                }
+            } else if (arg.getClass().isArray()) {
+                parsePrimitiveArrayObject(arg);
+            } else if (arg instanceof Collection) {
+                parseCollection((Collection) arg);
+            } else if (arg instanceof Bson) {
+                parseBsonObject(arg);
+            } else if (arg instanceof BsonValue) {
+                parseBsonValueObject((BsonValue) arg);
+            } else {
+                bsonWriter.writeString("?");
+                if (traceBsonBindValue) {
+                    jsonParameter.add(String.valueOf(arg));
+                }
+            }
+        }
     }
 
-
-    private static String toStringValue(Object value) {
-        if (value instanceof String) {
-            return "\"" + value +"\"";
-        } else {
-            return String.valueOf(value);
-        }
-    }
 }
-

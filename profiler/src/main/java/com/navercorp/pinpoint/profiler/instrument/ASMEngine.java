@@ -79,7 +79,7 @@ public class ASMEngine implements InstrumentEngine {
             throw new NullPointerException("jarFile must not be null");
         }
         if (isInfo) {
-            logger.info("appendToBootstrapClassPath:{}", jarFile);
+            logger.info("appendToBootstrapClassPath:{}", jarFile.getName());
         }
         instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
     }

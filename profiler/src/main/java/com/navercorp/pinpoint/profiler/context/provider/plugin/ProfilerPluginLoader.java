@@ -20,9 +20,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.plugin.Plugin;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
-import com.navercorp.pinpoint.profiler.instrument.classloading.JarProfilerPluginClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjectorFactory;
 import com.navercorp.pinpoint.profiler.plugin.ClassNameFilter;
 import com.navercorp.pinpoint.profiler.plugin.ClassNameFilterChain;
 import com.navercorp.pinpoint.profiler.plugin.PinpointProfilerPackageSkipFilter;
@@ -48,15 +47,15 @@ public class ProfilerPluginLoader {
 
     private final ProfilerConfig profilerConfig;
     private final PluginSetup pluginSetup;
-    private final InstrumentEngine instrumentEngine;
+    private final ClassInjectorFactory classInjectorFactory;
     private final PluginLoader pluginLoader;
 
 
     public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup,
-                                InstrumentEngine instrumentEngine, PluginLoader pluginLoader) {
+                                ClassInjectorFactory classInjectorFactory, PluginLoader pluginLoader) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup must not be null");
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
+        this.classInjectorFactory = Assert.requireNonNull(classInjectorFactory, "classInjectorFactory must not be null");
         this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
 
     }
@@ -84,11 +83,11 @@ public class ProfilerPluginLoader {
         for (ProfilerPlugin profilerPlugin : filterProfilerPlugin) {
             if (logger.isInfoEnabled()) {
                 logger.info("{} Plugin {}:{}", profilerPlugin.getClass(), PluginConfig.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
+                logger.info("Loading plugin:{} pluginPackage:{}", profilerPlugin.getClass().getName(), profilerPlugin);
             }
-            logger.info("Loading plugin:{} pluginPackage:{}", profilerPlugin.getClass().getName(), profilerPlugin);
 
             PluginConfig pluginConfig = new PluginConfig(plugin, pluginFilterChain);
-            final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig, instrumentEngine);
+            final ClassInjector classInjector = classInjectorFactory.newClassInjector(pluginConfig);
             final SetupResult setupResult = pluginSetup.setupPlugin(profilerPlugin, classInjector);
             result.add(setupResult);
         }

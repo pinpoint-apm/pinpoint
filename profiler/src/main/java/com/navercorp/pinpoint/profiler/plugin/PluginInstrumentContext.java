@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
 import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
 import com.navercorp.pinpoint.profiler.context.scope.Pool;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
-import com.navercorp.pinpoint.profiler.instrument.classloading.PluginClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.scanner.ClassScannerFactory;
 import com.navercorp.pinpoint.profiler.instrument.scanner.Scanner;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -79,15 +78,6 @@ public class PluginInstrumentContext implements InstrumentContext {
 
 
 
-    public PluginConfig getPluginConfig() {
-        if (classInjector instanceof PluginClassInjector) {
-            return ((PluginClassInjector) classInjector).getPluginConfig();
-        }
-        return null;
-    }
-
-
-
     @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
         if (className == null) {
@@ -108,7 +98,7 @@ public class PluginInstrumentContext implements InstrumentContext {
             throw new NullPointerException("className must not be null");
         }
 
-        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className) + ".class";
+        final String jvmClassName = JavaAssistUtils.javaClassNameToJvmResourceName(className);
 
         final Scanner scanner = ClassScannerFactory.newScanner(protectionDomain, classLoader);
         if (logger.isDebugEnabled()) {

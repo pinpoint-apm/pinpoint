@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,7 +237,8 @@ public class ASMClass implements InstrumentClass {
             final AccessorAnalyzer accessorAnalyzer = new AccessorAnalyzer();
             final AccessorAnalyzer.AccessorDetails accessorDetails = accessorAnalyzer.analyze(accessorType);
 
-            final ASMFieldNodeAdapter fieldNode = this.classNode.addField(FIELD_PREFIX + JavaAssistUtils.javaClassNameToVariableName(accessorTypeName), accessorDetails.getFieldType());
+            final Type type = Type.getType(accessorDetails.getFieldType());
+            final ASMFieldNodeAdapter fieldNode = this.classNode.addField(FIELD_PREFIX + JavaAssistUtils.javaClassNameToVariableName(accessorTypeName), type.getDescriptor());
             this.classNode.addInterface(accessorTypeName);
             this.classNode.addGetterMethod(accessorDetails.getGetter().getName(), fieldNode);
             this.classNode.addSetterMethod(accessorDetails.getSetter().getName(), fieldNode);
