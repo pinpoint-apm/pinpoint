@@ -123,10 +123,13 @@ export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnD
         });
     }
     private addEventListener(): void {
-        const visible$ = fromEvent(document, 'visibilitychange').pipe(filter(() => !document.hidden));
-        const hidden$ = fromEvent(document, 'visibilitychange').pipe(filter(() => document.hidden));
+        const visibility$ = fromEvent(document, 'visibilitychange').pipe(takeUntil(this.unsubscribe));
 
-        visible$.pipe(
+        // visible
+        visibility$.pipe(
+            filter(() => {
+                return !document.hidden;
+            }),
             filter(() => {
                 return !this.realTimeWebSocketService.isOpened();
             })
@@ -134,11 +137,15 @@ export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnD
             this.onRetry();
         });
 
-        hidden$.pipe(
+        // hidden
+        visibility$.pipe(
+            filter(() => {
+                return document.hidden;
+            }),
             delay(60000),
             filter(() => {
                 return document.hidden;
-            })
+            }),
         ).subscribe(() => {
             this.realTimeWebSocketService.close();
         });
