@@ -79,10 +79,13 @@ export class NewRealTimePagingContainerComponent implements OnInit, AfterViewIni
         this.unsubscribe.complete();
     }
     private addEventListener(): void {
-        const visible$ = fromEvent(document, 'visibilitychange').pipe(filter(() => !document.hidden));
-        const hidden$ = fromEvent(document, 'visibilitychange').pipe(filter(() => document.hidden));
+        const visibility$ = fromEvent(document, 'visibilitychange').pipe(takeUntil(this.unsubscribe));
 
-        visible$.pipe(
+        // visible
+        visibility$.pipe(
+            filter(() => {
+                return !document.hidden;
+            }),
             filter(() => {
                 return !this.realTimeWebSocketService.isOpened();
             })
@@ -90,11 +93,15 @@ export class NewRealTimePagingContainerComponent implements OnInit, AfterViewIni
             this.onRetry();
         });
 
-        hidden$.pipe(
+        // hidden
+        visibility$.pipe(
+            filter(() => {
+                return document.hidden;
+            }),
             delay(60000),
             filter(() => {
                 return document.hidden;
-            })
+            }),
         ).subscribe(() => {
             this.realTimeWebSocketService.close();
         });
@@ -103,9 +110,6 @@ export class NewRealTimePagingContainerComponent implements OnInit, AfterViewIni
         this.applicationName = '';
         this.serviceType = '';
         this.activeThreadCounts = null;
-    }
-    private hide() {
-        this.messageTemplate = MessageTemplate.NO_DATA;
     }
     private startDataRequest(): void {
         this.realTimeWebSocketService.send(this.getRequestDataStr(this.applicationName));
