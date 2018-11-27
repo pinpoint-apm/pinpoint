@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.profiler.instrument.classloading;
+
 
 /**
+ * for package access
  * @author Woonduk Kang(emeroad)
  */
-public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Class<?> clazz);
+public class DefineClassUtils {
+    private static final DefineClass defineClass = new ReflectionDefineClass();
 
-    JavaModule wrapFromModule(Object module);
-
-    boolean isNamedModule(Object module);
-
-    Object getUnnamedModule(ClassLoader classLoader);
-
-    Object getModule(Class<?> clazz);
+    public static Class<?> defineClass(ClassLoader classLoader, String name, byte[] bytes) {
+        return defineClass.defineClass(classLoader, name, bytes);
+    }
 }

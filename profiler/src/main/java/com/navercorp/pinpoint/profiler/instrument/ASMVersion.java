@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.profiler.instrument;
+
+import org.objectweb.asm.Opcodes;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Class<?> clazz);
+public final class ASMVersion {
+    private ASMVersion() {
+    }
 
-    JavaModule wrapFromModule(Object module);
-
-    boolean isNamedModule(Object module);
-
-    Object getUnnamedModule(ClassLoader classLoader);
-
-    Object getModule(Class<?> clazz);
+    public static final int VERSION = Opcodes.ASM7;
 }

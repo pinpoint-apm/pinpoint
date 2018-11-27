@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.profiler.instrument.lambda;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Class<?> clazz);
+public interface LambdaClass {
 
-    JavaModule wrapFromModule(Object module);
+    String getUnsafeClass();
 
-    boolean isNamedModule(Object module);
+    String getUnsafeMethod();
 
-    Object getUnnamedModule(ClassLoader classLoader);
+    String getDelegateClass();
 
-    Object getModule(Class<?> clazz);
+    String getDelegateMethod();
+
+
 }
