@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Subject, fromEvent } from 'rxjs';
-import { takeUntil, filter, switchMap, delay } from 'rxjs/operators';
+import { takeUntil, filter, delay } from 'rxjs/operators';
 
 import { UrlPathId, UrlPath } from 'app/shared/models';
-import { WebAppSettingDataService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { NewRealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
 
 // TODO: 나중에 공통으로 추출.
@@ -33,7 +33,6 @@ export class NewRealTimePagingContainerComponent implements OnInit, AfterViewIni
     messageTemplate = MessageTemplate.LOADING;
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private webAppSettingDataService: WebAppSettingDataService,
         private realTimeWebSocketService: NewRealTimeWebSocketService,
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService,
@@ -41,16 +40,6 @@ export class NewRealTimePagingContainerComponent implements OnInit, AfterViewIni
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-            filter(() => {
-                return this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION);
-            }),
-            switchMap(() => {
-                return this.webAppSettingDataService.useActiveThreadChart().pipe(
-                    filter((useActiveThreadChart: boolean) => {
-                        return useActiveThreadChart ? true : (this.hide(), false);
-                    })
-                );
-            })
         ).subscribe(() => {
             this.resetState();
             this.messageTemplate = MessageTemplate.LOADING;

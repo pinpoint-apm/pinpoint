@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Subject, Observable, fromEvent } from 'rxjs';
-import { takeUntil, filter, switchMap, tap, map, delay } from 'rxjs/operators';
+import { takeUntil, filter, tap, delay } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -59,9 +59,6 @@ export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnD
         this.lastHeight = this.webAppSettingDataService.getLayerHeight() || this.minHeight;
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-            filter(() => {
-                return this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION);
-            })
         ).subscribe(() => {
             // this.hiddenComponent = true;
             this.resetState();
@@ -104,16 +101,8 @@ export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnD
                 return target && (target.isMerged === true || target.isMerged === false) ? true : false;
             }),
             tap(() => this.hiddenComponent = false),
-            switchMap((target: ISelectedTarget) => {
-                return this.webAppSettingDataService.useActiveThreadChart().pipe(
-                    filter((useActiveThreadChart: boolean) => {
-                        return useActiveThreadChart ? true : (this.hide(), false);
-                    }),
-                    filter(() => {
-                        return !(this.isPinUp && this.applicationName !== '');
-                    }),
-                    map(() => target),
-                );
+            filter(() => {
+                return !(this.isPinUp && this.applicationName !== '');
             })
         ).subscribe((target: ISelectedTarget) => {
             const [applicationName, serviceType] = target.node[0].split('^');
