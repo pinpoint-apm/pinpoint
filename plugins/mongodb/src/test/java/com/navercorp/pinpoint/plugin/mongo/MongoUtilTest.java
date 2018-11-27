@@ -25,6 +25,7 @@ import org.bson.BsonBinarySubType;
 import org.bson.BsonBoolean;
 import org.bson.BsonDateTime;
 import org.bson.BsonDbPointer;
+import org.bson.BsonDecimal128;
 import org.bson.BsonDocument;
 import org.bson.BsonDouble;
 import org.bson.BsonInt32;
@@ -39,6 +40,7 @@ import org.bson.BsonSymbol;
 import org.bson.BsonTimestamp;
 import org.bson.BsonUndefined;
 import org.bson.BsonValue;
+import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
@@ -83,7 +85,7 @@ public class MongoUtilTest {
     public void parseArray() throws IOException {
 
         BasicDBObject query = new BasicDBObject();
-        query.put("stringArray", new String[]{"\"a", "b", "c", "\"\"",""});
+        query.put("stringArray", new String[]{"\"a", "b", "c", "\"\"", ""});
         logger.debug("query:{}", query);
 
         StringStringValue stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
@@ -99,7 +101,6 @@ public class MongoUtilTest {
 
     @Test
     public void parseBsonArrayWithValues() throws IOException {
-
 
         BsonValue a = new BsonString("stest");
         BsonValue b = new BsonDouble(111);
@@ -119,21 +120,21 @@ public class MongoUtilTest {
                 .append("symbol", new BsonSymbol("wow"))
                 .append("timestamp", new BsonTimestamp(0x12345678, 5))
                 .append("undefined", new BsonUndefined())
-                .append("binary1", new BsonBinary(new byte[]{(byte) 0xe0, 0x4f, (byte) 0xd0,
-                        0x20, (byte) 0xea, 0x3a, 0x69, 0x10, (byte) 0xa2, (byte) 0xd8, 0x08, 0x00, 0x2b,
-                        0x30, 0x30, (byte) 0x9d}))
+                .append("binary1", new BsonBinary(new byte[]{(byte) 0xe0, 0x4f, (byte) 0xd0, 0x20}))
                 .append("oldBinary", new BsonBinary(BsonBinarySubType.OLD_BINARY, new byte[]{1, 1, 1, 1, 1}))
                 .append("arrayInt", new BsonArray(Arrays.asList(a, b, c, new BsonInt32(7))))
                 .append("document", new BsonDocument("a", new BsonInt32(77)))
                 .append("dbPointer", new BsonDbPointer("db.coll", new ObjectId()))
-                .append("null", new BsonNull());
+                .append("null", new BsonNull())
+                .append("decimal128", new BsonDecimal128(new Decimal128(55)));
 
         BasicDBObject query = new BasicDBObject();
         query.put("ComplexBson", document);
-        //logger.debug("query:{}", new Object[]{query});
+
+        logger.debug("document:{}", document);
 
         StringStringValue stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
-        logger.debug("parsedStringStringValue:{}", stringStringValue);
+        logger.debug("val:{}", stringStringValue);
 
         List list = objectMapper.readValue("[" + stringStringValue.getStringValue1() + "]", List.class);
         Assert.assertEquals(list.size(), 1);
@@ -148,7 +149,7 @@ public class MongoUtilTest {
         BasicDBObject query = new BasicDBObject();
         query.put("intArray", new int[]{1, 2, 3});
 
-        Object[] objArray = new Object[]{query,query};
+        Object[] objArray = new Object[]{query, query};
         logger.debug("objArray:{}", objArray);
 
         StringStringValue stringStringValue = MongoUtil.parseBson(objArray, true);
@@ -214,6 +215,124 @@ public class MongoUtilTest {
 
         checkValue(query2Map);
     }
+
+    @Test
+    public void parseTestAbbreviation_BsonValueArray() throws IOException {
+
+        BsonInt32[] bsonInt32s = new BsonInt32[40];
+        for (int i = 0; i < 40; i++) {
+            bsonInt32s[i] = new BsonInt32(i + 1);
+        }
+
+        BsonDocument document = new BsonDocument()
+                .append("double", new BsonDouble(12.3))
+                .append("arrayInt", new BsonArray(Arrays.asList(bsonInt32s)))
+//                .append("arrayInt", new BsonArray({1,1,1,1,1,1,1,1,1,1,1})
+                .append("binary1", new BsonBinary(new byte[]{(byte) 0xe0, 0x4f, (byte) 0xd0,
+                        0x20, (byte) 0xea, 0x3a, 0x69, 0x10, (byte) 0xa2, (byte) 0xd8, 0x08, 0x00, 0x2b,
+                        0x30, 0x30, (byte) 0x9d, (byte) 0xe0, 0x4f, (byte) 0xd0,
+                        0x20, (byte) 0xea, 0x3a, 0x69, 0x10, (byte) 0xa2, (byte) 0xd8, 0x08, 0x00, 0x2b,
+                        0x30, 0x30, (byte) 0x9d, (byte) 0xe0, 0x4f, (byte) 0xd0,
+                        0x20, (byte) 0xea, 0x3a, 0x69, 0x10, (byte) 0xa2, (byte) 0xd8, 0x08, 0x00, 0x2b,
+                        0x30, 0x30, (byte) 0x9d, (byte) 0xe0, 0x4f, (byte) 0xd0,
+                        0x20, (byte) 0xea, 0x3a, 0x69, 0x10, (byte) 0xa2, (byte) 0xd8, 0x08, 0x00, 0x2b,
+                        0x30, 0x30, (byte) 0x9d, (byte) 0xe0, 0x4f, (byte) 0xd0,
+                        0x20, (byte) 0xea, 0x3a, 0x69, 0x10, (byte) 0xa2, (byte) 0xd8, 0x08, 0x00, 0x2b,
+                        0x30, 0x30, (byte) 0x9d, (byte) 0xe0, 0x4f, (byte) 0xd0,
+                        0x20, (byte) 0xea, 0x3a, 0x69, 0x10, (byte) 0xa2, (byte) 0xd8, 0x08, 0x00, 0x2b,
+                        0x30, 0x30, (byte) 0x9d, (byte) 0xe0, 0x4f, (byte) 0xd0,
+                        0x20, (byte) 0xea, 0x3a, 0x69, 0x10, (byte) 0xa2, (byte) 0xd8, 0x08, 0x00, 0x2b,
+                        0x30, 0x30, (byte) 0x9d}))
+                .append("oldBinary", new BsonBinary(BsonBinarySubType.OLD_BINARY, new byte[]{1, 1, 1, 1, 1}));
+
+        BasicDBObject query = new BasicDBObject();
+        query.put("ComplexBson", document);
+
+        logger.debug("document:{}", document);
+
+        StringStringValue stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
+        logger.debug("val:{}", stringStringValue);
+
+        List list = objectMapper.readValue("[" + stringStringValue.getStringValue1() + "]", List.class);
+        Assert.assertEquals(list.size(), 1);
+
+        Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
+
+        checkValue(query1Map);
+    }
+
+    @Test
+    public void parseTestAbbreviation_Collection() throws IOException {
+
+        Integer[] integers = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40};
+
+        List<Integer> arr = Arrays.asList(integers);
+
+        BasicDBObject query = new BasicDBObject();
+        query.put("intArray", arr);
+
+        Object[] objArray = new Object[]{query};
+        logger.debug("objArray:{}", objArray);
+
+        StringStringValue stringStringValue = MongoUtil.parseBson(objArray, true);
+        logger.debug("parsedStringStringValue:{}", stringStringValue);
+
+        List list = objectMapper.readValue("[" + stringStringValue.getStringValue1() + "]", List.class);
+        Assert.assertEquals(list.size(), objArray.length);
+        Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
+        ArrayList objectArray = (ArrayList) query1Map.get("intArray");
+
+        checkValue(objectArray);
+    }
+
+    @Test
+    public void parseTestAbbreviation_PrimitiveArray() throws IOException {
+
+        int[] arr = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40};
+        BasicDBObject query = new BasicDBObject();
+        query.put("intArray", arr);
+
+        Object[] objArray = new Object[]{query};
+        logger.debug("objArray:{}", objArray);
+
+        StringStringValue stringStringValue = MongoUtil.parseBson(objArray, true);
+        logger.debug("parsedStringStringValue:{}", stringStringValue);
+
+        List list = objectMapper.readValue("[" + stringStringValue.getStringValue1() + "]", List.class);
+        Assert.assertEquals(list.size(), objArray.length);
+        Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
+        ArrayList objectArray = (ArrayList) query1Map.get("intArray");
+
+        checkValue(objectArray);
+    }
+
+    @Test
+    public void parseTestAbbreviation_Array() throws IOException {
+
+        BsonValue c = new BsonBoolean(true);
+
+        BsonDocument document = new BsonDocument()
+                .append("double", new BsonDouble(12.3))
+                .append("arrayInt", new BsonArray(Arrays.asList(c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c)));
+
+        BasicDBObject query = new BasicDBObject();
+        query.put("ComplexBson", document);
+
+        logger.debug("document:{}", document);
+
+        StringStringValue stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
+        logger.debug("val:{}", stringStringValue);
+
+        List list = objectMapper.readValue("[" + stringStringValue.getStringValue1() + "]", List.class);
+        Assert.assertEquals(list.size(), 1);
+
+        Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
+
+        checkValue(query1Map);
+    }
+
 
     private void checkValue(Object object) {
         if (object instanceof Map) {
