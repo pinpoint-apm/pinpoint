@@ -14,19 +14,31 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.profiler.instrument.lambda;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Class<?> clazz);
+public class LambdaFactoryClassAdaptorTest {
 
-    JavaModule wrapFromModule(Object module);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    boolean isNamedModule(Object module);
 
-    Object getUnnamedModule(ClassLoader classLoader);
+    @Test
+    public void transform() throws IOException {
 
-    Object getModule(Class<?> clazz);
+        LambdaFactoryClassAdaptor lambdaFactoryClassAdaptor = new LambdaFactoryClassAdaptor();
+        byte[] transform = lambdaFactoryClassAdaptor.loadTransformedBytecode();
+
+        ByteCodeDumper.verify(transform, ClassLoader.getSystemClassLoader());
+
+    }
+
+
 }

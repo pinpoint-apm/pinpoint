@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
+import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
@@ -34,9 +35,11 @@ import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.javamodule.ClassFileTransformerModuleHandler;
+import com.navercorp.pinpoint.profiler.context.javamodule.JavaModuleFactoryFinder;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootloader;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
@@ -77,7 +80,6 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final ClassFileTransformer classFileTransformer;
 
-    private final Instrumentation instrumentation;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
@@ -89,7 +91,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
         Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
 
-        this.instrumentation = agentOption.getInstrumentation();
+        final Instrumentation instrumentation = agentOption.getInstrumentation();
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
@@ -108,10 +110,14 @@ public class DefaultApplicationContext implements ApplicationContext {
         ClassFileTransformer classFileTransformer = wrap(this.classFileTransformer);
         final JvmVersion version = JvmUtils.getVersion();
         if (version.onOrAfter(JvmVersion.JAVA_9)) {
-            ClassFileTransformModuleAdaptor classFileTransformModuleAdaptor = new ClassFileTransformerModuleHandler(instrumentation, classFileTransformer);
+            final JavaModuleFactory javaModuleFactory = JavaModuleFactoryFinder.lookup(instrumentation);
+            ClassFileTransformModuleAdaptor classFileTransformModuleAdaptor = new ClassFileTransformerModuleHandler(instrumentation, classFileTransformer, javaModuleFactory);
             classFileTransformer = wrapJava9ClassFileTransformer(classFileTransformModuleAdaptor);
+            lambdaFactorySetup(instrumentation, classFileTransformModuleAdaptor, javaModuleFactory);
+            instrumentation.addTransformer(classFileTransformer, true);
+        } else {
+            instrumentation.addTransformer(classFileTransformer, true);
         }
-        instrumentation.addTransformer(classFileTransformer, true);
 
         this.spanStatClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanStatClientFactory.class));
         logger.info("spanStatClientFactory:{}", spanStatClientFactory);
@@ -139,6 +145,15 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+    }
+
+    private void lambdaFactorySetup(Instrumentation instrumentation, ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
+        final JvmVersion version = JvmUtils.getVersion();
+//      TODO version.onOrAfter(JvmVersion.JAVA_8)
+        if (version.onOrAfter(JvmVersion.JAVA_9)) {
+            LambdaTransformBootloader lambdaTransformBootloader = new LambdaTransformBootloader();
+            lambdaTransformBootloader.transformLambdaFactory(instrumentation, classFileTransformer, javaModuleFactory);
+        }
     }
 
     private ClassFileTransformer wrapJava9ClassFileTransformer(ClassFileTransformModuleAdaptor classFileTransformer) {

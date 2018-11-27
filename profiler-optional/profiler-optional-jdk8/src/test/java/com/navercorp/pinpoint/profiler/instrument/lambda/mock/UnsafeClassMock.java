@@ -14,19 +14,33 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.profiler.instrument.lambda.mock;
+
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Class<?> clazz);
+public class UnsafeClassMock {
+    public static final UnsafeMock UNSAFE = UnsafeMock.getUnsafe();
 
-    JavaModule wrapFromModule(Object module);
+    public static final int intField = 1;
 
-    boolean isNamedModule(Object module);
+    private String stringField = "ddd";
 
-    Object getUnnamedModule(ClassLoader classLoader);
+    public UnsafeClassMock() {
+    }
 
-    Object getModule(Class<?> clazz);
+    public void test() {
+        UNSAFE.defineAnonymousClass(null, null, null);
+    }
+
+    public void test2() {
+        DefineAnonymousClassDelegator.delegate(null, null, null);
+    }
+
+    public void test3() {
+        this.stringField.toCharArray();
+    }
+
+
 }

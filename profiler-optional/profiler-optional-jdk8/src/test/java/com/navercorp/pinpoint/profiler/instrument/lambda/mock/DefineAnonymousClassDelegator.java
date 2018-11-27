@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.profiler.instrument.lambda.mock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Class<?> clazz);
+public class DefineAnonymousClassDelegator {
 
-    JavaModule wrapFromModule(Object module);
+    private static final Logger logger = LoggerFactory.getLogger(DefineAnonymousClassDelegator.class.getName());
+    public static int count;
 
-    boolean isNamedModule(Object module);
-
-    Object getUnnamedModule(ClassLoader classLoader);
-
-    Object getModule(Class<?> clazz);
+    public static Class<?> delegate(Class<?> hostClass, byte[] data, Object[] cpPatches) {
+        logger.debug("invoke delegate");
+        count++;
+        return null;
+    }
 }

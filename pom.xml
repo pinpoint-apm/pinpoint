@@ -69,6 +69,7 @@
         <module>bootstrap-core</module>
         <module>bootstrap-core-optional</module>
         <module>bootstrap</module>
+        <module>bootstrap-java8</module>
         <module>bootstrap-java9</module>
         <module>collector</module>
         <module>commons</module>
@@ -200,6 +201,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap-java8</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

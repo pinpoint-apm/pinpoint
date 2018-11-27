@@ -14,19 +14,32 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.module;
+package com.navercorp.pinpoint.profiler.instrument.lambda;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Class<?> clazz);
+public class LambdaClassJava8 implements LambdaClass {
 
-    JavaModule wrapFromModule(Object module);
+    public static final String DELEGATE_CLASS = "com/navercorp/pinpoint/bootstrap/java8/lambda/UnsafeDelegatorJava8";
 
-    boolean isNamedModule(Object module);
+    @Override
+    public String getUnsafeClass() {
+        return "sun/misc/Unsafe";
+    }
 
-    Object getUnnamedModule(ClassLoader classLoader);
+    @Override
+    public String getUnsafeMethod() {
+        return "defineAnonymousClass";
+    }
 
-    Object getModule(Class<?> clazz);
+    @Override
+    public String getDelegateClass() {
+        return DELEGATE_CLASS;
+    }
+
+    @Override
+    public String getDelegateMethod() {
+        return "defineAnonymousClass";
+    }
 }
