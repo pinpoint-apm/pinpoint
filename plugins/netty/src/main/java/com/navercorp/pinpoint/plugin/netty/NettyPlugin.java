@@ -42,7 +42,8 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  */
 public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private static final PLogger LOGGER = PLoggerFactory.getLogger(NettyPlugin.class);
+    private static final boolean IS_DEBUG = LOGGER.isDebugEnabled();
 
     private TransformTemplate transformTemplate;
 
@@ -51,7 +52,7 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         NettyConfig config = new NettyConfig(context.getConfig());
         if (!config.isPluginEnable()) {
-            logger.info("Disable netty option. 'profiler.netty=false'");
+            LOGGER.info("Disable netty option. 'profiler.netty=false'");
             return;
         }
 
@@ -79,24 +80,35 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            final InstrumentMethod connectMethod = InstrumentUtils.findMethod(target, "connect");
+            final InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
             if (connectMethod != null) {
                 connectMethod.addScopedInterceptor(NettyConstants.INTERCEPTOR_BOOTSTRAP_CONNECT, NettyConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find connect method");
+                }
             }
 
-            final InstrumentMethod connectMethod2 = InstrumentUtils.findMethod(target, "connect", "java.net.SocketAddress");
+            final InstrumentMethod connectMethod2 = target.getDeclaredMethod("connect", "java.net.SocketAddress");
             if (connectMethod2 != null) {
                 connectMethod2.addScopedInterceptor(NettyConstants.INTERCEPTOR_BOOTSTRAP_CONNECT, NettyConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find connect(\"java.net.SocketAddress\") method");
+                }
             }
 
-            final InstrumentMethod connectMethod3 = InstrumentUtils.findMethod(target, "connect", "java.net.SocketAddress", "java.net.SocketAddress");
+            final InstrumentMethod connectMethod3 = target.getDeclaredMethod("connect", "java.net.SocketAddress", "java.net.SocketAddress");
             if (connectMethod3 != null) {
                 connectMethod3.addScopedInterceptor(NettyConstants.INTERCEPTOR_BOOTSTRAP_CONNECT, NettyConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find connect(\"java.net.SocketAddress\", \"java.net.SocketAddress\") method");
+                }
             }
 
             return target.toBytecode();
         }
-
     }
 
     private static class ChannelPipelineTransformer implements TransformCallback {
@@ -105,29 +117,44 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-            final InstrumentMethod writeMethod1 = InstrumentUtils.findMethod(target, "write", "java.lang.Object");
+            final InstrumentMethod writeMethod1 = target.getDeclaredMethod("write", "java.lang.Object");
             if (writeMethod1 != null) {
                 writeMethod1.addScopedInterceptor(NettyConstants.INTERCEPTOR_CHANNEL_PIPELINE_WRITE, NettyConstants.SCOPE_WRITE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find write(\"java.lang.Object\") method");
+                }
             }
 
-            final InstrumentMethod writeMethod2 = InstrumentUtils.findMethod(target, "write", "java.lang.Object", "io.netty.channel.ChannelPromise");
+            final InstrumentMethod writeMethod2 = target.getDeclaredMethod("write", "java.lang.Object", "io.netty.channel.ChannelPromise");
             if (writeMethod2 != null) {
                 writeMethod2.addScopedInterceptor(NettyConstants.INTERCEPTOR_CHANNEL_PIPELINE_WRITE, NettyConstants.SCOPE_WRITE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find write(\"java.lang.Object\", \"io.netty.channel.ChannelPromise\") method");
+                }
             }
 
-            final InstrumentMethod writeAndFlushMethod1 = InstrumentUtils.findMethod(target, "writeAndFlush", "java.lang.Object");
+            final InstrumentMethod writeAndFlushMethod1 = target.getDeclaredMethod("writeAndFlush", "java.lang.Object");
             if (writeAndFlushMethod1 != null) {
                 writeAndFlushMethod1.addScopedInterceptor(NettyConstants.INTERCEPTOR_CHANNEL_PIPELINE_WRITE, NettyConstants.SCOPE_WRITE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find writeAndFlush(\"java.lang.Object\") method");
+                }
             }
 
-            final InstrumentMethod writeAndFlushMethod2 = InstrumentUtils.findMethod(target, "writeAndFlush", "java.lang.Object", "io.netty.channel.ChannelPromise");
+            final InstrumentMethod writeAndFlushMethod2 = target.getDeclaredMethod("writeAndFlush", "java.lang.Object", "io.netty.channel.ChannelPromise");
             if (writeAndFlushMethod2 != null) {
                 writeAndFlushMethod2.addScopedInterceptor(NettyConstants.INTERCEPTOR_CHANNEL_PIPELINE_WRITE, NettyConstants.SCOPE_WRITE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find writeAndFlush(\"java.lang.Object\", \"io.netty.channel.ChannelPromise\") method");
+                }
             }
 
             return target.toBytecode();
         }
-
     }
 
     private static class PromiseTransformer implements TransformCallback {
@@ -137,20 +164,27 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class.getName());
 
-            InstrumentMethod notifyListenersNowMethod = InstrumentUtils.findMethod(target, "notifyListenersNow");
+            InstrumentMethod notifyListenersNowMethod = target.getDeclaredMethod("notifyListenersNow");
             if (notifyListenersNowMethod != null) {
                 notifyListenersNowMethod.addInterceptor(NettyConstants.INTERCEPTOR_CHANNEL_PROMISE_NOTIFY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find notifyListenersNow method");
+                }
             }
 
 
-            InstrumentMethod notifyListener0Method = InstrumentUtils.findMethod(target, "notifyListener0", "io.netty.util.concurrent.Future", "io.netty.util.concurrent.GenericFutureListener");
+            InstrumentMethod notifyListener0Method = target.getDeclaredMethod("notifyListener0", "io.netty.util.concurrent.Future", "io.netty.util.concurrent.GenericFutureListener");
             if (notifyListener0Method != null) {
                 notifyListener0Method.addInterceptor(NettyConstants.INTERCEPTOR_BASIC, va(NettyConstants.SERVICE_TYPE_INTERNAL));
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find notifyListener0 method");
+                }
             }
 
             return target.toBytecode();
         }
-
     }
 
     private static class ChannelPromiseTransformer implements TransformCallback {
@@ -159,14 +193,22 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            final InstrumentMethod addListenerMethod1 = InstrumentUtils.findMethod(target, "addListener", "io.netty.util.concurrent.GenericFutureListener");
+            final InstrumentMethod addListenerMethod1 = target.getDeclaredMethod("addListener", "io.netty.util.concurrent.GenericFutureListener");
             if (addListenerMethod1 != null) {
                 addListenerMethod1.addScopedInterceptor(NettyConstants.INTERCEPTOR_CHANNEL_PROMISE_ADD_LISTENER, NettyConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find addListener method");
+                }
             }
 
-            final InstrumentMethod addListenerMethod2 = InstrumentUtils.findMethod(target, "addListeners", "io.netty.util.concurrent.GenericFutureListener[]");
+            final InstrumentMethod addListenerMethod2 = target.getDeclaredMethod("addListeners", "io.netty.util.concurrent.GenericFutureListener[]");
             if (addListenerMethod2 != null) {
                 addListenerMethod2.addScopedInterceptor(NettyConstants.INTERCEPTOR_CHANNEL_PROMISE_ADD_LISTENER, NettyConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            } else {
+                if (IS_DEBUG) {
+                    LOGGER.debug("can't find addListeners method");
+                }
             }
 
             return target.toBytecode();
