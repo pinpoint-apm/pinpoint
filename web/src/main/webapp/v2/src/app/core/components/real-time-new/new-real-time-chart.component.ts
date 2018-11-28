@@ -2,7 +2,11 @@ import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit,
 import * as moment from 'moment-timezone';
 
 import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
-import { getTotalResponseCount, getSuccessDataList } from './new-real-time-util';
+
+export const enum ChartType {
+    SUM = 'sum',
+    EACH = 'each'
+}
 
 @Component({
     selector: 'pp-new-real-time-chart',
@@ -15,8 +19,10 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input() timeStamp: number;
+    @Input() applicationName: string;
     @Input() chartOption: { [key: string]: any };
     @Output() outClick = new EventEmitter<string>();
+    @Output() outSum = new EventEmitter<number[]>();
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
@@ -43,6 +49,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         title: '',
         values: [] as number[],
     };
+    _activeThreadCounts: { [key: string]: IActiveThreadCounts };
 
     constructor(
         private el: ElementRef
@@ -57,43 +64,60 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             const { currentValue: timeStamp } = changesOnTimeStamp;
             const prevATCKeys = firstChange ? [] : Object.keys(prevATC);
             const currATCKeys = Object.keys(currATC);
+            const { chartType } = this.chartOption;
+            const successDataList = this.getSuccessDataList(currATC);
+            const hasError = successDataList.length === 0;
+            const sum = this.getTotalResponseCount(successDataList);
 
-            this.mergedKeys = [...new Set([...prevATCKeys, ...currATCKeys])];
-            this.addedKeys = [];
-            this.removedKeys = [];
+            if (chartType === ChartType.EACH) {
+                this._activeThreadCounts = currATC;
+                this.mergedKeys = [...new Set([...prevATCKeys, ...currATCKeys])];
+                this.addedKeys = [];
+                this.removedKeys = [];
 
-            this.mergedKeys.forEach((key: string) => {
-                if (!prevATCKeys.includes(key)) {
-                    // 새로 추가된 agent
-                    const { status } = currATC[key];
-                    const data = status ? status : [];
+                this.mergedKeys.forEach((key: string) => {
+                    if (!prevATCKeys.includes(key)) {
+                        // 새로 추가된 agent
+                        const { status } = currATC[key];
+                        const data = status ? status : [];
 
-                    this.dataList[key] = [data];
-                    this.timeStampList[key] = [timeStamp];
-                    this.firstTimeStamp[key] = timeStamp - 1000;
-                    if (!firstChange) {
-                        this.addedKeys.push(key);
+                        this.initData(key, data, timeStamp);
+                        if (!firstChange) {
+                            this.addedKeys.push(key);
+                        }
+                    } else if (!currATCKeys.includes(key)) {
+                        // 삭제된 agent
+                        // 해당 key에 대한 dataList, timeStampList, firstStamp, startingXPos, chartStart 제거
+                        this.removeData(key);
+                        this.removedKeys.push(key);
+                    } else {
+                        // 변동없는 agent
+                        const { status } = currATC[key];
+                        const data = status ? status : [];
+
+                        this.addData(key, data, timeStamp);
                     }
-                } else if (!currATCKeys.includes(key)) {
-                    // 삭제된 agent
-                    // 해당 key에 대한 dataList, timeStampList, firstStamp, startingXPos, chartStart 제거
-                    delete this.dataList[key];
-                    delete this.timeStampList[key];
-                    delete this.firstTimeStamp[key];
-                    delete this.startingXPos[key];
-                    delete this.chartStart[key];
-                    this.removedKeys.push(key);
-                } else {
-                    // 변동없는 agent
-                    const { status } = currATC[key];
-                    const data = status ? status : [];
+                });
+            } else if (chartType === ChartType.SUM) {
+                const key = this.applicationName;
 
-                    this.dataList[key].push(data);
-                    this.timeStampList[key].push(timeStamp);
-                }
-            });
+                this.mergedKeys = [key];
+                this._activeThreadCounts = {
+                    [key]: {
+                        code: hasError ? ResponseCode.ERROR_BLACK : ResponseCode.SUCCESS,
+                        message: hasError ? currATC[Object.keys(currATC)[0]].message : 'OK',
+                        status: hasError ? null : sum
+                    }
+                };
 
-            this.dataSumList.push(getTotalResponseCount(getSuccessDataList(currATC)));
+                const { status } = this._activeThreadCounts[key];
+                const data = status ? status : [];
+
+                firstChange ? this.initData(key, data, timeStamp) : this.addData(key, data, timeStamp);
+                this.outSum.emit(hasError ? [] : sum);
+            }
+
+            this.dataSumList.push(sum);
             if (this.canvas && (prevATCKeys.length !== currATCKeys.length)) {
                 this.setCanvasSize();
             }
@@ -112,6 +136,37 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
 
     ngOnDestroy() {
         cancelAnimationFrame(this.animationFrameId);
+    }
+
+    private initData(key: string, data: number[], timeStamp: number): void {
+        this.dataList[key] = [data];
+        this.timeStampList[key] = [timeStamp];
+        this.firstTimeStamp[key] = timeStamp - 1000;
+    }
+
+    private addData(key: string, data: number[], timeStamp: number): void {
+        this.dataList[key].push(data);
+        this.timeStampList[key].push(timeStamp);
+    }
+
+    private removeData(key: string): void {
+        delete this.dataList[key];
+        delete this.timeStampList[key];
+        delete this.firstTimeStamp[key];
+        delete this.startingXPos[key];
+        delete this.chartStart[key];
+    }
+
+    private getSuccessDataList(obj: { [key: string]: IActiveThreadCounts }): number[][] {
+        return Object.keys(obj)
+            .filter((agentName: string) => obj[agentName].code === ResponseCode.SUCCESS)
+            .map((agentName: string) => obj[agentName].status);
+    }
+
+    private getTotalResponseCount(dataList: number[][]): number[] {
+        return dataList.reduce((acc: number[], curr: number[]) => {
+            return acc.map((a: number, i: number) => a + curr[i]);
+        }, [0, 0, 0, 0]);
     }
 
     private setCanvasSize(): void {
@@ -174,10 +229,6 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                 this.drawRemovedText(i);
                 return;
             }
-
-            // if (drawHGridLine) {
-            //     this.drawHGridLine(i);
-            // }
 
             if (showXAxis) {
                 this.drawXAxis(i);
@@ -272,7 +323,7 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
 
-        const { code, message } = this.activeThreadCounts[key];
+        const { code, message } = this._activeThreadCounts[key];
         const isResponseSuccess = code === ResponseCode.SUCCESS;
 
         if (!isResponseSuccess) {

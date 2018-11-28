@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time-new/new-real-time-websocket.service';
-import { getSuccessDataList, getTotalResponseCount } from './new-real-time-util';
+import { IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
+import { ChartType } from './new-real-time-chart.component';
 
 @Component({
     selector: 'pp-new-real-time-total-chart',
@@ -13,31 +13,10 @@ export class NewRealTimeTotalChartComponent implements OnInit {
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input() applicationName: string;
-    @Input()
-    set activeThreadCounts(activeThreadCounts: { [key: string]: IActiveThreadCounts }) {
-        const successDataList = getSuccessDataList(activeThreadCounts);
-        const hasError = successDataList.length === 0;
+    @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
 
-        this._activeThreadCounts = {
-            [this.applicationName]: {
-                code: hasError ? ResponseCode.ERROR_BLACK : ResponseCode.SUCCESS,
-                message: hasError ? activeThreadCounts[Object.keys(activeThreadCounts)[0]].message : 'OK',
-                status: hasError ? null : getTotalResponseCount(successDataList)
-            }
-        };
-
-        this.data = hasError ? [] : this._activeThreadCounts[Object.keys(this._activeThreadCounts)[0]].status;
-        this.totalCount = hasError ? null : this.data.reduce((acc: number, curr: number) => acc + curr, 0);
-    }
-
-    get activeThreadCounts(): { [key: string]: IActiveThreadCounts } {
-        return this._activeThreadCounts;
-    }
-
-    _activeThreadCounts: { [key: string]: IActiveThreadCounts };
     data: number[];
     totalCount: number;
-
     chartOption = {
         canvasLeftPadding: 0,
         canvasTopPadding: 0,
@@ -64,7 +43,8 @@ export class NewRealTimeTotalChartComponent implements OnInit {
         marginFromLegend: 10,
         tooltipEnabled: true,
         titleFontSize: '15px',
-        errorFontSize: '15px'
+        errorFontSize: '15px',
+        chartType: ChartType.SUM
     };
 
     constructor() {}
@@ -77,5 +57,10 @@ export class NewRealTimeTotalChartComponent implements OnInit {
             left: `${containerWidth - chartInnerPadding - legendWidth}px`,
             top: `${titleHeight + chartInnerPadding - 12}px`
         };
+    }
+
+    onSum(sum: number[]): void {
+        this.data = sum;
+        this.totalCount = sum.length === 0 ? null : sum.reduce((acc: number, curr: number) => acc + curr, 0);
     }
 }

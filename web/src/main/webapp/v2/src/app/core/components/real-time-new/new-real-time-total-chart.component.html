@@ -3,7 +3,9 @@
     [timezone]="timezone"
     [dateFormat]="dateFormat"
     [timeStamp]="timeStamp"
-    [chartOption]="chartOption">
+    [applicationName]="applicationName"
+    [chartOption]="chartOption"
+    (outSum)="onSum($event)">
 </pp-new-real-time-chart>
 <ul class="l-legend" #legend [ngStyle]="getLegendStyle(legend)">
     <li>
