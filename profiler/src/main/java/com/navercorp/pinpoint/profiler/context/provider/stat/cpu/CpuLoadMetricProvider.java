@@ -54,28 +54,34 @@ public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
 
     @Override
     public CpuLoadMetric get() {
-        String classToLoad = null;
         JvmType jvmType = JvmType.fromVendor(vendorName);
         if (jvmType == JvmType.UNKNOWN) {
             jvmType = JvmUtils.getType();
         }
-        JvmVersion jvmVersion = JvmUtils.getVersion();
-        if (jvmType == JvmType.ORACLE || jvmType == JvmType.OPENJDK) {
-            if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-                classToLoad = ORACLE_CPU_LOAD_METRIC;
-            } else if (jvmVersion.onOrAfter(JvmVersion.JAVA_5)) {
-                classToLoad = ORACLE_JDK6_CPU_LOAD_METRIC;
-            }
-        } else if (jvmType == JvmType.IBM) {
-            if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-                classToLoad = IBM_CPU_LOAD_METRIC;
-            } else if (jvmVersion == JvmVersion.JAVA_6) {
-                classToLoad = IBM_JDK6_CPU_LOAD_METRIC;
-            }
-        }
-        CpuLoadMetric cpuLoadMetric = createCpuLoadMetric(classToLoad);
+        final String classToLoad = getCpuLoadMetricClassName(jvmType);
+        final CpuLoadMetric cpuLoadMetric = createCpuLoadMetric(classToLoad);
         logger.info("loaded : {}", cpuLoadMetric);
         return cpuLoadMetric;
+    }
+
+    private String getCpuLoadMetricClassName(JvmType jvmType) {
+        final JvmVersion jvmVersion = JvmUtils.getVersion();
+        if (jvmType == JvmType.ORACLE || jvmType == JvmType.OPENJDK) {
+            if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
+                return ORACLE_CPU_LOAD_METRIC;
+            } else if (jvmVersion.onOrAfter(JvmVersion.JAVA_5)) {
+                return ORACLE_JDK6_CPU_LOAD_METRIC;
+            }
+        }
+
+        if (jvmType == JvmType.IBM) {
+            if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
+                return IBM_CPU_LOAD_METRIC;
+            } else if (jvmVersion == JvmVersion.JAVA_6) {
+                return IBM_JDK6_CPU_LOAD_METRIC;
+            }
+        }
+        return null;
     }
 
     private CpuLoadMetric createCpuLoadMetric(String classToLoad) {
@@ -93,7 +99,7 @@ public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
                 return CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
             }
         } catch (Exception e) {
-            logger.warn("Error creating CpuLoadMetric [" + classToLoad + "]", e);
+            logger.warn("Error creating CpuLoadMetric [" + classToLoad + "]");
             return CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
         }
     }
