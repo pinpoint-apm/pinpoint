@@ -31,6 +31,7 @@ const enum MessageTemplate {
 export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     private unsubscribe = new Subject<null>();
     private serviceType = '';
+    pagingSize = 30;
     totalCount: number;
     firstChartIndex = 0;
     lastChartIndex: number;
@@ -57,6 +58,7 @@ export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnD
     ) {}
     ngOnInit() {
         this.lastHeight = this.webAppSettingDataService.getLayerHeight() || this.minHeight;
+        this.lastChartIndex = this.pagingSize - 1;
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
         ).subscribe(() => {
@@ -199,22 +201,11 @@ export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnD
         this.timeStamp = timeStamp;
         this.activeThreadCounts = activeThreadCounts;
     }
-    private sliceAgentData(data: { [key: string]: IActiveThreadCounts }): { [key: string]: IActiveThreadCounts } {
-        this.lastChartIndex = this.realTimeWebSocketService.getPagingSize() - 1;
-        const keys = Object.keys(data).slice(this.firstChartIndex, this.lastChartIndex + 1);
-
-        return keys.reduce((acc: { [key: string]: IActiveThreadCounts }, curr: string) => {
-            return { ...acc, [curr]: data[curr] };
-        }, {});
-    }
-    getActiveThreadCountsForAgentChart(): { [key: string]: IActiveThreadCounts } {
-        return this.needPaging() ? this.sliceAgentData(this.activeThreadCounts) : this.activeThreadCounts;
-    }
     needPaging(): boolean {
-        return this.totalCount > this.realTimeWebSocketService.getPagingSize();
+        return this.totalCount > this.pagingSize;
     }
     getTotalPage(): number[] {
-        const totalPage = Math.ceil(this.totalCount / this.realTimeWebSocketService.getPagingSize());
+        const totalPage = Math.ceil(this.totalCount / this.pagingSize);
 
         return Array(totalPage).fill(0).map((v: number, i: number) => i + 1);
     }

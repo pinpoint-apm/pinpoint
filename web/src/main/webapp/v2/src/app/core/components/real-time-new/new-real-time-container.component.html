@@ -36,7 +36,8 @@
                 </ng-container>
                 <pp-new-real-time-agent-chart
                     [timeStamp]="timeStamp"
-                    [activeThreadCounts]="getActiveThreadCountsForAgentChart()"
+                    [activeThreadCounts]="activeThreadCounts"
+                    [pagingSize]="pagingSize"
                     (outOpenThreadDump)="onOpenThreadDump($event)"
                     (outRenderCompleted)="onRenderCompleted()">
                 </pp-new-real-time-agent-chart>

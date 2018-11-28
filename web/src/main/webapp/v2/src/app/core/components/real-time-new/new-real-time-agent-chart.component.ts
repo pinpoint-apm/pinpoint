@@ -11,6 +11,8 @@ import { ChartType } from './new-real-time-chart.component';
 export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
     @Input() timeStamp: number;
     @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    @Input() pagingSize: number;
+    @Input() currentPage = 1;
     @Output() outOpenThreadDump = new EventEmitter<string>();
     @Output() outRenderCompleted = new EventEmitter<void>(true);
 
