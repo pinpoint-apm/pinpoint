@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
 
 import { IActiveThreadCounts } from 'app/core/components/real-time-new/new-real-time-websocket.service';
+import { ChartType } from './new-real-time-chart.component';
 
 @Component({
     selector: 'pp-new-real-time-agent-chart',
@@ -12,7 +13,6 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
     @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
     @Output() outOpenThreadDump = new EventEmitter<string>();
     @Output() outRenderCompleted = new EventEmitter<void>(true);
-    @ViewChild('canvas') canvasRef: ElementRef;
 
     chartOption = {
         canvasLeftPadding: 0,
@@ -41,7 +41,8 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         marginFromYAxis: 0,
         tooltipEnabled: false,
         titleFontSize: '11px',
-        errorFontSize: '13px'
+        errorFontSize: '13px',
+        chartType: ChartType.EACH
     };
 
     constructor() {}
