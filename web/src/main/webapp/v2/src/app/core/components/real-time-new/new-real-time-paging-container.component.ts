@@ -23,6 +23,7 @@ export class NewRealTimePagingContainerComponent implements OnInit, AfterViewIni
     private unsubscribe = new Subject<null>();
     private applicationName = '';
     private serviceType = '';
+    pagingSize = 30;
     totalCount: number;
     firstChartIndex: number;
     lastChartIndex: number;
@@ -46,8 +47,8 @@ export class NewRealTimePagingContainerComponent implements OnInit, AfterViewIni
             this.applicationName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
             this.serviceType = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getServiceType();
             this.currentPage = Number(this.newUrlStateNotificationService.getPathValue(UrlPathId.PAGE));
-            this.firstChartIndex = (this.currentPage - 1) * this.realTimeWebSocketService.getPagingSize();
-            this.indexLimit = this.currentPage * this.realTimeWebSocketService.getPagingSize() - 1;
+            this.firstChartIndex = (this.currentPage - 1) * this.pagingSize;
+            this.indexLimit = this.currentPage * this.pagingSize - 1;
             this.realTimeWebSocketService.isOpened() ? this.startDataRequest() : this.realTimeWebSocketService.connect();
         });
 
@@ -142,16 +143,9 @@ export class NewRealTimePagingContainerComponent implements OnInit, AfterViewIni
         }
 
         this.totalCount = Object.keys(activeThreadCounts).length;
-        this.timeStamp = timeStamp;
-        this.activeThreadCounts = this.sliceAgentData(activeThreadCounts);
-    }
-    private sliceAgentData(data: { [key: string]: IActiveThreadCounts }): { [key: string]: IActiveThreadCounts } {
         this.lastChartIndex = this.totalCount - 1 <= this.indexLimit ? this.totalCount - 1 : this.indexLimit;
-        const keys = Object.keys(data).slice(this.firstChartIndex, this.lastChartIndex + 1);
-
-        return keys.reduce((acc: { [key: string]: IActiveThreadCounts }, curr: string) => {
-            return { ...acc, [curr]: data[curr] };
-        }, {});
+        this.timeStamp = timeStamp;
+        this.activeThreadCounts = activeThreadCounts;
     }
     retryConnection(): void {
         this.messageTemplate = MessageTemplate.LOADING;
