@@ -10,6 +10,8 @@
                 <pp-new-real-time-agent-chart
                     [timeStamp]="timeStamp"
                     [activeThreadCounts]="activeThreadCounts"
+                    [currentPage]="currentPage"
+                    [pagingSize]="pagingSize"
                     (outOpenThreadDump)="onOpenThreadDump($event)"
                     (outRenderCompleted)="onRenderCompleted()">
                 </pp-new-real-time-agent-chart>

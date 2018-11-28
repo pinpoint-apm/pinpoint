@@ -20,6 +20,8 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     @Input() dateFormat: string;
     @Input() timeStamp: number;
     @Input() applicationName: string;
+    @Input() pagingSize: number;
+    @Input() currentPage: number;
     @Input() chartOption: { [key: string]: any };
     @Output() outClick = new EventEmitter<string>();
     @Output() outSum = new EventEmitter<number[]>();
@@ -62,15 +64,22 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
         if (changesOnATC && changesOnTimeStamp) {
             const { previousValue: prevATC, currentValue: currATC, firstChange } = changesOnATC;
             const { currentValue: timeStamp } = changesOnTimeStamp;
-            const prevATCKeys = firstChange ? [] : Object.keys(prevATC);
-            const currATCKeys = Object.keys(currATC);
             const { chartType } = this.chartOption;
             const successDataList = this.getSuccessDataList(currATC);
             const hasError = successDataList.length === 0;
             const sum = this.getTotalResponseCount(successDataList);
 
             if (chartType === ChartType.EACH) {
-                this._activeThreadCounts = currATC;
+                const totalCount = Object.keys(currATC).length;
+                const firstChartIndex = (this.currentPage - 1) * this.pagingSize;
+                const indexLimit = this.currentPage * this.pagingSize - 1;
+                const lastChartIndex = totalCount - 1 <= indexLimit ? totalCount - 1 : indexLimit;
+                const prevATCKeys = firstChange ? [] : Object.keys(prevATC).slice(firstChartIndex, lastChartIndex + 1);
+                const currATCKeys = Object.keys(currATC).slice(firstChartIndex, lastChartIndex + 1);
+
+                this._activeThreadCounts = currATCKeys.reduce((acc: { [key: string]: IActiveThreadCounts }, curr: string) => {
+                    return { ...acc, [curr]: currATC[curr] };
+                }, {});
                 this.mergedKeys = [...new Set([...prevATCKeys, ...currATCKeys])];
                 this.addedKeys = [];
                 this.removedKeys = [];
@@ -98,6 +107,10 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
                         this.addData(key, data, timeStamp);
                     }
                 });
+
+                if (this.canvas && (prevATCKeys.length !== currATCKeys.length)) {
+                    this.setCanvasSize();
+                }
             } else if (chartType === ChartType.SUM) {
                 const key = this.applicationName;
 
@@ -118,9 +131,6 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
             }
 
             this.dataSumList.push(sum);
-            if (this.canvas && (prevATCKeys.length !== currATCKeys.length)) {
-                this.setCanvasSize();
-            }
         }
     }
 
