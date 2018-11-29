@@ -44,6 +44,7 @@ export class NewRealTimeAgentChartComponent implements OnInit, AfterViewInit {
         tooltipEnabled: false,
         titleFontSize: '11px',
         errorFontSize: '13px',
+        duration: 4000,
         chartType: ChartType.EACH
     };
 
