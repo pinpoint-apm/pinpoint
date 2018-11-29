@@ -112,7 +112,7 @@ export const appRoutes: Routes = [
         httpInterceptorProviders,
         { provide: APP_BASE_HREF, useValue: window.document.querySelector('base').getAttribute('href') },
         { provide: COMPOSITION_BUFFER_MODE, useValue: false },
-        { provide: SERVER_MAP_TYPE, useValue: ServerMapType.GOJS }
+        { provide: SERVER_MAP_TYPE, useValue: ServerMapType.VISJS }
     ],
     bootstrap: [AppComponent]
 })
