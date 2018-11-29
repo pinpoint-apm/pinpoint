@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject, combineLatest } from 'rxjs';
-import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
+import { Subject, combineLatest, Observable } from 'rxjs';
+import { distinctUntilChanged, filter, map } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
 import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
@@ -14,16 +14,14 @@ import { ServerMapSearchResultViewerComponent } from './server-map-search-result
     styleUrls: ['./server-map-search-result-viewer-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ServerMapSearchResultViewerContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+export class ServerMapSearchResultViewerContainerComponent implements OnInit {
     private minLength = 3;
     i18nText: { [key: string]: string } = {};
-    hiddenComponent = true;
-    searchResultList: IApplication[] = [];
+    hiddenComponent$: Observable<boolean>;
+    searchResultList$: Observable<IApplication[]>;
     userInput: Subject<string> = new Subject();
 
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private translateService: TranslateService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private serverMapInteractionService: ServerMapInteractionService,
@@ -32,12 +30,12 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit, On
 
     ngOnInit() {
         this.getI18NText();
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
-        ).subscribe((urlService: NewUrlStateNotificationService) => {
-            this.hiddenComponent = urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME) ? false : true;
-            this.changeDetectorRef.detectChanges();
-        });
+        this.hiddenComponent$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            map((urlService: NewUrlStateNotificationService) => {
+                return urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME) ? false : true;
+            })
+        );
+        this.searchResultList$ = this.serverMapInteractionService.onSearchResult$;
         this.userInput.pipe(
             distinctUntilChanged(),
             filter((query: string) => {
@@ -46,15 +44,6 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit, On
         ).subscribe((query: string) => {
             this.serverMapInteractionService.setSearchWord(query);
         });
-        this.serverMapInteractionService.onSearchResult$.subscribe((resultList: IApplication[]) => {
-            this.searchResultList = resultList;
-            this.changeDetectorRef.detectChanges();
-        });
-    }
-
-    ngOnDestroy() {
-        this.unsubscribe.next();
-        this.unsubscribe.complete();
     }
 
     private getI18NText() {
