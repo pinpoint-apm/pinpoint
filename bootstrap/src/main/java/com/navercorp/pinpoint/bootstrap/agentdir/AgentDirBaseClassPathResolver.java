@@ -138,7 +138,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         String bootDirPath = agentDirPath + File.separator + "boot";
         String pinpointCommonsJar = find(bootDirPath, "pinpoint-commons.jar", agentCommonsPattern);
         String bootStrapCoreJar = find(bootDirPath, "pinpoint-bootstrap-core.jar", agentCorePattern);
-        String bootStrapJava8Jar = find(bootDirPath, "pinpoint-bootstrap-java9.jar", agentJava8Pattern);
+        String bootStrapJava8Jar = find(bootDirPath, "pinpoint-bootstrap-java8.jar", agentJava8Pattern);
         String bootStrapJava9Jar = find(bootDirPath, "pinpoint-bootstrap-java9.jar", agentJava9Pattern);
         String bootStrapCoreOptionalJar = find(bootDirPath, "pinpoint-bootstrap-core-optional.jar", agentCoreOptionalPattern);
         String annotationsJar = find(bootDirPath,"pinpoint-annotations.jar", annotationsPattern);
