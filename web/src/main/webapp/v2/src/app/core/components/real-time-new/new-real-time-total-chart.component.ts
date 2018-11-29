@@ -44,6 +44,7 @@ export class NewRealTimeTotalChartComponent implements OnInit {
         tooltipEnabled: true,
         titleFontSize: '15px',
         errorFontSize: '15px',
+        duration: 4000,
         chartType: ChartType.SUM
     };
 

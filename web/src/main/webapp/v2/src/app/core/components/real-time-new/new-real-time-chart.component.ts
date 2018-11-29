@@ -36,7 +36,6 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     private max: number;
     private maxRatio = 3 / 4; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
     private ratio: number; // maxRatio를 바탕으로 각 데이터에 적용되는 비율
-    private duration = 4000; // 차트 Area에서 데이터가 흐르는 시간(ms)
     private startingXPos: { [key: string]: number } = {}; // 최초로 움직이기 시작하는 점의 x좌표
     private lastMousePosInCanvas: ICoordinate;
     private chartNumPerRow: number;
@@ -300,13 +299,13 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private setStartingXPos(timeStamp: number, key: string): void {
-        const { chartWidth } = this.chartOption;
+        const { chartWidth, duration } = this.chartOption;
 
         if (!this.chartStart[key]) {
             this.chartStart[key] = timeStamp;
         }
 
-        this.startingXPos[key] = chartWidth - Math.floor(chartWidth / this.duration * (timeStamp - this.chartStart[key]));
+        this.startingXPos[key] = chartWidth - Math.floor(chartWidth / duration * (timeStamp - this.chartStart[key]));
     }
 
     private drawRemovedText(i: number): void {
@@ -594,9 +593,9 @@ export class NewRealTimeChartComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private getXPosInChart(key: string, i: number): number {
-        const { chartWidth } = this.chartOption;
+        const { chartWidth, duration } = this.chartOption;
 
-        return this.startingXPos[key] + Math.floor(chartWidth / this.duration * (this.timeStampList[key][i] - this.firstTimeStamp[key]));
+        return this.startingXPos[key] + Math.floor(chartWidth / duration * (this.timeStampList[key][i] - this.firstTimeStamp[key]));
     }
 
     private isChartOverflow(key: string): boolean {
