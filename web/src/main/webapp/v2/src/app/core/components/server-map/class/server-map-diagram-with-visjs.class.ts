@@ -257,12 +257,19 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
     }
 
     private selectBaseApplication(): void {
-        if (this.baseApplicationKey === '') {
+        const key = this.baseApplicationKey;
+
+        if (key === '' || !this.isNodeInDiagram(key)) {
             return;
         }
 
-        this.setNodeClicked(this.baseApplicationKey);
+        this.setNodeClicked(key);
     }
+
+    private isNodeInDiagram(key: string): boolean {
+        return this.diagram.findNode(key).length !== 0;
+    }
+
     private setNodeClicked(key: string): void {
         this.diagram.selectNodes([key]);
         this.outClickNode.emit(this.getNodeData(key));
@@ -282,7 +289,7 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
 
     selectNodeBySearch(selectedAppKey: string): void {
         let selectedNodeId = selectedAppKey;
-        const isMergedNode = this.diagram.findNode(selectedAppKey).length === 0;
+        const isMergedNode = !this.isNodeInDiagram(selectedAppKey);
 
         if (isMergedNode) {
             const groupKey = selectedAppKey.split('^')[1];
