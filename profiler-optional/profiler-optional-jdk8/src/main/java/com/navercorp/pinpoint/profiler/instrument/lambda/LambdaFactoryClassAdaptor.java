@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
-import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import org.objectweb.asm.ClassReader;
@@ -24,8 +23,6 @@ import org.objectweb.asm.ClassWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -37,17 +34,11 @@ public class LambdaFactoryClassAdaptor {
     private static final String lambdaFactoryClassName = "java/lang/invoke/InnerClassLambdaMetafactory";
     private static final String lambdaFactoryMethodName = "spinInnerClass";
 
-
-
-
     public LambdaFactoryClassAdaptor() {
     }
 
-    public byte[] loadTransformedBytecode() throws IOException {
-        String classResourceName = lambdaFactoryClassName.concat(".class");
-        InputStream stream = ClassLoader.getSystemResourceAsStream(classResourceName);
-        byte[] bytes = IOUtils.toByteArray(stream);
-        LambdaClass lambdaClass = getLambdaClass();
+    public byte[] loadTransformedBytecode(byte[] bytes) {
+        final LambdaClass lambdaClass = getLambdaClass();
         return transform(bytes, lambdaClass);
     }
 
@@ -65,7 +56,7 @@ public class LambdaFactoryClassAdaptor {
         }
 
         final ClassReader reader = new ClassReader(bytes);
-        final ClassWriter writer = new ClassWriter(reader, 0);
+        final ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
 
         final String unsafeClass = lambdaClass.getUnsafeClass();
         final String unsafeMethod = lambdaClass.getUnsafeMethod();
