@@ -113,8 +113,9 @@ public class DefaultApplicationContext implements ApplicationContext {
             final JavaModuleFactory javaModuleFactory = JavaModuleFactoryFinder.lookup(instrumentation);
             ClassFileTransformModuleAdaptor classFileTransformModuleAdaptor = new ClassFileTransformerModuleHandler(instrumentation, classFileTransformer, javaModuleFactory);
             classFileTransformer = wrapJava9ClassFileTransformer(classFileTransformModuleAdaptor);
-            lambdaFactorySetup(instrumentation, classFileTransformModuleAdaptor, javaModuleFactory);
             instrumentation.addTransformer(classFileTransformer, true);
+
+            lambdaFactorySetup(instrumentation, classFileTransformModuleAdaptor, javaModuleFactory);
         } else {
             instrumentation.addTransformer(classFileTransformer, true);
         }

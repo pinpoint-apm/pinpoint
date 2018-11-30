@@ -25,12 +25,9 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.instrument.ClassDefinition;
-import java.lang.instrument.IllegalClassFormatException;
+
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-import java.util.Arrays;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -38,65 +35,56 @@ import java.util.Arrays;
 public class LambdaTransformBootloader {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 
     public void transformLambdaFactory(Instrumentation instrumentation, final ClassFileTransformModuleAdaptor classFileTransformer, final JavaModuleFactory javaModuleFactory)  {
         logger.info("LambdaTransformBootloader.transformLambdaFactory");
-        try {
-            redefineLambdaClass(instrumentation);
-        } catch (Exception e) {
-            logger.warn("Lambda transform fail Caused by:" + e.getMessage(), e);
-        }
+        retransform(instrumentation);
 
-        try {
-            logger.info("Add LambdaBytecodeHandler");
-            final boolean debugEnabled = logger.isDebugEnabled();
-            // for java9 handler
-            LambdaBytecodeHandler lambdaBytecodeHandler = new LambdaBytecodeHandler() {
-                @Override
-                public byte[] handleLambdaBytecode(Class<?> hostClass, byte[] data, Object[] cpPatches) {
-                    if (debugEnabled) {
-                        logger.debug("handleLambdaBytecode hostClass:{} cpPatches:{}", hostClass, Arrays.toString(cpPatches));
-                    }
-                    try {
-                        final ClassLoader classLoader = hostClass.getClassLoader();
-                        final Object module = javaModuleFactory.getModule(hostClass);
-                        final ProtectionDomain protectionDomain = hostClass.getProtectionDomain();
-                        final byte[] transform = classFileTransformer.transform(module, classLoader, null, null, protectionDomain, data);
-                        if (transform != null) {
-                            return transform;
-                        }
-                        return data;
-                    } catch (IllegalClassFormatException e) {
-                        return data;
-                    }
-                }
-            };
+        registerLambdaBytecodeHandler(classFileTransformer, javaModuleFactory);
 
-            Class<?> unsafeDelegator = getUnsafeDelegator();
-            Method register = unsafeDelegator.getMethod("register", LambdaBytecodeHandler.class);
-            register.invoke(unsafeDelegator, lambdaBytecodeHandler);
+    }
+
+    private void retransform(Instrumentation instrumentation) {
+        final String lambdaMetaFactoryName = "java.lang.invoke.InnerClassLambdaMetafactory";
+        try {
+            final Class<?> lamdbaFactoryClazz = Class.forName(lambdaMetaFactoryName, false, null);
+            logger.info("retransformClasses:{}", lamdbaFactoryClazz);
+            instrumentation.retransformClasses(lamdbaFactoryClazz);
         } catch (Exception e) {
-            logger.warn("LambdaBytecodeHandler add fail Caused by:" + e.getMessage(), e);
+            logger.warn("retransform fail class:{}", lambdaMetaFactoryName, e);
         }
     }
 
-    private void redefineLambdaClass(Instrumentation instrumentation) throws Exception {
-        final Class<?> lamdbaFactoryClazz = systemClassLoader.loadClass("java.lang.invoke.InnerClassLambdaMetafactory");
+    private void registerLambdaBytecodeHandler(final ClassFileTransformModuleAdaptor classFileTransformer, final JavaModuleFactory javaModuleFactory)  {
+        try {
+            logger.info("register LambdaBytecodeHandler");
+            // for java9 handler
+            final LambdaBytecodeHandler lambdaBytecodeHandler = newLambdaBytecodeHandler(classFileTransformer, javaModuleFactory);
 
-        final Class<?> lambdaAdaptor = this.getClass().getClassLoader().loadClass("com.navercorp.pinpoint.profiler.instrument.lambda.LambdaFactoryClassAdaptor");
-        final Object instance = lambdaAdaptor.getConstructor().newInstance();
+            final Class<?> unsafeDelegator = getUnsafeDelegator();
+            final Method register = unsafeDelegator.getMethod("register", LambdaBytecodeHandler.class);
+            final boolean success = (Boolean) register.invoke(unsafeDelegator, lambdaBytecodeHandler);
+            if (success) {
+                logger.info("LambdaBytecodeHandler registration success");
+            } else {
+                logger.warn("LambdaBytecodeHandler registration fail");
+            }
+        } catch (Exception e) {
+            logger.error("LambdaBytecodeHandler registration fail Caused by:" + e.getMessage(), e);
+        }
+    }
 
-        Method loadTransformedBytecodeMethod = lambdaAdaptor.getMethod("loadTransformedBytecode");
-        byte[] transformBytecode = (byte[]) loadTransformedBytecodeMethod.invoke(instance);
-
-        ClassDefinition classDefinition = new ClassDefinition(lamdbaFactoryClazz, transformBytecode);
-        instrumentation.redefineClasses(classDefinition);
+    private LambdaBytecodeHandler newLambdaBytecodeHandler(ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
+        final LambdaBytecodeHandler lambdaBytecodeHandler = new DefaultLambdaBytecodeHandler(classFileTransformer, javaModuleFactory);
+        if (LoggerFactory.getLogger(lambdaBytecodeHandler.getClass()).isDebugEnabled()) {
+            return new LambdaBytecodeLogger(lambdaBytecodeHandler);
+        }
+        return lambdaBytecodeHandler;
     }
 
     private Class<?> getUnsafeDelegator() throws ClassNotFoundException {
         String delegatorName = getDelegatorName();
-        return systemClassLoader.loadClass(delegatorName);
+        return Class.forName(delegatorName, false, null);
     }
 
     private String getDelegatorName() {

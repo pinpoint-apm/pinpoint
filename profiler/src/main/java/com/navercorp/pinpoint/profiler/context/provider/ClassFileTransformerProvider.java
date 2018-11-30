@@ -21,6 +21,8 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.DefaultClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
@@ -29,8 +31,10 @@ import com.navercorp.pinpoint.profiler.instrument.transformer.BypassLambdaClassF
 import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformerRegistry;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DefaultLambdaClassFileResolver;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DefaultTransformerRegistry;
+import com.navercorp.pinpoint.profiler.instrument.transformer.InnerClassLambdaMetafactoryTransformer;
 import com.navercorp.pinpoint.profiler.instrument.transformer.LambdaClassFileResolver;
 import com.navercorp.pinpoint.profiler.instrument.transformer.MatchableTransformerRegistry;
+import com.navercorp.pinpoint.profiler.instrument.transformer.PredefinedTransformerRegistry;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
@@ -64,14 +68,27 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
 
     @Override
     public ClassFileTransformer get() {
-        final LambdaClassFileResolver lambdaClassFileResolver = newLambdaClassFileResolver();
+
+        final PredefinedTransformerRegistry predefinedTransformerRegistry = newPredefinedTransformerRegistry(profilerConfig);
+        final LambdaClassFileResolver lambdaClassFileResolver = newLambdaClassFileResolver(profilerConfig);
+
         final BaseTransformerRegistry baseTransformerRegistry = newDefaultTransformerRegistry();
         final TransformerRegistry transformerRegistry = setupTransformerRegistry(baseTransformerRegistry, pluginContextLoadResult);
         final TransformerRegistry debugTransformerRegistry = new DebugTransformerRegistry(profilerConfig, instrumentEngine, dynamicTransformTrigger);
-        return new DefaultClassFileTransformerDispatcher(transformerRegistry, debugTransformerRegistry, dynamicTransformerRegistry, lambdaClassFileResolver);
+        return new DefaultClassFileTransformerDispatcher(predefinedTransformerRegistry, transformerRegistry, debugTransformerRegistry, dynamicTransformerRegistry, lambdaClassFileResolver);
     }
 
-    private LambdaClassFileResolver newLambdaClassFileResolver() {
+    private PredefinedTransformerRegistry newPredefinedTransformerRegistry(ProfilerConfig profilerConfig) {
+        final PredefinedTransformerRegistry predefinedTransformerRegistry = new PredefinedTransformerRegistry();
+        if (profilerConfig.isSupportLambdaExpressions() && JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
+            final InnerClassLambdaMetafactoryTransformer innerClassLambdaMetafactoryTransformer = new InnerClassLambdaMetafactoryTransformer();
+
+            predefinedTransformerRegistry.addRegistry(InnerClassLambdaMetafactoryTransformer.InnerClassLambdaMetafactory, innerClassLambdaMetafactoryTransformer);
+        }
+        return predefinedTransformerRegistry;
+    }
+
+    private LambdaClassFileResolver newLambdaClassFileResolver(ProfilerConfig profilerConfig) {
         if (profilerConfig.isSupportLambdaExpressions()) {
             return new DefaultLambdaClassFileResolver();
         }

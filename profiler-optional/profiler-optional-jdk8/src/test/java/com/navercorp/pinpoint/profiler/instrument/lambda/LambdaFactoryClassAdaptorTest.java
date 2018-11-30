@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,9 +34,11 @@ public class LambdaFactoryClassAdaptorTest {
 
     @Test
     public void transform() throws IOException {
+        InputStream stream = ClassLoader.getSystemResourceAsStream("java/lang/invoke/InnerClassLambdaMetafactory.class");
+        byte[] bytes = IOUtils.toByteArray(stream);
 
         LambdaFactoryClassAdaptor lambdaFactoryClassAdaptor = new LambdaFactoryClassAdaptor();
-        byte[] transform = lambdaFactoryClassAdaptor.loadTransformedBytecode();
+        byte[] transform = lambdaFactoryClassAdaptor.loadTransformedBytecode(bytes);
 
         ByteCodeDumper.verify(transform, ClassLoader.getSystemClassLoader());
 

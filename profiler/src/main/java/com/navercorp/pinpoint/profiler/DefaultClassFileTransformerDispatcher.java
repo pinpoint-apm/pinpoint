@@ -23,9 +23,6 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.transformer.LambdaClassFileResolver;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * @author emeroad
@@ -34,6 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultClassFileTransformerDispatcher implements ClassFileTransformerDispatcher {
 
+    private final TransformerRegistry predefinedTransformerRegistry;
     private final BaseClassFileTransformer baseClassFileTransformer;
     private final TransformerRegistry transformerRegistry;
     private final DynamicTransformerRegistry dynamicTransformerRegistry;
@@ -46,8 +44,9 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 
     private final LambdaClassFileResolver lambdaClassFileResolver;
 
-    public DefaultClassFileTransformerDispatcher(TransformerRegistry transformerRegistry, TransformerRegistry debugTransformerRegistry,
+    public DefaultClassFileTransformerDispatcher(TransformerRegistry predefinedTransformerRegistry, TransformerRegistry transformerRegistry, TransformerRegistry debugTransformerRegistry,
                                                  DynamicTransformerRegistry dynamicTransformerRegistry, LambdaClassFileResolver lambdaClassFileResolver) {
+        this.predefinedTransformerRegistry = Assert.requireNonNull(predefinedTransformerRegistry, "predefinedTransformerRegistry must not be null");
 
         this.baseClassFileTransformer = new BaseClassFileTransformer(this.getClass().getClassLoader());
         this.debugTransformerRegistry = Assert.requireNonNull(debugTransformerRegistry, "debugTransformerRegistry must not be null");
@@ -66,6 +65,12 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         if (!classLoaderFilter.accept(classLoader, classInternalName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
+
+        final ClassFileTransformer predefined = this.predefinedTransformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer);
+        if (predefined != null) {
+            return predefined.transform(classLoader, classInternalName, classBeingRedefined, protectionDomain, classFileBuffer);
+        }
+
 
         final String internalName = lambdaClassFileResolver.resolve(classLoader, classInternalName, protectionDomain, classFileBuffer);
         if (internalName == null) {

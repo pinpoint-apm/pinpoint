@@ -27,15 +27,17 @@ public class UnsafeDelegatorJava9 {
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
     private static LambdaBytecodeHandler handler;
 
-    public static void register(LambdaBytecodeHandler handler) {
+    public static boolean register(LambdaBytecodeHandler handler) {
         if (handler == null) {
             throw new NullPointerException("handler must not be null");
         }
         final LambdaBytecodeHandler localCopy = UnsafeDelegatorJava9.handler;
         if (localCopy == null) {
             UnsafeDelegatorJava9.handler = handler;
+            return true;
         } else {
             System.err.println("LambdaBytecodeHandler already registered");
+            return false;
         }
     }
 
