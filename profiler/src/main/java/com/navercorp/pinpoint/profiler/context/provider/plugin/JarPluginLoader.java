@@ -107,7 +107,7 @@ public class JarPluginLoader implements PluginLoader {
         return file;
     }
 
-    public class Entry {
+    public static class Entry {
         private final URL filePath;
         private final File file;
         private final ClassLoader classLoader;
