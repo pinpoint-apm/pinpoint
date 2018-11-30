@@ -21,9 +21,9 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
  */
 public class ExpectedTraceField {
 
-    public static ExpectedTraceField ALWAYS_TRUE = new ExpectedTraceField(ExpectedTraceFieldType.ALWAYS_TRUE);
-    public static ExpectedTraceField EMPTY = new ExpectedTraceField(ExpectedTraceFieldType.EMPTY);
-    public static ExpectedTraceField NOT_EMPTY = new ExpectedTraceField(ExpectedTraceFieldType.NOT_EMPTY);
+    public static final ExpectedTraceField ALWAYS_TRUE = new ExpectedTraceField(ExpectedTraceFieldType.ALWAYS_TRUE);
+    public static final ExpectedTraceField EMPTY = new ExpectedTraceField(ExpectedTraceFieldType.EMPTY);
+    public static final ExpectedTraceField NOT_EMPTY = new ExpectedTraceField(ExpectedTraceFieldType.NOT_EMPTY);
 
     private final String expected;
     private final ExpectedTraceFieldType expectedType;
