@@ -33,7 +33,7 @@ public class Slf4jCommonLoggerFactory implements CommonLoggerFactory {
     }
 
 
-    private class Sl4jCommonLogger implements CommonLogger {
+    private static class Sl4jCommonLogger implements CommonLogger {
 
         private final Logger logger;
 
