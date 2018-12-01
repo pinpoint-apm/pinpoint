@@ -54,21 +54,19 @@ public class ResponseTimeDataCollector extends DataCollector {
 
     @Override
     public void collect() {
-        if (init.get()) {
-            return;
+        if (init.compareAndSet(false,true)) {
+
+            Range range = Range.createUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
+            List<ResponseTime> responseTimes = responseDao.selectResponseTime(application, range);
+
+            for (ResponseTime responseTime : responseTimes) {
+                sum(responseTime.getAgentResponseHistogramList());
+            }
+
+            setSlowRate();
+            setErrorRate();
+
         }
-
-        Range range = Range.createUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
-        List<ResponseTime> responseTimes = responseDao.selectResponseTime(application, range);
-
-        for (ResponseTime responseTime : responseTimes) {
-            sum(responseTime.getAgentResponseHistogramList());
-        }
-
-        setSlowRate();
-        setErrorRate();
-
-        init.set(true);
     }
 
     private void setSlowRate() {
