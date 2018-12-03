@@ -36,7 +36,7 @@ public class InternalClassMetadataReader {
 
     }
 
-    InternalClassMetadataReader(final ClassReaderWrapper classReader) {
+    private InternalClassMetadataReader(final ClassReaderWrapper classReader) {
         this.classMetadata = new DefaultInternalClassMetadata(classReader.getClassInternalName(), classReader.getSuperClassInternalName(), classReader.getInterfaceInternalNames(), classReader.getAnnotationInternalNames(), classReader.isInterface(), classReader.isAnnotation(), classReader.isSynthetic(), classReader.isInnerClass());
     }
 

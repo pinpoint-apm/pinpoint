@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
-import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
-import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadataReader;
+import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +34,15 @@ public class DefaultLambdaClassFileResolver implements LambdaClassFileResolver {
         if (classInternalName != null) {
             return classInternalName;
         }
+        if (classFileBuffer == null) {
+            return classInternalName;
+        }
 
         // proxy-like class specific for lambda expressions.
         // e.g. Example$$Lambda$1/1072591677
         try {
-            final InternalClassMetadata classMetadata = InternalClassMetadataReader.readInternalClassMetadata(classFileBuffer);
-            return classMetadata.getClassInternalName();
+            final ClassReader classReader = new ClassReader(classFileBuffer, 0, classFileBuffer.length);
+            return classReader.getClassName();
         } catch (Exception e) {
             if (logger.isInfoEnabled()) {
                 logger.info("Failed to read metadata of lambda expressions. classLoader={}", classLoader, e);
