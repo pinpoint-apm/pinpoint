@@ -40,7 +40,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
     @Test
     public void doInBeforeTrace() {
 
-        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor);
+        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
 
         interceptor.doInBeforeTrace(eventRecorder, new Object(), new Object[]{});
 
@@ -50,7 +50,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
     @Test
     public void doInAfterTrace() {
 
-        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor);
+        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
 
         interceptor.doInAfterTrace(eventRecorder, new Object(), new Object[]{}, null, null);
 
@@ -71,11 +71,11 @@ public class ConsumerRecordEntryPointInterceptorTest {
         doReturn(headers).when(consumerRecord).headers();
         doReturn(new Header[]{}).when(headers).toArray();
 
-        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor);
+        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
 
         interceptor.createTrace(new Object(), new Object[]{consumerRecord});
 
-        verify(recorder).recordAcceptorHost("topic:Test");
+        verify(recorder).recordAcceptorHost("Unknown");
         verify(recorder).recordRpcName("kafka://topic=Test?partition=0&offset=1");
 
     }
