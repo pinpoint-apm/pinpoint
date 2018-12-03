@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
+import com.navercorp.pinpoint.profiler.instrument.transformer.InnerClassLambdaMetafactoryTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
 
@@ -49,7 +51,13 @@ public class LambdaTransformBootloader {
         try {
             final Class<?> lamdbaFactoryClazz = Class.forName(lambdaMetaFactoryName, false, null);
             logger.info("retransformClasses:{}", lamdbaFactoryClazz);
-            instrumentation.retransformClasses(lamdbaFactoryClazz);
+            final ClassFileTransformer classFileTransfomrer = new InnerClassLambdaMetafactoryTransformer();
+            instrumentation.addTransformer(classFileTransfomrer, true);
+            try {
+                instrumentation.retransformClasses(lamdbaFactoryClazz);
+            } finally {
+                instrumentation.removeTransformer(classFileTransfomrer);
+            }
         } catch (Exception e) {
             logger.warn("retransform fail class:{}", lambdaMetaFactoryName, e);
         }
