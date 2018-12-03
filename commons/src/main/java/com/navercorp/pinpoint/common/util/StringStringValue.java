@@ -44,12 +44,4 @@ public class StringStringValue {
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StringStringValue that = (StringStringValue) o;
-        return stringValue1.equals(that.getStringValue1()) &&
-                stringValue2.equals(that.getStringValue2());
-    }
 }
