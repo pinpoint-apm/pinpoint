@@ -32,7 +32,7 @@ public class InnerClassLambdaMetafactoryTransformer implements ClassFileTransfor
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final String InnerClassLambdaMetafactory = "java/lang/invoke/InnerClassLambdaMetafactory";
+    private static final String InnerClassLambdaMetafactory = "java/lang/invoke/InnerClassLambdaMetafactory";
 
     private final Object lambdaFactoryClassAdaptor;
     private final Method transformMethod;
@@ -51,6 +51,9 @@ public class InnerClassLambdaMetafactoryTransformer implements ClassFileTransfor
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        if (!InnerClassLambdaMetafactory.equals(className)) {
+            return null;
+        }
         try {
             logger.debug("transform InnerClassLambdaMetafactory");
             final byte[] transformBytecode = (byte[]) transformMethod.invoke(lambdaFactoryClassAdaptor, new Object[]{classfileBuffer});
