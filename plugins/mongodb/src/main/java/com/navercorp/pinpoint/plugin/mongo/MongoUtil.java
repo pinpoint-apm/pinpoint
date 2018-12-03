@@ -26,7 +26,7 @@ import org.bson.BsonValue;
 import org.bson.BsonWriter;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.internal.Base64;
+
 import org.bson.json.JsonWriter;
 
 import java.io.StringWriter;
@@ -46,7 +46,6 @@ public final class MongoUtil {
     private static final MongoWriteConcernMapper mongoWriteConcernMapper = new MongoWriteConcernMapper();
 
     private static final boolean decimal128Enabled = decimal128Enabled();
-    private static final boolean base64ClassEnabled = base64ClassEnabled();
 
     private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 16;
 
@@ -61,16 +60,6 @@ public final class MongoUtil {
             }
         }
         return false;
-    }
-
-    //since Mongo Java Driver 3.5
-    private static boolean base64ClassEnabled() {
-        try {
-            Class.forName("org.bson.internal.Base64");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 
     public static void recordMongoCollection(SpanEventRecorder recorder, String collectionName, String readPreferenceOrWriteConcern) {
@@ -208,7 +197,7 @@ public final class MongoUtil {
 
             } else if (bsonType.equals(BsonType.BINARY)) {
 
-                String abbreviatedBinary = bynaryAbbreviationForMongo(arg);
+                String abbreviatedBinary = binaryAbbreviationForMongo(arg);
                 bsonWriter.writeStartDocument();
                 bsonWriter.writeName("$binary");
                 writeValue(abbreviatedBinary);
@@ -331,35 +320,20 @@ public final class MongoUtil {
 
         }
 
-        private String bynaryAbbreviationForMongo(BsonValue arg) {
+        private String binaryAbbreviationForMongo(BsonValue arg) {
 
-            byte[] binary = arg.asBinary().getData();
-            int binaryLength = binary.length;
+            final byte[] binary = arg.asBinary().getData();
+            final int binaryLength = binary.length;
 
             if (binaryLength > DEFAULT_ABBREVIATE_MAX_WIDTH) {
-                byte[] smallerData = new byte[DEFAULT_ABBREVIATE_MAX_WIDTH];
-                System.arraycopy(binary, 0, smallerData, 0, DEFAULT_ABBREVIATE_MAX_WIDTH);
-
-                if (base64ClassEnabled) {
-                    //since Mongo Java Driver 3.5
-                    return Base64.encode(smallerData) + "...(" + binaryLength + ")";
-                } else {
-                    //since Mongo Driver Up to 3.0
-                    return _printBase64Binary(smallerData) + "...(" + binaryLength + ")";
-                }
+                return Base64.encode(binary, 0, DEFAULT_ABBREVIATE_MAX_WIDTH) + "...(" + binaryLength + ")";
             } else {
-                if (base64ClassEnabled) {
-                    //since Mongo Java Driver 3.5
-                    return Base64.encode(binary);
-                } else {
-                    //since Mongo Driver Up to 3.0
-                    return _printBase64Binary(binary);
-                }
+                return Base64.encode(binary);
             }
         }
 
         private void arrayAbbreviationForMongo(Object arg) {
-            int length = Array.getLength(arg);
+            final int length = Array.getLength(arg);
             for (int i = 0; i < length && i < DEFAULT_ABBREVIATE_MAX_WIDTH - 1; i++) {
                 writeValue(Array.get(arg, i));
             }
@@ -416,84 +390,7 @@ public final class MongoUtil {
             }
         }
 
-        /**
-         * from javax.xml.bind jdk8
-         * checked compatibility with jdk6
-         **/
-        private static final char[] encodeMap = initEncodeMap();
 
-        private static char[] initEncodeMap() {
-            char[] map = new char[64];
-            int i;
-            for (i = 0; i < 26; i++) {
-                map[i] = (char) ('A' + i);
-            }
-            for (i = 26; i < 52; i++) {
-                map[i] = (char) ('a' + (i - 26));
-            }
-            for (i = 52; i < 62; i++) {
-                map[i] = (char) ('0' + (i - 52));
-            }
-            map[62] = '+';
-            map[63] = '/';
-
-            return map;
-        }
-
-        public static String _printBase64Binary(byte[] input) {
-            return _printBase64Binary(input, 0, input.length);
-        }
-
-        public static String _printBase64Binary(byte[] input, int offset, int len) {
-            char[] buf = new char[((len + 2) / 3) * 4];
-            int ptr = _printBase64Binary(input, offset, len, buf, 0);
-            assert ptr == buf.length;
-            return new String(buf);
-        }
-
-        /**
-         * Encodes a byte array into a char array by doing base64 encoding.
-         * <p>
-         * The caller must supply a big enough buffer.
-         *
-         * @return the value of {@code ptr+((len+2)/3)*4}, which is the new offset
-         * in the output buffer where the further bytes should be placed.
-         */
-        public static int _printBase64Binary(byte[] input, int offset, int len, char[] buf, int ptr) {
-            // encode elements until only 1 or 2 elements are left to encode
-            int remaining = len;
-            int i;
-            for (i = offset; remaining >= 3; remaining -= 3, i += 3) {
-                buf[ptr++] = encode(input[i] >> 2);
-                buf[ptr++] = encode(
-                        ((input[i] & 0x3) << 4)
-                                | ((input[i + 1] >> 4) & 0xF));
-                buf[ptr++] = encode(
-                        ((input[i + 1] & 0xF) << 2)
-                                | ((input[i + 2] >> 6) & 0x3));
-                buf[ptr++] = encode(input[i + 2] & 0x3F);
-            }
-            // encode when exactly 1 element (left) to encode
-            if (remaining == 1) {
-                buf[ptr++] = encode(input[i] >> 2);
-                buf[ptr++] = encode(((input[i]) & 0x3) << 4);
-                buf[ptr++] = '=';
-                buf[ptr++] = '=';
-            }
-            // encode when exactly 2 elements (left) to encode
-            if (remaining == 2) {
-                buf[ptr++] = encode(input[i] >> 2);
-                buf[ptr++] = encode(((input[i] & 0x3) << 4)
-                        | ((input[i + 1] >> 4) & 0xF));
-                buf[ptr++] = encode((input[i + 1] & 0xF) << 2);
-                buf[ptr++] = '=';
-            }
-            return ptr;
-        }
-
-        public static char encode(int i) {
-            return encodeMap[i & 0x3F];
-        }
     }
 }
 
