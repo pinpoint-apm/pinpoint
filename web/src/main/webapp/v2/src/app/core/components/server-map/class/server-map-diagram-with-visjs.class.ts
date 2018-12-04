@@ -1,6 +1,6 @@
 import { Network, NodeOptions, EdgeOptions, Color, Node, Edge, Options } from 'vis';
 import { from as fromArray, fromEvent, iif, zip, merge } from 'rxjs';
-import { mergeMap, map, pluck, take, reduce, switchMap } from 'rxjs/operators';
+import { mergeMap, map, pluck, take, reduce, switchMap, tap } from 'rxjs/operators';
 
 import ServerMapTheme from './server-map-theme';
 import { ServerMapDiagram } from './server-map-diagram.class';
@@ -160,6 +160,8 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
     }
 
     setMapData(serverMapData: ServerMapData, baseApplicationKey = ''): void {
+        this.serverMapData = serverMapData;
+        this.baseApplicationKey = baseApplicationKey;
         const nodeList = serverMapData.getNodeList();
         const isDataEmpty = nodeList.length === 0;
 
@@ -232,14 +234,18 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
                 );
             }),
             take(nodeList.length),
+            tap(({id: key}: {id: string}) => {
+                if (key === baseApplicationKey) {
+                    this.outClickNode.emit(this.getNodeData(key));
+                }
+            }),
             reduce((acc: Node[], curr: Node) => {
                 return [...acc, curr];
             }, [] as Node[]),
         ).subscribe((nodes: Node[]) => {
+            this.diagram.redraw();
             this.diagram.setData({nodes, edges});
-            this.serverMapData = serverMapData;
-            this.baseApplicationKey = baseApplicationKey;
-            this.selectBaseApplication();
+            this.diagram.selectNodes([baseApplicationKey]);
         });
     }
 
@@ -254,16 +260,6 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
 
     private getLinkData(key: string): {[key: string]: any} {
         return NodeGroup.isGroupKey(key) ? this.serverMapData.getMergedLinkData(key) : this.serverMapData.getLinkData(key);
-    }
-
-    private selectBaseApplication(): void {
-        const key = this.baseApplicationKey;
-
-        if (key === '' || !this.isNodeInDiagram(key)) {
-            return;
-        }
-
-        this.setNodeClicked(key);
     }
 
     private isNodeInDiagram(key: string): boolean {
