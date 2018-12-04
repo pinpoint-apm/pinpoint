@@ -121,29 +121,30 @@ class GrpcServerPlugin {
             }
         });
 
-        transformTemplate.transform("io.grpc.stub.ServerCalls$StreamingServerCallHandler", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        if (grpcConfig.isServerStreamingEnable()) {
+            transformTemplate.transform("io.grpc.stub.ServerCalls$StreamingServerCallHandler", new TransformCallback() {
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                addStartCallMethodInterceptor(target);
+                    addStartCallMethodInterceptor(target);
 
-                return target.toBytecode();
-            }
-        });
+                    return target.toBytecode();
+                }
+            });
 
 
-        transformTemplate.transform("io.grpc.stub.ServerCalls$StreamingServerCallHandler$StreamingServerCallListener", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            transformTemplate.transform("io.grpc.stub.ServerCalls$StreamingServerCallHandler$StreamingServerCallListener", new TransformCallback() {
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                addListenerMethod(target, grpcConfig.isServerStreamingOnMessageEnable());
+                    addListenerMethod(target, grpcConfig.isServerStreamingOnMessageEnable());
 
-                return target.toBytecode();
-            }
-        });
-
+                    return target.toBytecode();
+                }
+            });
+        }
     }
 
     private void addStartCallMethodInterceptor(InstrumentClass target) throws InstrumentException {
