@@ -21,16 +21,23 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 public class GrpcConfig {
 
     static final String CLIENT_ENABLE = "profiler.grpc.client.enable";
+
     static final String SERVER_ENABLE = "profiler.grpc.server.enable";
+    static final String SERVER_STREAMING_ENABLE = "profiler.grpc.server.streaming.enable";
     static final String SERVER_STREAMING_ON_MESSAGE_ENABLE = "profiler.grpc.server.streaming.onmessage.enable";
 
+
     private final boolean clientEnable;
+
     private final boolean serverEnable;
+    private final boolean serverStreamingEnable;
     private final boolean serverStreamingOnMessageEnable;
 
     public GrpcConfig(ProfilerConfig config) {
         this.clientEnable = config.readBoolean(CLIENT_ENABLE, false);
+
         this.serverEnable = config.readBoolean(SERVER_ENABLE, false);
+        this.serverStreamingEnable = config.readBoolean(SERVER_STREAMING_ENABLE, false);
         this.serverStreamingOnMessageEnable = config.readBoolean(SERVER_STREAMING_ON_MESSAGE_ENABLE, false);
     }
 
@@ -40,6 +47,10 @@ public class GrpcConfig {
 
     public boolean isServerEnable() {
         return serverEnable;
+    }
+
+    public boolean isServerStreamingEnable() {
+        return serverStreamingEnable;
     }
 
     public boolean isServerStreamingOnMessageEnable() {

@@ -74,7 +74,7 @@ public class GrpcServerCallMethodDescritpro implements MethodDescriptor {
 
     @Override
     public String getApiDescriptor() {
-        return "Grpc HTTP Server";
+        return "gRPC HTTP Server";
     }
 
     public int getType() {

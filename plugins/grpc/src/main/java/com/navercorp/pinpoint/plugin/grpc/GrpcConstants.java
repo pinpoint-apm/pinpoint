@@ -29,13 +29,13 @@ public final class GrpcConstants {
     private GrpcConstants() {
     }
 
-    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(9160, "GRPC", RECORD_STATISTICS);
-    public static final ServiceType SERVICE_TYPE_INTERNAL = ServiceTypeFactory.of(9161, "GRPC_INTERNAL");
+    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(9160, "gRPC", RECORD_STATISTICS);
+    public static final ServiceType SERVICE_TYPE_INTERNAL = ServiceTypeFactory.of(9161, "gRPC_INTERNAL");
 
-    public static final ServiceType SERVER_SERVICE_TYPE = ServiceTypeFactory.of(1130, "GRPC_SERVER", RECORD_STATISTICS);
-    public static final ServiceType SERVER_SERVICE_TYPE_INTERNAL = ServiceTypeFactory.of(9162, "GRPC_SERVER_INTERNAL");
+    public static final ServiceType SERVER_SERVICE_TYPE = ServiceTypeFactory.of(1130, "gRPC_SERVER", RECORD_STATISTICS);
+    public static final ServiceType SERVER_SERVICE_TYPE_INTERNAL = ServiceTypeFactory.of(9162, "gRPC_SERVER_INTERNAL");
 
-    public static final AnnotationKey CLIENT_STATUS_ANNOTATION = AnnotationKeyFactory.of(160, "grpc.status", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey CLIENT_STATUS_ANNOTATION = AnnotationKeyFactory.of(160, "gRPC.status", VIEW_IN_RECORD_SET);
 
     public static final String UNKNOWN_ADDRESS = "Unknown";
     public static final String UNKNOWN_METHOD = "UnknownMethod";
