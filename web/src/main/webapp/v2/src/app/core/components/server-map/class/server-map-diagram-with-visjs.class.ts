@@ -11,6 +11,7 @@ import { NodeGroup } from './node-group.class';
 
 export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
     private diagram: Network;
+    private isFirstLoad: boolean;
 
     constructor(
         private option: IServerMapOption
@@ -160,6 +161,7 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
     }
 
     setMapData(serverMapData: ServerMapData, baseApplicationKey = ''): void {
+        this.isFirstLoad = this.serverMapData ? false : true;
         this.serverMapData = serverMapData;
         this.baseApplicationKey = baseApplicationKey;
         const nodeList = serverMapData.getNodeList();
@@ -243,7 +245,9 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
                 return [...acc, curr];
             }, [] as Node[]),
         ).subscribe((nodes: Node[]) => {
-            this.diagram.redraw();
+            if (this.isFirstLoad) {
+                this.diagram.redraw();
+            }
             this.diagram.setData({nodes, edges});
             this.diagram.selectNodes([baseApplicationKey]);
         });
