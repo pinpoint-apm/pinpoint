@@ -1,7 +1,5 @@
 :host {
     position: relative;
-    border-left: 1px solid #e5e8f0;
-    border-right: 1px solid #e5e8f0;
 }
 .l-sidemenu-wrap {
     display: flex;
@@ -13,6 +11,7 @@
 .l-sidemenu {
     height: 100%;
     z-index: 10;
+    border-left: 1px solid #e5e8f0;
     background-color: #fff;
 }
 .l-title-group {

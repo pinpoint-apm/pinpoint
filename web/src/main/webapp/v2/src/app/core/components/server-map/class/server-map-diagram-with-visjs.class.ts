@@ -161,7 +161,7 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
     }
 
     setMapData(serverMapData: ServerMapData, baseApplicationKey = ''): void {
-        this.isFirstLoad = !this.serverMapData || this.serverMapData.getNodeCount() === 0 ? true : false;
+        this.isFirstLoad = !this.serverMapData ? true : false;
         this.serverMapData = serverMapData;
         this.baseApplicationKey = baseApplicationKey;
         const nodeList = serverMapData.getNodeList();
@@ -248,6 +248,7 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
             if (this.isFirstLoad) {
                 this.diagram.redraw();
             }
+
             this.diagram.setData({nodes, edges});
             this.diagram.selectNodes([baseApplicationKey]);
         });
