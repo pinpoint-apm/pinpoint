@@ -74,12 +74,10 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     ngOnInit() {
         this.setScatterY();
         this.getI18NText();
-        this.connectStore();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.scatterChartMode = urlService.isRealTimeMode() ? ScatterChart.MODE.REALTIME : ScatterChart.MODE.STATIC;
-            this.scatterChartDataService.setCurrentMode(this.scatterChartMode);
             this.selectedApplication = this.application = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
             this.selectedAgent = urlService.hasValue(UrlPathId.AGENT_ID) ? urlService.getPathValue(UrlPathId.AGENT_ID) : '';
             this.fromX = urlService.getStartTimeToNumber();
@@ -93,31 +91,42 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         this.scatterChartDataService.outScatterData$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((scatterData: IScatterData) => {
-            if (this.scatterChartMode === ScatterChart.MODE.STATIC) {
-                this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
-                if (scatterData.complete === false) {
-                    this.scatterChartDataService.loadData(
-                        this.selectedApplication.split('^')[0],
-                        this.fromX,
-                        scatterData.resultFrom - 1,
-                        this.getGroupUnitX(),
-                        this.getGroupUnitY(),
-                        false
-                    );
-                }
-            } else {
-                if (scatterData.reset === true) {
-                    this.fromX = scatterData.currentServerTime - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
-                    this.toX = scatterData.currentServerTime;
-                    this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
-                    of(1).pipe(delay(1000)).subscribe((useless: number) => {
-                        this.getScatterData();
-                    });
-                } else {
-                    this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
-                }
+            this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
+            if (scatterData.complete === false) {
+                this.scatterChartDataService.loadData(
+                    this.selectedApplication.split('^')[0],
+                    this.fromX,
+                    scatterData.resultFrom - 1,
+                    this.getGroupUnitX(),
+                    this.getGroupUnitY(),
+                    false
+                );
             }
         });
+        this.scatterChartDataService.outRealTimeScatterData$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((scatterData: IScatterData) => {
+            if (scatterData.reset === true) {
+                this.fromX = scatterData.currentServerTime - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
+                this.toX = scatterData.currentServerTime;
+                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+                of(1).pipe(delay(1000)).subscribe((useless: number) => {
+                    this.getScatterData();
+                });
+            } else {
+                this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
+            }
+        });
+        this.scatterChartDataService.outScatterErrorData$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.scatterChartInteractionService.setError(error);
+        });
+        this.scatterChartDataService.outRealTimeScatterErrorData$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+        });
+        this.connectStore();
     }
     ngOnDestroy() {
         if (this.scatterDataServiceSubscription) {
@@ -149,22 +158,15 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         });
     }
     getScatterData(): void {
-        if (this.scatterChartMode === ScatterChart.MODE.STATIC) {
-            this.scatterChartDataService.loadData(
-                this.selectedApplication.split('^')[0],
-                this.fromX,
-                this.toX,
-                this.getGroupUnitX(),
-                this.getGroupUnitY()
-            );
-        } else {
-            this.scatterChartDataService.loadRealTimeData(
-                this.selectedApplication.split('^')[0],
-                this.fromX,
-                this.toX,
-                this.getGroupUnitX(),
-                this.getGroupUnitY()
-            );
+        this.scatterChartDataService.loadData(
+            this.selectedApplication.split('^')[0],
+            this.fromX,
+            this.toX,
+            this.getGroupUnitX(),
+            this.getGroupUnitY()
+        );
+        if (this.scatterChartMode === ScatterChart.MODE.REALTIME) {
+            this.scatterChartDataService.loadRealTimeDataV2(this.toX);
         }
     }
     getGroupUnitX(): number {
