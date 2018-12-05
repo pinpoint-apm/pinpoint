@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Subject, Observable, fromEvent } from 'rxjs';
-import { takeUntil, filter, tap, delay } from 'rxjs/operators';
+import { takeUntil, filter, delay } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -100,9 +100,8 @@ export class NewRealTimeContainerComponent implements OnInit, AfterViewInit, OnD
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 0);
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
             filter((target: ISelectedTarget) => {
-                return target && (target.isMerged === true || target.isMerged === false) ? true : false;
+                return target && (target.isMerged === true || target.isMerged === false) ? (this.hiddenComponent = false, true) : (this.hiddenComponent = true, false);
             }),
-            tap(() => this.hiddenComponent = false),
             filter(() => {
                 return !(this.isPinUp && this.applicationName !== '');
             })
