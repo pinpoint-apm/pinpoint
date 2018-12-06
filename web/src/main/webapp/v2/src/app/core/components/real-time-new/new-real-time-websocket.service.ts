@@ -43,6 +43,9 @@ export const enum ResponseCode {
 @Injectable()
 export class NewRealTimeWebSocketService {
     private url = 'agent/activeThread.pinpointws';
+    private timeoutLimit = 5; // 서버로부터의 timeout response를 무시하는 최대횟수
+    private timeoutCount: { [key: string]: number } = {}; // 각 agent별 timeout된 횟수
+    private prevData: { [key: string]: IActiveThreadCounts } = {}; // Success일때의 데이터({ code, message, status })를 킵
     private delayLimit = 5000; // 서버로부터의 응답을 기다리는 최대시간(ms)
     private retryTimeout = 3000;
     private retryCount = 0;
@@ -110,7 +113,7 @@ export class NewRealTimeWebSocketService {
             filter((message: IWebSocketData) => {
                 return message.type === ResponseType.PING ? (this.send({ type: 'PONG' }), false) : true;
             }),
-            map(({result}: {result: IWebSocketDataResult}) => result),
+            map(({result}: {result: IWebSocketDataResult}) => this.parseResult(result)),
             timeout(this.delayLimit),
             catchError((err: any) => err.name === 'TimeoutError' ? this.onTimeout() : throwError(err)),
             filter((message: IWebSocketDataResult | null) => {
@@ -128,6 +131,32 @@ export class NewRealTimeWebSocketService {
             console.log('Complete');
             this.closed();
         });
+    }
+
+    private parseResult(result: IWebSocketDataResult): IWebSocketDataResult {
+        const activeThreadCounts = Object.keys(result.activeThreadCounts).reduce((prev: IWebSocketDataResult, curr: string) => {
+            let agentData = result.activeThreadCounts[curr];
+            const responseCode = agentData.code;
+
+            switch (responseCode) {
+                case ResponseCode.SUCCESS:
+                    this.timeoutCount[curr] = 0;
+                    this.prevData[curr] = agentData;
+                    break;
+                case ResponseCode.TIMEOUT:
+                    this.timeoutCount[curr] = this.timeoutCount[curr] ? this.timeoutCount[curr] + 1 : 1;
+                    agentData = this.prevData[curr] && this.timeoutCount[curr] < this.timeoutLimit ? this.prevData[curr] : agentData;
+                    break;
+                default:
+                    break;
+            }
+            return {
+                ...prev,
+                ...{ [curr]: agentData }
+            };
+        }, {});
+
+        return { ...result, ...{ activeThreadCounts } };
     }
 
     // TODO: No Response 메시지 띄워주기
