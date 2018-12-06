@@ -93,6 +93,10 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
                     // 6.0.4+
                     constructor_6_X = target.getConstructor("com.mysql.cj.core.conf.url.HostInfo");
                 }
+                if (constructor_6_X == null) {
+                    // 8.x+
+                    constructor_6_X = target.getConstructor("com.mysql.cj.conf.HostInfo");
+                }
                 if (constructor_6_X != null) {
                     target.addGetter("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.getter.OrigHostToConnectToGetter", "origHostToConnectTo");
                     target.addGetter("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.getter.OrigPortToConnectToGetter", "origPortToConnectTo");
@@ -214,6 +218,9 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mysql.jdbc.PreparedStatement", transformCallback);
         // 6.x+
         transformTemplate.transform("com.mysql.cj.jdbc.PreparedStatement", transformCallback);
+        // 8.0.11+
+        transformTemplate.transform("com.mysql.cj.jdbc.ClientPreparedStatement", transformCallback);
+        transformTemplate.transform("com.mysql.cj.jdbc.ServerPreparedStatement", transformCallback);
     }
 
     private void addCallableStatementTransformer(final MySqlConfig config) {
