@@ -43,6 +43,7 @@ import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootload
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
+import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
@@ -67,6 +68,8 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final AgentStatMonitor agentStatMonitor;
 
     private final TraceContext traceContext;
+
+    private final CommandDispatcher commandDispatcher;
 
     private final PinpointClientFactory clientFactory;
     private final EnhancedDataSender tcpDataSender;
@@ -120,6 +123,9 @@ public class DefaultApplicationContext implements ApplicationContext {
         } else {
             instrumentation.addTransformer(classFileTransformer, true);
         }
+
+        this.commandDispatcher = injector.getInstance(Key.get(CommandDispatcher.class));
+        logger.info("commandDispatcher:{}", commandDispatcher);
 
         this.spanStatClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanStatClientFactory.class));
         logger.info("spanStatClientFactory:{}", spanStatClientFactory);
@@ -259,6 +265,8 @@ public class DefaultApplicationContext implements ApplicationContext {
         }
 
         closeTcpDataSender();
+
+        this.commandDispatcher.close();
 
         if (profilerConfig.getStaticResourceCleanup()) {
             this.interceptorRegistryBinder.unbind();

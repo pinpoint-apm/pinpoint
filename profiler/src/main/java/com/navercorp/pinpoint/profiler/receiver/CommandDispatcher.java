@@ -34,12 +34,13 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
-public class CommandDispatcher implements MessageListener, ServerStreamChannelMessageListener  {
+public class CommandDispatcher implements MessageListener, ServerStreamChannelMessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -120,6 +121,29 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
     public Set<Short> getRegisteredCommandServiceCodes() {
         return commandServiceLocator.getCommandServiceCodes();
+    }
+
+    public void close() {
+        logger.info("close() started");
+
+        Set<Short> commandServiceCodes = commandServiceLocator.getCommandServiceCodes();
+        for (Short commandServiceCode : commandServiceCodes) {
+            ProfilerCommandService service = commandServiceLocator.getService(commandServiceCode);
+            if (service instanceof Closeable) {
+                try {
+                    ((Closeable) service).close();
+                } catch (Exception e) {
+                    logger.warn("failed to close for CommandService:{}. message:{}", service, e.getMessage());
+                }
+            }
+        }
+
+        logger.info("close() completed");
+    }
+
+    @Override
+    public String toString() {
+        return "CommandDispatcher{" + commandServiceLocator.getCommandServiceCodes() + '}';
     }
 
 }

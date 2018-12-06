@@ -38,6 +38,7 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Taejin Koo
  */
-public class ActiveThreadCountService implements ProfilerRequestCommandService<TBase<?, ?>, TBase<?, ?>>, ProfilerStreamCommandService<TBase<?, ?>> {
+public class ActiveThreadCountService implements ProfilerRequestCommandService<TBase<?, ?>, TBase<?, ?>>, ProfilerStreamCommandService<TBase<?, ?>>, Closeable {
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
@@ -146,6 +147,13 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
             logger.warn("exceptionCaught caused:{}. ServerStreamChannel:{}, StreamChannelStateCode:{}.", e.getMessage(), streamChannel, updatedStateCode, e);
         }
 
+    }
+
+    @Override
+    public void close() {
+        if (timer != null) {
+            timer.stop();
+        }
     }
 
     private class ActiveThreadCountTimerTask implements TimerTask {
