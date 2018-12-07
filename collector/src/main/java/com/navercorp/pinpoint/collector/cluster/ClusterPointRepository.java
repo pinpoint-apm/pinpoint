@@ -45,7 +45,7 @@ public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPo
 
     public boolean removeClusterPoint(T clusterPoint) {
         if (logger.isInfoEnabled()) {
-            logger.info("addClusterPoint(clusterPoint = [{}])", clusterPoint);
+            logger.info("removeClusterPoint(clusterPoint = [{}])", clusterPoint);
         }
 
         boolean isRemove = clusterPointRepository.remove(clusterPoint);
