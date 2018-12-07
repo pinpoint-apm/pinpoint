@@ -1,4 +1,3 @@
-import { ITypeInfo } from './scatter-chart.class';
 import { ScatterChartTransactionTypeManager } from './scatter-chart-transaction-type-manager.class';
 
 export enum DataIndex {
@@ -16,8 +15,6 @@ export enum MetadataIndex {
 export class ScatterChartDataBlock {
     private from: number;
     private to: number;
-    private resultFrom: number;
-    private resultTo: number;
 
     private agentMetadata: { [key: string]: any[] };
     private transactionData: number[][];
@@ -47,11 +44,11 @@ export class ScatterChartDataBlock {
         this.from = this.originalData.from;
         this.to = this.originalData.to;
         if (this.originalData.complete) {
-            this.fromX = this.resultFrom = this.originalData.from;
-            this.toX = this.resultTo = this.originalData.to;
+            this.fromX = this.originalData.from;
+            this.toX = this.originalData.to;
         } else {
-            this.fromX = this.resultFrom = this.originalData.resultFrom;
-            this.toX = this.resultTo = this.originalData.resultTo;
+            this.fromX = this.originalData.resultFrom;
+            this.toX = this.originalData.resultTo;
         }
         this.agentMetadata = this.originalData.scatter.metadata;
         this.transactionData = [];
@@ -111,7 +108,7 @@ export class ScatterChartDataBlock {
         }
     }
     getCount(agentName: string, type: string, fromX?: number, toX?: number): number {
-        if ( fromX && toX ) {
+        if (fromX && toX) {
             return this.getCountOfRange(agentName, type, fromX, toX);
         } else {
             if (agentName === '') {
@@ -133,10 +130,10 @@ export class ScatterChartDataBlock {
         // @TODO: agentName : ALL 인 경우 처리
         let sum = 0;
         const length = this.transactionDataByAgent[agentName].length;
-        if (this.from >= toX || this.to <= fromX || length === 0 || (agentName in this.countByType) === false) {
+        if (this.fromX >= toX || this.toX <= fromX || length === 0 || (agentName in this.countByType) === false) {
             return sum;
         }
-        if (this.from >= fromX && this.to <= toX) {
+        if (this.fromX >= fromX && this.toX <= toX) {
             return this.getCount(agentName, type);
         }
         for (let i = 0 ; i < length ; i++) {
@@ -144,13 +141,11 @@ export class ScatterChartDataBlock {
             if (data[DataIndex.X] < fromX) {
                 break;
             }
-            // if (agentName === this.getAgentName(data)) {
-                if (type === this.typeManager.getNameByIndex(data[DataIndex.TYPE])) {
-                    if (data[DataIndex.X] <= toX) {
-                        sum++;
-                    }
+            if (type === this.typeManager.getNameByIndex(data[DataIndex.TYPE])) {
+                if (data[DataIndex.X] <= toX) {
+                    sum++;
                 }
-            // }
+            }
         }
         return sum;
     }

@@ -275,7 +275,6 @@ export class ScatterChart {
             this.removeBubble();
         }
         this.changeSelectedAgent(this.selectedAgent);
-        this.outTransactionCount.next(this.getTransactionCount(false));
     }
     private drawDataBlock(dataBlock: ScatterChartDataBlock): void {
         const prefix = this.options.prefix;
@@ -330,7 +329,7 @@ export class ScatterChart {
 
         const data = [];
         const yRange = this.coordinateManager.getY();
-        const typeChecker = {};
+        const typeChecker: { [key: string]: boolean } = {};
         selectedType.forEach((type: string) => {
             typeChecker[type] = true;
         });
