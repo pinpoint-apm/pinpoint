@@ -22,6 +22,9 @@ export class BrowserSupportCheckService {
         }, {
             name: 'Microsoft Edge',
             version: 42
+        }, {
+            name: 'NAVER Whale browser',
+            version: 1
         }
     ];
 
@@ -33,7 +36,7 @@ export class BrowserSupportCheckService {
     private isBrowserSupported(): boolean {
         const userBrowserInfo = {
             name: bowser.name,
-            version: Math.trunc(Number(bowser.version))
+            version: Number((bowser.version as string).split('.')[0])
         };
 
         return this.latestBrowserList.findIndex((browserInfo) => {
