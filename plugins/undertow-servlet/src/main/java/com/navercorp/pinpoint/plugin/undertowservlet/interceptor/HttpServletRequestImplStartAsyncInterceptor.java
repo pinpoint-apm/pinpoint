@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.undertow.interceptor;
+package com.navercorp.pinpoint.plugin.undertowservlet.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.undertow.UndertowAsyncListener;
-import com.navercorp.pinpoint.plugin.undertow.UndertowConstants;
+import com.navercorp.pinpoint.plugin.undertowservlet.UndertowAsyncListener;
+import com.navercorp.pinpoint.plugin.undertowservlet.UndertowServletConstants;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncListener;
@@ -79,7 +79,7 @@ public class HttpServletRequestImplStartAsyncInterceptor implements AroundInterc
                     logger.debug("Add async listener {}", asyncListener);
                 }
             }
-            recorder.recordServiceType(UndertowConstants.UNDERTOW_METHOD);
+            recorder.recordServiceType(UndertowServletConstants.UNDERTOW_SERVLET_METHOD);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
         } catch (Throwable t) {

@@ -80,6 +80,7 @@
         <module>php</module>
         <module>akka-http</module>
         <module>undertow</module>
+        <module>undertow-servlet</module>
         <module>kafka</module>
         <module>mongodb</module>
         <module>fastjson</module>
