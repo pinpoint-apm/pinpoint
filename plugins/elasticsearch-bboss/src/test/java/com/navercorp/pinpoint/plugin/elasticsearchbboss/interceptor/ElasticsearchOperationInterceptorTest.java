@@ -81,16 +81,7 @@ public class ElasticsearchOperationInterceptorTest {
         }
     }
 
-    @Test
-    public void convertArray(){
-        try {
-            elasticsearchExecutorOperationInterceptor.convertArray(args,new StringBuilder());
-        }
-        catch (Exception e){
 
-        }
-
-    }
 
     @Test
     public void doInEventAfterTrace() {

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
@@ -66,43 +67,43 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
 
 
 	public String convertParams(Object[] args){
+
 		if(args != null && args.length > 0){
+			if(args.length == 1){
+				return String.valueOf(args[0]);
+			}
 			StringBuilder builder = new StringBuilder();
+			int i = 0;
 			for(Object arg:args) {
-				boolean isArray = arg != null && arg.getClass().isArray();
 
-
-				if(builder.length() > 0) {
+				if(i > 0) {
 					builder.append(",");
 
 				}
-				if(!isArray) {
-					builder.append(arg);
-				}
-				else{
-					convertArray(  arg,  builder);
-				}
+				convertInner(  arg,  builder);
+				i ++;
 			}
 			return builder.toString();
 		}
 		return null;
 	}
 
-	public void convertArray(Object arg,StringBuilder builder){
-		builder.append("[");
-		Object[] fields = (Object[])arg;
-		boolean isfirst = true;
-		for(Object f:fields){
-			if(isfirst){
-				isfirst = false;
-			}
-			else{
-				builder.append(",");
-
-			}
-			builder.append(f);
+	private void convertInner(Object arg,StringBuilder builder){
+		boolean isArray = arg != null && arg.getClass().isArray();
+		if(!isArray) {
+			builder.append(arg);
 		}
-		builder.append("]");
+		else {
+			builder.append("[");
+			for (int i = 0; i < Array.getLength(arg); i ++) {
+				if (i > 0) {
+					builder.append(",");
+
+				}
+				convertInner(Array.get(arg,i),  builder);
+			}
+			builder.append("]");
+		}
 	}
 
     protected ElasticsearchBaseOperationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
@@ -231,6 +232,8 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
     protected void deleteTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable) {
         trace.close();
     }
+
+
 
 
 

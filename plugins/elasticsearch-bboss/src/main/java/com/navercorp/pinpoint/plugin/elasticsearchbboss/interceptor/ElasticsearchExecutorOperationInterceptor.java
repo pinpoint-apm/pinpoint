@@ -56,7 +56,6 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
             String rpc = buffer.toString();//builder.append();
             recorder.recordRpcName(rpc);
             recorder.recordEndPoint(rpc);
-            //recorder.recordRemoteAddress(rpc);
         }
     }
 
@@ -94,15 +93,9 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 		recorder.recordApi(getMethodDescriptor());
         if(recordESVersion)
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY,elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
-//        recorder.recordApiCachedString(getMethodDescriptor(),elasticsearchClusterVersionInfo,0);
         recorder.recordException(throwable);
         if (recordArgs && args != null && args.length > 0) {
-            //recorder.recordApiCachedString(getMethodDescriptor(),convertParams(args),0);
-
-//            MethodDescriptor methodDescriptor = getMethodDescriptor();
             recordAttributes(  recorder,   methodDescriptor,  args);
-        } else {
-//            recorder.recordApi(getMethodDescriptor());
         }
 
         if(recordResult){
@@ -111,76 +104,31 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
     }
 
     private void recordAttributes(SpanEventRecorder recorder, MethodDescriptor methodDescriptor,Object[] args){
-        if(methodDescriptor.getMethodName().equals("execute")) {
-//            recorder.recordApi(getMethodDescriptor());
-            //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if(recordDsl)
-                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            if(recordResponseHandler)
-                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
-//                recorder.recordDestinationId(String.valueOf(args[0]));
-        }
-        else if(methodDescriptor.getMethodName().equals("executeHttp")) {
-//            recorder.recordApi(getMethodDescriptor());
-            //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if(recordDsl)
-                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2]);
-            if(recordResponseHandler)
-                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
-//                recorder.recordDestinationId(String.valueOf(args[0]));
-        }
-        else if(methodDescriptor.getMethodName().equals("executeSimpleRequest")) {
-//            recorder.recordApi(getMethodDescriptor());
-            //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if(recordDsl)
-                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            if(recordResponseHandler)
-                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
-
-        }
-        else if(methodDescriptor.getMethodName().equals("executeRequest")) {
-//            recorder.recordApi(getMethodDescriptor());
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if(recordDsl)
-                recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
-            recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2] );
-            if(recordResponseHandler)
-                recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
-
-        }
+        recordAttributes(new SpanEventRecorderWraper(recorder), methodDescriptor,args);
     }
 
     private void recordAttributes(SpanRecorder recorder, MethodDescriptor methodDescriptor,Object[] args){
+        recordAttributes(new SpanRecorderWraper(recorder), methodDescriptor,args);
+    }
+    private void recordAttributes(RecorderWraper recorder, MethodDescriptor methodDescriptor,Object[] args){
         if(methodDescriptor.getMethodName().equals("execute")) {
-//            recorder.recordApi(getMethodDescriptor());
-            //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
+
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
             if(recordDsl)
                 recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
+            recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, "POST");
             if(recordResponseHandler)
                 recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
-//                recorder.recordDestinationId(String.valueOf(args[0]));
         }
         else if(methodDescriptor.getMethodName().equals("executeHttp")) {
-//            recorder.recordApi(getMethodDescriptor());
-            //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
             if(recordDsl)
                 recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_ACTION_ANNOTATION_KEY, args[2]);
             if(recordResponseHandler)
                 recorder.recordAttribute(ElasticsearchPlugin.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
-//                recorder.recordDestinationId(String.valueOf(args[0]));
         }
         else if(methodDescriptor.getMethodName().equals("executeSimpleRequest")) {
-//            recorder.recordApi(getMethodDescriptor());
-            //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
             if(recordDsl)
                 recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
@@ -190,7 +138,6 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
 
         }
         else if(methodDescriptor.getMethodName().equals("executeRequest")) {
-//            recorder.recordApi(getMethodDescriptor());
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_URL_ANNOTATION_KEY, args[0]);
             if(recordDsl)
                 recorder.recordAttribute(ElasticsearchPlugin.ARGS_DSL_ANNOTATION_KEY, args[1]);
@@ -209,17 +156,9 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
             recorder.recordAttribute(ElasticsearchPlugin.ARGS_VERSION_ANNOTATION_KEY,elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
         recorder.recordException(throwable);
 
-//        recorder.recordApiCachedString(getMethodDescriptor(),elasticsearchClusterVersionInfo,0);
         if (recordArgs && args != null && args.length > 0) {
-//            recorder.recordApiCachedString(getMethodDescriptor(),elasticsearchClusterVersionInfo,0);
-//            recorder.recordApi(getMethodDescriptor());
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_ANNOTATION_KEY,convertParams(args));
             recordAttributes(  recorder,   methodDescriptor,  args);
-            //recorder.recordAttribute(AnnotationKey.ARGS0,convertParams(args));
 
-        } else {
-//            recorder.recordApi(getMethodDescriptor());
-//            recorder.recordApiCachedString(getMethodDescriptor(),elasticsearchClusterVersionInfo,0);
         }
 
         if(recordResult){
