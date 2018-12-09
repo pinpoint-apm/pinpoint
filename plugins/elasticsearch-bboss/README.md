@@ -19,11 +19,22 @@ Other Applications
 For more BBoss Elasticsearch Highlevel Rest Client detail see :
  https://www.oschina.net/p/bboss-elastic
 
+github sourcecode:
+https://github.com/bbossgroups/bboss-elastic 
+
 Fast import bboss to your project:
 1. For Spring boot project see
 https://my.oschina.net/bboss/blog/1835601
 2. For normal maven or gradle project see
 https://my.oschina.net/bboss/blog/1801273 
+
+Demo
+eshelloworld-booter[booter]
+
+eshelloword-spring-boot-starter[springbooter]
+
+[booter]: https://github.com/bbossgroups/eshelloword-booter
+[springbooter]: https://github.com/bbossgroups/eshelloword-spring-boot-starter
 
 [bs]: https://github.com/bbossgroups/bboss-elastic
 [es]: http://www.elasticsearch.org
