@@ -48,6 +48,7 @@ https://my.oschina.net/bboss/blog/1835601
 https://my.oschina.net/bboss/blog/1801273 
 
 ElasticsearchBBoss Demo
+
 [eshelloworld-booter][booter]
 
 [eshelloword-spring-boot-starter][springbooter]
