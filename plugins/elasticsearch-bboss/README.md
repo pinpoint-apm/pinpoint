@@ -4,6 +4,17 @@ This agent plugin is worked with elasticsearch bboss highlevel rest client [BBos
 
 [BBoss][bs] is a best Java Highlevel Rest client for [ElasticSearch][es].
 
+ElasticsearchBBoss Plugin支持两种工作模式：
+独立应用模式：可以在java application中独立运行，上下文中没有root trace，自动产生一个root trace。
+嵌入模式：如果上下文中有trace，则作为span event加入上下文trace。
+可以运行[DocumentCRUDTest][DocumentCRUDTest]类的main方法验证独立工作模式
+
+
+ElasticsearchBBoss Plugin support two working modes:
+Independent application mode: It can run independently in Java application without root trace in the context, and automatically generate a root trace.
+Embedded mode: If there is trace in the context, add context trace as span event.
+You can run the main method of the [DocumentCRUDTest][DocumentCRUDTest] class to verify the independent working mode.
+
 Some work pictures of this plugin:
 Applications in tomcat
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/9c140814559b0c6123bf0e4f8cad51f22ab.jpg)
@@ -28,16 +39,17 @@ https://my.oschina.net/bboss/blog/1835601
 2. For normal maven or gradle project see
 https://my.oschina.net/bboss/blog/1801273 
 
-Demo
-eshelloworld-booter[booter]
+ElasticsearchBBoss Demo
+[eshelloworld-booter][booter]
 
-eshelloword-spring-boot-starter[springbooter]
+[eshelloword-spring-boot-starter][springbooter]
 
 [booter]: https://github.com/bbossgroups/eshelloword-booter
 [springbooter]: https://github.com/bbossgroups/eshelloword-spring-boot-starter
 
 [bs]: https://github.com/bbossgroups/bboss-elastic
 [es]: http://www.elasticsearch.org
+[DocumentCRUDTest]: https://github.com/bbossgroups/eshelloword-booter/blob/master/src/test/java/org/bboss/elasticsearchtest/crud/DocumentCRUDTest.java
 
 
  
