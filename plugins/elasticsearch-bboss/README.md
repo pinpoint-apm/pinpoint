@@ -5,14 +5,22 @@ This agent plugin is worked with elasticsearch bboss highlevel rest client [BBos
 [BBoss][bs] is a best Java Highlevel Rest client for [ElasticSearch][es].
 
 ElasticsearchBBoss Plugin支持两种工作模式：
+
 独立应用模式：可以在java application中独立运行，上下文中没有root trace，自动产生一个root trace。
+
 嵌入模式：如果上下文中有trace，则作为span event加入上下文trace。
+
 可以运行[DocumentCRUDTest][DocumentCRUDTest]类的main方法验证独立工作模式
 
 
 ElasticsearchBBoss Plugin support two working modes:
-Independent application mode: It can run independently in Java application without root trace in the context, and automatically generate a root trace.
-Embedded mode: If there is trace in the context, add context trace as span event.
+
+Independent application mode
+It can run independently in Java application without root trace in the context, and automatically generate a root trace.
+
+Embedded mode:
+If there is trace in the context, add context trace as span event.
+
 You can run the main method of the [DocumentCRUDTest][DocumentCRUDTest] class to verify the independent working mode.
 
 Some work pictures of this plugin:
