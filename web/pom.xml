@@ -58,6 +58,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-plugins</artifactId>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugins</artifactId>
             <type>pom</type>
         </dependency>
