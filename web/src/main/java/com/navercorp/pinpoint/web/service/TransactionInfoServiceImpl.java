@@ -73,6 +73,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     @Autowired(required=false)
     private MetaDataFilter metaDataFilter;
 
+    @Autowired
+    private ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
+
     // Temporarily disabled Because We need to solve authentication problem inter system.
     // @Value("#{pinpointWebProps['log.enable'] ?: false}")
     // private boolean logLinkEnable;
@@ -337,7 +340,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
 
             final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);
-            final RecordFactory factory = new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService);
+            final RecordFactory factory = new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService, proxyRequestTypeRegistryService);
 
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.
             while (callTreeIterator.hasNext()) {

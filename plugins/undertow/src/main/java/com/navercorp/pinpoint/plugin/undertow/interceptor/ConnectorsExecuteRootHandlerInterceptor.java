@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
@@ -48,14 +49,14 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
     private final UndertowHttpHeaderFilter httpHeaderFilter;
     private final ServletRequestListenerInterceptorHelper<HttpServerExchange> servletRequestListenerInterceptorHelper;
 
-    public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerExchange> requestRecorderFactory) {
         this.methodDescriptor = descriptor;
         final UndertowConfig config = new UndertowConfig(traceContext.getProfilerConfig());
         this.argumentValidator = new ConnectorsArgumentValidator(config.isDeployServlet());
         RequestAdaptor<HttpServerExchange> requestAdaptor = new HttpServerExchangeAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServerExchange> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServerExchange>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServerExchange>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
         this.httpHeaderFilter = new UndertowHttpHeaderFilter(config.isHidePinpointHeader());
     }
 

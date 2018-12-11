@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -54,6 +55,7 @@ public class AnnotatedInterceptorFactoryTest {
     private final InstrumentClass instrumentClass = mock(InstrumentClass.class);
     private final InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
     private final MethodDescriptor descriptor = mock(MethodDescriptor.class);
+    private final RequestRecorderFactory requestRecorderFactory = mock(RequestRecorderFactory.class);
 
     private final ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
 
@@ -75,7 +77,7 @@ public class AnnotatedInterceptorFactoryTest {
     }
 
     private AnnotatedInterceptorFactory newAnnotatedInterceptorFactory() {
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory);
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory);
     }
 
     private ScopeInfo newEmptyScopeInfo() {

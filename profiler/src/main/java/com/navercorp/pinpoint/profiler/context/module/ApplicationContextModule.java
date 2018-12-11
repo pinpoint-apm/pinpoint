@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
@@ -91,8 +92,11 @@ import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginLoaderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.plugin.ProxyRequestParserLoaderServiceProvider;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultRequestRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
+import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserLoaderService;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -118,6 +122,7 @@ import java.lang.instrument.ClassFileTransformer;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim - Add bindRequestRecorder()
  */
 public class ApplicationContextModule extends AbstractModule {
 
@@ -169,6 +174,8 @@ public class ApplicationContextModule extends AbstractModule {
         bind(JdbcUrlParsingService.class).toProvider(JdbcUrlParsingServiceProvider.class).in(Scopes.SINGLETON);
 
         bind(AgentInformation.class).toProvider(AgentInformationProvider.class).in(Scopes.SINGLETON);
+        // ProxyRequestRecorder
+        bindRequestRecorder();
 
         bind(InstrumentEngine.class).toProvider(InstrumentEngineProvider.class).in(Scopes.SINGLETON);
         bind(ExceptionHandlerFactory.class).toProvider(ExceptionHandlerFactoryProvider.class).in(Scopes.SINGLETON);
@@ -205,12 +212,15 @@ public class ApplicationContextModule extends AbstractModule {
 
 
     private void bindServiceComponent() {
-
         bind(StringMetaDataService.class).to(DefaultStringMetaDataService.class).in(Scopes.SINGLETON);
         bind(ApiMetaDataService.class).toProvider(ApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
         bind(SqlMetaDataService.class).to(DefaultSqlMetaDataService.class).in(Scopes.SINGLETON);
         bind(PredefinedMethodDescriptorRegistry.class).to(DefaultPredefinedMethodDescriptorRegistry.class).in(Scopes.SINGLETON);
     }
 
-
+    // Proxy
+    private void bindRequestRecorder() {
+        bind(ProxyRequestParserLoaderService.class).toProvider(ProxyRequestParserLoaderServiceProvider.class).in(Scopes.SINGLETON);
+        bind(RequestRecorderFactory.class).to(DefaultRequestRecorderFactory.class).in(Scopes.SINGLETON);
+    }
 }

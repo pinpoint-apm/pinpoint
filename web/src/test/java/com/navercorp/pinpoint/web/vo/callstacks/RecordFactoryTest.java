@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
+import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
+import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,7 +53,9 @@ public class RecordFactoryTest {
         TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(Collections.emptyList(), loggerFactory);
         ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(typeLoaderService, loggerFactory);
         AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, loggerFactory);
-        return new RecordFactory(annotationKeyMatcherService, serviceTypeRegistryService, annotationKeyRegistryService);
+        ProxyRequestTypeRegistryService proxyRequestTypeRegistryService = new ProxyRequestTypeRegistryServiceImpl();
+
+        return new RecordFactory(annotationKeyMatcherService, serviceTypeRegistryService, annotationKeyRegistryService, proxyRequestTypeRegistryService);
     }
 
     public void get() {

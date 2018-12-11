@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author jaehong.kim
  */
-public class ServerRequestRecorderTest {
+public class ServerRequestRecorderFactoryTest {
     private static final String RPC_NAME = "rpcName";
     private static final String END_POINT = "endPoint";
     private static final String REMOTE_ADDRESS = "remoteAddress";
