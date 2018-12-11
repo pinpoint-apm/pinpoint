@@ -1,7 +1,10 @@
+:host {
+    display: block;
+    height: 66px;
+}
 .l-container-wrapper {
     display: flex;
     flex-flow: row wrap;
-    height: 66px;
     background: #e0e7ee;
     -webkit-box-align: center;
     -ms-flex-align: center;
@@ -9,10 +12,8 @@
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
-    position: absolute;
     width: 100%;
-    bottom: 0px;
-    left: 0px;
+    height: 100%;
 }
 .l-container-wrapper button {
     color: #a8acb5;

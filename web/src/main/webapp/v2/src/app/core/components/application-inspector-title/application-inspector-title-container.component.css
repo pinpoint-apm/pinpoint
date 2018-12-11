@@ -1,3 +1,7 @@
+:host {
+    display: block;
+    height: 32px;
+}
 .l-wrapper {
     cursor: pointer;
     display: block;

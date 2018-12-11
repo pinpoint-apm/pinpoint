@@ -1,7 +1,8 @@
+:host {
+    display: block;
+}
 .l-servers-list {
-    height: 100%; 
     padding: 0 10px;
-    overflow-y: auto;
     overflow-x: hidden;
 }
 .l-servers-list li {
