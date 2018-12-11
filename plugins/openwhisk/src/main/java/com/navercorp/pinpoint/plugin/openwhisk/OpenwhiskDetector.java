@@ -37,16 +37,19 @@ public class OpenwhiskDetector implements ApplicationTypeDetector {
 
     @Override
     public boolean detect(ConditionProvider provider) {
-        setOpenwhiskApplicationType(provider);
-        return true;
+        return setOpenwhiskApplicationType(provider);
     }
 
-    private void setOpenwhiskApplicationType(ConditionProvider provider) {
+    private boolean setOpenwhiskApplicationType(ConditionProvider provider) {
         if (provider.checkForClass(CONTROLLER_REQUIRED_CLASS)) {
             this.applicationType = OpenwhiskConstants.OPENWHISK_CONTROLLER;
+            return true;
         } else if (provider.checkForClass(INVOKER_REQUIRED_CLASS)) {
             this.applicationType = OpenwhiskConstants.OPENWHISK_INVOKER;
+            return true;
         }
+
+        return false;
     }
 
 }
