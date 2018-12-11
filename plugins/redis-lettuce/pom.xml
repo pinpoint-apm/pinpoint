@@ -8,9 +8,14 @@
         <version>1.8.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-redis-plugin</artifactId>
-    <name>pinpoint-redis-plugin</name>
+    <artifactId>pinpoint-redis-lettuce-plugin</artifactId>
+    <name>pinpoint-redis-lettuce-plugin</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <test.jdk.home>${env.JAVA_8_HOME}</test.jdk.home>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -31,24 +36,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons-server</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

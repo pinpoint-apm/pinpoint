@@ -31,7 +31,7 @@ import redis.clients.jedis.Pipeline;
 
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
-public class RedisPluginTest extends BasePinpointTest {
+public class JedisPluginTest extends BasePinpointTest {
 
     private static final String HOST = "localhost";
     private static final int PORT = 6379;
