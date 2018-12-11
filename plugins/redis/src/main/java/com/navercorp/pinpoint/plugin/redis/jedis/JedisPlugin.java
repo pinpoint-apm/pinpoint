@@ -31,31 +31,28 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.plugin.redis.LettuceMethodNameFilter;
-import com.navercorp.pinpoint.plugin.redis.RedisConstants;
-import com.navercorp.pinpoint.plugin.redis.RedisPluginConfig;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author jaehong.kim
  */
-public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final JedisMethodNameFilter jedisMethodNameFilter = new JedisMethodNameFilter();
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        final RedisPluginConfig config = new RedisPluginConfig(context.getConfig());
+        final JedisPluginConfig config = new JedisPluginConfig(context.getConfig());
         if (!config.isEnable()) {
             if (logger.isInfoEnabled()) {
-                logger.info("Disable RedisPlugin. config={}", config);
+                logger.info("Disable JedisPlugin. config={}", config);
             }
             return;
         }
         if (logger.isInfoEnabled()) {
-            logger.info("Enable RedisPlugin. config={}", config);
+            logger.info("Enable JedisPlugin. config={}", config);
         }
 
         final boolean pipeline = config.isPipeline();
@@ -70,12 +67,12 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     // Jedis & BinaryJedis
-    private void addJedis(RedisPluginConfig config) {
+    private void addJedis(JedisPluginConfig config) {
         addBinaryJedisExtends(config, "redis.clients.jedis.BinaryJedis", new TransformHandler() {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(RedisConstants.END_POINT_ACCESSOR);
+                target.addField(JedisConstants.END_POINT_ACCESSOR);
             }
         });
 
@@ -83,7 +80,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
         addBinaryJedisExtends(config, "redis.clients.jedis.Jedis", null);
     }
 
-    private void addBinaryJedisExtends(final RedisPluginConfig config, final String targetClassName, final TransformHandler handler) {
+    private void addBinaryJedisExtends(final JedisPluginConfig config, final String targetClassName, final TransformHandler handler) {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
@@ -130,7 +127,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
                 addSetEndPointInterceptor(target, "java.net.URI", "int", "int", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
 
                 // methods(commands)
-                addJedisMethodInterceptor(target, config, RedisConstants.REDIS_SCOPE);
+                addJedisMethodInterceptor(target, config, JedisConstants.REDIS_SCOPE);
 
                 return target.toBytecode();
             }
@@ -144,7 +141,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(RedisConstants.END_POINT_ACCESSOR);
+                target.addField(JedisConstants.END_POINT_ACCESSOR);
 
                 // Set endpoint
                 // host
@@ -175,7 +172,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name("sendCommand", "read"), MethodFilters.modifierNot(Modifier.PRIVATE)))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.jedis.interceptor.ProtocolSendCommandAndReadMethodInterceptor", RedisConstants.REDIS_SCOPE, ExecutionPolicy.INTERNAL);
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.jedis.interceptor.ProtocolSendCommandAndReadMethodInterceptor", JedisConstants.REDIS_SCOPE, ExecutionPolicy.INTERNAL);
                 }
 
                 return target.toBytecode();
@@ -184,7 +181,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     // Pipeline
-    private void addPipeline(RedisPluginConfig config) {
+    private void addPipeline(JedisPluginConfig config) {
         addPipelineBaseExtends(config, "redis.clients.jedis.PipelineBase", null);
 
         // MultikeyPipellineBase extends PipelineBase
@@ -195,7 +192,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(RedisConstants.END_POINT_ACCESSOR);
+                target.addField(JedisConstants.END_POINT_ACCESSOR);
 
                 final InstrumentMethod setClientMethod = target.getDeclaredMethod("setClient", "redis.clients.jedis.Client");
                 if (setClientMethod != null) {
@@ -210,7 +207,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addPipelineBaseExtends(final RedisPluginConfig config, String targetClassName, final TransformHandler handler) {
+    private void addPipelineBaseExtends(final JedisPluginConfig config, String targetClassName, final TransformHandler handler) {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
@@ -221,14 +218,14 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
 
                 // methods(commands)
-                addJedisMethodInterceptor(target, config, RedisConstants.REDIS_SCOPE);
+                addJedisMethodInterceptor(target, config, JedisConstants.REDIS_SCOPE);
 
                 return target.toBytecode();
             }
         });
     }
 
-    private void addJedisMethodInterceptor(final InstrumentClass target, final RedisPluginConfig config, final String scope) {
+    private void addJedisMethodInterceptor(final InstrumentClass target, final JedisPluginConfig config, final String scope) {
         for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(this.jedisMethodNameFilter, MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
             try {
                 method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.jedis.interceptor.JedisMethodInterceptor", va(config.isIo()), scope);

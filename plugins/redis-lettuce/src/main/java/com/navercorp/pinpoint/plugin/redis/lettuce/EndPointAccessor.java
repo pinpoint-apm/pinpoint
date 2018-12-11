@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.redis;
+package com.navercorp.pinpoint.plugin.redis.lettuce;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
-
-/**
- * @author emeroad
- */
-public class CommandContextFactory implements AttachmentFactory {
-
-    public static final AttachmentFactory COMMAND_CONTEXT_FACTORY = new CommandContextFactory();
-
-    public Object createAttachment() {
-        return new CommandContext();
-    }
+public interface EndPointAccessor {
+    void _$PINPOINT$_setEndPoint(String endPoint);
+    String _$PINPOINT$_getEndPoint();
 }

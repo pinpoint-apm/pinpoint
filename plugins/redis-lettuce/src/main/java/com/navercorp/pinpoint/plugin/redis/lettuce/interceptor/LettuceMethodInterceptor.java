@@ -20,22 +20,17 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
-import com.navercorp.pinpoint.plugin.redis.RedisConstants;
+import com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.LettuceConstants;
 import com.navercorp.pinpoint.plugin.redis.lettuce.StatefulConnectionGetter;
 
 /**
  * @author jaehong.kim
  */
 public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
-    private InterceptorScope interceptorScope;
-    private boolean io;
 
-    public LettuceMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope, boolean io) {
+    public LettuceMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
-        this.interceptorScope = interceptorScope;
-        this.io = io;
     }
 
     @Override
@@ -47,8 +42,8 @@ public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorFo
         final String endPoint = toEndPoint(target);
         recorder.recordApi(getMethodDescriptor());
         recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
-        recorder.recordDestinationId(RedisConstants.REDIS.getName());
-        recorder.recordServiceType(RedisConstants.REDIS);
+        recorder.recordDestinationId(LettuceConstants.REDIS_LETTUCE.getName());
+        recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
         recorder.recordException(throwable);
     }
 

@@ -146,6 +146,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8102</td><td>ARCUS_EHCACHE_FUTURE_GET</td></tr>
  * <tr><td>8103</td><td>ARCUS_INTERNAL</td></tr>
  * <tr><td>8200</td><td>REDIS</td></tr>
+ * <tr><td>8201</td><td>REDIS_LETTUCE</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8260</td><td><i>RESERVED</i></td></tr>

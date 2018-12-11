@@ -28,13 +28,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.plugin.redis.LettuceMethodNameFilter;
-import com.navercorp.pinpoint.plugin.redis.RedisConstants;
-import com.navercorp.pinpoint.plugin.redis.RedisPluginConfig;
 
 import java.security.ProtectionDomain;
-
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author jaehong.kim
@@ -46,15 +41,15 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        final RedisPluginConfig config = new RedisPluginConfig(context.getConfig());
+        final LettucePluginConfig config = new LettucePluginConfig(context.getConfig());
         if (!config.isEnable()) {
             if (logger.isInfoEnabled()) {
-                logger.info("Disable RedisPlugin.");
+                logger.info("Disable LettucePlugin.");
             }
             return;
         }
         if (logger.isInfoEnabled()) {
-            logger.info("Enable RedisPlugin. version range=[5.0.0.RELEASE, 5.1.2.RELEASE]");
+            logger.info("Enable LettucePlugin. version range=[5.0.0.RELEASE, 5.1.2.RELEASE]");
         }
 
         // Set endpoint
@@ -73,7 +68,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(RedisConstants.END_POINT_ACCESSOR);
+                target.addField(LettuceConstants.END_POINT_ACCESSOR);
 
                 // Set endpoint
                 final InstrumentMethod constructor = target.getConstructor("io.lettuce.core.resource.ClientResources", "io.lettuce.core.RedisURI");
@@ -83,7 +78,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 // Attach endpoint
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("connect", "connectAsync", "connectPubSub", "connectPubSubAsync", "connectSentinel", "connectSentinelAsync"))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor", RedisConstants.REDIS_SCOPE);
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor", LettuceConstants.REDIS_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -96,11 +91,11 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(RedisConstants.END_POINT_ACCESSOR);
+                target.addField(LettuceConstants.END_POINT_ACCESSOR);
 
                 // Attach endpoint
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("get", "join"))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor", RedisConstants.REDIS_SCOPE);
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor", LettuceConstants.REDIS_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -121,13 +116,13 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(RedisConstants.END_POINT_ACCESSOR);
+                target.addField(LettuceConstants.END_POINT_ACCESSOR);
                 return target.toBytecode();
             }
         });
     }
 
-    private void addRedisCommands(final RedisPluginConfig config) {
+    private void addRedisCommands(final LettucePluginConfig config) {
         // Commands
         addAbstractRedisCommands("io.lettuce.core.AbstractRedisAsyncCommands", true, config);
 
@@ -146,7 +141,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
         addAbstractRedisCommands("io.lettuce.core.sentinel.RedisSentinelReactiveCommandsImpl", false, config);
     }
 
-    private void addAbstractRedisCommands(final String className, final boolean getter, final RedisPluginConfig config) {
+    private void addAbstractRedisCommands(final String className, final boolean getter, final LettucePluginConfig config) {
         transformTemplate.transform(className, new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -157,7 +152,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(lettuceMethodNameFilter, MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
                     try {
-                        method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.LettuceMethodInterceptor", va(config.isIo()), RedisConstants.REDIS_SCOPE);
+                        method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.LettuceMethodInterceptor", LettuceConstants.REDIS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method {}", method, e);
