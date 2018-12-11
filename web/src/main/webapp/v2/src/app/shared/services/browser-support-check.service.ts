@@ -50,7 +50,7 @@ export class BrowserSupportCheckService {
         } else {
             return this.translateService.get('SUPPORT.RESTRICT_USAGE').pipe(
                 map(((message: string) => {
-                    return this.translateReplaceService.replace(message, bowser.name + ' ' + Math.trunc(Number(bowser.version)));
+                    return this.translateReplaceService.replace(message, bowser.name + ' ' + bowser.version);
                 }))
             );
         }

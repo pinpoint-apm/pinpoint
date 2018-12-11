@@ -66,7 +66,7 @@
         "EMPTY_RESULT": "일치하는 결과가 없습니다."
     },
     "SUPPORT": {
-        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=사용중인 브라우저(!{0})는 지원하지 않습니다.}|[LINK]:{href=browser-not-supported\\target=_blank\\style=text-decoration:underline;font-weight:600\\linkText=지원 브라우저 확인}",
+        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=사용중인 브라우저(!{0})는 지원하지 않습니다.}|[LINK]:{href=browserNotSupported\\target=_blank\\style=text-decoration:underline;font-weight:600\\linkText=지원 브라우저 확인}",
         "INSTALL_GUIDE": "아래의 브라우저들 중 하나를 설치 후 이용해주세요."
     },
     "HELP_VIEWER": {

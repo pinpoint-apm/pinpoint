@@ -67,7 +67,7 @@
         "EMPTY_RESULT": "No matches found."
     },
     "SUPPORT": {
-        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=Your browser(!{0}) is not supported.}|[LINK]:{href=browser-not-supported\\target=blank\\style=text-decoration:underline;font-weight:600\\linkText=Check supported browsers}",
+        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=Your browser(!{0}) is not supported.}|[LINK]:{href=browserNotSupported\\target=blank\\style=text-decoration:underline;font-weight:600\\linkText=Check supported browsers}",
         "INSTALL_GUIDE": "Please install one of the following browsers and try again."
     },
     "HELP_VIEWER": {
