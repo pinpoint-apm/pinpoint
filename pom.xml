@@ -66,6 +66,7 @@
         <module>annotations</module>
         <module>agent</module>
         <module>agent-it</module>
+        <module>agent-plugins</module>
         <module>bootstrap</module>
         <module>bootstrap-core</module>
         <module>bootstrap-java7</module>
@@ -227,6 +228,18 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-profiler-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-plugins</artifactId>
+                <type>pom</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-plugins</artifactId>
+                <type>zip</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

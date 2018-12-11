@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
+ * @deprecated As of release 1.8.2, replaced by ProxyRequestParser
  * @author jaehong.kim
  */
+@Deprecated
 public class ProxyHttpHeaderParser {
     private final ProxyTimeUnit nginxUnit = new NginxTimeUnit();
     private final ProxyTimeUnit apacheUnit = new ApacheTimeUnit();
