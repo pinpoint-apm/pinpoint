@@ -18,8 +18,8 @@
 }
 
 .l-support-page-contents {
-    position: relative;
-    top: 50px;
+    height: calc(100% - 50px);
+    padding-top: 50px;
 }
 
 .l-browser-list {
