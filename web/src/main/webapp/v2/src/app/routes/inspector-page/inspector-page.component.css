@@ -13,8 +13,6 @@
     overflow-y: hidden;
 }
 .l-sidemenu-wrap {
-    display: flex;
-    flex-flow: column nowrap;
     position: relative;
     height: 100%;
 }
@@ -26,8 +24,6 @@
     height: 100%;
 }
 .l-main-section {
-    display: flex;
-    flex-flow: column nowrap;
     flex: 1;
     background: #edf2f8;
     position: relative;
