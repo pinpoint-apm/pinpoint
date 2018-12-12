@@ -93,9 +93,9 @@ public class MetaSpanCallTreeFactory {
             argumentAnnotation.setValue("Corrupted(waiting for packet) ");
         } else {
             if (title != null) {
-                argumentAnnotation.setValue("Corrupted(" + title + ")");
+                argumentAnnotation.setValue("Corrupted(lost packet - " + title + ")");
             } else {
-                argumentAnnotation.setValue("Corrupted");
+                argumentAnnotation.setValue("Corrupted(lost packet)");
             }
         }
         annotations.add(argumentAnnotation);
