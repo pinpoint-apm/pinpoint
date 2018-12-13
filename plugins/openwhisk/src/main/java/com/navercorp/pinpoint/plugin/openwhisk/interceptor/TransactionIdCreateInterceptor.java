@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.openwhisk.interceptor;
 
+import akka.http.scaladsl.server.RequestContextImpl;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.*;
@@ -42,14 +43,24 @@ public class TransactionIdCreateInterceptor implements AroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (args[0] instanceof AsyncContextAccessor) {
 
-            AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
-            if (asyncContext == null) {
-                return;
-            }
-            ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
+        int requestContextIndex = getArgsIndexOfRequestContext(args);
+        if (requestContextIndex == -1) {
+            return;
         }
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[requestContextIndex]);
+        if (asyncContext == null) {
+            return;
+        }
+        ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
     }
+
+    private int getArgsIndexOfRequestContext(Object[] args) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof RequestContextImpl) return i;
+        }
+        return -1;
+    }
+
 }
 

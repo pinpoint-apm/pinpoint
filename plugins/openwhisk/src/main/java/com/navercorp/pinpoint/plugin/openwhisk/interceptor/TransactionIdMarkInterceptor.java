@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConfig;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConstants;
 import com.navercorp.pinpoint.plugin.openwhisk.descriptor.LogMarkerMethodDescriptor;
 import scala.runtime.AbstractFunction0;
-import whisk.common.LogMarkerToken;
+import org.apache.openwhisk.common.LogMarkerToken;
 
 /**
  * @author Seonghyun Oh
