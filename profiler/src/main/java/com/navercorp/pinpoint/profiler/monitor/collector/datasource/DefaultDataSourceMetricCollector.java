@@ -59,6 +59,9 @@ public class DefaultDataSourceMetricCollector implements AgentStatMetricCollecto
 
     private TDataSource toTDataSource(DataSource dataSource) {
         TDataSource tDataSource = new TDataSource(dataSource.getId());
+
+        tDataSource.setServiceTypeCode(dataSource.getServiceTypeCode());
+
         if (dataSource.getDatabaseName() != null) {
             tDataSource.setDatabaseName(dataSource.getDatabaseName());
         }
@@ -66,6 +69,11 @@ public class DefaultDataSourceMetricCollector implements AgentStatMetricCollecto
         if (dataSource.getActiveConnectionSize() != 0) {
             tDataSource.setActiveConnectionSize(dataSource.getActiveConnectionSize());
         }
+
+        if (dataSource.getUrl() != null) {
+            tDataSource.setUrl(dataSource.getUrl());
+        }
+
         tDataSource.setMaxConnectionSize(dataSource.getMaxConnectionSize());
         return tDataSource;
     }
