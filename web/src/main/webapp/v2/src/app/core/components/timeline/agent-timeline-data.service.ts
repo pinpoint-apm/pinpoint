@@ -32,6 +32,7 @@ export class AgentTimelineDataService {
         private http: HttpClient,
         private newUrlStateNotificationService: NewUrlStateNotificationService
     ) {}
+
     getData(retrieveTime: IRetrieveTime): Observable<IAgentTimeline> {
         const agentId = this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID);
 
