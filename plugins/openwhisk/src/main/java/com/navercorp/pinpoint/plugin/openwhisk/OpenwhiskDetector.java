@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class OpenwhiskDetector {
 
-    private static final String CONTROLLER_REQUIRED_CLASS = "whisk.core.controller.Controller";
+    private static final String CONTROLLER_REQUIRED_CLASS = "org.apache.openwhisk.core.controller.Controller";
 
-    private static final String INVOKER_REQUIRED_CLASS = "whisk.core.invoker.Invoker";
+    private static final String INVOKER_REQUIRED_CLASS = "org.apache.openwhisk.core.invoker.Invoker";
 
     public ServiceType detectApplicationType() {
         boolean controllerClassPresent = ClassResourceCondition.INSTANCE.check(CONTROLLER_REQUIRED_CLASS);
