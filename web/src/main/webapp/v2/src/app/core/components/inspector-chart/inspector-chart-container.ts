@@ -1,7 +1,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
-import { Subject, Observable, combineLatest } from 'rxjs';
+import { Subject, Observable, combineLatest, merge } from 'rxjs';
 import { filter, map, skip, takeUntil } from 'rxjs/operators';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
@@ -79,13 +79,22 @@ export abstract class InspectorChartContainer {
     }
 
     protected initChartData(): void {
-        this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
-            filter((range: number[]) => {
-                if (this.previousRange) {
-                    return !(this.previousRange[0] === range[0] && this.previousRange[1] === range[1]);
-                }
-                return true;
-            })
+        merge(
+            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                takeUntil(this.unsubscribe),
+                map((urlService: NewUrlStateNotificationService) => {
+                    return [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
+                })
+            ),
+            this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
+                filter((range: number[]) => {
+                    if (this.previousRange) {
+                        return !(this.previousRange[0] === range[0] && this.previousRange[1] === range[1]);
+                    }
+
+                    return true;
+                }),
+            )
         ).subscribe((range: number[]) => {
             this.previousRange = range;
             this.getChartData(range);
