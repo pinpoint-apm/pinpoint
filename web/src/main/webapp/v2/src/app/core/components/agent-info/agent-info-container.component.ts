@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Observable, Subject, combineLatest } from 'rxjs';
-import { filter, tap, map, switchMap } from 'rxjs/operators';
+import { Observable, Subject, merge } from 'rxjs';
+import { filter, tap, map, switchMap, takeUntil } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
 import {
@@ -19,11 +19,10 @@ import { AgentInfoDataService } from './agent-info-data.service';
 })
 export class AgentInfoContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
-    private selectedTime$: Observable<number>;
-    private urlAgentId$: Observable<string>;
-    private lastRequestParam: [string, number];
+    private prevEndTime: number;
+
     dataRequestSuccess: boolean;
-    urlApplicationName$: Observable<string>;
+    urlApplicationName: string;
     agentData: IServerAndAgentData;
     timezone$: Observable<string>;
     dateFormat$: Observable<string>;
@@ -38,16 +37,6 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.urlAgentId$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            map((urlService: NewUrlStateNotificationService) => {
-                return urlService.getPathValue(UrlPathId.AGENT_ID);
-            })
-        );
-        this.urlApplicationName$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            map((urlService: NewUrlStateNotificationService) => {
-                return urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
-            })
-        );
         this.connectStore();
     }
 
@@ -59,18 +48,25 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 1);
-        this.selectedTime$ = this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe);
-        combineLatest(
-            this.urlAgentId$,
-            this.selectedTime$
+        merge(
+            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                takeUntil(this.unsubscribe),
+                tap((urlService: NewUrlStateNotificationService) => {
+                    this.urlApplicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
+                }),
+                map((urlService: NewUrlStateNotificationService) => {
+                    return urlService.getEndTimeToNumber();
+                })
+            ),
+            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)
         ).pipe(
             tap(() => {
                 this.showLoading = true;
                 this.changeDetectorRef.detectChanges();
             }),
-            switchMap(([agentId, endTime]: [string, number]) => {
-                this.lastRequestParam = [agentId, endTime];
-                return this.agentInfoDataService.getData(agentId, endTime);
+            switchMap((endTime: number) => {
+                this.prevEndTime = endTime;
+                return this.agentInfoDataService.getData(endTime);
             }),
             filter((agentData: IServerAndAgentData) => {
                 return !!(agentData && agentData.applicationName);
@@ -89,9 +85,8 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
         this.changeDetectorRef.detectChanges();
     }
     onRequestAgain(): void {
-        const [agentId, endTime] = this.lastRequestParam;
         this.showLoading = true;
-        this.agentInfoDataService.getData(agentId, endTime).subscribe((agentData: IServerAndAgentData) => {
+        this.agentInfoDataService.getData(this.prevEndTime).subscribe((agentData: IServerAndAgentData) => {
             this.agentData = agentData;
             this.dataRequestSuccess = true;
             this.completed();
