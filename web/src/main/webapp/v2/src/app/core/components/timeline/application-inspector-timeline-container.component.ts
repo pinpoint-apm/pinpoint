@@ -1,8 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil, withLatestFrom } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
-import { UrlPathId } from 'app/shared/models';
 import { Actions } from 'app/shared/store';
 import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { Timeline, ITimelineEventSegment, TimelineUIEvent } from './class';
@@ -67,30 +66,16 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
         });
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-            withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
-        ).subscribe(([urlService, savedTimelineData]: [NewUrlStateNotificationService, ITimelineInfo]) => {
-            /*
-                if ( application.changed or period.changed ) {
-                    url 값 사용
-                } else {
-                    store에 저장된 값 있나?
-                    - 있다면 사용
-                    - 없다면 URL 값 사용
-                }
-            */
+        ).subscribe((urlService: NewUrlStateNotificationService) => {
             const selectionStartTime = urlService.getStartTimeToNumber();
             const selectionEndTime = urlService.getEndTimeToNumber();
-            const range = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
-            let timelineInfo: ITimelineInfo = {
-                range: [range.start, range.end],
+            const { start, end } = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
+            const timelineInfo: ITimelineInfo = {
+                range: [start, end],
                 selectedTime: selectionEndTime,
                 selectionRange: [selectionStartTime, selectionEndTime]
             };
-            if (urlService.isChanged(UrlPathId.APPLICATION) === false && urlService.isChanged(UrlPathId.PERIOD) === false) {
-                if (savedTimelineData.selectedTime !== 0) {
-                    timelineInfo = savedTimelineData;
-                }
-            }
+
             this.timelineStartTime = timelineInfo.range[0];
             this.timelineEndTime = timelineInfo.range[1];
             this.selectionStartTime = timelineInfo.selectionRange[0];
@@ -111,7 +96,7 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
                     'timelineSegments': []
                 }
             };
-            this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
+
             this.changeDetector.detectChanges();
         });
     }
