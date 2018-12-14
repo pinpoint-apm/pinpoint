@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, withLatestFrom, map } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
 import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
@@ -8,6 +8,7 @@ import { Timeline, ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
 import { TimelineInteractionService, ITimelineCommandParam, TimelineCommand } from './timeline-interaction.service';
 import { IAgentTimeline, IRetrieveTime } from './agent-timeline-data.service';
+import { UrlPathId } from 'app/shared/models';
 
 @Component({
     selector: 'pp-application-inspector-timeline-container',
@@ -66,16 +67,24 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
         });
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-        ).subscribe((urlService: NewUrlStateNotificationService) => {
-            const selectionStartTime = urlService.getStartTimeToNumber();
-            const selectionEndTime = urlService.getEndTimeToNumber();
-            const { start, end } = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
-            const timelineInfo: ITimelineInfo = {
-                range: [start, end],
-                selectedTime: selectionEndTime,
-                selectionRange: [selectionStartTime, selectionEndTime]
-            };
+            withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
+            map(([urlService, storeState]: [NewUrlStateNotificationService, ITimelineInfo]) => {
+                if (urlService.isPathChanged(UrlPathId.PERIOD)) {
+                    const selectionStartTime = urlService.getStartTimeToNumber();
+                    const selectionEndTime = urlService.getEndTimeToNumber();
+                    const { start, end } = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
+                    const timelineInfo: ITimelineInfo = {
+                        range: [start, end],
+                        selectedTime: selectionEndTime,
+                        selectionRange: [selectionStartTime, selectionEndTime]
+                    };
 
+                    return timelineInfo;
+                } else {
+                    return storeState;
+                }
+            }),
+        ).subscribe((timelineInfo: ITimelineInfo) => {
             this.timelineStartTime = timelineInfo.range[0];
             this.timelineEndTime = timelineInfo.range[1];
             this.selectionStartTime = timelineInfo.selectionRange[0];
@@ -97,6 +106,7 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
                 }
             };
 
+            this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
             this.changeDetector.detectChanges();
         });
     }
