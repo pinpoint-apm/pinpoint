@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Observable, Subject, merge } from 'rxjs';
-import { filter, tap, map, switchMap, takeUntil } from 'rxjs/operators';
+import { filter, tap, map, switchMap, takeUntil, withLatestFrom, skip } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
 import {
@@ -54,11 +54,13 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
                 tap((urlService: NewUrlStateNotificationService) => {
                     this.urlApplicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
                 }),
-                map((urlService: NewUrlStateNotificationService) => {
-                    return urlService.getEndTimeToNumber();
+                withLatestFrom(this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)),
+                map(([urlService, storeState]: [NewUrlStateNotificationService, number]) => {
+                    return urlService.isPathChanged(UrlPathId.PERIOD) || storeState === 0 ? urlService.getEndTimeToNumber()
+                        : storeState;
                 })
             ),
-            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)
+            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(skip(1))
         ).pipe(
             tap(() => {
                 this.showLoading = true;

@@ -154,9 +154,6 @@ export class StoreHelperService {
         return this.store.pipe(
             takeUntil(unsubscribe),
             select(selectTimelineSelectedTime),
-            filter((time: number) => {
-                return time === 0 ? false : true;
-            })
         );
     }
     private getObservable(key: string, unsubscribe?: Subject<void>): Observable<any> {

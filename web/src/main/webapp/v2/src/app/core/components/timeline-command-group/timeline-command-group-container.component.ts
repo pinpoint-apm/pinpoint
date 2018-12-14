@@ -3,7 +3,8 @@ import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest, merge } from 'rxjs';
 
 import { StoreHelperService, NewUrlStateNotificationService } from 'app/shared/services';
-import { map } from 'rxjs/operators';
+import { map, withLatestFrom, skip } from 'rxjs/operators';
+import { UrlPathId } from 'app/shared/models';
 
 @Component({
     selector: 'pp-timeline-command-group-container',
@@ -30,11 +31,13 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
             this.storeHelperService.getTimezone(this.unsubscribe),
             merge(
                 this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-                    map((urlService: NewUrlStateNotificationService) => {
-                        return urlService.getEndTimeToNumber();
+                    withLatestFrom(this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)),
+                    map(([urlService, storeState]: [NewUrlStateNotificationService, number]) => {
+                        return urlService.isPathChanged(UrlPathId.PERIOD) || storeState === 0 ? urlService.getEndTimeToNumber()
+                            : storeState;
                     })
                 ),
-                this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)
+                this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(skip(1))
             )
         ).pipe(
             map(([dateFormat, timezone, pointingTime]: [string, string, number]) => {
