@@ -2,12 +2,13 @@ import { ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest, merge } from 'rxjs';
-import { filter, map, skip, takeUntil } from 'rxjs/operators';
+import { filter, map, skip, takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
 import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { IChartDataService, IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
+import { UrlPathId } from 'app/shared/models';
 
 export abstract class InspectorChartContainer {
     private previousRange: number[];
@@ -82,9 +83,11 @@ export abstract class InspectorChartContainer {
         merge(
             this.newUrlStateNotificationService.onUrlStateChange$.pipe(
                 takeUntil(this.unsubscribe),
-                map((urlService: NewUrlStateNotificationService) => {
-                    return [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
-                })
+                withLatestFrom(this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe)),
+                map(([urlService, storeState]: [NewUrlStateNotificationService, number[]]) => {
+                    return urlService.isPathChanged(UrlPathId.PERIOD) ? [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()]
+                        : storeState;
+                }),
             ),
             this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
                 filter((range: number[]) => {
