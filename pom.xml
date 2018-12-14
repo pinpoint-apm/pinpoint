@@ -66,9 +66,9 @@
         <module>annotations</module>
         <module>agent</module>
         <module>agent-it</module>
-        <module>bootstrap-core</module>
-        <module>bootstrap-core-optional</module>
         <module>bootstrap</module>
+        <module>bootstrap-core</module>
+        <module>bootstrap-java7</module>
         <module>bootstrap-java8</module>
         <module>bootstrap-java9</module>
         <module>collector</module>
@@ -190,17 +190,17 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-core-optional</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap</artifactId>
+                <artifactId>pinpoint-bootstrap-java7</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -44,10 +44,10 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     private final JarDescription commons = new JarDescription("pinpoint-commons", true);
     private final JarDescription bootstrapCore = new JarDescription("pinpoint-bootstrap-core", true);
     private final JarDescription annotations = new JarDescription("pinpoint-annotations", false);
-    private final JarDescription bootstrapCoreOptional = new JarDescription("pinpoint-bootstrap-core-optional", false);
+    private final JarDescription bootstrapJava7 = new JarDescription("pinpoint-bootstrap-java7", false);
     private final JarDescription bootstrapJava8 = new JarDescription("pinpoint-bootstrap-java8", false);
     private final JarDescription bootstrapJava9 = new JarDescription("pinpoint-bootstrap-java9", false);
-    private final List<JarDescription> bootJarDescriptions = Arrays.asList(commons, bootstrapCore, annotations, bootstrapCoreOptional, bootstrapJava8, bootstrapJava9);
+    private final List<JarDescription> bootJarDescriptions = Arrays.asList(commons, bootstrapCore, annotations, bootstrapJava7, bootstrapJava8, bootstrapJava9);
 
     private final String classPath;
 
