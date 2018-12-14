@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 public class JavaAgentPathResolver {
 
     static final String JAVA_AGENT_OPTION = "-javaagent:";
-    private final Pattern DEFAULT_AGENT_PATTERN = AgentDirBaseClassPathResolver.DEFAULT_AGENT_BOOTSTRAP_PATTERN;
+    private final Pattern DEFAULT_AGENT_PATTERN = AgentDirBaseClassPathResolver.bootstrap.getVersionPattern();
 
     private final ResolvingType resolvingType;
 
