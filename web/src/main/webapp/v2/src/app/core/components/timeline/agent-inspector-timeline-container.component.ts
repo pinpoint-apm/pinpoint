@@ -74,7 +74,7 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
             takeUntil(this.unsubscribe),
             withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
             map(([urlService, storeState]: [NewUrlStateNotificationService, ITimelineInfo]) => {
-                if (urlService.isPathChanged(UrlPathId.PERIOD)) {
+                if (urlService.isPathChanged(UrlPathId.PERIOD) || storeState.selectedTime === 0) {
                     const selectionStartTime = urlService.getStartTimeToNumber();
                     const selectionEndTime = urlService.getEndTimeToNumber();
                     const { start, end } = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
@@ -95,7 +95,6 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
                 this.selectionStartTime = timelineInfo.selectionRange[0];
                 this.selectionEndTime = timelineInfo.selectionRange[1];
                 this.pointingTime = timelineInfo.selectedTime;
-                this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
             }),
             switchMap((timelineInfo: ITimelineInfo) => {
                 const [ start, end ] = timelineInfo.range;
