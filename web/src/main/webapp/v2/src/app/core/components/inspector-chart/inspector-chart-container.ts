@@ -84,9 +84,9 @@ export abstract class InspectorChartContainer {
             this.newUrlStateNotificationService.onUrlStateChange$.pipe(
                 takeUntil(this.unsubscribe),
                 withLatestFrom(this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe)),
-                map(([urlService, storeState]: [NewUrlStateNotificationService, number[]]) => {
-                    return urlService.isPathChanged(UrlPathId.PERIOD) ? [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()]
-                        : storeState;
+                map(([urlService, [from, to]]: [NewUrlStateNotificationService, number[]]) => {
+                    return urlService.isPathChanged(UrlPathId.PERIOD) || (from === 0 && to === 0) ? [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()]
+                        : [from, to];
                 }),
             ),
             this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
