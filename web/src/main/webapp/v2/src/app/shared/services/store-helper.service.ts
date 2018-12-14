@@ -148,9 +148,6 @@ export class StoreHelperService {
         return this.store.pipe(
             takeUntil(unsubscribe),
             select(selectTimelineSelectionRange),
-            filter(([from, to]: number[]) => {
-                return (from === 0 && to === 0) ? false : true;
-            })
         );
     }
     getInspectorTimelineSelectedTime(unsubscribe: Subject<void>): Observable<number> {

@@ -69,7 +69,7 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
             takeUntil(this.unsubscribe),
             withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
             map(([urlService, storeState]: [NewUrlStateNotificationService, ITimelineInfo]) => {
-                if (urlService.isPathChanged(UrlPathId.PERIOD)) {
+                if (urlService.isPathChanged(UrlPathId.PERIOD) || storeState.selectedTime === 0) {
                     const selectionStartTime = urlService.getStartTimeToNumber();
                     const selectionEndTime = urlService.getEndTimeToNumber();
                     const { start, end } = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
@@ -106,7 +106,6 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
                 }
             };
 
-            this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
             this.changeDetector.detectChanges();
         });
     }

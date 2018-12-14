@@ -90,6 +90,7 @@ export abstract class InspectorChartContainer {
                 }),
             ),
             this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
+                skip(1),
                 filter((range: number[]) => {
                     if (this.previousRange) {
                         return !(this.previousRange[0] === range[0] && this.previousRange[1] === range[1]);
