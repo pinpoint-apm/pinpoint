@@ -1,22 +1,21 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as moment from 'moment-timezone';
-import { Subject, Observable, combineLatest } from 'rxjs';
+import { Subject, Observable, combineLatest, merge } from 'rxjs';
 
-import { StoreHelperService } from 'app/shared/services';
+import { StoreHelperService, NewUrlStateNotificationService } from 'app/shared/services';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'pp-timeline-command-group-container',
     templateUrl: './timeline-command-group-container.component.html',
     styleUrls: ['./timeline-command-group-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
-    pointingTime: string;
     pointingTime$: Observable<string>;
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
-        private storeHelperService: StoreHelperService
+        private storeHelperService: StoreHelperService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -26,15 +25,21 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
         this.unsubscribe.complete();
     }
     private connectStore(): void {
-        combineLatest(
+        this.pointingTime$ = combineLatest(
             this.storeHelperService.getDateFormat(this.unsubscribe, 0),
             this.storeHelperService.getTimezone(this.unsubscribe),
-            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)
-        ).subscribe((data: [string, string, number]) => {
-            const dateFormat = data[0];
-            const timezone = data[1];
-            this.pointingTime = moment(data[2]).tz(timezone).format(dateFormat);
-            this.changeDetectorRef.detectChanges();
-        });
+            merge(
+                this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                    map((urlService: NewUrlStateNotificationService) => {
+                        return urlService.getEndTimeToNumber();
+                    })
+                ),
+                this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)
+            )
+        ).pipe(
+            map(([dateFormat, timezone, pointingTime]: [string, string, number]) => {
+                return moment(pointingTime).tz(timezone).format(dateFormat);
+            })
+        );
     }
 }
