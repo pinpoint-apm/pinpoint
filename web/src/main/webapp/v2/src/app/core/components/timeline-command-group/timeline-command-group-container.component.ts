@@ -1,10 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as moment from 'moment-timezone';
-import { Subject, Observable, combineLatest, merge } from 'rxjs';
+import { Subject, Observable, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { StoreHelperService, NewUrlStateNotificationService } from 'app/shared/services';
-import { map, withLatestFrom, skip } from 'rxjs/operators';
-import { UrlPathId } from 'app/shared/models';
+import { StoreHelperService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-timeline-command-group-container',
@@ -16,7 +15,6 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
     pointingTime$: Observable<string>;
     constructor(
         private storeHelperService: StoreHelperService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -29,16 +27,7 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
         this.pointingTime$ = combineLatest(
             this.storeHelperService.getDateFormat(this.unsubscribe, 0),
             this.storeHelperService.getTimezone(this.unsubscribe),
-            merge(
-                this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-                    withLatestFrom(this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)),
-                    map(([urlService, storeState]: [NewUrlStateNotificationService, number]) => {
-                        return urlService.isPathChanged(UrlPathId.PERIOD) || storeState === 0 ? urlService.getEndTimeToNumber()
-                            : storeState;
-                    })
-                ),
-                this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(skip(1))
-            )
+            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)
         ).pipe(
             map(([dateFormat, timezone, pointingTime]: [string, string, number]) => {
                 return moment(pointingTime).tz(timezone).format(dateFormat);
