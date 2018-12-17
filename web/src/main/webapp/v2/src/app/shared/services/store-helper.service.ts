@@ -135,15 +135,6 @@ export class StoreHelperService {
     getInspectorTimelineData(unsubscribe: Subject<void>): Observable<ITimelineInfo> {
         return this.getObservable(STORE_KEY.TIMELINE, unsubscribe);
     }
-    getInspectorTimelineRange(unsubscribe: Subject<void>): Observable<number[]> {
-        return this.store.pipe(
-            takeUntil(unsubscribe),
-            select(selectTimelineRange),
-            filter(([from, to]: number[]) => {
-                return (from === 0 && to === 0) ? false : true;
-            })
-        );
-    }
     getInspectorTimelineSelectionRange(unsubscribe: Subject<void>): Observable<number[]> {
         return this.store.pipe(
             takeUntil(unsubscribe),
