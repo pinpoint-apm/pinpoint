@@ -55,12 +55,16 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
                     this.urlApplicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
                 }),
                 withLatestFrom(this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)),
-                map(([urlService, storeState]: [NewUrlStateNotificationService, number]) => {
-                    return urlService.isPathChanged(UrlPathId.PERIOD) || storeState === 0 ? urlService.getEndTimeToNumber()
-                        : storeState;
-                })
+                map(([, storeState]: [NewUrlStateNotificationService, number]) => storeState)
             ),
-            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(skip(1))
+            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(
+                skip(1),
+                withLatestFrom(this.newUrlStateNotificationService.onUrlStateChange$),
+                filter(([storeState, urlService]: [number, NewUrlStateNotificationService]) => {
+                    return storeState !== urlService.getEndTimeToNumber();
+                }),
+                map(([storeState]: [number, NewUrlStateNotificationService]) => storeState)
+            )
         ).pipe(
             tap(() => {
                 this.showLoading = true;

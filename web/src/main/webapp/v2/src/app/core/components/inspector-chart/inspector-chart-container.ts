@@ -8,7 +8,6 @@ import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-
 import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { IChartDataService, IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
-import { UrlPathId } from 'app/shared/models';
 
 export abstract class InspectorChartContainer {
     private previousRange: number[];
@@ -84,19 +83,22 @@ export abstract class InspectorChartContainer {
             this.newUrlStateNotificationService.onUrlStateChange$.pipe(
                 takeUntil(this.unsubscribe),
                 withLatestFrom(this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe)),
-                map(([urlService, [from, to]]: [NewUrlStateNotificationService, number[]]) => {
-                    return urlService.isPathChanged(UrlPathId.PERIOD) || (from === 0 && to === 0) ? [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()]
-                        : [from, to];
-                }),
+                map(([, storeState]: [NewUrlStateNotificationService, number[]]) => storeState),
             ),
             this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
                 skip(1),
-                filter((range: number[]) => {
-                    if (this.previousRange) {
-                        return !(this.previousRange[0] === range[0] && this.previousRange[1] === range[1]);
-                    }
+                withLatestFrom(this.newUrlStateNotificationService.onUrlStateChange$),
+                filter(([storeState, urlService]: [number[], NewUrlStateNotificationService]) => {
+                    const [from, to] = storeState;
 
-                    return true;
+                    return !(from === urlService.getStartTimeToNumber() && to === urlService.getEndTimeToNumber());
+                }),
+                map(([storeState]: [number[], NewUrlStateNotificationService]) => storeState),
+                filter((storeState: number[]) => {
+                    const [f0, t0] = storeState;
+                    const [f1, t1] = this.previousRange;
+
+                    return !(f0 === f1 && t0 === t1);
                 }),
             )
         ).subscribe((range: number[]) => {
