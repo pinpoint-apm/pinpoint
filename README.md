@@ -62,7 +62,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
 * ActiveMQ, RabbitMQ
 * MySQL, Oracle, MSSQL(jtds), CUBRID,POSTGRESQL, MARIA
-* Arcus, Memcached, Redis, CASSANDRA
+* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA
 * iBATIS, MyBatis
 * DBCP, DBCP2, HIKARICP
 * gson, Jackson, Json Lib
