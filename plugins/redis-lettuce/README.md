@@ -1,6 +1,8 @@
 ## Redis Lettuce Client.
-
-Currently supports Lettuce 5.0.0.RELEASE ~ 5.1.2.RELEASE
+* Version: 1.0
+* Since: Pinpoint 1.8.1
+* See: https://lettuce.io/
+* Range: io.lettuce/lettuce-core [5.0.0.RELEASE, 5.1.2.RELEASE] (5.0.0.RELEASE <= x <= 5.1.2.RELEASE)
 
 ### Pinpoint Configuration
 pinpoint.config
