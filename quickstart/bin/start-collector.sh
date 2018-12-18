@@ -132,7 +132,7 @@ function func_check_running_pinpoint_collector
 function func_start_pinpoint_collector
 {
     version=$( func_read_properties "$KEY_VERSION" )
-    pid=`nohup ${bin}/../../mvnw -f $COLLECTOR_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+    pid=`nohup ${bin}/../../mvnw -f $COLLECTOR_DIR/pom.xml clean package cargo:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
     echo $pid > $PID_DIR/$PID_FILE
 
     echo "---$COLLECTOR_IDENTIFIER initialization started. pid=$pid.---"g

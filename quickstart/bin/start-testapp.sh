@@ -143,10 +143,6 @@ function func_init_agent
 function func_start_pinpoint_testapp
 {
         version=$( func_read_properties "$KEY_VERSION" )
-        maven_opt=$MAVEN_OPTS
-        pinpoint_agent=$AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar
-        pinpoint_opt="-javaagent:$pinpoint_agent -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP"
-        export MAVEN_OPTS=$pinpoint_opt
 
         context_path=$( func_read_properties "$KEY_CONTEXT_PATH" )
         if [ "$context_path" == "/" ]; then
@@ -155,9 +151,8 @@ function func_start_pinpoint_testapp
         port=$( func_read_properties "$KEY_PORT" )
         check_url="http://localhost:$port$context_path/getCurrentTimestamp.pinpoint"
 
-        pid=`nohup ${bin}/../../mvnw -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version >> $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+        pid=`nohup ${bin}/../../mvnw -f $TESTAPP_DIR/pom.xml clean package cargo:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version >> $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
         echo $pid > $PID_DIR/$PID_FILE
-        export MAVEN_OPTS=$maven_opt
 
         echo "---$TESTAPP_IDENTIFIER initialization started. pid=$pid.---"
 
