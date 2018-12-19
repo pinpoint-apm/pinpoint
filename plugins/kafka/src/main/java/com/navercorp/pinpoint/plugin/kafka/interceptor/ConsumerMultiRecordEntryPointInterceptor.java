@@ -22,19 +22,15 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
-import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The type Consumer multi record entry point interceptor.
  *
  * @author Victor.Zxy
+ * @author Taejin Koo
  */
 public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntryPointInterceptor {
 
@@ -46,43 +42,32 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
      * @param traceContext     the trace context
      * @param methodDescriptor the method descriptor
      */
-    public ConsumerMultiRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public ConsumerMultiRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex) {
+        super(traceContext, methodDescriptor, parameterIndex);
     }
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
-
-        ConsumerRecords consumerRecords = getConsumerRecords(args);
-
-        if (consumerRecords == null || consumerRecords.isEmpty()) {
+        ConsumerRecordsDesc consumerRecordsDesc = getConsumerRecordsDesc(args);
+        if (consumerRecordsDesc == null) {
             return null;
         }
-        Trace newTrace = createTrace(consumerRecords);
 
+        Trace newTrace = createTrace(consumerRecordsDesc);
         return newTrace;
     }
 
-    private ConsumerRecords getConsumerRecords(Object[] args) {
-        if (args == null) {
-            return null;
-        }
-
-        for (Object arg : args) {
-            if (arg instanceof ConsumerRecords) {
-                return (ConsumerRecords) arg;
-            }
-        }
-        return null;
+    private ConsumerRecordsDesc getConsumerRecordsDesc(Object[] args) {
+        return ConsumerRecordsDesc.create(getTargetParameter(args));
     }
 
-    private Trace createTrace(ConsumerRecords consumerRecords) {
+    private Trace createTrace(ConsumerRecordsDesc consumerRecordsDesc) {
         TraceFactoryProvider.TraceFactory createTrace = tracyFactoryReference.get();
         if (createTrace == null) {
             createTrace = TraceFactoryProvider.get();
             tracyFactoryReference.compareAndSet(null, createTrace);
         }
-        return createTrace.createTrace(traceContext, consumerRecords);
+        return createTrace.createTrace(traceContext, consumerRecordsDesc);
     }
 
     private static class TraceFactoryProvider {
@@ -97,11 +82,11 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
             /**
              * Create trace trace.
              *
-             * @param traceContext    the trace context
-             * @param consumerRecords the consumer records
+             * @param traceContext        the trace context
+             * @param consumerRecordsDesc the consumer records description
              * @return the trace
              */
-            Trace createTrace(TraceContext traceContext, ConsumerRecords consumerRecords);
+            Trace createTrace(TraceContext traceContext, ConsumerRecordsDesc consumerRecordsDesc);
         }
 
         private static class DefaultTraceFactory implements TraceFactory {
@@ -112,12 +97,11 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
             final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
             @Override
-            public Trace createTrace(TraceContext traceContext, ConsumerRecords consumerRecords) {
-
+            public Trace createTrace(TraceContext traceContext, ConsumerRecordsDesc consumerRecordsDesc) {
                 final Trace trace = traceContext.newTraceObject();
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
-                    recordRootSpan(recorder, consumerRecords);
+                    recordRootSpan(recorder, consumerRecordsDesc);
                     if (logger.isDebugEnabled()) {
                         logger.debug("TraceID not exist. start new trace.");
                     }
@@ -130,37 +114,21 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
                 }
             }
 
-            private void recordRootSpan(SpanRecorder recorder, ConsumerRecords consumerRecords) {
+            private void recordRootSpan(SpanRecorder recorder, ConsumerRecordsDesc consumerRecordsDesc) {
                 recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT);
                 recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
 
-                int count = consumerRecords.count();
-                Iterator<ConsumerRecord> iterator = consumerRecords.iterator();
-                ConsumerRecord consumerRecord = iterator.next();
+                int size = consumerRecordsDesc.size();
 
-                String remoteAddress = getRemoteAddress(consumerRecord);
+                String remoteAddress = consumerRecordsDesc.getRemoteAddress();
                 recorder.recordEndPoint(remoteAddress);
                 recorder.recordRemoteAddress(remoteAddress);
+                recorder.recordAcceptorHost(remoteAddress);
 
-                String topic = consumerRecord.topic();
-                recorder.recordRpcName(createRpcName(topic, count));
-                recorder.recordAcceptorHost("topic:" + topic);
+                String topic = consumerRecordsDesc.getTopicString();
+                recorder.recordRpcName(createRpcName(topic, size));
                 recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
-                recorder.recordAttribute(KafkaConstants.KAFKA_BATCH_ANNOTATION_KEY, count);
-
-            }
-
-            private String getRemoteAddress(Object remoteAddressFieldAccessor) {
-                String remoteAddress = null;
-                if (remoteAddressFieldAccessor instanceof RemoteAddressFieldAccessor) {
-                    remoteAddress = ((RemoteAddressFieldAccessor) remoteAddressFieldAccessor)._$PINPOINT$_getRemoteAddress();
-                }
-
-                if (StringUtils.isEmpty(remoteAddress)) {
-                    return KafkaConstants.UNKNOWN;
-                } else {
-                    return remoteAddress;
-                }
+                recorder.recordAttribute(KafkaConstants.KAFKA_BATCH_ANNOTATION_KEY, size);
             }
 
             private String createRpcName(String topic, int count) {
@@ -170,5 +138,7 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
                 return rpcName.toString();
             }
         }
+
     }
+
 }

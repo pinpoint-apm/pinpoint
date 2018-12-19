@@ -86,6 +86,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             this.mapData = new ServerMapData(res.applicationMapData.nodeDataArray, res.applicationMapData.linkDataArray);
             this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
             if (this.hasNodeData() === false) {
+                this.showLoading = false;
                 this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
             }
         }, (error: IServerErrorFormat) => {
@@ -135,19 +136,15 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.useDisable = true;
         this.baseApplicationKey = application.getKeyStr();
     }
-    private hasNodeData(): boolean {
-        return this.mapData && this.mapData.getNodeCount() !== 0;
-    }
-    showGuide(): boolean {
-        return this.hasNodeData() === false && this.showLoading === false;
+    hasNodeData(): boolean {
+        return this.mapData.getNodeCount() !== 0;
     }
     onRenderCompleted({showOverView}: {showOverView: boolean}): void {
         this.showLoading = false;
         this.useDisable = false;
         this.showOverview = this.hasNodeData() && showOverView;
     }
-    onClickBackground($event: any): void {
-    }
+    onClickBackground($event: any): void {}
     onClickNode(nodeData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
         let payload;

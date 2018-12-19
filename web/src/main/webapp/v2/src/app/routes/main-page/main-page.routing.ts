@@ -8,6 +8,7 @@ import { UrlRedirectorComponent } from 'app/shared/components/url-redirector';
 import { SystemConfigurationResolverService, ApplicationListResolverService, ServerTimeResolverService } from 'app/shared/services';
 
 import { MainPageComponent } from './main-page.component';
+import { NewRealTimeContainerComponent } from 'app/core/components/real-time-new/new-real-time-container.component';
 
 export const routing: Routes = [
     {

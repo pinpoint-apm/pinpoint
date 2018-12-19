@@ -11,10 +11,10 @@
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
-## Latest Release (2018/09/14)
+## Latest Release (2018/12/14)
 
-We're happy to announce the release of Pinpoint v1.8.0.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.0).
+We're happy to announce the release of Pinpoint v1.8.1-RC1.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.1-RC1).
 
 The current stable version is [v1.8.0](https://github.com/naver/pinpoint/releases/tag/1.8.0).
 
@@ -62,7 +62,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
 * ActiveMQ, RabbitMQ
 * MySQL, Oracle, MSSQL(jtds), CUBRID,POSTGRESQL, MARIA
-* Arcus, Memcached, Redis, CASSANDRA
+* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA
 * iBATIS, MyBatis
 * DBCP, DBCP2, HIKARICP
 * gson, Jackson, Json Lib
@@ -79,7 +79,8 @@ Pinpoint Version | Agent | Collector | Web
 1.5.x | 6-8 | 7-8 | 7-8
 1.6.x | 6-8 | 7-8 | 7-8
 1.7.x | 6-8 | 8 | 8
-1.8.x | 6-10 | 8 | 8 
+1.8.0 | 6-10 | 8 | 8 
+1.8.1+ | 6-11 | 8 | 8 
 
 HBase compatibility table:
 

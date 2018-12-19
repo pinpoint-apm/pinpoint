@@ -237,7 +237,7 @@ public class SpanServiceImpl implements SpanService {
                 final String jsonbindValue = jsonValue.getStringValue2();
 
                 if (StringUtils.isEmpty(json)) {
-                    logger.debug("No values in Json:{}", json);
+                    logger.debug("No values in Json");
                 } else {
                     AnnotationBo jsonMeta = new AnnotationBo();
                     jsonMeta.setKey(MongoConstants.MONGO_JSON.getCode());

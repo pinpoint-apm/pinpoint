@@ -39,16 +39,18 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    public ClassFileTransformerModuleHandler(Instrumentation instrumentation, ClassFileTransformer delegate) {
+    public ClassFileTransformerModuleHandler(Instrumentation instrumentation, ClassFileTransformer delegate, JavaModuleFactory javaModuleFactory) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
-
+        if (javaModuleFactory == null) {
+            throw new NullPointerException("javaModuleFactory must not be null");
+        }
         this.delegate = delegate;
-        this.javaModuleFactory = JavaModuleFactoryFinder.lookup(instrumentation);
+        this.javaModuleFactory = javaModuleFactory;
         this.bootstrapModule = javaModuleFactory.wrapFromClass(JavaModuleFactory.class);
     }
 
@@ -57,6 +59,9 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
         final byte[] transform = delegate.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+        if (transformedModuleObject == null) {
+            return transform;
+        }
         if (transform != null && transform != classfileBuffer) {
             if (!javaModuleFactory.isNamedModule(transformedModuleObject)) {
                 return transform;

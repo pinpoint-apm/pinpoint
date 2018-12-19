@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author Minwoo Jung
  * @author jaehong.kim
  */
-public class DefaultTransformerRegistry implements TransformerRegistry {
+public class DefaultTransformerRegistry implements BaseTransformerRegistry {
 
     // No concurrent issue because only one thread put entries to the map and get operations are started AFTER the map is completely build.
     // Set the map size big intentionally to keep hash collision low.
@@ -50,6 +50,7 @@ public class DefaultTransformerRegistry implements TransformerRegistry {
         return registry.get(classInternalName);
     }
 
+    @Override
     public void addTransformer(Matcher matcher, ClassFileTransformer transformer) {
         // TODO extract matcher process
         if (matcher instanceof ClassNameMatcher) {
@@ -69,8 +70,7 @@ public class DefaultTransformerRegistry implements TransformerRegistry {
 
     private void addModifier0(ClassFileTransformer transformer, String className) {
         final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
-        ClassFileTransformer old = registry.put(classInternalName, transformer);
-
+        final ClassFileTransformer old = registry.put(classInternalName, transformer);
         if (old != null) {
             throw new IllegalStateException("Transformer already exist. className:" + classInternalName + " new:" + transformer.getClass() + " old:" + old.getClass());
         }

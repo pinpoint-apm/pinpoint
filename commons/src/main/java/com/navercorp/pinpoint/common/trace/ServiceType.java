@@ -63,10 +63,15 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1110</td><td>DUBBO_PROVIDER</td></tr>
  * <tr><td>1120</td><td>UNDERTOW</td></tr>
  * <tr><td>1121</td><td>UNDERTOW_METHOD</td></tr>
+ * <tr><td>1126</td><td>UNDERTOW_SERVLET_METHOD</td></tr>
+ *
  * <tr><td>1130</td><td>GRPC_SERVER</td></tr>
  *
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
+ * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
+ * <tr><td>1621</td><td>OPENWHISK_CONTROLLER</td></tr>
+ * <tr><td>1622</td><td>OPENWHISK_INVOKER</td></tr>
  *
  * </table>
  * 
@@ -94,6 +99,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2501</td><td>POSTGRESQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2600</td><td>CASSANDRA</td></tr>
  * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
+ * <tr><td>2650</td><td>MONGO</td></tr>
+ * <tr><td>2651</td><td>MONGO_EXECUTE_QUERY</td></tr>
+ * <tr><td>2700</td><td>COUCHDB</td></tr>
+ * <tr><td>2701</td><td>COUCHDB_EXECUTE_QUERY</td></tr>
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>
@@ -137,6 +146,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8102</td><td>ARCUS_EHCACHE_FUTURE_GET</td></tr>
  * <tr><td>8103</td><td>ARCUS_INTERNAL</td></tr>
  * <tr><td>8200</td><td>REDIS</td></tr>
+ * <tr><td>8201</td><td>REDIS_LETTUCE</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8260</td><td><i>RESERVED</i></td></tr>
@@ -185,6 +195,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
+ * <tr><td>9622</td><td>OPENWHISK_CLIENT</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>

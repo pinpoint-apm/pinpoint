@@ -81,7 +81,7 @@ public class ProducerSendInterceptorTest {
         interceptor.after(addressFieldAccessor, args, null, null);
 
         verify(recorder).recordEndPoint(KafkaConstants.UNKNOWN);
-        verify(recorder).recordDestinationId("topic:test");
+        verify(recorder).recordDestinationId("Unknown");
         verify(recorder).recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, "test");
     }
 }

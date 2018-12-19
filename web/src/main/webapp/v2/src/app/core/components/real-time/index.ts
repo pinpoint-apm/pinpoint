@@ -17,7 +17,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         RealTimeAgentChartComponent,
         RealTimeTotalChartComponent,
         RealTimeContainerComponent,
-        RealTimePagingContainerComponent
+        RealTimePagingContainerComponent,
     ],
     imports: [
         SharedModule,
@@ -25,11 +25,11 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
     ],
     exports: [
         RealTimeContainerComponent,
-        RealTimePagingContainerComponent
+        RealTimePagingContainerComponent,
     ],
     entryComponents: [
         RealTimeTotalChartComponent,
-        RealTimeAgentChartComponent
+        RealTimeAgentChartComponent,
     ],
     providers: [
         RealTimeWebSocketService

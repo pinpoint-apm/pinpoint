@@ -31,6 +31,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STA
 
 public class KafkaConstants {
 
+    public static final String SCOPE = "KAFKA_SCOPE";
+
     public static final ServiceType KAFKA_CLIENT = ServiceTypeFactory.of(8660, "KAFKA_CLIENT", "KAFKA_CLIENT", QUEUE, RECORD_STATISTICS);
     public static final ServiceType KAFKA_CLIENT_INTERNAL = ServiceTypeFactory.of(8661, "KAFKA_CLIENT_INTERNAL", "KAFKA_CLIENT");
 

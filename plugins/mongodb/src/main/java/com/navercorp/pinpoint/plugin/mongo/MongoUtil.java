@@ -26,6 +26,7 @@ import org.bson.BsonValue;
 import org.bson.BsonWriter;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+
 import org.bson.json.JsonWriter;
 
 import java.io.StringWriter;
@@ -46,9 +47,12 @@ public final class MongoUtil {
 
     private static final boolean decimal128Enabled = decimal128Enabled();
 
+    private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 16;
+
     private MongoUtil() {
     }
 
+    //since Mongo Java Driver 3.4
     private static boolean decimal128Enabled() {
         for (BsonType bsonType : BsonType.values()) {
             if (bsonType.name().equalsIgnoreCase("DECIMAL128")) {
@@ -108,6 +112,7 @@ public final class MongoUtil {
         for (Object arg : args) {
 
             WriteContext writeContext = new WriteContext(jsonParameter, decimal128Enabled, traceBsonBindValue);
+
             String documentString = writeContext.parse(arg);
 
             parsedJson.add(documentString);
@@ -121,6 +126,7 @@ public final class MongoUtil {
     private static class WriteContext {
 
         private final Writer writer = new StringWriter();
+
         private final BsonWriter bsonWriter = new JsonWriter(writer);
 
         private final List<String> jsonParameter;
@@ -136,6 +142,7 @@ public final class MongoUtil {
 
         public String parse(Object arg) {
             parseBsonObject(arg);
+
             return writer.toString();
         }
 
@@ -148,10 +155,13 @@ public final class MongoUtil {
             bsonWriter.writeStartDocument();
             for (Map.Entry<String, ?> entry : map.entrySet()) {
 
-                bsonWriter.writeName(entry.getKey());
+                String key = entry.getKey();
+                if (key.equals("_id")) {
+                    continue;
+                }
+                bsonWriter.writeName(key);
 
-                final Object value = entry.getValue();
-                writeValue(value);
+                writeValue(entry.getValue());
             }
             bsonWriter.writeEndDocument();
         }
@@ -159,20 +169,16 @@ public final class MongoUtil {
         private void parsePrimitiveArrayObject(Object arg) {
             bsonWriter.writeStartArray();
 
-            int length = Array.getLength(arg);
+            arrayAbbreviationForMongo(arg);
 
-            for (int i = 0; i < length; i++) {
-                writeValue(Array.get(arg, i));
-            }
             bsonWriter.writeEndArray();
         }
 
         private <T> void parseCollection(Collection<T> arg) {
             bsonWriter.writeStartArray();
 
-            for (T value : arg) {
-                writeValue(value);
-            }
+            collectionAbbreviationForMongo(arg);
+
             bsonWriter.writeEndArray();
         }
 
@@ -180,107 +186,193 @@ public final class MongoUtil {
 
             BsonType bsonType = arg.getBsonType();
 
-            bsonWriter.writeStartDocument();
-
+            //write with same format of JsonWriter(JsonMode.STRICT)
             if (bsonType.equals(BsonType.DOUBLE)) {
 
-                bsonWriter.writeName("value");
                 writeValue(arg.asDouble().getValue());
 
             } else if (bsonType.equals(BsonType.STRING)) {
 
-                bsonWriter.writeName("value");
                 writeValue(arg.asString().getValue());
 
             } else if (bsonType.equals(BsonType.BINARY)) {
 
-                bsonWriter.writeName("type");
-                writeValue(arg.asBinary().getType());
+                String abbreviatedBinary = binaryAbbreviationForMongo(arg);
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$binary");
+                writeValue(abbreviatedBinary);
 
-                bsonWriter.writeName("data");
-                writeValue(arg.asBinary().getData());
+                bsonWriter.writeName("$type");
+                writeValue(String.valueOf(String.format("%02X", arg.asBinary().getType())));
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.OBJECT_ID)) {
 
-                bsonWriter.writeName("value");
-                writeValue(arg.asObjectId().getValue());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$oid");
+                writeValue(String.valueOf(arg.asObjectId().getValue()));
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.BOOLEAN)) {
 
-                bsonWriter.writeName("value");
                 writeValue(arg.asBoolean().getValue());
 
             } else if (bsonType.equals(BsonType.DATE_TIME)) {
 
-                bsonWriter.writeName("value");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$date");
                 writeValue(arg.asDateTime().getValue());
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.REGULAR_EXPRESSION)) {
 
-                bsonWriter.writeName("pattern");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$regex");
                 writeValue(arg.asRegularExpression().getPattern());
-                bsonWriter.writeName("options");
+                bsonWriter.writeName("$options");
                 writeValue(arg.asRegularExpression().getOptions());
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.DB_POINTER)) {
 
-                bsonWriter.writeName("namespace");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$ref");
                 writeValue(arg.asDBPointer().getNamespace());
-                bsonWriter.writeName("id");
-                writeValue(arg.asDBPointer().getId());
+                bsonWriter.writeName("$id");
+
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$oid");
+                writeValue(String.valueOf(arg.asDBPointer().getId()));
+                bsonWriter.writeEndDocument();
+
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.JAVASCRIPT)) {
 
-                bsonWriter.writeName("code");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$code");
                 writeValue(arg.asJavaScript().getCode());
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.SYMBOL)) {
 
-                bsonWriter.writeName("symbol");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$symbol");
                 writeValue(arg.asSymbol().getSymbol());
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.JAVASCRIPT_WITH_SCOPE)) {
 
-                bsonWriter.writeName("code");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$code");
                 writeValue(arg.asJavaScriptWithScope().getCode());
-                bsonWriter.writeName("scope");
+                bsonWriter.writeName("$scope");
                 writeValue(arg.asJavaScriptWithScope().getScope());
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.INT32)) {
 
-                bsonWriter.writeName("value");
                 writeValue(arg.asInt32().getValue());
 
             } else if (bsonType.equals(BsonType.TIMESTAMP)) {
 
-                bsonWriter.writeName("value");
-                writeValue(arg.asTimestamp().getValue());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$timestamp");
+
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("t");
+                writeValue(arg.asTimestamp().getTime());
+                bsonWriter.writeName("i");
+                writeValue(arg.asTimestamp().getInc());
+                bsonWriter.writeEndDocument();
+
+                bsonWriter.writeEndDocument();
 
             } else if (bsonType.equals(BsonType.INT64)) {
 
-                bsonWriter.writeName("value");
-                writeValue(arg.asInt64().getValue());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$numberLong");
+                writeValue(String.valueOf(arg.asInt64().getValue()));
+                bsonWriter.writeEndDocument();
+
+            } else if (bsonType.equals(BsonType.UNDEFINED)) {
+
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$undefined");
+                writeValue(true);
+                bsonWriter.writeEndDocument();
+
+            } else if (bsonType.equals(BsonType.NULL)) {
+
+                writeValue(null);
 
             } else if (decimal128Enabled && bsonType.equals(BsonType.DECIMAL128)) {
 
-                bsonWriter.writeName("value");
-                writeValue(arg.asDecimal128().getValue());
-
+                //since Mongo Java Driver 3.4
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$numberDecimal");
+                writeValue(String.valueOf(arg.asDecimal128().getValue()));
+                bsonWriter.writeEndDocument();
             }
 //        BsonType.DOCUMENT //taken care of in Bson
 //        BsonType.ARRAY //taken care of in collection
 //        BsonType.END_OF_DOCUMENT //do nothing
-//        BsonType.UNDEFINED //do nothing
-//        BsonType.NULL //do nothing
 
-            bsonWriter.writeEndDocument();
+        }
+
+        private String binaryAbbreviationForMongo(BsonValue arg) {
+
+            final byte[] binary = arg.asBinary().getData();
+            final int binaryLength = binary.length;
+
+            if (binaryLength > DEFAULT_ABBREVIATE_MAX_WIDTH) {
+                return Base64.encode(binary, 0, DEFAULT_ABBREVIATE_MAX_WIDTH) + "...(" + binaryLength + ")";
+            } else {
+                return Base64.encode(binary);
+            }
+        }
+
+        private void arrayAbbreviationForMongo(Object arg) {
+            final int length = Array.getLength(arg);
+            for (int i = 0; i < length && i < DEFAULT_ABBREVIATE_MAX_WIDTH - 1; i++) {
+                writeValue(Array.get(arg, i));
+            }
+            if (length > DEFAULT_ABBREVIATE_MAX_WIDTH - 2) {
+                bsonWriter.writeString("?");
+                if (traceBsonBindValue) {
+                    jsonParameter.add("...(" + length + ")");
+                }
+            }
+        }
+
+        private <T> void collectionAbbreviationForMongo(Collection<T> arg) {
+            int length = arg.size();
+            int i = 0;
+            for (T value : arg) {
+                writeValue(value);
+                i++;
+                if (i > DEFAULT_ABBREVIATE_MAX_WIDTH - 2) {
+                    break;
+                }
+            }
+            if (length > DEFAULT_ABBREVIATE_MAX_WIDTH - 2) {
+                bsonWriter.writeString("?");
+                if (traceBsonBindValue) {
+                    jsonParameter.add("...(" + length + ")");
+                }
+            }
         }
 
         private void writeValue(Object arg) {
-            if (arg instanceof String) {
+            if (arg == null) {
                 bsonWriter.writeString("?");
                 if (traceBsonBindValue) {
-                    jsonParameter.add("\"" + StringUtils.replace((String) arg, "\"", "\"\"") + "\"");
+                    jsonParameter.add(String.valueOf(arg));
+                }
+            } else if (arg instanceof String) {
+                bsonWriter.writeString("?");
+                if (traceBsonBindValue) {
+                    jsonParameter.add("\"" + StringUtils.abbreviate(StringUtils.replace((String) arg, "\"", "\"\"")) + "\"");
                 }
             } else if (arg.getClass().isArray()) {
                 parsePrimitiveArrayObject(arg);
@@ -293,10 +385,12 @@ public final class MongoUtil {
             } else {
                 bsonWriter.writeString("?");
                 if (traceBsonBindValue) {
-                    jsonParameter.add(String.valueOf(arg));
+                    jsonParameter.add(StringUtils.abbreviate(String.valueOf(arg)));
                 }
             }
         }
-    }
 
+
+    }
 }
+

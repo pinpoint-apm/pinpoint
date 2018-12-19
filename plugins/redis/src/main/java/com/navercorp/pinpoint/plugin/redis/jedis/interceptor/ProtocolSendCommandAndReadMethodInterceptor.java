@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.redis.CommandContext;
+import com.navercorp.pinpoint.plugin.redis.jedis.CommandContext;
 
 /**
  * RedisConnection(nBase-ARC client) constructor interceptor - trace endPoint

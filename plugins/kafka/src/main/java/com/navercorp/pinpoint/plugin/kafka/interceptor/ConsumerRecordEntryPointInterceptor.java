@@ -44,9 +44,12 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<TraceFactoryProvider.TraceFactory>();
 
-    public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    protected final int parameterIndex;
+
+    public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex) {
         super(traceContext, methodDescriptor, SCOPE_NAME);
         traceContext.cacheApi(ENTRY_POINT_METHOD_DESCRIPTOR);
+        this.parameterIndex = parameterIndex;
     }
 
     @Override
@@ -64,7 +67,6 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
-
         ConsumerRecord consumerRecord = getConsumerRecord(args);
 
         if (consumerRecord == null) {
@@ -76,16 +78,20 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
     }
 
     private ConsumerRecord getConsumerRecord(Object[] args) {
-        if (args == null) {
+        Object consumerRecord = getTargetParameter(args);
+        if (consumerRecord instanceof ConsumerRecord) {
+            return (ConsumerRecord) consumerRecord;
+        }
+
+        return null;
+    }
+
+    protected Object getTargetParameter(Object[] args) {
+        if (args == null || args.length <= parameterIndex) {
             return null;
         }
 
-        for (Object arg : args) {
-            if (arg instanceof ConsumerRecord) {
-                return (ConsumerRecord) arg;
-            }
-        }
-        return null;
+        return args[parameterIndex];
     }
 
     private Trace createTrace(ConsumerRecord consumerRecord) {
@@ -160,7 +166,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
                 String topic = consumerRecord.topic();
                 recorder.recordRpcName(createRpcName(consumerRecord));
-                recorder.recordAcceptorHost("topic:" + topic);
+                recorder.recordAcceptorHost(remoteAddress);
                 recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
 
                 recorder.recordAttribute(KafkaConstants.KAFKA_PARTITION_ANNOTATION_KEY, consumerRecord.partition());

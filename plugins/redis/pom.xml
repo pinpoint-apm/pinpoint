@@ -12,11 +12,6 @@
     <name>pinpoint-redis-plugin</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <test.jdk.home>${env.JAVA_8_HOME}</test.jdk.home>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -56,12 +51,5 @@
             <artifactId>jedis</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.lettuce/lettuce-core -->
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 </project>

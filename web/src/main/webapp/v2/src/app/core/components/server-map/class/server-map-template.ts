@@ -58,39 +58,25 @@ export abstract class ServerMapTemplate {
     private static getAlertSVGImgString(img: HTMLImageElement): string {
         const dataURL = this.getDataURLFromImg(img);
 
-        return `<image xlink:href="${dataURL}" height="120" width="120" stroke="red" x="50%" y="0" transform="translate(-10, -15)" />`;
+        return `<image xlink:href="${dataURL}" height="20" width="30" stroke="red" x="50%" y="0" transform="translate(-15, 10)" />`;
     }
 
     private static getDataURLFromImg(img: HTMLImageElement): string {
         const canvas = document.createElement('canvas');
 
+        canvas.width = img.width;
+        canvas.height = img.height;
         canvas.getContext('2d').drawImage(img, 0, 0);
-        return canvas.toDataURL();
-    }
 
-    private static getSVGImageStyle(width: number, height: number): {[key: string]: any} {
-        /**
-         * ServerMap Image Size Group
-         * 1. 100 * 65
-         * 2. 142 * 74
-         * 3. 92 * 25
-         * 4. 63 * 87?
-         */
-        // TODO: static한 수치가아니라 비율로?
-        return {
-            size: width > 100 ? 200 : 300,
-            transform: {
-                translateX: width > 100 ? -45 : -50,
-                translateY: height > 65 ? -20 : height > 30 ? -45 : -20
-            }
-        };
+        return canvas.toDataURL();
     }
 
     private static getServiceTypeSVGImgString(img: HTMLImageElement): string {
         const dataURL = ServerMapTemplate.getDataURLFromImg(img);
-        const { size, transform } = ServerMapTemplate.getSVGImageStyle(img.width, img.height);
+        const w = img.width <= 100 ? img.width : 100;
+        const h = img.height <= 65 ? img.height : 65;
 
-        return `<image xlink:href="${dataURL}" height="${size}" width="${size}" stroke="red" x="50%" y="0" transform="translate(${transform.translateX}, ${transform.translateY})" />`;
+        return `<image xlink:href="${dataURL}" height="${h}" width="${w}" stroke="red" x="50%" y="50%" transform="translate(${-(w / 2)}, ${-(h / 2) - 4})"/>`;
     }
 
     private static getInstanceCountTextString(instanceCount: number): string {

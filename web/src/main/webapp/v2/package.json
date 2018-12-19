@@ -34,7 +34,7 @@
     "ag-grid-angular": "^19.1.1",
     "ag-grid-community": "^19.1.1",
     "angular-2-local-storage": "^2.0.0",
-    "bowser": "^1.9.3",
+    "bowser": "^1.9.4",
     "chart.js": "git+https://github.com/chartjs/Chart.js.git#48fefd92b6dc61345021c6508b23698830ff392f",
     "chartjs-plugin-streaming": "^1.6.0",
     "core-js": "^2.5.4",
@@ -75,6 +75,6 @@
     "source-map-explorer": "^1.6.0",
     "ts-node": "~5.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.5"
+    "typescript": "3.1.1"
   }
 }

@@ -88,7 +88,6 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
             })
         ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.scatterChartMode = urlService.isRealTimeMode() ? ScatterChart.MODE.REALTIME : ScatterChart.MODE.STATIC;
-            this.scatterChartDataService.setCurrentMode(this.scatterChartMode);
             this.application = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
             this.selectedAgent = '';
             this.fromX = urlService.getStartTimeToNumber();

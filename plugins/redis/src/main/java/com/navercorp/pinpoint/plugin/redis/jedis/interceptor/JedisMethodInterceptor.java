@@ -24,10 +24,10 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.plugin.redis.CommandContext;
-import com.navercorp.pinpoint.plugin.redis.CommandContextFactory;
-import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
-import com.navercorp.pinpoint.plugin.redis.RedisConstants;
+import com.navercorp.pinpoint.plugin.redis.jedis.CommandContext;
+import com.navercorp.pinpoint.plugin.redis.jedis.CommandContextFactory;
+import com.navercorp.pinpoint.plugin.redis.jedis.EndPointAccessor;
+import com.navercorp.pinpoint.plugin.redis.jedis.JedisConstants;
 
 /**
  * Jedis (redis client) method interceptor
@@ -76,8 +76,8 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
 
         recorder.recordApi(getMethodDescriptor());
         recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
-        recorder.recordDestinationId(RedisConstants.REDIS.getName());
-        recorder.recordServiceType(RedisConstants.REDIS);
+        recorder.recordDestinationId(JedisConstants.REDIS.getName());
+        recorder.recordServiceType(JedisConstants.REDIS);
         recorder.recordException(throwable);
     }
 

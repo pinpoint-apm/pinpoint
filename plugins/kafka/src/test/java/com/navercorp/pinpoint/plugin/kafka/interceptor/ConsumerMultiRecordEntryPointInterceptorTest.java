@@ -12,7 +12,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -35,29 +37,43 @@ public class ConsumerMultiRecordEntryPointInterceptorTest {
     @Mock
     private ConsumerRecords consumerRecords;
 
-    @Mock
-    private ConsumerRecord consumerRecord;
-
-    @Mock
-    private Iterator iterator;
-
     @Test
-    public void createTrace() {
+    public void createTraceTest1() {
+        List<ConsumerRecord> consumerRecordList = new ArrayList<ConsumerRecord>();
+        consumerRecordList.add(new ConsumerRecord("Test", 1, 1, "hello", "hello too"));
 
         doReturn(trace).when(traceContext).newTraceObject();
         doReturn(true).when(trace).canSampled();
         doReturn(recorder).when(trace).getSpanRecorder();
-        doReturn(1).when(consumerRecords).count();
-        doReturn(iterator).when(consumerRecords).iterator();
-        doReturn(consumerRecord).when(iterator).next();
-        doReturn("Test").when(consumerRecord).topic();
+        doReturn(consumerRecordList.iterator()).when(consumerRecords).iterator();
 
-        ConsumerMultiRecordEntryPointInterceptor interceptor = new ConsumerMultiRecordEntryPointInterceptor(traceContext, descriptor);
+        ConsumerMultiRecordEntryPointInterceptor interceptor = new ConsumerMultiRecordEntryPointInterceptor(traceContext, descriptor, 0);
         interceptor.createTrace(new Object(), new Object[]{consumerRecords});
 
-        verify(recorder).recordAcceptorHost("topic:Test");
+        verify(recorder).recordAcceptorHost("Unknown");
         verify(recorder).recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, "Test");
         verify(recorder).recordAttribute(KafkaConstants.KAFKA_BATCH_ANNOTATION_KEY, 1);
         verify(recorder).recordRpcName("kafka://topic=Test?batch=1");
     }
+
+    @Test
+    public void createTraceTest2() {
+        List<ConsumerRecord> consumerRecordList = new ArrayList<ConsumerRecord>();
+        consumerRecordList.add(new ConsumerRecord("Test", 1, 1, "hello", "hello too"));
+        consumerRecordList.add(new ConsumerRecord("Test2", 2, 1, "hello2", "hello too2"));
+
+        doReturn(trace).when(traceContext).newTraceObject();
+        doReturn(true).when(trace).canSampled();
+        doReturn(recorder).when(trace).getSpanRecorder();
+        doReturn(consumerRecordList.iterator()).when(consumerRecords).iterator();
+
+        ConsumerMultiRecordEntryPointInterceptor interceptor = new ConsumerMultiRecordEntryPointInterceptor(traceContext, descriptor, 0);
+        interceptor.createTrace(new Object(), new Object[]{consumerRecords});
+
+        verify(recorder).recordAcceptorHost("Unknown");
+        verify(recorder).recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, "[Test, Test2]");
+        verify(recorder).recordAttribute(KafkaConstants.KAFKA_BATCH_ANNOTATION_KEY, 2);
+        verify(recorder).recordRpcName("kafka://topic=[Test, Test2]?batch=2");
+    }
+
 }

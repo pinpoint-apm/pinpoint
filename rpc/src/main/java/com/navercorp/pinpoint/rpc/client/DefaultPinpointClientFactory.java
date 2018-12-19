@@ -305,7 +305,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        Assert.requireNonNull(messageListener, "messageListener must not be null");
+        Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
 
         this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
     }

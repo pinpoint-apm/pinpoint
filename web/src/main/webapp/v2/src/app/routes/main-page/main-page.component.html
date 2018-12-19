@@ -14,7 +14,7 @@
         <article class="l-main-contents">
             <router-outlet></router-outlet>
         </article>
-        <pp-real-time-container *ngIf="enableRealTime$ | async"></pp-real-time-container>
+        <pp-new-real-time-container *ngIf="enableRealTime$ | async"></pp-new-real-time-container>
     </section>
     <pp-side-bar-container></pp-side-bar-container>
 </div>

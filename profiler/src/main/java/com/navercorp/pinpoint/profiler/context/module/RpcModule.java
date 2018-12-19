@@ -45,7 +45,9 @@ import org.apache.thrift.TBase;
 public class RpcModule extends PrivateModule {
     @Override
     protected void configure() {
-        bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+        Key<CommandDispatcher> commandDispatcher = Key.get(CommandDispatcher.class);
+        bind(commandDispatcher).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+        expose(commandDispatcher);
 
         bind(ConnectionFactoryProvider.class).toProvider(ConnectionFactoryProviderProvider.class).in(Scopes.SINGLETON);
 

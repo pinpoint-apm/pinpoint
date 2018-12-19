@@ -117,18 +117,20 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
     }
     private loadLoadChartData(from?: number, to?: number): void {
         const target = this.getTargetInfo();
-        if (this.isAllAgent() && arguments.length !== 2) {
-            this.passDownChartData(this.agentHistogramDataService.makeChartDataForLoad(target.timeSeriesHistogram, this.timezone, [this.dateFormatMonth, this.dateFormatDay], this.getChartYMax()));
-        } else {
-            this.agentHistogramDataService.getData(target.key, target.applicationName, target.serviceTypeCode, this.serverMapData, from, to).subscribe((chartData: any) => {
-                const chartDataForAgent = this.isAllAgent() ? chartData['timeSeriesHistogram'] : chartData['agentTimeSeriesHistogram'][this.selectedAgent];
-                this.passDownChartData(this.agentHistogramDataService.makeChartDataForLoad(chartDataForAgent, this.timezone, [this.dateFormatMonth, this.dateFormatDay], this.getChartYMax()));
-            }, (error: IServerErrorFormat) => {
-                this.hasRequestError = true;
-                this.hiddenChart = true;
-                this.setDisable(false);
-                this.changeDetector.detectChanges();
-            });
+        if (target) {
+            if (this.isAllAgent() && arguments.length !== 2) {
+                this.passDownChartData(this.agentHistogramDataService.makeChartDataForLoad(target.timeSeriesHistogram, this.timezone, [this.dateFormatMonth, this.dateFormatDay], this.getChartYMax()));
+            } else {
+                this.agentHistogramDataService.getData(target.key, target.applicationName, target.serviceTypeCode, this.serverMapData, from, to).subscribe((chartData: any) => {
+                    const chartDataForAgent = this.isAllAgent() ? chartData['timeSeriesHistogram'] : chartData['agentTimeSeriesHistogram'][this.selectedAgent];
+                    this.passDownChartData(this.agentHistogramDataService.makeChartDataForLoad(chartDataForAgent, this.timezone, [this.dateFormatMonth, this.dateFormatDay], this.getChartYMax()));
+                }, (error: IServerErrorFormat) => {
+                    this.hasRequestError = true;
+                    this.hiddenChart = true;
+                    this.setDisable(false);
+                    this.changeDetector.detectChanges();
+                });
+            }
         }
     }
     private passDownChartData(chartData: any): void {

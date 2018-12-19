@@ -36,7 +36,7 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
     }
 
     @Override
-    public JavaModule wrapFromClass(Class clazz) {
+    public JavaModule wrapFromClass(Class<?> clazz) {
         if (clazz == null) {
             throw new NullPointerException("clazz must not be null");
         }
@@ -65,5 +65,13 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
             throw new NullPointerException("classLoader must not be null");
         }
         return classLoader.getUnnamedModule();
+    }
+
+    @Override
+    public Object getModule(Class<?> clazz) {
+        if (clazz == null) {
+            throw new NullPointerException("clazz must not be null");
+        }
+        return clazz.getModule();
     }
 }
