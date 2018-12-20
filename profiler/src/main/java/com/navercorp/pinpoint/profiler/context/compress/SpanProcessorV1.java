@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.compress;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -26,51 +27,68 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanPostProcessorV1 implements SpanPostProcessor<Context> {
+public class SpanProcessorV1 implements SpanProcessor<TSpan, TSpanChunk> {
 
     private static final byte V1 = TraceDataFormatVersion.V1.getVersion();
 
     @Override
-    public Context newContext(Span span, TSpan tSpan) {
+    public void preProcess(Span span, TSpan tSpan) {
         if (tSpan.getVersion() == V1) {
             tSpan.setVersion(V1);
         }
-
-        final long startTime = span.getStartTime();
-        return new ContextV1(startTime);
     }
 
     @Override
-    public Context newContext(SpanChunk spanChunk, TSpanChunk tSpanChunk) {
+    public void preProcess(SpanChunk spanChunk, TSpanChunk tSpanChunk) {
         if (tSpanChunk.getVersion() == V1) {
             tSpanChunk.setVersion(V1);
         }
+    }
+
+    @Override
+    public void postProcess(Span span, TSpan tSpan) {
+        final TraceRoot traceRoot = span.getTraceRoot();
+        final long keyTime = traceRoot.getTraceStartTime();
+
+        final List<SpanEvent> spanEventList = span.getSpanEventList();
+        final List<TSpanEvent> tSpanEventList = tSpan.getSpanEventList();
+
+        postEventProcess(spanEventList, tSpanEventList, keyTime);
+
+    }
+
+    @Override
+    public void postProcess(SpanChunk spanChunk, TSpanChunk tSpanChunk) {
+
+        final TraceRoot traceRoot = spanChunk.getTraceRoot();
+        final long keyTime = traceRoot.getTraceStartTime();
 
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
         if (CollectionUtils.isEmpty(spanEventList)) {
             throw new IllegalStateException("spanEventList is empty");
         }
-//        skip default version
-//        tSpanChunk.setVersion(V1.getVersion());
+        final List<TSpanEvent> tSpanEventList = tSpanChunk.getSpanEventList();
 
-        final TraceRoot traceRoot = spanChunk.getTraceRoot();
-        final long traceStartTime = traceRoot.getTraceStartTime();
-        return new ContextV1(traceStartTime);
+        postEventProcess(spanEventList, tSpanEventList, keyTime);
     }
 
-    @Override
-    public void postProcess(Context context, SpanEvent spanEvent, TSpanEvent tSpanEvent) {
-        final long startTime = spanEvent.getStartTime();
-        final long keyTime = context.keyTime();
-        final long startElapsedTime = startTime - keyTime;
-        tSpanEvent.setStartElapsed((int) startElapsedTime);
-    }
+    @VisibleForTesting
+    public void postEventProcess(List<SpanEvent> spanEventList, List<TSpanEvent> tSpanEventList, long keyTime) {
+        Iterator<TSpanEvent> tSpanEventIterator = tSpanEventList.iterator();
+        for (SpanEvent spanEvent : spanEventList) {
+            final long startTime = spanEvent.getStartTime();
+            final long startElapsedTime = startTime - keyTime;
 
+            final TSpanEvent tSpanEvent = tSpanEventIterator.next();
+            tSpanEvent.setStartElapsed((int) startElapsedTime);
+        }
+    }
 
 
 }

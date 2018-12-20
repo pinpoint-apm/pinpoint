@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.sender;
 
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -113,16 +114,20 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private Logger newLogger(String name) {
+        final String loggerName = getLoggerName(name);
+        return LoggerFactory.getLogger(loggerName);
+    }
+
+    private String getLoggerName(String name) {
         if (name == null) {
-            return LoggerFactory.getLogger(this.getClass());
+            return this.getClass().getName();
+        } else {
+            return this.getClass().getName() + "@" + name;
         }
-        return LoggerFactory.getLogger(this.getClass().getName() + "@" + name);
     }
 
     private String getExecutorName(String name) {
-        if (name == null) {
-            return "Pinpoint-TcpDataSender-Executor";
-        }
+        name = StringUtils.defaultString(name, "DEFAULT");
         return String.format("Pinpoint-TcpDataSender(%s)-Executor", name);
     }
 
@@ -136,9 +141,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private String getTimerName(String name) {
-        if (name == null) {
-            return "Pinpoint-TcpDataSender-Timer";
-        }
+        name = StringUtils.defaultString(name, "DEFAULT");
         return String.format("Pinpoint-TcpDataSender(%s)-Timer", name);
     }
 

@@ -44,8 +44,7 @@ import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalBinder;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.compress.Context;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
@@ -111,6 +110,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.response.ReuseResponseTime
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -193,7 +194,7 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(SpanFactory.class).to(DefaultSpanFactory.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<SpanPostProcessor<Context>> spanPostProcessorType = new TypeLiteral<SpanPostProcessor<Context>>() {};
+        TypeLiteral<SpanProcessor<TSpan, TSpanChunk>> spanPostProcessorType = new TypeLiteral<SpanProcessor<TSpan, TSpanChunk>>() {};
         bind(spanPostProcessorType).toProvider(SpanPostProcessorProvider.class).in(Scopes.SINGLETON);
 
         bind(RecorderFactory.class).to(DefaultRecorderFactory.class).in(Scopes.SINGLETON);

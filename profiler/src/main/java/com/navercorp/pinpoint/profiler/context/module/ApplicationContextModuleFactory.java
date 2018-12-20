@@ -20,21 +20,33 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ApplicationContextModuleFactory implements ModuleFactory {
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Module newModule(AgentOption agentOption) {
         final Module config = new ConfigModule(agentOption);
         final Module pluginModule = new PluginModule();
         final Module applicationContextModule = new ApplicationContextModule();
-        final Module rpcModule = new RpcModule();
+        final Module rpcModule = newRpcModule(agentOption);
         final Module statsModule = new StatsModule();
         final Module thriftStatsModule = new ThriftStatsModule();
 
         return Modules.combine(config, pluginModule, applicationContextModule, rpcModule, statsModule, thriftStatsModule);
+    }
+
+    private Module newRpcModule(AgentOption agentOption) {
+        final String spanDataSenderTransportType = agentOption.getProfilerConfig().getSpanDataSenderTransportType();
+        if (spanDataSenderTransportType.equalsIgnoreCase("GRPC")) {
+            logger.info("load GRpcModule");
+            return new GRpcModule();
+        }
+        logger.info("load PinpointRpcModule");
+        return new RpcModule();
     }
 }

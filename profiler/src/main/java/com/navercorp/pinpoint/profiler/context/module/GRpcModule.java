@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,18 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.profiler.context.proto.SpanProtoMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.GrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.HeaderTBaseSerializerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.MetadataMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.context.thrift.SpanThriftMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -43,18 +43,16 @@ import org.apache.thrift.TBase;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class RpcModule extends PrivateModule {
+public class GRpcModule extends PrivateModule {
     @Override
     protected void configure() {
         Key<CommandDispatcher> commandDispatcher = Key.get(CommandDispatcher.class);
         bind(commandDispatcher).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
-//        expose(commandDispatcher);
 
         bind(ConnectionFactoryProvider.class).toProvider(ConnectionFactoryProviderProvider.class).in(Scopes.SINGLETON);
 
         Key<PinpointClientFactory> pinpointClientFactory = Key.get(PinpointClientFactory.class, DefaultClientFactory.class);
         bind(pinpointClientFactory).toProvider(PinpointClientFactoryProvider.class).in(Scopes.SINGLETON);
-//        expose(pinpointClientFactory);
 
         bind(HeaderTBaseSerializer.class).toProvider(HeaderTBaseSerializerProvider.class).in(Scopes.SINGLETON);
 
@@ -65,29 +63,25 @@ public class RpcModule extends PrivateModule {
         Key<PinpointClientFactory> pinpointStatClientFactory = Key.get(PinpointClientFactory.class, SpanStatClientFactory.class);
         bind(pinpointStatClientFactory).toProvider(SpanStatClientFactoryProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<MessageConverter<TBase<?, ?>>> thriftMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
-        Key<MessageConverter<TBase<?, ?>>> spanMessageConverterKey = Key.get(thriftMessageConverter, SpanConverter.class);
-        bind(spanMessageConverterKey).toProvider(SpanThriftMessageConverterProvider.class ).in(Scopes.SINGLETON);
-//        expose(spanMessageConverterKey);
 
+        TypeLiteral<MessageConverter<GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
+        Key<MessageConverter<GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanConverter.class);
+        // not singletone
+        bind(spanMessageConverterKey).toProvider(SpanProtoMessageConverterProvider.class);
+
+        TypeLiteral<MessageConverter<TBase<?, ?>>> thriftMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
         Key<MessageConverter<TBase<?, ?>>> metadataMessageConverterKey = Key.get(thriftMessageConverter, MetadataConverter.class);
         bind(metadataMessageConverterKey).toProvider(MetadataMessageConverterProvider.class ).in(Scopes.SINGLETON);
-//        expose(metadataMessageConverterKey);
 
 
         Key<DataSender> spanDataSender = Key.get(DataSender.class, SpanDataSender.class);
-        bind(spanDataSender).toProvider(SpanDataSenderProvider.class).in(Scopes.SINGLETON);
+        bind(spanDataSender).toProvider(GrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(spanDataSender);
 
         Key<DataSender> statDataSender = Key.get(DataSender.class, StatDataSender.class);
         bind(DataSender.class).annotatedWith(StatDataSender.class)
                 .toProvider(StatDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(statDataSender);
-
-
-        Key<ModuleLifeCycle> rpcModuleLifeCycleKey = Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE"));
-        bind(rpcModuleLifeCycleKey).to(RpcModuleLifeCycle.class).in(Scopes.SINGLETON);
-        expose(rpcModuleLifeCycleKey);
     }
 
 }

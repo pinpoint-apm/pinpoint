@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.compress;
+package com.navercorp.pinpoint.grpc;
+
+import io.grpc.Metadata;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ContextV1 implements Context {
-    private long keyTime;
+public interface HeaderFactory<H> {
 
-    public ContextV1(long keyTime) {
-        this.keyTime = keyTime;
-    }
+    H extract(Metadata headers);
 
-    @Override
-    public long keyTime() {
-        return keyTime;
-    }
+    Metadata newHeader();
 
-
-    @Override
-    public void next() {
-    }
-
-    @Override
-    public void finish() {
-    }
 }

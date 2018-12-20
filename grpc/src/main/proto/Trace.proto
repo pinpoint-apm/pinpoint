@@ -10,163 +10,189 @@ option java_outer_classname = "TraceProto";
 package v1;
 
 service Trace {
-    rpc SendSpan (stream PSpan) returns (google.protobuf.Empty) {}
+    rpc SendSpan (stream PSpan) returns (google.protobuf.Empty) {
+    }
+
+    rpc SendSpanChunk (stream PSpanChunk) returns (google.protobuf.Empty) {
+    }
 }
 
-
-message PSpan {
-
+message PAgent {
     string agentId = 1;
     string applicationName = 2;
     int64 agentStartTime = 3;
+}
+
+message PSpan {
+    int32 version = 1;
 
     // identical to agentId if null
     //4: optional string traceAgentId
     //5: i64 traceAgentStartTime;
     //6: i64 traceTransactionSequence;
-    bytes  transactionId = 4;
+    bytes transactionId = 2;
 
-    fixed64 spanId = 7;
-    fixed64 parentSpanId = 8;
+    fixed64 spanId = 3;
+    fixed64 parentSpanId = 4;
 
     // span event's startTimestamp
-    int64 startTime = 9;
-    int32 elapsed = 10;
+    int64 startTime = 5;
+    int32 elapsed = 6;
+    int32 apiId = 7;
 
-    string rpc = 11;
+    int32 serviceType = 8;
 
-    int32 serviceType = 12;
-    string endPoint = 13;
-    string remoteAddr = 14;
+    PAcceptEvent acceptEvent = 9;
 
-//    list<TAnnotation> annotations = 15;
-//    i16 flag = 16;
-//
-//    i32 err = 17;
-//
-    repeated PSpanEvent spanEventList = 18;
-//
-//    optional string parentApplicationName = 19;
-//    optional i16 parentApplicationType = 20;
-//    optional string acceptorHost = 21;
-//
-//    i32 apiId = 25;
-//    TIntStringValue exceptionInfo = 26;
-//
-//    i16 applicationServiceType = 30;
-//    i8 loggingTransactionInfo = 31;
-//
-//    32: optional i8 version = TRACE_V2;
+    repeated PAnnotation annotations = 10;
+
+    int32 flag = 11;
+    sint32 err = 12;
+
+    repeated PSpanEvent spanEventList = 13;
+
+    PIntStringValue exceptionInfo = 14;
+
+    int32 applicationServiceType = 15;
+    int32 loggingTransactionInfo = 16;
 }
+
+message PAcceptEvent {
+    string rpc = 1;
+    string endPoint = 2;
+    string remoteAddr = 3;
+    PParentInfo parentInfo = 4;
+}
+
+message PParentInfo {
+    string parentApplicationName = 1;
+    int32 parentApplicationType = 2;
+    string acceptorHost = 3;
+}
+
+message PLocalAsyncId {
+    int32 asyncId = 1;
+    int32 sequence = 2;
+}
+
 
 message PSpanEvent {
+    int32 sequence = 1;
+    int32 depth = 2;
 
-    fixed64 spanId = 7;
+    int32 startElapsed = 3;
+    int32 endElapsed = 4;
 
-    int32 sequence = 8;
+    sint32 serviceType = 5;
 
-    int32 startElapsed = 9;
-    int32 endElapsed = 10;
+    repeated PAnnotation annotations = 6;
 
-    string rpc = 11;
-    sint32 serviceType = 12;
-    string endPoint = 13;
-    //    14: optional list<TAnnotation> annotations
+    sint32 apiId = 10;
+    PIntStringValue exceptionInfo = 11;
 
-    int32 depth = 15;
-    fixed64 nextSpanId = 16;
-
-    string destinationId = 20;
-
-    sint32 apiId = 25;
-//    26: optional TIntStringValue exceptionInfo;
-
-    int32 asyncId = 30;
-    int32 nextAsyncId = 31;
-    int32 asyncSequence = 32;
-
-
-//        8: i16 sequence
-//
-//    // 1.6.x- : delta of the span startTime
-//    // 1.7.0+: delta of startTime of previous SpanEvent
-//    //         If SpanEvent is the first SpanEvent, startElapsed is span startTime
-//    9: i32 startElapsed = 0;
-//
-//    10: optional i32 endElapsed = 0
-//
-//    11: optional string rpc
-//    12: i16 serviceType
-//    13: optional string endPoint
-//
-//    14: optional list<TAnnotation> annotations
-//
-//    15: optional i32 depth = -1
-//    16: optional i64 nextSpanId = -1
-//
-//    20: optional string destinationId
-//
-//    25: optional i32 apiId;
-//    26: optional TIntStringValue exceptionInfo;
-//
-//    30: optional i32 asyncId;
-//    31: optional i32 nextAsyncId;
-//    32: optional i16 asyncSequence;
+    PNextEvent nextEvent = 12;
 }
 
+message PNextEvent {
+    oneof field {
+        int32 asyncEvent = 1;
+        PMessageEvent messageEvent = 2;
+    }
+}
+
+message PMessageEvent {
+    fixed64 nextSpanId = 1;
+    string endPoint = 2;
+    string destinationId = 3;
+}
+
+
+message PSpanChunk {
+    int32 version = 1;
+    PAgent agent = 2;
+
+    // identical to agentId if null
+    //5: optional string traceAgentId
+    //6: i64 traceAgentStartTime;
+    //7: i64 traceTransactionSequence;
+    bytes transactionId = 3;
+
+    fixed64 spanId = 4;
+
+    string endPoint = 5;
+
+    repeated PSpanEvent spanEventList = 6;
+
+    int32 applicationServiceType = 7;
+
+    int64 keyTime = 8;
+
+    PLocalAsyncId localAsyncId = 9;
+
+}
 
 // 1.6.x- : version = 0;
 // 1.7.x+ : version = 1;
 //const i8 TRACE_V1 = 0;
 //const i8 TRACE_V2 = 1;
 //
-//struct TIntStringValue {
-//     1: i32 intValue;
-//     2: optional string stringValue;
-//}
-//
-//struct TIntStringStringValue {
-//    1: i32 intValue;
-//    2: optional string stringValue1;
-//    3: optional string stringValue2;
-//}
-//
-//struct TLongIntIntByteByteStringValue {
-//    1: i64 longValue;
-//    2: i32 intValue1;
-//    3: optional i32 intValue2;
-//    4: optional i8 byteValue1;
-//    5: optional i8 byteValue2;
-//    6: optional string stringValue;
-//}
-//
-//struct TIntBooleanIntBooleanValue {
-//    1: i32 intValue1;
-//    2: bool boolValue1;
-//    3: i32 intValue2;
-//    4: bool boolValue2;
-//}
-//
-//union TAnnotationValue {
-//    1: string stringValue
-//    2: bool boolValue;
-//    3: i32 intValue;
-//    4: i64 longValue;
-//    5: i16 shortValue
-//    6: double doubleValue;
-//    7: binary binaryValue;
-//    8: i8 byteValue;
-//    9: TIntStringValue intStringValue;
-//    10: TIntStringStringValue intStringStringValue;
-//    11: TLongIntIntByteByteStringValue longIntIntByteByteStringValue;
-//    12: TIntBooleanIntBooleanValue intBooleanIntBooleanValue;
-//}
-//
-//struct TAnnotation {
-//    1: i32 key,
-//    2: optional TAnnotationValue value
-//}
-//
+message PIntStringValue {
+    int32 intValue = 1;
+    string stringValue = 2;
+}
+
+message PIntStringStringValue {
+    int32 intValue = 1;
+    string stringValue1 = 2;
+    string stringValue2 = 3;
+}
+
+message PLongIntIntByteByteStringValue {
+    int64 longValue = 1;
+    int32 intValue1 = 2;
+    int32 intValue2 = 3;
+    sint32 byteValue1 = 4;
+    sint32 byteValue2 = 5;
+    string stringValue = 6;
+}
+
+message PIntBooleanIntBooleanValue {
+    int32 intValue1 = 1;
+    bool boolValue1 = 2;
+    int32 intValue2 = 3;
+    bool boolValue2 = 4;
+}
+
+message PStringStringValue {
+    string stringValue1 = 1;
+    string stringValue2 = 2;
+}
+
+message PAnnotationValue {
+    oneof field {
+        string stringValue = 1;
+        bool boolValue = 2;
+        int32 intValue = 3;
+        int64 longValue = 4;
+        // for compatibility
+        sint32 shortValue = 5;
+        double doubleValue = 6;
+        bytes binaryValue = 7;
+        // for compatibility
+        sint32 byteValue = 8;
+        PIntStringValue intStringValue = 9;
+        PStringStringValue stringStringValue = 10;
+        PIntStringStringValue intStringStringValue = 11;
+        PLongIntIntByteByteStringValue longIntIntByteByteStringValue = 12;
+        PIntBooleanIntBooleanValue intBooleanIntBooleanValue = 13;
+    }
+}
+
+message PAnnotation {
+    int32 key = 1;
+    PAnnotationValue value = 2;
+}
+
 //struct TSpanEvent {
 //
 //    7: optional i64 spanId
@@ -243,10 +269,8 @@ message PSpanEvent {
 //    32: optional i8 version = TRACE_V2;
 //}
 //
-//struct TSpanChunk {
-//    1: string agentId
-//    2: string applicationName
-//    3: i64 agentStartTime
+//message PSpanChunk {
+//    PAgent agent = 2;
 //
 //    // @deprecate (1.7.0)
 //    4: i16 serviceType ( deprecated )

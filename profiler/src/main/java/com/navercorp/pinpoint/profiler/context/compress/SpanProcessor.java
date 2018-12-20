@@ -18,20 +18,19 @@ package com.navercorp.pinpoint.profiler.context.compress;
 
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface SpanPostProcessor<C> {
+public interface SpanProcessor<SpanType, SpanChunkType> {
 
-    C newContext(Span span, TSpan tSpan);
+    void preProcess(Span span, SpanType tSpan);
 
-    C newContext(SpanChunk spanChunk, TSpanChunk tSpanChunk);
+    void postProcess(Span span, SpanType tSpan);
 
-    void postProcess(C context, SpanEvent spanEvent, TSpanEvent tSpanEvent);
+    void preProcess(SpanChunk spanChunk, SpanChunkType tSpanChunk);
+
+    void postProcess(SpanChunk spanChunk, SpanChunkType tSpanChunk);
+
 }
