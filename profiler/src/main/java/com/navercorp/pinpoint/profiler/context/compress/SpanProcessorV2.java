@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,71 +27,87 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanPostProcessorV2 implements SpanPostProcessor<Context> {
+public class SpanProcessorV2 implements SpanProcessor<TSpan, TSpanChunk> {
 
     private static final byte V2 = TraceDataFormatVersion.V2.getVersion();
 
     // TODO refactor injector
     private final static Comparator<SpanEvent> SEQUENCE_COMPARATOR = SpanEventSequenceComparator.INSTANCE;
 
-    public SpanPostProcessorV2() {
+    public SpanProcessorV2() {
     }
 
     @Override
-    public Context newContext(Span span, TSpan tSpan) {
+    public void preProcess(Span span, TSpan tSpan) {
         tSpan.setVersion(V2);
 
         final List<SpanEvent> spanEventList = span.getSpanEventList();
         Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
-
-        final long keyTime = getKeyTime(spanEventList);
-        return new ContextV2(keyTime);
     }
 
     @Override
-    public Context newContext(SpanChunk spanChunk, TSpanChunk tSpanChunk) {
+    public void preProcess(SpanChunk spanChunk, TSpanChunk tSpanChunk) {
         tSpanChunk.setVersion(V2);
 
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
         Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
-
-        final long keyTime = getKeyTime(spanEventList);
-
-        tSpanChunk.setKeyTime(keyTime);
-        return new ContextV2(keyTime);
     }
 
     @Override
-    public void postProcess(Context context, SpanEvent spanEvent, TSpanEvent tSpanEvent) {
-        final ContextV2 context2 = (ContextV2) context;
+    public void postProcess(SpanChunk span, TSpanChunk tSpan) {
+        final List<SpanEvent> spanEventList = span.getSpanEventList();
+        final List<TSpanEvent> tSpanEventList = tSpan.getSpanEventList();
+        postEventProcess(spanEventList, tSpanEventList);
+    }
 
-        final long startTime = spanEvent.getStartTime();
-        final long keyTime = context.keyTime();
-        final long startElapsedTime = startTime - keyTime;
-        tSpanEvent.setStartElapsed((int) startElapsedTime);
-        context2.setKeyTime(startTime);
+    @Override
+    public void postProcess(Span span, TSpan tSpan) {
+        final List<SpanEvent> spanEventList = span.getSpanEventList();
+        final List<TSpanEvent> tSpanEventList = tSpan.getSpanEventList();
+        postEventProcess(spanEventList, tSpanEventList);
+    }
 
-        if (context2.getIndex() == 0) {
-            int depth = spanEvent.getDepth();
-            context2.setPrevDepth(depth);
-            tSpanEvent.setDepth(depth);
-        } else {
-            int currentDepth = spanEvent.getDepth();
-            int prevDepth = context2.getPrevDepth();
-            if (currentDepth == prevDepth) {
-                // skip
-                tSpanEvent.setDepth(0);
-            } else {
-                tSpanEvent.setDepth(currentDepth);
-            }
-            context2.setPrevDepth(currentDepth);
+    void postEventProcess(List<SpanEvent> spanEventList, List<TSpanEvent> tSpanEventList) {
+        if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(tSpanEventList))) {
+            throw new IllegalStateException("list size not same");
         }
 
+        final Iterator<TSpanEvent> tSpanEventIterator = tSpanEventList.iterator();
+
+        long keyTime = getKeyTime(spanEventList);
+        int prevDepth = 0;
+        boolean first = true;
+        for (SpanEvent spanEvent : spanEventList) {
+            final TSpanEvent tSpanEvent = tSpanEventIterator.next();
+
+            final long startTime = spanEvent.getStartTime();
+            final long startElapsedTime = startTime - keyTime;
+            tSpanEvent.setStartElapsed((int) startElapsedTime);
+            keyTime = startTime;
+
+            if (first) {
+                first = false;
+                int depth = spanEvent.getDepth();
+                prevDepth = depth;
+                tSpanEvent.setDepth(depth);
+            } else {
+                int currentDepth = spanEvent.getDepth();
+
+                if (currentDepth == prevDepth) {
+                    // skip
+                    tSpanEvent.setDepth(0);
+                } else {
+                    tSpanEvent.setDepth(currentDepth);
+                }
+                prevDepth = currentDepth;
+            }
+        }
     }
 
 

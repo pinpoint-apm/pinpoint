@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.profiler.context.thrift;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.compress.Context;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
-import com.navercorp.pinpoint.profiler.context.thrift.SpanThriftMessageConverter;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import org.apache.thrift.TBase;
 
 import javax.inject.Inject;
@@ -42,12 +41,12 @@ public class SpanThriftMessageConverterProvider implements Provider<MessageConve
     private final long agentStartTime;
     private final ServiceType applicationServiceType;
     private final TransactionIdEncoder transactionIdEncoder;
-    private final SpanPostProcessor<Context> spanPostProcessor;
+    private final SpanProcessor<TSpan, TSpanChunk> spanPostProcessor;
 
     @Inject
     public SpanThriftMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
                                               @ApplicationServerType ServiceType applicationServiceType,
-                                              TransactionIdEncoder transactionIdEncoder, SpanPostProcessor<Context> spanPostProcessor) {
+                                              TransactionIdEncoder transactionIdEncoder, SpanProcessor<TSpan, TSpanChunk> spanPostProcessor) {
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
         this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.agentStartTime = agentStartTime;
