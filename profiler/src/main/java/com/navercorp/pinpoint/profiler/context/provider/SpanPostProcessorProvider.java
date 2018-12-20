@@ -19,16 +19,17 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.compress.Context;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV2;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV2;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanPostProcessorProvider implements Provider<SpanPostProcessor<Context>> {
+public class SpanPostProcessorProvider implements Provider<SpanProcessor<TSpan, TSpanChunk>> {
 
     private final TraceDataFormatVersion version;
 
@@ -38,12 +39,12 @@ public class SpanPostProcessorProvider implements Provider<SpanPostProcessor<Con
     }
 
     @Override
-    public SpanPostProcessor<Context> get() {
+    public SpanProcessor<TSpan, TSpanChunk> get() {
         if (version == TraceDataFormatVersion.V2) {
-            return new SpanPostProcessorV2();
+            return new SpanProcessorV2();
         }
         if (version == TraceDataFormatVersion.V1) {
-            return new SpanPostProcessorV1();
+            return new SpanProcessorV1();
         }
         throw new UnsupportedOperationException("unknown version :" + version);
     }

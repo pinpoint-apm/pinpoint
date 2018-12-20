@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.compress;
+package com.navercorp.pinpoint.grpc.server;
+
+import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import io.grpc.Context;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface Context {
-    long keyTime();
+public class AgentInfoContext {
 
-    void next();
+    public static final Context.Key<AgentHeaderFactory.Header> agentInfoKey = Context.key("agentinfo");
 
-    void finish();
 }
