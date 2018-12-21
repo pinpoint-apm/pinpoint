@@ -7,7 +7,7 @@ import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, T
 import { Timeline, ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
 import { TimelineInteractionService, ITimelineCommandParam, TimelineCommand } from './timeline-interaction.service';
-import { IAgentTimeline, IRetrieveTime } from './agent-timeline-data.service';
+import { IAgentTimeline } from './agent-timeline-data.service';
 import { UrlPathId } from 'app/shared/models';
 
 @Component({
@@ -72,13 +72,14 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
                 if (urlService.isPathChanged(UrlPathId.PERIOD) || urlService.isPathChanged(UrlPathId.END_TIME)) {
                     const selectionStartTime = urlService.getStartTimeToNumber();
                     const selectionEndTime = urlService.getEndTimeToNumber();
-                    const { start, end } = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
+                    const [start, end] = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
                     const timelineInfo: ITimelineInfo = {
                         range: [start, end],
                         selectedTime: selectionEndTime,
                         selectionRange: [selectionStartTime, selectionEndTime]
                     };
 
+                    this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
                     return timelineInfo;
                 } else {
                     return storeState;
@@ -106,7 +107,6 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
                 }
             };
 
-            this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
             this.changeDetector.detectChanges();
         });
     }
@@ -118,20 +118,16 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 5, 6);
     }
-    calcuRetrieveTime(startTime: number, endTime: number ): IRetrieveTime {
+    calcuRetrieveTime(startTime: number, endTime: number ): number[] {
         const allowedMaxRagne = Timeline.MAX_TIME_RANGE;
         const timeGap = endTime - startTime;
-        if ( timeGap > allowedMaxRagne  ) {
-            return {
-                start: endTime - allowedMaxRagne,
-                end: endTime
-            };
+
+        if (timeGap > allowedMaxRagne) {
+            return [endTime - allowedMaxRagne, endTime];
         } else {
             const calcuStart = timeGap * 3;
-            return {
-                start: endTime - (calcuStart > allowedMaxRagne ? allowedMaxRagne : calcuStart),
-                end:  endTime
-            };
+
+            return [endTime - (calcuStart > allowedMaxRagne ? allowedMaxRagne : calcuStart), endTime];
         }
     }
     onSelectEventStatus($eventObj: ITimelineEventSegment): void {}
