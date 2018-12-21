@@ -5,7 +5,6 @@ import { UrlPath, UrlPathId } from 'app/shared/models';
 import { RealTimePagingContainerComponent } from 'app/core/components/real-time/real-time-paging-container.component';
 import { SystemConfigurationResolverService, ServerTimeResolverService } from 'app/shared/services';
 import { RealTimePageComponent } from './real-time-page.component';
-import { NewRealTimePagingContainerComponent } from 'app/core/components/real-time-new/new-real-time-paging-container.component';
 
 const TO_MAIN = '/' + UrlPath.MAIN;
 
@@ -32,8 +31,7 @@ export const routing: Routes = [
                 resolve: {
                     serverTime: ServerTimeResolverService
                 },
-                // component: RealTimePagingContainerComponent
-                component: NewRealTimePagingContainerComponent
+                component: RealTimePagingContainerComponent
             }
         ]
     }
