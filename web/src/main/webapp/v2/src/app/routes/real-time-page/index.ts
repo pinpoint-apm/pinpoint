@@ -3,7 +3,6 @@ import { RouterModule } from '@angular/router';
 
 import { SharedModule } from 'app/shared';
 import { RealTimeModule } from 'app/core/components/real-time';
-import { NewRealTimeModule } from 'app/core/components/real-time-new';
 import { RealTimePageComponent } from './real-time-page.component';
 import { routing } from './real-time-page.routing';
 
@@ -14,7 +13,6 @@ import { routing } from './real-time-page.routing';
     imports: [
         SharedModule,
         RealTimeModule,
-        NewRealTimeModule,
         RouterModule.forChild(routing)
     ],
     exports: [],
