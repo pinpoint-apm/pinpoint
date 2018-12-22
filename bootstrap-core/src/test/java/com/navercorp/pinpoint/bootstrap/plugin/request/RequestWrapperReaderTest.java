@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.transaction.IMappingRegistry;
+import com.navercorp.pinpoint.bootstrap.context.transaction.IRequestMappingInfo;
 import org.junit.Test;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -51,12 +53,20 @@ public class RequestWrapperReaderTest {
         Trace newTrace = mock(Trace.class);
         when(newTrace.canSampled()).thenReturn(Boolean.TRUE);
 
+        //request mapping
+        IRequestMappingInfo mappingInfo = mock(IRequestMappingInfo.class);
+        when(mappingInfo.getTransactionType()).thenReturn("ALL_/**");
+
+        //request mapping registry
+        IMappingRegistry mappingRegistry = mock(IMappingRegistry.class);
+        when(mappingRegistry.match(null, null)).thenReturn(mappingInfo);
+
         TraceContext traceContext = mock(TraceContext.class);
         when(traceContext.disableSampling()).thenReturn(disableTrace);
         when(traceContext.continueTraceObject(any(TraceId.class))).thenReturn(continueTrace);
         when(traceContext.newTraceObject()).thenReturn(newTrace);
         when(traceContext.getProfilerConfig()).thenReturn(new DefaultProfilerConfig());
-
+        when(traceContext.getMappingRegistry()).thenReturn(mappingRegistry);
         TraceId traceId = mock(TraceId.class);
         when(traceContext.createTraceId(anyString(), anyLong(), anyLong(), anyShort())).thenReturn(traceId);
         RequestAdaptor<ServerRequestWrapper> serverRequestWrapperAdaptor = new ServerRequestWrapperAdaptor();
@@ -73,6 +83,7 @@ public class RequestWrapperReaderTest {
         when(continueServerRequestWrapper.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn("1");
         when(continueServerRequestWrapper.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("1");
         when(continueServerRequestWrapper.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("1");
+        when(continueServerRequestWrapper.getHeader(Header.HTTP_TRANSACTION_TYPE.toString())).thenReturn("ALL_/**");
         assertEquals(continueTrace, reader.read(continueServerRequestWrapper));
 
         // new trace

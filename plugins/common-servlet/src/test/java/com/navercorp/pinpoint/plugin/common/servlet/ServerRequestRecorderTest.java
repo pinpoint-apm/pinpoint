@@ -35,7 +35,7 @@ public class ServerRequestRecorderTest {
     private static final String REMOTE_ADDRESS = "remoteAddress";
     private static final String ACCEPTOR_HOST = "acceptorHost";
     private static final String GET_HEADER = "getHeader";
-
+    private static final String METHOD = "GET";
     @Test
     public void record() throws Exception {
         RequestAdaptor<ServerRequestWrapper> requestAdaptor = new ServerRequestWrapperAdaptor();
@@ -71,6 +71,11 @@ public class ServerRequestRecorderTest {
         @Override
         public String getAcceptorHost() {
             return ACCEPTOR_HOST;
+        }
+
+        @Override
+        public String getMethod() {
+            return METHOD;
         }
 
         @Override

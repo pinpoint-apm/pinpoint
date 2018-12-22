@@ -66,4 +66,9 @@ public class HttpServerExchangeAdaptor implements RequestAdaptor<HttpServerExcha
     public String getAcceptorHost(HttpServerExchange request) {
         return NetworkUtils.getHostFromURL(request.getRequestURI());
     }
+
+    @Override
+    public String getMethod(HttpServerExchange request) {
+        return request.getRequestMethod().toString();
+    }
 }

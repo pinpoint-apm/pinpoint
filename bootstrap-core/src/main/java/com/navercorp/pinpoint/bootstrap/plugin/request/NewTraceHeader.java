@@ -49,6 +49,11 @@ public class NewTraceHeader implements TraceHeader {
     }
 
     @Override
+    public String getTxType() {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return "NewTraceHeader";
     }

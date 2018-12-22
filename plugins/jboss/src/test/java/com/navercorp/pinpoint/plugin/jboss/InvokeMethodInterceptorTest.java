@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.test.MockTraceContextFactory;
 import org.junit.After;
@@ -42,6 +41,7 @@ import com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeIn
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
+import static com.navercorp.pinpoint.profiler.transaction.RegistryMapping.DEFAULT_REQUEST_MAPPING_INFO;
 import static org.mockito.Mockito.*;
 
 /**
@@ -180,6 +180,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("false");
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
+        when(request.getHeader(Header.HTTP_TRANSACTION_TYPE.toString())).thenReturn(DEFAULT_REQUEST_MAPPING_INFO.getTransactionType());
         final Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 

@@ -45,4 +45,9 @@ public class ServerRequestWrapperAdaptor implements RequestAdaptor<ServerRequest
     public String getAcceptorHost(ServerRequestWrapper request) {
         return request.getAcceptorHost();
     }
+
+    @Override
+    public String getMethod(ServerRequestWrapper request) {
+        return request.getMethod();
+    }
 }

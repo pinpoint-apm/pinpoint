@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.transaction.IRequestMappingInfo;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
@@ -117,6 +118,9 @@ public class ServletRequestListenerInterceptorHelper<T> {
             // record proxy HTTP header.
             this.proxyHttpHeaderRecorder.record(recorder, request);
         }
+
+        IRequestMappingInfo  mappingInfo = traceContext.getMappingRegistry().match(requestURI, requestAdaptor.getMethod(request));
+        System.out.println(mappingInfo.getTransactionType());
         return trace;
     }
 

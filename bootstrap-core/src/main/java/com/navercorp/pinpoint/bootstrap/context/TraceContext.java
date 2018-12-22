@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.transaction.IMappingRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
@@ -97,5 +98,7 @@ public interface TraceContext {
     ServerMetaDataHolder getServerMetaDataHolder();
 
     JdbcContext getJdbcContext();
+
+    IMappingRegistry getMappingRegistry();
 
 }

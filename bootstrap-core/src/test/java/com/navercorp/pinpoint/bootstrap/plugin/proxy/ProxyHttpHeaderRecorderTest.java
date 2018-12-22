@@ -80,6 +80,11 @@ public class ProxyHttpHeaderRecorderTest {
             public String getAcceptorHost() {
                 return null;
             }
+
+            @Override
+            public String getMethod() {
+                return null;
+            }
         });
 
         recorder.record(spanRecorder, new ServerRequestWrapper() {
@@ -105,6 +110,11 @@ public class ProxyHttpHeaderRecorderTest {
 
             @Override
             public String getAcceptorHost() {
+                return null;
+            }
+
+            @Override
+            public String getMethod() {
                 return null;
             }
         });

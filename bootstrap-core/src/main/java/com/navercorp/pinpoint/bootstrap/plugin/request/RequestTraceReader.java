@@ -83,7 +83,8 @@ public class RequestTraceReader<T> {
     }
 
     private Trace newTrace(T request) {
-        final Trace trace = newTrace();
+        String txType = traceContext.getMappingRegistry().match(requestAdaptor.getRpcName(request), requestAdaptor.getMethod(request)).getTransactionType();
+        final Trace trace = newTrace(txType);
         if (trace.canSampled()) {
             if (isDebug) {
                 logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", requestAdaptor.getRpcName(request), requestAdaptor.getRemoteAddress(request));
@@ -129,7 +130,7 @@ public class RequestTraceReader<T> {
         return this.traceContext.continueTraceObject(traceId);
     }
 
-    private Trace newTrace() {
+    private Trace newTrace(String txType) {
         if (this.async) {
             return this.traceContext.newAsyncTraceObject();
         }

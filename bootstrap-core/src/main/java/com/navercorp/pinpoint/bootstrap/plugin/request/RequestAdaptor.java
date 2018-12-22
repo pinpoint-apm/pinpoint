@@ -51,4 +51,12 @@ public interface RequestAdaptor<T> {
      * @return
      */
     String getAcceptorHost(T request);
+
+    /**
+     * the request method
+     *
+     * @param request
+     * @return
+     */
+    String getMethod(T request);
 }

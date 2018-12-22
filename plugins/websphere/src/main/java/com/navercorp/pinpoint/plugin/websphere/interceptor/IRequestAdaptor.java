@@ -51,4 +51,9 @@ public class IRequestAdaptor implements RequestAdaptor<IRequest> {
     public String getAcceptorHost(IRequest request) {
         return NetworkUtils.getHostFromURL(request.getRequestURI());
     }
+
+    @Override
+    public String getMethod(IRequest request) {
+        return request.getMethod();
+    }
 }

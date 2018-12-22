@@ -49,4 +49,6 @@ public interface ServerRequestWrapper extends RequestWrapper {
      * @return
      */
     String getAcceptorHost();
+
+    String getMethod();
 }

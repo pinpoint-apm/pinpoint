@@ -130,4 +130,9 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpRequest> {
     public String getAcceptorHost(HttpRequest request) {
         return getHeader(request, Header.HTTP_HOST.toString());
     }
+
+    @Override
+    public String getMethod(HttpRequest request) {
+        return request.method().name();
+    }
 }

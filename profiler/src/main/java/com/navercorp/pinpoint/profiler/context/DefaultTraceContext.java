@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.transaction.IMappingRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -59,6 +60,8 @@ public class DefaultTraceContext implements TraceContext {
 
     private final JdbcContext jdbcContext;
 
+    private final IMappingRegistry mappingRegistry;
+
     public DefaultTraceContext(final ProfilerConfig profilerConfig,
                                final AgentInformation agentInformation,
                                final TraceIdFactory traceIdFactory,
@@ -67,7 +70,8 @@ public class DefaultTraceContext implements TraceContext {
                                final ApiMetaDataService apiMetaDataService,
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
-                               final JdbcContext jdbcContext
+                               final JdbcContext jdbcContext,
+                               final IMappingRegistry mappingRegistry
     ) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
@@ -81,6 +85,7 @@ public class DefaultTraceContext implements TraceContext {
         this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
         this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
         this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
+        this.mappingRegistry = Assert.requireNonNull(mappingRegistry, "mapping registry must not be null");
     }
 
     /**
@@ -239,4 +244,8 @@ public class DefaultTraceContext implements TraceContext {
         return jdbcContext;
     }
 
+    @Override
+    public IMappingRegistry getMappingRegistry() {
+        return mappingRegistry;
+    }
 }

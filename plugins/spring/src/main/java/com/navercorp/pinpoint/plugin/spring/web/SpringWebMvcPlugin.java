@@ -57,6 +57,24 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             }
         });
 
+        transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                        byte[] classfileBuffer) throws InstrumentException {
+
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                InstrumentMethod method = target.getDeclaredMethod("register", "java.lang.Object", "java.lang.Object", "java.lang.reflect.Method");
+                if (method != null) {
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.spring.mvc.interceptor.RegisterInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+
+        });
+
     }
 
     @Override

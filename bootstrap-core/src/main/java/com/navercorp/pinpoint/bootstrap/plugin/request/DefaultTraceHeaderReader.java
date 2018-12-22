@@ -33,7 +33,6 @@ public class DefaultTraceHeaderReader<T> implements TraceHeaderReader<T> {
 
     private final RequestAdaptor<T> requestAdaptor;
 
-
     public DefaultTraceHeaderReader(RequestAdaptor<T> requestAdaptor) {
         this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
     }
@@ -66,12 +65,19 @@ public class DefaultTraceHeaderReader<T> implements TraceHeaderReader<T> {
         if (spanIdStr == null) {
             return NewTraceHeader.INSTANCE;
         }
+
+        String transactionType = requestAdaptor.getHeader(request, Header.HTTP_TRANSACTION_TYPE.toString());
+        if(transactionType == null){
+            return NewTraceHeader.INSTANCE;
+        }
         final long spanId = NumberUtils.parseLong(spanIdStr, SpanId.NULL);
 //        if (spanId  == SpanId.NULL) {
 //            throw new IllegalArgumentException();
 //        }
         final short flags = NumberUtils.parseShort(requestAdaptor.getHeader(request, Header.HTTP_FLAGS.toString()), (short) 0);
-        return new ContinueTraceHeader(transactionId, parentSpanId, spanId, flags);
+
+
+        return new ContinueTraceHeader(transactionId, parentSpanId, spanId, flags, transactionType);
     }
 
     private boolean samplingEnable(final T request) {

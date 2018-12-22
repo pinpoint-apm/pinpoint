@@ -58,4 +58,9 @@ public class HttpServletRequestAdaptor implements RequestAdaptor<HttpServletRequ
         final String acceptorHost = url != null ? NetworkUtils.getHostFromURL(url.toString()) : null;
         return acceptorHost;
     }
+
+    @Override
+    public String getMethod(HttpServletRequest request) {
+        return request.getMethod();
+    }
 }

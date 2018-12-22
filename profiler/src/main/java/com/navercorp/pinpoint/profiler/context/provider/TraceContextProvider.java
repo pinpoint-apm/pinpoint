@@ -21,6 +21,7 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.transaction.IMappingRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
@@ -46,6 +47,7 @@ public class TraceContextProvider implements Provider<TraceContext> {
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
     private final JdbcContext jdbcContext;
+    private final IMappingRegistry mappingRegistry;
 
     @Inject
     public TraceContextProvider(ProfilerConfig profilerConfig,
@@ -56,7 +58,8 @@ public class TraceContextProvider implements Provider<TraceContext> {
                                 ApiMetaDataService apiMetaDataService,
                                 StringMetaDataService stringMetaDataService,
                                 SqlMetaDataService sqlMetaDataService,
-                                JdbcContext jdbcContext) {
+                                JdbcContext jdbcContext,
+                                IMappingRegistry mappingRegistry ) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.agentInformationProvider = Assert.requireNonNull(agentInformationProvider, "agentInformationProvider must not be null");
 
@@ -68,6 +71,7 @@ public class TraceContextProvider implements Provider<TraceContext> {
         this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
         this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
         this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext must not be null");
+        this.mappingRegistry = Assert.requireNonNull(mappingRegistry, "mappingRegistry must not be null");
     }
 
 
@@ -75,6 +79,6 @@ public class TraceContextProvider implements Provider<TraceContext> {
     public TraceContext get() {
         AgentInformation agentInformation = this.agentInformationProvider.get();
         return new DefaultTraceContext(profilerConfig, agentInformation, traceIdFactory, traceFactory,
-                serverMetaDataHolder, apiMetaDataService, stringMetaDataService, sqlMetaDataService, jdbcContext);
+                serverMetaDataHolder, apiMetaDataService, stringMetaDataService, sqlMetaDataService, jdbcContext, mappingRegistry);
     }
 }

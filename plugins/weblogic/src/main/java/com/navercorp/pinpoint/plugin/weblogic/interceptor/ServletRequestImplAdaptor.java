@@ -50,4 +50,9 @@ public class ServletRequestImplAdaptor implements RequestAdaptor<ServletRequestI
     public String getAcceptorHost(ServletRequestImpl request) {
         return NetworkUtils.getHostFromURL(request.getRequestURI());
     }
+
+    @Override
+    public String getMethod(ServletRequestImpl request) {
+        return request.getMethod();
+    }
 }

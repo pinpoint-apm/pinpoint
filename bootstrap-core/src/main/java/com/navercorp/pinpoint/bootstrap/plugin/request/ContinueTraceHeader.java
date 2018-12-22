@@ -28,12 +28,14 @@ public class ContinueTraceHeader implements TraceHeader {
     private long parentSpanId;
     private long spanId;
     private short flags;
+    private final String txType;
 
-    public ContinueTraceHeader(String transactionId, long parentSpanId, long spanId, short flags) {
+    public ContinueTraceHeader(String transactionId, long parentSpanId, long spanId, short flags, String txtype) {
         this.transactionId = Assert.requireNonNull(transactionId, "transactionId must not be null");
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.flags = flags;
+        this.txType = txtype;
     }
 
 
@@ -60,6 +62,11 @@ public class ContinueTraceHeader implements TraceHeader {
     @Override
     public short getFlags() {
         return flags;
+    }
+
+    @Override
+    public String getTxType() {
+        return txType;
     }
 
     @Override

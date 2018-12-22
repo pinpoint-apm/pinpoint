@@ -28,6 +28,7 @@ public enum Header {
     HTTP_PARENT_SPAN_ID("Pinpoint-pSpanID"),
     HTTP_SAMPLED("Pinpoint-Sampled"),
     HTTP_FLAGS("Pinpoint-Flags"),
+    HTTP_TRANSACTION_TYPE("Pinpoint-TransactionType"),
     HTTP_PARENT_APPLICATION_NAME("Pinpoint-pAppName"),
     HTTP_PARENT_APPLICATION_TYPE("Pinpoint-pAppType"),
     HTTP_PARENT_APPLICATION_NAMESPACE("Pinpoint-pAppNamespace"),

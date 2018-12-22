@@ -62,4 +62,9 @@ public class HeaderResolveRequestAdaptor<T> implements RequestAdaptor<T> {
     public String getAcceptorHost(T request) {
         return delegate.getAcceptorHost(request);
     }
+
+    @Override
+    public String getMethod(T request) {
+        return delegate.getMethod(request);
+    }
 }

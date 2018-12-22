@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.transaction.IMappingRegistry;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
@@ -63,34 +64,7 @@ import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptor
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
-import com.navercorp.pinpoint.profiler.context.provider.ActiveTraceRepositoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AgentInfoFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ApiMetaDataServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.AsyncTraceContextProvider;
-import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.CallStackFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.DataSourceMonitorRegistryServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.DeadlockMonitorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.DeadlockThreadRegistryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.DynamicTransformTriggerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ExceptionHandlerFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider;
-import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParsingServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ObjectBinderFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
-import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.*;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginLoaderProvider;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
@@ -130,6 +104,7 @@ public class ApplicationContextModule extends AbstractModule {
         binder().disableCircularProxies();
 
         bind(ServiceType.class).annotatedWith(ApplicationServerType.class).toProvider(ApplicationServerTypeProvider.class).in(Scopes.SINGLETON);
+        bind(IMappingRegistry.class).toProvider(MappingRegistryProvider.class).in(Scopes.SINGLETON);
 
         bind(ServerMetaDataRegistryService.class).toProvider(ServerMetaDataRegistryServiceProvider.class).in(Scopes.SINGLETON);
         bind(ServerMetaDataHolder.class).toProvider(ServerMetaDataHolderProvider.class).in(Scopes.SINGLETON);

@@ -49,6 +49,11 @@ public class DisableTraceHeader implements TraceHeader {
     }
 
     @Override
+    public String getTxType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String toString() {
         return "DisableTraceHeader";
     }

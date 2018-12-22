@@ -66,4 +66,9 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
     public String getAcceptorHost(HttpServerRequest request) {
         return NetworkUtils.getHostFromURL(request.uri().toString());
     }
+
+    @Override
+    public String getMethod(HttpServerRequest request) {
+        return request.method().name();
+    }
 }

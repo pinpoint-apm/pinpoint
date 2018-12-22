@@ -27,4 +27,5 @@ public interface TraceHeader {
     long getParentSpanId();
     long getSpanId();
     short getFlags();
+    String getTxType();
 }
