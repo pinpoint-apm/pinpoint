@@ -219,10 +219,10 @@ class RabbitMQTestRunner {
         ExpectedTrace handleCompleteInboundCommandTrace = Expectations.event(
                 RabbitMQTestConstants.RABBITMQ_CLIENT_INTERNAL, // serviceType
                 handleCompleteInboundCommand); // method
-        verifier.verifyDiscreteTrace(
-                channelBasicPublishTrace,
-                rabbitMqConsumerInvocationTrace,
-                handleCompleteInboundCommandTrace);
+        ExpectedTrace[] producerTraces = {channelBasicPublishTrace};
+        ExpectedTrace[] consumerTraces = {rabbitMqConsumerInvocationTrace, handleCompleteInboundCommandTrace};
+        verifier.verifyDiscreteTrace(producerTraces);
+        verifier.verifyDiscreteTrace(consumerTraces);
 
         // verify consumer traces
         Class<?> consumerChannelClass = consumerChannel.getClass();

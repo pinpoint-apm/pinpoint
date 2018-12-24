@@ -131,9 +131,11 @@ public class SpringAmqpRabbit_1_4_2_to_1_7_0_IT {
                 ServiceType.INTERNAL_METHOD.getName(),
                 propagationMarkerMark);
 
-        ExpectedTrace[] expectedTraces = {
+        ExpectedTrace[] producerTraces = {
                 rabbitTemplateConvertAndSendTrace,
-                channelNBasicPublishTrace,
+                channelNBasicPublishTrace
+        };
+        ExpectedTrace[] consumerTraces = {
                 rabbitMqConsumerInvocationTrace,
                 consumerDispatcherHandleDeliveryTrace,
                 asynchronousInvocationTrace,
@@ -144,9 +146,11 @@ public class SpringAmqpRabbit_1_4_2_to_1_7_0_IT {
                 markTrace
         };
 
-        final PluginTestVerifier verifier = testRunner.runPush(expectedTraces.length);
+        final int expectedTraceCount = producerTraces.length + consumerTraces.length;
+        final PluginTestVerifier verifier = testRunner.runPush(expectedTraceCount);
 
-        verifier.verifyTrace(expectedTraces);
+        verifier.verifyDiscreteTrace(producerTraces);
+        verifier.verifyDiscreteTrace(consumerTraces);
         verifier.verifyTraceCount(0);
     }
 
@@ -184,9 +188,11 @@ public class SpringAmqpRabbit_1_4_2_to_1_7_0_IT {
                 RabbitMQTestConstants.RABBITMQ_CLIENT_INTERNAL, // method
                 amqChannelHandleCompleteInboundCommand);
 
-        ExpectedTrace[] queueInitiatedTraces = {
+        ExpectedTrace[] producerTraces = {
                 rabbitTemplateConvertAndSendTrace,
-                channelNBasicPublishTrace,
+                channelNBasicPublishTrace
+        };
+        ExpectedTrace[] consumerTraces = {
                 rabbitMqConsumerInvocationTrace,
                 amqChannelHandleCompleteInboundCommandTrace
         };
@@ -212,10 +218,11 @@ public class SpringAmqpRabbit_1_4_2_to_1_7_0_IT {
                 markTrace
         };
 
-        int expectedTraceCount = queueInitiatedTraces.length + clientInitiatedTraces.length;
+        final int expectedTraceCount = producerTraces.length + consumerTraces.length + clientInitiatedTraces.length;
         final PluginTestVerifier verifier = testRunner.runPull(expectedTraceCount);
 
-        verifier.verifyDiscreteTrace(queueInitiatedTraces);
+        verifier.verifyDiscreteTrace(producerTraces);
+        verifier.verifyDiscreteTrace(consumerTraces);
         verifier.verifyDiscreteTrace(clientInitiatedTraces);
 
         verifier.verifyTraceCount(0);
