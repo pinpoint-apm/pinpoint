@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -24,8 +27,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
+import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 
 /**
  * @author Roy Kim
@@ -57,11 +66,15 @@ public class MongoDriverGetDatabaseInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        DatabaseInfo databaseInfo;
+        DatabaseInfo databaseInfo=null;
         if (target instanceof DatabaseInfoAccessor) {
             databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
-        } else {
-            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+        }
+        if (databaseInfo==null && target!=null){
+            final List<String> hostList = getHostList(target);
+            String readPreference = getReadPreference(target);
+            String writeConcern = getWriteConcern(target);
+            databaseInfo = createDatabaseInfo(hostList, readPreference, writeConcern);
         }
 
         databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
@@ -71,6 +84,53 @@ public class MongoDriverGetDatabaseInterceptor implements AroundInterceptor {
             ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
         }
 
+    }
+
+    private DatabaseInfo createDatabaseInfo(List<String> hostList, String readPreference, String writeConcern) {
+
+        DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
+                null, null, hostList, null, null, readPreference, writeConcern);
+
+        if (isDebug) {
+            logger.debug("parse DatabaseInfo:{}", databaseInfo);
+        }
+
+        return databaseInfo;
+    }
+
+    private List<String> getHostList(Object target) {
+        if (!(target instanceof MongoClient)) {
+            return Collections.emptyList();
+        }
+
+        final MongoClient mongoClient = (MongoClient) target;
+        final List<String> hostList = new ArrayList<String>();
+        List<ServerAddress> serverAddresses = mongoClient.getAllAddress();
+        for (ServerAddress serverAddress : serverAddresses){
+            final String hostAddress = HostAndPort.toHostAndPortString(serverAddress.getHost(), serverAddress.getPort());
+            hostList.add(hostAddress);
+        }
+        return hostList;
+    }
+
+    private String getReadPreference(Object arg) {
+        if (!(arg instanceof MongoClientOptions)) {
+            return null;
+        }
+
+        final MongoClientOptions mongoClientOptions = (MongoClientOptions) arg;
+
+        return mongoClientOptions.getReadPreference().getName();
+    }
+
+    private String getWriteConcern(Object arg) {
+        if (!(arg instanceof MongoClientOptions)) {
+            return null;
+        }
+
+        final MongoClientOptions mongoClientOptions = (MongoClientOptions) arg;
+
+        return MongoUtil.getWriteConcern0(mongoClientOptions.getWriteConcern());
     }
 
 
