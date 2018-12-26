@@ -18,8 +18,7 @@ Simple indice and indice type exist query
 dsl query
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/90fe224aee8b52c50b22fdfe0860658324d.jpg)
 
-To disable httpclient4 trace，add two method to Trace interface:
-
+To prevent duplicate recording of data by httpclient4 ，The follow two methods have been added to [Trace ](https://github.com/yin-bp/pinpoint/blob/master/bootstrap-core/src/main/java/com/navercorp/pinpoint/bootstrap/context/Trace.java) interface:
 ```java
 /**
      * Pause the trace sampled.
@@ -37,7 +36,7 @@ To disable httpclient4 trace，add two method to Trace interface:
     void resumeSampled();
 ```
 
-pauseSampled/resumeSampled have been used in ElasticsearchExecutorOperationInterceptor:
+pauseSampled/resumeSampled have been used in [ElasticsearchExecutorOperationInterceptor](https://github.com/yin-bp/pinpoint/blob/master/plugins/elasticsearch-bboss/src/main/java/com/navercorp/pinpoint/plugin/elasticsearchbboss/interceptor/ElasticsearchExecutorOperationInterceptor.java)::
 
 ```java
  @Override
