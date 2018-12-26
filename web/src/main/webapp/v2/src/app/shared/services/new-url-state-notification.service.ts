@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+
 import { WebAppSettingDataService } from 'app/shared/services/web-app-setting-data.service';
 import { EndTime } from 'app/core/models/end-time';
 import { UrlPath, UrlPathIdFactory, UrlPathId, IUrlPathId, UrlQueryFactory, UrlQuery, IUrlQuery } from 'app/shared/models';
@@ -22,6 +23,7 @@ export class NewUrlStateNotificationService {
     private onUrlStateChange: BehaviorSubject<NewUrlStateNotificationService> = new BehaviorSubject(null);
 
     onUrlStateChange$: Observable<NewUrlStateNotificationService>;
+
     constructor(private webAppSettingDataService: WebAppSettingDataService) {
         this.onUrlStateChange$ = this.onUrlStateChange.asObservable();
         this.initState();
@@ -52,7 +54,7 @@ export class NewUrlStateNotificationService {
         }
     }
     private updateStartPath(path: string): boolean {
-        if ( this.startPath === path ) {
+        if (this.startPath === path) {
             return false;
         } else {
             this.startPath = path;
@@ -61,39 +63,34 @@ export class NewUrlStateNotificationService {
     }
     private updatePathId(pathParams: IGeneral): boolean {
         let updated = false;
-        const hasValuePathIdList: string[] = [];
+
         UrlPathId.getPathIdList().forEach((path: string) => {
-            if (this.changedPathId(path, pathParams[path])) {
-                this.changePathIdState(path, pathParams[path] ? UrlPathIdFactory.createPath(path, pathParams[path]) : null);
-                hasValuePathIdList.push(path);
+            this.changePathIdState(path, pathParams[path] ? UrlPathIdFactory.createPath(path, pathParams[path]) : null);
+            if (this.isPathChanged(path)) {
                 updated = true;
             }
         });
-        this.setConnectedPath(hasValuePathIdList, pathParams);
+
+        if (this.isPathChanged(UrlPathId.FOCUS_TIMESTAMP)) {
+            this.setConnectedPath(pathParams[UrlPathId.FOCUS_TIMESTAMP]);
+        }
+
         return updated;
     }
-    private changedPathId(path: string, pathValue: any): boolean {
-        if (pathValue === null || pathValue === undefined) {
-            return this.urlState[path].curr !== null;
-        } else {
-            if (this.urlState[path].curr === null) {
-                return true;
-            } else {
-                return !UrlPathIdFactory.createPath(path, pathValue).equals(this.urlState[path].curr);
-            }
-        }
+    isPathChanged(path: string): boolean {
+        const { prev, curr } = this.urlState[path];
+
+        return prev === null ? curr !== null : !prev.equals(curr);
     }
     private changePathIdState(path: string, newPathIdObject: IUrlPathId<any>): void {
         this.urlState[path].prev = this.urlState[path].curr;
         this.urlState[path].curr = newPathIdObject;
     }
-    private setConnectedPath(hasValuePathIdList: string[], pathParams: IGeneral): void {
-        if (hasValuePathIdList.indexOf(UrlPathId.FOCUS_TIMESTAMP) !== -1) {
-            this.urlState[UrlPathId.END_TIME].prev = this.urlState[UrlPathId.END_TIME].curr;
-            this.urlState[UrlPathId.END_TIME].curr = UrlPathIdFactory.createPath(UrlPathId.END_TIME, EndTime.formatDate((Number(pathParams[UrlPathId.FOCUS_TIMESTAMP]) + (1000 * 60 * 10))));
-            this.urlState[UrlPathId.PERIOD].prev = this.urlState[UrlPathId.PERIOD].curr;
-            this.urlState[UrlPathId.PERIOD].curr = UrlPathIdFactory.createPath(UrlPathId.PERIOD, this.webAppSettingDataService.getSystemDefaultTransactionViewPeriod().getValueWithTime());
-        }
+    private setConnectedPath(focusTimeStamp: string): void {
+        this.urlState[UrlPathId.END_TIME].prev = this.urlState[UrlPathId.END_TIME].curr;
+        this.urlState[UrlPathId.END_TIME].curr = UrlPathIdFactory.createPath(UrlPathId.END_TIME, EndTime.formatDate((Number(focusTimeStamp) + (1000 * 60 * 10))));
+        this.urlState[UrlPathId.PERIOD].prev = this.urlState[UrlPathId.PERIOD].curr;
+        this.urlState[UrlPathId.PERIOD].curr = UrlPathIdFactory.createPath(UrlPathId.PERIOD, this.webAppSettingDataService.getSystemDefaultTransactionViewPeriod().getValueWithTime());
     }
     private updateQuery(queryParams: IGeneral): boolean {
         let updated = false;
@@ -163,20 +160,5 @@ export class NewUrlStateNotificationService {
         } else {
             return this.getPathValue(UrlPathId.END_TIME).getDate().valueOf();
         }
-    }
-    isChanged(path: string): boolean {
-        if (this.urlState[path]) {
-            const { prev: prev, curr: curr } = this.urlState[path];
-            if (
-                (prev === null && curr !== null) ||
-                (prev !== null && curr === null) ||
-                (prev === null && curr === null)
-            ) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
     }
 }

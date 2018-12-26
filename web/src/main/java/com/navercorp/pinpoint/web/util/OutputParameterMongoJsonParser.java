@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * @author Roy Kim
@@ -29,8 +28,6 @@ import java.util.Stack;
 public class OutputParameterMongoJsonParser {
 
     public static final char SEPARATOR = ',';
-    public static final char ARRAYMARK = '[';
-    public static final char CLASSMARK = '{';
 
     public List<String> parseOutputParameter(String outputParams) {
         // may also need to know about the parsing result 
@@ -38,7 +35,6 @@ public class OutputParameterMongoJsonParser {
             return Collections.emptyList();
         }
 
-        Stack<Character> stack = new Stack<Character>();
         final List<String> result = new LinkedList<String>();
         StringBuilder params = new StringBuilder();
         int len = outputParams.length();
@@ -46,44 +42,27 @@ public class OutputParameterMongoJsonParser {
         for (int index = 0; index < len; index++) {
             final char ch = outputParams.charAt(index);
 
-            if (stack.empty()) {
-                if (ch == SEPARATOR) {
-                    result.add(params.toString());
-                    params = new StringBuilder();
-                } else if (ch == ARRAYMARK || ch == CLASSMARK) {
-                    stack.push(ch);
-                    params.append(ch);
-                } else if (ch == '\"') {
-                    params.append(ch);
+            if (ch == SEPARATOR) {
+                result.add(params.toString());
+                params = new StringBuilder();
+            } else if (ch == '\"') {
+                params.append(ch);
 
-                    boolean breaker = false;
-                    for (index = index + 1; index < len; index++) {
-                        char stateCh = outputParams.charAt(index);
-                        switch (stateCh) {
-                            case '\"':
-                                params.append(stateCh);
-                                breaker = true;
-                                break;
-                            default:
-                                params.append(stateCh);
-                                break;
-                        }
-                        if (breaker) {
+                for (index = index + 1; index < len; index++) {
+                    char stateCh = outputParams.charAt(index);
+
+                    if (stateCh == '\"') {
+                        if (lookAhead1(outputParams, index) == '\"') {
+                            params.append(stateCh);
+                            index++;
+                            continue;
+                        } else {
+                            params.append(stateCh);
                             break;
                         }
+                    } else {
+                        params.append(stateCh);
                     }
-                } else {
-                    params.append(ch);
-                }
-            } else if (ch == ']') {
-                if (stack.peek() == ARRAYMARK) {
-                    stack.pop();
-                    params.append(ch);
-                }
-            } else if (ch == '}') {
-                if (stack.peek() == CLASSMARK) {
-                    stack.pop();
-                    params.append(ch);
                 }
             } else {
                 params.append(ch);
@@ -93,5 +72,14 @@ public class OutputParameterMongoJsonParser {
         result.add(params.toString());
 
         return result;
+    }
+
+    private int lookAhead1(String sql, int index) {
+        index++;
+        if (index < sql.length()) {
+            return sql.charAt(index);
+        } else {
+            return -1;
+        }
     }
 }

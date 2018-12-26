@@ -31,9 +31,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         HelpViewerPopupModule,
         RouterModule.forChild(routing)
     ],
-    exports: [
-
-    ],
+    exports: [],
     providers: []
 })
 export class MainPageModule { }

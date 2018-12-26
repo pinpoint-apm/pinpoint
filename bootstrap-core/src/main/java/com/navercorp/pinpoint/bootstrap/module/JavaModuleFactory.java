@@ -20,11 +20,13 @@ package com.navercorp.pinpoint.bootstrap.module;
  * @author Woonduk Kang(emeroad)
  */
 public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Class clazz);
+    JavaModule wrapFromClass(Class<?> clazz);
 
     JavaModule wrapFromModule(Object module);
 
     boolean isNamedModule(Object module);
 
     Object getUnnamedModule(ClassLoader classLoader);
+
+    Object getModule(Class<?> clazz);
 }

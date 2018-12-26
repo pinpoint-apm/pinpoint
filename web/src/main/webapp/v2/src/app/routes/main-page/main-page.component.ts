@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { RouteInfoCollectorService, WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
@@ -20,10 +20,13 @@ export class MainPageComponent implements OnInit {
         private dynamicPopupService: DynamicPopupService
     ) {}
     ngOnInit() {
-        this.enableRealTime$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            map((urlService: NewUrlStateNotificationService) => {
-                return urlService.isRealTimeMode();
-            })
+        this.enableRealTime$ = combineLatest(
+            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
+            ),
+            this.webAppSettingDataService.useActiveThreadChart()
+        ).pipe(
+            map(([isRealTimeMode, useActiveThreadChart]: boolean[]) => isRealTimeMode && useActiveThreadChart)
         );
         this.webAppSettingDataService.getVersion().subscribe((version: string) => {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.VERSION, version);

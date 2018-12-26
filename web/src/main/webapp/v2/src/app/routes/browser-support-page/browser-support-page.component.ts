@@ -12,6 +12,7 @@ interface IBrowserInfo {
 }
 
 @Component({
+    selector: 'pp-browser-support-page',
     templateUrl: './browser-support-page.component.html',
     styleUrls: ['./browser-support-page.component.css']
 })
@@ -44,6 +45,10 @@ export class BrowserSupportPageComponent implements OnInit {
                 downloadLink: 'https://www.microsoft.com/en-us/windows/microsoft-edge',
                 name: 'edge',
                 displayName: 'Microsoft Edge'
+            }, {
+                downloadLink: 'https://whale.naver.com/en/',
+                name: 'whale',
+                displayName: 'Naver Whale'
             }
         ];
         this.i18nText$ = this.translateService.get('SUPPORT.INSTALL_GUIDE');

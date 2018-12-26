@@ -34,19 +34,30 @@ public class OutputParameterMongoJsonParserTest {
 
     @Test
     public void testParseOutputParameter() throws Exception {
-        assertOutputParameter("\"wow\",[12,34]", "\"wow\"", "[12,34]");
 
-        assertOutputParameter("Member{id=1, name='2', joined=123},[12,34]", "Member{id=1, name='2', joined=123}", "[12,34]");
+        assertOutputParameter("\"wow\",12,34", "\"wow\"", "12", "34");
+
+        assertOutputParameter("\"\"\"a\",\"b\"", "\"\"a\"", "\"b\"");
+
+        assertOutputParameter("\"\"\"\"\"a\",\"b\"", "\"\"\"a\"", "\"b\"");
+
+        assertOutputParameter("\",\"\",a\",\"b\",c", "\",\",a\"", "\"b\"", "c");
+
+        assertOutputParameter("\"a\",\"\"", "\"a\"", "\"\"");
+
+        assertOutputParameter("\"a\",", "\"a\"", "");
+
+        assertOutputParameter("\"wow\",\"12,\"34\"", "\"wow\"", "\"12,\"34\"");
 
         assertOutputParameter("");
 
     }
 
-    private void assertOutputParameter(String outputParam, String... params) {
+    private void assertOutputParameter(String outputParam, Object... params) {
         List<String> result = parser.parseOutputParameter(outputParam);
-        logger.debug("parseResult:{}", result);
+        logger.debug("parseResult size:{} data:{}", result.size(), result);
         try {
-            Assert.assertArrayEquals(result.toArray(new String[0]), params);
+            Assert.assertArrayEquals(params, result.toArray(new String[0]));
         } catch (AssertionError e) {
             logger.warn("parseResult:{}", result);
             logger.warn("params:{}", (Object[]) params);

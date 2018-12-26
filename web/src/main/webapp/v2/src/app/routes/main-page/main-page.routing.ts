@@ -6,7 +6,6 @@ import { EmptyContentsComponent, NoneComponent } from 'app/shared/components/emp
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector';
 // import { UrlValidateGuard } from 'app/shared/services';
 import { SystemConfigurationResolverService, ApplicationListResolverService, ServerTimeResolverService } from 'app/shared/services';
-
 import { MainPageComponent } from './main-page.component';
 
 export const routing: Routes = [

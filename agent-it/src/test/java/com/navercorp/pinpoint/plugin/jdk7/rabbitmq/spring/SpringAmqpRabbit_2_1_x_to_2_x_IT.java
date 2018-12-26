@@ -47,14 +47,16 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * <p>Spring-amqp rabbit 2.1.0 removed previously added <tt>BlockingQueueConsumer$ConsumerDecorator</tt>.
+ * Spring-amqp rabbit 2.1.0 removed previously added <tt>BlockingQueueConsumer$ConsumerDecorator</tt>.
+ * <p>
+ * Skip 2.1.1.RELEASE as it has spring 5.1.2.BUILD-SNAPSHOT dependencies not in maven central.
  *
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
-@Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
+@Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE,2.1.1.RELEASE),(2.1.1.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
 
@@ -134,9 +136,11 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
                 ServiceType.INTERNAL_METHOD.getName(),
                 propagationMarkerMark);
 
-        ExpectedTrace[] expectedTraces = {
+        ExpectedTrace[] producerTraces = {
                 rabbitTemplateConvertAndSendTrace,
-                channelNBasicPublishTrace,
+                channelNBasicPublishTrace
+        };
+        ExpectedTrace[] consumerTraces = {
                 rabbitMqConsumerInvocationTrace,
                 consumerDispatcherHandleDeliveryTrace,
                 asynchronousInvocationTrace,
@@ -147,9 +151,11 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
                 markTrace
         };
 
-        final PluginTestVerifier verifier = testRunner.runPush(expectedTraces.length);
+        final int expectedTraceCount = producerTraces.length + consumerTraces.length;
+        final PluginTestVerifier verifier = testRunner.runPush(expectedTraceCount);
 
-        verifier.verifyTrace(expectedTraces);
+        verifier.verifyDiscreteTrace(producerTraces);
+        verifier.verifyDiscreteTrace(consumerTraces);
         verifier.verifyTraceCount(0);
     }
 
@@ -187,9 +193,11 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
                 RabbitMQTestConstants.RABBITMQ_CLIENT_INTERNAL, // method
                 amqChannelHandleCompleteInboundCommand);
 
-        ExpectedTrace[] queueInitiatedTraces = {
+        ExpectedTrace[] producerTraces = {
                 rabbitTemplateConvertAndSendTrace,
-                channelNBasicPublishTrace,
+                channelNBasicPublishTrace
+        };
+        ExpectedTrace[] consumerTraces = {
                 rabbitMqConsumerInvocationTrace,
                 amqChannelHandleCompleteInboundCommandTrace
         };
@@ -215,10 +223,11 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
                 markTrace
         };
 
-        int expectedTraceCount = queueInitiatedTraces.length + clientInitiatedTraces.length;
+        final int expectedTraceCount = producerTraces.length + consumerTraces.length + clientInitiatedTraces.length;
         final PluginTestVerifier verifier = testRunner.runPull(expectedTraceCount);
 
-        verifier.verifyDiscreteTrace(queueInitiatedTraces);
+        verifier.verifyDiscreteTrace(producerTraces);
+        verifier.verifyDiscreteTrace(consumerTraces);
         verifier.verifyDiscreteTrace(clientInitiatedTraces);
 
         verifier.verifyTraceCount(0);
@@ -273,9 +282,11 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
                 RabbitMQTestConstants.RABBITMQ_CLIENT_INTERNAL, // serviceType
                 deliveryConstructor);
 
-        ExpectedTrace[] queueInitiatedTraces = {
+        ExpectedTrace[] producerTraces = {
                 rabbitTemplateConvertAndSendTrace,
-                channelNBasicPublishTrace,
+                channelNBasicPublishTrace
+        };
+        ExpectedTrace[] consumerTraces = {
                 rabbitMqConsumerInvocationTrace,
                 consumerDispatcherHandleDeliveryTrace,
                 asynchronousInvocationTrace,
@@ -299,10 +310,11 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
                 markTrace
         };
 
-        int expectedTraceCount = queueInitiatedTraces.length + clientInitiatedTraces.length;
+        final int expectedTraceCount = producerTraces.length + consumerTraces.length + clientInitiatedTraces.length;
         final PluginTestVerifier verifier = testRunner.runPull(expectedTraceCount, 5000L);
 
-        verifier.verifyDiscreteTrace(queueInitiatedTraces);
+        verifier.verifyDiscreteTrace(producerTraces);
+        verifier.verifyDiscreteTrace(consumerTraces);
         verifier.verifyDiscreteTrace(clientInitiatedTraces);
 
         verifier.verifyTraceCount(0);

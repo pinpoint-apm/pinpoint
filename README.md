@@ -11,10 +11,10 @@
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
-## Latest Release (2018/09/14)
+## Latest Release (2018/12/14)
 
-We're happy to announce the release of Pinpoint v1.8.0.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.0).
+We're happy to announce the release of Pinpoint v1.8.1-RC1.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.1-RC1).
 
 The current stable version is [v1.8.0](https://github.com/naver/pinpoint/releases/tag/1.8.0).
 
@@ -56,16 +56,16 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx)
-* Spring, Spring Boot (Embedded Tomcat, Jetty)
-* Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
-* Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
-* ActiveMQ, RabbitMQ
-* MySQL, Oracle, MSSQL(jtds), CUBRID,POSTGRESQL, MARIA
-* Arcus, Memcached, Redis, CASSANDRA
+* [Tomcat 6/7/8/9](https://github.com/naver/pinpoint/tree/master/plugins/tomcat), [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6/7](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx), [Weblogic 10/11g/12c](https://github.com/naver/pinpoint/tree/master/plugins/weblogic), Undertow
+* Spring, Spring Boot (Embedded Tomcat, Jetty), Spring asynchronous communication
+* Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient, Akka-http, Apache CXF
+* Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER, GRPC
+* ActiveMQ, RabbitMQ, Kafka
+* MySQL, Oracle, MSSQL(jtds), CUBRID, POSTGRESQL, MARIA
+* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase
 * iBATIS, MyBatis
-* DBCP, DBCP2, HIKARICP
-* gson, Jackson, Json Lib
+* DBCP, DBCP2, HIKARICP, DRUID
+* gson, Jackson, Json Lib, Fastjson
 * log4j, Logback
 
 ## Compatibility
@@ -79,7 +79,8 @@ Pinpoint Version | Agent | Collector | Web
 1.5.x | 6-8 | 7-8 | 7-8
 1.6.x | 6-8 | 7-8 | 7-8
 1.7.x | 6-8 | 8 | 8
-1.8.x | 6-10 | 8 | 8 
+1.8.0 | 6-10 | 8 | 8 
+1.8.1+ | 6-11 | 8 | 8 
 
 HBase compatibility table:
 

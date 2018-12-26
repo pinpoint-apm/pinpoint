@@ -366,7 +366,7 @@ public final class BytesUtils {
     public static byte[] intToVar32(int value) {
         final int bufferSize = BytesUtils.computeVar32Size(value);
         final byte[] buffer = new byte[bufferSize];
-        writeVar64(value, buffer, 0);
+        writeVar32(value, buffer, 0);
         return buffer;
     }
 

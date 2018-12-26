@@ -128,7 +128,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
                 recorder.recordEndPoint(remoteAddress);
 
                 String topic = record.topic();
-                recorder.recordDestinationId("topic:" + topic);
+                recorder.recordDestinationId(remoteAddress);
                 recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
             }
         } finally {

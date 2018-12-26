@@ -78,4 +78,22 @@ public class ClassScannerFactoryTest {
         scanner.close();
         Assert.assertFalse(exist);
     }
+
+    @Test
+    public void isFileProtocol() {
+        Assert.assertTrue(ClassScannerFactory.isFileProtocol("file"));
+        // for jboss vfs support
+        Assert.assertTrue(ClassScannerFactory.isFileProtocol("vfs"));
+
+        Assert.assertFalse(ClassScannerFactory.isFileProtocol("cd"));
+    }
+
+    @Test
+    public void isJarExtension() {
+        Assert.assertTrue(ClassScannerFactory.isJarExtension(".jar"));
+        Assert.assertTrue(ClassScannerFactory.isJarExtension(".war"));
+        Assert.assertTrue(ClassScannerFactory.isJarExtension(".ear"));
+
+        Assert.assertFalse(ClassScannerFactory.isJarExtension(".zip"));
+    }
 }

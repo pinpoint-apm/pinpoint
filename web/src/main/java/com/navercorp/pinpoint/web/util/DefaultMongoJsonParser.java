@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Stack;
 
 /**
  * @author Roy Kim
@@ -42,6 +43,15 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
         }
     }
 
+    private int lookFoward(String json, int index, int gap) {
+        index -= gap;
+        if (index < json.length() && 0 <= index) {
+            return json.charAt(index);
+        } else {
+            return NEXT_TOKEN_NOT_EXIST;
+        }
+    }
+
     public String combineBindValues(String json, List<String> bindValues) {
         if (StringUtils.isEmpty(json)) {
             return json;
@@ -50,24 +60,65 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
             return json;
         }
 
+        int additionalSize = 0;
         final Queue<String> bindValueQueue = new LinkedList<String>();
-        for(String value : bindValues) {
+        for (String value : bindValues) {
             bindValueQueue.add(value);
+            additionalSize += value.length();
+            additionalSize -= 3;
         }
         final int length = json.length();
-        final StringBuilder result = new StringBuilder(length + 16);
+        final StringBuilder result = new StringBuilder(length + additionalSize);
+
+        Stack<Character> stack = new Stack<Character>();
+
+        boolean statusKey = true;
+        boolean inString = false;
 
         for (int i = 0; i < length; i++) {
             final char ch = json.charAt(i);
 
-            if(ch == '\"' && lookAhead(json, i, 1) == '?' && lookAhead(json, i, 2) == '\"' ) {
-                if(!bindValueQueue.isEmpty()) {
-                    result.append(bindValueQueue.poll());
-                    i+=2;
+            if (statusKey && ch == '\"' && lookFoward(json, i, 1) != '\\') {
+                inString = !inString;
+            }
+
+            if (!inString) {
+                if (statusKey && ch == ':') {
+                    statusKey = false;
+                } else if (ch == '{') {
+                    statusKey = true;
+                    stack.push(ch);
+                } else if (ch == '}' && !stack.empty()) {
+                    stack.pop();
+                    if (!stack.empty() && stack.peek() != '[') {
+                        statusKey = true;
+                    }
+                } else if (ch == '[') {
+                    stack.push(ch);
+                } else if (ch == ']' && !stack.empty()) {
+                    stack.pop();
+                    if (!stack.empty() && stack.peek() != '[') {
+                        statusKey = true;
+                    }
+                }
+            }
+
+            if (!statusKey) {
+                if (ch == '\"' && lookAhead(json, i, 1) == '?' && lookAhead(json, i, 2) == '\"') {
+                    if (!bindValueQueue.isEmpty()) {
+                        result.append(bindValueQueue.poll());
+                        i += 2;
+                        if (!stack.empty() && stack.peek() != '[') {
+                            statusKey = true;
+                        }
+                    }
+                } else {
+                    result.append(ch);
                 }
             } else {
                 result.append(ch);
             }
+
         }
         return result.toString();
     }

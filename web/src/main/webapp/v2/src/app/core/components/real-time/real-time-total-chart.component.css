@@ -1,80 +1,43 @@
 :host {
     display: block;
-}
-.l-wrapper dt {
-    color:#fff;
-    padding: 15px 4px;
-    display: block;
-    overflow: hidden;
-    font-size: 15px;
-    text-align:center;
-    line-height: 1em;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid #687b8e;
-    background-color: #74879a;
-}
-.l-wrapper dd {
-    display: flex;
-    flex-flow: row wrap;
-    background:#fff;
-    justify-content:space-around;
-    align-items:center;
-    height: 135px;
-}
-.l-chart-section {
-    width: 180px;
-    height: 110px;
-    border-top: none;
-    padding: unset;
     position: relative;
-}
-.l-error-template {
     width: 100%;
     height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-}
-.l-error-text {
-    font-size: 14px;
-    font-weight: 600;
-    color: #c04e3f;
 }
 .l-legend {
-    font-size:11px;
-    width: 70px;
-    height: 110px;
+    position: absolute;
+    list-style: none;
+    font-size: 11px;
+    width: 65px;
+    /* height: 110px; */
 }
 .l-legend li {
-    margin:7px 0 0;
-    color:#666;
+    margin: 8px 0 0;
+    color: #666;
 }
 .l-legend li:first-child {
-    margin:0;
-    color:#010101;
-    font-weight:600;
+    margin: 0;
+    color: #010101;
+    font-weight: 600;
 }
 .l-legend li span {
-    display:inline-block;
+    display: inline-block;
+    vertical-align: middle;
 }
 .l-legend li .l-text {
-    width:30px;
-    text-align:right;
-    margin:0 10px 0 0;
+    width: 30px;
+    text-align: right;
+    margin: 0 10px 0 0;
 }
 .l-legend li .l-circle {
-    width:21px;
-    height:11px;
-    color:#fff;
-    border-radius:10px;
-    text-align:center;
+    width: 21px;
+    height: 11px;
+    line-height: 11px;
+    color: #fff;
+    border-radius: 10px;
+    text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1em;
 }
 .l-legend li:nth-child(1) .l-circle {
     background:#a8acb5

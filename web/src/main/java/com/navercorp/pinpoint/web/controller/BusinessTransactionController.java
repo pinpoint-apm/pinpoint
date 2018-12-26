@@ -139,6 +139,10 @@ public class BusinessTransactionController {
             logger.debug("Combined result={}", combinedResult);
         }
 
+        if (type.equals("mongoJson")) {
+            return StringEscapeUtils.unescapeHtml4(combinedResult);
+        }
+
         return StringEscapeUtils.escapeHtml4(combinedResult);
     }
 }

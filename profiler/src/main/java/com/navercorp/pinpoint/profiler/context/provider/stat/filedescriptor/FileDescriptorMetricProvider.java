@@ -139,7 +139,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
                 return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
             }
         } catch (Exception e) {
-            logger.warn("Error creating FileDescriptorMetric [" + classToLoad + "]", e);
+            logger.warn("Error creating FileDescriptorMetric [" + classToLoad + "]");
             return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
         }
     }

@@ -67,7 +67,7 @@
         "EMPTY_RESULT": "No matches found."
     },
     "SUPPORT": {
-        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=Your browser(!{0}) is not supported.}|[LINK]:{href=browser-not-supported\\target=blank\\style=text-decoration:underline;font-weight:600\\linkText=Check supported browsers}",
+        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=Your browser(!{0}) is not supported.}|[LINK]:{href=browserNotSupported\\target=blank\\style=text-decoration:underline;font-weight:600\\linkText=Check supported browsers}",
         "INSTALL_GUIDE": "Please install one of the following browsers and try again."
     },
     "HELP_VIEWER": {
@@ -361,7 +361,7 @@
             "AGENT_CHART": {
                 "HEAP": [{
                     "TITLE": "Heap",
-                    "DESC": "JVM's heap information and full garbage collection time required",
+                    "DESC": "JVM's heap information and major garbage collection time required",
                     "CATEGORY": [{
                         "TITLE": "Legend",
                         "ITEMS": [{
@@ -371,14 +371,14 @@
                             "NAME": "Used",
                             "DESC": "Heap size currently in use"
                         }, {
-                            "NAME": "FGC",
-                            "DESC": "Time required for full garbage collection (number of FGCs in parenthesis if it occurred more than once)"
+                            "NAME": "Major GC",
+                            "DESC": "Time required for major garbage collection (number of Major GCs in parenthesis if it occurred more than once)"
                         }]
                     }]
                 }],
                 "NON_HEAP": [{
                     "TITLE": "Non-Heap",
-                    "DESC": "JVM's non-heap information and full garbage collection time required",
+                    "DESC": "JVM's non-heap information and major garbage collection time required",
                     "CATEGORY": [{
                         "TITLE": "Legend",
                         "ITEMS": [{
@@ -388,8 +388,8 @@
                             "NAME": "Used",
                             "DESC": "Non-heap size currently in use"
                         }, {
-                            "NAME": "FGC",
-                            "DESC": "Time required for full garbage collection (number of FGCs in parenthesis if it occurred more than once)"
+                            "NAME": "Major ",
+                            "DESC": "Time required for major garbage collection (number of Major GCs in parenthesis if it occurred more than once)"
                         }]
                     }]
                 }],

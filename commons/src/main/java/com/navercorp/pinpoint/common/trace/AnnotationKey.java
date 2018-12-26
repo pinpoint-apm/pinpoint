@@ -82,10 +82,6 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>82</td><td>thrift.result</td></tr>
  * <tr><td>90</td><td>dubbo.args</td></tr>
  * <tr><td>91</td><td>dubbo.result</td></tr>
- * <tr><td>130</td><td>rabbitmq.properties</td></tr>
- * <tr><td>131</td><td>rabbitmq.body</td></tr>
- * <tr><td>132</td><td>rabbitmq.properties</td></tr>
- * <tr><td>133</td><td>rabbitmq.body</td></tr>
  * <tr><td>110</td><td></td>hystrix.command</tr>
  * <tr><td>111</td><td></td>hystrix.command.execution</tr>
  * <tr><td>112</td><td></td>hystrix.command.fallback.cause</tr>
@@ -95,6 +91,17 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>117</td><td></td>hystrix.thread.pool.key</tr>
  * <tr><td>118</td><td></td>hystrix.collapser.key</tr>
  * <tr><td>120</td><td>netty.address</td></tr>
+ * <tr><td>130</td><td>rabbitmq.properties</td></tr>
+ * <tr><td>131</td><td>rabbitmq.body</td></tr>
+ * <tr><td>132</td><td>rabbitmq.properties</td></tr>
+ * <tr><td>133</td><td>rabbitmq.body</td></tr>
+ * <tr><td>150</td><td>mongo.json.data</td></tr>
+ * <tr><td>151</td><td>mongo.collection.info</td></tr>
+ * <tr><td>152</td><td>mongo.collection.option</td></tr>
+ * <tr><td>153</td><td>mongo.json</td></tr>
+ * <tr><td>154</td><td>mongo.json.bindvalue</td></tr>
+ * <tr><td>160</td><td>grpc.status</td></tr>
+ *
  * <tr><td><s>200</s></td><td><s>cxf.operation</s></td></tr>
  * <tr><td><s>201</s></td><td><s>cxf.args</s></td></tr>
  * <tr><td>203</td><td>cxf.address</td></tr>
@@ -108,6 +115,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>300</td><td>PROXY_HTTP_HEADER</td></tr>
  * <tr><td>310</td><td>REDIS.IO</td></tr>
  * <tr><td>320</td><td>hbase.client.params</td></tr>
+ * <tr><td>923</td><td>marker.message</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
  * <tr><td>9001</td><td>jackson.json.length</td></tr>
  * <tr><td>9002</td><td>json-lib.json.length</td></tr>
