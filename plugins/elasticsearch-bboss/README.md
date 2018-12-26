@@ -18,6 +18,49 @@ Simple indice and indice type exist query
 dsl query
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/90fe224aee8b52c50b22fdfe0860658324d.jpg)
 
+To disable httpclient4 trace，add two method to Trace interface:
+
+```java
+/**
+     * Pause the trace sampled.
+     * In some scenarios, it is necessary to pause the plug-in interception work related to the method internal logic.
+     * When the method internal logic is executed, the after interception work of this method is continued. For example,
+     * ElasticSearch Bboss plugin as a terminal plugin needs to shield the underlying HTTP protocol plugin
+     */
+    void pauseSampled();
+    /**
+     * Continue the paused trace sampled.
+     * In some scenarios, it is necessary to pause the plug-in interception work related to the method internal logic.
+     * When the method internal logic is executed, the after interception work of this method is continued. For example,
+     * ElasticSearch Bboss plugin as a terminal plugin needs to shield the underlying HTTP protocol plugin
+     */
+    void resumeSampled();
+```
+
+pauseSampled/resumeSampled have been used in ElasticsearchExecutorOperationInterceptor:
+
+```java
+ @Override
+    public void before(Object target, Object[] args) {
+        super.before(target,args);
+        Trace currentTrace = traceContext.currentTraceObject();
+        if(currentTrace != null ){
+
+            currentTrace.pauseSampled();
+        }
+    }
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable)     {
+
+        Trace currentTrace = traceContext.currentRawTraceObject();
+        if(currentTrace != null){
+
+            currentTrace.resumeSampled();
+        }
+        super.after(target,args,result,throwable);
+    }
+```
+
 For more BBoss Elasticsearch Highlevel Rest Client detail see :
  https://www.oschina.net/p/bboss-elastic
 
@@ -44,4 +87,3 @@ ElasticsearchBBoss Demo
 [DocumentCRUDTest]: https://github.com/bbossgroups/eshelloword-booter/blob/master/src/test/java/org/bboss/elasticsearchtest/crud/DocumentCRUDTest.java
 
 
- 
