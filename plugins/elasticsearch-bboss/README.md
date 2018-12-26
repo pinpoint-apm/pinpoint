@@ -8,11 +8,14 @@ This agent plugin is worked with elasticsearch bboss highlevel rest client [BBos
 If there is trace in the context, add context trace as span event.
 
 Some work pictures of this plugin:
-Applications in tomcat
+Elasticsearch Bboss work in tomcat
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/a6aa8b7e84db0437dd6cbff88bdf1160fab.jpg)
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/9665c0376579bbf1ca6093c1a0cf11c6c45.jpg)
+Async parallel slice scoll query
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/2ad63bcb0ad2de30a2cc13aa5f8a8ea86b4.jpg)
+Simple indice and indice type exist query
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/4c2e63e159786c28909ca2a003c8ee28432.jpg)
+dsl query
 ![GitHub Logo](https://oscimg.oschina.net/oscnet/90fe224aee8b52c50b22fdfe0860658324d.jpg)
 
 For more BBoss Elasticsearch Highlevel Rest Client detail see :
