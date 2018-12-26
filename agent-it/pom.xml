@@ -403,6 +403,12 @@
             <version>4.1.28.Final</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
+            <version>5.2.7</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

@@ -73,4 +73,19 @@ public interface Trace extends StackOperation {
     TraceScope getScope(String name);
 
     TraceScope addScope(String name);
+
+    /**
+     * Pause the trace sampled.
+     * In some scenarios, it is necessary to pause the plug-in interception work related to the method internal logic.
+     * When the method internal logic is executed, the after interception work of this method is continued. For example,
+     * ElasticSearch Bboss plugin as a terminal plugin needs to shield the underlying HTTP protocol plugin
+     */
+    void pauseSampled();
+    /**
+     * Continue the paused trace sampled.
+     * In some scenarios, it is necessary to pause the plug-in interception work related to the method internal logic.
+     * When the method internal logic is executed, the after interception work of this method is continued. For example,
+     * ElasticSearch Bboss plugin as a terminal plugin needs to shield the underlying HTTP protocol plugin
+     */
+    void resumeSampled();
 }

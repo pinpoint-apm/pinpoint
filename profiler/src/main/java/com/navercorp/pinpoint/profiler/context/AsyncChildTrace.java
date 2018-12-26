@@ -34,8 +34,8 @@ public class AsyncChildTrace implements Trace {
     private static final Logger logger = LoggerFactory.getLogger(AsyncChildTrace.class.getName());
     private static final boolean isWarn = logger.isWarnEnabled();
 
-    private final boolean sampling;
-
+    private boolean sampling;
+    private Boolean oldSampling = null;
     private final CallStack<SpanEvent> callStack;
 
     private final Storage storage;
@@ -296,5 +296,21 @@ public class AsyncChildTrace implements Trace {
                 "traceRoot=" + traceRoot +
                 ", localAsyncId=" + localAsyncId +
                 '}';
+    }
+    @Override
+    public void pauseSampled() {
+        if(this.sampling){
+            this.oldSampling = sampling;
+            sampling = false;
+        }
+    }
+
+    @Override
+    public void resumeSampled() {
+        if(this.oldSampling != null)
+        {
+            this.sampling = oldSampling;
+            this.oldSampling = null;
+        }
     }
 }

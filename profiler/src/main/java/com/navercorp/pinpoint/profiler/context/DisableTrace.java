@@ -157,4 +157,14 @@ public class DisableTrace implements Trace {
     public TraceScope addScope(String name) {
         return scopePool.add(name);
     }
+
+    @Override
+    public void pauseSampled() {
+
+    }
+
+    @Override
+    public void resumeSampled() {
+
+    }
 }
