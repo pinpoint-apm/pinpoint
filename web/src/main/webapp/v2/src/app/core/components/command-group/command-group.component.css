@@ -1,21 +1,13 @@
 :host {
-    display: flex;
+    display: block;
 }
 
 button {
     outline: none;
 }
 
-.fa-cog, .fa-github {
-    font-size: 18px;
-}
-.l-tool-group {
-    width:100px;
-    display: flex;
-    justify-content: center;
+.fa-cog {
     color:#fff;
     font-size: 18px;
 }
-.l-tool-group button {
-    margin:0 8px;
-}
+

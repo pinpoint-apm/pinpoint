@@ -1,7 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-/**
- * 도움말, 설정, repository 링크등을 제공하는 Component
- */
+
 @Component({
     selector: 'pp-command-group',
     templateUrl: './command-group.component.html',
@@ -21,8 +19,5 @@ export class CommandGroupComponent implements OnInit {
                 coordY: top + height / 2
             }
         });
-    }
-    onOpenRepository(): void {
-        window.open('http://github.com/naver/pinpoint');
     }
 }
