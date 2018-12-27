@@ -1,11 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
-    selector: 'pp-configuration-popup-installation-jvm-argument-info',
-    templateUrl: './configuration-popup-installation-jvm-argument-info.component.html',
-    styleUrls: ['./configuration-popup-installation-jvm-argument-info.component.css'],
+    selector: 'pp-configuration-installation-jvm-argument-info',
+    templateUrl: './configuration-installation-jvm-argument-info.component.html',
+    styleUrls: ['./configuration-installation-jvm-argument-info.component.css'],
 })
-export class ConfigurationPopupInstallationJVMArgumentInfoComponent implements OnInit {
+export class ConfigurationInstallationJVMArgumentInfoComponent implements OnInit {
     @Input() installationArgument: string;
     @Input() jvmArgument: string[];
 

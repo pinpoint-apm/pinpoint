@@ -1,26 +1,27 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ApplicationNameDuplicationCheckInteractionService } from 'app/core/components/duplication-check/application-name-duplication-check-interaction.service';
-import { AgentIdDuplicationCheckInteractionService } from 'app/core/components/duplication-check/agent-id-duplication-check-interaction.service';
-import { ConfigurationPopupInstallationDataService, IInstallationData } from './configuration-popup-installation-data.service';
-
 import { Observable, combineLatest, of } from 'rxjs';
 import { filter, catchError, pluck } from 'rxjs/operators';
 
+import { ApplicationNameDuplicationCheckInteractionService } from 'app/core/components/duplication-check/application-name-duplication-check-interaction.service';
+import { AgentIdDuplicationCheckInteractionService } from 'app/core/components/duplication-check/agent-id-duplication-check-interaction.service';
+import { ConfigurationInstallationDataService, IInstallationData } from './configuration-installation-data.service';
+
+
 @Component({
-    selector: 'pp-configuration-popup-installation-container',
-    templateUrl: './configuration-popup-installation-container.component.html',
-    styleUrls: ['./configuration-popup-installation-container.component.css'],
+    selector: 'pp-configuration-installation-container',
+    templateUrl: './configuration-installation-container.component.html',
+    styleUrls: ['./configuration-installation-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ConfigurationPopupInstallationContainerComponent implements OnInit {
+export class ConfigurationInstallationContainerComponent implements OnInit {
     desc$: Observable<string>;
     installationInfo$: Observable<object>;
     jvmArgument$: Observable<string[]>;
 
     constructor(
         private translateService: TranslateService,
-        private configurationPopupInstallationDataService: ConfigurationPopupInstallationDataService,
+        private configurationInstallationDataService: ConfigurationInstallationDataService,
         private applicationNameDuplicationCheckInteractionService: ApplicationNameDuplicationCheckInteractionService,
         private agentIdDuplicationCheckInteractionService: AgentIdDuplicationCheckInteractionService
     ) {}
@@ -36,7 +37,7 @@ export class ConfigurationPopupInstallationContainerComponent implements OnInit 
     }
 
     private initInstallationInfo(): void {
-        this.installationInfo$ = this.configurationPopupInstallationDataService.getData()
+        this.installationInfo$ = this.configurationInstallationDataService.getData()
             .pipe(
                 filter((data: IInstallationData) => {
                     return data.code === 0;
