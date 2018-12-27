@@ -16,7 +16,6 @@ export class DuplicationCheckComponent implements OnInit {
 
     constructor() {}
     ngOnInit() {}
-
     emitValue(value: string): void {
         this.outCheckValue.emit(value);
     }
