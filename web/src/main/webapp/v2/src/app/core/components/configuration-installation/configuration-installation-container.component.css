@@ -13,4 +13,12 @@
 
 .l-check-wrapper {
     margin-bottom: 40px;
+    background-color: #fff;
+    border: 1px solid #e5e8f0;
+    padding: 30px 20px;
+    border-radius: 1px;
+}
+
+.l-check-content-wrapper:first-child {
+    margin-bottom: 15px;
 }
