@@ -7,7 +7,7 @@ import { NoticeModule } from 'app/core/components/notice';
 import { ApplicationListModule } from 'app/core/components/application-list';
 import { DataLoadIndicatorModule } from 'app/core/components/data-load-indicator';
 import { StateButtonModule } from 'app/core/components/state-button';
-import { CommandGroupModule } from 'app/core/components/command-group';
+import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { TransactionTableGridModule } from 'app/core/components/transaction-table-grid';
 import { TransactionListBottomContentsModule } from 'app/core/components/transaction-list-bottom-contents';
 
@@ -27,7 +27,7 @@ import { routing } from './transaction-list-page.routing';
         ApplicationListModule,
         DataLoadIndicatorModule,
         StateButtonModule,
-        CommandGroupModule,
+        ConfigurationIconModule,
         TransactionTableGridModule,
         TransactionListBottomContentsModule,
         RouterModule.forChild(routing)
