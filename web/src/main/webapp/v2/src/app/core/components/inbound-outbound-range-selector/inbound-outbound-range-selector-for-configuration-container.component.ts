@@ -3,11 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 
 @Component({
-    selector: 'pp-inbound-outbound-range-selector-for-configuration-popup-container',
-    templateUrl: './inbound-outbound-range-selector-for-configuration-popup-container.component.html',
-    styleUrls: ['./inbound-outbound-range-selector-for-configuration-popup-container.component.css']
+    selector: 'pp-inbound-outbound-range-selector-for-configuration-container',
+    templateUrl: './inbound-outbound-range-selector-for-configuration-container.component.html',
+    styleUrls: ['./inbound-outbound-range-selector-for-configuration-container.component.css']
 })
-export class InboundOutboundRangeSelectorForConfigurationPopupContainerComponent implements OnInit {
+export class InboundOutboundRangeSelectorForConfigurationContainerComponent implements OnInit {
     inboundList: string[];
     outboundList: string[];
     selectedInbound: string;

@@ -3,12 +3,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 
 @Component({
-    selector: 'pp-configuration-popup-general-container',
-    templateUrl: './configuration-popup-general-container.component.html',
-    styleUrls: ['./configuration-popup-general-container.component.css'],
+    selector: 'pp-configuration-general-container',
+    templateUrl: './configuration-general-container.component.html',
+    styleUrls: ['./configuration-general-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ConfigurationPopupGeneralContainerComponent implements OnInit {
+export class ConfigurationGeneralContainerComponent implements OnInit {
     desc$: Observable<string>;
 
     constructor(

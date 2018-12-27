@@ -13,9 +13,13 @@ export interface IInstallationData {
 }
 
 @Injectable()
-export class ConfigurationPopupInstallationDataService {
+export class ConfigurationInstallationDataService {
     private dataRequestURL = 'getAgentInstallationInfo.pinpoint';
-    constructor(private http: HttpClient) {}
+
+    constructor(
+        private http: HttpClient
+    ) {}
+
     getData(): Observable<IInstallationData> {
         return this.http.get<IInstallationData>(this.dataRequestURL).pipe(
             retry(3)
