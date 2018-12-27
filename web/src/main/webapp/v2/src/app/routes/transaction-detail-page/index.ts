@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from 'app/shared';
 import { NoticeModule } from 'app/core/components/notice';
 import { ApplicationListModule } from 'app/core/components/application-list';
-import { CommandGroupModule } from 'app/core/components/command-group';
+import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { TransactionDetailContentsModule } from 'app/core/components/transaction-detail-contents';
 import { TransactionDetailPageComponent } from './transaction-detail-page.component';
 import { routing } from './transaction-detail-page.routing';
@@ -17,7 +17,7 @@ import { routing } from './transaction-detail-page.routing';
         SharedModule,
         NoticeModule,
         ApplicationListModule,
-        CommandGroupModule,
+        ConfigurationIconModule,
         TransactionDetailContentsModule,
         RouterModule.forChild(routing)
     ],

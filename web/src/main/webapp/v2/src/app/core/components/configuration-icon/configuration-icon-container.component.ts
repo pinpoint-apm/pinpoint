@@ -4,12 +4,12 @@ import { AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/s
 import { ConfigurationPopupContainerComponent } from 'app/core/components/configuration-popup/configuration-popup-container.component';
 
 @Component({
-    selector: 'pp-command-group-container',
-    templateUrl: './command-group-container.component.html',
-    styleUrls: ['./command-group-container.component.css'],
+    selector: 'pp-configuration-icon-container',
+    templateUrl: './configuration-icon-container.component.html',
+    styleUrls: ['./configuration-icon-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CommandGroupContainerComponent implements OnInit {
+export class ConfigurationIconContainerComponent implements OnInit {
     constructor(
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,

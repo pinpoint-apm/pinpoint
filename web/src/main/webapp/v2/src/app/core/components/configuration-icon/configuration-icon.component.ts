@@ -1,11 +1,11 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 @Component({
-    selector: 'pp-command-group',
-    templateUrl: './command-group.component.html',
-    styleUrls: ['./command-group.component.css']
+    selector: 'pp-configuration-icon',
+    templateUrl: './configuration-icon.component.html',
+    styleUrls: ['./configuration-icon.component.css']
 })
-export class CommandGroupComponent implements OnInit {
+export class ConfigurationIconComponent implements OnInit {
     @Output() outOpenConfigurationPopup = new EventEmitter<{[key: string]: ICoordinate}>();
 
     constructor() {}
