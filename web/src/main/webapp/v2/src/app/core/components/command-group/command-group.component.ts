@@ -8,12 +8,19 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
     styleUrls: ['./command-group.component.css']
 })
 export class CommandGroupComponent implements OnInit {
-    @Output() outOpenConfigurationPopup: EventEmitter<null> = new EventEmitter();
+    @Output() outOpenConfigurationPopup = new EventEmitter<{[key: string]: ICoordinate}>();
 
     constructor() {}
     ngOnInit() {}
-    onOpenConfigurationPopup(): void {
-        this.outOpenConfigurationPopup.emit();
+    onOpenConfigurationPopup($event: MouseEvent): void {
+        const { left, top, width, height } = ($event.currentTarget as HTMLElement).getBoundingClientRect();
+
+        this.outOpenConfigurationPopup.emit({
+            coord: {
+                coordX: left + width / 2,
+                coordY: top + height / 2
+            }
+        });
     }
     onOpenRepository(): void {
         window.open('http://github.com/naver/pinpoint');
