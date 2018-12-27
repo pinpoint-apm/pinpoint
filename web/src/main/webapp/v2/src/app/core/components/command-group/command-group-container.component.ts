@@ -16,9 +16,10 @@ export class CommandGroupContainerComponent implements OnInit {
     ) {}
 
     ngOnInit() {}
-    onOpenConfigurationPopup(): void {
+    onOpenConfigurationPopup({coord}: {coord: ICoordinate}): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_CONFIGURATION_POPUP);
         this.dynamicPopupService.openPopup({
+            coord,
             component: ConfigurationPopupContainerComponent
         });
     }
