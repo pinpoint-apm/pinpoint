@@ -16,10 +16,14 @@
 
 package com.navercorp.pinpoint.common.plugin;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.jar.JarFile;
 
 /**
@@ -29,19 +33,23 @@ public class PluginJar {
 
     public static final String PINPOINT_PLUGIN_ID = "Pinpoint-Plugin-Id";
     public static final String PINPOINT_PLUGIN_PACKAGE = "Pinpoint-Plugin-Package";
+    public static final String PINPOINT_PLUGIN_COMPILER_VERSION = "Pinpoint-Plugin-Compiler-Version";
     public static final String DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME = "com.navercorp.pinpoint.plugin";
 
     private final URL url;
     private final JarFile jarFile;
 
     private final String pluginId;
-    private final String pluginPackages;
+    private final String pluginCompilerVersion;
+    private final List<String> pluginPackages;
 
-    private PluginJar(URL url, JarFile jarFile) {
-        this.url = url;
-        this.jarFile = jarFile;
+    public PluginJar(URL url, JarFile jarFile) {
+        this.url = Assert.requireNonNull(url, "url must not be null");
+        this.jarFile = Assert.requireNonNull(jarFile, "jarFile must not be null");
         this.pluginId = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_ID, null);
-        this.pluginPackages = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_PACKAGE, DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME);
+        this.pluginCompilerVersion = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_COMPILER_VERSION, null);
+        String pluginPackages = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_PACKAGE, DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME);
+        this.pluginPackages = StringUtils.tokenizeToStringList(pluginPackages, ",");
     }
 
     public static PluginJar fromFilePath(String filePath) {
@@ -97,7 +105,11 @@ public class PluginJar {
         return pluginId;
     }
 
-    public String getPluginPackages() {
+    public String getPluginCompilerVersion() {
+        return pluginCompilerVersion;
+    }
+
+    public List<String> getPluginPackages() {
         return pluginPackages;
     }
 
@@ -107,7 +119,8 @@ public class PluginJar {
         sb.append("url=").append(url);
         sb.append(", jarFile=").append(jarFile);
         sb.append(", pluginId='").append(pluginId).append('\'');
-        sb.append(", pluginPackages='").append(pluginPackages).append('\'');
+        sb.append(", pluginCompilerVersion='").append(pluginCompilerVersion).append('\'');
+        sb.append(", pluginPackages=").append(pluginPackages);
         sb.append('}');
         return sb.toString();
     }

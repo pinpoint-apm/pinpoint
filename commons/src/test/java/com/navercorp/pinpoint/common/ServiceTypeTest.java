@@ -19,11 +19,9 @@ package com.navercorp.pinpoint.common;
 import java.util.Collections;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import org.junit.Assert;

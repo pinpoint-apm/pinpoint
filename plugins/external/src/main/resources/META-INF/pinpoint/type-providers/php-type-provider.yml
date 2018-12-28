@@ -1,0 +1,15 @@
+serviceTypes:
+    - code: 1500
+      name: 'PHP'
+      property:
+          recordStatistics: true
+    - code: 1501
+      name: 'PHP_METHOD'
+      matcher:
+          type: 'args'
+    - code: 9700
+      name: 'PHP_REMOTE_METHOD'
+      property:
+          recordStatistics: true
+      matcher:
+          type: 'args'

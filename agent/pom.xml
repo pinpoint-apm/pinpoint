@@ -57,6 +57,12 @@
             <artifactId>pinpoint-plugins-assembly</artifactId>
             <type>pom</type>
             <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.navercorp.pinpoint</groupId>
+                    <artifactId>pinpoint-external-plugins</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 

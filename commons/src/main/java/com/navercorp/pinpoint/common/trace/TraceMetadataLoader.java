@@ -57,10 +57,10 @@ public class TraceMetadataLoader {
 
         for (TraceMetadataProvider provider : providers) {
             if (logger.isInfoEnabled()) {
-                logger.info("Loading TraceMetadataProvider: " + provider.getClass().getName() + " name:" + provider.toString());
+                logger.info("Loading TraceMetadataProvider: " + provider.getClass().getName() + " from:" + provider.toString());
             }
 
-            TraceMetadataSetupContextImpl context = new TraceMetadataSetupContextImpl(provider.getClass());
+            TraceMetadataSetupContextImpl context = new TraceMetadataSetupContextImpl(provider);
             provider.setup(context);
         }
 
@@ -78,9 +78,9 @@ public class TraceMetadataLoader {
 
 
     private class TraceMetadataSetupContextImpl implements TraceMetadataSetupContext {
-        private final Class<?> provider;
+        private final TraceMetadataProvider provider;
 
-        public TraceMetadataSetupContextImpl(Class<?> provider) {
+        public TraceMetadataSetupContextImpl(TraceMetadataProvider provider) {
             this.provider = provider;
         }
 
@@ -127,18 +127,18 @@ public class TraceMetadataLoader {
 
 
     private static String serviceTypePairToString(Pair<ServiceType> pair) {
-        return pair.value.getName() + "(" + pair.value.getCode() + ") from " + pair.provider.getName();
+        return pair.value.getName() + "(" + pair.value.getCode() + ") from " + pair.provider.toString();
     }
 
     private static String annotationKeyPairToString(Pair<AnnotationKey> pair) {
-        return pair.value.getName() + "(" + pair.value.getCode() + ") from " + pair.provider.getName();
+        return pair.value.getName() + "(" + pair.value.getCode() + ") from " + pair.provider.toString();
     }
 
     private static class Pair<T> {
         private final T value;
-        private final Class<?> provider;
+        private final TraceMetadataProvider provider;
         
-        public Pair(T value, Class<?> provider) {
+        public Pair(T value, TraceMetadataProvider provider) {
             this.value = value;
             this.provider = provider;
         }
@@ -148,8 +148,8 @@ public class TraceMetadataLoader {
         private final Map<String, Pair<ServiceType>> serviceTypeNameMap = new HashMap<String, Pair<ServiceType>>();
         private final Map<Short, Pair<ServiceType>> serviceTypeCodeMap = new HashMap<Short, Pair<ServiceType>>();
 
-        private void check(ServiceType type, Class<?> providerClass) {
-            Pair<ServiceType> pair = new Pair<ServiceType>(type, providerClass);
+        private void check(ServiceType type, TraceMetadataProvider provider) {
+            Pair<ServiceType> pair = new Pair<ServiceType>(type, provider);
             Pair<ServiceType> prev = serviceTypeNameMap.put(type.getName(), pair);
     
             if (prev != null) {
@@ -189,8 +189,8 @@ public class TraceMetadataLoader {
     private class AnnotationKeyChecker {
         private final Map<Integer, Pair<AnnotationKey>> annotationKeyCodeMap = new HashMap<Integer, Pair<AnnotationKey>>();
 
-        private void check(AnnotationKey key, Class<?> providerClass) {
-            Pair<AnnotationKey> pair = new Pair<AnnotationKey>(key, providerClass);
+        private void check(AnnotationKey key, TraceMetadataProvider provider) {
+            Pair<AnnotationKey> pair = new Pair<AnnotationKey>(key, provider);
             Pair<AnnotationKey> prev = annotationKeyCodeMap.put(key.getCode(), pair);
     
             if (prev != null) {
