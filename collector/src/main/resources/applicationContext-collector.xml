@@ -501,9 +501,8 @@
         <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
     </bean>
 
-    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
+    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
-        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
 
     <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;

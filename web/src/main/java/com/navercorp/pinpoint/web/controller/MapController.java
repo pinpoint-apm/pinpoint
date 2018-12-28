@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;

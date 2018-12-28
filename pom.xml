@@ -78,6 +78,7 @@
         <module>commons-server</module>
         <module>tools</module>
         <module>plugins</module>
+        <module>plugins-loader</module>
         <module>profiler</module>
         <module>profiler-optional</module>
         <module>profiler-test</module>
@@ -133,7 +134,7 @@
         <plugin.pmd.version>3.9.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
-        <plugin.animal-sniffer.version>1.16</plugin.animal-sniffer.version>
+        <plugin.animal-sniffer.version>1.17</plugin.animal-sniffer.version>
 
         <sniffer.artifactid>java16</sniffer.artifactid>
     </properties>
@@ -274,6 +275,11 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-plugins</artifactId>
                 <type>pom</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-plugins-loader</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

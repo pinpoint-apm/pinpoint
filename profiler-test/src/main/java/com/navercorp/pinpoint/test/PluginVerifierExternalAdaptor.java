@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTraceField;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.TraceType;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
