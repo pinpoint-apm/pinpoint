@@ -18,15 +18,14 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.plugin.Plugin;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
+import com.navercorp.pinpoint.plugins.loader.trace.TraceMetadataProviderLoader;
+import com.navercorp.pinpoint.profiler.context.module.PluginClassLoader;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,24 +33,19 @@ import java.util.List;
  */
 public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadataLoaderService> {
 
-    private final PluginLoader pluginLoader;
     private final CommonLoggerFactory commonLoggerFactory;
+    private final ClassLoader pluginClassLoader;
 
     @Inject
-    public TraceMetadataLoaderServiceProvider(CommonLoggerFactory commonLoggerFactory, PluginLoader pluginLoader) {
+    public TraceMetadataLoaderServiceProvider(CommonLoggerFactory commonLoggerFactory, @PluginClassLoader ClassLoader pluginClassLoader) {
         this.commonLoggerFactory = Assert.requireNonNull(commonLoggerFactory, "commonLogger must not be null");
-        this.pluginLoader = Assert.requireNonNull(pluginLoader, "pluginLoader must not be null");
+        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginClassLoader must not be null");
     }
 
     @Override
     public TraceMetadataLoaderService get() {
-
-        List<Plugin<TraceMetadataProvider>> plugins = pluginLoader.load(TraceMetadataProvider.class);
-        List<TraceMetadataProvider> providers = new ArrayList<TraceMetadataProvider>();
-        for (Plugin<TraceMetadataProvider> plugin : plugins) {
-            List<TraceMetadataProvider> pluginList = plugin.getInstanceList();
-            providers.addAll(pluginList);
-        }
+        TraceMetadataProviderLoader traceMetadataProviderLoader = new TraceMetadataProviderLoader();
+        List<TraceMetadataProvider> providers = traceMetadataProviderLoader.load(pluginClassLoader);
 
         TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(providers, commonLoggerFactory);
         return typeLoaderService;

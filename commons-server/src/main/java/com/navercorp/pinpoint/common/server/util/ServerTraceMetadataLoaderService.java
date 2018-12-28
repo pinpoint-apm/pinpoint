@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.plugin.Plugin;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.common.plugin.ServerPluginLoader;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
@@ -26,11 +23,11 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
+import com.navercorp.pinpoint.plugins.loader.trace.TraceMetadataProviderLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,13 +45,8 @@ public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderServ
         Assert.requireNonNull(classLoader, "classLoader must not be null");
         Assert.requireNonNull(commonLoggerFactory, "commonLoggerFactory must not be null");
 
-        PluginLoader pluginLoader = new ServerPluginLoader(classLoader);
-        List<Plugin<TraceMetadataProvider>> traceMetadataProvider = pluginLoader.load(TraceMetadataProvider.class);
-
-        List<TraceMetadataProvider> traceMetadataProviderList = new ArrayList<TraceMetadataProvider>();
-        for (Plugin<TraceMetadataProvider> plugin : traceMetadataProvider) {
-            traceMetadataProviderList.addAll(plugin.getInstanceList());
-        }
+        TraceMetadataProviderLoader traceMetadataProviderLoader = new TraceMetadataProviderLoader();
+        List<TraceMetadataProvider> traceMetadataProviderList = traceMetadataProviderLoader.load(classLoader);
 
         this.loader = new TraceMetadataLoader(commonLoggerFactory);
         loader.load(traceMetadataProviderList);

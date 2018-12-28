@@ -29,6 +29,13 @@ public class DefaultAnnotationKey implements AnnotationKey {
     private final boolean viewInRecordSet;
     private final boolean errorApiMetadata;
 
+    DefaultAnnotationKey(AnnotationKeyBuilder builder) {
+        this.code = builder.code();
+        this.name = builder.name();
+        this.viewInRecordSet = builder.viewInRecordSet();
+        this.errorApiMetadata = builder.errorApiMetadata();
+    }
+
     DefaultAnnotationKey(int code, String name, AnnotationKeyProperty... properties) {
         this.code = code;
         this.name = name;

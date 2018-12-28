@@ -23,27 +23,36 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.plugin.PluginJar;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.context.module.PluginJarPaths;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
  */
 public class PluginJarsProvider implements Provider<List<PluginJar>> {
 
-    private List<PluginJar> pluginJars;
+    private final List<PluginJar> pluginJars;
 
     @Inject
     public PluginJarsProvider(@PluginJarPaths List<String> pluginJarPaths, ProfilerConfig profilerConfig) {
+        Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         Assert.requireNonNull(pluginJarPaths, "pluginJarPaths must not be null");
         List<PluginJar> pluginJars = createPluginJars(pluginJarPaths);
-        List<PluginJar> orderedPluginJars = orderPluginJars(pluginJars, profilerConfig.getPluginLoadOrder());
-        this.pluginJars = ImmutableList.copyOf(orderedPluginJars);
+        pluginJars = filterPluginJars(profilerConfig, pluginJars);
+        pluginJars = orderPluginJars(profilerConfig, pluginJars);
+        this.pluginJars = ImmutableList.copyOf(pluginJars);
     }
 
     @Override
@@ -59,10 +68,34 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         return pluginJars;
     }
 
-    private List<PluginJar> orderPluginJars(List<PluginJar> pluginJars, final List<String> orderedPluginIdList) {
+    private List<PluginJar> filterPluginJars(ProfilerConfig profilerConfig, List<PluginJar> pluginJars) {
         if (CollectionUtils.isEmpty(pluginJars)) {
             return Collections.emptyList();
         }
+        PluginJarFilter pluginJarFilter = createPluginJarFilter(profilerConfig.getDisabledPlugins());
+        List<PluginJar> filteredPluginJars = new ArrayList<PluginJar>();
+        for (PluginJar pluginJar : pluginJars) {
+            if (pluginJarFilter.accept(pluginJar)) {
+                filteredPluginJars.add(pluginJar);
+            }
+        }
+        return filteredPluginJars;
+    }
+
+    private PluginJarFilter createPluginJarFilter(List<String> disabledPlugins) {
+        PluginJarFilter javaVersionFilter = new JavaVersionFilter();
+        if (CollectionUtils.isEmpty(disabledPlugins)) {
+            return javaVersionFilter;
+        }
+        PluginJarFilter disabledPluginFilter = new DisabledPluginFilter(disabledPlugins);
+        return new PluginJarFilters(disabledPluginFilter, javaVersionFilter);
+    }
+
+    private List<PluginJar> orderPluginJars(ProfilerConfig profilerConfig, List<PluginJar> pluginJars) {
+        if (CollectionUtils.isEmpty(pluginJars)) {
+            return Collections.emptyList();
+        }
+        List<String> orderedPluginIdList = profilerConfig.getPluginLoadOrder();
         if (CollectionUtils.isEmpty(orderedPluginIdList)) {
             return pluginJars;
         }
@@ -76,7 +109,10 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         for (PluginJar pluginJar : pluginJars) {
             String pluginId = pluginJar.getPluginId();
             if (orderedPlugins.containsKey(pluginId)) {
-                orderedPlugins.put(pluginId, pluginJar);
+                PluginJar prev = orderedPlugins.put(pluginId, pluginJar);
+                if (prev != null) {
+                    throw new IllegalStateException("Duplicate order found for plugin : " + pluginId);
+                }
             } else {
                 result.add(pluginJar);
             }
@@ -88,5 +124,74 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
             }
         }
         return result;
+    }
+
+    private interface PluginJarFilter {
+        boolean ACCEPT = true;
+        boolean REJECT = false;
+
+        boolean accept(PluginJar pluginJar);
+    }
+
+    private static class PluginJarFilters implements PluginJarFilter {
+
+        private final List<PluginJarFilter> pluginJarFilters = new ArrayList<PluginJarFilter>();
+
+        private PluginJarFilters(PluginJarFilter pluginJarFilter, PluginJarFilter... pluginJarFilters) {
+            Assert.requireNonNull(pluginJarFilter, "pluginJarFilter must not be null");
+            this.pluginJarFilters.add(pluginJarFilter);
+            if (pluginJarFilters.length > 0) {
+                this.pluginJarFilters.addAll(Arrays.asList(pluginJarFilters));
+            }
+        }
+
+        @Override
+        public boolean accept(PluginJar pluginJar) {
+            for (PluginJarFilter pluginJarFilter : pluginJarFilters) {
+                if (pluginJarFilter.accept(pluginJar) == REJECT) {
+                    return REJECT;
+                }
+            }
+            return ACCEPT;
+        }
+    }
+
+    private static class JavaVersionFilter implements PluginJarFilter {
+
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final JvmVersion jvmVersion = JvmUtils.getVersion();
+
+        @Override
+        public boolean accept(PluginJar pluginJar) {
+            String pluginCompilerVersion = pluginJar.getPluginCompilerVersion();
+            JvmVersion pluginJvmVersion = JvmVersion.getFromVersion(pluginCompilerVersion);
+            if (jvmVersion.onOrAfter(pluginJvmVersion)) {
+                return ACCEPT;
+            }
+            String pluginId = pluginJar.getPluginId();
+            logger.info("Skipping {} due to java version. Required : {}, found : {}", pluginId, pluginJvmVersion, jvmVersion);
+            return REJECT;
+        }
+    }
+
+    private static class DisabledPluginFilter implements PluginJarFilter {
+
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Set<String> disabledPluginIds;
+
+        private DisabledPluginFilter(List<String> disabledPluginIds) {
+            Assert.requireNonNull(disabledPluginIds, "disabledPluginIds must not be null");
+            this.disabledPluginIds = new HashSet<String>(disabledPluginIds);
+        }
+
+        @Override
+        public boolean accept(PluginJar pluginJar) {
+            String pluginId = pluginJar.getPluginId();
+            if (disabledPluginIds.contains(pluginId)) {
+                logger.info("Skipping disabled plugin : {}", pluginId);
+                return REJECT;
+            }
+            return ACCEPT;
+        }
     }
 }

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common;
 
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
@@ -25,7 +24,6 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import org.junit.Assert;
@@ -34,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @author emeroad

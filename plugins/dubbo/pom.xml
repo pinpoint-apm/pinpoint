@@ -11,18 +11,6 @@
     <name>pinpoint-dubbo-plugin</name>
     <packaging>jar</packaging>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugin-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

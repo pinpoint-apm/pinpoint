@@ -34,7 +34,6 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
-import java.util.jar.JarFile;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -49,7 +48,7 @@ public class JarProfilerPluginClassInjectorTest {
 
     @Test
     public void testInjectClass() throws Exception {
-        final Plugin plugin = getMockPlugin("org.slf4j.impl.Log4jLoggerAdapter");
+        final Plugin<?> plugin = getMockPlugin("org.slf4j.impl.Log4jLoggerAdapter");
 
         final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{plugin.getURL()});
 
@@ -87,7 +86,7 @@ public class JarProfilerPluginClassInjectorTest {
     }
 
 
-    private Plugin getMockPlugin(String className) throws IOException {
+    private Plugin<?> getMockPlugin(String className) throws IOException {
         ClassLoader cl = ClassLoaderUtils.getDefaultClassLoader();
         Class<?> clazz = null;
         try {
