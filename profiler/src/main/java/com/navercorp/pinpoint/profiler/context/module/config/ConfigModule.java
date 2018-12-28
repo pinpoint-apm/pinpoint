@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
-import com.navercorp.pinpoint.common.plugin.PluginJar;
+import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvider;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.slf4j.Logger;
