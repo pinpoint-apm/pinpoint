@@ -49,7 +49,7 @@ public class NewTraceHeader implements TraceHeader {
     }
 
     @Override
-    public String getTxType() {
+    public String getTransactionType() {
         return null;
     }
 

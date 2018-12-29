@@ -38,4 +38,6 @@ public interface TraceId {
     short getFlags();
 
     boolean isRoot();
+
+    String getTransactionType();
 }

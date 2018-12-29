@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 public interface TraceRootFactory {
 
     TraceRoot newTraceRoot();
+    TraceRoot newTraceRoot(String transactionType);
 
     TraceRoot continueTraceRoot(TraceId traceId);
 }

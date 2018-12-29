@@ -99,6 +99,7 @@ public class RequestTraceReader<T> {
 
     public Trace continueTrace(T request, TraceHeader traceHeader) {
         final TraceId traceId = newTraceId(traceHeader);
+
         // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
         final Trace trace = continueTrace(traceId);
         if (trace.canSampled()) {
@@ -118,7 +119,8 @@ public class RequestTraceReader<T> {
         final long parentSpanId = traceHeader.getParentSpanId();
         final long spanId = traceHeader.getSpanId();
         final short flags = traceHeader.getFlags();
-        final TraceId id = this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
+        final String transactionType = traceHeader.getTransactionType();
+        final TraceId id = this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags, transactionType);
         return id;
     }
 
@@ -130,10 +132,10 @@ public class RequestTraceReader<T> {
         return this.traceContext.continueTraceObject(traceId);
     }
 
-    private Trace newTrace(String txType) {
+    private Trace newTrace(String transactionType) {
         if (this.async) {
             return this.traceContext.newAsyncTraceObject();
         }
-        return this.traceContext.newTraceObject();
+        return this.traceContext.newTraceObject(transactionType);
     }
 }

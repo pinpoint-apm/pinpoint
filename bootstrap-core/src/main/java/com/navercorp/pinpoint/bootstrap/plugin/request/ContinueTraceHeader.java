@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
-import com.navercorp.pinpoint.bootstrap.plugin.request.TraceHeader;
-import com.navercorp.pinpoint.bootstrap.plugin.request.TraceHeaderState;
 import com.navercorp.pinpoint.common.util.Assert;
 
 /**
@@ -28,14 +26,14 @@ public class ContinueTraceHeader implements TraceHeader {
     private long parentSpanId;
     private long spanId;
     private short flags;
-    private final String txType;
+    private final String transactionType;
 
-    public ContinueTraceHeader(String transactionId, long parentSpanId, long spanId, short flags, String txtype) {
+    public ContinueTraceHeader(String transactionId, long parentSpanId, long spanId, short flags, String transactionType) {
         this.transactionId = Assert.requireNonNull(transactionId, "transactionId must not be null");
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.flags = flags;
-        this.txType = txtype;
+        this.transactionType = transactionType;
     }
 
 
@@ -65,8 +63,8 @@ public class ContinueTraceHeader implements TraceHeader {
     }
 
     @Override
-    public String getTxType() {
-        return txType;
+    public String getTransactionType() {
+        return transactionType;
     }
 
     @Override

@@ -38,6 +38,8 @@ public interface BaseTraceFactory {
 
     Trace newTraceObject();
 
+    Trace newTraceObject(String transactionType);
+
     @InterfaceAudience.LimitedPrivate("vert.x")
     Trace newAsyncTraceObject();
 }

@@ -28,6 +28,11 @@ public class FalseSampler implements Sampler {
     }
 
     @Override
+    public boolean isSampling(String transactionType) {
+        return false;
+    }
+
+    @Override
     public String toString() {
         // To fix sampler name even if the class name is changed.
         return "FalseSampler";

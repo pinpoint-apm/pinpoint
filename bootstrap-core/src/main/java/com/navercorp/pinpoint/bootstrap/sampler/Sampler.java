@@ -21,4 +21,5 @@ package com.navercorp.pinpoint.bootstrap.sampler;
  */
 public interface Sampler {
     boolean isSampling();
+    boolean isSampling(String transactionType);
 }

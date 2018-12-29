@@ -128,6 +128,29 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         }
     }
 
+    @Override
+    public Trace newTraceObject(String transactionType) {
+        // TODO need to modify how to inject a datasender
+        final boolean sampling = sampler.isSampling(transactionType);
+        if (sampling) {
+            final TraceRoot traceRoot = traceRootFactory.newTraceRoot(transactionType);
+            final Span span = spanFactory.newSpan(traceRoot);
+
+            final Storage storage = storageFactory.createStorage(traceRoot);
+            final CallStack callStack = callStackFactory.newCallStack();
+
+            final TraceId traceId = traceRoot.getTraceId();
+            final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
+            final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
+
+            final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
+            final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder, handle);
+
+            return trace;
+        } else {
+            return newDisableTrace();
+        }
+    }
 
     // internal async trace.
     @Override

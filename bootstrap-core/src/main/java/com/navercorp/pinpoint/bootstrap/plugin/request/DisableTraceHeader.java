@@ -49,7 +49,7 @@ public class DisableTraceHeader implements TraceHeader {
     }
 
     @Override
-    public String getTxType() {
+    public String getTransactionType() {
         throw new UnsupportedOperationException();
     }
 

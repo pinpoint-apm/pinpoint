@@ -29,7 +29,6 @@ public class DefaultTraceRoot implements TraceRoot {
     private final long localTransactionId;
 
     private final long traceStartTime;
-
     private final Shared shared = new DefaultShared();
 
 
@@ -55,9 +54,6 @@ public class DefaultTraceRoot implements TraceRoot {
     public long getTraceStartTime() {
         return traceStartTime;
     }
-
-
-
 
     @Override
     public Shared getShared() {

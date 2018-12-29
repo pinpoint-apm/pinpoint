@@ -64,11 +64,11 @@ public class RequestWrapperReaderTest {
         TraceContext traceContext = mock(TraceContext.class);
         when(traceContext.disableSampling()).thenReturn(disableTrace);
         when(traceContext.continueTraceObject(any(TraceId.class))).thenReturn(continueTrace);
-        when(traceContext.newTraceObject()).thenReturn(newTrace);
+        when(traceContext.newTraceObject(anyString())).thenReturn(newTrace);
         when(traceContext.getProfilerConfig()).thenReturn(new DefaultProfilerConfig());
         when(traceContext.getMappingRegistry()).thenReturn(mappingRegistry);
         TraceId traceId = mock(TraceId.class);
-        when(traceContext.createTraceId(anyString(), anyLong(), anyLong(), anyShort())).thenReturn(traceId);
+        when(traceContext.createTraceId(anyString(), anyLong(), anyLong(), anyShort(), anyString())).thenReturn(traceId);
         RequestAdaptor<ServerRequestWrapper> serverRequestWrapperAdaptor = new ServerRequestWrapperAdaptor();
         final RequestTraceReader<ServerRequestWrapper> reader = new RequestTraceReader<ServerRequestWrapper>(traceContext, serverRequestWrapperAdaptor);
 

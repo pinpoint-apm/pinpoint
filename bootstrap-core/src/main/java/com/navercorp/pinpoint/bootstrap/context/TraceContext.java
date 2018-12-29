@@ -44,6 +44,8 @@ public interface TraceContext {
 
     Trace newTraceObject();
 
+    Trace newTraceObject(String transactionType);
+
     /**
      * internal experimental api
      */
@@ -90,6 +92,7 @@ public interface TraceContext {
     boolean cacheSql(ParsingResult parsingResult);
 
     TraceId createTraceId(String transactionId, long parentSpanId, long spanId, short flags);
+    TraceId createTraceId(String transactionId, long parentSpanId, long spanId, short flags, String transactionType);
 
     Trace disableSampling();
 

@@ -48,11 +48,25 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
         return traceId;
     }
 
+    @Override
+    public TraceId newTraceId(long localTransactionId, String transactionType) {
+        final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, localTransactionId, transactionType);
+        return traceId;
+    }
+
     public TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
         final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
         return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanId, spanId, flags);
+    }
+
+    public TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags, String transactionType) {
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+        final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
+        return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanId, spanId, flags, transactionType);
     }
 }

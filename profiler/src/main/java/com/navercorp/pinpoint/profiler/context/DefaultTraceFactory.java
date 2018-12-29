@@ -117,6 +117,15 @@ public class DefaultTraceFactory implements TraceFactory {
         return trace;
     }
 
+    @Override
+    public Trace newTraceObject(String transactionType) {
+        final Reference<Trace> reference = checkAndGet();
+        final Trace trace = this.baseTraceFactory.newTraceObject(transactionType);
+
+        bind(reference, trace);
+        return trace;
+    }
+
     private void bind(Reference<Trace> reference, Trace trace) {
         reference.set(trace);
 

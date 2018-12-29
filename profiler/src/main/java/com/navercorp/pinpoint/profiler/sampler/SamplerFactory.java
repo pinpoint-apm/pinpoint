@@ -29,6 +29,6 @@ public class SamplerFactory {
         if (samplingRate == 1) {
             return new TrueSampler();
         }
-        return new SamplingRateSampler(samplingRate);
+        return new SamplingTransactionSampler(samplingRate);
     }
 }

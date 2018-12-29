@@ -46,6 +46,11 @@ public class SamplingRateSampler implements Sampler {
     }
 
     @Override
+    public boolean isSampling(String transactionType) {
+        return isSampling();
+    }
+
+    @Override
     public String toString() {
         return "SamplingRateSampler{" +
                     "counter=" + counter +

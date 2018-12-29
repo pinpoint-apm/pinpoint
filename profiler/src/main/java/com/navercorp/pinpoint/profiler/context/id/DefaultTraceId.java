@@ -32,9 +32,14 @@ public class DefaultTraceId implements TraceId {
     private final long parentSpanId;
     private final long spanId;
     private final short flags;
+    private String transactionType;
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
         this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
+    }
+
+    public DefaultTraceId(String agentId, long agentStartTime, long transactionId, String transactionType) {
+        this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0, transactionType);
     }
 
     public TraceId getNextTraceId() {
@@ -52,6 +57,11 @@ public class DefaultTraceId implements TraceId {
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.flags = flags;
+    }
+
+    public DefaultTraceId(String agentId, long agentStartTime, long transactionId, long parentSpanId, long spanId, short flags, String transactionType) {
+        this(agentId, agentStartTime, transactionId, parentSpanId, spanId, flags);
+        this.transactionType = transactionType;
     }
 
     public String getTransactionId() {
@@ -89,6 +99,11 @@ public class DefaultTraceId implements TraceId {
     }
 
     @Override
+    public String getTransactionType() {
+        return transactionType;
+    }
+
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultTraceId{");
         sb.append("agentId='").append(agentId).append('\'');
@@ -97,6 +112,7 @@ public class DefaultTraceId implements TraceId {
         sb.append(", parentSpanId=").append(parentSpanId);
         sb.append(", spanId=").append(spanId);
         sb.append(", flags=").append(flags);
+        sb.append(", transactionType=").append(transactionType);
         sb.append('}');
         return sb.toString();
     }

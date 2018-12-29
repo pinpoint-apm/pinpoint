@@ -136,6 +136,11 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.newTraceObject();
     }
 
+    @Override
+    public Trace newTraceObject(String transactionType) {
+        return traceFactory.newTraceObject(transactionType);
+    }
+
     @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace newAsyncTraceObject() {
@@ -212,6 +217,15 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public int cacheString(final String value) {
         return this.stringMetaDataService.cacheString(value);
+    }
+
+    @Override
+    public TraceId createTraceId(final String transactionId, final long parentSpanId, final long spanId, final short flags, String transactionType) {
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+        // TODO Should handle exception when parsing failed.
+        return traceIdFactory.continueTraceId(transactionId, parentSpanId, spanId, flags, transactionType);
     }
 
     @Override

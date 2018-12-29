@@ -92,6 +92,13 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     }
 
     @Override
+    public Trace newTraceObject(String transactionType) {
+        logger.debug("newTraceObject(" + transactionType + ")");
+
+        return baseTraceFactory.newTraceObject(transactionType);
+    }
+
+    @Override
     @InterfaceAudience.LimitedPrivate("vert.x")
     public Trace newAsyncTraceObject() {
         logger.debug("newAsyncTraceObject()");

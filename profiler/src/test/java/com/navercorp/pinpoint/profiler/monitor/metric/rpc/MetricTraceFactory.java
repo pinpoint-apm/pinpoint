@@ -84,6 +84,11 @@ public class MetricTraceFactory implements TraceFactory {
     }
 
     @Override
+    public Trace newTraceObject(String transactionType) {
+        return delegate.newTraceObject(transactionType);
+    }
+
+    @Override
     public Trace removeTraceObject() {
         final Trace trace = delegate.removeTraceObject();
 //        TODO;

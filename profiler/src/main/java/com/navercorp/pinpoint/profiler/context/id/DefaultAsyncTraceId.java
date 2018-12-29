@@ -29,10 +29,17 @@ public class DefaultAsyncTraceId implements AsyncTraceId, TraceRootSupport {
 
     private final TraceRoot traceRoot;
     private final AsyncId asyncId;
+    private String transactionType;
 
     public DefaultAsyncTraceId(final TraceRoot traceRoot, final AsyncId asyncId) {
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.asyncId = Assert.requireNonNull(asyncId, "asyncId must not be null");
+    }
+
+    public DefaultAsyncTraceId(final TraceRoot traceRoot, final AsyncId asyncId, final String transactionType) {
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.asyncId = Assert.requireNonNull(asyncId, "asyncId must not be null");
+        this.transactionType = Assert.requireNonNull(transactionType, "transactionType must not be null");
     }
 
     private TraceId getTraceId0() {
@@ -106,6 +113,11 @@ public class DefaultAsyncTraceId implements AsyncTraceId, TraceRootSupport {
     @Override
     public TraceId getParentTraceId() {
         return getTraceId0();
+    }
+
+    @Override
+    public String getTransactionType() {
+        return transactionType;
     }
 
     @Override
