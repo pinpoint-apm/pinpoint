@@ -76,7 +76,7 @@ public class UserController {
             return result;
         }
         
-        userService.deleteUser(user);
+        userService.deleteUser(user.getUserId());
 
         Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
