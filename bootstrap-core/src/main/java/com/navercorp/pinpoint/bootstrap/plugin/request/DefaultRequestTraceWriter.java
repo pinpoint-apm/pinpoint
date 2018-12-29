@@ -74,6 +74,10 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
             clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), applicationNamespace);
         }
 
+        if (traceId.getTransactionType() != null) {
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_TRANSACTION_TYPE.toString(), traceId.getTransactionType());
+        }
+
         if (host != null) {
             clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
         }
