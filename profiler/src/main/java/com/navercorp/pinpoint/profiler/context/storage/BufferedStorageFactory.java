@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
-import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
@@ -28,28 +27,17 @@ public class BufferedStorageFactory implements StorageFactory {
 
     private final DataSender dataSender;
     private final int ioBufferingBufferSize;
-    private final SpanPostProcessor spanPostProcessor;
-    private final SpanChunkFactory spanChunkFactory;
 
-    public BufferedStorageFactory(int ioBufferingBufferSize, DataSender dataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
-        }
-        if (spanChunkFactory == null) {
-            throw new NullPointerException("spanChunkFactory must not be null");
-        }
-        this.dataSender = dataSender;
-
+    public BufferedStorageFactory(int ioBufferingBufferSize, DataSender dataSender) {
+        this.dataSender = Assert.requireNonNull(dataSender, "dataSender must not be null");
         this.ioBufferingBufferSize = ioBufferingBufferSize;
-        this.spanPostProcessor = spanPostProcessor;
-        this.spanChunkFactory = spanChunkFactory;
     }
 
 
     @Override
     public Storage createStorage(TraceRoot traceRoot) {
-        BufferedStorage bufferedStorage = new BufferedStorage(traceRoot, this.dataSender, spanPostProcessor, spanChunkFactory, this.ioBufferingBufferSize);
-        return bufferedStorage;
+        Storage storage = new BufferedStorage(traceRoot, this.dataSender, this.ioBufferingBufferSize);
+        return storage;
     }
 
     @Override
@@ -57,7 +45,6 @@ public class BufferedStorageFactory implements StorageFactory {
         return "BufferedStorageFactory{" +
                 "dataSender=" + dataSender +
                 ", ioBufferingBufferSize=" + ioBufferingBufferSize +
-                ", spanChunkFactory=" + spanChunkFactory +
                 '}';
     }
 }

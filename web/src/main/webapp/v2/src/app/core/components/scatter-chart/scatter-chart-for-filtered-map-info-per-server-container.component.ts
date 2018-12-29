@@ -14,9 +14,7 @@ import {
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
-import { ScatterChartDataService } from './scatter-chart-data.service';
 import { ScatterChart } from './class/scatter-chart.class';
-import { ScatterChartComponent } from './scatter-chart.component';
 import { ScatterChartInteractionService } from './scatter-chart-interaction.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 
@@ -29,9 +27,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 export class ScatterChartForFilteredMapInfoPerServerContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     instanceKey = 'filtered-map-info-per-server';
     addWindow = false;
-    i18nText: { [key: string]: string } = {
-        NO_DATA: ''
-    };
+    i18nText: { [key: string]: string };
     isChangedTarget: boolean;
     selectedTarget: ISelectedTarget;
     selectedApplication: string;
@@ -68,7 +64,6 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
         private webAppSettingDataService: WebAppSettingDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
-        private scatterChartDataService: ScatterChartDataService,
         private scatterChartInteractionService: ScatterChartInteractionService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService
@@ -76,10 +71,12 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
     ngOnInit() {
         this.setScatterY();
         combineLatest(
-            this.translateService.get('COMMON.NO_DATA')
+            this.translateService.get('COMMON.NO_DATA'),
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {
-                [ScatterChartComponent.I18NTEXT.NO_DATA]: i18n[0]
+                NO_DATA: i18n[0],
+                FAILED_TO_FETCH_DATA: i18n[1]
             };
         });
         this.connectStore();
@@ -90,7 +87,6 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
             })
         ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.scatterChartMode = urlService.isRealTimeMode() ? ScatterChart.MODE.REALTIME : ScatterChart.MODE.STATIC;
-            this.scatterChartDataService.setCurrentMode(this.scatterChartMode);
             this.application = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
             this.selectedAgent = '';
             this.fromX = urlService.getStartTimeToNumber();

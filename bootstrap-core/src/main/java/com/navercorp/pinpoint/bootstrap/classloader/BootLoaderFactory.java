@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
+import com.navercorp.pinpoint.common.util.JvmType;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -40,17 +43,8 @@ public final class BootLoaderFactory {
     }
 
     private static boolean isJ9VM() {
-        // ibm-j9 java.vm.name=IBM J9 VM;
-        // openj9 java.vm.name=Eclipse OpenJ9 VM
-//        if (System.getProperty("java.vm.name", "").contains("J9 VM")) {
-//            return true;
-//        }
-        try {
-            ClassLoader.class.getDeclaredField("bootstrapClassLoader");
-            return true;
-        } catch (NoSuchFieldException e) {
-            return false;
-        }
+        JvmType jvmType = JvmUtils.getType();
+        return jvmType == JvmType.IBM;
     }
 
 }

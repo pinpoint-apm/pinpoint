@@ -17,12 +17,16 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client;
 
 import java.net.Socket;
+import java.net.URL;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.UrlFieldGetter;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransport;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -84,43 +88,39 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
             if (trace == null) {
                 return;
             }
-            ThriftRequestProperty parentTraceInfo = new ThriftRequestProperty();
+
             final boolean shouldSample = trace.canSampled();
             if (!shouldSample) {
+                if (transport instanceof THttpClient) {
+                    return;
+                }
+                ThriftRequestProperty parentTraceInfo = new ThriftRequestProperty();
                 if (isDebug) {
                     logger.debug("set Sampling flag=false");
                 }
-                parentTraceInfo.setShouldSample(shouldSample);
+                parentTraceInfo.setShouldSample(false);
+                InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+                currentTransaction.setAttachment(parentTraceInfo);
+                return;
+            }
+
+            SpanEventRecorder recorder = trace.traceBlockBegin();
+            String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
+
+            // If we're writing to THttpClient, http client plugin will handle trace propagation.
+            // We simply record as basic method.
+            if (transport instanceof THttpClient) {
+                recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
+                remoteAddress = getRemoteAddressForTHttpClient((THttpClient) transport);
             } else {
-                SpanEventRecorder recorder = trace.traceBlockBegin();
                 recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT);
-
-                // retrieve connection information
-                String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
-                if (transport instanceof SocketFieldAccessor) {
-                    Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
-                    if (socket != null) {
-                        remoteAddress = ThriftUtils.getHostPort(socket.getRemoteSocketAddress());
-                    }
-                } else {
-                    if (isDebug) {
-                        logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
-                    }
-                }
+                remoteAddress = getRemoteAddress(transport);
                 recorder.recordDestinationId(remoteAddress);
-
-                String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
-                if (args[0] instanceof String) {
-                    methodName = (String)args[0];
-                }
-                String serviceName = ThriftUtils.getClientServiceName(client);
-
-                String thriftUrl = getServiceUrl(remoteAddress, serviceName, methodName);
-                recorder.recordAttribute(ThriftConstants.THRIFT_URL, thriftUrl);
 
                 TraceId nextId = trace.getTraceId().getNextTraceId();
                 recorder.recordNextSpanId(nextId.getSpanId());
 
+                ThriftRequestProperty parentTraceInfo = new ThriftRequestProperty();
                 parentTraceInfo.setTraceId(nextId.getTransactionId());
                 parentTraceInfo.setSpanId(nextId.getSpanId());
                 parentTraceInfo.setParentSpanId(nextId.getParentSpanId());
@@ -129,10 +129,49 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
                 parentTraceInfo.setParentApplicationName(traceContext.getApplicationName());
                 parentTraceInfo.setParentApplicationType(traceContext.getServerTypeCode());
                 parentTraceInfo.setAcceptorHost(remoteAddress);
+
+                InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+                currentTransaction.setAttachment(parentTraceInfo);
+
             }
-            InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
-            currentTransaction.setAttachment(parentTraceInfo);
+
+            String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
+            if (args[0] instanceof String) {
+                methodName = (String)args[0];
+            }
+            String serviceName = ThriftUtils.getClientServiceName(client);
+            String thriftUrl = getServiceUrl(remoteAddress, serviceName, methodName);
+            recorder.recordAttribute(ThriftConstants.THRIFT_URL, thriftUrl);
         }
+    }
+
+    private String getRemoteAddressForTHttpClient(THttpClient tHttpClient) {
+        if (tHttpClient instanceof UrlFieldGetter) {
+            URL url = ((UrlFieldGetter) tHttpClient)._$PINPOINT$_getUrl();
+            if (url == null) {
+                return ThriftConstants.UNKNOWN_ADDRESS;
+            }
+            return HostAndPort.toHostAndPortString(url.getHost(), url.getPort());
+        }
+        if (isDebug) {
+            logger.debug("Invalid oprot transport object. Need field getter({}).", UrlFieldGetter.class.getName());
+        }
+        return ThriftConstants.UNKNOWN_ADDRESS;
+    }
+
+    private String getRemoteAddress(TTransport transport) {
+        if (transport instanceof SocketFieldAccessor) {
+            Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
+            if (socket == null) {
+                return ThriftConstants.UNKNOWN_ADDRESS;
+            }
+            return ThriftUtils.getHostPort(socket.getRemoteSocketAddress());
+        } else {
+            if (isDebug) {
+                logger.debug("Invalid oprot transport object. Need field accessor({}).", SocketFieldAccessor.class.getName());
+            }
+        }
+        return ThriftConstants.UNKNOWN_ADDRESS;
     }
 
     private String getServiceUrl(String url, String serviceName, String methodName) {

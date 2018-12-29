@@ -34,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Set;
@@ -41,6 +43,7 @@ import java.util.Set;
 /**
  * @author HyunGil Jeong
  */
+@Service
 public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
     private static final Set<AgentEventType> RESPONSE_EVENT_TYPES = AgentEventType.getTypesByCategory(AgentEventTypeCategory.USER_REQUEST);
 
@@ -62,9 +65,12 @@ public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
         handleResponseEvent(event, eventTimestamp);
     }
 
+    @Async("agentEventWorker")
     public void handleResponseEvent(ResponseEvent responseEvent, long eventTimestamp) {
         Objects.requireNonNull(responseEvent, "responseEvent must not be null");
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle response event {}", responseEvent);
+        }
         final TCommandTransferResponse response = responseEvent.getRouteResult();
         if (response.getRouteResult() != TRouteResult.OK) {
             return;
@@ -89,7 +95,7 @@ public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
             if (eventType.getMessageType() == payloadType) {
                 final AgentEventBo agentEventBo = new AgentEventBo(agentId, startTimestamp, eventTimestamp, eventType);
                 agentEventBo.setEventBody(payload);
-                this.agentEventService.insertAsync(agentEventBo);
+                this.agentEventService.insert(agentEventBo);
             }
         }
     }

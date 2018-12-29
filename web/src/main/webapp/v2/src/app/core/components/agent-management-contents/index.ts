@@ -1,9 +1,9 @@
 
 import { NgModule } from '@angular/core';
+
 import { SharedModule } from 'app/shared';
-import { AgentManagerModule } from 'app/core/components/agent-manager';
-import { ApplicationListModule } from 'app/core/components/application-list';
 import { AgentManagementContentsContainerComponent } from './agent-management-contents-container.component';
+import { AgentManagerModule } from 'app/core/components/agent-manager';
 
 @NgModule({
     declarations: [
@@ -11,7 +11,6 @@ import { AgentManagementContentsContainerComponent } from './agent-management-co
     ],
     imports: [
         SharedModule,
-        ApplicationListModule,
         AgentManagerModule
     ],
     exports: [

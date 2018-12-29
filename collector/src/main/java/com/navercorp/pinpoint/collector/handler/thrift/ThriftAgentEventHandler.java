@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.collector.mapper.thrift.event.AgentEventMapper;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
+import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
@@ -37,11 +37,10 @@ import java.util.List;
 
 /**
  * @author Taejin Koo
- * @author jaehong.kim
+ * @author jaehong.kim - Add AgentEventMessageSerializerV1
  */
 @Service
 public class ThriftAgentEventHandler implements SimpleHandler {
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -51,7 +50,7 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     private AgentEventBatchMapper agentEventBatchMapper;
 
     @Autowired
-    private AgentEventMessageSerializer agentEventMessageSerializer;
+    private AgentEventMessageSerializerV1 agentEventMessageSerializerV1;
 
     @Autowired
     private AgentEventService agentEventService;
@@ -107,9 +106,9 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     }
 
     private void insert(final AgentEventBo agentEventBo) {
-        final Object eventMessage = getEventMessage(agentEventBo);
         try {
-            final byte[] eventBody = agentEventMessageSerializer.serialize(agentEventBo.getEventType(), eventMessage);
+            final Object eventMessage = getEventMessage(agentEventBo);
+            final byte[] eventBody = agentEventMessageSerializerV1.serialize(agentEventBo.getEventType(), eventMessage);
             agentEventBo.setEventBody(eventBody);
         } catch (Exception e) {
             logger.warn("error handling agent event", e);
@@ -120,8 +119,8 @@ public class ThriftAgentEventHandler implements SimpleHandler {
 
     private Object getEventMessage(AgentEventBo agentEventBo) {
         if (agentEventBo instanceof DeadlockEventBo) {
-            return ((DeadlockEventBo) agentEventBo).getDeadlock();
+            return ((DeadlockEventBo) agentEventBo).getDeadlockBo();
         }
-        return null;
+        throw new IllegalArgumentException("unsupported message " + agentEventBo);
     }
 }

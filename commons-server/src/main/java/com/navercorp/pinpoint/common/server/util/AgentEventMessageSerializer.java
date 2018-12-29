@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * @author HyunGil Jeong
+ * @deprecated Only AgentEventBo.version is 0
  */
 public class AgentEventMessageSerializer {
 

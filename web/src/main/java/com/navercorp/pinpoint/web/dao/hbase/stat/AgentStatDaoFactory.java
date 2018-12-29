@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -224,7 +224,7 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
     }
 
     @Repository("deadlockDaoFactory")
-    public static class DeadlockDaoFactory extends AgentStatDaoFactory<DeadlockBo, DeadlockDao> implements FactoryBean<DeadlockDao> {
+    public static class DeadlockDaoFactory extends AgentStatDaoFactory<DeadlockThreadCountBo, DeadlockDao> implements FactoryBean<DeadlockDao> {
 
         @Autowired
         public void setV2(@Qualifier("deadlockDaoV2") DeadlockDao v2) {

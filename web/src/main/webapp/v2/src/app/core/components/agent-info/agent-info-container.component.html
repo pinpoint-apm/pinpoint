@@ -1,5 +1,5 @@
-<div class="l-title-group">Information</div>
-<ng-container *ngIf="(agentData$ | async) as agentData">
+<div class="l-title-group">Information <button *ngIf="dataRequestSuccess === false" class="l-reload-btn" (click)="onRequestAgain()"><i class="fas fa-sync fa-lg"></i></button></div>
+<ng-container *ngIf="dataRequestSuccess">
     <pp-agent-info 
         [urlApplicationName]="urlApplicationName$ | async"
         [agentData]="agentData"

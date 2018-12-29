@@ -10,7 +10,7 @@
 <div class="l-main-container">
     <split [direction]="direction" (dragEnd)="onGutterResized($event)">
         <split-area [size]="handlePosition[0]">
-            <router-outlet name="transaction-table"></router-outlet>
+            <pp-transaction-table-grid-container></pp-transaction-table-grid-container>
         </split-area>
         <split-area [size]="handlePosition[1]">
             <router-outlet></router-outlet>

@@ -32,6 +32,7 @@ export const routing: Routes = [
                     serverTime: ServerTimeResolverService
                 },
                 data: {
+                    showRealTimeButton: true,
                     enableRealTimeMode: true
                 },
                 component: ScatterChartForFullScreenModeContainerComponent
@@ -45,10 +46,18 @@ export const routing: Routes = [
             },
             {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
+                data: {
+                    showRealTimeButton: true,
+                    enableRealTimeMode: false
+                },
                 component: ScatterChartForFullScreenModeContainerComponent
             },
             {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.AGENT_ID,
+                data: {
+                    showRealTimeButton: true,
+                    enableRealTimeMode: false
+                },
                 component: ScatterChartForFullScreenModeContainerComponent
             }
         ]

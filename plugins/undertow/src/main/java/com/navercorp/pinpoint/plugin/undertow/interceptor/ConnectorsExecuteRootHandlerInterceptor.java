@@ -107,7 +107,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
         return 0;
     }
 
-    private class ConnectorsArgumentValidator implements ArgumentValidator {
+    private static class ConnectorsArgumentValidator implements ArgumentValidator {
         @Override
         public boolean validate(Object[] args) {
             if (args == null) {

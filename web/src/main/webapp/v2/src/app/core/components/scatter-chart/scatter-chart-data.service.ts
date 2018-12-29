@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, Subject } from 'rxjs';
-import { switchMap, delay } from 'rxjs/operators';
-import { ScatterChart } from 'app/core/components/scatter-chart/class/scatter-chart.class';
+import { switchMap, delay, retry } from 'rxjs/operators';
 
 interface IScatterRequest {
     application: string;
@@ -18,54 +17,89 @@ export class ScatterChartDataService {
     private url = 'getScatterData.pinpoint';
     private realtime = {
         interval: 2000,
-        // interval: 5000,
         resetTimeGap: 20000
     };
-    private currentMode: string;
+    private loadStart = true;
     private lastScatterData: IScatterData[] = [];
     private requestTime: number;
     private application: string;
     private groupUnitX: number;
     private groupUnitY: number;
     private innerDataRequest = new Subject<IScatterRequest>();
-    private innerDataRequest$: Observable<IScatterRequest>;
+    private innerRealTimeDataRequest = new Subject<IScatterRequest>();
     private outScatterData = new Subject<IScatterData>();
+    private outRealTimeScatterData = new Subject<IScatterData>();
+    private outScatterErrorData = new Subject<IServerErrorFormat>();
+    private outRealTimeScatterErrorData = new Subject<IServerErrorFormat>();
     outScatterData$: Observable<IScatterData>;
+    outScatterErrorData$: Observable<IServerErrorFormat>;
+    outRealTimeScatterData$: Observable<IScatterData>;
+    outRealTimeScatterErrorData$: Observable<IServerErrorFormat>;
     constructor(private http: HttpClient) {
-        this.innerDataRequest$ = this.innerDataRequest.asObservable();
         this.outScatterData$ = this.outScatterData.asObservable();
+        this.outScatterErrorData$ = this.outScatterErrorData.asObservable();
+        this.outRealTimeScatterData$ = this.outRealTimeScatterData.asObservable();
+        this.outRealTimeScatterErrorData$ = this.outRealTimeScatterErrorData.asObservable();
         this.connectDataRequest();
     }
     private connectDataRequest(): void {
-        this.innerDataRequest$.pipe(
+        this.innerDataRequest.pipe(
             switchMap((params: IScatterRequest) => {
-                return this.http.get<IScatterData>(this.url, this.makeRequestOptionsArgs(
-                    params.application,
-                    params.fromX,
-                    params.toX,
-                    params.groupUnitX,
-                    params.groupUnitY,
-                    params.backwardDirection)
+                return this.requestHttp(params).pipe(
+                    retry(3)
                 );
             })
         ).subscribe((scatterData: IScatterData) => {
-            if ( this.currentMode === ScatterChart.MODE.REALTIME) {
-                this.subscribeRealTimeRequest(scatterData);
-            } else {
-                this.subscribeStaticRequest(scatterData);
-            }
+            this.subscribeStaticRequest(scatterData);
+        }, (error: IServerErrorFormat) => {
+            this.outScatterErrorData.next(error);
         });
+        this.innerRealTimeDataRequest.pipe(
+            switchMap((params: IScatterRequest) => {
+                return this.requestHttp(params).pipe(
+                    retry(3)
+                );
+            })
+        ).subscribe((scatterData: IScatterData) => {
+            if (this.loadStart) {
+                this.subscribeRealTimeRequest(scatterData);
+            }
+        }, (error: IServerErrorFormat) => {
+        });
+    }
+    private requestHttp(params: IScatterRequest): Observable<IScatterData> {
+        return this.http.get<IScatterData>(this.url, this.makeRequestOptionsArgs(
+            params.application,
+            params.fromX,
+            params.toX,
+            params.groupUnitX,
+            params.groupUnitY,
+            params.backwardDirection)
+        );
     }
     private getData(fromX: number, toX: number, backwardDirection: boolean): void {
         this.requestTime = Date.now();
-        return this.innerDataRequest.next({
+        const params = {
             application: this.application,
             fromX: fromX,
             toX: toX,
             groupUnitX: this.groupUnitX,
             groupUnitY: this.groupUnitY,
             backwardDirection: backwardDirection
-        });
+        };
+        return this.innerDataRequest.next(params);
+    }
+    private getRealTimeData(fromX: number, toX: number, backwardDirection: boolean): void {
+        this.requestTime = Date.now();
+        const params = {
+            application: this.application,
+            fromX: fromX,
+            toX: toX,
+            groupUnitX: this.groupUnitX,
+            groupUnitY: this.groupUnitY,
+            backwardDirection: backwardDirection
+        };
+        return this.innerRealTimeDataRequest.next(params);
     }
     loadData(application: string, fromX: number, toX: number, groupUnitX: number, groupUnitY: number, initLastData?: boolean): void {
         this.application = application;
@@ -82,13 +116,20 @@ export class ScatterChartDataService {
         return this.lastScatterData;
     }
     loadRealTimeData(application: string, fromX: number, toX: number, groupUnitX: number, groupUnitY: number): void {
+        this.loadStart = true;
         this.application = application;
         this.groupUnitX = groupUnitX;
         this.groupUnitY = groupUnitY;
-        this.getData(fromX, toX, false);
+        // this.getData(fromX, toX, false, true);
     }
-    setCurrentMode(mode: string): void {
-        this.currentMode = mode;
+    loadRealTimeDataV2(toX: number): void {
+        this.loadStart = true;
+        of(1).pipe(delay(this.realtime.interval)).subscribe((useless: number) => {
+            this.getRealTimeData(toX, toX + this.realtime.interval, false);
+        });
+    }
+    stopLoad(): void {
+        this.loadStart = false;
     }
     private subscribeRealTimeRequest(scatterData: IScatterData): void {
         const roundTripTime = Date.now() - this.requestTime;
@@ -119,26 +160,25 @@ export class ScatterChartDataService {
         }
         if (scatterData.currentServerTime - toNext >= this.realtime.resetTimeGap) {
             scatterData.reset = true;
-            this.outScatterData.next(scatterData);
+            this.outRealTimeScatterData.next(scatterData);
         } else {
-            this.outScatterData.next(scatterData);
+            this.outRealTimeScatterData.next(scatterData);
             of(1).pipe(delay(delayTime)).subscribe((useless: number) => {
-                this.getData(fromNext, toNext, false);
+                this.getRealTimeData(fromNext, toNext, false);
             });
         }
     }
     private makeRequestOptionsArgs(application: string, fromX: number, toX: number, groupUnitX: number, groupUnitY: number, backwardDirection: boolean): object {
         return {
-            params: {
-                application: application,
-                from: fromX,
-                to: toX,
-                limit: 5000,
-                filter: '',
-                xGroupUnit: groupUnitX,
-                yGroupUnit: groupUnitY,
-                backwardDirection: backwardDirection
-            }
+            params: new HttpParams()
+                .set('application', application)
+                .set('from', fromX + '')
+                .set('to', toX + '')
+                .set('limit', '5000')
+                .set('filter', '')
+                .set('xGroupUnit', groupUnitX + '')
+                .set('yGroupUnit', groupUnitY + '')
+                .set('backwardDirection', backwardDirection + '')
         };
     }
 }

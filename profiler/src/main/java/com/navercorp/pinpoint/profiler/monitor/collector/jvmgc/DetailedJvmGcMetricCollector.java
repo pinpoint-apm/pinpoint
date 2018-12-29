@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.jvmgc;
 
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
@@ -27,14 +28,14 @@ import com.navercorp.pinpoint.thrift.dto.TJvmGcDetailed;
  * @author dawidmalina
  * @author HyunGil Jeong
  */
-public class DetailedJvmGcMetricCollector implements JvmGcMetricCollector {
+public class DetailedJvmGcMetricCollector implements AgentStatMetricCollector<TJvmGc> {
 
-    private final JvmGcMetricCollector jvmGcMetricCollector;
+    private final BasicJvmGcMetricCollector jvmGcMetricCollector;
     private final DetailedMemoryMetric detailedMemoryMetric;
     private final DetailedGarbageCollectorMetric detailedGarbageCollectorMetric;
 
     public DetailedJvmGcMetricCollector(
-            JvmGcMetricCollector jvmGcMetricCollector,
+            BasicJvmGcMetricCollector jvmGcMetricCollector,
             DetailedMemoryMetric detailedMemoryMetric,
             DetailedGarbageCollectorMetric detailedGarbageCollectorMetric) {
         if (jvmGcMetricCollector == null) {
@@ -56,7 +57,8 @@ public class DetailedJvmGcMetricCollector implements JvmGcMetricCollector {
         TJvmGc jvmGc = jvmGcMetricCollector.collect();
         DetailedMemoryMetricSnapshot detailedMemoryMetricSnapshot = detailedMemoryMetric.getSnapshot();
         DetailedGarbageCollectorMetricSnapshot detailedGarbageCollectorMetricSnapshot = detailedGarbageCollectorMetric.getSnapshot();
-        TJvmGcDetailed jvmGcDetailed = new TJvmGcDetailed();
+
+        final TJvmGcDetailed jvmGcDetailed = new TJvmGcDetailed();
         jvmGcDetailed.setJvmPoolNewGenUsed(detailedMemoryMetricSnapshot.getNewGenUsage());
         jvmGcDetailed.setJvmPoolOldGenUsed(detailedMemoryMetricSnapshot.getOldGenUsage());
         jvmGcDetailed.setJvmPoolSurvivorSpaceUsed(detailedMemoryMetricSnapshot.getSurvivorSpaceUsage());

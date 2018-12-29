@@ -57,6 +57,16 @@
     	<filter-class>com.navercorp.pinpoint.web.servlet.NoCacheFilter</filter-class>
 	</filter>
 
+    <filter>
+        <filter-name>rewriteFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>rewriteFilter</filter-name>
+        <url-pattern>/v2/*</url-pattern>
+    </filter-mapping>
+
     <filter-mapping>
         <filter-name>encodingFilter</filter-name>
         <url-pattern>/*</url-pattern>

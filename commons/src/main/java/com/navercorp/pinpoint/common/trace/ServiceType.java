@@ -63,9 +63,15 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1110</td><td>DUBBO_PROVIDER</td></tr>
  * <tr><td>1120</td><td>UNDERTOW</td></tr>
  * <tr><td>1121</td><td>UNDERTOW_METHOD</td></tr>
+ * <tr><td>1126</td><td>UNDERTOW_SERVLET_METHOD</td></tr>
+ *
+ * <tr><td>1130</td><td>GRPC_SERVER</td></tr>
  *
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
+ * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
+ * <tr><td>1621</td><td>OPENWHISK_CONTROLLER</td></tr>
+ * <tr><td>1622</td><td>OPENWHISK_INVOKER</td></tr>
  *
  * </table>
  * 
@@ -93,6 +99,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2501</td><td>POSTGRESQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2600</td><td>CASSANDRA</td></tr>
  * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
+ * <tr><td>2650</td><td>MONGO</td></tr>
+ * <tr><td>2651</td><td>MONGO_EXECUTE_QUERY</td></tr>
+ * <tr><td>2700</td><td>COUCHDB</td></tr>
+ * <tr><td>2701</td><td>COUCHDB_EXECUTE_QUERY</td></tr>
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>
@@ -108,6 +118,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5010</td><td>GSON</td></tr>
  * <tr><td>5011</td><td>JACKSON</td></tr>
  * <tr><td>5012</td><td>JSON-LIB</td></tr>
+ * <tr><td>5013</td><td>FASTJSON</td></tr>
  * <tr><td>5050</td><td>SPRING</td></tr>
  * <tr><td>5051</td><td>SPRING_MVC</td></tr>
  * <tr><td>5052</td><td>SPRING_ASYNC</td></tr>
@@ -119,6 +130,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6050</td><td>DBCP</td></tr>
  * <tr><td>6052</td><td>DBCP2</td></tr>
  * <tr><td>6060</td><td>HIKARICP</td></tr>
+ * <tr><td>6062</td><td>DRUID</td></tr>
  * <tr><td>6500</td><td>RXJAVA</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
  * </table>
@@ -134,6 +146,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8102</td><td>ARCUS_EHCACHE_FUTURE_GET</td></tr>
  * <tr><td>8103</td><td>ARCUS_INTERNAL</td></tr>
  * <tr><td>8200</td><td>REDIS</td></tr>
+ * <tr><td>8201</td><td>REDIS_LETTUCE</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8260</td><td><i>RESERVED</i></td></tr>
@@ -142,6 +155,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8311</td><td><i>ACTIVEMQ_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>8660</td><td><i>KAFKA_CLIENT</i></td></tr>
  * <tr><td>8661</td><td><i>KAFKA_CLIENT_INTERNAL</i></td></tr>
+ * <tr><td>8800</td><td>HBASE_CLIENT</td></tr>
+ * <tr><td>8801</td><td><i>HBASE_CLIENT_ADMIN</i></td></tr>
+ * <tr><td>8802</td><td><i>HBASE_CLIENT_TABLE</i></td></tr>
+ * <tr><td>8803</td><td>HBASE_ASYNC_CLIENT</td></tr>
  * </table>
  * <h3>Cache Library Sandbox (8900 ~ 8999) Histogram type: Fast </h3>
  * 
@@ -160,7 +177,11 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9059</td><td>OK_HTTP_CLIENT_INTERNAL</td></tr>
  * <tr><td>9060</td><td><i>RESERVED</i></td></tr>
  * <tr><td>9070</td><td><i>RESERVED</i></td></tr>
- * <tr><td>9080</td><td><i>APACHE_CXF_CLIENT</i></td></tr>
+ * <tr><td><s>9080</s></td><td><s>APACHE_CXF_CLIENT</s></td></tr>
+ * <tr><td>9081</td><td>APACHE_CXF_SERVICE_INVOKER</td></tr>
+ * <tr><td>9082</td><td>APACHE_CXF_MESSAGE_SENDER</td></tr>
+ * <tr><td>9083</td><td>APACHE_CXF_LOGGING_IN</td></tr>
+ * <tr><td>9084</td><td>APACHE_CXF_LOGGING_OUT</td></tr>
  * <tr><td>9100</td><td>THRIFT_CLIENT</td></tr>
  * <tr><td>9101</td><td>THRIFT_CLIENT_INTERNAL</td></tr>
  * <tr><td>9110</td><td>DUBBO_CONSUMER</td></tr>
@@ -171,6 +192,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9150</td><td>NETTY</td></tr>
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
+ * <tr><td>9160</td><td>GRPC</td></tr>
+ * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
+ * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
+ * <tr><td>9622</td><td>OPENWHISK_CLIENT</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>

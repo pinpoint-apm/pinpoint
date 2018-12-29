@@ -19,13 +19,14 @@ package com.navercorp.pinpoint.plugin.thrift.it.synchronous;
 import static org.junit.Assert.*;
 
 import com.navercorp.pinpoint.plugin.AgentPath;
+import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.server.ThriftEchoTestServer;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
-import com.navercorp.pinpoint.plugin.thrift.common.server.EchoTestServer;
 import com.navercorp.pinpoint.plugin.thrift.common.server.SyncEchoTestServer.SyncEchoTestServerFactory;
 import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -41,11 +42,12 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({ "org.apache.thrift:libthrift:[0.9.1,)", "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.22" })
-public class ThriftSimpleServerIT extends EchoTestRunner<TSimpleServer> {
+@Dependency({ "org.apache.thrift:libthrift:[0.9.1,)",
+        "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
+public class ThriftSimpleServerIT extends EchoTestRunner<ThriftEchoTestServer<TSimpleServer>> {
 
     @Override
-    protected EchoTestServer<TSimpleServer> createEchoServer(TestEnvironment environment) throws TTransportException {
+    protected ThriftEchoTestServer<TSimpleServer> createEchoServer(TestEnvironment environment) throws TTransportException {
         return SyncEchoTestServerFactory.simpleServer(environment);
     }
 
@@ -54,7 +56,8 @@ public class ThriftSimpleServerIT extends EchoTestRunner<TSimpleServer> {
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final String result = super.invokeEcho(expectedMessage);
+        final SyncEchoTestClient client = getServer().getSynchronousClient();
+        final String result = invokeAndVerify(client, expectedMessage);
         // Then
         assertEquals(expectedMessage, result);
     }

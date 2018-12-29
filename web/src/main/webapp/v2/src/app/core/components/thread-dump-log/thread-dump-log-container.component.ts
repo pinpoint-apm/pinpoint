@@ -54,8 +54,8 @@ export class ThreadDumpLogContainerComponent implements OnInit, OnDestroy {
             }
             this.target.nativeElement.value = msg;
             this.showLoading = false;
-        }, (errorMessage: string) => {
-            this.target.nativeElement.value = errorMessage;
+        }, (error: IServerErrorFormat) => {
+            this.target.nativeElement.value = error.exception.message;
             this.showLoading = false;
         });
     }

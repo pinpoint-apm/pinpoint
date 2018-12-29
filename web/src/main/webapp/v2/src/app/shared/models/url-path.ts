@@ -10,11 +10,13 @@ export class UrlPath {
     static TRANSACTION_LIST = 'transactionList';
     static TRANSACTION_VIEW = 'transactionView';
     static BROWSER_NOT_SUPPORT = 'browserNotSupported';
+    static ERROR = 'error';
 
     constructor() {}
     static getParamList(): string[] {
         return [
             UrlPath.ADMIN,
+            UrlPath.ERROR,
             UrlPath.FILTERED_MAP,
             UrlPath.INSPECTOR,
             UrlPath.MAIN,

@@ -131,9 +131,6 @@ export const Actions = {
     'UpdateAdminAgentList': admin.UpdateAdminAgentList,
     'ChangeServerMapDisableState': uiState.ChangeServerMapDisableState,
     'ChangeInfoPerServerVisibleState': uiState.ChangeInfoPerServerVisibleState,
-    'UpdateTimelineSelectionRange': timeline.UpdateTimelineSelectionRange,
-    'UpdateTimelineRange': timeline.UpdateTimelineRange,
-    'UpdateTimelineSelectedTime': timeline.UpdateTimelineSelectedTime,
     'UpdateTimelineData': timeline.UpdateTimelineData
 };
 

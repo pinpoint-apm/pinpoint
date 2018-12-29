@@ -1,6 +1,7 @@
 :host {
     display: flex;
     flex-flow: column nowrap;
+    height: 100%;
 }
 .l-date-range {
     border-bottom: 1px solid #e5e8f0;

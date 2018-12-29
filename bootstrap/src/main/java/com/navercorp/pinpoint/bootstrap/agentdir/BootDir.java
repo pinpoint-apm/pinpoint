@@ -32,11 +32,12 @@ public class BootDir {
     private final String commons;
     private final String bootstrapCore;
     private final String bootstrapCoreOptional;
+    private final String bootstrapJava8;
     private final String bootstrapJava9;
     private final String annotations;
 
 
-    public BootDir(String commons, String bootstrapCore, String bootstrapCoreOptional, String bootstrapJava9, String annotations) {
+    public BootDir(String commons, String bootstrapCore, String bootstrapCoreOptional, String bootstrapJava8, String bootstrapJava9, String annotations) {
         if (commons == null) {
             throw new NullPointerException("commons must not be null");
         }
@@ -48,6 +49,7 @@ public class BootDir {
         this.bootstrapCore = bootstrapCore;
         // optional
         this.bootstrapCoreOptional = bootstrapCoreOptional;
+        this.bootstrapJava8 = bootstrapJava8;
         // optional
         this.bootstrapJava9 = bootstrapJava9;
         // optional
@@ -76,6 +78,12 @@ public class BootDir {
             logger.info("pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar not found");
         }
 
+        final String bootStrapJava8Jar = getBootstrapJava8();
+        if (bootStrapJava8Jar == null) {
+            // optional
+            logger.info("pinpoint-bootstrap-java8-x.x.x(-SNAPSHOT).jar not found");
+        }
+
         final String bootStrapJava9Jar = getBootstrapJava9();
         if (bootStrapJava9Jar == null) {
             // optional
@@ -100,6 +108,10 @@ public class BootDir {
         return bootstrapCoreOptional;
     }
 
+    public String getBootstrapJava8() {
+        return bootstrapJava8;
+    }
+
     public String getBootstrapJava9() {
         return bootstrapJava9;
     }
@@ -114,6 +126,7 @@ public class BootDir {
         addFilePath(list, commons, true);
         addFilePath(list, bootstrapCore, true);
         addFilePath(list, bootstrapCoreOptional, false);
+        addFilePath(list, bootstrapJava8, false);
         addFilePath(list, bootstrapJava9, false);
         addFilePath(list, annotations, false);
 
@@ -139,6 +152,7 @@ public class BootDir {
         addJarFile(jarFileList, commons, true);
         addJarFile(jarFileList, bootstrapCore, true);
         addJarFile(jarFileList, bootstrapCoreOptional, false);
+        addJarFile(jarFileList, bootstrapJava8, false);
         addJarFile(jarFileList, bootstrapJava9, false);
         addJarFile(jarFileList, annotations, false);
 

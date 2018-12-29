@@ -1,6 +1,6 @@
 import { Network, NodeOptions, EdgeOptions, Color, Node, Edge, Options } from 'vis';
 import { from as fromArray, fromEvent, iif, zip, merge } from 'rxjs';
-import { mergeMap, map, pluck, take, reduce, switchMap } from 'rxjs/operators';
+import { mergeMap, map, pluck, take, reduce, switchMap, tap } from 'rxjs/operators';
 
 import ServerMapTheme from './server-map-theme';
 import { ServerMapDiagram } from './server-map-diagram.class';
@@ -11,6 +11,7 @@ import { NodeGroup } from './node-group.class';
 
 export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
     private diagram: Network;
+    private isFirstLoad: boolean;
 
     constructor(
         private option: IServerMapOption
@@ -160,6 +161,9 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
     }
 
     setMapData(serverMapData: ServerMapData, baseApplicationKey = ''): void {
+        this.isFirstLoad = !this.serverMapData ? true : false;
+        this.serverMapData = serverMapData;
+        this.baseApplicationKey = baseApplicationKey;
         const nodeList = serverMapData.getNodeList();
         const isDataEmpty = nodeList.length === 0;
 
@@ -232,14 +236,21 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
                 );
             }),
             take(nodeList.length),
+            tap(({id: key}: {id: string}) => {
+                if (key === baseApplicationKey) {
+                    this.outClickNode.emit(this.getNodeData(key));
+                }
+            }),
             reduce((acc: Node[], curr: Node) => {
                 return [...acc, curr];
             }, [] as Node[]),
         ).subscribe((nodes: Node[]) => {
+            if (this.isFirstLoad) {
+                this.diagram.redraw();
+            }
+
             this.diagram.setData({nodes, edges});
-            this.serverMapData = serverMapData;
-            this.baseApplicationKey = baseApplicationKey;
-            this.selectBaseApplication();
+            this.diagram.selectNodes([baseApplicationKey]);
         });
     }
 
@@ -256,13 +267,10 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
         return NodeGroup.isGroupKey(key) ? this.serverMapData.getMergedLinkData(key) : this.serverMapData.getLinkData(key);
     }
 
-    private selectBaseApplication(): void {
-        if (this.baseApplicationKey === '') {
-            return;
-        }
-
-        this.setNodeClicked(this.baseApplicationKey);
+    private isNodeInDiagram(key: string): boolean {
+        return this.diagram.findNode(key).length !== 0;
     }
+
     private setNodeClicked(key: string): void {
         this.diagram.selectNodes([key]);
         this.outClickNode.emit(this.getNodeData(key));
@@ -282,7 +290,7 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
 
     selectNodeBySearch(selectedAppKey: string): void {
         let selectedNodeId = selectedAppKey;
-        const isMergedNode = this.diagram.findNode(selectedAppKey).length === 0;
+        const isMergedNode = !this.isNodeInDiagram(selectedAppKey);
 
         if (isMergedNode) {
             const groupKey = selectedAppKey.split('^')[1];

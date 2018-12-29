@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { UrlPath, UrlPathId } from 'app/shared/models';
@@ -12,10 +12,10 @@ import {
     DynamicPopupService
 } from 'app/shared/services';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Injectable()
 export class TransactionMetaDataService {
-    private unsubscribe: Subject<void> = new Subject();
     private requestURL = 'transactionmetadata.pinpoint';
     private retrieveErrorMessage: string;
     private lastFetchedIndex = 0;
@@ -47,15 +47,12 @@ export class TransactionMetaDataService {
             this.retrieveErrorMessage = text;
         });
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
             filter((urlService: NewUrlStateNotificationService) => {
                 return urlService && urlService.hasValue(UrlPathId.APPLICATION, UrlPathId.PERIOD, UrlPathId.END_TIME);
             })
         ).subscribe(() => {
             this.requestSourceData = this.getInfoFromOpener();
             this.countStatus[1] = this.requestSourceData.length;
-            this.unsubscribe.next();
-            this.unsubscribe.complete();
         });
     }
     loadData(): void {
@@ -104,6 +101,17 @@ export class TransactionMetaDataService {
                     this.outTransactionDataLoad.next(responseData.metadata);
                 }
                 this.outTransactionDataCount.next(this.countStatus);
+            }, (error: IServerErrorFormat) => {
+                this.dynamicPopupService.openPopup({
+                    data: {
+                        title: 'Error',
+                        contents: error
+                    },
+                    component: ServerErrorPopupContainerComponent,
+                    onCloseCallback: () => {
+                        this.urlRouteManagerService.reload();
+                    }
+                });
             });
         }
     }

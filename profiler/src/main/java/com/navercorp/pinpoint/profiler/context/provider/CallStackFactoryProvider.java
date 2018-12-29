@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,36 +18,36 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.google.inject.name.Named;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV1;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV2;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class CallStackFactoryProvider implements Provider<CallStackFactory> {
+public class CallStackFactoryProvider implements Provider<CallStackFactory<SpanEvent>> {
 
     private final TraceDataFormatVersion version;
     private final int callStackMaxDepth;
 
 
     @Inject
-    public CallStackFactoryProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        this.version = TraceDataFormatVersion.getTraceDataFormatVersion(profilerConfig);
-        this.callStackMaxDepth = profilerConfig.getCallStackMaxDepth();
+    public CallStackFactoryProvider(@Named("profiler.callstack.max.depth") int callStackMaxDepth,
+                                    TraceDataFormatVersion version) {
+        this.version = Assert.requireNonNull(version, "version must not be null");
+        this.callStackMaxDepth = callStackMaxDepth;
     }
 
     @Override
-    public CallStackFactory get() {
+    public CallStackFactory<SpanEvent> get() {
         if (version == TraceDataFormatVersion.V2) {
             return new CallStackFactoryV2(callStackMaxDepth);
         }
-        if(version == TraceDataFormatVersion.V1) {
+        if (version == TraceDataFormatVersion.V1) {
             return new CallStackFactoryV1(callStackMaxDepth);
         }
         throw new UnsupportedOperationException("unknown version :" + version);

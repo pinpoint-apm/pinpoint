@@ -29,8 +29,6 @@ import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;
@@ -85,10 +83,7 @@ public class TestRawSocket {
     }
 
     public void close() {
-        try {
-            socket.close();
-        } catch (IOException e) {
-        }
+        IOUtils.closeQuietly(socket);
     }
 
 }

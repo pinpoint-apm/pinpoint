@@ -19,22 +19,24 @@ package com.navercorp.pinpoint.profiler.sender.planer;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.SpanThriftMessageConverter;
 import com.navercorp.pinpoint.profiler.sender.HeaderTBaseSerializerPoolFactory;
 import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendData;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataSerializer;
 import com.navercorp.pinpoint.profiler.util.ObjectPool;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
@@ -55,23 +57,24 @@ import static org.mockito.Mockito.mock;
 
 public class SpanChunkStreamSendDataPlanerTest {
 
+    private final String applicationName = "applicationName";
     private final String agentId = "agentId";
     private final long agentStartTime = System.currentTimeMillis();
+    private final ServiceType applicationServiceType = ServiceType.STAND_ALONE;
     private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
-    private SpanChunkFactory spanChunkFactory;
+    private SpanPostProcessor spanPostProcessor = new SpanPostProcessorV1();
     private TraceRoot traceRoot;
+    private MessageConverter<TBase<?, ?>> messageConverter =
+            new SpanThriftMessageConverter(applicationName, agentId, agentStartTime, applicationServiceType.getCode(), encoder, spanPostProcessor);
 
     private ObjectPool<HeaderTBaseSerializer> objectPool;
 
     @Before
     public void before() {
-
-
         HeaderTBaseSerializerPoolFactory serializerFactory = new HeaderTBaseSerializerPoolFactory(true, 1000, true);
         this.objectPool = new ObjectPool<HeaderTBaseSerializer>(serializerFactory, 16);
 
-        this.spanChunkFactory = new SpanChunkFactoryV1("applicationName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
         this.traceRoot = newTraceRoot();
     }
 
@@ -89,13 +92,14 @@ public class SpanChunkStreamSendDataPlanerTest {
         HeaderTBaseSerializerFactory headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory();
 
         List<SpanEvent> originalSpanEventList = createSpanEventList(spanEventSize);
-        SpanChunk spanChunk = spanChunkFactory.create(this.traceRoot, originalSpanEventList);
+        SpanChunk spanChunk = new SpanChunk(traceRoot, originalSpanEventList);
+        TBase<?, ?> tSpanChunk = messageConverter.toMessage(spanChunk);
 
-        PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), spanChunk);
+        PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), (TSpanChunk) tSpanChunk);
         SpanStreamSendDataFactory factory = new SpanStreamSendDataFactory(100, 50, objectPool);
         List<TSpanEvent> spanEventList = getSpanEventList(partitionedByteBufferLocator, factory);
 
-        partitionedByteBufferLocator = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), spanChunk);
+        partitionedByteBufferLocator = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), (TSpanChunk) tSpanChunk);
         factory = new SpanStreamSendDataFactory(objectPool);
         List<TSpanEvent> spanEventList2 = getSpanEventList(partitionedByteBufferLocator, factory);
 
@@ -103,16 +107,15 @@ public class SpanChunkStreamSendDataPlanerTest {
         Assert.assertEquals(spanEventSize, spanEventList2.size());
     }
 
-    private List<SpanEvent> createSpanEventList(int size) throws InterruptedException {
+    private List<SpanEvent> createSpanEventList(int size) {
 
         TraceRoot traceRoot = mock(TraceRoot.class);
 
         List<SpanEvent> spanEventList = new ArrayList<SpanEvent>(size);
         for (int i = 0; i < size; i++) {
-            SpanEvent spanEvent = new SpanEvent(traceRoot);
+            SpanEvent spanEvent = new SpanEvent();
             spanEvent.markStartTime();
-            Thread.sleep(1);
-            spanEvent.markAfterTime();
+            spanEvent.setElapsedTime(1);
 
             spanEventList.add(spanEvent);
         }

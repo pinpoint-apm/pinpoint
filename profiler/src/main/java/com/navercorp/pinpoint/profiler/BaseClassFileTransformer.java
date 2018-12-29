@@ -31,7 +31,6 @@ import java.security.ProtectionDomain;
  */
 public class BaseClassFileTransformer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
     private final ClassLoader agentClassLoader;
 
@@ -42,11 +41,11 @@ public class BaseClassFileTransformer {
     public byte[] transform(ClassLoader classLoader, String classInternalName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer, ClassFileTransformer transformer) {
         final String className = JavaAssistUtils.jvmNameToJavaName(classInternalName);
 
-        if (isDebug) {
-            final URL url = CodeSourceUtils.getCodeLocation(protectionDomain);
+        if (logger.isDebugEnabled()) {
+            final URL codeLocation = CodeSourceUtils.getCodeLocation(protectionDomain);
             final String transform = getTransformState(classBeingRedefined);
-            logger.debug("[{}] classLoader:{} className:{} transformer:{} url:{}",
-                    transform, classLoader, className, transformer.getClass().getName(), url);
+            logger.debug("[{}] classLoader:{} className:{} transformer:{} codeSource:{}",
+                    transform, classLoader, className, transformer.getClass().getName(), codeLocation);
         }
 
         try {
@@ -60,9 +59,9 @@ public class BaseClassFileTransformer {
                 thread.setContextClassLoader(before);
             }
         } catch (Throwable e) {
-            final URL location = CodeSourceUtils.getCodeLocation(protectionDomain);
-            logger.error("Transformer:{} threw an exception. url:{} cl:{} ctxCl:{} agentCl:{} Cause:{}",
-                    transformer.getClass().getName(), location, classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
+            final URL codeLocation = CodeSourceUtils.getCodeLocation(protectionDomain);
+            logger.error("Transformer:{} threw an exception. codeLocation:{} cl:{} ctxCl:{} agentCl:{} Cause:{}",
+                    transformer.getClass().getName(), codeLocation, classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
             return null;
         }
     }
@@ -80,7 +79,7 @@ public class BaseClassFileTransformer {
         } catch (SecurityException se) {
             throw se;
         } catch (Throwable th) {
-            if (isDebug) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("getContextClassLoader(). Caused:{}", th.getMessage(), th);
             }
             throw th;

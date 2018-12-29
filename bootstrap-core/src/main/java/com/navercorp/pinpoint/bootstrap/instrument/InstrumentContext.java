@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 import java.io.InputStream;
+import java.security.ProtectionDomain;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,9 +29,9 @@ import java.io.InputStream;
  */
 public interface InstrumentContext {
 
-    InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
+    InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classfileBuffer);
 
-    boolean exist(ClassLoader classLoader, String className);
+    boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain);
 
     InterceptorScope getInterceptorScope(String name);
 

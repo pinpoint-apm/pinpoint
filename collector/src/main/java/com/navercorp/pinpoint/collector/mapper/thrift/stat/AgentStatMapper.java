@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -66,7 +66,7 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
     private ResponseTimeBoMapper responseTimeBoMapper;
 
     @Autowired
-    private DeadlockBoMapper deadlockBoMapper;
+    private DeadlockThreadCountBoMapper deadlockThreadCountBoMapper;
 
     @Autowired
     private FileDescriptorBoMapper fileDescriptorBoMapper;
@@ -138,9 +138,9 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
         }
         // deadlock
         if (tAgentStat.isSetDeadlock()) {
-            DeadlockBo deadlockBo = this.deadlockBoMapper.map(tAgentStat.getDeadlock());
-            setBaseData(deadlockBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setDeadlockBos(Arrays.asList(deadlockBo));
+            DeadlockThreadCountBo deadlockThreadCountBo = this.deadlockThreadCountBoMapper.map(tAgentStat.getDeadlock());
+            setBaseData(deadlockThreadCountBo, agentId, startTimestamp, timestamp);
+            agentStatBo.setDeadlockThreadCountBos(Arrays.asList(deadlockThreadCountBo));
         }
         // fileDescriptor
         if (tAgentStat.isSetFileDescriptor()) {

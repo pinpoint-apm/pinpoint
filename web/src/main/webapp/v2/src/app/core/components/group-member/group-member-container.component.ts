@@ -14,7 +14,7 @@ import { GroupMemberDataService, IGroupMember, IGroupMemberResponse } from './gr
 export class GroupMemberContainerComponent implements OnInit {
     private unsubscribe: Subject<null> = new Subject();
     private ascendSort = true;
-    private currentUserGroupId = '';
+    currentUserGroupId: string;
     groupMemberList: IGroupMember[] = [];
     useDisable = false;
     showLoading = false;
@@ -68,23 +68,33 @@ export class GroupMemberContainerComponent implements OnInit {
     }
     private getGroupMemberList(): void {
         this.showProcessing();
-        this.groupMemberDataService.retrieve(this.currentUserGroupId).subscribe((groupMemberData: IGroupMember[]) => {
-            this.groupMemberList = groupMemberData;
-            this.sortGroupMemberList();
+        this.groupMemberDataService.retrieve(this.currentUserGroupId).subscribe((groupMemberData: IGroupMember[] | IServerErrorShortFormat) => {
+            if ((groupMemberData as IServerErrorShortFormat).errorCode) {
+                this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
+                this.message = (groupMemberData as IServerErrorShortFormat).errorMessage;
+            } else {
+                this.groupMemberList = groupMemberData as IGroupMember[];
+                this.sortGroupMemberList();
+                this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
+            }
+            this.hideProcessing();
+        }, (error: IServerErrorFormat) => {
             this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
             this.hideProcessing();
-        }, (error: string) => {
-            this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
-            this.hideProcessing();
-            this.message = error;
+            this.message = error.exception.message;
         });
     }
     private addGroupMember(userId: string): void {
-        this.groupMemberDataService.create(userId, this.currentUserGroupId).subscribe((response: IGroupMemberResponse) => {
-            this.doAfterAddAndRemoveAction(response);
-        }, (error: string) => {
+        this.groupMemberDataService.create(userId, this.currentUserGroupId).subscribe((response: IGroupMemberResponse | IServerErrorShortFormat) => {
+            if ((response as IServerErrorShortFormat).errorCode) {
+                this.message = (response as IServerErrorShortFormat).errorMessage;
+                this.hideProcessing();
+            } else {
+                this.doAfterAddAndRemoveAction(response as IGroupMemberResponse);
+            }
+        }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error;
+            this.message = error.exception.message;
         });
     }
     private getMemberIdList(): string[] {
@@ -134,6 +144,9 @@ export class GroupMemberContainerComponent implements OnInit {
             this.ascendSort = !this.ascendSort;
             this.sortGroupMemberList();
         }
+    }
+    onReload(): void {
+        this.getGroupMemberList();
     }
     hasMessage(): boolean {
         return this.message !== '';

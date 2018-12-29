@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,12 +76,12 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     }
 
     @Override
-    public Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
+    public Trace continueAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
         if (logger.isDebugEnabled()) {
-            logger.debug("continueAsyncTraceObject(traceRoot:{}, asyncId:{}, asyncSequence:{})", traceRoot, asyncId, asyncSequence);
+            logger.debug("continueAsyncTraceObject(traceRoot:{}, localAsyncId:{})", traceRoot, localAsyncId);
         }
 
-        return baseTraceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
+        return baseTraceFactory.continueAsyncTraceObject(traceRoot, localAsyncId);
     }
 
     @Override

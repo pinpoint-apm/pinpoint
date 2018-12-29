@@ -74,8 +74,6 @@
 }
 pre {
     height: 250px;
-}
-code {
-    height: 100%;
-    white-space: normal;
+    overflow: auto;
+    border-radius: 0px;
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,20 +49,18 @@ public class FlinkTcpDataSender extends TcpDataSender {
         if (Objects.isNull(clientFactory)) {
             throw new IllegalArgumentException("clientFactory must not be null.");
         }
-        if (Objects.isNull(serializer)) {
-            throw new IllegalArgumentException("serializer must not be null.");
-        }
-        if (Objects.isNull(flinkRequestFactory)) {
-            throw new IllegalArgumentException("flinkRequestFactory must not be null.");
-        }
-
-        this.flinkHeaderTBaseSerializer = serializer;
-        this.flinkRequestFactory = flinkRequestFactory;
+        this.flinkHeaderTBaseSerializer = Objects.requireNonNull(serializer, "serializer must not be null");
+        this.flinkRequestFactory = Objects.requireNonNull(flinkRequestFactory, "clientFactory must not be null");
     }
 
     @Override
-    public boolean send(TBase<?, ?> data) {
-        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(data, new HashMap<String, String>(0));
+    public boolean send(Object data) {
+        if (!(data instanceof TBase<?, ?>)) {
+            logger.info("unknown message:{}", data);
+            return false;
+        }
+        TBase<?, ?> message = (TBase<?, ?>) data;
+        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(message, new HashMap<String, String>(0));
         return executor.execute(flinkRequest);
     }
 

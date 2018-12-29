@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 import java.io.InputStream;
+import java.security.ProtectionDomain;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,15 +43,15 @@ public class GuardInstrumentContext implements InstrumentContext {
 
 
     @Override
-    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer) {
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
         checkOpen();
-        return instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+        return instrumentContext.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
     }
 
     @Override
-    public boolean exist(ClassLoader classLoader, String className) {
+    public boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain) {
         checkOpen();
-        return instrumentContext.exist(classLoader, className);
+        return instrumentContext.exist(classLoader, className, protectionDomain);
     }
 
     @Override

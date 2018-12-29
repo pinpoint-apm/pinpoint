@@ -68,7 +68,7 @@ public class ConfigControllerTest {
     
     @After
     public void after() {
-        this.userDao.deleteUser(user);
+        this.userDao.deleteUser(user.getUserId());
     }
     
 

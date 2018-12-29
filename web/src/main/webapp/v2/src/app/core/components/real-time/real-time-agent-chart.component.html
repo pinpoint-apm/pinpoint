@@ -1,17 +1,8 @@
-<article class="l-chart-item">
-    <dl>
-        <dt><i class="fas fa-external-link-alt" (click)="onOpen()"></i>{{agentName}}</dt>
-        <dd>
-            <div class="l-chart-section">
-                <pp-real-time-chart
-                    [style.opacity]="hasError ? 0.5 : 1"
-                    [chartData]="chartData"
-                    [showAxis]="showAxis">
-                </pp-real-time-chart>
-                <div class="l-error-template" [style.display]="hasError ? 'flex' : 'none'">
-                    <p class="l-error-text">{{errorMessage}}</p>
-                </div>
-            </div>
-        </dd>
-    </dl>
-</article>
+<pp-real-time-chart
+    [activeThreadCounts]="activeThreadCounts"
+    [timeStamp]="timeStamp"
+    [currentPage]="currentPage"
+    [pagingSize]="pagingSize"
+    [chartOption]="chartOption"
+    (outClick)="onClick($event)">
+</pp-real-time-chart>

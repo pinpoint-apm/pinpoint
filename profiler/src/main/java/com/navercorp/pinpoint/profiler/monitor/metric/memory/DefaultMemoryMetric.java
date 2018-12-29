@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.memory;
 
+import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 
@@ -24,30 +25,21 @@ import java.lang.management.MemoryUsage;
  */
 public class DefaultMemoryMetric implements MemoryMetric {
 
-    private final MemoryMXBean memoryMXBean;
+    private MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
-    public DefaultMemoryMetric(MemoryMXBean memoryMXBean) {
-        if (memoryMXBean == null) {
-            throw new NullPointerException("memoryMXBean must not be null");
-        }
-        this.memoryMXBean = memoryMXBean;
+
+    public DefaultMemoryMetric() {
     }
+
     @Override
     public MemoryMetricSnapshot getSnapshot() {
-        MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
-        MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
-        long heapMax = UNCOLLECTED_VALUE;
-        long heapUsed = UNCOLLECTED_VALUE;
-        if (heapMemoryUsage != null) {
-            heapMax = heapMemoryUsage.getMax();
-            heapUsed = heapMemoryUsage.getUsed();
-        }
-        long nonHeapMax = UNCOLLECTED_VALUE;
-        long nonHeapUsed = UNCOLLECTED_VALUE;
-        if (nonHeapMemoryUsage != null) {
-            nonHeapMax = nonHeapMemoryUsage.getMax();
-            nonHeapUsed = nonHeapMemoryUsage.getUsed();
-        }
+        final MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
+        final MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
+        final long heapMax = heapMemoryUsage.getMax();
+        final long heapUsed = heapMemoryUsage.getUsed();
+        final long nonHeapMax = nonHeapMemoryUsage.getMax();
+        final long nonHeapUsed = nonHeapMemoryUsage.getUsed();
+
         return new MemoryMetricSnapshot(heapMax, heapUsed, nonHeapMax, nonHeapUsed);
     }
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,7 @@ import org.objectweb.asm.tree.ClassNode;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -130,7 +131,10 @@ public class ASMAspectWeaverTest {
             public Class<?> loadClass(String name) throws ClassNotFoundException {
                 if (name.equals(originalName)) {
                     try {
-                        final ClassReader cr = new ClassReader(getClass().getResourceAsStream("/" + JavaAssistUtils.javaNameToJvmName(name) + ".class"));
+                        final String jvmClassName = "/" + JavaAssistUtils.javaClassNameToJvmResourceName(name);
+                        final InputStream stream = getClass().getResourceAsStream(jvmClassName);
+                        byte[] classBytes = IOUtils.toByteArray(stream);
+                        final ClassReader cr = new ClassReader(classBytes);
                         final ClassNode classNode = new ClassNode();
                         cr.accept(classNode, 0);
 

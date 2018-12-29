@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,31 +18,30 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.datasource;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DefaultDataSourceMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.datasource.UnsupportedDataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
+import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 
 /**
  * @author Taejin Koo
  * @author HyunGil Jeong
  */
-public class DataSourceMetricCollectorProvider implements Provider<DataSourceMetricCollector> {
+public class DataSourceMetricCollectorProvider implements Provider<AgentStatMetricCollector<TDataSourceList>> {
 
     private final DataSourceMetric dataSourceMetric;
 
     @Inject
     public DataSourceMetricCollectorProvider(DataSourceMetric dataSourceMetric) {
-        if (dataSourceMetric == null) {
-            throw new NullPointerException("dataSourceMetric must not be null");
-        }
-        this.dataSourceMetric = dataSourceMetric;
+        this.dataSourceMetric = Assert.requireNonNull(dataSourceMetric, "dataSourceMetric must not be null");
     }
 
     @Override
-    public DataSourceMetricCollector get() {
+    public AgentStatMetricCollector<TDataSourceList> get() {
         if (dataSourceMetric == DataSourceMetric.UNSUPPORTED_DATA_SOURCE_METRIC) {
-            return new UnsupportedDataSourceMetricCollector();
+            return new UnsupportedMetricCollector<TDataSourceList>();
         }
         return new DefaultDataSourceMetricCollector(dataSourceMetric);
     }

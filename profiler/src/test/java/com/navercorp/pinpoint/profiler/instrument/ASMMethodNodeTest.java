@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
-import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -34,7 +32,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +44,6 @@ public class ASMMethodNodeTest {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final ApiMetaDataService apiMetaDataService = mock(ApiMetaDataService.class);
 
     @Before
     public void setUp() {
@@ -70,11 +67,11 @@ public class ASMMethodNodeTest {
 
         ASMClass declaringClass = mock(ASMClass.class);
         when(declaringClass.getName()).thenReturn(targetClassName);
-        final ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        EngineComponent engineComponent = mock(DefaultEngineComponent.class);
 
         final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, methodName);
 
-        ASMMethod method = new ASMMethod(objectBinderFactory, pluginContext, apiMetaDataService, interceptorRegistryBinder, declaringClass, methodNode);
+        ASMMethod method = new ASMMethod(engineComponent, pluginContext, declaringClass, methodNode);
         assertEquals(methodName, method.getName());
         assertEquals(1, method.getParameterTypes().length);
         assertEquals("int", method.getParameterTypes()[0]);
@@ -91,7 +88,7 @@ public class ASMMethodNodeTest {
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.NormalClass";
         final ASMClass declaringClass = mock(ASMClass.class);
         when(declaringClass.getName()).thenReturn(targetClassName);
-        final ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        final EngineComponent engineComponent = mock(DefaultEngineComponent.class);
 
 
         ASMClassNodeLoader.TestClassLoader classLoader = ASMClassNodeLoader.getClassLoader();
@@ -104,7 +101,7 @@ public class ASMMethodNodeTest {
             public void handle(ClassNode classNode) {
                 List<MethodNode> methodNodes = classNode.methods;
                 for(MethodNode methodNode : methodNodes) {
-                    ASMMethod method = new ASMMethod(objectBinderFactory, pluginContext, apiMetaDataService, interceptorRegistryBinder, declaringClass, methodNode);
+                    ASMMethod method = new ASMMethod(engineComponent, pluginContext, declaringClass, methodNode);
                     try {
                         method.addInterceptor(interceptorId);
                     } catch (InstrumentException e) {

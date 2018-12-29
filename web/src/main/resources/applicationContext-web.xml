@@ -81,6 +81,8 @@
         </constructor-arg>
     </bean>
 
+    <bean id="agentEventMessageDeserializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1"/>
+
     <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
     </bean>
 
@@ -190,5 +192,8 @@
         <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
         <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.appender.worker.queueSize'] ?: 1024}"/>
         <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
+    </bean>
+    <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
+        <constructor-arg index="0" value="true"/>
     </bean>
 </beans>

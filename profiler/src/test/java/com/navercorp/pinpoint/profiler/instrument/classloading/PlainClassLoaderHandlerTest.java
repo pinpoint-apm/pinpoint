@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.jar.JarFile;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,8 +36,9 @@ public class PlainClassLoaderHandlerTest {
     @Test
     public void injectClass_bootstrapClass() {
         PluginConfig pluginConfig = newPluginConfig();
+        BootstrapCore bootstrapCore = new BootstrapCore(Collections.<String>emptyList());
 
-        PlainClassLoaderHandler plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
+        PlainClassLoaderHandler plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig, bootstrapCore);
         try {
             plainClassLoaderHandler.injectClass(this.getClass().getClassLoader(), "com.navercorp.pinpoint.bootstrap.Test");
             Assert.fail();

@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
-import com.navercorp.pinpoint.thrift.dto.TDataSource;
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,7 +47,7 @@ public class DefaultDataSourceMetricTest {
     private JdbcUrlParsingService jdbcUrlParsingService;
 
     @Test
-    public void collectTest() throws Exception {
+    public void collectTest() {
         int createMockObjectSize = 10;
 
         DataSourceMonitorRegistryService dataSourceMonitorRegistryService = new DefaultDataSourceMonitorRegistryService(createMockObjectSize);
@@ -58,11 +56,11 @@ public class DefaultDataSourceMetricTest {
         logger.debug("JdbcUrlParsingService:{}", jdbcUrlParsingService);
 
         DataSourceMetric dataSourceMetric = new DefaultDataSourceMetric(dataSourceMonitorRegistryService, jdbcUrlParsingService);
-        TDataSourceList collect = dataSourceMetric.dataSourceList();
-        assertIdIsUnique(collect.getDataSourceList());
+        List<DataSource> collect = dataSourceMetric.dataSourceList();
+        assertIdIsUnique(collect);
 
         for (MockDataSourceMonitor dataSourceMonitor : mockDataSourceMonitors) {
-            assertContainsAndEquals(dataSourceMonitor, collect.getDataSourceList());
+            assertContainsAndEquals(dataSourceMonitor, collect);
         }
     }
 
@@ -77,18 +75,18 @@ public class DefaultDataSourceMetricTest {
         return mockDataSourceMonitors;
     }
 
-    private void assertIdIsUnique(List<TDataSource> dataSourceList) {
+    private void assertIdIsUnique(List<DataSource> dataSourceList) {
         Set<Integer> idSet = new HashSet<Integer>();
 
-        for (TDataSource dataSource : dataSourceList) {
+        for (DataSource dataSource : dataSourceList) {
             idSet.add(dataSource.getId());
         }
 
         Assert.assertEquals(dataSourceList.size(), idSet.size());
     }
 
-    private void assertContainsAndEquals(DataSourceMonitor dataSourceMonitor, List<TDataSource> dataSourceList) {
-        for (TDataSource dataSource : dataSourceList) {
+    private void assertContainsAndEquals(DataSourceMonitor dataSourceMonitor, List<DataSource> dataSourceList) {
+        for (DataSource dataSource : dataSourceList) {
             String url = dataSourceMonitor.getUrl();
 
             if (url.equals(dataSource.getUrl())) {

@@ -51,8 +51,6 @@ public class UndertowPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         // Entry Point
         addConnectors();
-        // Add async listener. Servlet 3.0
-        addHttpServletRequestImpl();
     }
 
 
@@ -72,21 +70,7 @@ public class UndertowPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addHttpServletRequestImpl() {
-        transformTemplate.transform("io.undertow.servlet.spec.HttpServletRequestImpl", new TransformCallback() {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add async listener. Servlet 3.0
-                final InstrumentMethod startAsyncMethod = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-                if (startAsyncMethod != null) {
-                    startAsyncMethod.addInterceptor("com.navercorp.pinpoint.plugin.undertow.interceptor.HttpServletRequestImplStartAsyncInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
-    }
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

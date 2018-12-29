@@ -42,7 +42,7 @@ export class TimelineComponent implements OnInit, OnChanges, OnDestroy {
     // start - from : timeline의 전체 조회 구간
     // pointingTime : 포인팅 지점
     initTimeline() {
-        if ( this.timeline ) {
+        if (this.timeline) {
             this.timeline.resetTimeRangeAndSelectionZone(
                 [this.selectionStartTime, this.selectionEndTime],
                 [this.timelineStartTime, this.timelineEndTime],

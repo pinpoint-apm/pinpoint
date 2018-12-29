@@ -30,27 +30,20 @@ import com.navercorp.pinpoint.exception.PinpointException;
  * @author Jongho Moon
  * @author jaehong.kim
  */
-public class JarProfilerPluginClassInjector implements PluginClassInjector {
+public class JarProfilerPluginClassInjector implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
 
     private final ClassInjector bootstrapClassLoaderHandler;
     private final ClassInjector urlClassLoaderHandler;
     private final ClassInjector plainClassLoaderHandler;
-    private final PluginConfig pluginConfig;
 
-    public JarProfilerPluginClassInjector(PluginConfig pluginConfig, InstrumentEngine instrumentEngine) {
+    public JarProfilerPluginClassInjector(PluginConfig pluginConfig, InstrumentEngine instrumentEngine, BootstrapCore bootstrapCore) {
         if (pluginConfig == null) {
             throw new NullPointerException("pluginConfig must not be null");
         }
-        this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine);
-        this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig);
-        this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
-        this.pluginConfig = pluginConfig;
-    }
-
-    @Override
-    public PluginConfig getPluginConfig() {
-        return pluginConfig;
+        this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig, bootstrapCore, instrumentEngine);
+        this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig, bootstrapCore);
+        this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig, bootstrapCore);
     }
 
     @Override
@@ -72,18 +65,18 @@ public class JarProfilerPluginClassInjector implements PluginClassInjector {
         }
     }
 
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
             if (targetClassLoader == null) {
-                return bootstrapClassLoaderHandler.getResourceAsStream(null, classPath);
+                return bootstrapClassLoaderHandler.getResourceAsStream(null, internalName);
             } else if (targetClassLoader instanceof URLClassLoader) {
                 final URLClassLoader urlClassLoader = (URLClassLoader) targetClassLoader;
-                return urlClassLoaderHandler.getResourceAsStream(urlClassLoader, classPath);
+                return urlClassLoaderHandler.getResourceAsStream(urlClassLoader, internalName);
             } else {
-                return plainClassLoaderHandler.getResourceAsStream(targetClassLoader, classPath);
+                return plainClassLoaderHandler.getResourceAsStream(targetClassLoader, internalName);
             }
         } catch (Throwable e) {
-             logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
+             logger.warn("Failed to load plugin resource as stream {} with classLoader {}", internalName, targetClassLoader, e);
             return null;
         }
     }

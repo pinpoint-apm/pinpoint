@@ -31,6 +31,10 @@ export const appRoutes: Routes = [
         loadChildren: './routes/admin-page/index#AdminPageModule'
     },
     {
+        path: UrlPath.ERROR,
+        loadChildren: './routes/error-page/index#ErrorPageModule'
+    },
+    {
         path: UrlPath.BROWSER_NOT_SUPPORT,
         loadChildren: './routes/browser-support-page/index#BrowserSupportPageModule'
     },
@@ -108,7 +112,7 @@ export const appRoutes: Routes = [
         httpInterceptorProviders,
         { provide: APP_BASE_HREF, useValue: window.document.querySelector('base').getAttribute('href') },
         { provide: COMPOSITION_BUFFER_MODE, useValue: false },
-        { provide: SERVER_MAP_TYPE, useValue: ServerMapType.GOJS }
+        { provide: SERVER_MAP_TYPE, useValue: ServerMapType.VISJS }
     ],
     bootstrap: [AppComponent]
 })

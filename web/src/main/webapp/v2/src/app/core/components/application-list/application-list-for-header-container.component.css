@@ -63,10 +63,12 @@
     position: relative;
 }
 .l-search-group input {
+    color: #000;
     width: 100%;
     height: 100%;
     border: 1px solid #D7DDE4;
     padding: 0 10px;
+    font-weight: 600;
 }
 .l-app-list {
     display: flex;

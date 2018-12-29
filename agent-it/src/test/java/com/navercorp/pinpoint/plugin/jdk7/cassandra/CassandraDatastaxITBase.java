@@ -20,8 +20,6 @@ import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.StatementWrapper;
@@ -29,11 +27,18 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
-import org.junit.Assert;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.scassandra.Scassandra;
+import org.scassandra.ScassandraFactory;
+import org.scassandra.http.client.ActivityClient;
+import org.scassandra.http.client.CurrentClient;
+import org.scassandra.http.client.PrimingClient;
 
 import java.lang.reflect.Method;
-import java.util.Iterator;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
@@ -44,60 +49,70 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 public abstract class CassandraDatastaxITBase {
 
     // com.navercorp.pinpoint.plugin.cassandra.CassandraConstants
-    protected static final String CASSANDRA = "CASSANDRA";
-    protected static final String CASSANDRA_EXECUTE_QUERY = "CASSANDRA_EXECUTE_QUERY";
+    private static final String CASSANDRA = "CASSANDRA";
+    private static final String CASSANDRA_EXECUTE_QUERY = "CASSANDRA_EXECUTE_QUERY";
 
-    protected static final String TEST_KEYSPACE = "mykeyspace";
-    protected static final String TEST_TABLE = "mytable";
-    protected static final String TEST_COL_ID = "id";
-    protected static final String TEST_COL_VALUE = "value";
+    private static final String TEST_KEYSPACE = "mykeyspace";
+    private static final String TEST_TABLE = "mytable";
+    private static final String TEST_COL_ID = "id";
+    private static final String TEST_COL_VALUE = "value";
 
-    protected static final String CQL_CREATE_KEYSPACE = String.format(
-            "CREATE KEYSPACE %s WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };",
-            TEST_KEYSPACE);
-    protected static final String CQL_CREATE_TABLE = String.format(
-            "CREATE TABLE %s ( %s int PRIMARY KEY, %s text );",
-            TEST_TABLE, TEST_COL_ID, TEST_COL_VALUE);
-    protected static final String CQL_INSERT = String.format(
+    private static final String CQL_INSERT = String.format(
             "INSERT INTO %s (%s, %s) VALUES (?, ?);",
             TEST_TABLE, TEST_COL_ID, TEST_COL_VALUE);
     // for normalized sql used for sql cache
-    protected static final SqlParser SQL_PARSER = new DefaultSqlParser();
+    private static final SqlParser SQL_PARSER = new DefaultSqlParser();
 
-    protected static Cluster cluster;
+    private static String HOST = "127.0.0.1";
+    private static final int DEFAULT_PORT = 9042;
+    private static final int DEFAULT_ADMIN_PORT = 9043;
+    private static final int PORT = CassandraTestHelper.findAvailablePortOrDefault(DEFAULT_PORT);
+    private static final int ADMIN_PORT = CassandraTestHelper.findAvailablePortOrDefault(DEFAULT_ADMIN_PORT);
+    private static final String CASSANDRA_ADDRESS = HOST + ":" + PORT;
 
-    // see cassandra/cassandra_${cassandraVersion}.yaml
-    protected static String HOST;
-    protected static int PORT;
-    protected static String CASSANDRA_ADDRESS;
+    private static final Scassandra SERVER = ScassandraFactory.createServer(HOST, PORT, HOST, ADMIN_PORT);
 
-    public static void initializeCluster(String cassandraVersion) throws Exception {
-        CassandraTestHelper.init(cassandraVersion);
-        HOST = CassandraTestHelper.getHost();
-        PORT = CassandraTestHelper.getNativeTransportPort();
-        CASSANDRA_ADDRESS = HOST + ":" + PORT;
+    private Cluster cluster;
+
+    private final PrimingClient primingClient = SERVER.primingClient();
+    private final ActivityClient activityClient = SERVER.activityClient();
+    private final CurrentClient currentClient = SERVER.currentClient();
+
+    @BeforeClass
+    public static void startUpBeforeClass() {
+        SERVER.start();
+    }
+
+    @Before
+    public void setUp() {
         cluster = Cluster.builder().addContactPoint(HOST).withPort(PORT).withoutMetrics().build();
-        // Create KeySpace
-        Session emptySession = null;
-        try {
-            emptySession = cluster.connect();
-            emptySession.execute(CQL_CREATE_KEYSPACE);
-        } finally {
-            closeSession(emptySession);
+
+        // scassandra uses http client 4 for stub calls
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.ignoreServiceType("HTTP_CLIENT_4", "HTTP_CLIENT_4_INTERNAL");
+    }
+
+    @After
+    public void tearDown() {
+        if (primingClient != null) {
+            primingClient.clearAllPrimes();
         }
-        // Create Table
-        Session myKeyspaceSession = null;
-        try {
-            myKeyspaceSession = cluster.connect(TEST_KEYSPACE);
-            myKeyspaceSession.execute(CQL_CREATE_TABLE);
-        } finally {
-            closeSession(myKeyspaceSession);
+        if (activityClient != null) {
+            activityClient.clearAllRecordedActivity();
         }
+        if (cluster != null) {
+            cluster.close();
+        }
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() {
+        SERVER.stop();
     }
 
     @Test
     public void testBoundStatement() throws Exception {
-        final int testId = 99;
+        final String testId ="99";
         final String testValue = "testValue";
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
@@ -134,11 +149,9 @@ public abstract class CassandraDatastaxITBase {
 
             // ====================
             // Select Data (String)
-            final String cqlSelect = String.format("SELECT %s, %s FROM %s WHERE %s = %d",
+            final String cqlSelect = String.format("SELECT %s, %s FROM %s WHERE %s = %s",
                     TEST_COL_ID, TEST_COL_VALUE, TEST_TABLE, TEST_COL_ID, testId);
-            verifySelect(myKeyspaceSession.execute(cqlSelect), testId, testValue);
-
-            verifier.printCache();
+            myKeyspaceSession.execute(cqlSelect);
             // SessionManager#execute(String) OR AbstractSession#execute(String)
             execute = sessionClass.getDeclaredMethod("execute", String.class);
             String normalizedSelectSql = SQL_PARSER.normalizedSql(cqlSelect).getNormalizedSql();
@@ -161,9 +174,9 @@ public abstract class CassandraDatastaxITBase {
 
     @Test
     public void testBatchStatement_and_StatementWrapper() throws Exception {
-        final int testId1 = 998;
+        final String testId1 = "998";
         final String testValue1 = "testValue998";
-        final int testId2 = 999;
+        final String testId2 = "999";
         final String testValue2 = "testValue999";
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
@@ -217,33 +230,15 @@ public abstract class CassandraDatastaxITBase {
             // SessionManager#prepare(String) OR AbstractSession#prepare(String)
             verifier.verifyTrace(event(CASSANDRA, prepare, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(cqlDelete, null)));
             // SessionManager#execute(String, Object[]) OR AbstractSession#execute(String, Object[])
-            verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE));
+            verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(cqlDelete, null)));
         } finally {
             closeSession(myKeyspaceSession);
         }
     }
 
-    private void verifySelect(ResultSet rs, int expectedTestId, String expectedTestValue) {
-        int resultCount = 0;
-        Iterator<Row> iter = rs.iterator();
-        while (iter.hasNext()) {
-            Row row = iter.next();
-            Assert.assertEquals(expectedTestId, row.getInt(0));
-            Assert.assertEquals(expectedTestValue, row.getString(1));
-            ++resultCount;
-        }
-        Assert.assertEquals(1, resultCount);
-    }
-
     private static void closeSession(Session session) {
         if (session != null) {
             session.close();
-        }
-    }
-
-    public static void cleanUpCluster() {
-        if (cluster != null) {
-            cluster.close();
         }
     }
 

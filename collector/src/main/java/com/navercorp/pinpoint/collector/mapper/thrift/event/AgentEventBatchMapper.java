@@ -36,7 +36,7 @@ import java.util.List;
 public class AgentEventBatchMapper implements ThriftBoMapper<List<AgentEventBo>, TAgentStatBatch> {
 
     @Autowired
-    DeadlockEventBoMapper deadlockEventBoMapper;
+    private DeadlockEventBoMapper deadlockEventBoMapper;
 
     @Override
     public List<AgentEventBo> map(TAgentStatBatch tAgentStatBatch) {

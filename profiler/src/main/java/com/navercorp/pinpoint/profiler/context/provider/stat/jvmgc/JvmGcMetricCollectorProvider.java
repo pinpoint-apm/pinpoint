@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,19 +19,20 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.DetailedJvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.BasicJvmGcMetricCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcMetricCollectorProvider implements Provider<JvmGcMetricCollector> {
+public class JvmGcMetricCollectorProvider implements Provider<AgentStatMetricCollector<TJvmGc>> {
 
     private final boolean collectDetailedMetrics;
     private final Provider<MemoryMetric> memoryMetricProivider;
@@ -69,10 +70,10 @@ public class JvmGcMetricCollectorProvider implements Provider<JvmGcMetricCollect
     }
 
     @Override
-    public JvmGcMetricCollector get() {
+    public AgentStatMetricCollector<TJvmGc> get() {
         MemoryMetric memoryMetric = memoryMetricProivider.get();
         GarbageCollectorMetric garbageCollectorMetric = garbageCollectorMetricProvider.get();
-        JvmGcMetricCollector jvmGcMetricCollector = new BasicJvmGcMetricCollector(memoryMetric, garbageCollectorMetric);
+        BasicJvmGcMetricCollector jvmGcMetricCollector = new BasicJvmGcMetricCollector(memoryMetric, garbageCollectorMetric);
         if (collectDetailedMetrics) {
             DetailedMemoryMetric detailedMemoryMetric = detailedMemoryMetricProvider.get();
             DetailedGarbageCollectorMetric detailedGarbageCollectorMetric = detailedGarbageCollectorMetricProvider.get();

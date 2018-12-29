@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author jaehong.kim
  */
-public class MatchableTransformerRegistry implements TransformerRegistry {
+public class MatchableTransformerRegistry implements BaseTransformerRegistry {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -75,25 +75,25 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     @Override
     public ClassFileTransformer findTransformer(final ClassLoader classLoader, final String classInternalName, final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
         // find default.
-        ClassFileTransformer transformer = this.defaultTransformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer);
+        final ClassFileTransformer transformer = this.defaultTransformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer);
         if (transformer != null) {
             return transformer;
         }
 
-        ClassMetadataWrapper classMetadataWrapper = new ClassMetadataWrapper(classFileBuffer, classMetadata);
+        final ClassMetadataWrapper classMetadataWrapper = new ClassMetadataWrapper(classFileBuffer, classMetadata);
         // find class name based.
         if (!this.classNameBasedIndex.isEmpty()) {
-            transformer = findClassBasedTransformer(classLoader, classInternalName, classMetadataWrapper);
-            if (transformer != null) {
-                return transformer;
+            final ClassFileTransformer classBaseTransformer = findClassBasedTransformer(classLoader, classInternalName, classMetadataWrapper);
+            if (classBaseTransformer != null) {
+                return classBaseTransformer;
             }
         }
 
         // find package name based.
         if (!this.packageNameBasedIndex.isEmpty()) {
-            transformer = findPackageBasedTransformer(classLoader, classInternalName, classMetadataWrapper);
-            if (transformer != null) {
-                return transformer;
+            final ClassFileTransformer packagedBasedTransformer = findPackageBasedTransformer(classLoader, classInternalName, classMetadataWrapper);
+            if (packagedBasedTransformer != null) {
+                return packagedBasedTransformer;
             }
         }
 
@@ -149,6 +149,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         return null;
     }
 
+    @Override
     public void addTransformer(final Matcher matcher, final ClassFileTransformer transformer) {
         if (MatcherType.isBasedMatcher(matcher)) {
             // class or package based.

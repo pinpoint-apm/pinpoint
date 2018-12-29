@@ -7,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {
     StoreHelperService,
     NewUrlStateNotificationService,
+    UrlRouteManagerService,
     WebAppSettingDataService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
@@ -19,6 +20,7 @@ import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData } from 'app/co
 import { ServerMapDataService } from './server-map-data.service';
 import { LinkContextPopupContainerComponent } from 'app/core/components/link-context-popup/link-context-popup-container.component';
 import { ServerMapContextPopupContainerComponent } from 'app/core/components/server-map-context-popup/server-map-context-popup-container.component';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Component({
     selector: 'pp-server-map-container',
@@ -42,6 +44,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         private router: Router,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
+        private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private serverMapDataService: ServerMapDataService,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -83,8 +86,25 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             this.mapData = new ServerMapData(res.applicationMapData.nodeDataArray, res.applicationMapData.linkDataArray);
             this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
             if (this.hasNodeData() === false) {
+                this.showLoading = false;
                 this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
             }
+        }, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.urlRouteManagerService.move({
+                        url: [
+                            this.newUrlStateNotificationService.getStartPath()
+                        ],
+                        needServerTimeRequest: false
+                    });
+                }
+            });
         });
         this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
             this.useDisable = disabled;
@@ -116,19 +136,15 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.useDisable = true;
         this.baseApplicationKey = application.getKeyStr();
     }
-    private hasNodeData(): boolean {
-        return this.mapData && this.mapData.getNodeCount() !== 0;
-    }
-    showGuide(): boolean {
-        return this.hasNodeData() === false && this.showLoading === false;
+    hasNodeData(): boolean {
+        return this.mapData.getNodeCount() !== 0;
     }
     onRenderCompleted({showOverView}: {showOverView: boolean}): void {
         this.showLoading = false;
         this.useDisable = false;
         this.showOverview = this.hasNodeData() && showOverView;
     }
-    onClickBackground($event: any): void {
-    }
+    onClickBackground($event: any): void {}
     onClickNode(nodeData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
         let payload;

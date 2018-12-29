@@ -55,6 +55,7 @@ public final class ThriftConstants {
     public static final String T_ASYNC_METHOD_CALL_FIELD_TRANSPORT = "transport";
     public static final String FRAME_BUFFER_FIELD_TRANS_ = "trans_";
     public static final String FRAME_BUFFER_FIELD_IN_TRANS_ = "inTrans_";
+    public static final String T_HTTP_CLIENT_FIELD_URL_ = "url_";
 
     // custom field injector (accessor) FQCN
     private static final String FIELD_ACCESSOR_BASE = "com.navercorp.pinpoint.plugin.thrift.field.accessor.";
@@ -68,4 +69,5 @@ public final class ThriftConstants {
     public static final String FIELD_GETTER_T_NON_BLOCKING_TRANSPORT = FIELD_GETTER_BASE + "TNonblockingTransportFieldGetter";
     public static final String FIELD_GETTER_T_TRANSPORT = FIELD_GETTER_BASE + "TTransportFieldGetter";
     public static final String FIELD_GETTER_T_PROTOCOL = FIELD_GETTER_BASE + "TProtocolFieldGetter";
+    public static final String FIELD_GETTER_URL = FIELD_GETTER_BASE + "UrlFieldGetter";
 }
