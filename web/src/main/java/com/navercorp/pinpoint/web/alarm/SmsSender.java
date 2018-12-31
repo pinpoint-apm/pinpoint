@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author minwoo.jung
  */
-public class EmptyMessageSender implements AlarmMessageSender {
-
-    @Override
-    public void sendSms(AlarmChecker checker, int sequenceCount) {
-    }
-
-    @Override
-    public void sendEmail(AlarmChecker checker, int sequenceCount) {
-    }
-
+public interface SmsSender {
+    public void sendSms(AlarmChecker checker, int sequenceCount);
 }
