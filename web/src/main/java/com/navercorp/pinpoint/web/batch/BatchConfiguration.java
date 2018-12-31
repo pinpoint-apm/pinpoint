@@ -51,23 +51,54 @@ public class BatchConfiguration implements InitializingBean {
     @Value("#{batchProps['batch.server.ip'] ?: null}")
     private String batchServerIp;
 
+    @Value("#{batchProps['alarm.mail.server.url']}")
+    private String emailServerUrl;
+
+    @Value("#{batchProps['alarm.mail.sender.address']}")
+    private String senderEmailAddress;
+
+    @Value("#{batchProps['pinpoint.url']}")
+    private String pinpointUrl;
+
+    @Value("#{batchProps['batch.server.env']}")
+    private String batchEnv;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
         logger.info("BatchConfiguration:{}", this.toString());
     }
 
+    public String getPinpointUrl() {
+        return pinpointUrl;
+    }
 
     public String getBatchServerIp() {
         return batchServerIp;
     }
 
+    public List<String> getFlinkServerList() {
+        return flinkServerList;
+    }
+
+    public String getEmailServerUrl() {
+        return emailServerUrl;
+    }
+
+    public String getBatchEnv() {
+        return batchEnv;
+    }
+
+    public String getSenderEmailAddress() {
+        return senderEmailAddress;
+    }
+
     static class Condition implements ConfigurationCondition {
+
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         public Condition() {
         }
-
         @Override
         public ConfigurationPhase getConfigurationPhase() {
             return ConfigurationPhase.PARSE_CONFIGURATION;
@@ -79,10 +110,7 @@ public class BatchConfiguration implements InitializingBean {
             logger.info("batch.enable:{}", enable);
             return Boolean.valueOf(enable);
         }
-    }
 
-    public List<String> getFlinkServerList() {
-        return flinkServerList;
     }
 
     @Override

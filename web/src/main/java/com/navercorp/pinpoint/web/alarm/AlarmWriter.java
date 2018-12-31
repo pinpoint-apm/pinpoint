@@ -31,8 +31,8 @@ import com.navercorp.pinpoint.web.service.AlarmService;
  */
 public class AlarmWriter implements ItemWriter<AlarmChecker> {
 
-    @Autowired(required = false)
-    private AlarmMessageSender alarmMessageSender = new EmptyMessageSender();
+    @Autowired
+    private AlarmMessageSender alarmMessageSender;
 
     @Autowired
     private AlarmService alarmService;

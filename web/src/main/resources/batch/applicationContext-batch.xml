@@ -7,10 +7,7 @@
 	xmlns:task="http://www.springframework.org/schema/task"
 	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
-		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="batchJobLauncher" class="com.navercorp.pinpoint.web.batch.BatchJobLauncher"/>
 
@@ -28,5 +25,25 @@
     </bean>
 
 	<bean id="jobFailListener" class="com.navercorp.pinpoint.web.batch.JobFailListener"/>
+
+    <bean id="alarmMessageSender" class="com.navercorp.pinpoint.web.alarm.DefaultAlarmMessageSender"/>
+
+    <bean id="mailSender" class="com.navercorp.pinpoint.web.alarm.SpringSmtpMailSender">
+        <constructor-arg ref="batchConfiguration"/>
+        <constructor-arg ref="userGroupServiceImpl"/>
+        <constructor-arg ref="javaMailSenderImpl"/>
+    </bean>
+
+    <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
+        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
+        <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
+        <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
+        <property name="javaMailProperties">
+            <props>
+                 <prop key="mail.smtp.from">#{batchProps['alarm.mail.sender.address'] ?: ''}</prop>
+            </props>
+        </property>
+    </bean>
 	
 </beans>
