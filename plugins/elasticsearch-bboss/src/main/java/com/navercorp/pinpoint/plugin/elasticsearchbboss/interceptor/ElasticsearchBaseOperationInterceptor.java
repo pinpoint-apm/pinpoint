@@ -139,8 +139,7 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
             logBeforeInterceptor(target, args);
         }
 
-        prepareBeforeTrace(target, args);
-
+      
 		Trace trace = traceContext.currentTraceObject();
 
 		if (trace == null) {
@@ -164,9 +163,7 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
         logger.beforeInterceptor(target, args);
     }
 
-    protected void prepareBeforeTrace(Object target, Object[] args) {
 
-    }
 
 
     protected void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args){
@@ -180,8 +177,6 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
         if (isDebug) {
             logAfterInterceptor(target, args, result, throwable);
         }
-
-        prepareAfterTrace(target, args, result, throwable);
 
 		final Trace trace = traceContext.currentRawTraceObject();
 		if (trace == null) {
@@ -204,9 +199,6 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
 
     protected void logAfterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
         logger.afterInterceptor(target, args, result, throwable);
-    }
-
-    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
     }
 
     protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
