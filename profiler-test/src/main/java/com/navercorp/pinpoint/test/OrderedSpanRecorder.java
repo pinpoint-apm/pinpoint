@@ -22,17 +22,16 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
-
 /**
  * @author Jongho Moon
  */
 public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object>, Iterable<Object> {
+    private static String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final int ROOT_SEQUENCE = -1;
     public static final int ASYNC_ID_NOT_SET = -1;
     public static final int ASYNC_SEQUENCE_NOT_SET = -1;
@@ -68,31 +67,27 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
     }
 
     private void insertItem(Item item) {
-        int pos = Collections.binarySearch(list, item);
+        synchronized (this) {
+            final int pos = Collections.binarySearch(list, item);
+            if (pos >= 0) {
+                throw new IllegalArgumentException("Duplicated?? list: " + list + ", item: " + item);
+            }
 
-        if (pos >= 0) {
-            throw new IllegalArgumentException("Duplicated?? list: " + list + ", item: " + item);
+            int index = -(pos + 1);
+            list.add(index, item);
         }
-
-        int index = -(pos + 1);
-        list.add(index, item);
     }
 
     private void handleSpanEvent(SpanChunk spanChunk) {
         List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
-        for (SpanEvent event : spanEventList) {
-            final LocalAsyncId localAsyncId = event.getLocalAsyncId();
-            int asyncId = ASYNC_ID_NOT_SET;
-            int asyncSequence = ASYNC_SEQUENCE_NOT_SET;
-            if (localAsyncId != null) {
-                asyncId = localAsyncId.getAsyncId();
-                asyncSequence = localAsyncId.getSequence();
-            }
-
-            long startTime = event.getStartTime();
-            Item item = new Item(event, startTime, spanChunk.getTraceRoot(), event.getSequence(), asyncId, asyncSequence);
-            insertItem(item);
+        if (spanEventList.size() != 1) {
+            throw new IllegalStateException("spanEvent.size != 1");
         }
+
+        final SpanEvent event = spanEventList.get(0);
+        long startTime = event.getStartTime();
+        Item item = new Item(spanChunk, startTime, spanChunk.getTraceRoot(), event.getSequence());
+        insertItem(item);
     }
 
     public synchronized Object pop() {
@@ -111,15 +106,25 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
         return list.remove(0);
     }
 
-    public synchronized void print(PrintStream out) {
-        out.println("TRACES(" + list.size() + "):");
+    public void print(PrintStream out) {
+        final StringBuilder buffer = new StringBuilder();
+        synchronized (this) {
+            appendln(buffer, "TRACES(" + list.size() + "):");
+            for (Item item : list) {
+                appendln(buffer, item);
+            }
+            for (Object obj : this) {
+                appendln(buffer, obj);
+            }
+        }
 
-        for (Item item : list) {
-            out.println(item);
-        }
-        for (Object obj : this) {
-            out.println(obj);
-        }
+        out.print(buffer.toString());
+        out.flush();
+    }
+
+    private void appendln(StringBuilder buffer, Object object) {
+        buffer.append(object);
+        buffer.append(LINE_SEPARATOR);
     }
 
     public synchronized void clear() {
@@ -172,8 +177,12 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
 
     @Override
     public String toString() {
+        String listString;
+        synchronized (this) {
+            listString = list.toString();
+        }
         return "OrderedSpanRecorder{" +
-                "list=" + list +
+                "list=" + listString +
                 '}';
     }
 }

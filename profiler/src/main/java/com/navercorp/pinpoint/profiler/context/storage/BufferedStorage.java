@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.storage;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.*;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 import org.slf4j.Logger;
@@ -40,14 +39,14 @@ public class BufferedStorage implements Storage {
 
     private final int bufferSize;
 
-    private final TraceRoot traceRoot;
+    private final SpanChunkFactory spanChunkFactory;
     private List<SpanEvent> storage;
     private final DataSender<Object> dataSender;
 
 
 
-    public BufferedStorage(TraceRoot traceRoot, DataSender<Object> dataSender, int bufferSize) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+    public BufferedStorage(SpanChunkFactory spanChunkFactory, DataSender<Object> dataSender, int bufferSize) {
+        this.spanChunkFactory = Assert.requireNonNull(spanChunkFactory, "spanChunkFactory must not be null");
         this.dataSender = Assert.requireNonNull(dataSender, "dataSender must not be null");
         this.bufferSize = bufferSize;
         this.storage = allocateBuffer();
@@ -60,11 +59,7 @@ public class BufferedStorage implements Storage {
 
         if (overflow(storage)) {
             final List<SpanEvent> flushData = clearBuffer();
-            final SpanChunk spanChunk = wrapSpanCHunk(flushData);
-            final boolean success = this.dataSender.send(spanChunk);
-            if (isDebug) {
-                flushLog(success, spanChunk);
-            }
+            sendSpanChunk(flushData);
         }
     }
 
@@ -107,12 +102,16 @@ public class BufferedStorage implements Storage {
     public void flush() {
         final List<SpanEvent> spanEventList = clearBuffer();
         if (CollectionUtils.hasLength(spanEventList)) {
-            final SpanChunk spanChunk = wrapSpanCHunk(spanEventList);
+            sendSpanChunk(spanEventList);
+        }
+    }
 
-            final boolean success = this.dataSender.send(spanChunk);
-            if (isDebug) {
-                flushLog(success, spanChunk);
-            }
+    private void sendSpanChunk(List<SpanEvent> spanEventList) {
+        final SpanChunk spanChunk = this.spanChunkFactory.newSpanChunk(spanEventList);
+
+        final boolean success = this.dataSender.send(spanChunk);
+        if (isDebug) {
+            flushLog(success, spanChunk);
         }
     }
 
@@ -122,11 +121,6 @@ public class BufferedStorage implements Storage {
         } else {
             logger.debug("Flush fail {}", message);
         }
-    }
-
-    private SpanChunk wrapSpanCHunk(List<SpanEvent> spanEventList) {
-        final SpanChunk spanChunk = new SpanChunk(traceRoot, spanEventList);
-        return spanChunk;
     }
 
     @Override

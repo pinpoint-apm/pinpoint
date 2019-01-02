@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.test;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
+import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
@@ -27,22 +30,27 @@ public class Item implements Comparable<Item> {
     private final long time;
     private final long spanId;
     private final int sequence;
-    private final int asyncId;
-    private final int asyncSequence;
+
     private final TraceRoot traceRoot;
 
-    public Item(Object value, long time, TraceRoot traceRoot, int sequence) {
-        this(value, time, traceRoot, sequence, OrderedSpanRecorder.ASYNC_ID_NOT_SET, OrderedSpanRecorder.ASYNC_SEQUENCE_NOT_SET);
-    }
+    private final LocalAsyncId localAsyncId;
 
-    public Item(Object value, long time, TraceRoot traceRoot, int sequence, int asyncId, int asyncSequence) {
+//    public Item(Object value, long time, TraceRoot traceRoot, int sequence) {
+//        this(value, time, traceRoot, sequence, OrderedSpanRecorder.ASYNC_ID_NOT_SET, OrderedSpanRecorder.ASYNC_SEQUENCE_NOT_SET);
+//    }
+
+    public Item(Object value, long time, TraceRoot traceRoot, int sequence) {
         this.value = value;
         this.time = time;
-        this.traceRoot = traceRoot;
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.spanId = traceRoot.getTraceId().getSpanId();
         this.sequence = sequence;
-        this.asyncId = asyncId;
-        this.asyncSequence = asyncSequence;
+        if (value instanceof AsyncSpanChunk) {
+            final AsyncSpanChunk spanChunk = (AsyncSpanChunk) value;
+            this.localAsyncId = spanChunk.getLocalAsyncId();
+        } else {
+           this.localAsyncId = null;
+        }
     }
 
     public Object getValue() {
@@ -59,12 +67,12 @@ public class Item implements Comparable<Item> {
 
     @Override
     public int compareTo(Item o) {
-        if (this.asyncId == OrderedSpanRecorder.ASYNC_ID_NOT_SET && o.asyncId == OrderedSpanRecorder.ASYNC_ID_NOT_SET) {
+        if (this.localAsyncId == null && o.localAsyncId == null) {
             return compareItems(this, o);
-        } else if (this.asyncId != OrderedSpanRecorder.ASYNC_ID_NOT_SET && o.asyncId != OrderedSpanRecorder.ASYNC_ID_NOT_SET) {
+        } else if (this.localAsyncId != null && o.localAsyncId != null) {
             return compareAsyncItems(this, o);
         } else {
-            if (this.asyncId == OrderedSpanRecorder.ASYNC_ID_NOT_SET) {
+            if (this.localAsyncId == null) {
                 return -1;
             } else {
                 return 1;
@@ -95,14 +103,16 @@ public class Item implements Comparable<Item> {
     }
 
     private static int compareAsyncItems(Item lhs, Item rhs) {
-        if (lhs.asyncId < rhs.asyncId) {
+        final LocalAsyncId localAsyncId1 = lhs.localAsyncId;
+        final LocalAsyncId localAsyncId2 = rhs.localAsyncId;
+        if (localAsyncId1.getAsyncId() < localAsyncId2.getAsyncId()) {
             return -1;
-        } else if (lhs.asyncId > rhs.asyncId) {
+        } else if (localAsyncId1.getAsyncId() > localAsyncId2.getAsyncId()) {
             return 1;
         } else {
-            if (lhs.asyncSequence < rhs.asyncSequence) {
+            if (localAsyncId1.getSequence() < localAsyncId2.getSequence()) {
                 return -1;
-            } else if (lhs.asyncSequence > rhs.asyncSequence) {
+            } else if (localAsyncId1.getSequence() > localAsyncId2.getSequence()) {
                 return 1;
             } else {
                 if (lhs.sequence < rhs.sequence) {
@@ -130,9 +140,8 @@ public class Item implements Comparable<Item> {
                 ", time=" + time +
                 ", spanId=" + spanId +
                 ", sequence=" + sequence +
-                ", asyncId=" + asyncId +
-                ", asyncSequence=" + asyncSequence +
                 ", traceRoot=" + traceRoot +
+                ", localAsyncId=" + localAsyncId +
                 '}';
     }
 }

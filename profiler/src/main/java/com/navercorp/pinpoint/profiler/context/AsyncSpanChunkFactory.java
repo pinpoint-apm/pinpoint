@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.List;
@@ -23,8 +24,18 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface SpanChunk {
-    TraceRoot getTraceRoot();
+public class AsyncSpanChunkFactory implements SpanChunkFactory {
 
-    List<SpanEvent> getSpanEventList();
+    private final TraceRoot traceRoot;
+    private final LocalAsyncId localAsyncId;
+
+    public AsyncSpanChunkFactory(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId must not be null");
+    }
+
+    @Override
+    public SpanChunk newSpanChunk(List<SpanEvent> spanEventList) {
+        return new DefaultAsyncSpanChunk(traceRoot, spanEventList, localAsyncId);
+    }
 }

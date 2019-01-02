@@ -63,7 +63,7 @@ public class SpanFactoryTest {
     public void testNewSpanEventBo() throws Exception {
 
         TSpanEvent tSpanEvent = random.randomTSpanEvent((short) RandomUtils.nextInt(0, 100));
-        SpanEventBo spanEventBo = spanFactory.buildSpanEventBo(tSpanEvent);
+        SpanEventBo spanEventBo = spanFactory.buildSpanEventBo(tSpanEvent, null);
 
         spanFactoryAssert.assertSpanEvent(tSpanEvent, spanEventBo);
 

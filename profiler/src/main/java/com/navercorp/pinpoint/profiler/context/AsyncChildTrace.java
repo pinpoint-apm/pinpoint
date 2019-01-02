@@ -135,9 +135,6 @@ public class AsyncChildTrace implements Trace {
     @Override
     public SpanEventRecorder traceBlockBegin(int stackId) {
         final SpanEvent spanEvent = traceBlockBegin0(stackId);
-
-        spanEvent.setLocalAsyncId(localAsyncId);
-
         return wrappedSpanEventRecorder(wrappedSpanEventRecorder, spanEvent);
     }
 
