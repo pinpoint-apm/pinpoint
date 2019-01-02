@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
@@ -127,6 +129,7 @@ public class BufferedStorageTest {
     }
 
     private BufferedStorage newBufferedStorage(int bufferSize) {
-        return new BufferedStorage(internalTraceId, countingDataSender, bufferSize);
+        SpanChunkFactory spanChunkFactory = new DefaultSpanChunkFactory(internalTraceId);
+        return new BufferedStorage(spanChunkFactory, countingDataSender, bufferSize);
     }
 }

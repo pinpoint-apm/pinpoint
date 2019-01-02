@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.sender.planer;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
@@ -92,7 +93,7 @@ public class SpanChunkStreamSendDataPlanerTest {
         HeaderTBaseSerializerFactory headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory();
 
         List<SpanEvent> originalSpanEventList = createSpanEventList(spanEventSize);
-        SpanChunk spanChunk = new SpanChunk(traceRoot, originalSpanEventList);
+        SpanChunk spanChunk = new DefaultSpanChunk(traceRoot, originalSpanEventList);
         TBase<?, ?> tSpanChunk = messageConverter.toMessage(spanChunk);
 
         PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), (TSpanChunk) tSpanChunk);

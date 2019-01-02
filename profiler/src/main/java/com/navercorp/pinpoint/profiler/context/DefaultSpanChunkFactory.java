@@ -16,14 +16,24 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
+import java.util.List;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface AsyncId {
+public class DefaultSpanChunkFactory implements SpanChunkFactory {
 
-    int getAsyncId();
+    private final TraceRoot traceRoot;
 
-    int nextAsyncSequence();
+    public DefaultSpanChunkFactory(TraceRoot traceRoot) {
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+    }
 
-    LocalAsyncId nextLocalAsyncId();
+    @Override
+    public SpanChunk newSpanChunk(List<SpanEvent> spanEventList) {
+        return new DefaultSpanChunk(traceRoot, spanEventList);
+    }
 }

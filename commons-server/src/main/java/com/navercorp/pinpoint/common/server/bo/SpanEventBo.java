@@ -52,8 +52,10 @@ public class SpanEventBo implements Event {
     // should get exceptionClass from dao
     private String exceptionClass;
 
-    private int asyncId = -1;
     private int nextAsyncId = -1;
+
+
+    private int asyncId = -1;
     private short asyncSequence = -1;
     
     public SpanEventBo() {
