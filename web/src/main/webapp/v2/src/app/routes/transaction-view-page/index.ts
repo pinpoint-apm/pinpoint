@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { SharedModule } from 'app/shared';
-import { ApplicationListModule } from 'app/core/components/application-list';
 import { NoticeModule } from 'app/core/components/notice';
 import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { TransactionShortInfoModule } from 'app/core/components/transaction-short-info';
@@ -20,7 +19,6 @@ import { routing } from './transaction-view-page.routing';
     imports: [
         AngularSplitModule,
         SharedModule,
-        ApplicationListModule,
         NoticeModule,
         ConfigurationIconModule,
         TransactionShortInfoModule,
