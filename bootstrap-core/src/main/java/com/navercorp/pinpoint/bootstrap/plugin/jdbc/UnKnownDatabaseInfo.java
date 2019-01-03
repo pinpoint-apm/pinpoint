@@ -27,11 +27,14 @@ import java.util.List;
  */
 public class UnKnownDatabaseInfo {
     public static final DatabaseInfo INSTANCE;
+    public static final DatabaseInfo MONGO_INSTANCE;
 
     static{
         final List<String> urls = new ArrayList<String>();
         urls.add("unknown");
         INSTANCE = new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", urls, "unknown", false);
+
+        MONGO_INSTANCE = new MongoDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", urls, "unknown", "unknown", false, "unknown", "unknown");
     }
     
     public static DatabaseInfo createUnknownDataBase(String url) {

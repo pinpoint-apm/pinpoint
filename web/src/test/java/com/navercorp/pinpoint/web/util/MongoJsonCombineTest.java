@@ -81,6 +81,13 @@ public class MongoJsonCombineTest {
                 , "12,77,true,1542019151267,12.3,\"pinpoint\",5be9584f96f948776d3130ec,\"int i = 10;\",\"int x = y\",1,\"^test.*regex.*xyz$\",\"bgi\",\"wow\",1311768464867721221,0,-32,79,-48,32,-22,58,105,16,-94,-40,8,0,43,48,48,-99,2,1,1,1,1,1,\"stest\",111.0,true,7,77,\"db.coll\",5be9584f96f948776d3130ed");
     }
 
+    @Test
+    public void combineBindAbbreviationTest() {
+        assertCombine("{\"bsons\" : [{ \"name\" : \"manymanay\", \"company\" : \"ManyCompany\" }, ...(99)]}"
+                , "{\"bsons\" : [{ \"name\" : \"?\", \"company\" : \"?\" }, \"?\"]}"
+                , "\"manymanay\",\"ManyCompany\",...(99)");
+    }
+
     private void assertCombine(String result, String json, String outputParams) {
 
         List<String> bindValues = outputParameterMongoJsonParser.parseOutputParameter(outputParams);
