@@ -4,6 +4,10 @@
     background-color: #edf2f8;
 }
 
+header {
+    justify-content: flex-start;
+}
+
 .l-main-container {
     display: flex;
     height: calc(100% - 50px);
@@ -50,4 +54,13 @@
     width: calc(100% - 240px);
     height: 100%;
     padding: 20px 15px 0;
+}
+
+.l-back-button {
+    color: #fff;
+    background-color: #4b99e3;
+    font-size: 20px;
+    height: 100%;
+    margin-left: 28px;
+    outline: none;
 }
