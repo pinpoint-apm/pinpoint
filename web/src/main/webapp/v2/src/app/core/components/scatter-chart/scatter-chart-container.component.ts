@@ -101,7 +101,6 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         this.scatterChartDataService.outScatterData$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((scatterData: IScatterData) => {
-            this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
             if (scatterData.complete === false) {
                 this.scatterChartDataService.loadData(
                     this.selectedApplication.split('^')[0],
@@ -112,6 +111,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
                     false
                 );
             }
+            this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
         });
         this.scatterChartDataService.outRealTimeScatterData$.pipe(
             takeUntil(this.unsubscribe)
