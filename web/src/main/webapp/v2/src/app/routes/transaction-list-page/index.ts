@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from 'app/shared';
 import { AngularSplitModule } from 'app/core/components/angular-split/angular-split';
 import { NoticeModule } from 'app/core/components/notice';
-import { ApplicationListModule } from 'app/core/components/application-list';
 import { DataLoadIndicatorModule } from 'app/core/components/data-load-indicator';
 import { StateButtonModule } from 'app/core/components/state-button';
 import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
@@ -24,7 +23,6 @@ import { routing } from './transaction-list-page.routing';
         AngularSplitModule,
         SharedModule,
         NoticeModule,
-        ApplicationListModule,
         DataLoadIndicatorModule,
         StateButtonModule,
         ConfigurationIconModule,

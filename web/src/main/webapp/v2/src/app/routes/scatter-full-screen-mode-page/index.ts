@@ -3,7 +3,6 @@ import { RouterModule } from '@angular/router';
 
 import { SharedModule } from 'app/shared';
 import { ScatterChartModule } from 'app/core/components/scatter-chart';
-import { ApplicationListModule } from 'app/core/components/application-list';
 import { PeriodSelectorModule } from 'app/core/components/period-selector';
 import { NoticeModule } from 'app/core/components/notice';
 import { ScatterFullScreenModePageComponent } from './scatter-full-screen-mode-page.component';
@@ -16,7 +15,6 @@ import { routing } from './scatter-full-screen-mode-page.routing';
     imports: [
         RouterModule.forChild(routing),
         SharedModule,
-        ApplicationListModule,
         PeriodSelectorModule,
         ScatterChartModule,
         NoticeModule,
