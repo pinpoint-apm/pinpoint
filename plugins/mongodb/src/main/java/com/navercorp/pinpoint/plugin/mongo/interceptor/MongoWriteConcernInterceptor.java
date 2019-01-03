@@ -63,17 +63,22 @@ public class MongoWriteConcernInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
+        if (args == null) {
+            return;
+        }
+
         DatabaseInfo databaseInfo;
         if (target instanceof DatabaseInfoAccessor) {
             databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
         } else {
-            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            databaseInfo = null;
         }
 
-        String writeConcernStr = null;
-        if (args != null) {
-            writeConcernStr = MongoUtil.getWriteConcern0((WriteConcern) args[0]);
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.MONGO_INSTANCE;
         }
+
+        String writeConcernStr = MongoUtil.getWriteConcern0((WriteConcern) args[0]);
 
         databaseInfo = new MongoDatabaseInfo(databaseInfo.getType(), databaseInfo.getExecuteQueryType()
                 , databaseInfo.getRealUrl(), databaseInfo.getUrl(), databaseInfo.getHost(), databaseInfo.getDatabaseId()

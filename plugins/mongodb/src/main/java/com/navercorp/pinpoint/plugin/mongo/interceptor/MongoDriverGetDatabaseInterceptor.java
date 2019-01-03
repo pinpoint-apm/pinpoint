@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 
 /**
@@ -57,11 +58,19 @@ public class MongoDriverGetDatabaseInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
+        if (args == null) {
+            return;
+        }
+
         DatabaseInfo databaseInfo;
         if (target instanceof DatabaseInfoAccessor) {
             databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
         } else {
-            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            databaseInfo = null;
+        }
+
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.MONGO_INSTANCE;
         }
 
         databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
