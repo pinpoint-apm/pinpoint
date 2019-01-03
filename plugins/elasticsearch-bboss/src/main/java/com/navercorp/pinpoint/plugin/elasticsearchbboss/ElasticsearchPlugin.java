@@ -122,14 +122,14 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 	//  implementations
 	private void addElasticsearchExecutorInterceptors() {
 
-		transformTemplate.transform("org.frameworkset.elasticsearch.client.RestSeachExecutor", new TransformCallback() {
+		transformTemplate.transform("org.frameworkset.elasticsearch.client.RestSearchExecutor", new TransformCallback() {
 
 			@Override
 			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
 										String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
 										byte[] classfileBuffer) throws InstrumentException {
 
-				final InstrumentClass target = instrumentor.getInstrumentClass(loader, "org.frameworkset.elasticsearch.client.RestSeachExecutor", classfileBuffer);
+				final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
 				final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(restSeachExecutorMethodFilter);
 				String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ElasticsearchExecutorOperationInterceptor";
