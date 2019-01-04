@@ -200,7 +200,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             payload = {
                 period: this.period,
                 endTime: this.endTime,
-                isAuthorized: this.mapData.getNodeData(linkData.to).isAuthorized,
+                isAuthorized: this.mapData.getNodeData(linkData.from).isAuthorized,
                 isNode: false,
                 isLink: true,
                 isMerged: false,
