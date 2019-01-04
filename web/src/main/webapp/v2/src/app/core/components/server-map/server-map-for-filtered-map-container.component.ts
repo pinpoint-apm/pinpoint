@@ -191,7 +191,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             payload = {
                 period: this.period,
                 endTime: this.endTime,
-                isAuthorized: this.mapData.getNodeData(linkData.to).isAuthorized,
+                isAuthorized: this.mapData.getNodeData(linkData.from).isAuthorized,
                 isNode: false,
                 isLink: true,
                 isMerged: false,
