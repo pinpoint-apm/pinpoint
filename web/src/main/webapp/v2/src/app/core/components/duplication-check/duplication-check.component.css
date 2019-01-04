@@ -1,17 +1,20 @@
 :host {
-    display: block;
-    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
+
 label {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
-    width: 15%;
+    width: 135px;
     display: inline-block;
     text-align: right;
-    margin-right: 10px;
+    margin-right: 15px;
 }
+
 .l-input-wrapper {
-    width: 70%;
+    flex: 1;
     display: inline-block;
     position: relative;
 }
@@ -19,7 +22,7 @@ label {
 input {
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 9px 14px;
+    padding: 10px 14px;
     font-size: 13px;
     width: 100%;
     display: inline-block;
@@ -50,7 +53,7 @@ input.l-fail-input:focus {
 .l-check-status-icon {
     position: absolute;
     right: 10px;
-    top: 9px;
+    top: 10px;
     font-size: 20px;
 }
 
@@ -65,10 +68,10 @@ input.l-fail-input:focus {
 .l-check-button {
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 9px;
+    padding: 10px;
     font-size: 13px;
-    width: 10%;
-    margin-left: 10px;
+    width: 120px;
+    margin-left: 15px;
 }
 
 .l-check-button:hover {
@@ -83,4 +86,5 @@ input.l-fail-input:focus {
     text-align: center;
     font-size: 14px;
     margin-top: 10px;
+    width: 100%;
 }

@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
-import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 
@@ -70,16 +68,6 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
         Assert.requireNonNull(asyncState, "asyncState must not be null");
 
         return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, asyncState);
-    }
-
-
-    @Deprecated
-    @Override
-    public AsyncTraceId newAsyncTraceId(TraceRoot traceRoot) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-
-        final AsyncId asyncId = asyncIdGenerator.newAsyncId();
-        return new DefaultAsyncTraceId(traceRoot, asyncId);
     }
 
 

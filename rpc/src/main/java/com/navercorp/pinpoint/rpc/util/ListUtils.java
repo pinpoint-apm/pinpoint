@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -27,14 +25,6 @@ import java.util.List;
 public final class ListUtils {
 
     private ListUtils() {
-    }
-
-    /**
-     * @deprecated Since 1.6.1. Use {@link CollectionUtils#isEmpty(Collection)}
-     */
-    @Deprecated
-    public static boolean isEmpty(List list) {
-        return CollectionUtils.isEmpty(list);
     }
 
     public static <V> boolean addIfValueNotNull(List<V> list, V value) {

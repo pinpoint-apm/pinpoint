@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import * as md5 from 'blueimp-md5';
 
 @Component({
     selector: 'pp-server-and-agent-list',
@@ -8,9 +9,10 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class ServerAndAgentListComponent implements OnInit {
     @Input() funcImagePath: Function;
     @Input() serverKeyList: string[] = [];
-    @Input() serverList: any = {};
+    @Input() serverList: {[key: string]: IServerAndAgentData[]};
     @Input() agentId: string;
     @Output() outSelectAgent: EventEmitter<string> = new EventEmitter();
+
     constructor() {}
     ngOnInit() {}
     getIconPath(iconState: number) {
@@ -30,6 +32,9 @@ export class ServerAndAgentListComponent implements OnInit {
                 break;
         }
         return this.funcImagePath(iconName);
+    }
+    getAgentName(serverName: string, agentId: string): string {
+        return serverName === 'Container' ? (md5(agentId) as string).substr(0, 5) : agentId;
     }
     onSelectAgent(agentName: string) {
         this.outSelectAgent.emit(agentName);

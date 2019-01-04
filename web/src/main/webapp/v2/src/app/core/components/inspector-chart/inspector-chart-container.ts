@@ -1,8 +1,8 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
-import { Subject, Observable, combineLatest } from 'rxjs';
-import { filter, map, skip, takeUntil } from 'rxjs/operators';
+import { Subject, Observable, combineLatest, merge } from 'rxjs';
+import { filter, map, skip, takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
 import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
@@ -79,13 +79,28 @@ export abstract class InspectorChartContainer {
     }
 
     protected initChartData(): void {
-        this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
-            filter((range: number[]) => {
-                if (this.previousRange) {
-                    return !(this.previousRange[0] === range[0] && this.previousRange[1] === range[1]);
-                }
-                return true;
-            })
+        merge(
+            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                takeUntil(this.unsubscribe),
+                withLatestFrom(this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe)),
+                map(([, storeState]: [NewUrlStateNotificationService, number[]]) => storeState),
+            ),
+            this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
+                skip(1),
+                withLatestFrom(this.newUrlStateNotificationService.onUrlStateChange$),
+                filter(([storeState, urlService]: [number[], NewUrlStateNotificationService]) => {
+                    const [from, to] = storeState;
+
+                    return !(from === urlService.getStartTimeToNumber() && to === urlService.getEndTimeToNumber());
+                }),
+                map(([storeState]: [number[], NewUrlStateNotificationService]) => storeState),
+                filter((storeState: number[]) => {
+                    const [f0, t0] = storeState;
+                    const [f1, t1] = this.previousRange;
+
+                    return !(f0 === f1 && t0 === t1);
+                }),
+            )
         ).subscribe((range: number[]) => {
             this.previousRange = range;
             this.getChartData(range);

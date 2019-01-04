@@ -153,7 +153,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             payload = {
                 period: this.period,
                 endTime: this.endTime,
-                isAuthorized: nodeData.isAuthorized,
+                isAuthorized: true,
                 isNode: true,
                 isLink: false,
                 isMerged: true,
@@ -185,7 +185,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             payload = {
                 period: this.period,
                 endTime: this.endTime,
-                isAuthorized: linkData.isAuthorized,
+                isAuthorized: true,
                 isNode: false,
                 isLink: true,
                 isMerged: true,
@@ -200,7 +200,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             payload = {
                 period: this.period,
                 endTime: this.endTime,
-                isAuthorized: linkData.isAuthorized,
+                isAuthorized: this.mapData.getNodeData(linkData.from).isAuthorized,
                 isNode: false,
                 isLink: true,
                 isMerged: false,

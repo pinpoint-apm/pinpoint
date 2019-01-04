@@ -10,6 +10,7 @@
     font-size: 13px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
+    background-color: #FFF;
     grid-template-columns: auto;
     grid-template-rows: 48px 53px 416px;
 }
@@ -56,4 +57,8 @@
     border: 1px solid #469ae4;
     padding: 6px 11px;
     font-size: 13px;
+}
+.btn {
+    padding: 0 9px;
+    border-radius: 2px;
 }

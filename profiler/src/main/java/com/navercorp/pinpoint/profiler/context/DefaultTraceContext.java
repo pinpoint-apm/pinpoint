@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
@@ -48,8 +47,6 @@ public class DefaultTraceContext implements TraceContext {
     private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
 
-    private final AsyncTraceContext asyncTraceContext;
-
     private final AgentInformation agentInformation;
 
     private final ApiMetaDataService apiMetaDataService;
@@ -66,7 +63,6 @@ public class DefaultTraceContext implements TraceContext {
                                final AgentInformation agentInformation,
                                final TraceIdFactory traceIdFactory,
                                final TraceFactory traceFactory,
-                               final AsyncTraceContext asyncTraceContext,
                                final ServerMetaDataHolder serverMetaDataHolder,
                                final ApiMetaDataService apiMetaDataService,
                                final StringMetaDataService stringMetaDataService,
@@ -79,7 +75,6 @@ public class DefaultTraceContext implements TraceContext {
 
         this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory must not be null");
         this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory must not be null");
-        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContextProvider must not be null");
 
         this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext must not be null");
 
@@ -148,11 +143,7 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.continueAsyncTraceObject(traceId);
     }
 
-    @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId asyncTraceId, int asyncId, long startTime) {
-        final Reference<Trace> traceReference = asyncTraceContext.continueAsyncTraceObject(asyncTraceId, asyncId, startTime);
-        return traceReference.get();
-    }
+
 
 
     @Override
@@ -242,10 +233,6 @@ public class DefaultTraceContext implements TraceContext {
         return this.serverMetaDataHolder;
     }
 
-    @Override
-    public int getAsyncId() {
-        return this.asyncTraceContext.nextAsyncId();
-    }
 
     @Override
     public JdbcContext getJdbcContext() {
