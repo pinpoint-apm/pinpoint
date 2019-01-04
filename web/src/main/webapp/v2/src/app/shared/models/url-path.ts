@@ -16,6 +16,7 @@ export class UrlPath {
     constructor() {}
     static getParamList(): string[] {
         return [
+            UrlPath.CONFIG,
             UrlPath.ADMIN,
             UrlPath.ERROR,
             UrlPath.FILTERED_MAP,
