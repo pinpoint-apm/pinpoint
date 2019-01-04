@@ -108,16 +108,16 @@ public class Grpc_1_8_0_to_IT {
 
     private void assertTrace(HelloWorldServer server, PluginTestVerifier verifier) {
         verifier.verifyTrace(clientCallStartEvent(server));
-        verifier.verifyTrace(event("GRPC_INTERNAL", "Grpc client listener Result Invocation"));
+        verifier.verifyTrace(event("gRPC_INTERNAL", "gRPC client listener Result Invocation"));
 
         verifier.verifyTrace(createServerRootTrace(server));
 
         String streacmCreatedMethodDescritor = "io.grpc.internal.ServerImpl$ServerTransportListenerImpl.streamCreated(io.grpc.internal.ServerStream, java.lang.String, io.grpc.Metadata)";
-        verifier.verifyTrace(event("GRPC_SERVER_INTERNAL", streacmCreatedMethodDescritor));
+        verifier.verifyTrace(event("gRPC_SERVER_INTERNAL", streacmCreatedMethodDescritor));
     }
 
     private ExpectedTrace clientCallStartEvent(HelloWorldServer server) {
-        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder("GRPC");
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder("gRPC");
         eventBuilder.setMethodSignature("io.grpc.internal.ClientCallImpl.start(io.grpc.ClientCall$Listener, io.grpc.Metadata)");
 
         String remoteAddress = "127.0.0.1:" + server.getBindPort();
@@ -129,8 +129,8 @@ public class Grpc_1_8_0_to_IT {
     }
 
     private ExpectedTrace createServerRootTrace(HelloWorldServer server) {
-        ExpectedTrace.Builder rootBuilder = ExpectedTrace.createRootBuilder("GRPC_SERVER");
-        rootBuilder.setMethodSignature("Grpc HTTP Server");
+        ExpectedTrace.Builder rootBuilder = ExpectedTrace.createRootBuilder("gRPC_SERVER");
+        rootBuilder.setMethodSignature("gRPC HTTP Server");
         rootBuilder.setRpc("/" + server.getMethodName());
         rootBuilder.setRemoteAddr(ExpectedTraceField.createStartWith("127.0.0.1:"));
         return rootBuilder.build();
