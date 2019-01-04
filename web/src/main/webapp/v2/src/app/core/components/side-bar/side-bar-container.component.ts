@@ -59,7 +59,7 @@ export class SideBarContainerComponent implements OnInit, OnDestroy {
             })
         ).subscribe((target: ISelectedTarget) => {
             this.target = target;
-            if ( target.isNode === true || target.isLink === true ) {
+            if (target.isNode === true || target.isLink === true) {
                 this.sideBarWidth = 461;
             } else {
                 this.sideBarWidth = 0;

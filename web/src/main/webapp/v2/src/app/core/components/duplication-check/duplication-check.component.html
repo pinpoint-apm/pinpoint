@@ -4,4 +4,6 @@
     <span class="l-check-status-icon fas" [ngClass]="getSpanStyleClass()"></span>
 </div>
 <button type="button" class="l-check-button" (click)="emitValue(input.value)">Check</button>
-<p class="l-message">{{message}}</p>
+<ng-container *ngIf="message">
+    <p class="l-message">{{message}}</p>
+</ng-container>

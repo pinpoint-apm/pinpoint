@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, Observable, of } from 'rxjs';
 import { take, takeUntil, switchMap } from 'rxjs/operators';
 
@@ -20,7 +20,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
     templateUrl: './transaction-view-page.component.html',
     styleUrls: ['./transaction-view-page.component.css']
 })
-export class TransactionViewPageComponent implements OnInit {
+export class TransactionViewPageComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
     splitSize: number[];
 
@@ -38,11 +38,18 @@ export class TransactionViewPageComponent implements OnInit {
         this.initSplitRatio();
         this.initTransactionViewInfo();
     }
+
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
+    }
+
     private initSplitRatio(): void {
         this.gutterEventService.onGutterResized$.pipe(
             take(1)
         ).subscribe((splitSize: number[]) => this.splitSize = splitSize);
     }
+
     private initTransactionViewInfo(): void {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
@@ -69,6 +76,7 @@ export class TransactionViewPageComponent implements OnInit {
             });
         });
     }
+
     onAjaxError(err: Error): Observable<any> {
         // TODO: Error발생시 띄워줄 팝업 컴포넌트 Call - issue#170
         return of({});

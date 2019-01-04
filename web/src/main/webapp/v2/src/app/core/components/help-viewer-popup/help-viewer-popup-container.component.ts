@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, Input, Output, EventEmitter, AfterViewIn
 import { Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
-import { WindowRefService, DynamicPopup } from 'app/shared/services';
+import { WindowRefService, DynamicPopup, PopupConstant } from 'app/shared/services';
 
 export enum HELP_VIEWER_LIST {
     NAVBAR = 'HELP_VIEWER.NAVBAR',
@@ -51,13 +51,6 @@ const enum HELP_VIEWER_HEIGHT_STATE {
     DOWN_OVERFLOW
 }
 
-const enum TOOLTIP_CONSTANT {
-    START_POINT = 28, // 툴팁 시작을 모서리에서 살짝 밀어주는 길이
-    DISTANCE_FROM_BUTTON = 9, // 클릭한 버튼에서 살짝 떨어뜨려줄 길이
-    HEIGHT = 7, // 툴팁 삼각형 높이
-    WIDTH = 14 // 툴팁 삼각형 넓이
-}
-
 @Component({
     selector: 'pp-help-viewer-popup-container',
     templateUrl: './help-viewer-popup-container.component.html',
@@ -71,12 +64,13 @@ export class HelpViewerPopupContainerComponent implements OnInit, AfterViewInit,
     @Output() outReInit = new EventEmitter<{[key: string]: any}>();
     @HostBinding('class') styleClass: string;
 
+    private startPoint = 28; // 클릭한 버튼을 기준으로 꼭지점에서 살짝 밀어주는 길이
     data$: Observable<{[key: string]: any}[]>;
     tooltipTriangleStyle: {[key: string]: any} = {
-        'border-bottom': `${TOOLTIP_CONSTANT.HEIGHT}px solid #fff`,
-        'border-right': `${TOOLTIP_CONSTANT.HEIGHT}px solid transparent`,
-        'border-left': `${TOOLTIP_CONSTANT.HEIGHT}px solid transparent`,
-        'transform-origin': `50% -${TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON}px`,
+        'border-bottom': `${PopupConstant.TOOLTIP_TRIANGLE_HEIGHT}px solid #fff`,
+        'border-right': `${PopupConstant.TOOLTIP_TRIANGLE_HEIGHT}px solid transparent`,
+        'border-left': `${PopupConstant.TOOLTIP_TRIANGLE_HEIGHT}px solid transparent`,
+        'transform-origin': `50% -${PopupConstant.SPACE_FROM_BUTTON}px`,
     };
 
     constructor(
@@ -137,36 +131,36 @@ export class HelpViewerPopupContainerComponent implements OnInit, AfterViewInit,
             case HELP_VIEWER_WIDTH_STATE.OK:
                 switch (heightState) {
                     case HELP_VIEWER_HEIGHT_STATE.OK:
-                        this.setTooltipTriangleStyle(coordY + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON, coordX - TOOLTIP_CONSTANT.WIDTH / 2, '');
-                        pos = this.setPosition(coordY + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON + TOOLTIP_CONSTANT.HEIGHT, coordX - TOOLTIP_CONSTANT.START_POINT);
+                        this.setTooltipTriangleStyle(coordY + PopupConstant.SPACE_FROM_BUTTON, coordX - PopupConstant.TOOLTIP_TRIANGLE_WIDTH / 2, '');
+                        pos = this.setPosition(coordY + PopupConstant.SPACE_FROM_BUTTON + PopupConstant.TOOLTIP_TRIANGLE_HEIGHT, coordX - this.startPoint);
                         break;
                     case HELP_VIEWER_HEIGHT_STATE.DOWN_OVERFLOW:
-                        this.setTooltipTriangleStyle(coordY + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON, coordX - TOOLTIP_CONSTANT.WIDTH / 2, 'rotate(-180deg)');
-                        pos = this.setPosition(coordY - height - TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON - TOOLTIP_CONSTANT.HEIGHT, coordX - TOOLTIP_CONSTANT.START_POINT);
+                        this.setTooltipTriangleStyle(coordY + PopupConstant.SPACE_FROM_BUTTON, coordX - PopupConstant.TOOLTIP_TRIANGLE_WIDTH / 2, 'rotate(-180deg)');
+                        pos = this.setPosition(coordY - height - PopupConstant.SPACE_FROM_BUTTON - PopupConstant.TOOLTIP_TRIANGLE_HEIGHT, coordX - this.startPoint);
                         break;
                 }
                 break;
             case HELP_VIEWER_WIDTH_STATE.LEFT_OVERFLOW:
                 switch (heightState) {
                     case HELP_VIEWER_HEIGHT_STATE.OK:
-                        this.setTooltipTriangleStyle(coordY + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON, coordX - TOOLTIP_CONSTANT.WIDTH / 2, 'rotate(-90deg)');
-                        pos = this.setPosition(coordY - TOOLTIP_CONSTANT.START_POINT, coordX + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON + TOOLTIP_CONSTANT.HEIGHT);
+                        this.setTooltipTriangleStyle(coordY + PopupConstant.SPACE_FROM_BUTTON, coordX - PopupConstant.TOOLTIP_TRIANGLE_WIDTH / 2, 'rotate(-90deg)');
+                        pos = this.setPosition(coordY - this.startPoint, coordX + PopupConstant.SPACE_FROM_BUTTON + PopupConstant.TOOLTIP_TRIANGLE_HEIGHT);
                         break;
                     case HELP_VIEWER_HEIGHT_STATE.DOWN_OVERFLOW:
-                        this.setTooltipTriangleStyle(coordY + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON, coordX - TOOLTIP_CONSTANT.WIDTH / 2, 'rotate(-90deg)');
-                        pos = this.setPosition(coordY - height + TOOLTIP_CONSTANT.START_POINT, coordX + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON + TOOLTIP_CONSTANT.HEIGHT);
+                        this.setTooltipTriangleStyle(coordY + PopupConstant.SPACE_FROM_BUTTON, coordX - PopupConstant.TOOLTIP_TRIANGLE_WIDTH / 2, 'rotate(-90deg)');
+                        pos = this.setPosition(coordY - height + this.startPoint, coordX + PopupConstant.SPACE_FROM_BUTTON + PopupConstant.TOOLTIP_TRIANGLE_HEIGHT);
                         break;
                 }
                 break;
             case HELP_VIEWER_WIDTH_STATE.RIGHT_OVERFLOW:
                 switch (heightState) {
                     case HELP_VIEWER_HEIGHT_STATE.OK:
-                        this.setTooltipTriangleStyle(coordY + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON, coordX - TOOLTIP_CONSTANT.WIDTH / 2, 'rotate(90deg)');
-                        pos = this.setPosition(coordY - TOOLTIP_CONSTANT.START_POINT, coordX - width - TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON - TOOLTIP_CONSTANT.HEIGHT);
+                        this.setTooltipTriangleStyle(coordY + PopupConstant.SPACE_FROM_BUTTON, coordX - PopupConstant.TOOLTIP_TRIANGLE_WIDTH / 2, 'rotate(90deg)');
+                        pos = this.setPosition(coordY - this.startPoint, coordX - width - PopupConstant.SPACE_FROM_BUTTON - PopupConstant.TOOLTIP_TRIANGLE_HEIGHT);
                         break;
                     case HELP_VIEWER_HEIGHT_STATE.DOWN_OVERFLOW:
-                        this.setTooltipTriangleStyle(coordY + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON, coordX - TOOLTIP_CONSTANT.WIDTH / 2, 'rotate(90deg)');
-                        pos = this.setPosition(coordY - height + TOOLTIP_CONSTANT.START_POINT, coordX - width - TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON - TOOLTIP_CONSTANT.HEIGHT);
+                        this.setTooltipTriangleStyle(coordY + PopupConstant.SPACE_FROM_BUTTON, coordX - PopupConstant.TOOLTIP_TRIANGLE_WIDTH / 2, 'rotate(90deg)');
+                        pos = this.setPosition(coordY - height + this.startPoint, coordX - width - PopupConstant.SPACE_FROM_BUTTON - PopupConstant.TOOLTIP_TRIANGLE_HEIGHT);
                         break;
                 }
                 break;
@@ -176,7 +170,7 @@ export class HelpViewerPopupContainerComponent implements OnInit, AfterViewInit,
     }
 
     private checkWidth(width: number): HELP_VIEWER_WIDTH_STATE {
-        const value = this.coord.coordX - TOOLTIP_CONSTANT.START_POINT;
+        const value = this.coord.coordX - this.startPoint;
         const windowWidth = this.windowRefService.nativeWindow.innerWidth;
 
         return (value >= 0 && value + width <= windowWidth) ? HELP_VIEWER_WIDTH_STATE.OK
@@ -185,7 +179,7 @@ export class HelpViewerPopupContainerComponent implements OnInit, AfterViewInit,
     }
 
     private checkHeight(height: number): HELP_VIEWER_HEIGHT_STATE {
-        const value = this.coord.coordY + TOOLTIP_CONSTANT.DISTANCE_FROM_BUTTON + height;
+        const value = this.coord.coordY + PopupConstant.SPACE_FROM_BUTTON + height;
         const windowHeight = this.windowRefService.nativeWindow.innerHeight;
 
         return value <= windowHeight ? HELP_VIEWER_HEIGHT_STATE.OK : HELP_VIEWER_HEIGHT_STATE.DOWN_OVERFLOW;

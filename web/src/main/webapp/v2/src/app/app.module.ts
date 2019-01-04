@@ -27,6 +27,10 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 export const appRoutes: Routes = [
     {
+        path: UrlPath.CONFIG,
+        loadChildren: './routes/config-page/index#ConfigPageModule'
+    },
+    {
         path: UrlPath.ADMIN,
         loadChildren: './routes/admin-page/index#AdminPageModule'
     },

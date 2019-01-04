@@ -6,7 +6,7 @@ import { SharedModule } from 'app/shared';
 import { NoticeModule } from 'app/core/components/notice';
 import { DataLoadIndicatorModule } from 'app/core/components/data-load-indicator';
 import { StateButtonModule } from 'app/core/components/state-button';
-import { CommandGroupModule } from 'app/core/components/command-group';
+import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { FilteredMapContentsModule } from 'app/core/components/filtered-map-contents';
 import { SideBarModule } from 'app/core/components/side-bar';
 
@@ -21,7 +21,7 @@ import { FilteredMapPageComponent } from './filtered-map-page.component';
         NoticeModule,
         DataLoadIndicatorModule,
         StateButtonModule,
-        CommandGroupModule,
+        ConfigurationIconModule,
         FilteredMapContentsModule,
         SideBarModule,
         RouterModule.forChild(routing)
