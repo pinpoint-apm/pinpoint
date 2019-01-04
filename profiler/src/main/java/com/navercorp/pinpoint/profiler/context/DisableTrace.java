@@ -56,10 +56,6 @@ public class DisableTrace implements Trace {
         return startTime;
     }
 
-    @Override
-    public Thread getBindThread() {
-        return null;
-    }
 
     @Override
     public long getThreadId() {
@@ -112,10 +108,6 @@ public class DisableTrace implements Trace {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
-    @Override
-    public AsyncTraceId getAsyncTraceId() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
-    }
 
     @Override
     public boolean isClosed() {

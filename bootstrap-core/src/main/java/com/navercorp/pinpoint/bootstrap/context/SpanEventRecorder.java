@@ -54,12 +54,6 @@ public interface SpanEventRecorder extends FrameAttachment {
 
     void recordServiceType(ServiceType serviceType);
 
-    /**
-     * @since 1.8.1
-     */
-    @Deprecated
-    void recordRpcName(String rpc);
-
     void recordDestinationId(String destinationId);
 
     void recordEndPoint(String endPoint);
