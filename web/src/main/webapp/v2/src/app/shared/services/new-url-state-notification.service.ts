@@ -142,7 +142,7 @@ export class NewUrlStateNotificationService {
         return this.startPath || UrlPath.MAIN;
     }
     getPathValue(path: string): any {
-        return this.urlState[path].curr.get();
+        return this.urlState[path].curr && this.urlState[path].curr.get();
     }
     getQueryValue(query: string): any {
         return this.urlState[query].curr.get();
