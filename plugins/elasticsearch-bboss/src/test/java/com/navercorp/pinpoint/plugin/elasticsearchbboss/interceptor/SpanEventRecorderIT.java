@@ -110,10 +110,6 @@ public class SpanEventRecorderIT implements SpanEventRecorder {
 
 	}
 
-	@Override
-	public void recordRpcName(String rpc) {
-
-	}
 
 	@Override
 	public void recordDestinationId(String destinationId) {

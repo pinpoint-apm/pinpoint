@@ -59,11 +59,6 @@ public class TraceContextIT implements TraceContext {
 	}
 
 	@Override
-	public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
-		return null;
-	}
-
-	@Override
 	public Trace removeTraceObject() {
 		return null;
 	}
@@ -140,10 +135,6 @@ public class TraceContextIT implements TraceContext {
 		return null;
 	}
 
-	@Override
-	public int getAsyncId() {
-		return 0;
-	}
 
 	@Override
 	public JdbcContext getJdbcContext() {
