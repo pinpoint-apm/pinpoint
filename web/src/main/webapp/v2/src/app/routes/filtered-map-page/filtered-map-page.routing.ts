@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { FilteredMapContentsContainerComponent } from 'app/core/components/filtered-map-contents/filtered-map-contents-container.component';
 // import { NoneComponent } from 'app/shared/components/empty-contents';
-import { SystemConfigurationResolverService, ApplicationListResolverService } from 'app/shared/services';
+import { SystemConfigurationResolverService } from 'app/shared/services';
 // import { UrlValidateGuard } from 'app/shared/services';
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector/url-redirector.component';
 import { FilteredMapPageComponent } from './filtered-map-page.component';
@@ -14,7 +14,6 @@ export const routing: Routes = [
         component: FilteredMapPageComponent,
         resolve: {
             configuration: SystemConfigurationResolverService,
-            applicationList: ApplicationListResolverService
         },
         children: [
             {

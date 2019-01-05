@@ -89,7 +89,7 @@
     background:#fff;
 }
 .l-not-same {
-    color: #f27d70;
+    color: #f27d70 !important;
 }
 .l-not-same-button {
     float: right;

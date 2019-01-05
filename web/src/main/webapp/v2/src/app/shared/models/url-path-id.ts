@@ -85,6 +85,11 @@ export class UrlPathId {
     static SEARCH_ID = 'searchId';
     static STAT = 'stat';
     static AGENT = 'agent';
+    static GENERAL = 'general';
+    static USER_GROUP = 'userGroup';
+    static ALARM = 'alarm';
+    static INSTALLATION = 'installation';
+    static HELP = 'help';
 
     constructor() {}
     static getPathIdList(): string[] {

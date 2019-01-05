@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncTraceContext;
-import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,13 +31,11 @@ import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 public class AsyncTraceContextProvider implements Provider<AsyncTraceContext> {
 
 
-    private final AsyncIdGenerator asyncIdGenerator;
     private Provider<BaseTraceFactory> baseTraceFactoryProvider;
     private final Binder<Trace> binder;
 
     @Inject
-    public AsyncTraceContextProvider(final AsyncIdGenerator asyncIdGenerator, Binder<Trace> binder) {
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
+    public AsyncTraceContextProvider(Binder<Trace> binder) {
         this.binder = Assert.requireNonNull(binder, "binder must not be null");
     }
 
@@ -49,8 +46,6 @@ public class AsyncTraceContextProvider implements Provider<AsyncTraceContext> {
 
     @Override
     public AsyncTraceContext get() {
-        Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
-
-        return new DefaultAsyncTraceContext(baseTraceFactoryProvider,  asyncIdGenerator, binder);
+        return new DefaultAsyncTraceContext(baseTraceFactoryProvider,  binder);
     }
 }
