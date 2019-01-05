@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchPlugin;
+import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -36,11 +36,11 @@ public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperatio
 
 
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH);
+        recorder.recordServiceType(ElasticsearchConstants.ELASTICSEARCH);
         recorder.recordException(throwable);
         if (recordArgs && args != null && args.length > 0) {
             recorder.recordApi(getMethodDescriptor());
-//            recorder.recordAttribute(ElasticsearchPlugin.ARGS_ANNOTATION_KEY,convertParams(args));
+//            recorder.recordAttribute(ElasticsearchConstants.ARGS_ANNOTATION_KEY,convertParams(args));
         } else {
             recorder.recordApi(getMethodDescriptor());
         }

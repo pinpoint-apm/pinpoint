@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchPlugin;
+import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -39,7 +39,7 @@ public class SliceWorkerRunInterceptor extends AsyncContextSpanEventSimpleAround
 
 	@Override
 	protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-		recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH);
+		recorder.recordServiceType(ElasticsearchConstants.ELASTICSEARCH);
 		recorder.recordApi(methodDescriptor);
 		recorder.recordException(throwable);
 	}

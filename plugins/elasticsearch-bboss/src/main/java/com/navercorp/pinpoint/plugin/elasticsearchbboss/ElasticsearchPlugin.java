@@ -30,39 +30,18 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.trace.*;
 
 import java.security.ProtectionDomain;
 import java.util.List;
-
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 
 /**
  * @author yinbp[yin-bp@163.com]
  */
 public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAware {
-	public static final AnnotationKey ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(971, "es.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static int maxDslSize = 50000;
-	public static final ServiceType ELASTICSEARCH = ServiceTypeFactory.of(8804, "ElasticsearchBBoss");
-
-	public static final AnnotationKey ARGS_URL_ANNOTATION_KEY = AnnotationKeyFactory.of(972, "es.url", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(973, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_ACTION_ANNOTATION_KEY = AnnotationKeyFactory.of(974, "es.action", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_RESPONSEHANDLE_ANNOTATION_KEY = AnnotationKeyFactory.of(975, "es.responseHandle", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(976, "es.version", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(8805, "ElasticsearchBBossExecutor", TERMINAL, RECORD_STATISTICS);
-	private static final String ELASTICSEARCH_SCOPE = "ElasticsearchBBoss_SCOPE";
-	private static final String ELASTICSEARCH_SLICE_SCOPE = "ElasticsearchBBoss_SLICE_SCOPE";
-	private static final String ELASTICSEARCH_EXECUTOR_SCOPE = "ElasticsearchBBossExecutor_SCOPE";
-	private static final String[] clazzInterceptors = new String[]{
-			"org.frameworkset.elasticsearch.client.ConfigRestClientUtil",
-			"org.frameworkset.elasticsearch.client.RestClientUtil"
-	};
 
 
 	public static String[] getClazzInterceptors(){
-		return clazzInterceptors;
+		return ElasticsearchConstants.clazzInterceptors;
 	}
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -93,7 +72,7 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 	//  implementations
 	private void addElasticsearchInterceptors() {
 		final ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
-		for (final String interceptorClass: clazzInterceptors) {
+		for (final String interceptorClass: ElasticsearchConstants.clazzInterceptors) {
 			transformTemplate.transform(interceptorClass, new TransformCallback() {
 
 				@Override
@@ -106,11 +85,11 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 					final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(elasticsearchCustomMethodFilter);
 					for (InstrumentMethod methodToTrace : methodsToTrace) {
 						String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ElasticsearchOperationInterceptor";
-						methodToTrace.addScopedInterceptor(operationInterceptor, ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
+						methodToTrace.addScopedInterceptor(operationInterceptor, ElasticsearchConstants.ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
 					}
 					final List<InstrumentMethod> sliceMethodsToTrace = target.getDeclaredMethods(elasticsearchParallelMethodFilter);
 					for (InstrumentMethod methodToTrace : sliceMethodsToTrace) {
-						methodToTrace.addScopedInterceptor("com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ElasticsearchOperationAsyncInitiatorInterceptor", ELASTICSEARCH_SLICE_SCOPE);
+						methodToTrace.addScopedInterceptor("com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ElasticsearchOperationAsyncInitiatorInterceptor", ElasticsearchConstants.ELASTICSEARCH_SLICE_SCOPE);
 					}
 					return target.toBytecode();
 				}
@@ -136,7 +115,7 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 				//logger.info(operationInterceptor+" methodsToTrace",methodsToTrace);
 				for (InstrumentMethod methodToTrace : methodsToTrace) {
 
-					methodToTrace.addScopedInterceptor(operationInterceptor, ELASTICSEARCH_EXECUTOR_SCOPE, ExecutionPolicy.ALWAYS);
+					methodToTrace.addScopedInterceptor(operationInterceptor, ElasticsearchConstants.ELASTICSEARCH_EXECUTOR_SCOPE, ExecutionPolicy.ALWAYS);
 //                    methodToTrace.addInterceptor(operationInterceptor);
 				}
 
@@ -158,7 +137,7 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 										byte[] classfileBuffer) throws InstrumentException {
 
 				final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-				InterceptorScope scope = instrumentor.getInterceptorScope(ELASTICSEARCH_SLICE_SCOPE);
+				InterceptorScope scope = instrumentor.getInterceptorScope(ElasticsearchConstants.ELASTICSEARCH_SLICE_SCOPE);
 
 				target.addField(AsyncContextAccessor.class.getName());
 

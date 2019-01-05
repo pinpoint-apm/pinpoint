@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchPlugin;
+import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -44,7 +44,7 @@ public class ElasticsearchOperationAsyncInitiatorInterceptor  implements AroundI
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(ElasticsearchPlugin.ELASTICSEARCH);
+        recorder.recordServiceType(ElasticsearchConstants.ELASTICSEARCH);
         recorder.recordApi(descriptor);
 
         // To trace async invocations, you have to create AsyncContext like below, automatically attaching it to the current span event.
