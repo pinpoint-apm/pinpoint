@@ -138,9 +138,6 @@ public class SpanEvent extends DefaultFrameAttachment {
         return null;
     }
 
-    @Deprecated
-    public void setRpc(String rpc) {
-    }
 
     public short getServiceType() {
         return serviceType;

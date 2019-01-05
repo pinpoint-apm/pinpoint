@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
 import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
-import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 
 /**
  * @author emeroad
@@ -42,29 +41,28 @@ public class PinpointBootStrap {
 
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
-        if (agentArgs == null) {
-            agentArgs = "";
-        }
-        logger.info(ProductInfo.NAME + " agentArgs:" + agentArgs);
-        logger.info("classLoader:" + PinpointBootStrap.class.getClassLoader());
-        logger.info("contextClassLoader:" + Thread.currentThread().getContextClassLoader());
-        if (Object.class.getClassLoader() != PinpointBootStrap.class.getClassLoader()) {
-            final URL location = CodeSourceUtils.getCodeLocation(PinpointBootStrap.class);
-            logger.warn("Invalid pinpoint-bootstrap.jar:" + location);
-            return;
-        }
-
-
         final boolean success = STATE.start();
         if (!success) {
             logger.warn("pinpoint-bootstrap already started. skipping agent loading.");
             return;
         }
-        Map<String, String> agentArgsMap = argsToMap(agentArgs);
+
+        logger.info(ProductInfo.NAME + " agentArgs:" + agentArgs);
+        logger.info("getClassLoader():" + PinpointBootStrap.class.getClassLoader());
+        logger.info("getContextClassLoader():" + Thread.currentThread().getContextClassLoader());
 
         JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
         String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
         logger.info("JavaAgentPath:" + agentPath);
+
+        if (Object.class.getClassLoader() != PinpointBootStrap.class.getClassLoader()) {
+            // TODO bug : location is null
+            logger.warn("Invalid pinpoint-bootstrap.jar:" + agentArgs);
+            return;
+        }
+
+        final Map<String, String> agentArgsMap = argsToMap(agentArgs);
+
         final ClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(agentPath);
 
         final AgentDirectory agentDirectory = resolveAgentDir(classPathResolver);

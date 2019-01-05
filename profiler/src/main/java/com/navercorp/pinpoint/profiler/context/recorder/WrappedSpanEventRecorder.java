@@ -188,10 +188,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         spanEvent.setServiceType(serviceType.getCode());
     }
 
-    @Override
-    public void recordRpcName(String rpc) {
-        spanEvent.setRpc(rpc);
-    }
 
     @Override
     public void recordEndPoint(String endPoint) {

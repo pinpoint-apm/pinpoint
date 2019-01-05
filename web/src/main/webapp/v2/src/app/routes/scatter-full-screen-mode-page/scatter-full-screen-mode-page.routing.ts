@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ScatterChartForFullScreenModeContainerComponent } from 'app/core/components/scatter-chart/scatter-chart-for-full-screen-mode-container.component';
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector/url-redirector.component';
-import { SystemConfigurationResolverService, ApplicationListResolverService, ServerTimeResolverService } from 'app/shared/services';
+import { SystemConfigurationResolverService, ServerTimeResolverService } from 'app/shared/services';
 import { ScatterFullScreenModePageComponent } from './scatter-full-screen-mode-page.component';
 
 export const routing: Routes = [
@@ -11,7 +11,6 @@ export const routing: Routes = [
         component: ScatterFullScreenModePageComponent,
         resolve: {
             configuration: SystemConfigurationResolverService,
-            applicationList: ApplicationListResolverService
         },
         children: [
             {

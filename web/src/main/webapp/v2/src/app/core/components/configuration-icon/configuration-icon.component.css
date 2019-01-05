@@ -1,0 +1,12 @@
+:host {
+    display: block;
+}
+
+button {
+    outline: none;
+}
+
+.fa-cog {
+    color:#fff;
+    font-size: 18px;
+}

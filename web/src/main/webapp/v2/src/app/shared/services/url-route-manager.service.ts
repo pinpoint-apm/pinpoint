@@ -47,6 +47,12 @@ export class UrlRouteManagerService {
             UrlPath.REAL_TIME
         ]);
     }
+    moveToConfigPage(type: string): void {
+        this.router.navigate([
+            UrlPath.CONFIG,
+            type
+        ]);
+    }
     move({ url, needServerTimeRequest, nextUrl = [], queryParam }: { url: string[], needServerTimeRequest: boolean, nextUrl?: string[], queryParam?: any} ): void {
         if (needServerTimeRequest) {
             this.serverTimeDataService.getServerTime().subscribe(time => {
