@@ -22,9 +22,9 @@ public class RegisterInterceptor implements AroundInterceptor {
     public void before(Object target, Object[] args) {
         IMappingRegistry registry = traceContext.getMappingRegistry();
 
-        if(args[0] instanceof org.springframework.web.servlet.mvc.method.RequestMappingInfo){
-            registry.register(createRequestMappingInfo((org.springframework.web.servlet.mvc.method.RequestMappingInfo)args[0]), 1);
-        } else if (args[0] instanceof String){
+        if (args[0] instanceof org.springframework.web.servlet.mvc.method.RequestMappingInfo) {
+            registry.register(createRequestMappingInfo((org.springframework.web.servlet.mvc.method.RequestMappingInfo) args[0]), 1);
+        } else if (args[0] instanceof String) {
             registry.register(createRequestMappingInfo((String) args[0]), 1);
         }
 
@@ -32,7 +32,7 @@ public class RegisterInterceptor implements AroundInterceptor {
         System.out.println(target.getClass());
     }
 
-    private IRequestMappingInfo createRequestMappingInfo(String url){
+    private IRequestMappingInfo createRequestMappingInfo(String url) {
         return new RequestMappingInfo(url, "ALL");
     }
 
@@ -40,16 +40,18 @@ public class RegisterInterceptor implements AroundInterceptor {
         Set<String> patterns = springRequestMappingInfo.getPatternsCondition().getPatterns();
         Set<RequestMethod> methods = springRequestMappingInfo.getMethodsCondition().getMethods();
 
-        if(patterns != null && patterns.size() > 0 && methods!= null && methods.size() > 0){
+        if (patterns != null && patterns.size() > 0) {
             return new RequestMappingInfo(patterns.iterator().next(), convert(methods));
         }
         return null;
     }
 
-    private Set<String> convert(Set<RequestMethod> methods){
+    private Set<String> convert(Set<RequestMethod> methods) {
         Set<String> result = new HashSet<String>();
-        for(RequestMethod requestMethod : methods){
-            result.add(requestMethod.name());
+        if (methods != null) {
+            for (RequestMethod requestMethod : methods) {
+                result.add(requestMethod.name());
+            }
         }
 
         return result;

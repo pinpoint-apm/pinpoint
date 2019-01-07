@@ -39,7 +39,7 @@ public class RequestMappingInfo implements IRequestMappingInfo {
     }
 
     public boolean match(String uri, String method) {
-        return (methods.contains("ALL") || methods.contains(method)) && antPathMatcher.isMatched(uri);
+        return (methods.size() == 0 || methods.contains("ALL") || methods.contains(method)) && antPathMatcher.isMatched(uri);
     }
 
     public String getTransactionType() {
