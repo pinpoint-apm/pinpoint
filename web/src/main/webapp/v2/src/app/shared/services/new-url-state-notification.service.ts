@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { pluck } from 'rxjs/operators';
 
-import { WebAppSettingDataService } from 'app/shared/services/web-app-setting-data.service';
+import { ComponentDefaultSettingDataService } from 'app/shared/services/component-default-setting-data.service';
 import { EndTime } from 'app/core/models/end-time';
 import { UrlPath, UrlPathIdFactory, UrlPathId, IUrlPathId, UrlQueryFactory, UrlQuery, IUrlQuery } from 'app/shared/models';
 
@@ -21,10 +23,11 @@ export class NewUrlStateNotificationService {
     private urlState: IUrlState = {};
     private innerRouteData: IGeneral = {};
     private onUrlStateChange: BehaviorSubject<NewUrlStateNotificationService> = new BehaviorSubject(null);
+    private pageComponentRoute: ActivatedRoute;
 
     onUrlStateChange$: Observable<NewUrlStateNotificationService>;
 
-    constructor(private webAppSettingDataService: WebAppSettingDataService) {
+    constructor(private componentDefaultSettingDataService: ComponentDefaultSettingDataService) {
         this.onUrlStateChange$ = this.onUrlStateChange.asObservable();
         this.initState();
     }
@@ -42,10 +45,11 @@ export class NewUrlStateNotificationService {
             };
         });
     }
-    updateUrl(startPath: string, pathParams: IGeneral, queryParams: IGeneral, routeData: IGeneral): void {
+    updateUrl(startPath: string, pathParams: IGeneral, queryParams: IGeneral, routeData: IGeneral, pageComponentRoute?: ActivatedRoute): void {
         const bStartPathChanged = this.updateStartPath(startPath);
         const bPathChanged = this.updatePathId(pathParams);
         const bQueryChanged = this.updateQuery(queryParams);
+        this.pageComponentRoute = pageComponentRoute;
         this.updateRouteData(routeData);
 
         if (bStartPathChanged || bPathChanged || bQueryChanged) {
@@ -90,7 +94,7 @@ export class NewUrlStateNotificationService {
         this.urlState[UrlPathId.END_TIME].prev = this.urlState[UrlPathId.END_TIME].curr;
         this.urlState[UrlPathId.END_TIME].curr = UrlPathIdFactory.createPath(UrlPathId.END_TIME, EndTime.formatDate((Number(focusTimeStamp) + (1000 * 60 * 10))));
         this.urlState[UrlPathId.PERIOD].prev = this.urlState[UrlPathId.PERIOD].curr;
-        this.urlState[UrlPathId.PERIOD].curr = UrlPathIdFactory.createPath(UrlPathId.PERIOD, this.webAppSettingDataService.getSystemDefaultTransactionViewPeriod().getValueWithTime());
+        this.urlState[UrlPathId.PERIOD].curr = UrlPathIdFactory.createPath(UrlPathId.PERIOD, this.componentDefaultSettingDataService.getSystemDefaultTransactionViewPeriod().getValueWithTime());
     }
     private updateQuery(queryParams: IGeneral): boolean {
         let updated = false;
@@ -118,7 +122,12 @@ export class NewUrlStateNotificationService {
         this.urlState[query].curr = newQueryObject;
     }
     private updateRouteData(routeData: IGeneral) {
-        this.innerRouteData = routeData;
+        Object.assign(this.innerRouteData, routeData);
+    }
+    getConfiguration(key: string): Observable<any> {
+        return this.pageComponentRoute.data.pipe(
+            pluck('configuration', key)
+        );
     }
     isRealTimeMode(type?: string): boolean {
         if (typeof type === 'string') {
@@ -149,7 +158,7 @@ export class NewUrlStateNotificationService {
     }
     getStartTimeToNumber(): number {
         if (this.isRealTimeMode()) {
-            return this.getUrlServerTimeData() - (this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds());
+            return this.getUrlServerTimeData() - (this.componentDefaultSettingDataService.getSystemDefaultPeriod().getMiliSeconds());
         } else {
             return this.getPathValue(UrlPathId.END_TIME).calcuStartTime(this.getPathValue(UrlPathId.PERIOD).getValue()).getDate().valueOf();
         }
