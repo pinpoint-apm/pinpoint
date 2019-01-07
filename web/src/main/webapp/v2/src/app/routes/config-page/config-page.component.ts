@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { take, map } from 'rxjs/operators';
 
-import { UrlRouteManagerService } from 'app/shared/services';
+import { UrlRouteManagerService, StoreHelperService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-config-page',
@@ -10,9 +11,18 @@ import { UrlRouteManagerService } from 'app/shared/services';
 export class ConfigPageComponent implements OnInit {
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
+        private storeHelperService: StoreHelperService
     ) {}
+
     ngOnInit() {}
-    onMoveBack(): void {
-        this.urlRouteManagerService.back();
+    onClickExit(): void {
+        this.storeHelperService.getURLPath().pipe(
+            take(1),
+            map((urlPath: string) => {
+                return urlPath.split('/').slice(1).map((path: string) => decodeURIComponent(path));
+            })
+        ).subscribe((url: string[]) => {
+            this.urlRouteManagerService.moveOnPage({ url });
+        });
     }
 }
