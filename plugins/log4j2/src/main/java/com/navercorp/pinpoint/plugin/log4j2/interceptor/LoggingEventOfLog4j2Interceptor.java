@@ -23,11 +23,9 @@ public class LoggingEventOfLog4j2Interceptor implements AroundInterceptor0 {
     @Override
     public void before(Object target) {
         Trace trace = traceContext.currentTraceObject();
-
         if (trace == null) {
             MDC.remove(TRANSACTION_ID);
             MDC.remove(SPAN_ID);
-            return;
         } else {
             MDC.put(TRANSACTION_ID, trace.getTraceId().getTransactionId());
             MDC.put(SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
