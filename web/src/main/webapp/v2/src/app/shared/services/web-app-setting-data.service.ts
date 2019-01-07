@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { LocalStorageService } from 'angular-2-local-storage';
 import 'moment-timezone';
 import * as moment from 'moment-timezone';
-import { pluck } from 'rxjs/operators';
 
 import { AppState, Actions } from 'app/shared/store';
 import { ComponentDefaultSettingDataService } from 'app/shared/services/component-default-setting-data.service';
 import { Application, Period } from 'app/core/models';
+import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
 
 interface IMinMax {
     min: number;
@@ -36,51 +35,34 @@ export class WebAppSettingDataService {
     private LOGO_IMG_NAME = 'logo.png';
     constructor(
         private store: Store<AppState>,
-        private activatedRoute: ActivatedRoute,
         private localStorageService: LocalStorageService,
-        private componentDefaultSettingDataService: ComponentDefaultSettingDataService
+        private componentDefaultSettingDataService: ComponentDefaultSettingDataService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService
     ) {
         this.store.dispatch(new Actions.AddFavoriteApplication(this.getFavoriteApplicationList()));
         this.store.dispatch(new Actions.ChangeTimezone(this.getTimezone()));
         this.store.dispatch(new Actions.ChangeDateFormat(this.getDateFormat()));
     }
-    private getConfigurationData(): Observable<any> {
-        return this.activatedRoute.children[0].children[0].data;
-    }
     useActiveThreadChart(): Observable<boolean> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'showActiveThread')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('showActiveThread');
     }
     getUserId(): Observable<string | undefined> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'userId')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('userId');
     }
     getUserDepartment(): Observable<string | undefined> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'userDepartment')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('userDepartment');
     }
     useUserEdit(): Observable<boolean> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'editUserInfo')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('editUserInfo');
     }
     isDataUsageAllowed(): Observable<boolean> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'sendUsage')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('sendUsage');
     }
     getVersion(): Observable<string> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'version')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('version');
     }
     isApplicationInspectorActivated(): Observable<boolean> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'showApplicationStat')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('showApplicationStat');
     }
     getImagePath(): string {
         return this.IMAGE_PATH;

@@ -20,7 +20,7 @@ export class RouteInfoCollectorService {
             const pathIds = {};
             const queryParams = {};
             this.collectUrlInfo(this.activatedRoute.snapshot.children, pathIds, queryParams, innerData);
-            this.newUrlStateNotificationService.updateUrl(startPath, pathIds, queryParams, innerData);
+            this.newUrlStateNotificationService.updateUrl(startPath, pathIds, queryParams, innerData, this.activatedRoute.children[0].children[0]);
             this.analyticsService.trackPage(startPath);
         });
     }
