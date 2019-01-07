@@ -55,9 +55,8 @@ public class JarProfilerPluginClassInjectorTest {
          final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(Collections.singletonList(LOG4_IMPL));
         PluginConfig pluginConfig = new PluginConfig(plugin, pluginPackageFilter);
         logger.debug("pluginConfig:{}", pluginConfig);
-        BootstrapCore bootstrapCore = new BootstrapCore(Collections.<String>emptyList());
 
-        PlainClassLoaderHandler injector = new PlainClassLoaderHandler(pluginConfig, bootstrapCore);
+        ClassInjector injector = new PlainClassLoaderHandler(pluginConfig);
         final Class<?> loggerClass = injector.injectClass(contextTypeMatchClassLoader, logger.getClass().getName());
 
         logger.debug("ClassLoader{}", loggerClass.getClassLoader());

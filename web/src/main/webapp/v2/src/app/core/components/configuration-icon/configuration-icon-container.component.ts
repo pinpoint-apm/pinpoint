@@ -1,7 +1,8 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
-import { AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
+import { AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, StoreHelperService, WindowRefService } from 'app/shared/services';
 import { ConfigurationPopupContainerComponent } from 'app/core/components/configuration-popup/configuration-popup-container.component';
+import { Actions } from 'app/shared/store';
 
 @Component({
     selector: 'pp-configuration-icon-container',
@@ -13,6 +14,8 @@ export class ConfigurationIconContainerComponent implements OnInit {
     constructor(
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private storeHelperService: StoreHelperService,
+        private windowRefService: WindowRefService,
     ) {}
 
     ngOnInit() {}
@@ -22,5 +25,12 @@ export class ConfigurationIconContainerComponent implements OnInit {
             coord,
             component: ConfigurationPopupContainerComponent
         });
+        this.updateURLPathState();
+    }
+
+    private updateURLPathState(): void {
+        const pathName = (this.windowRefService.nativeWindow as Window).location.pathname;
+
+        this.storeHelperService.dispatch(new Actions.UpdateURLPath(pathName));
     }
 }

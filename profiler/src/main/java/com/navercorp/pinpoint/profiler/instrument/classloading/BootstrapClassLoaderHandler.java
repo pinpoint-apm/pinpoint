@@ -34,15 +34,13 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final PluginConfig pluginConfig;
-    private final BootstrapCore bootstrapCore;
     private final InstrumentEngine instrumentEngine;
 
     private final Object lock = new Object();
     private volatile boolean injectedToRoot = false;
 
-    public BootstrapClassLoaderHandler(PluginConfig pluginConfig, BootstrapCore bootstrapCore, InstrumentEngine instrumentEngine) {
+    public BootstrapClassLoaderHandler(PluginConfig pluginConfig, InstrumentEngine instrumentEngine) {
         this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
-        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
         this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
     }
 
@@ -84,9 +82,6 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
             if (targetClassLoader == null) {
-                if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {
-                    return bootstrapCore.openStream(internalName);
-                }
                 ClassLoader classLoader = ClassLoader.getSystemClassLoader();
                 if (classLoader == null) {
                     return null;

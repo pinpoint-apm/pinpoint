@@ -23,6 +23,7 @@ import * as serverMap from './server-map.reducer';
 import * as serverMapSelectedTarget from './server-map-selected-target.reducer';
 import * as serverMapLoadingState from './server-map-loading-state.reducer';
 import * as uiState from './ui-state.reducer';
+import * as urlPath from './url-path.reducer';
 
 
 export interface AppState {
@@ -75,7 +76,8 @@ export const STORE_KEY = {
     SERVER_MAP_TARGET_SELECTED_BY_LIST: 'serverMapTargetSelectByList',
     ADMIN_AGENT_LIST: 'adminAgentList',
     SERVER_AND_AGENT: 'serverAndAgent',
-    UI_STATE: 'uiState'
+    UI_STATE: 'uiState',
+    URL_PATH: 'urlPath'
 };
 
 
@@ -103,7 +105,8 @@ export const reducers: ActionReducerMap<any> = {
     adminAgentList: admin.Reducer,
     serverAndAgent: serverAndAgent.Reducer,
     uiState: uiState.Reducer,
-    timeline: timeline.Reducer
+    timeline: timeline.Reducer,
+    urlPath: urlPath.Reducer
 };
 
 export const Actions = {
@@ -131,7 +134,8 @@ export const Actions = {
     'UpdateAdminAgentList': admin.UpdateAdminAgentList,
     'ChangeServerMapDisableState': uiState.ChangeServerMapDisableState,
     'ChangeInfoPerServerVisibleState': uiState.ChangeInfoPerServerVisibleState,
-    'UpdateTimelineData': timeline.UpdateTimelineData
+    'UpdateTimelineData': timeline.UpdateTimelineData,
+    'UpdateURLPath': urlPath.UpdateURLPath
 };
 
 const getUI = createFeatureSelector('uiState');

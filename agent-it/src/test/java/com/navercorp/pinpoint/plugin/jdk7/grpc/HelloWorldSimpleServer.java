@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.grpc;
+package com.navercorp.pinpoint.plugin.jdk7.grpc;
 
 import com.navercorp.pinpoint.plugin.SocketUtils;
 import io.grpc.Server;
