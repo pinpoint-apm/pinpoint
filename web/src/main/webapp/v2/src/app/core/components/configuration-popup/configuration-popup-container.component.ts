@@ -46,7 +46,7 @@ export class ConfigurationPopupContainerComponent implements OnInit, AfterViewIn
         this.outClose.emit();
     }
 
-    onOpenGithub(): void {
+    onOpenLink(): void {
         this.windowRefService.nativeWindow.open('http://github.com/naver/pinpoint');
         this.outClose.emit();
     }
