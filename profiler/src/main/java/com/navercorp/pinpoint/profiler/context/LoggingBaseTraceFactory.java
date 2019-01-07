@@ -105,4 +105,10 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
 
         return baseTraceFactory.newAsyncTraceObject();
     }
+
+    public Trace newAsyncTraceObject(String transactionType) {
+        logger.debug("newAsyncTraceObject()");
+
+        return baseTraceFactory.newAsyncTraceObject(transactionType);
+    }
 }

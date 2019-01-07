@@ -52,6 +52,7 @@ public interface TraceContext {
     @InterfaceStability.Evolving
     @InterfaceAudience.LimitedPrivate("vert.x")
     Trace newAsyncTraceObject();
+    Trace newAsyncTraceObject(String transactionType);
 
     /**
      * internal experimental api

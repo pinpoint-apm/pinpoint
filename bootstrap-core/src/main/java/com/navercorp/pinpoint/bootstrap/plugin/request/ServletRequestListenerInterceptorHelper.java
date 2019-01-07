@@ -119,8 +119,6 @@ public class ServletRequestListenerInterceptorHelper<T> {
             this.proxyHttpHeaderRecorder.record(recorder, request);
         }
 
-        IRequestMappingInfo  mappingInfo = traceContext.getMappingRegistry().match(requestURI, requestAdaptor.getMethod(request));
-        System.out.println(mappingInfo.getTransactionType());
         return trace;
     }
 

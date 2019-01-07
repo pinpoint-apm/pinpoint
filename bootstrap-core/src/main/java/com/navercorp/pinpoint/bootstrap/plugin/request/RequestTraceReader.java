@@ -134,7 +134,7 @@ public class RequestTraceReader<T> {
 
     private Trace newTrace(String transactionType) {
         if (this.async) {
-            return this.traceContext.newAsyncTraceObject();
+            return this.traceContext.newAsyncTraceObject(transactionType);
         }
         return this.traceContext.newTraceObject(transactionType);
     }

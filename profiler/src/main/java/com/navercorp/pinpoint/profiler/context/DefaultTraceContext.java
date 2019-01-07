@@ -147,6 +147,11 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.newAsyncTraceObject();
     }
 
+    @Override
+    public Trace newAsyncTraceObject(String transactionType) {
+        return traceFactory.newAsyncTraceObject(transactionType);
+    }
+
     @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace continueAsyncTraceObject(final TraceId traceId) {

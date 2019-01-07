@@ -73,6 +73,11 @@ public class MetricTraceFactory implements TraceFactory {
     }
 
     @Override
+    public Trace newAsyncTraceObject(String transactionType) {
+        return delegate.newAsyncTraceObject(transactionType);
+    }
+
+    @Override
     public Trace continueAsyncTraceObject(TraceId traceId) {
         return delegate.continueAsyncTraceObject(traceId);
     }

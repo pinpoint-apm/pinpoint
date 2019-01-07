@@ -214,29 +214,45 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         if (sampling) {
 
             final TraceRoot traceRoot = traceRootFactory.newTraceRoot();
-            final Span span = spanFactory.newSpan(traceRoot);
-
-            final Storage storage = storageFactory.createStorage(traceRoot);
-            final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
-
-            final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
-            final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory);
-            final AsyncState asyncState = new ListenableAsyncState(asyncStateListener, handle);
-
-
-            final TraceId traceId = traceRoot.getTraceId();
-            final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
-            final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot, asyncState);
-
-
-            final DefaultTrace trace = new DefaultTrace(span, callStack, storage, sampling, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
-
-            final AsyncTrace asyncTrace = new AsyncTrace(traceRoot, trace, asyncState);
-
-            return asyncTrace;
+            return newAsyncTraceObject(sampling, traceRoot);
         } else {
             return newDisableTrace();
         }
+    }
+
+    public Trace newAsyncTraceObject(String transactionType) {
+
+        final boolean sampling = sampler.isSampling(transactionType);
+        if (sampling) {
+
+            final TraceRoot traceRoot = traceRootFactory.newTraceRoot(transactionType);
+            return newAsyncTraceObject(sampling, traceRoot);
+        } else {
+            return newDisableTrace();
+        }
+    }
+
+    private Trace newAsyncTraceObject(boolean sampling, TraceRoot traceRoot) {
+        final Span span = spanFactory.newSpan(traceRoot);
+
+        final Storage storage = storageFactory.createStorage(traceRoot);
+        final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
+
+        final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
+        final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory);
+        final AsyncState asyncState = new ListenableAsyncState(asyncStateListener, handle);
+
+
+        final TraceId traceId = traceRoot.getTraceId();
+        final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
+        final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot, asyncState);
+
+
+        final DefaultTrace trace = new DefaultTrace(span, callStack, storage, sampling, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
+
+        final AsyncTrace asyncTrace = new AsyncTrace(traceRoot, trace, asyncState);
+
+        return asyncTrace;
     }
 
     private Trace newDisableTrace() {

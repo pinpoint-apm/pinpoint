@@ -162,4 +162,14 @@ public class DefaultTraceFactory implements TraceFactory {
         bind(reference, trace);
         return trace;
     }
+
+    @Override
+    public Trace newAsyncTraceObject(String transactionType) {
+        final Reference<Trace> reference = checkAndGet();
+
+        final Trace trace = this.baseTraceFactory.newAsyncTraceObject(transactionType);
+
+        bind(reference, trace);
+        return trace;
+    }
 }
