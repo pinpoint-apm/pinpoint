@@ -135,6 +135,11 @@ profiler.log4j.logging.transactioninfo=true
 # logback
 ###########################################################
 profiler.logback.logging.transactioninfo=false
+
+###########################################################
+# log4j2
+###########################################################
+profiler.log4j2.logging.transactioninfo=false
 ```
 
 ex) pinpoint.config when using logback
@@ -148,6 +153,29 @@ profiler.log4j.logging.transactioninfo=false
 # logback
 ###########################################################
 profiler.logback.logging.transactioninfo=true
+
+###########################################################
+# log4j2
+###########################################################
+profiler.log4j2.logging.transactioninfo=false
+```
+
+ex) pinpoint.config when using log4j2
+```
+###########################################################
+# log4j
+###########################################################
+profiler.log4j.logging.transactioninfo=false
+
+###########################################################
+# logback
+###########################################################
+profiler.logback.logging.transactioninfo=false
+
+###########################################################
+# log4j2
+###########################################################
+profiler.log4j2.logging.transactioninfo=true
 ```
 
 **2-2 log4j, logback configuration**
@@ -186,6 +214,17 @@ After
           <Pattern >%d{HH:mm} %-5level %logger{36} - [TxId : %X{PtxId} , SpanId : %X{PspanId}] %msg%n</Pattern >
      </layout >
 </appender >
+```
+ex) log4j2 : log4j2.xml
+```xml
+Before
+<console name="STDOUT" target="SYSTEM_OUT">
+    <PatternLayout pattern="%d{HH:mm} %-5level %logger{36} - %msg%n"/>
+</console>
+After
+<console name="STDOUT" target="SYSTEM_OUT">
+    <PatternLayout pattern="%d{HH:mm} %-5level %logger{36} - [TxId : %X{PtxId} , SpanId : %X{PspanId}] %msg%n"/>
+</console>
 ```
 
 **2-3 Checking log message**
@@ -406,6 +445,12 @@ profiler.log4j.logging.transactioninfo=true
 # logback
 ###########################################################
 profiler.logback.logging.transactioninfo=false
+
+###########################################################
+# log4j2
+###########################################################
+profiler.log4j2.logging.transactioninfo=false
+
 ```
 
 ex) Pinpoint.config  - logback 를 사용할 경우
@@ -419,8 +464,32 @@ profiler.log4j.logging.transactioninfo=false
 # logback
 ###########################################################
 profiler.logback.logging.transactioninfo=true
+
+###########################################################
+# log4j2
+###########################################################
+profiler.log4j2.logging.transactioninfo=false
+
 ```
 
+ex) Pinpoint.config  - log4j2 를 사용할 경우
+```
+###########################################################
+# log4j
+###########################################################
+profiler.log4j.logging.transactioninfo=false
+
+###########################################################
+# logback
+###########################################################
+profiler.logback.logging.transactioninfo=false
+
+###########################################################
+# log4j2
+###########################################################
+profiler.log4j2.logging.transactioninfo=true
+
+```
 **2-2 log4j, logback 설정 파일 설정**
 
 logging 설정 파일의 log message pattern 설정에 Pinpoint에서 MDC에 저장한 transactionId, spanId값이 출력될수 있도록 설정을 추가하자.
