@@ -24,9 +24,16 @@ public class RegisterInterceptor implements AroundInterceptor {
 
         if(args[0] instanceof org.springframework.web.servlet.mvc.method.RequestMappingInfo){
             registry.register(createRequestMappingInfo((org.springframework.web.servlet.mvc.method.RequestMappingInfo)args[0]), 1);
+        } else if (args[0] instanceof String){
+            registry.register(createRequestMappingInfo((String) args[0]), 1);
         }
+
         System.out.println(registry);
         System.out.println(target.getClass());
+    }
+
+    private IRequestMappingInfo createRequestMappingInfo(String url){
+        return new RequestMappingInfo(url, "ALL");
     }
 
     private IRequestMappingInfo createRequestMappingInfo(org.springframework.web.servlet.mvc.method.RequestMappingInfo springRequestMappingInfo) {
