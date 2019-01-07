@@ -12,7 +12,7 @@ export const routing: Routes = [
         path: '',
         component: TransactionDetailPageComponent,
         resolve: {
-            configuration: SystemConfigurationResolverService,
+            configuration: SystemConfigurationResolverService
         },
         children: [
             {
