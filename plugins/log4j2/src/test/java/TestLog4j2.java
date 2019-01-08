@@ -151,7 +151,7 @@ public class TestLog4j2 {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint.config");
         ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
         Log4j2Config log4j2Config = new Log4j2Config(profilerConfig);
-        Assert.assertTrue(!log4j2Config.isLog4j2LoggingTransactionInfo());
+        Assert.assertTrue(log4j2Config.isLog4j2LoggingTransactionInfo());
 
     }
 }
