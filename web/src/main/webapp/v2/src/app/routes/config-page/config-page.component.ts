@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { take, map } from 'rxjs/operators';
 
-import { UrlRouteManagerService, StoreHelperService } from 'app/shared/services';
+import { RouteInfoCollectorService, UrlRouteManagerService, StoreHelperService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-config-page',
@@ -10,6 +10,7 @@ import { UrlRouteManagerService, StoreHelperService } from 'app/shared/services'
 })
 export class ConfigPageComponent implements OnInit {
     constructor(
+        private routeInfoCollectorService: RouteInfoCollectorService,
         private urlRouteManagerService: UrlRouteManagerService,
         private storeHelperService: StoreHelperService
     ) {}
