@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.common.util.Assert;
-import org.objectweb.asm.tree.ClassNode;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,12 +35,8 @@ public class ASMNestedClass implements InstrumentClass {
 
     private final ASMClass aClass;
 
-    public ASMNestedClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, final ClassNode classNode) {
-        this.aClass = new ASMClass(engineComponent, pluginContext, classLoader, classNode);
-    }
-
-    public ASMNestedClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, final ASMClassNodeAdapter classNodeAdapter) {
-        this.aClass = new ASMClass(engineComponent, pluginContext, classLoader, classNodeAdapter);
+    public ASMNestedClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ASMClassNodeAdapter classNodeAdapter) {
+        this.aClass = new ASMClass(engineComponent, pluginContext, classNodeAdapter);
     }
 
     public ClassLoader getClassLoader() {

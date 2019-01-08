@@ -35,6 +35,29 @@ public class ClassScannerFactory {
             return new ClassLoaderScanner(classLoader);
         }
 
+        final Scanner scanner = newURLScanner(codeLocation);
+        if (scanner != null) {
+            return scanner;
+        }
+
+        throw new IllegalArgumentException("unknown scanner type classLoader:" + classLoader + " protectionDomain:" + protectionDomain);
+    }
+
+
+    public static Scanner newScanner(ProtectionDomain protectionDomain) {
+        final URL codeLocation = CodeSourceUtils.getCodeLocation(protectionDomain);
+        if (codeLocation == null) {
+            return null;
+        }
+
+        final Scanner scanner = newURLScanner(codeLocation);
+        if (scanner != null) {
+            return scanner;
+        }
+        return null;
+    }
+
+    private static Scanner newURLScanner(URL codeLocation) {
         final String protocol = codeLocation.getProtocol();
         if (isFileProtocol(protocol)) {
             final String path = codeLocation.getPath();
@@ -47,8 +70,9 @@ public class ClassScannerFactory {
                 return new DirectoryScanner(path);
             }
         }
-        throw new IllegalArgumentException("unknown scanner type classLoader:" + classLoader + " protectionDomain:" + protectionDomain);
+        return null;
     }
+
 
     static boolean isJarExtension(String path) {
         if (path == null) {
