@@ -1,18 +1,18 @@
 import com.navercorp.pinpoint.bootstrap.config.*;
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.log4j2.Log4j2Config;
 import com.navercorp.pinpoint.plugin.log4j2.Log4j2Plugin;
 import com.navercorp.pinpoint.plugin.log4j2.interceptor.LoggingEventOfLog4j2Interceptor;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.MDC;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import static org.mockito.Mockito.*;
 
 /**
  * @Author: 21627@etransfar.com
@@ -21,162 +21,49 @@ import java.util.Properties;
  */
 public class TestLog4j2 {
 
+    static final String LOG4J2_LOGGING_TRANSACTION_INFO = "profiler.log4j2.logging.transactioninfo";
+
+    Log4j2Plugin plugin = new Log4j2Plugin();
+
+    @Test
+    public void setTransformTemplate() {
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
+        plugin.setTransformTemplate(new TransformTemplate(instrumentContext));
+    }
+
     private static final String TRANSACTION_ID = "PtxId";
 
     @Test
     public void testLoggingEventOfLog4j2Interceptor() {
-
-        TraceContext traceContext = new TraceContext() {
-            @Override
-            public Trace currentTraceObject() {
-                return null;
-            }
-
-            @Override
-            public Trace currentRawTraceObject() {
-                return null;
-            }
-
-            @Override
-            public Trace continueTraceObject(TraceId traceId) {
-                return null;
-            }
-
-            @Override
-            public Trace continueTraceObject(Trace trace) {
-                return null;
-            }
-
-            @Override
-            public Trace newTraceObject() {
-                return null;
-            }
-
-            @Override
-            public Trace newAsyncTraceObject() {
-                return null;
-            }
-
-            @Override
-            public Trace continueAsyncTraceObject(TraceId traceId) {
-                return null;
-            }
-
-            @Override
-            public Trace removeTraceObject() {
-                return null;
-            }
-
-            @Override
-            public Trace removeTraceObject(boolean closeDisableTrace) {
-                return null;
-            }
-
-            @Override
-            public String getAgentId() {
-                return null;
-            }
-
-            @Override
-            public String getApplicationName() {
-                return null;
-            }
-
-            @Override
-            public long getAgentStartTime() {
-                return 0;
-            }
-
-            @Override
-            public short getServerTypeCode() {
-                return 0;
-            }
-
-            @Override
-            public String getServerType() {
-                return null;
-            }
-
-            @Override
-            public int cacheApi(MethodDescriptor methodDescriptor) {
-                return 0;
-            }
-
-            @Override
-            public int cacheString(String value) {
-                return 0;
-            }
-
-            @Override
-            public ParsingResult parseSql(String sql) {
-                return null;
-            }
-
-            @Override
-            public boolean cacheSql(ParsingResult parsingResult) {
-                return false;
-            }
-
-            @Override
-            public TraceId createTraceId(String transactionId, long parentSpanId, long spanId, short flags) {
-                return null;
-            }
-
-            @Override
-            public Trace disableSampling() {
-                return null;
-            }
-
-            @Override
-            public ProfilerConfig getProfilerConfig() {
-                return null;
-            }
-
-            @Override
-            public ServerMetaDataHolder getServerMetaDataHolder() {
-                return null;
-            }
-
-            @Override
-            public JdbcContext getJdbcContext() {
-                return null;
-            }
-        };
+        TraceContext traceContext = mock(TraceContext.class);
         LoggingEventOfLog4j2Interceptor interceptor = new LoggingEventOfLog4j2Interceptor(traceContext);
         interceptor.before(null);
+        interceptor.after(null, null, null);
         Assert.assertTrue(MDC.get(TRANSACTION_ID) == null);
     }
 
     @Test
     public void testLog4j2Config() {
-        try {
-            Log4j2Config log4j2Config = new Log4j2Config(null);
-            log4j2Config.isLog4j2LoggingTransactionInfo();
-        } catch (Exception e) {
-            Assert.assertTrue(e instanceof NullPointerException);
-        }
+        ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
+        Log4j2Config log4j2Config = new Log4j2Config(profilerConfig);
+        Assert.assertTrue(!StringUtils.isEmpty(log4j2Config.toString()));
+        Assert.assertTrue(!log4j2Config.isLog4j2LoggingTransactionInfo());
+
     }
 
     @Test
-    public void testLog4j2ConfigToString() {
-        try {
-            Log4j2Config log4j2Config = new Log4j2Config(null);
-            log4j2Config.toString();
-        } catch (Exception e) {
-            Assert.assertTrue(e instanceof NullPointerException);
-        }
+    public void testSetup() {
+        ProfilerPluginSetupContext profilerPluginSetupContext = spy(ProfilerPluginSetupContext.class);
+        DefaultProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        when(profilerPluginSetupContext.getConfig()).thenReturn(profilerConfig);
+        when(profilerConfig.readBoolean(LOG4J2_LOGGING_TRANSACTION_INFO,false)).thenReturn(true);
+        Log4j2Config log4j2Config = spy(new Log4j2Config(profilerConfig));
+        when(log4j2Config.isLog4j2LoggingTransactionInfo()).thenReturn(true);
+
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
+        plugin.setTransformTemplate(new TransformTemplate(instrumentContext));
+        plugin.setup(profilerPluginSetupContext);
     }
 
-
-    @Test
-    public void testLog4j2Plugin() {
-        try {
-            Log4j2Plugin plugin = new Log4j2Plugin();
-            plugin.setTransformTemplate(null);
-            plugin.setup(null);
-        } catch (Exception e) {
-            Assert.assertTrue(e instanceof NullPointerException);
-        }
-    }
 
 }
