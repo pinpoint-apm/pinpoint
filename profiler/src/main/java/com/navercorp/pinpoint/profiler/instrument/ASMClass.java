@@ -45,6 +45,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,27 +61,23 @@ public class ASMClass implements InstrumentClass {
     private final EngineComponent engineComponent;
 
     private final InstrumentContext pluginContext;
-    private final ClassLoader classLoader;
 
     private final ASMClassNodeAdapter classNode;
     private boolean modified = false;
     private String name;
 
-    public ASMClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, final ClassNode classNode) {
-        this(engineComponent, pluginContext, classLoader, new ASMClassNodeAdapter(pluginContext, classLoader, classNode));
+    public ASMClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode) {
+        this(engineComponent, pluginContext, new ASMClassNodeAdapter(pluginContext, classLoader, protectionDomain, classNode));
     }
 
-    public ASMClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, final ASMClassNodeAdapter classNode) {
+    public ASMClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ASMClassNodeAdapter classNode) {
         this.engineComponent = Assert.requireNonNull(engineComponent, "engineComponent must not be null");
         this.pluginContext = pluginContext;
-        this.classLoader = classLoader;
-        this.classNode = classNode;
-        // for performance.
-        this.name = classNode.getName();
+        this.classNode = Assert.requireNonNull(classNode, "classNode must not be null");
     }
 
     public ClassLoader getClassLoader() {
-        return this.classLoader;
+        return this.classNode.getClassLoader();
     }
 
     @Override
@@ -106,6 +103,10 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public String getName() {
+        // for performance.
+        if (this.name == null) {
+            this.name = classNode.getName();
+        }
         return this.name;
     }
 
@@ -197,7 +198,7 @@ public class ASMClass implements InstrumentClass {
             throw new NotFoundInstrumentException("advice class name must not be null");
         }
 
-        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, JavaAssistUtils.javaNameToJvmName(adviceClassName));
+        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(this.pluginContext, classNode.getClassLoader(), classNode.getProtectionDomain(), JavaAssistUtils.javaNameToJvmName(adviceClassName));
         if (adviceClassNode == null) {
             throw new NotFoundInstrumentException(adviceClassName + " not found.");
         }
@@ -214,7 +215,7 @@ public class ASMClass implements InstrumentClass {
             throw new InstrumentException(getName() + " already have method(" + methodName + ").");
         }
 
-        final ASMClassNodeAdapter superClassNode = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, this.classNode.getSuperClassInternalName());
+        final ASMClassNodeAdapter superClassNode = ASMClassNodeAdapter.get(this.pluginContext, classNode.getClassLoader(), classNode.getProtectionDomain(), this.classNode.getSuperClassInternalName());
         if (superClassNode == null) {
             throw new NotFoundInstrumentException(getName() + " not found super class(" + this.classNode.getSuperClassInternalName() + ")");
         }
@@ -233,7 +234,7 @@ public class ASMClass implements InstrumentClass {
     @Override
     public void addField(final String accessorTypeName) throws InstrumentException {
         try {
-            final Class<?> accessorType = this.pluginContext.injectClass(this.classLoader, accessorTypeName);
+            final Class<?> accessorType = this.pluginContext.injectClass(classNode.getClassLoader(), accessorTypeName);
             final AccessorAnalyzer accessorAnalyzer = new AccessorAnalyzer();
             final AccessorAnalyzer.AccessorDetails accessorDetails = accessorAnalyzer.analyze(accessorType);
 
@@ -251,7 +252,7 @@ public class ASMClass implements InstrumentClass {
     @Override
     public void addGetter(final String getterTypeName, final String fieldName) throws InstrumentException {
         try {
-            final Class<?> getterType = this.pluginContext.injectClass(this.classLoader, getterTypeName);
+            final Class<?> getterType = this.pluginContext.injectClass(classNode.getClassLoader(), getterTypeName);
             final GetterAnalyzer.GetterDetails getterDetails = new GetterAnalyzer().analyze(getterType);
             final ASMFieldNodeAdapter fieldNode = this.classNode.getField(fieldName, null);
             if (fieldNode == null) {
@@ -279,7 +280,7 @@ public class ASMClass implements InstrumentClass {
     @Override
     public void addSetter(String setterTypeName, String fieldName, boolean removeFinal) throws InstrumentException {
         try {
-            final Class<?> setterType = this.pluginContext.injectClass(this.classLoader, setterTypeName);
+            final Class<?> setterType = this.pluginContext.injectClass(classNode.getClassLoader(), setterTypeName);
             final SetterAnalyzer.SetterDetails setterDetails = new SetterAnalyzer().analyze(setterType);
             final ASMFieldNodeAdapter fieldNode = this.classNode.getField(fieldName, null);
             if (fieldNode == null) {
@@ -406,7 +407,7 @@ public class ASMClass implements InstrumentClass {
 
     private int addInterceptor0(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
         int interceptorId = -1;
-        final Class<?> interceptorType = this.pluginContext.injectClass(this.classLoader, interceptorClassName);
+        final Class<?> interceptorType = this.pluginContext.injectClass(classNode.getClassLoader(), interceptorClassName);
 
         final TargetMethods targetMethods = interceptorType.getAnnotation(TargetMethods.class);
         if (targetMethods != null) {
@@ -470,7 +471,7 @@ public class ASMClass implements InstrumentClass {
 
         ObjectBinderFactory objectBinderFactory = engineComponent.getObjectBinderFactory();
         final InterceptorArgumentProvider interceptorArgumentProvider = objectBinderFactory.newInterceptorArgumentProvider(this);
-        final AutoBindingObjectFactory filterFactory = objectBinderFactory.newAutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
+        final AutoBindingObjectFactory filterFactory = objectBinderFactory.newAutoBindingObjectFactory(pluginContext, classNode.getClassLoader(), interceptorArgumentProvider);
         final ObjectFactory objectFactory = ObjectFactory.byConstructor(filterTypeName, (Object[]) annotation.constructorArguments());
         final MethodFilter filter = (MethodFilter) filterFactory.createInstance(objectFactory);
 
@@ -570,7 +571,7 @@ public class ASMClass implements InstrumentClass {
     public List<InstrumentClass> getNestedClasses(ClassFilter filter) {
         final List<InstrumentClass> nestedClasses = new ArrayList<InstrumentClass>();
         for (ASMClassNodeAdapter innerClassNode : this.classNode.getInnerClasses()) {
-            final ASMNestedClass nestedClass = new ASMNestedClass(engineComponent, this.pluginContext, this.classLoader, innerClassNode);
+            final ASMNestedClass nestedClass = new ASMNestedClass(engineComponent, this.pluginContext, innerClassNode);
             if (filter.accept(nestedClass)) {
                 nestedClasses.add(nestedClass);
             }
