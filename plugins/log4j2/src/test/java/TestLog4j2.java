@@ -3,6 +3,7 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.plugin.log4j2.Log4j2Config;
+import com.navercorp.pinpoint.plugin.log4j2.Log4j2Plugin;
 import com.navercorp.pinpoint.plugin.log4j2.interceptor.LoggingEventOfLog4j2Interceptor;
 import org.junit.Assert;
 import org.junit.Test;
@@ -154,6 +155,28 @@ public class TestLog4j2 {
         } catch (Exception e) {
             Assert.assertTrue(e instanceof NullPointerException);
         }
-
     }
+
+    @Test
+    public void testLog4j2ConfigToString() {
+        try {
+            Log4j2Config log4j2Config = new Log4j2Config(null);
+            log4j2Config.toString();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof NullPointerException);
+        }
+    }
+
+
+    @Test
+    public void testLog4j2Plugin() {
+        try {
+            Log4j2Plugin plugin = new Log4j2Plugin();
+            plugin.setTransformTemplate(null);
+            plugin.setup(null);
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof NullPointerException);
+        }
+    }
+
 }
