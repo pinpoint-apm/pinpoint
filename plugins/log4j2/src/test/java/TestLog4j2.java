@@ -23,7 +23,7 @@ public class TestLog4j2 {
     private static final String TRANSACTION_ID = "PtxId";
 
     @Test
-    public void testLoggingEventOfLog4j2Interceptor(){
+    public void testLoggingEventOfLog4j2Interceptor() {
 
         TraceContext traceContext = new TraceContext() {
             @Override
@@ -143,15 +143,17 @@ public class TestLog4j2 {
         };
         LoggingEventOfLog4j2Interceptor interceptor = new LoggingEventOfLog4j2Interceptor(traceContext);
         interceptor.before(null);
-        Assert.assertTrue(MDC.get(TRANSACTION_ID)==null);
+        Assert.assertTrue(MDC.get(TRANSACTION_ID) == null);
     }
 
     @Test
-    public void testLog4j2Config() throws IOException {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint.config");
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
-        Log4j2Config log4j2Config = new Log4j2Config(profilerConfig);
-        Assert.assertTrue(log4j2Config.isLog4j2LoggingTransactionInfo());
+    public void testLog4j2Config() {
+        try {
+            Log4j2Config log4j2Config = new Log4j2Config(null);
+            log4j2Config.isLog4j2LoggingTransactionInfo();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof NullPointerException);
+        }
 
     }
 }
