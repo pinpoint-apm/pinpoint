@@ -43,6 +43,22 @@ public class TestLog4j2 {
     }
 
     @Test
+    public void testLoggingEventOfLog4j2Interceptor2() {
+        TraceContext traceContext = spy(TraceContext.class);
+        Trace trace = mock(Trace.class);
+        TraceId traceId = spy(TraceId.class);
+        when(traceContext.currentTraceObject()).thenReturn(trace);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
+        when(traceContext.currentRawTraceObject().getTraceId()).thenReturn(traceId);
+        when(traceContext.currentRawTraceObject().getTraceId().getTransactionId()).thenReturn("aaa");
+        when(traceContext.currentRawTraceObject().getTraceId().getSpanId()).thenReturn(112343l);
+        LoggingEventOfLog4j2Interceptor interceptor = spy(new LoggingEventOfLog4j2Interceptor(traceContext));
+        interceptor.before(null);
+        interceptor.after(null, null, null);
+        Assert.assertTrue(MDC.get(TRANSACTION_ID) == null);
+    }
+
+    @Test
     public void testLog4j2Config() {
         ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
         Log4j2Config log4j2Config = new Log4j2Config(profilerConfig);
@@ -56,7 +72,7 @@ public class TestLog4j2 {
         ProfilerPluginSetupContext profilerPluginSetupContext = spy(ProfilerPluginSetupContext.class);
         DefaultProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
         when(profilerPluginSetupContext.getConfig()).thenReturn(profilerConfig);
-        when(profilerConfig.readBoolean(LOG4J2_LOGGING_TRANSACTION_INFO,false)).thenReturn(true);
+        when(profilerConfig.readBoolean(LOG4J2_LOGGING_TRANSACTION_INFO, false)).thenReturn(true);
         Log4j2Config log4j2Config = spy(new Log4j2Config(profilerConfig));
         when(log4j2Config.isLog4j2LoggingTransactionInfo()).thenReturn(true);
 
@@ -64,6 +80,23 @@ public class TestLog4j2 {
         plugin.setTransformTemplate(new TransformTemplate(instrumentContext));
         plugin.setup(profilerPluginSetupContext);
     }
+
+
+    @Test
+    public void testSetup2() {
+        ProfilerPluginSetupContext profilerPluginSetupContext = spy(ProfilerPluginSetupContext.class);
+        DefaultProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
+        when(profilerPluginSetupContext.getConfig()).thenReturn(profilerConfig);
+        when(profilerConfig.readBoolean(LOG4J2_LOGGING_TRANSACTION_INFO, false)).thenReturn(false);
+        Log4j2Config log4j2Config = spy(new Log4j2Config(profilerConfig));
+        when(log4j2Config.isLog4j2LoggingTransactionInfo()).thenReturn(true);
+
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
+        plugin.setTransformTemplate(new TransformTemplate(instrumentContext));
+        plugin.setup(profilerPluginSetupContext);
+    }
+
+
 
 
 }
