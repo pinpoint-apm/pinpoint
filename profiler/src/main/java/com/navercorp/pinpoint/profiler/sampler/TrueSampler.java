@@ -30,7 +30,7 @@ public class TrueSampler implements Sampler {
 
     @Override
     public boolean isSampling(String transactionType) {
-        return false;
+        return true;
     }
 
     @Override

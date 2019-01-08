@@ -67,7 +67,7 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 InstrumentMethod method = target.getDeclaredMethod("register", "java.lang.Object", "java.lang.Object", "java.lang.reflect.Method");
                 if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.spring.mvc.interceptor.RegisterInterceptor");
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.spring.web.interceptor.RegisterInterceptor");
                 }
 
                 return target.toBytecode();
@@ -85,7 +85,7 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 InstrumentMethod method = target.getDeclaredMethod("registerHandler", "java.lang.String", "java.lang.Object");
                 if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.spring.mvc.interceptor.RegisterInterceptor");
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.spring.web.interceptor.RegisterInterceptor");
                 }
 
                 return target.toBytecode();
