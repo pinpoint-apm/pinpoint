@@ -14,10 +14,22 @@ public class RequestMappingInfo implements IRequestMappingInfo {
     private String methodsStr;
 
     public RequestMappingInfo(String pattern, Set<String> methods) {
+        init(pattern, methods);
+    }
 
+    public RequestMappingInfo(String pattern, String... methods) {
+        Set<String> methodSet = new HashSet<String>();
+        for (String method : methods) {
+            methodSet.add(method);
+        }
+        init(pattern, methodSet);
+    }
+
+    private void init(String pattern, Set<String> methods) {
         this.antPathMatcher = new AntPathMatcher(pattern);
         this.methods = methods;
         this.pattern = pattern;
+
         StringBuilder sb = new StringBuilder();
         for (String method : methods) {
             sb.append(method)
@@ -26,16 +38,6 @@ public class RequestMappingInfo implements IRequestMappingInfo {
         sb.append("_");
 
         this.methodsStr = sb.toString().replaceAll(",_", "_");
-    }
-
-    public RequestMappingInfo(String pattern, String... methods) {
-        Set<String> methodSet = new HashSet<String>();
-        for (String method : methods) {
-            methodSet.add(method);
-        }
-        this.antPathMatcher = new AntPathMatcher(pattern);
-        this.methods = methodSet;
-        this.pattern = pattern;
     }
 
     public boolean match(String uri, String method) {

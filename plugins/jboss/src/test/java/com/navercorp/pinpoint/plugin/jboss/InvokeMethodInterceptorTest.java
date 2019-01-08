@@ -121,12 +121,12 @@ public class InvokeMethodInterceptorTest {
         interceptor.before("target", new Object[] { request, response });
         interceptor.after("target", new Object[] { request, response }, new Object(), null);
 
-        verify(traceContext, times(1)).newAsyncTraceObject();
+        verify(traceContext, times(1)).newAsyncTraceObject("ALL_/**");
 
         interceptor.before("target", new Object[] { request, response });
         interceptor.after("target", new Object[] { request, response }, new Object(), null);
 
-        verify(traceContext, times(2)).newAsyncTraceObject();
+        verify(traceContext, times(2)).newAsyncTraceObject("ALL_/**");
     }
 
     /**
