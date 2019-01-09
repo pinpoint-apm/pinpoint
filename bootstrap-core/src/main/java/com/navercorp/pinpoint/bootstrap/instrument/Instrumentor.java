@@ -40,8 +40,14 @@ public interface Instrumentor {
     InterceptorScope getInterceptorScope(String scopeName);
         
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
-    
+
+    /**
+     * @deprecated Since 1.9.0 Use {@link #transform(ClassLoader, String, Class)}
+     */
+    @Deprecated
     void transform(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
+
+    void transform(ClassLoader classLoader, String targetClassName, Class<? extends TransformCallback> transformCallbackClass);
     
     void retransform(Class<?> target, TransformCallback transformCallback);
 }

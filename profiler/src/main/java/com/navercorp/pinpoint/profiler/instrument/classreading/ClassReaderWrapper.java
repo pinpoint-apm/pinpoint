@@ -245,7 +245,7 @@ public class ClassReaderWrapper {
         StringBuilder sb = new StringBuilder().append("{");
         sb.append("access=").append(classReader.getAccess()).append(", ");
         sb.append("name=").append(classReader.getClassName()).append(", ");
-        sb.append("interfaces=").append(Arrays.asList(classReader.getInterfaces())).append(", ");
+        sb.append("interfaces=").append(Arrays.toString(classReader.getInterfaces())).append(", ");
         sb.append("super=").append(classReader.getSuperName());
         sb.append("}");
         return sb.toString();
