@@ -17,50 +17,30 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.GuardInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.exception.PinpointException;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 /**
  * @author emeroad
  */
-public class MatchableClassFileTransformerGuardDelegate implements MatchableClassFileTransformer {
+public class ClassFileTransformerDelegate implements ClassFileTransformer {
 
     private final ProfilerConfig profilerConfig;
     private final InstrumentContext instrumentContext;
-    private final Matcher matcher;
-    private final TransformCallback transformCallback;
+    private final TransformCallbackProvider transformCallbackProvider;
 
-
-    public MatchableClassFileTransformerGuardDelegate(ProfilerConfig profilerConfig, InstrumentContext instrumentContext, Matcher matcher, TransformCallback transformCallback) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext must not be null");
-        }
-        if (matcher == null) {
-            throw new NullPointerException("matcher must not be null");
-        }
-        if (transformCallback == null) {
-            throw new NullPointerException("transformCallback must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-        this.instrumentContext = instrumentContext;
-        this.matcher = matcher;
-        this.transformCallback = transformCallback;
-    }
-
-
-    @Override
-    public Matcher getMatcher() {
-        return matcher;
+    public ClassFileTransformerDelegate(ProfilerConfig profilerConfig, InstrumentContext instrumentContext, TransformCallbackProvider transformCallbackProvider) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext must not be null");
+        this.transformCallbackProvider = Assert.requireNonNull(transformCallbackProvider, "transformCallbackProvider must not be null");
     }
 
     @Override
@@ -69,9 +49,11 @@ public class MatchableClassFileTransformerGuardDelegate implements MatchableClas
             throw new NullPointerException("className must not be null");
         }
 
-        final GuardInstrumentor guard = new GuardInstrumentor(this.profilerConfig, this.instrumentContext);
+        final InstrumentContext instrumentContext = this.instrumentContext;
+        final GuardInstrumentor guard = new GuardInstrumentor(this.profilerConfig, instrumentContext);
         try {
             // WARN external plugin api
+            final TransformCallback transformCallback = this.transformCallbackProvider.getTransformCallback(instrumentContext, loader);
             return transformCallback.doInTransform(guard, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
         } catch (InstrumentException e) {
             throw new PinpointException(e);
@@ -82,10 +64,8 @@ public class MatchableClassFileTransformerGuardDelegate implements MatchableClas
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MatchableClassFileTransformerGuardDelegate{");
-        sb.append("matcher=").append(matcher);
-        sb.append(", transformCallback=").append(transformCallback);
-        sb.append('}');
-        return sb.toString();
+        return "ClassFileTransformerDelegate{" +
+                "transformCallbackProvider=" + transformCallbackProvider +
+                '}';
     }
 }

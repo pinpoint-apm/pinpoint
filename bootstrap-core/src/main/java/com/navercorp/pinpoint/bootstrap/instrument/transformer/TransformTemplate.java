@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author emeroad
@@ -28,21 +29,74 @@ public class TransformTemplate implements TransformOperations {
     private final InstrumentContext instrumentContext;
 
     public TransformTemplate(InstrumentContext instrumentContext) {
-        if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext must not be null");
-        }
-        this.instrumentContext = instrumentContext;
+        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext must not be null");
+    }
+
+    protected InstrumentContext getInstrumentContext() {
+        return instrumentContext;
+    }
+
+    /**
+     * @deprecated Since 1.9.0 Use {@link #transform(String, Class)}
+     */
+    @Deprecated
+    @Override
+    public void transform(String className, TransformCallback transformCallback) {
+        Assert.requireNonNull(className, "className must not be null");
+        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+
+        final Matcher matcher = Matchers.newClassNameMatcher(className);
+        this.instrumentContext.addClassFileTransformer(matcher, transformCallback);
     }
 
     @Override
-    public void transform(String className, TransformCallback transformCallback) {
-        if (className == null) {
-            throw new NullPointerException("className must not be null");
-        }
-        if (transformCallback == null) {
-            throw new NullPointerException("transformCallback must not be null");
-        }
+    public void transform(String className, Class<? extends TransformCallback> transformCallbackClass) {
+        Assert.requireNonNull(className, "className must not be null");
+        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+
         final Matcher matcher = Matchers.newClassNameMatcher(className);
-        this.instrumentContext.addClassFileTransformer(matcher, transformCallback);
+
+        TransformCallbackChecker.validate(transformCallbackClass);
+
+        // release class reference
+        final String transformCallbackName = transformCallbackClass.getName();
+        this.instrumentContext.addClassFileTransformer(matcher, transformCallbackName);
+    }
+
+//    @Override
+//    public void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters) {
+//        Assert.requireNonNull(className, "className must not be null");
+//        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+//
+////        if (ParameterUtils.hasNull(parameters)) {
+////            throw new IllegalArgumentException("null parameter not supported");
+////        }
+//
+//        final Class<?>[] parameterType = ParameterUtils.toClass(parameters);
+//        // commons-lang
+//        // ConstructorUtils.getMatchingAccessibleConstructor()
+//
+//        transform(className, transformCallbackClass, parameters, parameterType);
+//    }
+
+    @Override
+    public void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters, Class<?>[] parameterTypes) {
+        Assert.requireNonNull(className, "className must not be null");
+        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+
+
+
+        TransformCallbackChecker.validate(transformCallbackClass, parameterTypes);
+        if (ParameterUtils.hasNull(parameterTypes)) {
+            throw new IllegalArgumentException("null parameterType not supported");
+        }
+        ParameterUtils.checkParameterType(parameterTypes);
+
+
+        final Matcher matcher = Matchers.newClassNameMatcher(className);
+
+        // release class reference
+        final String transformCallbackName = transformCallbackClass.getName();
+        this.instrumentContext.addClassFileTransformer(matcher, transformCallbackName, parameters, parameterTypes);
     }
 }
