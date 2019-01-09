@@ -71,7 +71,7 @@ public class HbaseAdminMethodInterceptor extends SpanEventSimpleAroundIntercepto
 
         if (args != null && args.length > 0) { // if has params, print all params.
 
-            return Arrays.asList(args).toString();
+            return Arrays.toString(args);
         }
         return null;
     }

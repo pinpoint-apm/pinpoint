@@ -41,22 +41,24 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", new TransformCallback() {
+        transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class);
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    }
 
-                InstrumentMethod doGet = target.getDeclaredMethod("doGet", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
-                doGet.addInterceptor(BasicMethodInterceptor.class.getName(), va(SpringWebMvcConstants.SPRING_MVC));
+    public static class FrameworkServletTransform implements TransformCallback {
 
-                InstrumentMethod doPost = target.getDeclaredMethod("doPost", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
-                doPost.addInterceptor(BasicMethodInterceptor.class.getName(), va(SpringWebMvcConstants.SPRING_MVC));
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                return target.toBytecode();
-            }
-        });
+            InstrumentMethod doGet = target.getDeclaredMethod("doGet", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
+            doGet.addInterceptor(BasicMethodInterceptor.class, va(SpringWebMvcConstants.SPRING_MVC));
 
+            InstrumentMethod doPost = target.getDeclaredMethod("doPost", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
+            doPost.addInterceptor(BasicMethodInterceptor.class, va(SpringWebMvcConstants.SPRING_MVC));
+
+            return target.toBytecode();
+        }
     }
 
     @Override

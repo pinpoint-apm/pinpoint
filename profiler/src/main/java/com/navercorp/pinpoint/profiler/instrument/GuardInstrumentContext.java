@@ -97,6 +97,12 @@ public class GuardInstrumentContext implements InstrumentContext {
     }
 
     @Override
+    public void addClassFileTransformer(Matcher matcher, String transformCallbackClassName, Object[] parameters, Class<?>[] parameterType) {
+        checkOpen();
+        instrumentContext.addClassFileTransformer(matcher, transformCallbackClassName, parameters, parameterType);
+    }
+
+    @Override
     public void retransform(Class<?> target, TransformCallback transformCallback) {
         checkOpen();
         instrumentContext.retransform(target, transformCallback);

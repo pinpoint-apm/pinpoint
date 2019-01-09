@@ -22,11 +22,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor;
 
 /**
  * This modifier support slf4j 1.4.1 version and logback 0.9.8 version, or greater.
@@ -46,63 +48,62 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         
         final LogbackConfig config = new LogbackConfig(context.getConfig());
-        if (logger.isInfoEnabled()) {
-            logger.info("LogbackPlugin config:{}", config);
-        }
-        
         if (!config.isLogbackLoggingTransactionInfo()) {
-            logger.info("Logback plugin is not executed because logback transform enable config value is false.");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         
-        transformTemplate.transform("ch.qos.logback.classic.spi.LoggingEvent", new TransformCallback() {
-            
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass mdcClass = instrumentor.getInstrumentClass(loader, "org.slf4j.MDC", null);
-                
-                if (mdcClass == null) {
-                    logger.warn("Can not modify. Because org.slf4j.MDC does not exist.");
-                    return null;
-                }
-                
-                if (!mdcClass.hasMethod("put", "java.lang.String", "java.lang.String")) {
-                    logger.warn("Can not modify. Because put method does not exist at org.slf4j.MDC class.");
-                    return null;
-                }
-                if (!mdcClass.hasMethod("remove", "java.lang.String")) {
-                    logger.warn("Can not modify. Because remove method does not exist at org.slf4j.MDC class.");
-                    return null;
-                }
-                
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                
-                if (!target.hasConstructor()) {
-                    logger.warn("Can not modify. Because constructor to modify not exist at ch.qos.logback.classic.spi.LoggingEvent class."
-                                + "\nconstructor prototype : LoggingEvent();");
-                    return null;
-                }
-                if (!target.hasConstructor("java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]")) {
-                    logger.warn("Can not modify. Because constructor to modify not exist at ch.qos.logback.classic.spi.LoggingEvent class."
-                                + "\nconstructor prototype : LoggingEvent(String fqcn, Logger logger, Level level, String message, Throwable throwable, Object[] argArray);");
-                    return null;
-                }
+        transformTemplate.transform("ch.qos.logback.classic.spi.LoggingEvent", LoggingEventTransform.class);
+    }
 
-                final String interceptorClassName = "com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor";
-                addInterceptor(target, new String[0], interceptorClassName);
-                addInterceptor(target, new String[]{"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"}, interceptorClassName);
+    public static class LoggingEventTransform implements TransformCallback {
+        private final PLogger logger = PLoggerFactory.getLogger(getClass());
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass mdcClass = instrumentor.getInstrumentClass(loader, "org.slf4j.MDC", null);
 
-                return target.toBytecode();
+            if (mdcClass == null) {
+                logger.warn("Can not modify. Because org.slf4j.MDC does not exist.");
+                return null;
             }
 
-            private void addInterceptor(InstrumentClass target, String[] parameterTypes, String interceptorClassName) throws InstrumentException {
-                InstrumentMethod constructor = InstrumentUtils.findConstructor(target, parameterTypes);
-                if (constructor == null) {
-                    throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(parameterTypes));
-                }
-                constructor.addInterceptor(interceptorClassName);
+            if (!mdcClass.hasMethod("put", "java.lang.String", "java.lang.String")) {
+                logger.warn("Can not modify. Because put method does not exist at org.slf4j.MDC class.");
+                return null;
             }
-        });
+            if (!mdcClass.hasMethod("remove", "java.lang.String")) {
+                logger.warn("Can not modify. Because remove method does not exist at org.slf4j.MDC class.");
+                return null;
+            }
+
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            if (!target.hasConstructor()) {
+                logger.warn("Can not modify. Because constructor to modify not exist at ch.qos.logback.classic.spi.LoggingEvent class."
+                        + "\nconstructor prototype : LoggingEvent();");
+                return null;
+            }
+            if (!target.hasConstructor("java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]")) {
+                logger.warn("Can not modify. Because constructor to modify not exist at ch.qos.logback.classic.spi.LoggingEvent class."
+                        + "\nconstructor prototype : LoggingEvent(String fqcn, Logger logger, Level level, String message, Throwable throwable, Object[] argArray);");
+                return null;
+            }
+
+            final Class<? extends Interceptor> interceptorClassName = LoggingEventOfLogbackInterceptor.class;
+            addInterceptor(target, new String[0], interceptorClassName);
+            addInterceptor(target, new String[]{"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"}, interceptorClassName);
+
+            return target.toBytecode();
+        }
+
+        private void addInterceptor(InstrumentClass target, String[] parameterTypes, Class<? extends Interceptor> interceptorClassName) throws InstrumentException {
+            InstrumentMethod constructor = InstrumentUtils.findConstructor(target, parameterTypes);
+            if (constructor == null) {
+                throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(parameterTypes));
+            }
+            constructor.addInterceptor(interceptorClassName);
+        }
     }
 
     @Override

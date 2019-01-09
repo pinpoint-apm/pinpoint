@@ -16,12 +16,19 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerMultiRecordEntryPointInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordEntryPointInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerSendInterceptor;
 
 import java.nio.charset.Charset;
 
@@ -41,18 +48,7 @@ public class KafkaConstants {
     public static final AnnotationKey KAFKA_OFFSET_ANNOTATION_KEY = AnnotationKeyFactory.of(142, "kafka.offset", VIEW_IN_RECORD_SET);
     public static final AnnotationKey KAFKA_BATCH_ANNOTATION_KEY = AnnotationKeyFactory.of(143, "kafka.batch", VIEW_IN_RECORD_SET);
 
-    public static final String REMOTE_ADDRESS_ACCESSOR = RemoteAddressFieldAccessor.class.getName();
 
-    public static final String PRODUCER_CONSTRUCTOR_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerConstructorInterceptor";
-    public static final String PRODUCER_SEND_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerSendInterceptor";
-
-    public static final String CONSUMER_CONSTRUCTOR_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerConstructorInterceptor";
-
-    public static final String CONSUMER_POLL_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor";
-
-    public static final String CONSUMER_RECORD_ENTRYPOINT_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordEntryPointInterceptor";
-
-    public static final String CONSUMER_MULTI_RECORD_ENTRYPOINT_INTERCEPTOR = "com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerMultiRecordEntryPointInterceptor";
 
     public static final String CONSUMER_MULTI_RECORD_CLASS_NAME = "org.apache.kafka.clients.consumer.ConsumerRecords";
 

@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.user.interceptor.MQExternalClientHandlerInterceptor;
+import com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor;
 
 /**
  * @author jaehong.kim
@@ -43,6 +45,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final UserPluginConfig config = new UserPluginConfig(context.getConfig());
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // merge
         final Map<String, Set<String>> methods = parseUserMethods(config.getIncludeList());
@@ -68,26 +71,35 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addUserIncludeClass(final String className, final Set<String> methodNames) {
-       transformTemplate.transform(className, new TransformCallback() {
+        final String[] methodNameArray = methodNames.toArray(new String[0]);
+        transform(className, UserIncludeTransform.class, methodNameArray);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+    public static class UserIncludeTransform implements TransformCallback {
 
-                final String[] names = methodNames.toArray(new String[0]);
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(names))) {
-                    try {
-                        method.addInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor");
-                    } catch (Exception e) {
-                        if (logger.isWarnEnabled()) {
-                            logger.warn("Unsupported method " + method, e);
-                        }
+        private final String[] methodNames;
+
+        public UserIncludeTransform(String[] methodNames) {
+            this.methodNames = methodNames;
+        }
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodNames))) {
+                try {
+                    method.addInterceptor(UserIncludeMethodInterceptor.class);
+                } catch (Exception e) {
+                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Unsupported method " + method, e);
                     }
                 }
-
-                return target.toBytecode();
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     private void addMessageQueueClientHandlerMethods(List<String> clientHandlerMethods) {
@@ -95,23 +107,38 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
         for (Map.Entry<String, Set<String>> clientHandler : clientHandlers.entrySet()) {
             final String className = clientHandler.getKey();
             final Set<String> methodNames = clientHandler.getValue();
-            transformTemplate.transform(className, new TransformCallback() {
-                @Override
-                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                    final String[] names = methodNames.toArray(new String[0]);
-                    for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(names))) {
-                        try {
-                            method.addInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.MQExternalClientHandlerInterceptor");
-                        } catch (Exception e) {
-                            if (logger.isWarnEnabled()) {
-                                logger.warn("Unsupported method " + method, e);
-                            }
-                        }
+            final String[] methodNameArray = methodNames.toArray(new String[0]);
+            transform(className, MessageQueueClientHandlerMethodsTransformer.class, methodNameArray);
+        }
+    }
+
+    private void transform(String className, Class<? extends TransformCallback> transformCallbackClass, String[] methodNameArray) {
+        transformTemplate.transform(className, transformCallbackClass, new Object[] {methodNameArray}, new Class[]{String[].class});
+    }
+
+    public static class MessageQueueClientHandlerMethodsTransformer implements TransformCallback {
+
+        private final String[] methodNames;
+
+        public MessageQueueClientHandlerMethodsTransformer(String[] methodNames) {
+            this.methodNames = methodNames;
+        }
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodNames))) {
+                try {
+                    method.addInterceptor(MQExternalClientHandlerInterceptor.class);
+                } catch (Exception e) {
+                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Unsupported method " + method, e);
                     }
-                    return target.toBytecode();
                 }
-            });
+            }
+            return target.toBytecode();
         }
     }
 

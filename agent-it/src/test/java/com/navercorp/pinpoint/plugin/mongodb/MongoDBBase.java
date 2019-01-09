@@ -71,6 +71,11 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 public abstract class MongoDBBase {
 
+    private static String OS = System.getProperty("os.name").toLowerCase();
+    public static boolean isWindows() {
+        return OS.contains("win");
+    }
+
     protected static final String MONGO = "MONGO";
     protected static final String MONGO_EXECUTE_QUERY = "MONGO_EXECUTE_QUERY";
     protected static String MONGODB_ADDRESS = "localhost:" + 27018;
@@ -80,6 +85,9 @@ public abstract class MongoDBBase {
 
 
     public void startDB() throws Exception {
+        if (isWindows()) {
+            return;
+        }
         MongodStarter starter = MongodStarter.getDefaultInstance();
 
         String bindIp = "localhost";
@@ -97,6 +105,10 @@ public abstract class MongoDBBase {
     }
 
     public void stopDB() throws Exception {
+        if (isWindows()) {
+            return;
+        }
+        
         //give time for the test to finish"
         Thread.sleep(500L);
         mongod.stop();

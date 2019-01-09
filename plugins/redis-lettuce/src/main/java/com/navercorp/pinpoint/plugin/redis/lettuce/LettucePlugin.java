@@ -28,6 +28,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.LettuceMethodInterceptor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClientConstructorInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -36,18 +39,18 @@ import java.security.ProtectionDomain;
  */
 public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final LettuceMethodNameFilter lettuceMethodNameFilter = new LettuceMethodNameFilter();
+
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final LettucePluginConfig config = new LettucePluginConfig(context.getConfig());
+
         if (!config.isEnable()) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Disable LettucePlugin.");
-            }
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         if (logger.isInfoEnabled()) {
             logger.info("Enable LettucePlugin. version range=[5.0.0.RELEASE, 5.1.2.RELEASE]");
         }
@@ -64,43 +67,47 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addRedisClient() {
-        transformTemplate.transform("io.lettuce.core.RedisClient", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(LettuceConstants.END_POINT_ACCESSOR);
+        transformTemplate.transform("io.lettuce.core.RedisClient", RedisClientTransform.class);
+    }
 
-                // Set endpoint
-                final InstrumentMethod constructor = target.getConstructor("io.lettuce.core.resource.ClientResources", "io.lettuce.core.RedisURI");
-                if (constructor != null) {
-                    constructor.addInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClientConstructorInterceptor");
-                }
+    public static class RedisClientTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(EndPointAccessor.class);
 
-                // Attach endpoint
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("connect", "connectAsync", "connectPubSub", "connectPubSubAsync", "connectSentinel", "connectSentinelAsync"))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor", LettuceConstants.REDIS_SCOPE);
-                }
-
-                return target.toBytecode();
+            // Set endpoint
+            final InstrumentMethod constructor = target.getConstructor("io.lettuce.core.resource.ClientResources", "io.lettuce.core.RedisURI");
+            if (constructor != null) {
+                constructor.addInterceptor(RedisClientConstructorInterceptor.class);
             }
-        });
+
+            // Attach endpoint
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("connect", "connectAsync", "connectPubSub", "connectPubSubAsync", "connectSentinel", "connectSentinelAsync"))) {
+                method.addScopedInterceptor(AttachEndPointInterceptor.class, LettuceConstants.REDIS_SCOPE);
+            }
+
+            return target.toBytecode();
+        }
     }
 
     private void addDefaultConnectionFuture() {
-        transformTemplate.transform("io.lettuce.core.DefaultConnectionFuture", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(LettuceConstants.END_POINT_ACCESSOR);
+        transformTemplate.transform("io.lettuce.core.DefaultConnectionFuture", DefaultConnectionFutureTransform.class);
+    }
 
-                // Attach endpoint
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("get", "join"))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor", LettuceConstants.REDIS_SCOPE);
-                }
+    public static class DefaultConnectionFutureTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(EndPointAccessor.class);
 
-                return target.toBytecode();
+            // Attach endpoint
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("get", "join"))) {
+                method.addScopedInterceptor(AttachEndPointInterceptor.class, LettuceConstants.REDIS_SCOPE);
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     private void addStatefulRedisConnection() {
@@ -112,56 +119,68 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addStatefulRedisConnection(final String className) {
-        transformTemplate.transform(className, new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(LettuceConstants.END_POINT_ACCESSOR);
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform(className, AddEndPointAccessorTransform.class);
+    }
+
+    public static class AddEndPointAccessorTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(EndPointAccessor.class);
+            return target.toBytecode();
+        }
     }
 
     private void addRedisCommands(final LettucePluginConfig config) {
         // Commands
-        addAbstractRedisCommands("io.lettuce.core.AbstractRedisAsyncCommands", true, config);
+        addAbstractRedisCommands("io.lettuce.core.AbstractRedisAsyncCommands", AbstractRedisCommandsTransform.class, true);
 
-        addAbstractRedisCommands("io.lettuce.core.RedisAsyncCommandsImpl", false, config);
-        addAbstractRedisCommands("io.lettuce.core.cluster.RedisAdvancedClusterAsyncCommandsImpl", false, config);
-        addAbstractRedisCommands("io.lettuce.core.cluster.RedisClusterPubSubAsyncCommandsImpl", false, config);
-        addAbstractRedisCommands("io.lettuce.core.pubsub.RedisPubSubAsyncCommandsImpl", false, config);
+        addAbstractRedisCommands("io.lettuce.core.RedisAsyncCommandsImpl", AbstractRedisCommandsTransform.class, false);
+        addAbstractRedisCommands("io.lettuce.core.cluster.RedisAdvancedClusterAsyncCommandsImpl", AbstractRedisCommandsTransform.class, false);
+        addAbstractRedisCommands("io.lettuce.core.cluster.RedisClusterPubSubAsyncCommandsImpl", AbstractRedisCommandsTransform.class, false);
+        addAbstractRedisCommands("io.lettuce.core.pubsub.RedisPubSubAsyncCommandsImpl", AbstractRedisCommandsTransform.class, false);
 
         // Reactive
-        addAbstractRedisCommands("io.lettuce.core.AbstractRedisReactiveCommands", true, config);
+        addAbstractRedisCommands("io.lettuce.core.AbstractRedisReactiveCommands", AbstractRedisCommandsTransform.class, true);
 
-        addAbstractRedisCommands("io.lettuce.core.cluster.RedisAdvancedClusterReactiveCommandsImpl", false, config);
-        addAbstractRedisCommands("io.lettuce.core.cluster.RedisClusterPubSubReactiveCommandsImpl", false, config);
-        addAbstractRedisCommands("io.lettuce.core.pubsub.RedisPubSubReactiveCommandsImpl", false, config);
-        addAbstractRedisCommands("io.lettuce.core.RedisReactiveCommandsImpl", false, config);
-        addAbstractRedisCommands("io.lettuce.core.sentinel.RedisSentinelReactiveCommandsImpl", false, config);
+        addAbstractRedisCommands("io.lettuce.core.cluster.RedisAdvancedClusterReactiveCommandsImpl", AbstractRedisCommandsTransform.class, false);
+        addAbstractRedisCommands("io.lettuce.core.cluster.RedisClusterPubSubReactiveCommandsImpl", AbstractRedisCommandsTransform.class, false);
+        addAbstractRedisCommands("io.lettuce.core.pubsub.RedisPubSubReactiveCommandsImpl", AbstractRedisCommandsTransform.class, false);
+        addAbstractRedisCommands("io.lettuce.core.RedisReactiveCommandsImpl", AbstractRedisCommandsTransform.class, false);
+        addAbstractRedisCommands("io.lettuce.core.sentinel.RedisSentinelReactiveCommandsImpl", AbstractRedisCommandsTransform.class, false);
     }
 
-    private void addAbstractRedisCommands(final String className, final boolean getter, final LettucePluginConfig config) {
-        transformTemplate.transform(className, new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                if (getter) {
-                    target.addGetter("com.navercorp.pinpoint.plugin.redis.lettuce.StatefulConnectionGetter", "connection");
-                }
+    private void addAbstractRedisCommands(final String className, Class<? extends TransformCallback> transformCallback, boolean getter) {
+        transformTemplate.transform(className, transformCallback, new Object[]{getter}, new Class[] {boolean.class});
+    }
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(lettuceMethodNameFilter, MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
-                    try {
-                        method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.LettuceMethodInterceptor", LettuceConstants.REDIS_SCOPE);
-                    } catch (Exception e) {
-                        if (logger.isWarnEnabled()) {
-                            logger.warn("Unsupported method {}", method, e);
-                        }
+    public static class AbstractRedisCommandsTransform implements TransformCallback {
+        private final boolean getter;
+
+        public AbstractRedisCommandsTransform(boolean getter) {
+            this.getter = getter;
+        }
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            if (getter) {
+                target.addGetter(StatefulConnectionGetter.class, "connection");
+            }
+            final LettuceMethodNameFilter lettuceMethodNameFilter = new LettuceMethodNameFilter();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(lettuceMethodNameFilter, MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
+                try {
+                    method.addScopedInterceptor(LettuceMethodInterceptor.class, LettuceConstants.REDIS_SCOPE);
+                } catch (Exception e) {
+                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Unsupported method {}", method, e);
                     }
                 }
-                return target.toBytecode();
             }
-        });
+            return target.toBytecode();
+        }
     }
 
     @Override

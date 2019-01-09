@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.spring.boot.interceptor.LauncherLaunchInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -46,6 +47,7 @@ public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware 
             logger.info("SpringBootPlugin disabled");
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         context.addApplicationTypeDetector(new SpringBootDetector(config.getSpringBootBootstrapMains()));
 
@@ -58,22 +60,24 @@ public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     private void addLauncherEditor() {
-        transformTemplate.transform("org.springframework.boot.loader.Launcher", new TransformCallback() {
+        transformTemplate.transform("org.springframework.boot.loader.Launcher", LauncherTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                                        byte[] classfileBuffer) throws InstrumentException {
+    public static class LauncherTransform implements TransformCallback {
 
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                InstrumentMethod method = target.getDeclaredMethod("launch", "java.lang.String[]", "java.lang.String", "java.lang.ClassLoader");
-                if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.spring.boot.interceptor.LauncherLaunchInterceptor");
-                }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+        byte[] classfileBuffer) throws InstrumentException {
 
-                return target.toBytecode();
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod method = target.getDeclaredMethod("launch", "java.lang.String[]", "java.lang.String", "java.lang.ClassLoader");
+            if (method != null) {
+                method.addInterceptor(LauncherLaunchInterceptor.class);
             }
 
-        });
+            return target.toBytecode();
+        }
+
     }
 }

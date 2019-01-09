@@ -1,1 +1,2 @@
-com.navercorp.pinpoint.plugin.grpc.GrpcPlugin
+com.navercorp.pinpoint.plugin.grpc.GrpcClientPlugin
+com.navercorp.pinpoint.plugin.grpc.GrpcServerPlugin
