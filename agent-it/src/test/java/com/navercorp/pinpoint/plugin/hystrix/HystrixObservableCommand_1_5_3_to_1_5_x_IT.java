@@ -145,6 +145,7 @@ public class HystrixObservableCommand_1_5_3_to_1_5_x_IT {
         verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", "com.netflix.hystrix.HystrixObservableCommand.getFallbackObservable()"));
 
         // execution
+        verifier.awaitTraceCount(2, 20, 3000);
         verifier.verifyTrace(event(ServiceType.ASYNC.getName(), "Asynchronous Invocation"));
         Method helloMethod = HelloRepository.class.getDeclaredMethod("hello", String.class, long.class);
         verifier.verifyTrace(event(ServiceType.INTERNAL_METHOD.getName(), helloMethod, HystrixTestHelper.INTERRUPTED_EXCEPTION_DUE_TO_TIMEOUT));

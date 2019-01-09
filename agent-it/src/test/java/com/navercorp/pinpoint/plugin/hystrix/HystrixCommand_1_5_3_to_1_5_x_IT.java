@@ -154,6 +154,7 @@ public class HystrixCommand_1_5_3_to_1_5_x_IT {
         verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", "com.netflix.hystrix.HystrixCommand.getFallbackObservable()"));
 
         // execution
+        verifier.awaitTraceCount(3, 20, 3000);
         verifier.verifyTrace(event(ServiceType.ASYNC.getName(), "Asynchronous Invocation"));
         Method getExecutionObservable = HystrixCommand.class.getDeclaredMethod("getExecutionObservable");
         verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", getExecutionObservable));
