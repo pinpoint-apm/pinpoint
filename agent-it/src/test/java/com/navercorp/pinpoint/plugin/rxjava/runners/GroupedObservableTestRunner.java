@@ -110,6 +110,7 @@ public class GroupedObservableTestRunner {
         TestHelper.awaitForSpanDataFlush();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.awaitTrace(event(ServiceType.ASYNC.getName(), "Asynchronous Invocation"), 20, 3000);
         verifier.printCache();
 
         // Skip rx java internal traces as they differ between versions and it's too much work to split the tests.

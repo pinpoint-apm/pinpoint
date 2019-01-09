@@ -66,6 +66,7 @@ public class Grpc_1_8_0_to_IT {
 
             assertTrace(server, verifier);
 
+            verifier.awaitTraceCount(8, 20, 3000);
             verifier.verifyTraceCount(8);
         } finally {
             clearResources(client, server);
@@ -91,6 +92,8 @@ public class Grpc_1_8_0_to_IT {
             PluginTestVerifier verifier = getPluginTestVerifier();
 
             assertTrace(server, verifier);
+
+            verifier.awaitTraceCount(6 + (requestCount * 2), 20, 3000);
             verifier.verifyTraceCount(6 + (requestCount * 2));
         } finally {
             clearResources(client, server);
