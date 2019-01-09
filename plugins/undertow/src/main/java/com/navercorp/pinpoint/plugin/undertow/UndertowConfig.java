@@ -38,6 +38,7 @@ public class UndertowConfig {
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
+    private final boolean deployServlet;
 
     public UndertowConfig(ProfilerConfig config) {
         if (config == null) {
@@ -46,6 +47,7 @@ public class UndertowConfig {
 
         // plugin
         this.enable = config.readBoolean("profiler.undertow.enable", true);
+        this.deployServlet = config.readBoolean("profiler.undertow.deploy.servlet", true);
         this.bootstrapMains = config.readList("profiler.undertow.bootstrap.main");
         this.hidePinpointHeader = config.readBoolean("profiler.undertow.hidepinpointheader", true);
 
@@ -70,6 +72,10 @@ public class UndertowConfig {
 
     public boolean isEnable() {
         return enable;
+    }
+
+    public boolean isDeployServlet() {
+        return deployServlet;
     }
 
     public List<String> getBootstrapMains() {
