@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.jackson;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
-
-import java.lang.reflect.Method;
-import java.nio.charset.Charset;
-
-import com.navercorp.pinpoint.plugin.AgentPath;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+package com.navercorp.pinpoint.plugin.jdk7.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -31,8 +21,19 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.plugin.AgentPath;
+import com.navercorp.pinpoint.plugin.jackson.JacksonPlugin;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
@@ -41,7 +42,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 // 2.7.0, 2.7.1 has JDK6 compatibility issue - https://github.com/FasterXML/jackson-databind/issues/1134
-@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.0.6],[2.1.5],[2.2.4],[2.3.4],[2.4.6],[2.5.4,2.6.max],[2.7.2,2.7.max]"})
+@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.8.0,)"})
 public class ObjectReaderIT {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");

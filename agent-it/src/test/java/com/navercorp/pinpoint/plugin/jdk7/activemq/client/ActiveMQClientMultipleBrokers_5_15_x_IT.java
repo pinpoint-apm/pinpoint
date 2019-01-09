@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,17 +37,26 @@ import java.util.Arrays;
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
 // 5.4.1 bug creates activemq-data directory even if persistence is set to false - skip it
 // 5.5.x activemq-all missing slf4j binder - just skip instead of supplying one
-@Dependency({"org.apache.activemq:activemq-all:[5.1.0,5.4.1),[5.4.2,5.4.max],[5.6.0,5.14.max]"})
-public class ActiveMQClientSingleBrokerIT extends ActiveMQClientITBase {
+@Dependency({"org.apache.activemq:activemq-all:[5.15.0,)"})
+public class ActiveMQClientMultipleBrokers_5_15_x_IT extends ActiveMQClientITBase {
 
-    private static final String BROKER_NAME = "Test_Broker";
-    private static final String BROKER_URL = TestBroker.DEFAULT_BROKER_URL;
+    private static final String PRODUCER_BROKER = "Producer_Broker";
+    private static final String CONSUMER_BROKER = "Consumer_Broker";
+
+    private static final String PRODUCER_BROKER_URL = "tcp://127.0.0.1:61616";
+    private static final String CONSUMER_BROKER_URL = "tcp://127.0.0.1:61617";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         ActiveMQClientITHelper.startBrokers(Arrays.asList(
-                new TestBroker.TestBrokerBuilder(BROKER_NAME)
-                        .addConnector(BROKER_URL)
+                // Consumer broker
+                new TestBroker.TestBrokerBuilder(CONSUMER_BROKER)
+                        .addConnector(CONSUMER_BROKER_URL)
+                        .build(),
+                // Producer broker - forwards to consumer broker
+                new TestBroker.TestBrokerBuilder(PRODUCER_BROKER)
+                        .addConnector(PRODUCER_BROKER_URL)
+                        .addNetworkConnector("static:(" + CONSUMER_BROKER_URL + ")")
                         .build()
         ));
     }
@@ -59,22 +68,22 @@ public class ActiveMQClientSingleBrokerIT extends ActiveMQClientITBase {
 
     @Override
     protected String getProducerBrokerName() {
-        return BROKER_NAME;
+        return PRODUCER_BROKER;
     }
 
     @Override
     protected String getProducerBrokerUrl() {
-        return BROKER_URL;
+        return PRODUCER_BROKER_URL;
     }
 
     @Override
     protected String getConsumerBrokerName() {
-        return BROKER_NAME;
+        return CONSUMER_BROKER;
     }
 
     @Override
     protected String getConsumerBrokerUrl() {
-        return BROKER_URL;
+        return CONSUMER_BROKER_URL;
     }
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.plugin.AgentPath;
 import com.navercorp.pinpoint.plugin.jdk7.activemq.client.util.ActiveMQClientITHelper;
 import com.navercorp.pinpoint.plugin.jdk7.activemq.client.util.TestBroker;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -35,10 +36,11 @@ import java.util.Arrays;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
+@JvmVersion(8)
 // 5.4.1 bug creates activemq-data directory even if persistence is set to false - skip it
 // 5.5.x activemq-all missing slf4j binder - just skip instead of supplying one
-@Dependency({"org.apache.activemq:activemq-all:[5.1.0,5.4.1),[5.4.2,5.4.max],[5.6.0,5.14.max]"})
-public class ActiveMQClientSingleBrokerIT extends ActiveMQClientITBase {
+@Dependency({"org.apache.activemq:activemq-all:[5.15.0,)"})
+public class ActiveMQClientSingleBroker_5_15_x_IT extends ActiveMQClientITBase {
 
     private static final String BROKER_NAME = "Test_Broker";
     private static final String BROKER_URL = TestBroker.DEFAULT_BROKER_URL;
