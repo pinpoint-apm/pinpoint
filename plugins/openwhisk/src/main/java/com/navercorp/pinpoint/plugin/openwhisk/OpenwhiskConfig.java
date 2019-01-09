@@ -53,4 +53,13 @@ public class OpenwhiskConfig {
     public boolean isLoggingMessage() {
         return loggingMessage;
     }
+
+    @Override
+    public String toString() {
+        return "OpenwhiskConfig{" +
+                "enable=" + enable +
+                ", loggingMessage=" + loggingMessage +
+                ", transformTargetName='" + transformTargetName + '\'' +
+                '}';
+    }
 }

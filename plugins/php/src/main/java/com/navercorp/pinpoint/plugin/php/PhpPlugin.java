@@ -28,9 +28,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  */
 public class PhpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+//    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private TransformTemplate transformTemplate;
+//    private TransformTemplate transformTemplate;
 
     /*
      * (non-Javadoc)
@@ -45,7 +45,7 @@ public class PhpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {
-        this.transformTemplate = transformTemplate;
+//        this.transformTemplate = transformTemplate;
     }
 }
 

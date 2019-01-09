@@ -28,11 +28,4 @@ public class AkkaHttpConstants {
     public static final ServiceType AKKA_HTTP_SERVER = ServiceTypeFactory.of(1310, "AKKA_HTTP_SERVER", ServiceTypeProperty.RECORD_STATISTICS);
     public static final ServiceType AKKA_HTTP_SERVER_INTERNAL = ServiceTypeFactory.of(9998, "1311", "AKKA_HTTP_SERVER_INTERNAL");
 
-    static final String DIRECTIVE_INTERCEPTOR = "com.navercorp.pinpoint.plugin.akka.http.interceptor.DirectivesInterceptor";
-
-    static final String REQUEST_CONTEXT_COMPLETE_INTERCEPTOR = "com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplCompleteInterceptor";
-    static final String REQUEST_CONTEXT_REDIRECT_INTERCEPTOR = "com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplRedirectInterceptor";
-    static final String REQUEST_CONTEXT_FAIL_INTERCEPTOR = "com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplFailInterceptor";
-    static final String REQUEST_CONTEXT_COPY_INTERCEPTOR = "com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplCopyInterceptor";
-
 }

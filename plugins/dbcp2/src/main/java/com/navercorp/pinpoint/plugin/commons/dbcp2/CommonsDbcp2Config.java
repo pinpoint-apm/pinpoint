@@ -42,4 +42,11 @@ public class CommonsDbcp2Config {
         return profileClose;
     }
 
+    @Override
+    public String toString() {
+        return "CommonsDbcp2Config{" +
+                "pluginEnable=" + pluginEnable +
+                ", profileClose=" + profileClose +
+                '}';
+    }
 }

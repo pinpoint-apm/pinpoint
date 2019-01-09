@@ -31,14 +31,4 @@ public final class HikariCpConstants {
 
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(6060, "HIKARICP");
 
-    public static final String ACCESSOR_DATASOURCE_MONITOR = "com.navercorp.pinpoint.plugin.hikaricp.DataSourceMonitorAccessor";
-
-    public static final String INTERCEPTOR_BASIC = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
-
-    public static final String INTERCEPTOR_CONSTRUCTOR = "com.navercorp.pinpoint.plugin.hikaricp.interceptor.DataSourceConstructorInterceptor";
-    public static final String INTERCEPTOR_CLOSE = "com.navercorp.pinpoint.plugin.hikaricp.interceptor.DataSourceCloseInterceptor";
-
-    public static final String INTERCEPTOR_GET_CONNECTION = "com.navercorp.pinpoint.plugin.hikaricp.interceptor.DataSourceGetConnectionInterceptor";
-    public static final String INTERCEPTOR_CLOSE_CONNECTION = "com.navercorp.pinpoint.plugin.hikaricp.interceptor.DataSourceCloseConnectionInterceptor";
-
 }

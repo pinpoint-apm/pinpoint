@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.undertow.interceptor.ConnectorsExecuteRootHandlerInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -43,32 +43,33 @@ public class UndertowPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final UndertowConfig config = new UndertowConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("UndertowPlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{} support version range=[2.0.0.Final, 2.0.16.Final]", this.getClass().getSimpleName(), config);
 
-        if (logger.isInfoEnabled()) {
-            logger.info("UndertowPlugin support version range=[2.0.0.Final, 2.0.16.Final]");
-        }
         // Entry Point
         addConnectors();
     }
 
     private void addConnectors() {
-        transformTemplate.transform("io.undertow.server.Connectors", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Entry Point
-                final InstrumentMethod connectorsExecuteRootHandlerMethod = target.getDeclaredMethod("executeRootHandler", "io.undertow.server.HttpHandler", "io.undertow.server.HttpServerExchange");
-                if (connectorsExecuteRootHandlerMethod != null) {
-                    connectorsExecuteRootHandlerMethod.addInterceptor("com.navercorp.pinpoint.plugin.undertow.interceptor.ConnectorsExecuteRootHandlerInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("io.undertow.server.Connectors", ConnectorsTransform.class);
     }
+
+    public static class ConnectorsTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Entry Point
+            final InstrumentMethod connectorsExecuteRootHandlerMethod = target.getDeclaredMethod("executeRootHandler", "io.undertow.server.HttpHandler", "io.undertow.server.HttpServerExchange");
+            if (connectorsExecuteRootHandlerMethod != null) {
+                connectorsExecuteRootHandlerMethod.addInterceptor(ConnectorsExecuteRootHandlerInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

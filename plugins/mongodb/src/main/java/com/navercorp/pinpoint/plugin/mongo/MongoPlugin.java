@@ -50,11 +50,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         MongoConfig config = new MongoConfig(context.getConfig());
-
         if (!config.isEnable()) {
-            logger.info("MongoDB plugin is not executed because plugin enable value is false.");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();

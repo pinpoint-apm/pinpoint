@@ -28,6 +28,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceCloseConnectionInterceptor;
+import com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceCloseInterceptor;
+import com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceGetConnectionInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -38,17 +42,16 @@ public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private  CommonsDbcpConfig config;
-
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        config = new CommonsDbcpConfig(context.getConfig());
+        CommonsDbcpConfig config = new CommonsDbcpConfig(context.getConfig());
         if (!config.isPluginEnable()) {
-            logger.info("Disable commons dbcp option. 'profiler.jdbc.dbcp=false'");
+            logger.info("{} disabled {}", this.getClass().getSimpleName(), "'profiler.jdbc.dbcp=false'");
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         addBasicDataSourceTransformer();
         if (config.isProfileClose()) {
@@ -57,64 +60,69 @@ public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware
     }
 
     private void addPoolGuardConnectionWrapperTransformer() {
-        transformTemplate.transform("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper", new TransformCallback() {
+        transformTemplate.transform("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper", PoolGuardConnectionTransformCallback.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    public static class PoolGuardConnectionTransformCallback implements TransformCallback {
 
-                // closeMethod
-                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
-                closeMethod.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_CLOSE_CONNECTION, CommonsDbcpConstants.SCOPE);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                return target.toBytecode();
-            }
-        });
+            // closeMethod
+            InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+            closeMethod.addScopedInterceptor(DataSourceCloseConnectionInterceptor.class, CommonsDbcpConstants.SCOPE);
+
+            return target.toBytecode();
+        }
     }
 
     private void addBasicDataSourceTransformer() {
-        transformTemplate.transform("org.apache.commons.dbcp.BasicDataSource", new TransformCallback() {
-            
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                if (isAvailableDataSourceMonitor(target)) {
-                    target.addField(CommonsDbcpConstants.ACCESSOR_DATASOURCE_MONITOR);
-
-                    // default constructor
-                    InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target);
-                    defaultConstructor.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_CONSTRUCTOR, CommonsDbcpConstants.SCOPE);
-
-                    // closeMethod
-                    InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
-                    closeMethod.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_CLOSE, CommonsDbcpConstants.SCOPE);
-                }
-
-                // getConnectionMethod
-                InstrumentMethod getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection");
-                getConnectionMethod.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_GET_CONNECTION, CommonsDbcpConstants.SCOPE);
-                getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection", new String[]{"java.lang.String", "java.lang.String"});
-                getConnectionMethod.addScopedInterceptor(CommonsDbcpConstants.INTERCEPTOR_GET_CONNECTION, CommonsDbcpConstants.SCOPE);
-
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("org.apache.commons.dbcp.BasicDataSource", DatasourceTransformCallback.class);
     }
 
-    private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
-        boolean hasMethod = target.hasMethod("getUrl");
-        if (!hasMethod) {
-            return false;
+    public static class DatasourceTransformCallback implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            if (isAvailableDataSourceMonitor(target)) {
+                target.addField(DataSourceMonitorAccessor.class);
+
+                // default constructor
+                InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target);
+                defaultConstructor.addScopedInterceptor(DataSourceConstructorInterceptor.class, CommonsDbcpConstants.SCOPE);
+
+                // closeMethod
+                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                closeMethod.addScopedInterceptor(DataSourceCloseInterceptor.class, CommonsDbcpConstants.SCOPE);
+            }
+
+            // getConnectionMethod
+            InstrumentMethod getConnectionMethod1 = InstrumentUtils.findMethod(target, "getConnection");
+            getConnectionMethod1.addScopedInterceptor(DataSourceGetConnectionInterceptor.class, CommonsDbcpConstants.SCOPE);
+
+            InstrumentMethod getConnectionMethod2 = InstrumentUtils.findMethod(target, "getConnection", "java.lang.String", "java.lang.String");
+            getConnectionMethod2.addScopedInterceptor(DataSourceGetConnectionInterceptor.class, CommonsDbcpConstants.SCOPE);
+
+            return target.toBytecode();
         }
 
-        hasMethod = target.hasMethod("getNumActive");
-        if (!hasMethod) {
-            return false;
-        }
+        private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
+            boolean hasMethod = target.hasMethod("getUrl");
+            if (!hasMethod) {
+                return false;
+            }
 
-        hasMethod = target.hasMethod("getMaxActive");
-        return hasMethod;
+            hasMethod = target.hasMethod("getNumActive");
+            if (!hasMethod) {
+                return false;
+            }
+
+            hasMethod = target.hasMethod("getMaxActive");
+            return hasMethod;
+        }
     }
 
     @Override

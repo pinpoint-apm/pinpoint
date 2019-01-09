@@ -16,10 +16,15 @@
  */
 package com.navercorp.pinpoint.plugin.jackson;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.plugin.jackson.interceptor.ReadValueInterceptor;
+import com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsBytesInterceptor;
+import com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsStringInterceptor;
 
 /**
  *  * @author Sungkook Kim
@@ -32,4 +37,13 @@ public final class JacksonConstants {
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(5011, "JACKSON");
 
     public static final AnnotationKey ANNOTATION_KEY_LENGTH_VALUE = AnnotationKeyFactory.of(9001, "jackson.json.length");
+
+
+    public static final String JACKSON_SCOPE = "JACKSON_OBJECTMAPPER_SCOPE";
+
+    public static final Class<? extends Interceptor> BASIC_METHOD_INTERCEPTOR = BasicMethodInterceptor.class;
+    public static final Class<? extends Interceptor> READ_VALUE_INTERCEPTOR = ReadValueInterceptor.class;
+    public static final Class<? extends Interceptor> WRITE_VALUE_AS_BYTES_INTERCEPTOR = WriteValueAsBytesInterceptor.class;
+    public static final Class<? extends Interceptor> WRITE_VALUE_AS_STRING_INTERCEPTOR = WriteValueAsStringInterceptor.class;
+
 }

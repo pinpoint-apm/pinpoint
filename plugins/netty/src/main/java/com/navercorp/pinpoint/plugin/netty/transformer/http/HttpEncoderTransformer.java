@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
-import com.navercorp.pinpoint.plugin.netty.NettyConstants;
+import com.navercorp.pinpoint.plugin.netty.interceptor.http.HttpEncoderInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -37,7 +37,7 @@ public class HttpEncoderTransformer implements TransformCallback {
 
         InstrumentMethod encodeMethod = InstrumentUtils.findMethod(target, "encode", "io.netty.channel.ChannelHandlerContext", "java.lang.Object", "java.util.List");
         if (encodeMethod != null) {
-            encodeMethod.addInterceptor(NettyConstants.INTERCEPTOR_CODEC_HTTP_ENCODER);
+            encodeMethod.addInterceptor(HttpEncoderInterceptor.class);
         }
         return target.toBytecode();
     }
