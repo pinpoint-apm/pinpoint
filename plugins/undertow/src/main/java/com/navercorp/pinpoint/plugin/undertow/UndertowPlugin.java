@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -47,12 +48,11 @@ public class UndertowPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         if (logger.isInfoEnabled()) {
-            logger.info("UndertowPlugin config:{}", config);
+            logger.info("UndertowPlugin support version range=[2.0.0.Final, 2.0.16.Final]");
         }
         // Entry Point
         addConnectors();
     }
-
 
     private void addConnectors() {
         transformTemplate.transform("io.undertow.server.Connectors", new TransformCallback() {
@@ -69,8 +69,6 @@ public class UndertowPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
         });
     }
-
-
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {
