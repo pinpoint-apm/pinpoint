@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.spring.async.interceptor.AsyncTaskExecutorSubmitInterceptor;
+import com.navercorp.pinpoint.plugin.spring.async.interceptor.TaskCallInterceptor;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -43,10 +45,10 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
     public void setup(ProfilerPluginSetupContext context) {
         final SpringAsyncConfig config = new SpringAsyncConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("Disable SpringAsyncPlugin");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("SpringAsyncPlugin config={}", config);
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // Add task class
         addAsyncExecutionInterceptorTask(Matchers.newClassNameMatcher("org.springframework.aop.interceptor.AsyncExecutionInterceptor$1"));
@@ -62,35 +64,39 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
     }
 
     private void addAsyncExecutionInterceptorTask(final Matcher matcher) {
-        transformTemplate.transform(matcher, new TransformCallback() {
+        transformTemplate.transform(matcher, AsyncExecutionInterceptorTaskTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(AsyncContextAccessor.class.getName());
-                final InstrumentMethod callMethod = target.getDeclaredMethod("call");
-                if (callMethod != null) {
-                    callMethod.addInterceptor("com.navercorp.pinpoint.plugin.spring.async.interceptor.TaskCallInterceptor");
-                }
+    public static class AsyncExecutionInterceptorTaskTransform implements TransformCallback {
 
-                return target.toBytecode();
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+            final InstrumentMethod callMethod = target.getDeclaredMethod("call");
+            if (callMethod != null) {
+                callMethod.addInterceptor(TaskCallInterceptor.class);
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     private void addAsyncTaskExecutor(final String className) {
-        transformTemplate.transform(className, new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                final InstrumentMethod submitMethod = target.getDeclaredMethod("submit", "java.util.concurrent.Callable");
-                if (submitMethod != null) {
-                    submitMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.spring.async.interceptor.AsyncTaskExecutorSubmitInterceptor", SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
-                }
+        transformTemplate.transform(className, AsyncTaskExecutorTransform.class);
+    }
 
-                return target.toBytecode();
+    public static class AsyncTaskExecutorTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            final InstrumentMethod submitMethod = target.getDeclaredMethod("submit", "java.util.concurrent.Callable");
+            if (submitMethod != null) {
+                submitMethod.addScopedInterceptor(AsyncTaskExecutorSubmitInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     @Override

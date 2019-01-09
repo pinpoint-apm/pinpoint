@@ -23,6 +23,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.connection.Cluster;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.bson.Document;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.Properties;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
@@ -48,16 +50,23 @@ public class MongoDB_3_0_x extends MongoDBBase {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-
+        if (isWindows()) {
+            return;
+        }
     }
 
     @AfterClass
     public static void tearDownAfterClass() {
-
+        if (isWindows()) {
+            return;
+        }
     }
 
     @Test
     public void testConnection() throws Exception {
+        if (isWindows()) {
+            return;
+        }
 
         startDB();
 

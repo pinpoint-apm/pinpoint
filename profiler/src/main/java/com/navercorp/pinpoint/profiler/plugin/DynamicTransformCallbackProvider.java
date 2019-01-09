@@ -28,17 +28,27 @@ import java.lang.reflect.Constructor;
  */
 public class DynamicTransformCallbackProvider implements TransformCallbackProvider {
     private final String transformCallbackClassName;
+    private final Object[] parameters;
+    private final Class<?>[] parameterTypes;
 
     public DynamicTransformCallbackProvider(String transformCallbackClassName) {
         this.transformCallbackClassName = Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName must not be null");
+        this.parameters = null;
+        this.parameterTypes = null;
+    }
+
+    public DynamicTransformCallbackProvider(String transformCallbackClassName, Object[] parameters, Class<?>[] parameterTypes) {
+        this.transformCallbackClassName = Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName must not be null");
+        this.parameters = parameters;
+        this.parameterTypes = parameterTypes;
     }
 
     @Override
     public TransformCallback getTransformCallback(InstrumentContext instrumentContext, ClassLoader loader) {
         try {
             final Class<? extends TransformCallback> transformCallbackClass = instrumentContext.injectClass(loader, transformCallbackClassName);
-            Constructor<? extends TransformCallback> constructor = transformCallbackClass.getConstructor();
-            return constructor.newInstance();
+            Constructor<? extends TransformCallback> constructor = transformCallbackClass.getConstructor(parameterTypes);
+            return constructor.newInstance(parameters);
         } catch (Exception e) {
             throw new PinpointException(transformCallbackClassName + " load fail Caused by:" + e.getMessage(), e);
         }

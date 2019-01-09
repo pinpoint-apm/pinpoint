@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.hystrix;
+package com.navercorp.pinpoint.plugin.grpc;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
-/**
- * @author HyunGil Jeong
- */
-public class HystrixPluginConfig {
+public class GrpcClientConfig {
 
-    private final boolean traceHystrix;
+    static final String CLIENT_ENABLE = "profiler.grpc.client.enable";
 
-    public HystrixPluginConfig(ProfilerConfig src) {
-        this.traceHystrix = src.readBoolean("profiler.hystrix", false);
+    private final boolean clientEnable;
+
+    public GrpcClientConfig(ProfilerConfig config) {
+        this.clientEnable = config.readBoolean(CLIENT_ENABLE, false);
+
     }
 
-    public boolean isTraceHystrix() {
-        return traceHystrix;
+    public boolean isClientEnable() {
+        return clientEnable;
     }
 
     @Override
     public String toString() {
-        return "HystrixPluginConfig{" +
-                "traceHystrix=" + traceHystrix +
+        return "GrpcClientConfig{" +
+                "clientEnable=" + clientEnable +
                 '}';
     }
 }

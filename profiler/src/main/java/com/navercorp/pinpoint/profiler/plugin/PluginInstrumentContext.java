@@ -118,6 +118,14 @@ public class PluginInstrumentContext implements InstrumentContext {
     }
 
     @Override
+    public void addClassFileTransformer(final Matcher matcher, final String transformCallbackClassName, Object[] parameters, Class<?>[] parameterTypes) {
+        Assert.requireNonNull(matcher, "matcher must not be null");
+        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName must not be null");
+        final TransformCallbackProvider transformCallbackProvider = new DynamicTransformCallbackProvider(transformCallbackClassName, parameters, parameterTypes);
+        transformerRegistry.addClassFileTransformer(this, matcher, transformCallbackProvider);
+    }
+
+    @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final TransformCallback transformCallback) {
         Assert.requireNonNull(targetClassName, "targetClassName must not be null");
         Assert.requireNonNull(transformCallback, "transformCallback must not be null");

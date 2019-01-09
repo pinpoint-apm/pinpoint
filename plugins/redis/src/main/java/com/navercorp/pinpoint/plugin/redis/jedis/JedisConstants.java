@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.redis.jedis;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
@@ -31,7 +32,5 @@ public final class JedisConstants {
 
     public static final ServiceType REDIS = ServiceTypeFactory.of(8200, "REDIS", TERMINAL, RECORD_STATISTICS);
     public static final String REDIS_SCOPE = "redisJedisScope";
-
-    public static final String END_POINT_ACCESSOR = "com.navercorp.pinpoint.plugin.redis.jedis.EndPointAccessor";
 
 }

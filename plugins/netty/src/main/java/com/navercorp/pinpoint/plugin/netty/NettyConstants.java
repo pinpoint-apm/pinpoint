@@ -16,11 +16,18 @@
 
 package com.navercorp.pinpoint.plugin.netty;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
+import com.navercorp.pinpoint.plugin.netty.interceptor.BootstrapConnectInterceptor;
+import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPipelineWriteInterceptor;
+import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseAddListenerInterceptor;
+import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseNotifyInterceptor;
+import com.navercorp.pinpoint.plugin.netty.interceptor.http.HttpEncoderInterceptor;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 
@@ -42,17 +49,6 @@ public final class NettyConstants {
 
     public static final String SCOPE = "NETTY_SCOPE";
     public static final String SCOPE_WRITE = "NETTY_WRITE_SCOPE";
-
-
-    public static final String INTERCEPTOR_BASIC = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
-
-    public static final String INTERCEPTOR_CHANNEL_PIPELINE_WRITE = "com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPipelineWriteInterceptor";
-    public static final String INTERCEPTOR_CHANNEL_PROMISE_ADD_LISTENER = "com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseAddListenerInterceptor";
-    public static final String INTERCEPTOR_CHANNEL_PROMISE_NOTIFY = "com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseNotifyInterceptor";
-
-    public static final String INTERCEPTOR_BOOTSTRAP_CONNECT = "com.navercorp.pinpoint.plugin.netty.interceptor.BootstrapConnectInterceptor";
-
-    public static final String INTERCEPTOR_CODEC_HTTP_ENCODER = "com.navercorp.pinpoint.plugin.netty.interceptor.http.HttpEncoderInterceptor";
 
 
     public static final String UNKNOWN_ADDRESS = "Unknown";

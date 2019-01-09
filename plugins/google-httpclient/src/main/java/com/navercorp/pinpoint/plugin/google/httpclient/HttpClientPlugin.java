@@ -31,6 +31,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor;
+import com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInterceptor;
+import com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteMethodInterceptor;
 
 /**
  * @author jaehong.kim
@@ -43,59 +47,64 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final HttpClientPluginConfig config = new HttpClientPluginConfig(context.getConfig());
-        logger.debug("[GoogleHttpClient] Initialized config={}", config);
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         logger.debug("[GoogleHttpClient] Add HttpRequest class.");
         addHttpRequestClass(config);
     }
 
     private void addHttpRequestClass(final HttpClientPluginConfig config) {
-        transformTemplate.transform("com.google.api.client.http.HttpRequest", new TransformCallback() {
-            
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                
-                InstrumentMethod execute = target.getDeclaredMethod("execute");
-                if (execute != null) {
-                    execute.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteMethodInterceptor");
-                }
-                
-                if (config.isAsync()) {
-                    InstrumentMethod executeAsync = target.getDeclaredMethod("executeAsync", "java.util.concurrent.Executor");
-                    if (executeAsync != null) {
-                        executeAsync.addScopedInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInterceptor", HttpClientConstants.EXECUTE_ASYNC_SCOPE, ExecutionPolicy.ALWAYS);
-                    }
+        transformTemplate.transform("com.google.api.client.http.HttpRequest", HttpRequestTransform.class);
+    }
 
-                    for (InstrumentClass nestedClass : target.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("executeAsync", "java.util.concurrent.Executor"), ClassFilters.interfaze("java.util.concurrent.Callable")))) {
-                        logger.debug("Find nested class {}", target.getName());
-                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
-                            @Override
-                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                                target.addField(AsyncContextAccessor.class.getName());
+    public static class HttpRequestTransform implements TransformCallback {
+        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                                InstrumentMethod constructor = target.getConstructor("com.google.api.client.http.HttpRequest");
-                                if (constructor != null) {
-                                    logger.debug("Add constructor interceptor for nested class {}", target.getName());
-                                    constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor", HttpClientConstants.EXECUTE_ASYNC_SCOPE, ExecutionPolicy.ALWAYS);
-                                }
-
-                                InstrumentMethod m = target.getDeclaredMethod("call");
-                                if (m != null) {
-                                    logger.debug("Add method interceptor for nested class {}.{}", target.getName(), m.getName());
-                                    m.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor");
-                                }
-
-                                return target.toBytecode();
-                            }
-                        });
-                    }
-                }
-                        
-                return target.toBytecode();
+            InstrumentMethod execute = target.getDeclaredMethod("execute");
+            if (execute != null) {
+                execute.addInterceptor(HttpRequestExecuteMethodInterceptor.class);
             }
-        });
+            final HttpClientPluginConfig config = new HttpClientPluginConfig(instrumentor.getProfilerConfig());
+            if (config.isAsync()) {
+                InstrumentMethod executeAsync = target.getDeclaredMethod("executeAsync", "java.util.concurrent.Executor");
+                if (executeAsync != null) {
+                    executeAsync.addScopedInterceptor(HttpRequestExecuteAsyncMethodInterceptor.class, HttpClientConstants.EXECUTE_ASYNC_SCOPE, ExecutionPolicy.ALWAYS);
+                }
+
+                for (InstrumentClass nestedClass : target.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("executeAsync", "java.util.concurrent.Executor"), ClassFilters.interfaze("java.util.concurrent.Callable")))) {
+                    logger.debug("Find nested class {}", target.getName());
+                    instrumentor.transform(loader, nestedClass.getName(), NestedClassTransform.class);
+                }
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class NestedClassTransform implements TransformCallback {
+        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+
+            InstrumentMethod constructor = target.getConstructor("com.google.api.client.http.HttpRequest");
+            if (constructor != null) {
+                logger.debug("Add constructor interceptor for nested class {}", target.getName());
+                constructor.addScopedInterceptor(HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor.class, HttpClientConstants.EXECUTE_ASYNC_SCOPE, ExecutionPolicy.ALWAYS);
+            }
+
+            InstrumentMethod m = target.getDeclaredMethod("call");
+            if (m != null) {
+                logger.debug("Add method interceptor for nested class {}.{}", target.getName(), m.getName());
+                m.addInterceptor(HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
     }
 
     @Override

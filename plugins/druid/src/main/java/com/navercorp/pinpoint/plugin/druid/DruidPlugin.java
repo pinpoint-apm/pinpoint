@@ -26,6 +26,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.plugin.druid.interceptor.DataSourceCloseConnectionInterceptor;
+import com.navercorp.pinpoint.plugin.druid.interceptor.DataSourceCloseInterceptor;
+import com.navercorp.pinpoint.plugin.druid.interceptor.DataSourceConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.druid.interceptor.DataSourceGetConnectionInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -40,8 +44,6 @@ public class DruidPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private DruidConfig config;
-
     private TransformTemplate transformTemplate;
 
     @Override
@@ -52,13 +54,12 @@ public class DruidPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
 
-        config = new DruidConfig(context.getConfig());
-
+        final DruidConfig config = new DruidConfig(context.getConfig());
         if (!config.isPluginEnable()) {
-
-            logger.info("Disable druid option. 'profiler.jdbc.druid=false'");
+            logger.info("{} disabled '{}'", this.getClass().getSimpleName(), "profiler.jdbc.druid=false");
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         addDruidDataSourceTransformer();
 
@@ -68,59 +69,65 @@ public class DruidPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
-
-        return target.hasMethod("getUrl") && target.hasMethod("getMaxActive") && target.hasMethod("getActiveCount");
-    }
 
     private void addDruidPooledConnectionTransformer() {
 
-        transformTemplate.transform("com.alibaba.druid.pool.DruidPooledConnection", new TransformCallback() {
+        transformTemplate.transform("com.alibaba.druid.pool.DruidPooledConnection", DruidPooledConnectionTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+    public static class DruidPooledConnectionTransform implements TransformCallback {
 
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                // closeMethod
-                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                closeMethod.addScopedInterceptor(DruidConstants.INTERCEPTOR_CLOSE_CONNECTION, DruidConstants.SCOPE);
+            // closeMethod
+            InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
 
-                return target.toBytecode();
-            }
-        });
+            closeMethod.addScopedInterceptor(DataSourceCloseConnectionInterceptor.class, DruidConstants.SCOPE);
+
+            return target.toBytecode();
+        }
     }
 
     private void addDruidDataSourceTransformer() {
 
-        transformTemplate.transform("com.alibaba.druid.pool.DruidDataSource", new TransformCallback() {
+        transformTemplate.transform("com.alibaba.druid.pool.DruidDataSource", DruidDataSourceTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+    public static class DruidDataSourceTransform implements TransformCallback {
 
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                if (isAvailableDataSourceMonitor(target)) {
-                    target.addField(DruidConstants.ACCESSOR_DATASOURCE_MONITOR);
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                    // closeMethod
-                    InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
-                    closeMethod.addScopedInterceptor(DruidConstants.INTERCEPTOR_CLOSE, DruidConstants.SCOPE);
+            if (isAvailableDataSourceMonitor(target)) {
+                target.addField(DataSourceMonitorAccessor.class);
 
-                    // constructor
-                    InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target);
-                    defaultConstructor.addScopedInterceptor(DruidConstants.INTERCEPTOR_CONSTRUCTOR, DruidConstants.SCOPE);
-                }
+                // closeMethod
+                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                closeMethod.addScopedInterceptor(DataSourceCloseInterceptor.class, DruidConstants.SCOPE);
 
-                // getConnectionMethod
-                InstrumentMethod getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection");
-                getConnectionMethod.addScopedInterceptor(DruidConstants.INTERCEPTOR_GET_CONNECTION, DruidConstants.SCOPE);
-                getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection", new String[]{"java.lang.String", "java.lang.String"});
-                getConnectionMethod.addScopedInterceptor(DruidConstants.INTERCEPTOR_GET_CONNECTION, DruidConstants.SCOPE);
-
-                return target.toBytecode();
+                // constructor
+                InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target);
+                defaultConstructor.addScopedInterceptor(DataSourceConstructorInterceptor.class, DruidConstants.SCOPE);
             }
-        });
+
+            // getConnectionMethod
+            InstrumentMethod getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection");
+            getConnectionMethod.addScopedInterceptor(DataSourceGetConnectionInterceptor.class, DruidConstants.SCOPE);
+            getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection", new String[]{"java.lang.String", "java.lang.String"});
+            getConnectionMethod.addScopedInterceptor(DataSourceGetConnectionInterceptor.class, DruidConstants.SCOPE);
+
+            return target.toBytecode();
+        }
+
+
+        private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
+
+            return target.hasMethod("getUrl") && target.hasMethod("getMaxActive") && target.hasMethod("getActiveCount");
+        }
     }
 }

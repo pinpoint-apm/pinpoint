@@ -28,11 +28,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.mybatis.interceptor.SqlSessionOperationInterceptor;
 
 
 /**
@@ -49,43 +51,45 @@ public class MyBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
 
-        MyBatisPluginConfig myBatisPluginConfig = new MyBatisPluginConfig(context.getConfig());
-        if (logger.isInfoEnabled()) {
-            logger.info("MyBatisPlugin config:{}", myBatisPluginConfig);
+        MyBatisPluginConfig config = new MyBatisPluginConfig(context.getConfig());
+        if (!config .isMyBatisEnabled()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
         }
-
-        if (myBatisPluginConfig .isMyBatisEnabled()) {
-            addInterceptorsForSqlSession();
-        }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+         addInterceptorsForSqlSession();
     }
 
     // SqlSession implementations
     private void addInterceptorsForSqlSession() {
-        final MethodFilter methodFilter = MethodFilters.name("selectOne", "selectList", "selectMap", "select",
-                "insert", "update", "delete");
+
         final String[] sqlSessionImpls = { "org.apache.ibatis.session.defaults.DefaultSqlSession",
                 "org.mybatis.spring.SqlSessionTemplate" };
 
         for (final String sqlSession : sqlSessionImpls) {
-            transformTemplate.transform(sqlSession, new TransformCallback() {
+            transformTemplate.transform(sqlSession, SqlSessionTransform.class);
 
-                @Override
-                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
-                                            String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                                            byte[] classfileBuffer) throws InstrumentException {
-                    
-                    final InstrumentClass target = instrumentor.getInstrumentClass(loader, sqlSession, classfileBuffer);
+        }
+    }
 
-                    final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
-                    for (InstrumentMethod methodToTrace : methodsToTrace) {
-                        String sqlSessionOperationInterceptor = "com.navercorp.pinpoint.plugin.mybatis.interceptor.SqlSessionOperationInterceptor";
-                        methodToTrace.addScopedInterceptor(sqlSessionOperationInterceptor, MYBATIS_SCOPE, ExecutionPolicy.BOUNDARY);
-                    }
-                    
-                    return target.toBytecode();
-                }
-            });
+    public static class SqlSessionTransform implements TransformCallback {
 
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
+                String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+        byte[] classfileBuffer) throws InstrumentException {
+
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            final MethodFilter methodFilter = MethodFilters.name("selectOne", "selectList", "selectMap", "select",
+                    "insert", "update", "delete");
+            final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
+            for (InstrumentMethod methodToTrace : methodsToTrace) {
+                Class<? extends Interceptor> sqlSessionOperationInterceptor = SqlSessionOperationInterceptor.class;
+                methodToTrace.addScopedInterceptor(sqlSessionOperationInterceptor, MYBATIS_SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
+            return target.toBytecode();
         }
     }
 

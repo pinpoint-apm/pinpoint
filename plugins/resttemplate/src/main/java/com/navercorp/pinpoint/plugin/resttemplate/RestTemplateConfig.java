@@ -35,4 +35,10 @@ public class RestTemplateConfig {
         return pluginEnable;
     }
 
+    @Override
+    public String toString() {
+        return "RestTemplateConfig{" +
+                "pluginEnable=" + pluginEnable +
+                '}';
+    }
 }
