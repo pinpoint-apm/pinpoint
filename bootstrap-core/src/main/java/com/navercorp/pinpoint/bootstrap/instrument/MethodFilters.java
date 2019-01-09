@@ -63,7 +63,7 @@ public class MethodFilters {
     }
 
     public static MethodFilter chain(MethodFilter... methodFilters) {
-        return new ChaninFilter(methodFilters);
+        return new ChainFilter(methodFilters);
     }
 
     private static final class MethodNameFilter implements MethodFilter {
@@ -89,6 +89,14 @@ public class MethodFilters {
 
             return REJECT^inverter;
         }
+
+        @Override
+        public String toString() {
+            return "MethodNameFilter{" +
+                    "names=" + Arrays.toString(names) +
+                    ", inverter=" + inverter +
+                    '}';
+        }
     }
 
     private static final class ModifierFilter implements MethodFilter {
@@ -104,6 +112,14 @@ public class MethodFilters {
         public boolean accept(InstrumentMethod method) {
             int modifier = method.getModifiers();
             return ((required & modifier) == required) && ((rejected & modifier) == 0);
+        }
+
+        @Override
+        public String toString() {
+            return "ModifierFilter{" +
+                    "required=" + required +
+                    ", rejected=" + rejected +
+                    '}';
         }
     }
 
@@ -126,6 +142,14 @@ public class MethodFilters {
 
             return type != null && type.equals(paramTypes[index]);
         }
+
+        @Override
+        public String toString() {
+            return "ArgAtFilter{" +
+                    "index=" + index +
+                    ", type='" + type + '\'' +
+                    '}';
+        }
     }
 
     private static final class ArgsFilter implements MethodFilter {
@@ -140,12 +164,19 @@ public class MethodFilters {
             String[] paramTypes = method.getParameterTypes();
             return Arrays.equals(paramTypes, types);
         }
+
+        @Override
+        public String toString() {
+            return "ArgsFilter{" +
+                    "types=" + Arrays.toString(types) +
+                    '}';
+        }
     }
 
-    private static final class ChaninFilter implements MethodFilter {
+    private static final class ChainFilter implements MethodFilter {
         private final MethodFilter[] methodFilters;
 
-        public ChaninFilter(MethodFilter[] methodFilters) {
+        public ChainFilter(MethodFilter[] methodFilters) {
             this.methodFilters = methodFilters;
         }
 
@@ -161,6 +192,13 @@ public class MethodFilters {
                 }
             }
             return ACCEPT;
+        }
+
+        @Override
+        public String toString() {
+            return "ChainFilter{" +
+                    "methodFilters=" + Arrays.toString(methodFilters) +
+                    '}';
         }
     }
 }

@@ -22,7 +22,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackChecker;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.common.util.Assert;
 
 import java.security.ProtectionDomain;
 
@@ -91,6 +93,16 @@ public class GuardInstrumentor implements Instrumentor {
     public void transform(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
         checkOpen();
         instrumentContext.addClassFileTransformer(classLoader, targetClassName, transformCallback);
+    }
+
+    @Override
+    public void transform(ClassLoader classLoader, String targetClassName, Class<? extends TransformCallback> transformCallback) {
+        checkOpen();
+        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+        TransformCallbackChecker.validate(transformCallback);
+
+        final String transformCallbackClassName = transformCallback.getName();
+        instrumentContext.addClassFileTransformer(classLoader, targetClassName, transformCallbackClassName);
     }
 
     @Override
