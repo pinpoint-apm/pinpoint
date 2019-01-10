@@ -8,10 +8,10 @@ import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST } from '
     styleUrls: ['./inbound-outbound-range-selector-for-configuration-container.component.css']
 })
 export class InboundOutboundRangeSelectorForConfigurationContainerComponent implements OnInit {
-    inboundList: string[];
-    outboundList: string[];
-    selectedInbound: string;
-    selectedOutbound: string;
+    inboundList: number[];
+    outboundList: number[];
+    selectedInbound: number;
+    selectedOutbound: number;
 
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
@@ -25,7 +25,7 @@ export class InboundOutboundRangeSelectorForConfigurationContainerComponent impl
         this.selectedOutbound = this.webAppSettingDataService.getUserDefaultOutbound();
     }
 
-    onChangeBound(bound: string[]): void {
+    onChangeBound(bound: number[]): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_BOUND_IN_CONFIGURATION, `Inbound: ${bound[0]}, Outbound: ${bound[1]}`);
         this.webAppSettingDataService.setUserDefaultInbound(bound[0]);
         this.webAppSettingDataService.setUserDefaultOutbound(bound[1]);
