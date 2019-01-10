@@ -119,6 +119,8 @@ public class CompletableTestRunner {
         // Instead, we can verify them indirectly by checking if user methods have been traced.
         verifier.ignoreServiceType("RX_JAVA_INTERNAL");
 
+        verifier.awaitTrace(event(ServiceType.ASYNC.getName(), "Asynchronous Invocation"), 20, 500);
+
         Method subscribeMethod = Completable.class.getDeclaredMethod("subscribe");
         verifier.verifyTrace(event("RX_JAVA", subscribeMethod));
         // event - RX_JAVA_INTERNAL some form of Worker.schedule(Action0)

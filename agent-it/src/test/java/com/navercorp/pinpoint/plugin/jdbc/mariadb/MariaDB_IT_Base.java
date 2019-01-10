@@ -22,12 +22,14 @@ import org.junit.BeforeClass;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.Enumeration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -64,6 +66,8 @@ public class MariaDB_IT_Base {
         TEST_DATABASE.start();
         TEST_DATABASE.createDB("test");
         TEST_DATABASE.source("jdbc/mariadb/init.sql");
+
+        DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
     }
 
     protected final void executeStatement() throws Exception {
@@ -197,5 +201,12 @@ public class MariaDB_IT_Base {
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
         TEST_DATABASE.stop();
+
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = drivers.nextElement();
+            DriverManager.deregisterDriver(driver);
+        }
     }
+
 }
