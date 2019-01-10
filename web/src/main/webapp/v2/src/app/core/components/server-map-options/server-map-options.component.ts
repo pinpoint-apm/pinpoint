@@ -9,19 +9,19 @@ export class ServerMapOptionsComponent implements OnInit, OnChanges {
     hideList = true;
     prevWasOnly: boolean;
     prevBidirectional: boolean;
-    prevSelectedInbound: string;
-    prevSelectedOutbound: string;
+    prevSelectedInbound: number;
+    prevSelectedOutbound: number;
     bidirectionalPath: string;
     @Input() funcImagePath: Function;
     @Input() selectedWasOnly: boolean;
     @Input() selectedBidirectional: boolean;
-    @Input() selectedInbound: string;
-    @Input() selectedOutbound: string;
-    @Input() inboundList: string[];
-    @Input() outboundList: string[];
+    @Input() selectedInbound: number;
+    @Input() selectedOutbound: number;
+    @Input() inboundList: number[];
+    @Input() outboundList: number[];
     @Output() outSelected: EventEmitter<{
-        inbound: string,
-        outbound: string,
+        inbound: number,
+        outbound: number,
         wasOnly: boolean,
         bidirectional: boolean
     }> = new EventEmitter();
@@ -57,11 +57,11 @@ export class ServerMapOptionsComponent implements OnInit, OnChanges {
     onChangeBidirectional(): void {
         this.selectedBidirectional = !this.selectedBidirectional;
     }
-    onSelectInbound(inbound: string): void {
+    onSelectInbound(inbound: number): void {
         this.selectedInbound = inbound;
     }
 
-    onSelectOutbound(outbound: string): void {
+    onSelectOutbound(outbound: number): void {
         this.selectedOutbound = outbound;
     }
     onApply(): void {
