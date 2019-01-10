@@ -17,8 +17,16 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,11 +41,30 @@ public class PluginTestClassLoader extends URLClassLoader {
         super(urls);
     }
 
-
-
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         // override for debugging
         return super.loadClass(name);
     }
+
+    public static ClassLoader getClassLoader(List<File> fileList) throws MalformedURLException {
+        List<URL> urlList = getUrlList(fileList);
+        return new PluginTestClassLoader(urlList.toArray(new URL[0]));
+    }
+
+    private static List<URL> getUrlList(List<File> fileList) throws MalformedURLException {
+        if (fileList == null) {
+            return Collections.emptyList();
+        }
+
+        List<URL> urls = new ArrayList<URL>();
+        for (File file : fileList) {
+            if (file instanceof File) {
+                urls.add(file.toURI().toURL());
+            }
+        }
+        return urls;
+    }
+
+
 }

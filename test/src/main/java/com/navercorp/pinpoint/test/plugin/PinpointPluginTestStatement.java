@@ -14,25 +14,19 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.regex.Pattern;
-
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.Statement;
 
-import com.navercorp.pinpoint.common.util.SystemProperty;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER;
 
 /**
  * @author Jongho Moon
@@ -57,21 +51,10 @@ public class PinpointPluginTestStatement extends Statement {
     
     @Override
     public void evaluate() throws Throwable {
-        ProcessBuilder builder = new ProcessBuilder();
-
-        builder.command(buildCommand());
-        builder.redirectErrorStream(true);
-        builder.directory(testCase.getWorkingDirectory());
-        
-        System.out.println("Working directory: " + SystemProperty.INSTANCE.getProperty("user.dir"));
-        System.out.println("Command: " + builder.command());
-
         Description parentDescription = runner.getDescription();
 
-        final Process process = builder.start();
-        
         try {
-            Scanner scanner = testCase.startTest(process);
+            Scanner scanner = testCase.startTest();
 
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
@@ -88,6 +71,7 @@ public class PinpointPluginTestStatement extends Statement {
                         notifier.fireTestRunStarted(parentDescription);
                     } else if ("testRunFinished".equals(event)) {
                         notifier.fireTestRunFinished(result);
+                        break;
                     } else if ("testStarted".equals(event)) {
                         Description ofTest = findDescription(parentDescription, tokens[2]);
                         notifier.fireTestStarted(ofTest);
@@ -116,98 +100,10 @@ public class PinpointPluginTestStatement extends Statement {
             
             throw t;
         } finally {
-            try {        
-                testCase.endTest(process);
-            } finally {
-
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-
-                    @Override
-                    public void run() {
-                        process.destroy();
-                    }
-                    
-                }, 10 * 1000);
-
-                try {
-                    process.waitFor();
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-                
-                timer.cancel();
-            }
+            testCase.endTest();
         }
     }
-    
-    private String[] buildCommand() {
-        List<String> list = new ArrayList<String>();
-        
-        list.add(context.getJavaExecutable());
-        
-        list.add("-cp");
-        list.add(getClassPathAsString());
-        
-        list.add(getAgent());
-        
-        list.add("-Dpinpoint.agentId=build.test.0");
-        list.add("-Dpinpoint.applicationName=test");
-        list.add("-D" + PINPOINT_TEST_ID + "=" + testCase.getTestId());
 
-        for (String arg : context.getJvmArguments()) {
-            list.add(arg);
-        }
-        
-        if (context.isDebug()) {
-            list.addAll(getDebugOptions());
-        }
-        
-        if (context.getConfigFile() != null) {
-            list.add("-Dpinpoint.config=" + context.getConfigFile());
-        }
-        
-        for (String arg : testCase.getVmArgs()) {
-            list.add(arg);
-        }
-        
-        String mainClass = testCase.getMainClass();
-        
-        if (mainClass.endsWith(".jar")) {
-            list.add("-jar");
-        }
-        
-        list.add(mainClass);
-        list.addAll(testCase.getAppArgs());
-
-        return list.toArray(new String[0]);
-    }
-    
-    private List<String> getDebugOptions() {
-        return Arrays.asList("-Xdebug", "-agentlib:jdwp=transport=dt_socket,address=1296,server=y,suspend=y");
-    }
-    
-    private String getAgent() {
-        return "-javaagent:" + context.getAgentJar() + "=AGENT_TYPE=PLUGIN_TEST";
-    }
-    
-    private String getClassPathAsString() {
-        StringBuilder classPath = new StringBuilder();
-        boolean first = true;
-        
-        for (String lib : testCase.getClassPath()) {
-            if (first) {
-                first = false;
-            } else {
-                classPath.append(File.pathSeparatorChar);
-            }
-            
-            classPath.append(lib);
-        }
-        
-        return classPath.toString();
-    }
-    
     private Description findDescription(Description parentDescription, String displayName) {
         if (displayName.equals(parentDescription.getDisplayName())) {
             return parentDescription;

@@ -256,6 +256,8 @@ public class HystrixObservableCommand_1_5_3_to_1_5_x_IT {
                 fallbackCauseAnnotation, exceptionAnnotation));
         verifier.verifyTrace(event("HYSTRIX_COMMAND_INTERNAL", "com.netflix.hystrix.HystrixObservableCommand.getFallbackObservable()"));
 
+        verifier.awaitTraceCount(2, 10, 3000);
+
         // execution
         verifier.verifyTrace(event(ServiceType.ASYNC.getName(), "Asynchronous Invocation"));
         Method helloMethod = HelloRepository.class.getDeclaredMethod("hello", String.class, long.class);
