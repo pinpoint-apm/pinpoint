@@ -396,7 +396,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return description;
     }
 
-    private static class NormalPluginTestCase implements PinpointPluginTestInstance {
+    private static class NormalPluginTestCase implements DelegateSupportedPinpointPluginTestInstance {
         private final PinpointPluginTestContext context;
         private final String testId;
         private final List<String> libs;
@@ -464,6 +464,13 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         @Override
         public Scanner startTest() throws Exception {
             Process process = processManager.create(this);
+            InputStream inputStream = process.getInputStream();
+            return new Scanner(inputStream, DEFAULT_ENCODING);
+        }
+
+        @Override
+        public Scanner startTest(PinpointPluginTestInstance pinpointPluginTestInstance) throws Throwable {
+            Process process = processManager.create(pinpointPluginTestInstance);
             InputStream inputStream = process.getInputStream();
             return new Scanner(inputStream, DEFAULT_ENCODING);
         }
