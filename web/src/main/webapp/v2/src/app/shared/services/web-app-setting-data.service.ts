@@ -79,10 +79,10 @@ export class WebAppSettingDataService {
     getLogoPath(): string {
         return this.getImagePath() + this.LOGO_IMG_NAME;
     }
-    getSystemDefaultInbound(): string {
+    getSystemDefaultInbound(): number {
         return this.componentDefaultSettingDataService.getSystemDefaultInbound();
     }
-    getSystemDefaultOutbound(): string {
+    getSystemDefaultOutbound(): number {
         return this.componentDefaultSettingDataService.getSystemDefaultOutbound();
     }
     getSystemDefaultPeriod(): Period {
@@ -91,10 +91,10 @@ export class WebAppSettingDataService {
     getSystemDefaultTransactionViewPeriod(): Period {
         return this.componentDefaultSettingDataService.getSystemDefaultTransactionViewPeriod();
     }
-    getInboundList(): string[] {
+    getInboundList(): number[] {
         return this.componentDefaultSettingDataService.getInboundList();
     }
-    getOutboundList(): string[] {
+    getOutboundList(): number[] {
         return this.componentDefaultSettingDataService.getOutboundList();
     }
     getPeriodList(path: string): Period[] {
@@ -171,17 +171,17 @@ export class WebAppSettingDataService {
     getLayerHeight(): number {
         return Number.parseInt(this.localStorageService.get(WebAppSettingDataService.KEYS.LAYER_HEIGHT), 10);
     }
-    setUserDefaultInbound(value: string): void {
+    setUserDefaultInbound(value: number): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.USER_DEFAULT_INBOUND, value);
     }
-    getUserDefaultInbound(): string {
-        return this.localStorageService.get<string>(WebAppSettingDataService.KEYS.USER_DEFAULT_INBOUND) || this.getSystemDefaultInbound();
+    getUserDefaultInbound(): number {
+        return this.localStorageService.get<number>(WebAppSettingDataService.KEYS.USER_DEFAULT_INBOUND) || this.getSystemDefaultInbound();
     }
-    setUserDefaultOutbound(value: string): void {
+    setUserDefaultOutbound(value: number): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.USER_DEFAULT_OUTBOUND, value);
     }
-    getUserDefaultOutbound(): string {
-        return this.localStorageService.get<string>(WebAppSettingDataService.KEYS.USER_DEFAULT_OUTBOUND) || this.getSystemDefaultOutbound();
+    getUserDefaultOutbound(): number {
+        return this.localStorageService.get<number>(WebAppSettingDataService.KEYS.USER_DEFAULT_OUTBOUND) || this.getSystemDefaultOutbound();
     }
     setUserDefaultPeriod(value: Period): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.USER_DEFAULT_PERIOD, value.getValue());

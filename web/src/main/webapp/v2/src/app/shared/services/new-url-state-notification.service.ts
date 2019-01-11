@@ -100,7 +100,7 @@ export class NewUrlStateNotificationService {
         let updated = false;
         UrlQuery.getQueryList().forEach((query: string) => {
             if (this.changedQuery(query, queryParams[query])) {
-                this.changeQueryState(query, queryParams[query] ? UrlQueryFactory.createQuery<string | boolean>(query, queryParams[query]) : null);
+                this.changeQueryState(query, queryParams[query] ? UrlQueryFactory.createQuery(query, queryParams[query]) : null);
                 updated = true;
             }
         });
@@ -113,7 +113,7 @@ export class NewUrlStateNotificationService {
             if (this.urlState[query].curr === null) {
                 return true;
             } else {
-                return !(this.urlState[query].curr as IUrlQuery<any>).equals(UrlQueryFactory.createQuery<string | boolean>(query, queryValue));
+                return !(this.urlState[query].curr as IUrlQuery<any>).equals(UrlQueryFactory.createQuery(query, queryValue));
             }
         }
     }
