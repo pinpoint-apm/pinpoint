@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Taejin Koo
+ * agent状态信息采集打点
  */
 public class StatDataSenderProvider implements Provider<DataSender> {
 
