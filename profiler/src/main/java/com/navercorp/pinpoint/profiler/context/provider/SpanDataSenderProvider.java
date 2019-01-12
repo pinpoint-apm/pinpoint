@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Taejin Koo
+ * 
+ * SpanDataSenderProvider (span采集打点)
  */
 public class SpanDataSenderProvider  implements Provider<DataSender> {
 
