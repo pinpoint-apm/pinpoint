@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 /**
  * @author Woonduk Kang(emeroad)
  * @author HyunGil Jeong
+ * 
+ * agent的信息采集打点
  */
 public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
 
