@@ -7,7 +7,7 @@ permalink: quickstart.html
 disqus: false
 ---
 
-If you are using docker, [Take a look at pinpoint docker](./docker.html) which is the easiest way to look around.
+If you are using docker, [Take a look at pinpoint docker](./docker.md) which is the easiest way to look around.
 
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
 
