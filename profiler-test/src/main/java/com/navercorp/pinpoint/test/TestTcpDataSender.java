@@ -63,7 +63,6 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         return Maps.synchronizedBiMap(hashBiMap);
     }
 
-
     @Override
     public boolean send(Object data) {
         addData(data);
@@ -75,22 +74,21 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
             ApiMetaData md = (ApiMetaData)data;
 
             final String javaMethodDescriptor = toJavaMethodDescriptor(md);
-            apiIdMap.put(md.getApiId(), javaMethodDescriptor);
-
+            apiIdMap.forcePut(md.getApiId(), javaMethodDescriptor);
         } else if (data instanceof SqlMetaData) {
             SqlMetaData md = (SqlMetaData)data;
 
             int id = md.getSqlId();
             String sql = md.getSql();
 
-            sqlIdMap.put(id, sql);
+            sqlIdMap.forcePut(id, sql);
         } else if (data instanceof StringMetaData) {
             StringMetaData md = (StringMetaData)data;
 
             int id = md.getStringId();
             String string = md.getStringValue();
 
-            stringIdMap.put(id, string);
+            stringIdMap.forcePut(id, string);
         }
 
         datas.add(data);

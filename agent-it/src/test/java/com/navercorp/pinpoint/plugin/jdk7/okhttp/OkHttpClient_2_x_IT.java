@@ -123,8 +123,8 @@ public class OkHttpClient_2_x_IT {
         latch.await(3, TimeUnit.SECONDS);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.awaitTrace(event(ASYNC.getName(), "Asynchronous Invocation"), 20, 3000);
         verifier.printCache();
-
 
         Method callEnqueueMethod = Call.class.getDeclaredMethod("enqueue", com.squareup.okhttp.Callback.class);
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), callEnqueueMethod));

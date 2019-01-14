@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 import { WindowRefService } from 'app/shared/services/window-ref.service';
 import { WebAppSettingDataService } from 'app/shared/services/web-app-setting-data.service';
@@ -73,26 +75,28 @@ export enum TRACKED_EVENT_LIST {
 
 @Injectable()
 export class AnalyticsService {
-    private sendUsage: boolean;
     private currentPage: string;
 
     constructor(
         private windowRefService: WindowRefService,
         private webAppSettingDataService: WebAppSettingDataService
-    ) {
-        this.webAppSettingDataService.isDataUsageAllowed().subscribe((result: boolean) => {
-            this.sendUsage = result;
-        });
+    ) {}
+    private isAllowed(): Observable<boolean> {
+        return this.webAppSettingDataService.isDataUsageAllowed().pipe(
+            filter((result: boolean) => {
+                return result;
+            })
+        );
     }
 
     trackPage(pageName: string): void {
-        if (this.sendUsage) {
+        this.isAllowed().subscribe((result: boolean) => {
             if (this.windowRefService.nativeWindow.ga && typeof ga === 'function') {
                 this.currentPage = pageName;
                 ga('set', 'page', `/${pageName}`);
                 ga('send', 'pageview');
             }
-        }
+        });
     }
     /**
      *  eventCategory: 각 페이지 별 라우팅 주소
@@ -101,10 +105,10 @@ export class AnalyticsService {
      *  eventValue: 액션에 대한 추가 정보2(Optional) 단, 수치로 제공 ex. 동영상 다운로드 액션 이벤트 발생 시, 다운로드 시간.
      */
     trackEvent(eventAction: string, eventLabel?: string, eventValue?: number): void {
-        if (this.sendUsage) {
+        this.isAllowed().subscribe((result: boolean) => {
             if (this.windowRefService.nativeWindow.ga && typeof ga === 'function') {
                 ga('send', 'event', { eventCategory: this.currentPage, eventAction, eventLabel, eventValue });
             }
-        }
+        });
     }
 }

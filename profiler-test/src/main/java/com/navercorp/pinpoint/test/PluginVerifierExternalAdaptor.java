@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
+import com.navercorp.pinpoint.common.util.StopWatch;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
@@ -889,4 +890,96 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
         }
     }
+
+    @Override
+    public void awaitTrace(ExpectedTrace expectedTrace, long waitUnitTime, long maxWaitTime) {
+        if (expectedTrace == null) {
+            return;
+        }
+        Assert.requireNonNull(expectedTrace, "expectedTrace must not be null");
+        if (waitUnitTime <= 0 || maxWaitTime <= 0) {
+            throw new IllegalArgumentException("must be greater than 0");
+        }
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        while (true) {
+            try {
+                if (hasTrace(expectedTrace)) {
+                    return;
+                }
+            } catch (Exception e) {
+            }
+
+            try {
+                Thread.sleep(waitUnitTime);
+            } catch (InterruptedException e) {
+            }
+
+            if (stopWatch.stop() > maxWaitTime) {
+                // do nothing (it is good to catch the cause.)
+                return;
+            }
+        }
+    }
+
+    private boolean hasTrace(ExpectedTrace expectedTrace) {
+        if (expectedTrace == null) {
+            return false;
+        }
+
+        ResolvedExpectedTrace resolvedExpectedTrace = resolveExpectedTrace(expectedTrace, null);
+
+        Iterator<Object> iterator = getRecorder().iterator();
+        while (iterator.hasNext()) {
+            try {
+                Object value = iterator.next();
+
+                ActualTrace actualTrace = null;
+                if (value instanceof SpanEvent) {
+                    actualTrace = new SpanEventFacade((SpanEvent) value);
+                } else if (value instanceof Span) {
+                    actualTrace = new SpanFacade((Span) value);
+                } else {
+                    continue;
+                }
+
+                verifySpan(resolvedExpectedTrace, actualTrace);
+                return true;
+            } catch (Throwable e) {
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void awaitTraceCount(int expectedTraceCount, long waitUnitTime, long maxWaitTime) {
+        if (waitUnitTime <= 0 || maxWaitTime <= 0) {
+            throw new IllegalArgumentException("must be greater than 0");
+        }
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        while (true) {
+            try {
+                verifyTraceCount(expectedTraceCount);
+                return;
+            } catch (Throwable e) {
+            }
+
+            try {
+                Thread.sleep(waitUnitTime);
+            } catch (InterruptedException e) {
+            }
+
+            if (stopWatch.stop() > maxWaitTime) {
+                // do nothing (it is good to catch the cause.)
+                return;
+            }
+        }
+    }
+
 }

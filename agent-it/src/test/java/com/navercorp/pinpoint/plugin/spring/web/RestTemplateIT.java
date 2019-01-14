@@ -91,6 +91,7 @@ public class RestTemplateIT {
         String forObject = restTemplate.getForObject(webServer.getCallHttpUrl(), String.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.awaitTrace(event("ASYNC", "Asynchronous Invocation"), 20, 3000);
         verifier.printCache();
 
         verifier.verifyTrace(event("REST_TEMPLATE", RestTemplate.class.getConstructor()));

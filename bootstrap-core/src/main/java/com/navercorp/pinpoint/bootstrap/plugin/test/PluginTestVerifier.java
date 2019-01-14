@@ -39,4 +39,8 @@ public interface PluginTestVerifier {
     void initialize(boolean initializeTraceObject);
     void cleanUp(boolean detachTraceObject);
     void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo);
+
+    void awaitTrace(ExpectedTrace expectedTrace, long waitUnitTime, long maxWaitTime);
+    void awaitTraceCount(int expectedTraceCount, long waitUnitTime, long maxWaitTime);
+
 }

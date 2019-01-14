@@ -39,16 +39,16 @@ export class UrlQuery {
 
 export class UrlQueryFactory {
     constructor() {}
-    static createQuery<T>(queryName: string, queryValue?: T): IUrlQuery<T> {
+    static createQuery(queryName: string, queryValue: any): IUrlQuery<string | boolean | number> {
         switch (queryName) {
             case UrlQuery.INBOUND:
             case UrlQuery.OUTBOUND:
-                return new UrlQueryClass<T>(queryValue) as IUrlQuery<T>;
+                return new UrlQueryClass<number>(Number(queryValue)) as IUrlQuery<number>;
             case UrlQuery.BIDIRECTIONAL:
             case UrlQuery.WAS_ONLY:
-                return new UrlQueryClass<T>(queryValue) as IUrlQuery<T>;
+                return new UrlQueryClass<boolean>(queryValue === 'true') as IUrlQuery<boolean>;
             default:
-                return new UrlQueryClass<T>(queryValue) as IUrlQuery<T>;
+                return new UrlQueryClass<string>(queryValue) as IUrlQuery<string>;
         }
     }
 }

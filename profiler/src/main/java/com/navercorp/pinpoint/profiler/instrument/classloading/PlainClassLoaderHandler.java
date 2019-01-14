@@ -53,14 +53,11 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
 
     private final PluginConfig pluginConfig;
-    private final BootstrapCore bootstrapCore;
 
-    public PlainClassLoaderHandler(PluginConfig pluginConfig, BootstrapCore bootstrapCore) {
+    public PlainClassLoaderHandler(PluginConfig pluginConfig) {
         this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
 
         this.pluginJarReader = new JarReader(pluginConfig.getPluginJarFile());
-        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
-
     }
 
     @Override
@@ -71,10 +68,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
 
         try {
-            if (bootstrapCore.isBootstrapPackage(className)) {
-                final ClassLoader bootstrapClassLoader = Object.class.getClassLoader();
-                return loadClass(bootstrapClassLoader, className);
-            }
             if (!isPluginPackage(className)) {
                 return loadClass(classLoader, className);
             }
@@ -88,9 +81,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
     @Override
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
-            if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {
-                return bootstrapCore.openStream(internalName);
-            }
             final String name = JavaAssistUtils.jvmNameToJavaName(internalName);
             if (!isPluginPackage(name)) {
                 return targetClassLoader.getResourceAsStream(internalName);

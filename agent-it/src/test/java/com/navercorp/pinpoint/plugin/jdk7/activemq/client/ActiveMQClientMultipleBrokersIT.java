@@ -37,7 +37,7 @@ import java.util.Arrays;
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
 // 5.4.1 bug creates activemq-data directory even if persistence is set to false - skip it
 // 5.5.x activemq-all missing slf4j binder - just skip instead of supplying one
-@Dependency({"org.apache.activemq:activemq-all:[5.1.0,5.4.1),[5.4.2,5.4.max],[5.6.0,)"})
+@Dependency({"org.apache.activemq:activemq-all:[5.1.0,5.4.1),[5.4.2,5.4.max],[5.6.0,5.14.max]"})
 public class ActiveMQClientMultipleBrokersIT extends ActiveMQClientITBase {
 
     private static final String PRODUCER_BROKER = "Producer_Broker";
