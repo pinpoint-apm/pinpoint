@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -28,11 +29,12 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -73,9 +75,11 @@ public class ASMClassNodeLoader {
     }
 
     // only use for test.
-    public static ClassNode get(final String className) throws Exception {
+    public static ClassNode get(final String className) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(className) + ".class"));
+        InputStream inputStream = classLoader.getResourceAsStream(JavaAssistUtils.javaClassNameToJvmResourceName(className));
+        byte[] bytes = IOUtils.toByteArray(inputStream);
+        ClassReader cr = new ClassReader(bytes);
         ClassNode classNode = new ClassNode();
         cr.accept(classNode, ClassReader.EXPAND_FRAMES);
 

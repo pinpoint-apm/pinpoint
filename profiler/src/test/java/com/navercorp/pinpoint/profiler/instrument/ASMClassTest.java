@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -45,7 +46,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,16 +54,22 @@ import static org.mockito.Mockito.when;
  * @author jaehong.kim
  */
 public class ASMClassTest {
-    private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
+    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
 
     private final ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
     private final Provider<TraceContext> traceContextProvider = Providers.of(mock(TraceContext.class));
     private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService = mock(DataSourceMonitorRegistryService.class);
     private final Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
+
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
 
     private final ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
     private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, apiMetaDataService, exceptionHandlerFactory);
+    private final ScopeFactory scopeFactory = new ScopeFactory();
+    private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
+
+    private final EngineComponent engineComponent = new DefaultEngineComponent(objectBinderFactory, interceptorRegistryBinder, interceptorDefinitionFactory, apiMetaDataService, scopeFactory);
+
 
     @Before
     public void setUp() {
@@ -611,6 +618,6 @@ public class ASMClassTest {
     private ASMClass getClass(final String targetClassName) throws Exception {
         ClassNode classNode = ASMClassNodeLoader.get(targetClassName);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService.get(), classLoader, classNode);
+        return new ASMClass(engineComponent, pluginContext, classLoader, classNode);
     }
 }

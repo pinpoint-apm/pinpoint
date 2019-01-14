@@ -26,16 +26,6 @@ import java.util.regex.Pattern;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 
-import javassist.CtBehavior;
-import javassist.CtClass;
-import javassist.Modifier;
-import javassist.bytecode.AttributeInfo;
-import javassist.bytecode.CodeAttribute;
-import javassist.bytecode.LocalVariableAttribute;
-import javassist.bytecode.MethodInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
@@ -45,7 +35,6 @@ public final class JavaAssistUtils {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String ARRAY = "[]";
 
-    private static final Logger logger = LoggerFactory.getLogger(JavaAssistUtils.class);
 
     private static final Pattern PARAMETER_SIGNATURE_PATTERN = Pattern.compile("\\[*L[^;]+;|\\[*[ZBCSIFDJ]|[ZBCSIFDJ]");
 
@@ -68,28 +57,6 @@ public final class JavaAssistUtils {
     private JavaAssistUtils() {
     }
 
-    /**
-     * example return value: (int, java.lang.String)
-     *
-     * @param params
-     * @return
-     */
-    public static String getParameterDescription(CtClass[] params) {
-        if (params == null) {
-            return EMPTY_ARRAY;
-        }
-        StringBuilder sb = new StringBuilder(64);
-        sb.append('(');
-        int end = params.length - 1;
-        for (int i = 0; i < params.length; i++) {
-            sb.append(params[i].getName());
-            if (i < end) {
-                sb.append(", ");
-            }
-        }
-        sb.append(')');
-        return sb.toString();
-    }
 
     public static String javaTypeToJvmSignature(String[] javaTypeArray, String returnType) {
         if (returnType == null) {
@@ -157,6 +124,7 @@ public final class JavaAssistUtils {
 
     /**
      * java.lang.String -> java/lang/String
+     *
      * @param javaName
      * @return
      */
@@ -169,6 +137,7 @@ public final class JavaAssistUtils {
 
     /**
      * java/lang/String -> java.lang.String
+     *
      * @param jvmName
      * @return
      */
@@ -179,8 +148,23 @@ public final class JavaAssistUtils {
         return jvmName.replace('/', '.');
     }
 
+
+    /**
+     * java.lang.String -> java/lang/String.class
+     *
+     * @param javaName
+     * @return
+     */
+    public static String javaClassNameToJvmResourceName(String javaName) {
+        if (javaName == null) {
+            throw new NullPointerException("javaName must not be null");
+        }
+        return javaName.replace('.', '/').concat(".class");
+    }
+
     /**
      * java/lang/String -> java.lang.String
+     *
      * @param jvmNameArray
      * @return
      */
@@ -382,20 +366,20 @@ public final class JavaAssistUtils {
         }
         return paramsString;
     }
-    
+
     public static String[] toPinpointParameterType(Class<?>[] paramClasses) {
         if (paramClasses == null) {
             return null;
         }
-        
+
         String[] paramsString = new String[paramClasses.length];
         for (int i = 0; i < paramClasses.length; i++) {
             paramsString[i] = toPinpointParameterType(paramClasses[i]);
         }
-        
+
         return paramsString;
     }
-    
+
     public static String toPinpointParameterType(Class<?> type) {
         if (type.isArray()) {
             return toPinpointParameterType(type.getComponentType()) + "[]";
@@ -404,18 +388,6 @@ public final class JavaAssistUtils {
         }
     }
 
-
-    @Deprecated
-    static String[] getParameterType(CtClass[] paramsClass) {
-        if (paramsClass == null) {
-            return null;
-        }
-        String[] paramsString = new String[paramsClass.length];
-        for (int i = 0; i < paramsClass.length; i++) {
-            paramsString[i] = paramsClass[i].getName();
-        }
-        return paramsString;
-    }
 
     @Deprecated
     public static String getParameterDescription(Class[] params) {
@@ -454,141 +426,4 @@ public final class JavaAssistUtils {
     }
 
 
-    public static int getLineNumber(CtBehavior method) {
-        if (method == null) {
-            return -1;
-        }
-        return method.getMethodInfo().getLineNumber(0);
-    }
-
-
-    public static boolean isStaticBehavior(CtBehavior behavior) {
-        if (behavior == null) {
-            throw new NullPointerException("behavior must not be null");
-        }
-        int modifiers = behavior.getModifiers();
-        return Modifier.isStatic(modifiers);
-    }
-
-
-    public static String[] getParameterVariableName(CtBehavior method) {
-        if (method == null) {
-            throw new NullPointerException("method must not be null");
-        }
-        LocalVariableAttribute localVariableAttribute = lookupLocalVariableAttribute(method);
-        if (localVariableAttribute == null) {
-            return getParameterDefaultVariableName(method);
-        }
-        return getParameterVariableName(method, localVariableAttribute);
-    }
-
-    /**
-     * get LocalVariableAttribute
-     *
-     * @param method
-     * @return null if the class is not compiled with debug option
-     */
-    public static LocalVariableAttribute lookupLocalVariableAttribute(CtBehavior method) {
-        if (method == null) {
-            throw new NullPointerException("method must not be null");
-        }
-        MethodInfo methodInfo = method.getMethodInfo2();
-        CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-        
-        if (codeAttribute == null) {
-            return null;
-        }
-        
-        AttributeInfo localVariableTable = codeAttribute.getAttribute(LocalVariableAttribute.tag);
-        LocalVariableAttribute local = (LocalVariableAttribute) localVariableTable;
-        return local;
-    }
-
-    public static String[] getParameterVariableName(CtBehavior method, LocalVariableAttribute localVariableAttribute) {
-        // Inspired by
-        // http://www.jarvana.com/jarvana/view/org/jboss/weld/servlet/weld-servlet/1.0.1-Final/weld-servlet-1.0.1-Final-sources.jar!/org/slf4j/instrumentation/JavassistHelper.java?format=ok
-        // http://grepcode.com/file/repo1.maven.org/maven2/jp.objectfanatics/assertion-weaver/0.0.30/jp/objectfanatics/commons/javassist/JavassistUtils.java
-        if (localVariableAttribute == null) {
-            // null means that the class is not compiled with debug option.
-            return null;
-        }
-
-        dump(localVariableAttribute);
-        String[] parameterTypes = JavaAssistUtils.parseParameterSignature(method.getSignature());
-        if (parameterTypes.length == 0) {
-            return EMPTY_STRING_ARRAY;
-        }
-        String[] parameterVariableNames = new String[parameterTypes.length];
-        boolean thisExist = thisExist(method);
-
-        int paramIndex = 0;
-        for (int i = 0; i < localVariableAttribute.tableLength(); i++) {
-            // if start pc is not 0, it's not a parameter.
-            if (localVariableAttribute.startPc(i) != 0) {
-                continue;
-            }
-            int index = localVariableAttribute.index(i);
-            if (index == 0 && thisExist) {
-                // variable this. skip.
-                continue;
-            }
-            String variablename = localVariableAttribute.variableName(i);
-            parameterVariableNames[paramIndex++] = variablename;
-            
-            if (paramIndex == parameterTypes.length) {
-                break;
-            }
-        }
-        return parameterVariableNames;
-    }
-
-    private static boolean thisExist(CtBehavior method) {
-        int modifiers = method.getModifiers();
-        if (Modifier.isStatic(modifiers)) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    private static void dump(LocalVariableAttribute lva) {
-        if (logger.isDebugEnabled()) {
-            StringBuilder buffer = new StringBuilder(1024);
-            for (int i = 0; i < lva.tableLength(); i++) {
-                buffer.append("\n");
-                buffer.append(i);
-                buffer.append("  start_pc:");
-                buffer.append(lva.startPc(i));
-                buffer.append("  index:");
-                buffer.append(lva.index(i));
-                buffer.append("  name:");
-                buffer.append(lva.variableName(i));
-                buffer.append("  nameIndex:");
-                buffer.append(lva.nameIndex(i));
-            }
-            logger.debug(buffer.toString());
-        }
-    }
-
-
-    public static String[] getParameterDefaultVariableName(CtBehavior method) {
-        if (method == null) {
-            throw new NullPointerException("method must not be null");
-        }
-        String[] parameterTypes = JavaAssistUtils.parseParameterSignature(method.getSignature());
-        String[] variableName = new String[parameterTypes.length];
-        for (int i = 0; i < variableName.length; i++) {
-            variableName[i] = getSimpleName(parameterTypes[i]).toLowerCase();
-        }
-        return variableName;
-    }
-
-    private static String getSimpleName(String parameterName) {
-        final int findIndex = parameterName.lastIndexOf('.');
-        if (findIndex == -1) {
-            return parameterName;
-        } else {
-            return parameterName.substring(findIndex + 1);
-        }
-    }
 }

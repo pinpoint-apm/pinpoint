@@ -1,0 +1,31 @@
+.l-widget-group {
+    flex:1;
+    padding: 0 15px;
+    height: 100%;
+    align-items: center;
+    color: #FFF;
+    display: flex;
+    flex-flow: row wrap;
+}
+.l-widget-group img {
+    margin-right: 10px;
+}
+.l-widget-group .l-title {
+    margin-right: 10px;
+}
+.l-main-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    width: 100%;
+    height: calc(100vh - 50px);
+}
+.l-sidemenu-wrap {
+    display: flex;
+    position:relative;
+    height: 100%;
+}
+.l-sidemenu {
+    margin-top: 50px;
+    width: 691px;
+}

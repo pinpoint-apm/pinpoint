@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.instrument.ASMClassNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.ASMClassWriter;
 import com.navercorp.pinpoint.profiler.instrument.ASMFieldNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.ASMMethodNodeAdapter;
+import com.navercorp.pinpoint.profiler.instrument.EngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
@@ -35,6 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
@@ -145,7 +147,7 @@ public class MethodInterfaceTest {
             public void handle(ClassNode classNode) {
                 logger.debug("Add field class={}", classNode.name);
                 ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, classNode);
-                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), int.class);
+                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), Type.getDescriptor(int.class));
                 classNodeAdapter.addInterface(accessorClassName);
                 ASMFieldNodeAdapter fieldNodeAdapter = classNodeAdapter.getField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), null);
                 classNodeAdapter.addGetterMethod("_$PINPOINT$_getTraceInt", fieldNodeAdapter);
@@ -185,7 +187,8 @@ public class MethodInterfaceTest {
     public void isInterceptable() throws Exception {
         ClassNode classNode = TestClassLoader.get("com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterface");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        ASMClass clazz = new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, classLoader, classNode);
+        EngineComponent engineComponent = mock(EngineComponent.class);
+        ASMClass clazz = new ASMClass(engineComponent, pluginContext, classLoader, classNode);
         assertTrue(clazz.isInterceptable());
     }
 

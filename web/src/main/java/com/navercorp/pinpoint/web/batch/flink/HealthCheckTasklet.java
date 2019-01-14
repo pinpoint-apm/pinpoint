@@ -115,7 +115,7 @@ public class HealthCheckTasklet implements Tasklet {
         List<String> urlList = new ArrayList<>(flinkServerList.size());
 
         for (String flinkServerIp : flinkServerList) {
-            urlList.add(String.format("http://%s:8081/joboverview", flinkServerIp));
+            urlList.add(String.format(URL_FORMAT, flinkServerIp));
         }
 
         return urlList;

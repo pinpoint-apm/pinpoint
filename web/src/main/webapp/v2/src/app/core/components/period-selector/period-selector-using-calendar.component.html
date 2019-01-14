@@ -1,0 +1,70 @@
+<article class="l-calendar" [class.inactive]="isHidden" (clickOutside)="onClosePopup()">
+    <div class="l-input-group">
+        <div class="l-input-wrap" (click)="onTogglePopup()" [class.wrong-date]="wrongDate">
+            <input type="text" value="{{getStartDate()}}" readonly>
+            <span class="l-sy">-</span>
+            <input type="text" value="{{getEndDate()}}" readonly>
+        </div>
+        <button class="fas fa-search" (click)="onSelectPeriod()"></button>
+        <div class="l-calendar-group" [class.inactive]="isPopupHidden">
+            <div class="l-calendar-wrap">
+                <div class="l-calendar-section">
+                    <div class="l-inner-calendar">
+                        <ngui-datetime-picker date-format="YYYY-MM-DD-HH-mm-ss" [date-only]="true" [time-only]="false" [default-value]="startDate.toDate()"
+                            [selected-date]="startDate.toDate()" [min-date]="minDate" [max-date]="maxDate" [show-close-button]="false"
+                            [disabled-dates]="[]" (selected$)="onChangedStartDate($event)">
+                        </ngui-datetime-picker>
+                    </div>
+                    <ul class="l-set-group">
+                        <li>
+                            <span>Time</span>{{getStartTime()}}</li>
+                        <li>
+                            <span>Hour</span>
+                            <select (change)="onChangeStartHour($event.target.value)">
+                                <option *ngFor="let oHour of hours" value="{{oHour.value}}" [selected]="oHour.value == startDate.hour()">{{oHour.display}}</option>
+                            </select>
+                        </li>
+                        <li>
+                            <span>Minute</span>
+                            <select (change)="onChangeStartMinute($event.target.value)">
+                                <option *ngFor="let oMinute of minutes" value="{{oMinute.value}}" [selected]="oMinute.value == startDate.minute()">{{oMinute.display}}</option>
+                            </select>
+                        </li>
+                    </ul>
+                </div>
+                <div class="l-calendar-section">
+                    <div class="l-inner-calendar">
+                        <ngui-datetime-picker date-format="YYYY-MM-DD-HH-mm-ss" [date-only]="true" [time-only]="false" [default-value]="endDate.toDate()"
+                            [selected-date]="endDate.toDate()" [min-date]="minDate" [max-date]="maxDate" [show-close-button]="false"
+                            [disabled-dates]="[]" (selected$)="onChangedEndDate($event)">
+                        </ngui-datetime-picker>
+                    </div>
+                    <ul class="l-set-group">
+                        <li>
+                            <span>Time</span>{{getEndTime()}}</li>
+                        <li>
+                            <span>Hour</span>
+                            <select (change)="onChangeEndHour($event.target.value)">
+                                <option *ngFor="let oHour of hours" value="{{oHour.value}}" [selected]="oHour.value == endDate.hour()">{{oHour.display}}</option>
+                            </select>
+                        </li>
+                        <li>
+                            <span>Minute</span>
+                            <select (change)="onChangeEndMinute($event.target.value)">
+                                <option *ngFor="let oMinute of minutes" value="{{oMinute.value}}" [selected]="oMinute.value == endDate.minute()">{{oMinute.display}}</option>
+                            </select>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="l-btn-group">
+                <ul class="l-time-set" (click)="onChangeToReservedPeriod($event)">
+                    <li *ngFor="let period of periodList">
+                        <button [attr.data-period]="period.getValueWithTime()">{{period.getValueWithTime()}}</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="l-text nanumgothic">{{i18nText.MAX_PERIOD}}</div>
+        </div>
+    </div>
+</article>

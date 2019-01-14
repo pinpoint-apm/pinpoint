@@ -1,0 +1,11 @@
+<div class="l-title-group">Information <button *ngIf="dataRequestSuccess === false" class="l-reload-btn" (click)="onRequestAgain()"><i class="fas fa-sync fa-lg"></i></button></div>
+<ng-container *ngIf="dataRequestSuccess">
+    <pp-agent-info 
+        [urlApplicationName]="urlApplicationName$ | async"
+        [agentData]="agentData"
+        [timezone]="timezone$ | async"
+        [dateFormat]="dateFormat$ | async"
+        (outClickApplicationNameIssue)="onClickApplicationNameIssue($event)">
+    </pp-agent-info>
+</ng-container>
+<pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>

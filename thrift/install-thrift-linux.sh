@@ -1,19 +1,22 @@
-def_path="./src/compiler/linux/"
-def_bin="thrift-0.10.0"
+#!/usr/bin/env bash
+
+readonly APACHE_MIRROR_URL="http://mirror.navercorp.com/apache"
+readonly DEFAULT_PATH="./src/compiler/linux/"
+readonly DEFAULT_BIN="thrift-0.10.0"
 
 if [ -z "$1" ]; then
-    tpath=${def_path}
+    tpath=${DEFAULT_PATH}
 else
     tpath=$1
 fi
 
 if [ -z "$2" ]; then
-    tbin=${def_bin}
+    tbin=${DEFAULT_BIN}
 else
     tbin=$2
 fi
 
-tversion=`echo $tbin | awk -F'thrift-' '{print $2}'`
+readonly tversion=`echo ${tbin} | awk -F'thrift-' '{print $2}'`
 
 # Check if Thrift is installed in system
 echo -n "Check if Thrift is installed in system... "
@@ -21,8 +24,8 @@ installed_path=`which thrift 2>&1`
 if [ $? -eq 0 ]; then
     echo "yes"
     # Check Thrift version
-    echo -n "Check if Thrift version is $tversion... "
-	$installed_path --version 2>&1 | grep $tversion >/dev/null
+    echo -n "Check if Thrift version is ${tversion}... "
+	${installed_path} --version 2>&1 | grep ${tversion} >/dev/null
 	if [ $? -eq 0 ]; then
         echo "yes"
 
@@ -44,21 +47,21 @@ else
     echo "no"
 fi
 
-# Check if Thrift is builded but not copied to compiler path
-echo -n "Check if Thrift is builded but not copied to compiler path... "
-if [ -x "thrift-$tversion/compiler/cpp/thrift" ]; then
+# Check if Thrift is built but not copied to compiler path
+echo -n "Check if Thrift is built but not copied to compiler path... "
+if [ -x "thrift-${tversion}/compiler/cpp/thrift" ]; then
     echo "yes"
 
     # Copy Thrift binary to Thrift path
     echo "INFO: Copy Thrift Binary to Pinpoint Thrift Path"
-    cp thrift-$tversion/compiler/cpp/thrift ${tpath}${tbin}
+    cp thrift-${tversion}/compiler/cpp/thrift ${tpath}${tbin}
     if [ $? -ne 0 ]; then
 	    echo "ERROR: Thrift binary copy failed."
 	    exit 1
 	fi
-		
+
     # cleanup
-    rm -rf thrift-$tversion
+    rm -rf thrift-${tversion}
     if [ $? -ne 0 ]; then
 	    echo "WARNING: Thrift build directory cleanup failed. Please remove it manually."
 	fi
@@ -77,22 +80,22 @@ if [ -f "/etc/os-release" ]; then
     echo "Linux distribution: ${DIST_ID}"
     echo "Version: ${DIST_VERSION}"
 else
-    echo "ERROR: This Linux destribution is not supported."
+    echo "ERROR: This Linux distribution is not supported."
 	exit 1
 fi
 
 if [[ "${DIST_ID}" = "centos" || "${DIST_ID}" = "rhel" ]]; then
     if ! [ "${DIST_VERSION}" -ge 7 ]; then
-        echo "ERROR: This Linux destribution version is not supported."
+        echo "ERROR: This Linux distribution version is not supported."
 		exit 1
 	fi
 else
-    echo "ERROR: This Linux destribution is not supported."
+    echo "ERROR: This Linux distribution is not supported."
 	exit 1
 fi
 
 # Check pre-installed packages
-echo "INFO: Check pre-installed packages" 
+echo "INFO: Check pre-installed packages"
 pkg_count=0
 if [[ "${DIST_ID}" = "centos" || "${DIST_ID}" = "rhel" ]]; then
     # Development Tools
@@ -144,18 +147,18 @@ if [ ${pkg_count} -ne 0 ]; then
 fi
 
 # Get Thrift
-## Suppose Pinpoint project include Thrift source code tar ball
-## and the tar ball's path is $pinpoint-root/thrift/src/compiler/linux
+# download thrift tarball from one of those apache mirrors to ${pinpoint-root}/thrift/src/compiler/linux
+cd ${tpath} && wget -T 600 -w 1 -t 3 -c ${APACHE_MIRROR_URL}/thrift/${tversion}/thrift-${tversion}.tar.gz && cd -
 
 # Install Thrift
 echo "INFO: Install Thrift"
-tar zxf ${tpath}thrift-$tversion.tar.gz
+tar zxf ${tpath}thrift-${tversion}.tar.gz
 if [ $? -ne 0 ]; then
     echo "ERROR: Thrift tarball decompression failed."
     exit 1
 fi
 
-cd thrift-$tversion
+cd thrift-${tversion}
 ./configure
 if [ $? -ne 0 ]; then
     echo "ERROR: Thrift sourcecode configure failed."
@@ -171,14 +174,14 @@ cd ..
 
 # Copy Thrift binary to Thrift path
 echo "INFO: Copy Thrift Binary to Pinpoint Thrift Path"
-cp thrift-$tversion/compiler/cpp/thrift ${tpath}${tbin}
+cp thrift-${tversion}/compiler/cpp/thrift ${tpath}${tbin}
 if [ $? -ne 0 ]; then
     echo "ERROR: Thrift binary copy failed."
     exit 1
 fi
 
 # cleanup
-rm -rf thrift-$tversion
+rm -rf thrift-${tversion}
 if [ $? -ne 0 ]; then
     echo "WARNING: Thrift build directory cleanup failed. Please remove it manually."
 fi

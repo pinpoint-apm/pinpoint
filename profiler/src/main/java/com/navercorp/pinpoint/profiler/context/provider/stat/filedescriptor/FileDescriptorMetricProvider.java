@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -110,7 +110,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
 
     private OsType getOsType() {
         final OsType osType = OsType.fromVendor(osName);
-        if (osType == osType.UNKNOWN) {
+        if (osType == OsType.UNKNOWN) {
             return OsUtils.getType();
         }
         return osType;
@@ -139,7 +139,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
                 return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
             }
         } catch (Exception e) {
-            logger.warn("Error creating FileDescriptorMetric [" + classToLoad + "]", e);
+            logger.warn("Error creating FileDescriptorMetric [" + classToLoad + "]");
             return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
         }
     }

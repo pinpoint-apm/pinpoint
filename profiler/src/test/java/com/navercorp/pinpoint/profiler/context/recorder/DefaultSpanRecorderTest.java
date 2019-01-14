@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,9 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,11 +47,6 @@ public class DefaultSpanRecorderTest {
     private StringMetaDataService stringMetaDataService;
     @Mock
     private SqlMetaDataService sqlMetaDataService;
-
-    @Before
-    public void setUp() throws Exception {
-        Mockito.when(traceRoot.getTraceId()).thenReturn(traceId);
-    }
 
     @Test
     public void testRecordApiId() throws Exception {
@@ -79,7 +72,6 @@ public class DefaultSpanRecorderTest {
         final String endPoint = "endPoint";
         recorder.recordEndPoint(endPoint);
 
-        Assert.assertEquals(span.getEndPoint(), endPoint);
         verify(traceRoot.getShared()).setEndPoint(endPoint);
     }
 

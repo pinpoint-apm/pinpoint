@@ -43,7 +43,7 @@ public class DedicatedClassFileTransformer implements MatchableClassFileTransfor
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
-            InstrumentClass target = context.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentClass target = context.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
             recipe.edit(classLoader, target);
             return target.toBytecode();
         } catch (PinpointException e) {

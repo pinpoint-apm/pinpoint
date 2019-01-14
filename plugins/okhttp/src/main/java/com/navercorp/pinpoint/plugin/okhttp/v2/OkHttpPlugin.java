@@ -124,17 +124,33 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addGetter(OkHttpConstants.USER_REQUEST_GETTER_V2, OkHttpConstants.FIELD_USER_REQUEST);
                 target.addGetter(OkHttpConstants.USER_RESPONSE_GETTER_V2, OkHttpConstants.FIELD_USER_RESPONSE);
-                target.addGetter(OkHttpConstants.CONNECTION_GETTER_V2, OkHttpConstants.FIELD_CONNECTION);
 
                 final InstrumentMethod sendRequestMethod = target.getDeclaredMethod("sendRequest");
                 if (sendRequestMethod != null) {
                     sendRequestMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.HttpEngineSendRequestMethodInterceptor", OkHttpConstants.SEND_REQUEST_SCOPE);
                 }
 
-                final InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
-                if (connectMethod != null) {
-                    connectMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.HttpEngineConnectMethodInterceptor");
+                // pre-2.7.0
+                if (target.hasField("connection", "com.squareup.okhttp.Connection")) {
+                    target.addGetter(OkHttpConstants.CONNECTION_GETTER_V2, OkHttpConstants.FIELD_CONNECTION);
+                    // 2.3.0+
+                    final InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
+                    if (connectMethod != null) {
+                        connectMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.HttpEngineConnectMethodInterceptor");
+                    }
+                    // pre-2.3.0
+                    final InstrumentMethod connectMethodWithParam = target.getDeclaredMethod("connect", "com.squareup.okhttp.Request");
+                    if (connectMethodWithParam != null) {
+                        connectMethodWithParam.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.HttpEngineConnectMethodInterceptor");
+                    }
+                } else {
+                    // 2.7.0+
+                    final InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
+                    if (connectMethod != null) {
+                        connectMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.HttpEngineConnectMethodFromUserRequestInterceptor");
+                    }
                 }
+
 
                 final InstrumentMethod readResponseMethod = target.getDeclaredMethod("readResponse");
                 if (readResponseMethod != null) {
@@ -155,7 +171,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 final InstrumentMethod buildMethod = target.getDeclaredMethod("build");
                 if (buildMethod != null) {
-                    if (instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl")) {
+                    if (instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl", protectionDomain)) {
                         // over 2.4.0
                         target.addGetter(OkHttpConstants.HTTP_URL_GETTER, OkHttpConstants.FIELD_HTTP_URL);
                         buildMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.RequestBuilderBuildMethodInterceptor", OkHttpConstants.SEND_REQUEST_SCOPE, ExecutionPolicy.INTERNAL);

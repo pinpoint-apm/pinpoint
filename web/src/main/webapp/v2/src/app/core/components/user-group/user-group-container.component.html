@@ -1,0 +1,38 @@
+<div class="l-user-group-wrapper">
+    <div class="l-user-group-title">
+        <span>User Group ({{userGroupList.length}})</span>
+        <div>
+            <button class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button> 
+            <button class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()">+ Add</button>
+        </div>
+    </div>
+    <div class="l-user-group-search">
+            <input type="text" placeholder="{{i18nText.USER_GROUP_SEARCH_MIN_LENGTH}}" class="l-search-input" 
+                ppSearchInput 
+                [searchMinLength]="SEARCH_MIN_LENGTH"
+                [useEnter]="searchUseEnter"
+                (outSearch)="onSearch($event)">
+    </div>
+    <div class="l-user-group-list">
+        <pp-user-group
+            [groupList]="userGroupList"
+            (outRemove)="onRemoveUserGroup($event)"
+            (outSelected)="onSelectUserGroup($event)"
+        ></pp-user-group>
+    </div>
+    <div class="l-message" [hidden]="!hasMessage()">
+        <button class="btn btn-black" (click)="onCloseMessage()"><i class="fas fa-times"></i></button>
+        <span>{{message}}</span>
+    </div>
+    <pp-user-group-create-and-update
+        [showCreate]="showCreate"
+        [nameLabel]="i18nText.NAME_LABEL"
+        [nameGuide]="i18nText.USER_GROUP_NAME_REQUIRED"
+        [nameLengthGuide]="i18nText.USER_GROUP_SEARCH_MIN_LENGTH"
+        [minLength]="USER_GROUP_NAME_MIN_LENGTH"
+        (outCreateUserGroup)="onCreateUserGroup($event)"
+        (outClose)="onCloseCreateUserPopup()"
+    ></pp-user-group-create-and-update>
+    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+    <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
+</div>

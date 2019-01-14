@@ -25,6 +25,8 @@ public class ThriftClientCallContext {
     public static final ThriftHeader NONE = null;
     
     private final String methodName;
+
+    private boolean isEntryPoint;
     
     private ThriftHeader traceHeaderToBeRead;
     
@@ -37,7 +39,15 @@ public class ThriftClientCallContext {
     public String getMethodName() {
         return methodName;
     }
-    
+
+    public boolean isEntryPoint() {
+        return isEntryPoint;
+    }
+
+    public void setEntryPoint(boolean entryPoint) {
+        isEntryPoint = entryPoint;
+    }
+
     public ThriftHeader getTraceHeaderToBeRead() {
         return traceHeaderToBeRead;
     }
@@ -56,14 +66,12 @@ public class ThriftClientCallContext {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ThriftClientCallContext={methodName=").append(this.methodName);
-        sb.append(", traceHeaderToBeRead=").append(this.traceHeaderToBeRead.name());
-        sb.append(", traceHeader=").append(this.traceHeader.toString());
-        sb.append("}");
+        final StringBuilder sb = new StringBuilder("ThriftClientCallContext{");
+        sb.append("methodName='").append(methodName).append('\'');
+        sb.append(", isEntryPoint=").append(isEntryPoint);
+        sb.append(", traceHeaderToBeRead=").append(traceHeaderToBeRead);
+        sb.append(", traceHeader=").append(traceHeader);
+        sb.append('}');
         return sb.toString();
     }
-    
-    
-
 }

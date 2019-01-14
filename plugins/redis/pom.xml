@@ -5,16 +5,12 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.8.0</version>
+        <version>1.8.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-redis-plugin</artifactId>
     <name>pinpoint-redis-plugin</name>
     <packaging>jar</packaging>
-
-    <properties>
-        <test.jdk.home>${env.JAVA_7_HOME}</test.jdk.home>
-    </properties>
 
     <dependencyManagement>
         <dependencies>

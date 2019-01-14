@@ -26,7 +26,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarFile;
 
@@ -47,13 +46,13 @@ class ModuleBuilder {
         if (urls.length == 0) {
             throw new IllegalArgumentException("urls.length is 0");
         }
-        logger.info("boot " +  BootLoader.getUnnamedModule());
-        logger.info("platform "+ ClassLoader.getPlatformClassLoader().getUnnamedModule());
-        logger.info("system "+ ClassLoader.getSystemClassLoader().getUnnamedModule());
+        logger.info("bootstrap unnamedModule:" +  BootLoader.getUnnamedModule());
+        logger.info("platform unnamedModule:" + ClassLoader.getPlatformClassLoader().getUnnamedModule());
+        logger.info("system unnamedModule:" + ClassLoader.getSystemClassLoader().getUnnamedModule());
 
         Module unnamedModule = classLoader.getUnnamedModule();
         logger.info("defineModule classLoader: " + classLoader);
-        logger.info("defineModule classLoader-unnamed: " + unnamedModule);
+        logger.info("defineModule classLoader-unnamedModule: " + unnamedModule);
 
 
         Set<String> packages = getPackages(urls);

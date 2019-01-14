@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.common.server.bo.event.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import com.navercorp.pinpoint.web.util.ThreadDumpUtils;
@@ -29,6 +31,7 @@ import java.util.List;
 
 /**
  * @author Taejin Koo
+ * @author jaehong.kim - Add DeadlockBo logic
  */
 public class AgentEventSerializer extends JsonSerializer<AgentEvent> {
 
@@ -62,6 +65,13 @@ public class AgentEventSerializer extends JsonSerializer<AgentEvent> {
                     message.append(ThreadDumpUtils.createDumpMessage(threadDump));
                 }
 
+                jgen.writeObjectField("eventMessage", message.toString());
+            } else if (eventMessage instanceof DeadlockBo) {
+                final StringBuilder message = new StringBuilder();
+                final List<ThreadDumpBo> threadDumpBoList = ((DeadlockBo) eventMessage).getThreadDumpBoList();
+                for (ThreadDumpBo threadDump : threadDumpBoList) {
+                    message.append(ThreadDumpUtils.createDumpMessage(threadDump));
+                }
                 jgen.writeObjectField("eventMessage", message.toString());
             } else {
                 jgen.writeObjectField("eventMessage", eventMessage);

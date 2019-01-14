@@ -31,6 +31,11 @@ struct TIntBooleanIntBooleanValue {
     4: bool boolValue2;
 }
 
+struct TStringStringValue {
+     1: string stringValue1;
+     2: optional string stringValue2;
+}
+
 union TAnnotationValue {
     1: string stringValue
     2: bool boolValue;
@@ -44,6 +49,7 @@ union TAnnotationValue {
     10: TIntStringStringValue intStringStringValue;
     11: TLongIntIntByteByteStringValue longIntIntByteByteStringValue;
     12: TIntBooleanIntBooleanValue intBooleanIntBooleanValue;
+    13: TStringStringValue stringStringValue;
 }
 
 struct TAnnotation {
@@ -63,7 +69,7 @@ struct TSpanEvent {
 
     10: optional i32 endElapsed = 0
 
-    11: optional string rpc
+    11: optional string rpc  ( deprecated )
     12: i16 serviceType
     13: optional string endPoint
 

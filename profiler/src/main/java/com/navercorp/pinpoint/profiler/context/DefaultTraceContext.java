@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -151,7 +150,8 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public Trace continueAsyncTraceObject(AsyncTraceId asyncTraceId, int asyncId, long startTime) {
-        return asyncTraceContext.continueAsyncTraceObject(asyncTraceId, asyncId, startTime).get();
+        final Reference<Trace> traceReference = asyncTraceContext.continueAsyncTraceObject(asyncTraceId, asyncId, startTime);
+        return traceReference.get();
     }
 
 

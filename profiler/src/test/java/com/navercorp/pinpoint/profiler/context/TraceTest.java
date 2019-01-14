@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,20 +19,15 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -54,7 +49,6 @@ public class TraceTest {
     private final long agentStartTime = System.currentTimeMillis();
     private final long traceStartTime = agentStartTime + 100;
 
-    private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
     @Mock
     private AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
@@ -63,20 +57,18 @@ public class TraceTest {
     @Mock
     private SqlMetaDataService sqlMetaDataService;
 
-
-
     @Test
     public void trace() {
 
         final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
         final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, traceStartTime, 0);
 
-        final CallStack callStack = newCallStack(traceRoot);
+        final CallStack<SpanEvent> callStack = newCallStack();
         final Span span = newSpan(traceRoot);
 
         boolean root = span.getTraceRoot().getTraceId().isRoot();
         SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
-        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
 
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
 
@@ -103,13 +95,13 @@ public class TraceTest {
         final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
         final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, traceStartTime, 0);
 
-        final CallStack callStack = newCallStack(traceRoot);
+        final CallStack<SpanEvent> callStack = newCallStack();
 
         final Span span = newSpan(traceRoot);
 
         final boolean root = span.getTraceRoot().getTraceId().isRoot();
         SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
-        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
 
 
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
@@ -133,13 +125,13 @@ public class TraceTest {
     }
 
 
-    private CallStack newCallStack(TraceRoot traceRoot) {
-        final CallStackFactory callStackFactory = new CallStackFactoryV1(64);
-        return callStackFactory.newCallStack(traceRoot);
+    private CallStack<SpanEvent> newCallStack() {
+        final CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(64);
+        return callStackFactory.newCallStack();
     }
 
     private Span newSpan(TraceRoot traceRoot) {
-        final SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, agentStartTime, ServiceType.STAND_ALONE, encoder);
+        final SpanFactory spanFactory = new DefaultSpanFactory();
         return spanFactory.newSpan(traceRoot);
     }
 

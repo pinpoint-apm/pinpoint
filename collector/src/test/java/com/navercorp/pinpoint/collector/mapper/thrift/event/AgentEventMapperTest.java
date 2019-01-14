@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.collector.mapper.thrift.event;
 
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.event.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
@@ -40,6 +42,9 @@ public class AgentEventMapperTest {
     @Mock
     private DeadlockEventBoMapper deadlockEventBoMapper;
 
+    @Mock
+    private DeadlockBoMapper deadlockBoMapper;
+
     @InjectMocks
     private AgentEventMapper agentEventMapper;
 
@@ -50,10 +55,11 @@ public class AgentEventMapperTest {
         final long eventTimestamp = startTimestamp;
         final TAgentStat agentStat = createAgentStat(agentId, startTimestamp, eventTimestamp, 2);
 
-        DeadlockEventBo expectedEventBo = getExpectedDeadlockEventBo(agentId, startTimestamp, eventTimestamp, agentStat);
+        DeadlockBo deadlockBo = new DeadlockBo();
+        deadlockBo.setDeadlockedThreadCount(agentStat.getDeadlock().getDeadlockedThreadCount());
+        DeadlockEventBo expectedEventBo = new DeadlockEventBo(agentId, startTimestamp, eventTimestamp, AgentEventType.AGENT_DEADLOCK_DETECTED, deadlockBo);
 
         when(this.deadlockEventBoMapper.map(agentId, startTimestamp, startTimestamp, agentStat.getDeadlock())).thenReturn(expectedEventBo);
-
         AgentEventBo actualEventBo = agentEventMapper.map(agentStat);
         Assert.assertEquals(expectedEventBo, actualEventBo);
     }
@@ -65,7 +71,9 @@ public class AgentEventMapperTest {
         final long eventTimestamp = startTimestamp;
         final TAgentStat agentStat = createAgentStat(agentId, startTimestamp, eventTimestamp, 0);
 
-        DeadlockEventBo expectedEventBo = getExpectedDeadlockEventBo(agentId, startTimestamp, eventTimestamp, agentStat);
+        DeadlockBo deadlockBo = new DeadlockBo();
+        DeadlockEventBo expectedEventBo = new DeadlockEventBo(agentId, startTimestamp, eventTimestamp, AgentEventType.AGENT_DEADLOCK_DETECTED, deadlockBo);
+
         when(this.deadlockEventBoMapper.map(any(String.class), any(Long.class), any(Long.class), any(TDeadlock.class))).thenReturn(expectedEventBo);
 
         AgentEventBo actualEventBo = agentEventMapper.map(agentStat);

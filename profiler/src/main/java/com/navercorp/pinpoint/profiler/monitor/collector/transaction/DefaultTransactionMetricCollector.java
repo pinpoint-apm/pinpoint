@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.transaction;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 import com.navercorp.pinpoint.thrift.dto.TTransaction;
@@ -24,7 +25,7 @@ import com.navercorp.pinpoint.thrift.dto.TTransaction;
 /**
  * @author HyunGil Jeong
  */
-public class DefaultTransactionMetricCollector implements TransactionMetricCollector {
+public class DefaultTransactionMetricCollector implements AgentStatMetricCollector<TTransaction> {
 
     private final TransactionMetric transactionMetric;
 
@@ -35,8 +36,9 @@ public class DefaultTransactionMetricCollector implements TransactionMetricColle
 
     @Override
     public TTransaction collect() {
-        TTransaction transaction = new TTransaction();
         TransactionMetricSnapshot transactionMetricSnapshot = transactionMetric.getSnapshot();
+
+        TTransaction transaction = new TTransaction();
         transaction.setSampledNewCount(transactionMetricSnapshot.getSampledNewCount());
         transaction.setSampledContinuationCount(transactionMetricSnapshot.getSampledContinuationCount());
         transaction.setUnsampledNewCount(transactionMetricSnapshot.getUnsampledNewCount());

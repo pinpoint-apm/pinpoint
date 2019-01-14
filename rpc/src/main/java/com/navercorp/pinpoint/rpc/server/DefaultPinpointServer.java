@@ -543,7 +543,7 @@ public class DefaultPinpointServer implements PinpointServer {
             logger.warn(e.getMessage(), e);
         }
 
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     public boolean isEnableCommunication() {

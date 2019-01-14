@@ -1,0 +1,61 @@
+<div class="l-thread-chart-wrap" [style.height.px]="lastHeight" [hidden]="hiddenComponent">
+    <div ppResizeTop [minHeight]="minHeight" [maxHeightPadding]="maxHeightPadding" class="l-title-group font-opensans">
+        <div class="l-title">
+            <span class="fas fa-chart-area"></span>Realtime Active Thread Chart
+        </div>
+        <div class="l-tool-box">
+            <button class="fas fa-thumbtack" [class.l-pin-up]="isPinUp" (click)="onPinUp()"></button>
+            <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+        </div>
+    </div>
+    <div class="l-chart-group-wrap font-opensans">
+        <ng-container *ngIf="activeThreadCounts">
+            <article class="l-total-chart">
+                <pp-real-time-total-chart
+                    [timeStamp]="timeStamp"
+                    [timezone]="timezone$ | async"
+                    [dateFormat]="dateFormat$ | async"
+                    [applicationName]="applicationName"
+                    [activeThreadCounts]="activeThreadCounts">
+                </pp-real-time-total-chart>
+            </article>
+            <article class="l-agent-chart">
+                <ng-container *ngIf="needPaging()">
+                    <div class="l-paging">
+                        <span class="l-txt">Total Servers : </span>
+                        <span class="l-txt-bold">{{totalCount}}</span>
+                        <span>[ {{firstChartIndex + 1}} ~ {{lastChartIndex + 1}} ]</span>
+                        <nav>
+                            <ul class="l-pagination">
+                                <li class="l-page-item" *ngFor="let page of getTotalPage()">
+                                    <a class="l-page-link" (click)="openPage(page)">{{page}}</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </ng-container>
+                <pp-real-time-agent-chart
+                    [timeStamp]="timeStamp"
+                    [activeThreadCounts]="activeThreadCounts"
+                    [pagingSize]="pagingSize"
+                    (outOpenThreadDump)="onOpenThreadDump($event)"
+                    (outRenderCompleted)="onRenderCompleted()">
+                </pp-real-time-agent-chart>
+            </article>
+        </ng-container>
+        <ng-container [ngSwitch]="messageTemplate">
+            <div class="l-message l-waiting" *ngSwitchCase="'LOADING'">
+                <h4><span>Waiting Connection...</span></h4>
+                <i class="fas fa-spinner fa-spin fa-2x fa-fw"></i>
+            </div>
+            <div class="l-message l-retry" *ngSwitchCase="'RETRY'">
+                <h4><span>Closed connection</span></h4>
+                <button type="button" class="pinpoint-btn" (click)="retryConnection()"><span><i class="fas fa-redo"></i></span> Retry</button>
+            </div>            
+            <div class="l-message l-no-data" *ngSwitchCase="'NO_DATA'">
+                <h4><span>This node is not WAS</span></h4>
+            </div>
+            <ng-container *ngSwitchDefault></ng-container>
+        </ng-container>
+    </div>
+</div>

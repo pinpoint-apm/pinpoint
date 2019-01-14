@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.DeadlockDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledDeadlockDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
@@ -51,9 +51,9 @@ public class HbaseSampledDeadlockDaoV2 implements SampledDeadlockDao {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
         Range range = new Range(scanFrom, scanTo);
-        AgentStatMapperV2<DeadlockBo> mapper = operations.createRowMapper(deadlockDecoder, range);
+        AgentStatMapperV2<DeadlockThreadCountBo> mapper = operations.createRowMapper(deadlockDecoder, range);
 
-        SampledAgentStatResultExtractor<DeadlockBo, SampledDeadlock> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, deadlockSampler);
+        SampledAgentStatResultExtractor<DeadlockThreadCountBo, SampledDeadlock> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, deadlockSampler);
         return operations.getSampledAgentStatList(AgentStatType.DEADLOCK, resultExtractor, agentId, range);
     }
 

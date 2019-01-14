@@ -1,0 +1,84 @@
+:host {
+    position: relative;
+}
+.l-wrapper {
+    position: relative;
+}
+.l-alarm-rules-table th {
+    color:#333;
+    font-size: 13px;
+}
+.l-alarm-rules-table td {
+    padding:10px 15px;
+    height:auto;
+    font-size: 13px;
+}
+.l-alarm-rules-table th .l-table-title {
+    height: 47px;
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+}
+.l-table-title button:last-child {
+    margin-left: 2px;
+}
+.l-alarm-rules-tr-wrap { 
+    height: 440px;
+    overflow-y: scroll;
+    position: relative;
+}
+.l-alarm-rules-th {
+    display: flex;
+    height: 30px;
+    align-items: center;
+    padding: 0 15px;
+    position:relative;
+    color: #777879;
+    font-weight: 600;
+    border-bottom: 1px solid #e6e8ec;
+    background: #fff;
+    margin: 0 -21px;    
+}
+.l-alarm-rules-th div {
+    float :left;
+}
+.l-alarm-rules-th div:nth-child(1) {
+    width: 50%;
+}
+.l-alarm-rules-th div:nth-child(2) {
+    width: 16.66666667%;
+}
+.l-alarm-rules-th div:nth-child(3) {
+    width: 16.66666667%;
+}
+.l-alarm-rules-th div:nth-child(4) {
+    width: 25%;
+    margin-right: 22px;
+}
+.l-message {
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(226, 226, 226, 0.8);
+}
+.l-message span {
+    color: #ff8c00;
+    text-align: center;
+}
+.l-message button {
+    top: 0px;
+    right: 0px;
+    position: absolute;
+}
+.l-not-selected {
+    padding-top: 30%;
+    text-align: center;
+}
+.l-threshold { 
+    text-align: center;
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,13 @@ import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
-import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalBinder;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.compress.Context;
+import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
@@ -86,7 +87,6 @@ import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultP
 import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanChunkFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
@@ -187,11 +187,14 @@ public class ApplicationContextModule extends AbstractModule {
     private void bindTraceComponent() {
         bind(TraceRootFactory.class).to(DefaultTraceRootFactory.class).in(Scopes.SINGLETON);
         bind(TraceIdFactory.class).to(DefaultTraceIdFactory.class).in(Scopes.SINGLETON);
-        bind(CallStackFactory.class).toProvider(CallStackFactoryProvider.class).in(Scopes.SINGLETON);
+
+        TypeLiteral<CallStackFactory<SpanEvent>> callStackFactoryKey = new TypeLiteral<CallStackFactory<SpanEvent>>() {};
+        bind(callStackFactoryKey).toProvider(CallStackFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(SpanFactory.class).to(DefaultSpanFactory.class).in(Scopes.SINGLETON);
-        bind(SpanPostProcessor.class).toProvider(SpanPostProcessorProvider.class).in(Scopes.SINGLETON);
-        bind(SpanChunkFactory.class).toProvider(SpanChunkFactoryProvider.class).in(Scopes.SINGLETON);
+
+        TypeLiteral<SpanPostProcessor<Context>> spanPostProcessorType = new TypeLiteral<SpanPostProcessor<Context>>() {};
+        bind(spanPostProcessorType).toProvider(SpanPostProcessorProvider.class).in(Scopes.SINGLETON);
 
         bind(RecorderFactory.class).to(DefaultRecorderFactory.class).in(Scopes.SINGLETON);
 

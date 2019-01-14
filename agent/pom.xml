@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.8.0</version>
+        <version>1.8.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-agent</artifactId>
@@ -59,6 +59,11 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-bootstrap-java8</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-java9</artifactId>

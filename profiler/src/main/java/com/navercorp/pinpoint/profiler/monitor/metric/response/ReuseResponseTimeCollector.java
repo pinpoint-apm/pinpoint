@@ -57,7 +57,7 @@ public class ReuseResponseTimeCollector implements ResponseTimeCollector {
         return copy;
     }
 
-    private class ResponseTimeCollector {
+    private static class ResponseTimeCollector {
         private final Counter totalValue;
         private final Counter transactionCount;
         private final AtomicLong maxValue = new AtomicLong(0);

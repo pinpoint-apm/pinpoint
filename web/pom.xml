@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.8.0</version>
+        <version>1.8.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-web</artifactId>
@@ -32,7 +32,6 @@
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java18</sniffer.artifactid>
-        <fastxml.jackson.version>2.8.10</fastxml.jackson.version>
         <grunt.build.command>build_release_without_lint</grunt.build.command>
     </properties>
 
@@ -164,7 +163,7 @@
             <artifactId>spring-messaging</artifactId>
             <version>${spring.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
@@ -257,26 +256,10 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- for sms platform dependencies -->
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-            </exclusions>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.11</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -361,8 +344,12 @@
                     <webResources>
                         <resource>
                             <directory>target/main/webapp</directory>
+                            <excludes>
+                                <exclude>v2/node_modules/</exclude>
+                            </excludes>
                         </resource>
                     </webResources>
+                    <warSourceExcludes>v2/node_modules/</warSourceExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -372,20 +359,24 @@
                 <executions>
                     <execution>
                         <id>prepare-grunt</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        <phase>generate-resources</phase>
                         <configuration>
                             <target>
                                 <copy todir="${basedir}/target/grunt" failonerror="true" verbose="true">
-                                    <fileset dir="${basedir}/src/grunt" />
+                                    <fileset dir="${basedir}/src/grunt"/>
                                 </copy>
                                 <copy todir="${basedir}/target/main/webapp" failonerror="true" verbose="true">
-                                    <fileset dir="${basedir}/src/main/webapp" />
+                                    <fileset dir="${basedir}/src/main/webapp">
+                                        <exclude name="v2/node_modules/**"/>
+                                    </fileset>
                                 </copy>
-                                <copy file="${basedir}/src/Gruntfile.js" tofile="${basedir}/target/Gruntfile.js" failonerror="true" verbose="true" />
-                                <copy file="${basedir}/src/package.json" tofile="${basedir}/target/package.json" failonerror="true" verbose="true" />
+                                <copy file="${basedir}/src/Gruntfile.js" tofile="${basedir}/target/Gruntfile.js"
+                                      failonerror="true" verbose="true"/>
+                                <copy file="${basedir}/src/package.json" tofile="${basedir}/target/package.json"
+                                      failonerror="true" verbose="true"/>
                             </target>
                         </configuration>
                     </execution>
@@ -394,9 +385,8 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.6</version>
+                <version>1.5</version>
                 <configuration>
-                    <workingDirectory>${basedir}/target</workingDirectory>
                     <srcdir>${basedir}/target/main/webapp</srcdir>
                     <outputdir>${basedir}/target/main/webapp</outputdir>
                     <installDirectory>target</installDirectory>
@@ -404,30 +394,36 @@
                 <executions>
                     <execution>
                         <id>install node and npm</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
                             <nodeVersion>v5.11.1</nodeVersion>
                             <npmVersion>3.9.6</npmVersion>
+                            <workingDirectory>${basedir}/target</workingDirectory>
                         </configuration>
                     </execution>
                     <execution>
                         <id>npm install</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
                             <arguments>install</arguments>
+                            <workingDirectory>${basedir}/target</workingDirectory>
                         </configuration>
                     </execution>
                     <execution>
                         <id>grunt build</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>grunt</goal>
                         </goals>
                         <configuration>
                             <arguments>${grunt.build.command}</arguments>
+                            <workingDirectory>${basedir}/target</workingDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -464,6 +460,58 @@
                                 <goals>
                                     <goal>shutdown</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- for ci server -->
+            <id>v2</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>1.5</version>
+                        <configuration>
+                            <installDirectory>target</installDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>install node and npm v2</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>install-node-and-npm</goal>
+                                </goals>
+                                <configuration>
+                                    <nodeVersion>v10.6.0</nodeVersion>
+                                    <npmVersion>6.1.0</npmVersion>
+                                    <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>npm install v2</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>install</arguments>
+                                    <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>npm run build v2</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run build</arguments>
+                                    <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

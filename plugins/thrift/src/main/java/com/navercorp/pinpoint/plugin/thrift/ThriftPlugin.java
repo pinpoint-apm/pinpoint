@@ -54,6 +54,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         if (traceClient) {
             addInterceptorsForSynchronousClients(config);
+            addTHttpClientEditor();
             if (traceClientAsync) {
                 addInterceptorsForAsynchronousClients();
             }
@@ -271,6 +272,19 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                 return target.toBytecode();
             }
 
+        });
+    }
+
+    // THttpClient
+
+    private void addTHttpClientEditor() {
+        transformTemplate.transform("org.apache.thrift.transport.THttpClient", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addGetter(ThriftConstants.FIELD_GETTER_URL, ThriftConstants.T_HTTP_CLIENT_FIELD_URL_);
+                return target.toBytecode();
+            }
         });
     }
 

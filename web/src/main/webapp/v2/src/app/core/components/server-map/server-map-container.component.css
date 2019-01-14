@@ -1,0 +1,56 @@
+.l-popup-section {
+    display: flex;
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+.l-popup-section:before {
+    content:'';
+    display:block;
+    height:100%;
+    width:100%;
+    background:#000;
+    opacity:0.6;
+    position:absolute;
+    left:0;
+    top:0;
+}
+.l-popup-section article {
+    width: 90%;
+    min-width: 500px;
+    max-width: 1000px;
+    box-shadow: 1 1 10px 0 rgba(0, 0, 0, 0.75);
+    position: static;
+    background: #fff;
+    border: 1px solid #e5e8f0;
+    text-align: left;
+    z-index: 10;
+}
+.l-contents-group {
+    background: #F6F8FB;
+    padding: 17px 18px;
+    overflow-y: auto;
+}
+.l-sql-list {
+    margin: 0;
+}
+.l-sql-list dt {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 12px;
+}
+.l-sql-list dd {
+    border: 1px solid #cfd7e1;
+    background: #fff;
+    padding: 28px 28px;
+    font-size: 13px;
+    color: #999;
+    line-height: 2em;
+    position: relative;
+}

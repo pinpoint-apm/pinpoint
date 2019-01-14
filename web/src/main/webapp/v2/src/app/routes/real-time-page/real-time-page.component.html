@@ -1,0 +1,15 @@
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-widget-group flex-container flex-row realtime-application">
+        <img [src]="applicationImgPath">
+        <span>{{applicationName}}</span>
+        <span>RealTime Active Thread Chart</span>
+    </div>
+</header>
+<div class="flex-container flex-row l-main-container">
+    <section class="l-main-section flex-container flex-column">
+        <ng-container *ngIf="enableRealTime$ | async">
+            <router-outlet></router-outlet>
+        </ng-container>
+    </section>
+</div>

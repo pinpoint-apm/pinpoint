@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DeadlockSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -71,14 +71,14 @@ public class DeadlockChartGroupTest {
 
         int deadlockedSize = RandomUtils.nextInt(1, RANDOM_MAX_DEADLOCKED_SIZE);
 
-        List<DeadlockBo> deadlockBoList = new ArrayList<>(listSize);
+        List<DeadlockThreadCountBo> deadlockThreadCountBoList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {
-            DeadlockBo deadlockBo = new DeadlockBo();
-            deadlockBo.setDeadlockedThreadCount(deadlockedSize + i);
-            deadlockBoList.add(deadlockBo);
+            DeadlockThreadCountBo deadlockThreadCountBo = new DeadlockThreadCountBo();
+            deadlockThreadCountBo.setDeadlockedThreadCount(deadlockedSize + i);
+            deadlockThreadCountBoList.add(deadlockThreadCountBo);
         }
 
-        return sampler.sampleDataPoints(0, timestamp, deadlockBoList, null);
+        return sampler.sampleDataPoints(0, timestamp, deadlockThreadCountBoList, null);
     }
 
     private void assertEquals(List<SampledDeadlock> sampledDeadlockList, StatChartGroup deadlockChartGroup) {

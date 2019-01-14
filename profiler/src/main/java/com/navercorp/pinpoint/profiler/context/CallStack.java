@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,30 @@ package com.navercorp.pinpoint.profiler.context;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface CallStack {
+public interface CallStack<T> {
     int getIndex();
 
-    int push(SpanEvent spanEvent);
+    int push(T element);
 
-    SpanEvent pop();
+    T pop();
 
-    SpanEvent peek();
+    T peek();
 
     boolean empty();
 
-    SpanEvent[] copyStackFrame();
+    T[] copyStackFrame();
 
     int getMaxDepth();
+
+    Factory<T> getFactory();
+
+    interface Factory<T> {
+        Class<T> getType();
+
+        T newInstance();
+
+        void markDepth(T element, int index);
+
+        void setSequence(T element, short sequence);
+    }
 }

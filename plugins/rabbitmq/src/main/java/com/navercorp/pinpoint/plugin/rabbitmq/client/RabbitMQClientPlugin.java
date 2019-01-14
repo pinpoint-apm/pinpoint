@@ -93,9 +93,12 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (traceProducer) {
+                // copy AMQP.BasicProperties
+                target.weave("com.navercorp.pinpoint.plugin.rabbitmq.client.aspect.ChannelAspect");
+
                 final InstrumentMethod basicPublish = target.getDeclaredMethod("basicPublish", "java.lang.String", "java.lang.String", "boolean", "boolean", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
                 if (basicPublish != null) {
-                    basicPublish.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.ChannelBasicPublishInterceptor", RabbitMQClientConstants.RABBITMQ_SCOPE);
+                    basicPublish.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.ChannelBasicPublishInterceptor", RabbitMQClientConstants.RABBITMQ_PRODUCER_SCOPE, ExecutionPolicy.BOUNDARY);
                 }
             }
             if (traceConsumer) {
@@ -152,6 +155,18 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(AsyncContextAccessor.class.getName());
+                return target.toBytecode();
+            }
+        });
+        // AMQCommand - for pinpoint header propagation
+        transformTemplate.transform("com.rabbitmq.client.impl.AMQCommand", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod constructor = target.getConstructor("com.rabbitmq.client.Method", "com.rabbitmq.client.impl.AMQContentHeader", "byte[]");
+                if (constructor != null) {
+                    constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.AMQCommandConstructInterceptor", RabbitMQClientConstants.RABBITMQ_PRODUCER_SCOPE, ExecutionPolicy.INTERNAL);
+                }
                 return target.toBytecode();
             }
         });
@@ -368,6 +383,11 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
                     InstrumentMethod constructor = target.getConstructor("java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]");
                     if (constructor != null) {
                         constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.DeliveryConstructInterceptor", RabbitMQClientConstants.RABBITMQ_CONSUMER_SCOPE, ExecutionPolicy.INTERNAL);
+                    }
+                    // spring-rabbit 2.1.0+
+                    InstrumentMethod constructor_2_1_0 = target.getConstructor("java.lang.String", "com.rabbitmq.client.Envelope", "com.rabbitmq.client.AMQP$BasicProperties", "byte[]", "java.lang.String");
+                    if (constructor_2_1_0 != null) {
+                        constructor_2_1_0.addScopedInterceptor("com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor.DeliveryConstructInterceptor", RabbitMQClientConstants.RABBITMQ_CONSUMER_SCOPE, ExecutionPolicy.INTERNAL);
                     }
                     target.addField(AsyncContextAccessor.class.getName());
                     return target.toBytecode();

@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBaseProcessor;
+import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.THsHaServer;
@@ -46,9 +47,9 @@ import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 /**
  * @author HyunGil Jeong
  */
-public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServer<T> {
+public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTestServer<T> {
 
-    protected SyncEchoTestServer(T server, TestEnvironment environment) throws TTransportException {
+    protected SyncEchoTestServer(T server, TestEnvironment environment) {
         super(server, environment);
     }
 
@@ -59,7 +60,8 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
         verifier.verifyTraceCount(2);
         Method process = TBaseProcessor.class.getDeclaredMethod("process", TProtocol.class, TProtocol.class);
         verifier.verifyDiscreteTrace(
-        // RootSpan - Thrift Server Invocation
+                // RootSpan - Thrift Server Invocation
+                // refer to TBaseProcessorProcessInterceptor.finalizeSpan(...)
                 root("THRIFT_SERVER", // ServiceType,
                         "Thrift Server Invocation", // Method
                         "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo", // rpc
@@ -67,13 +69,17 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
                         address), // remoteAddress
                 // SpanEvent - TBaseProcessor.process
                 event("THRIFT_SERVER_INTERNAL", process));
-        verifier.verifyTraceCount(0);
     }
 
     public static class SyncEchoTestServerFactory {
 
         private static TProcessor getProcessor() {
-            return new EchoService.Processor<EchoService.Iface>(new EchoServiceHandler());
+            return new EchoService.Processor<EchoService.Iface>(new EchoService.Iface() {
+                @Override
+                public String echo(String message) throws TException {
+                    return message;
+                }
+            });
         }
 
         public static SyncEchoTestServer<TSimpleServer> simpleServer(final TestEnvironment environment)

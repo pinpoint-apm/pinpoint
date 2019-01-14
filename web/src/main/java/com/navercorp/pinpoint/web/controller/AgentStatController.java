@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -222,7 +222,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
 
     @Controller
     @RequestMapping("/getAgentStat/deadlock")
-    public static class DeadlockController extends AgentStatController<DeadlockBo> {
+    public static class DeadlockController extends AgentStatController<DeadlockThreadCountBo> {
         @Autowired
         public DeadlockController(DeadlockService deadlockService, DeadlockChartService deadlockChartService) {
             super(deadlockService, deadlockChartService);

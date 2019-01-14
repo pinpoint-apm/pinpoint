@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +54,10 @@ public class CollectorClusterInfoRepository {
     }
 
     private Set<String> newProfilerInfo(byte[] bytes) {
+        if (bytes == null) {
+            return Collections.emptySet();
+        }
+
         final String strData = new String(bytes, charset);
         final List<String> profilerInfoList = Arrays.asList(StringUtils.tokenizeToStringArray(strData, PROFILER_SEPARATOR));
         return new HashSet<>(profilerInfoList);

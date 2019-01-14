@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
@@ -32,7 +29,9 @@ import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.web.calltree.span.CallTree;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
@@ -43,13 +42,15 @@ import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.security.MetaDataFilter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -65,10 +66,10 @@ public class SpanServiceImpl implements SpanService {
     @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
-//    @Autowired
+    //    @Autowired
     private SqlMetaDataDao sqlMetaDataDao;
-    
-    @Autowired(required=false)
+
+    @Autowired(required = false)
     private MetaDataFilter metaDataFilter;
 
     @Autowired
@@ -98,15 +99,15 @@ public class SpanServiceImpl implements SpanService {
         final SpanResult result = order(spans, selectedSpanHint);
         final CallTreeIterator callTreeIterator = result.getCallTree();
         final List<SpanAlign> values = callTreeIterator.values();
-        
+
         transitionDynamicApiId(values);
         transitionSqlId(values);
+        transitionMongoJson(values);
         transitionCachedString(values);
         transitionException(values);
         // TODO need to at least show the row data when root span is not found. 
         return result;
     }
-
 
 
     private void transitionAnnotation(List<SpanAlign> spans, AnnotationReplacementCallback annotationReplacementCallback) {
@@ -202,6 +203,55 @@ public class SpanServiceImpl implements SpanService {
 
             }
 
+        });
+    }
+
+    private void transitionMongoJson(final List<SpanAlign> spans) {
+        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+            @Override
+            public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
+                AnnotationBo collectionInfo = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_INFO.getCode());
+                AnnotationBo collectionOption = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_OPTION.getCode());
+
+                if (collectionInfo != null) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(spanAlign.getDestinationId())
+                            .append(".")
+                            .append((String) collectionInfo.getValue());
+
+                    if (collectionOption != null) {
+                        stringBuilder.append(" with ")
+                                .append(((String) collectionOption.getValue()).toUpperCase());
+                    }
+                    collectionInfo.setValue(stringBuilder);
+                }
+
+                AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, MongoConstants.MONGO_JSON_DATA.getCode());
+                if (jsonAnnotation == null) {
+                    return;
+                }
+
+                final StringStringValue jsonValue = (StringStringValue) jsonAnnotation.getValue();
+
+                final String json = jsonValue.getStringValue1();
+                final String jsonbindValue = jsonValue.getStringValue2();
+
+                if (StringUtils.isEmpty(json)) {
+                    logger.debug("No values in Json");
+                } else {
+                    AnnotationBo jsonMeta = new AnnotationBo();
+                    jsonMeta.setKey(MongoConstants.MONGO_JSON.getCode());
+                    jsonMeta.setValue(json);
+                    annotationBoList.add(jsonMeta);
+                }
+
+                if (StringUtils.isNotEmpty(jsonbindValue)) {
+                    AnnotationBo bindValueAnnotation = new AnnotationBo();
+                    bindValueAnnotation.setKey(MongoConstants.MONGO_JSON_BINDVALUE.getCode());
+                    bindValueAnnotation.setValue(jsonbindValue);
+                    annotationBoList.add(bindValueAnnotation);
+                }
+            }
         });
     }
 
@@ -392,7 +442,7 @@ public class SpanServiceImpl implements SpanService {
             return apiMetaDataBo.getApiInfo();
         }
     }
-    
+
     private String getApiTagInfo(ApiMetaDataBo apiMetaDataBo) {
         return apiMetaDataBo.getApiInfo();
     }

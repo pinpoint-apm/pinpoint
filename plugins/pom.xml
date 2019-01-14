@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.8.0</version>
+        <version>1.8.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins</artifactId>
@@ -50,11 +50,13 @@
         <module>jdk-http</module>
         <module>json-lib</module>
         <module>redis</module>
+        <module>redis-lettuce</module>
         <module>tomcat</module>
         <module>thrift</module>
         <module>user</module>
         <module>arcus</module>
         <module>google-httpclient</module>
+        <module>grpc</module>
         <module>jetty</module>
         <module>websphere</module>
         <module>spring</module>
@@ -79,7 +81,13 @@
         <module>php</module>
         <module>akka-http</module>
         <module>undertow</module>
+        <module>undertow-servlet</module>
         <module>kafka</module>
+        <module>mongodb</module>
+        <module>fastjson</module>
+        <module>druid</module>
+        <module>hbase</module>
+        <module>openwhisk</module>
     </modules>
 
     <dependencies>
@@ -175,6 +183,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-redis-lettuce-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-tomcat-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -206,6 +219,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-google-httpclient-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-grpc-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -326,6 +344,31 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-kafka-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-mongodb-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-fastjson-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-druid-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-hbase-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-openwhisk-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

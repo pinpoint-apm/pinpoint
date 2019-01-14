@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -55,32 +56,26 @@ public class ASMClassNodeAdapter {
             throw new NullPointerException("classInternalName must not be null");
         }
 
-        InputStream in = null;
+        final String classPath = classInternalName.concat(".class");
+        final InputStream in = pluginContext.getResourceAsStream(classLoader, classPath);
+        if (in == null) {
+            return null;
+        }
+        final byte[] bytes;
         try {
-            in = pluginContext.getResourceAsStream(classLoader, classInternalName + ".class");
-            if (in != null) {
-                final ClassReader classReader = new ClassReader(in);
-                final ClassNode classNode = new ClassNode();
-                if (skipCode) {
-                    classReader.accept(classNode, ClassReader.SKIP_CODE);
-                } else {
-                    classReader.accept(classNode, 0);
-                }
-
-                return new ASMClassNodeAdapter(pluginContext, classLoader, classNode, skipCode);
-            }
-        } catch (IOException ignored) {
-            // not found class.
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
-            }
+            bytes = IOUtils.toByteArray(in);
+        } catch (IOException ignore) {
+            return null;
+        }
+        final ClassReader classReader = new ClassReader(bytes);
+        final ClassNode classNode = new ClassNode();
+        if (skipCode) {
+            classReader.accept(classNode, ClassReader.SKIP_CODE);
+        } else {
+            classReader.accept(classNode, 0);
         }
 
-        return null;
+        return new ASMClassNodeAdapter(pluginContext, classLoader, classNode, skipCode);
     }
 
     private final InstrumentContext pluginContext;
@@ -267,13 +262,15 @@ public class ASMClassNodeAdapter {
         return null;
     }
 
-    public ASMFieldNodeAdapter addField(final String fieldName, final Class<?> fieldClass) {
-        if (fieldName == null || fieldClass == null) {
-            throw new IllegalArgumentException("fieldNode name or fieldNode class must not be null.");
+    public ASMFieldNodeAdapter addField(final String fieldName, final String fieldDesc) {
+        if (fieldName == null) {
+            throw new IllegalArgumentException("fieldName must not be null");
+        }
+        if (fieldDesc == null) {
+            throw new IllegalArgumentException("fieldDesc must not be null");
         }
 
-        final Type type = Type.getType(fieldClass);
-        final FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, fieldName, type.getDescriptor(), null, null);
+        final FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, fieldName, fieldDesc, null, null);
         if (this.classNode.fields == null) {
             this.classNode.fields = new ArrayList<FieldNode>();
         }

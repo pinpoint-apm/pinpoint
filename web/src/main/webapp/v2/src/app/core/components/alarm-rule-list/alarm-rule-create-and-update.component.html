@@ -1,0 +1,56 @@
+<div [hidden]="!showCreate" class="l-wrapper">
+    <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
+    <h1>{{title}}</h1> 
+    <form [formGroup]="alarmForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
+        <div class="l-form-grid">
+            <div>
+                <div>{{i18nLabel.CHECKER_LABEL}}</div>
+                <select formControlName="checkerName">
+                    <option value="">Select rule</option>
+                    <option *ngFor="let checker of checkerList" [value]="checker">{{checker}}</option>
+                </select>
+                <span class="fas fa-angle-down"></span>
+                <div *ngIf="checkerName.invalid && (checkerName.dirty || checkerName.touched)" class="l-alert alert-danger">
+                    <div *ngIf="checkerName.errors.required">
+                        {{i18nGuide.CHECKER_REQUIRED}}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div>{{i18nLabel.USER_GROUP_LABEL}}</div>
+                <select formControlName="userGroupId">
+                    <option value="">Select user group</option>
+                    <option *ngFor="let userGroup of userGroupList" [value]="userGroup">{{userGroup}}</option>
+                </select>
+                <span class="fas fa-angle-down"></span>
+                <div *ngIf="userGroupId.invalid && (userGroupId.dirty || userGroupId.touched)" class="l-alert alert-danger">
+                    <div *ngIf="userGroupId.errors.required">
+                        {{i18nGuide.USER_GROUP_REQUIRED}}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div>{{i18nLabel.THRESHOLD_LABEL}}</div>
+                <input type="number" id="threshold" formControlName="threshold">
+                <div *ngIf="threshold.invalid && (threshold.dirty || threshold.touched)" class="l-alert alert-danger">
+                    <div *ngIf="threshold.errors.min">
+                        Must be greater than 0
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div>{{i18nLabel.TYPE_LABEL}}</div>
+                <select formControlName="type">
+                    <option value="all">All</option>
+                    <option value="email">Email</option>
+                    <option value="sms">SMS</option>
+                    <option value="none">None</option>
+                </select>
+                <span class="fas fa-angle-down"></span>
+            </div>
+        </div>
+        <div>{{i18nLabel.NOTES_LABEL}}</div>
+        <textarea id="notes" formControlName="notes"></textarea>
+        <button type="submit" class="btn btn-blue l-create" [class.btn-gray]="alarmForm.invalid" [disabled]="alarmForm.invalid">OK</button>
+    </form>
+</div>

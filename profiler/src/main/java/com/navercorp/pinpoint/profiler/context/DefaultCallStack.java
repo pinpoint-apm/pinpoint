@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
@@ -26,25 +26,34 @@ import java.util.Arrays;
  * @author Woonduk Kang(emeroad)
  * @author jaehong.kim
  */
-public class DefaultCallStack implements CallStack {
+public class DefaultCallStack<T> implements CallStack<T> {
+
     protected static final int STACK_SIZE = 8;
     protected static final int DEFAULT_INDEX = 0;
 
-    protected SpanEvent[] stack = new SpanEvent[STACK_SIZE];
+    protected final Factory<T> factory;
+    protected T[] stack;
 
-    protected final TraceRoot traceRoot;
     protected final int maxDepth;
     protected int index = DEFAULT_INDEX;
     protected int overflowIndex = 0;
     protected short sequence;
 
-    public DefaultCallStack(TraceRoot traceRoot) {
-        this(traceRoot, -1);
+    public DefaultCallStack(Factory<T> factory) {
+        this(factory, -1);
     }
 
-    public DefaultCallStack(TraceRoot traceRoot, int maxDepth) {
-        this.traceRoot = traceRoot;
+    @SuppressWarnings("unchecked")
+    public DefaultCallStack(Factory<T> factory, int maxDepth) {
+        this.factory = factory;
         this.maxDepth = maxDepth;
+
+        this.stack = newStack(factory.getType(), STACK_SIZE);
+    }
+
+    @SuppressWarnings("unchecked")
+    private T[] newStack(Class<T> type, int size) {
+        return (T[]) Array.newInstance(type, size);
     }
 
 
@@ -58,63 +67,58 @@ public class DefaultCallStack implements CallStack {
     }
 
     @Override
-    public int push(final SpanEvent spanEvent) {
+    public int push(final T element) {
         if (isOverflow()) {
             overflowIndex++;
             return index + overflowIndex;
         }
 
         checkExtend(index + 1);
-        spanEvent.setSequence(sequence++);
-        stack[index++] = spanEvent;
-        markDepth(spanEvent, index);
+        factory.setSequence(element, sequence++);
+        stack[index++] = element;
+        markDepth(element, index);
         return index;
     }
 
-    protected void markDepth(SpanEvent spanEvent, int index) {
-        spanEvent.setDepth(index);
+    protected void markDepth(T element, int index) {
+        factory.markDepth(element, index);
     }
 
-    protected void checkExtend(final int size) {
-        final SpanEvent[] originalStack = this.stack;
+
+    private void checkExtend(final int size) {
+        final T[] originalStack = this.stack;
         if (size >= originalStack.length) {
             final int copyStackSize = originalStack.length << 1;
-            final SpanEvent[] copyStack = new SpanEvent[copyStackSize];
+            final T[] copyStack = newStack(factory.getType(), copyStackSize);
             System.arraycopy(originalStack, 0, copyStack, 0, originalStack.length);
             this.stack = copyStack;
         }
     }
 
     @Override
-    public SpanEvent pop() {
+    public T pop() {
         if (isOverflow() && overflowIndex > 0) {
             overflowIndex--;
-            return newDummySpanEvent();
+            return factory.newInstance();
         }
 
-        final SpanEvent spanEvent = peek();
+        final T spanEvent = peek();
         if (spanEvent != null) {
             stack[index - 1] = null;
             index--;
         }
-
         return spanEvent;
     }
 
-    private SpanEvent newDummySpanEvent() {
-        return new SpanEvent(traceRoot);
-    }
-
     @Override
-    public SpanEvent peek() {
+    public T peek() {
         if (index == DEFAULT_INDEX) {
             return null;
         }
 
         if (isOverflow() && overflowIndex > 0) {
-            return newDummySpanEvent();
+            return factory.newInstance();
         }
-
         return stack[index - 1];
     }
 
@@ -124,10 +128,10 @@ public class DefaultCallStack implements CallStack {
     }
 
     @Override
-    public SpanEvent[] copyStackFrame() {
+    public T[] copyStackFrame() {
         // without synchronization arraycopy, last index is null reference
-        final SpanEvent[] currentStack = this.stack;
-        final SpanEvent[] copyStack = new SpanEvent[currentStack.length];
+        final T[] currentStack = this.stack;
+        final T[] copyStack = newStack(factory.getType(), currentStack.length);
         System.arraycopy(currentStack, 0, copyStack, 0, currentStack.length);
         return copyStack;
     }
@@ -143,12 +147,19 @@ public class DefaultCallStack implements CallStack {
     }
 
     @Override
+    public Factory<T> getFactory() {
+        return factory;
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("{stack=");
         builder.append(Arrays.toString(stack));
         builder.append(", index=");
         builder.append(index);
+        builder.append(", factory=");
+        builder.append(factory);
         builder.append("}");
         return builder.toString();
     }

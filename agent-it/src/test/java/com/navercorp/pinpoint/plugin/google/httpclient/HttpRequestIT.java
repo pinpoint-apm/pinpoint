@@ -46,7 +46,9 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,)", "org.nanohttpd:nanohttpd:2.3.1"})
+// guava dependency issue
+// google-http-client 1.26.0 does not include repackaged guava
+@Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,)", "com.google.guava:guava:20.0", "org.nanohttpd:nanohttpd:2.3.1"})
 public class HttpRequestIT {
 
     private static WebServer webServer;
@@ -80,21 +82,24 @@ public class HttpRequestIT {
         try {
             request = requestFactory.buildGetRequest(url);
             response = request.execute();
-            response.disconnect();
         } catch (IOException ignored) {
         } finally {
-            if (response != null) {
-                response.disconnect();
-            }
+            close(response);
         }
 
-        
+
         Method executeMethod = HttpRequest.class.getDeclaredMethod("execute");
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         verifier.verifyTrace(Expectations.event("GOOGLE_HTTP_CLIENT_INTERNAL", executeMethod));
     }
-    
+
+    public void close(HttpResponse response) throws IOException {
+        if (response != null) {
+            response.disconnect();
+        }
+    }
+
     @Test
     public void executeAsync() throws Exception {
         HttpTransport NET_HTTP_TRANSPORT = new NetHttpTransport();
@@ -111,12 +116,10 @@ public class HttpRequestIT {
         try {
             request = requestFactory.buildGetRequest(url);
             response = request.executeAsync().get();
-            response.disconnect();
         } catch (IOException ignored) {
+
         } finally {
-            if (response != null) {
-                response.disconnect();
-            }
+            close(response);
         }
 
         Method executeAsyncMethod = HttpRequest.class.getDeclaredMethod("executeAsync", Executor.class);

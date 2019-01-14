@@ -35,13 +35,12 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,36 +57,22 @@ public class ASMClass implements InstrumentClass {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ObjectBinderFactory objectBinderFactory;
+    private final EngineComponent engineComponent;
+
     private final InstrumentContext pluginContext;
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
-    private final ApiMetaDataService apiMetaDataService;
     private final ClassLoader classLoader;
 
     private final ASMClassNodeAdapter classNode;
     private boolean modified = false;
     private String name;
 
-    public ASMClass(ObjectBinderFactory objectBinderFactory, final InstrumentContext pluginContext, final InterceptorRegistryBinder interceptorRegistryBinder, ApiMetaDataService apiMetaDataService, final ClassLoader classLoader, final ClassNode classNode) {
-        this(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, classLoader, new ASMClassNodeAdapter(pluginContext, classLoader, classNode));
+    public ASMClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, final ClassNode classNode) {
+        this(engineComponent, pluginContext, classLoader, new ASMClassNodeAdapter(pluginContext, classLoader, classNode));
     }
 
-    public ASMClass(ObjectBinderFactory objectBinderFactory, final InstrumentContext pluginContext, final InterceptorRegistryBinder interceptorRegistryBinder, ApiMetaDataService apiMetaDataService, final ClassLoader classLoader, final ASMClassNodeAdapter classNode) {
-        if (objectBinderFactory == null) {
-            throw new NullPointerException("objectBinderFactory must not be null");
-        }
-
-//        if (pluginContext == null) {
-//            throw new NullPointerException("pluginContext must not be null");
-//        }
-        if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService must not be null");
-        }
-
-        this.objectBinderFactory = objectBinderFactory;
+    public ASMClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, final ASMClassNodeAdapter classNode) {
+        this.engineComponent = Assert.requireNonNull(engineComponent, "engineComponent must not be null");
         this.pluginContext = pluginContext;
-        this.interceptorRegistryBinder = interceptorRegistryBinder;
-        this.apiMetaDataService = apiMetaDataService;
         this.classLoader = classLoader;
         this.classNode = classNode;
         // for performance.
@@ -142,7 +127,7 @@ public class ASMClass implements InstrumentClass {
             return null;
         }
 
-        return new ASMMethod(this.objectBinderFactory, this.pluginContext, this.interceptorRegistryBinder, apiMetaDataService, this, methodNode);
+        return new ASMMethod(this.engineComponent, this.pluginContext, this, methodNode);
     }
 
     @Override
@@ -158,7 +143,7 @@ public class ASMClass implements InstrumentClass {
 
         final List<InstrumentMethod> candidateList = new ArrayList<InstrumentMethod>();
         for (ASMMethodNodeAdapter methodNode : this.classNode.getDeclaredMethods()) {
-            final InstrumentMethod method = new ASMMethod(this.objectBinderFactory, this.pluginContext, this.interceptorRegistryBinder, apiMetaDataService, this, methodNode);
+            final InstrumentMethod method = new ASMMethod(this.engineComponent, this.pluginContext, this, methodNode);
             if (methodFilter.accept(method)) {
                 candidateList.add(method);
             }
@@ -242,7 +227,7 @@ public class ASMClass implements InstrumentClass {
 
         final ASMMethodNodeAdapter methodNode = this.classNode.addDelegatorMethod(superMethodNode);
         setModified(true);
-        return new ASMMethod(this.objectBinderFactory, this.pluginContext, this.interceptorRegistryBinder, apiMetaDataService, this, methodNode);
+        return new ASMMethod(this.engineComponent, this.pluginContext, this, methodNode);
     }
 
     @Override
@@ -252,7 +237,8 @@ public class ASMClass implements InstrumentClass {
             final AccessorAnalyzer accessorAnalyzer = new AccessorAnalyzer();
             final AccessorAnalyzer.AccessorDetails accessorDetails = accessorAnalyzer.analyze(accessorType);
 
-            final ASMFieldNodeAdapter fieldNode = this.classNode.addField(FIELD_PREFIX + JavaAssistUtils.javaClassNameToVariableName(accessorTypeName), accessorDetails.getFieldType());
+            final Type type = Type.getType(accessorDetails.getFieldType());
+            final ASMFieldNodeAdapter fieldNode = this.classNode.addField(FIELD_PREFIX + JavaAssistUtils.javaClassNameToVariableName(accessorTypeName), type.getDescriptor());
             this.classNode.addInterface(accessorTypeName);
             this.classNode.addGetterMethod(accessorDetails.getGetter().getName(), fieldNode);
             this.classNode.addSetterMethod(accessorDetails.getSetter().getName(), fieldNode);
@@ -482,6 +468,7 @@ public class ASMClass implements InstrumentClass {
         final String filterTypeName = annotation.type();
         Assert.requireNonNull(filterTypeName, "type of @TargetFilter must not be null");
 
+        ObjectBinderFactory objectBinderFactory = engineComponent.getObjectBinderFactory();
         final InterceptorArgumentProvider interceptorArgumentProvider = objectBinderFactory.newInterceptorArgumentProvider(this);
         final AutoBindingObjectFactory filterFactory = objectBinderFactory.newAutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
         final ObjectFactory objectFactory = ObjectFactory.byConstructor(filterTypeName, (Object[]) annotation.constructorArguments());
@@ -500,7 +487,7 @@ public class ASMClass implements InstrumentClass {
         }
 
         if (interceptorId == -1) {
-            logger.warn("No methods are intercepted. target: " + this.classNode.getInternalName(), ", interceptor: " + interceptorClassName + ", methodFilter: " + filterTypeName);
+            logger.warn("No methods are intercepted. target:{}, interceptor:{}, methodFilter:{} ", this.classNode.getInternalName(), interceptorClassName, filterTypeName);
         }
 
         return interceptorId;
@@ -573,7 +560,7 @@ public class ASMClass implements InstrumentClass {
         }
 
         if (interceptorId == -1) {
-            logger.warn("No methods are intercepted. target: " + this.classNode.getInternalName(), ", interceptor: " + interceptorClassName + ", methodFilter: " + filter.getClass().getName());
+            logger.warn("No methods are intercepted. target:{}, interceptor:{}, methodFilter:{}", this.classNode.getInternalName(), interceptorClassName, filter.getClass().getName());
         }
 
         return interceptorId;
@@ -583,7 +570,7 @@ public class ASMClass implements InstrumentClass {
     public List<InstrumentClass> getNestedClasses(ClassFilter filter) {
         final List<InstrumentClass> nestedClasses = new ArrayList<InstrumentClass>();
         for (ASMClassNodeAdapter innerClassNode : this.classNode.getInnerClasses()) {
-            final ASMNestedClass nestedClass = new ASMNestedClass(objectBinderFactory, this.pluginContext, this.interceptorRegistryBinder, apiMetaDataService, this.classLoader, innerClassNode);
+            final ASMNestedClass nestedClass = new ASMNestedClass(engineComponent, this.pluginContext, this.classLoader, innerClassNode);
             if (filter.accept(nestedClass)) {
                 nestedClasses.add(nestedClass);
             }

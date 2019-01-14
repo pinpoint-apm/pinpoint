@@ -25,7 +25,9 @@ import java.net.InetSocketAddress;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBaseAsyncProcessor;
+import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
+import org.apache.thrift.async.AsyncMethodCallback;
 import org.apache.thrift.server.AbstractNonblockingServer;
 import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
 import org.apache.thrift.server.THsHaServer;
@@ -43,9 +45,9 @@ import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 /**
  * @author HyunGil Jeong
  */
-public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> extends EchoTestServer<T> {
+public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> extends ThriftEchoTestServer<T> {
 
-    protected AsyncEchoTestServer(T server, TestEnvironment environment) throws TTransportException {
+    protected AsyncEchoTestServer(T server, TestEnvironment environment) {
         super(server, environment);
     }
 
@@ -64,13 +66,17 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
         ));
         // SpanEvent - TBaseAsyncProcessor.process
         verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
-        verifier.verifyTraceCount(0);
     }
 
     public static class AsyncEchoTestServerFactory {
 
         private static TProcessor getAsyncProcessor() {
-            return new EchoService.AsyncProcessor<EchoService.AsyncIface>(new EchoServiceAsyncHandler());
+            return new EchoService.AsyncProcessor<EchoService.AsyncIface>(new EchoService.AsyncIface() {
+                @Override
+                public void echo(String message, AsyncMethodCallback<String> resultHandler) throws TException {
+                    resultHandler.onComplete(message);
+                }
+            });
         }
 
         public static AsyncEchoTestServer<TThreadedSelectorServer> threadedSelectorServer(
