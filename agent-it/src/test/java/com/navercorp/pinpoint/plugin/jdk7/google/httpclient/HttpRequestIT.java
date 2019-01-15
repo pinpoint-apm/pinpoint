@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.google.httpclient;
+package com.navercorp.pinpoint.plugin.jdk7.google.httpclient;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
@@ -47,7 +47,7 @@ import java.util.concurrent.Executor;
 @PinpointAgent(AgentPath.PATH)
 // guava dependency issue
 // google-http-client 1.26.0 does not include repackaged guava
-@Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,1.27.0]", "com.google.guava:guava:20.0", "org.nanohttpd:nanohttpd:2.3.1"})
+@Dependency({ "com.google.http-client:google-http-client:[1.28.0,)", "com.google.guava:guava:20.0", "org.nanohttpd:nanohttpd:2.3.1"})
 public class HttpRequestIT {
 
     private static WebServer webServer;
@@ -84,6 +84,7 @@ public class HttpRequestIT {
         } catch (IOException ignored) {
         } finally {
             close(response);
+            requestFactory.getTransport().shutdown();
         }
 
 
@@ -119,6 +120,7 @@ public class HttpRequestIT {
 
         } finally {
             close(response);
+            requestFactory.getTransport().shutdown();
         }
 
         Method executeAsyncMethod = HttpRequest.class.getDeclaredMethod("executeAsync", Executor.class);
