@@ -40,6 +40,7 @@ import org.bson.BsonSymbol;
 import org.bson.BsonTimestamp;
 import org.bson.BsonUndefined;
 import org.bson.BsonValue;
+import org.bson.conversions.Bson;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
@@ -54,12 +55,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.mongodb.client.model.Filters.eq;
+
 
 /**
  * @author Woonduk Kang(emeroad)
  * @author Roy Kim
  */
-public class MongoUtilTest {
+public class WritecontextTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -332,7 +335,6 @@ public class MongoUtilTest {
 
         checkValue(query1Map);
     }
-
 
     private void checkValue(Object object) {
         if (object instanceof Map) {

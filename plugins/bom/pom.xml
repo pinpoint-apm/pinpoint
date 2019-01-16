@@ -33,7 +33,7 @@
         <lettuce.version>5.1.2.RELEASE</lettuce.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <dubbo.version>2.5.3</dubbo.version>
-        <mongo.driver.version>3.7.0</mongo.driver.version>
+        <mongo.driver.version>3.9.0</mongo.driver.version>
     </properties>
 
     <dependencyManagement>
