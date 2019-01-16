@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=" pinpoint release, 1.8.1">
+<title>Pinpoint 1.8.1 | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-9');
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+    
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/naver/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://naver.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:roy.kim@navercorp.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page in the homepage or Pinpoint GitHub repository https://github.com/naver/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 1.8.1">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+  <div id="main">
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+            <!-- Sidebar Column -->
+            <div class="col-md-3" id="tg-sb-sidebar">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetVersionInfo();
+    });
+
+    function GetVersionInfo() {
+
+        var pathname = window.location.pathname;
+        var path = pathname.slice(10,15);
+        var versioned = true;
+        var tempNum1 = path.slice(0,1);
+        var tempNum2 = path.slice(2,3);
+        var tempNum3 = path.slice(4,5);
+
+        if($.isEmptyObject(path)){
+            versioned = false;
+        }else{
+            if(isNaN(tempNum1) || isNaN(tempNum2) && isNaN(tempNum3)){
+                versioned = false;
+            }
+        }
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+
+            $.each(data, function(key, value) {
+
+                if(versioned && path == value.ver){
+                    $('#selbox').append('<option selected="selected" value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }else{
+                    $('#selbox').append('<option value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }
+            })
+        });
+    }
+</script>
+
+
+
+
+<ul id="mysidebar" class="nav">
+    <li class="sidebarTitle">
+        <tr>
+            <td>
+                Pinpoint
+            </td>
+            <td>
+                <select id="selbox" name="ver" onchange="document.location.href=this.value">
+                </select>
+            </td>
+        </tr>
+    </li>
+    <tr></tr>
+    <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    </td> </tr>
+  
+  
+  
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li class="active"><a href="main.html">What's New</a></li>
+        
+    </li>
+    
+      
+  
+  <li>
+      <a href="#">Pinpoint</a>
+      <ul>
+          
+          
+          
+          <li><a href="overview.html">Overview</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="history.html">History</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="techdetail.html">Technical Details</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="additionalplugins.html">Additional Plugins</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Getting Started</a>
+      <ul>
+          
+          
+          
+          <li><a href="quickstart.html">QuickStart</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="installation.html">Installation</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="docker.html">Install with Docker</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="troubleshooting_network.html">TrobleShooting(Network)</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Documents</a>
+      <ul>
+          
+          
+          
+          <li><a href="ui_v2.html">UI v2(Currently under development)</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="plugindevguide.html">Plugin Developer Guide</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="alarm.html">Setting Alarms</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="applicationinspector.html">How to use Application Inspector</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="perrequestfeatureguide.html">Separate Log Per Request</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="httpstatuscodefailure.html">Marking Transaction as Fail</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="proxyhttpheader.html">Monitoring Proxy Server</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Contribution</a>
+      <ul>
+          
+          
+          
+          <li><a href="contribution.html">Readme</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="https://github.com/naver/pinpoint/labels/proposal" target="_blank">Help Wanted</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">Twitter</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint/releases" target="_blank">Release Notes</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="faq.html">FAQ</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="pinpointinaction.html">Powered by Pinpoint</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint/issues" target="_blank">Questions and answers</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint" target="_blank">Fork me at Github</a></li>
+        
+    </li>
+    
+      
+      
+      <!-- if you aren't using the accordion, uncomment this block:
+         <p class="external">
+             <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+         </p>
+         -->
+</ul>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+            </div>
+            
+        
+
+        <!-- Content Column -->
+        <div class="col-md-9" id="tg-sb-content">
+            <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+            <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetUrl();
+    });
+
+    function GetUrl() {
+
+        var pathname = window.location.pathname;
+        if(pathname == "/pinpoint/main.html"){
+            document.getElementById("pathname").innerHTML = "Snapshot(Unstable)";
+        }
+    }
+</script>
+
+<div class="post-header">
+   <h1 class="post-title-main" id="pathname">Pinpoint 1.8.1</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+    
+<!-- this handles the automatic toc. use ## for subheads to auto-generate the on-page minitoc. if you use html tags, you must supply an ID for the heading element in order for it to appear in the minitoc. -->
+<script>
+$( document ).ready(function() {
+  // Handler for .ready() called.
+
+$('#toc').toc({ minimumHeaders: 0, listType: 'ul', showSpeed: 0, headers: 'h2,h3,h4' });
+
+/* this offset helps account for the space taken up by the floating toolbar. */
+$('#toc').on('click', 'a', function() {
+  var target = $(this.getAttribute('href'))
+    , scroll_target = target.offset().top
+
+  $(window).scrollTop(scroll_target - 10);
+  return false
+})
+  
+});
+</script>
+
+<div id="toc"></div>
+
+    
+
+
+    
+
+
+    
+
+  <h2 id="whats-new-in-181">What’s New in 1.8.1</h2>
+
+<p><strong>If your application is based on Java 11, you should definitely consider updating Pinpoint-Agent to 1.8.1</strong></p>
+
+<p>We suggest you to upgrade the version if you are using any of <a href="#pinpoint-plugin">recent added plugins</a></p>
+
+<h3 id="pinpoint-plugin">Pinpoint Plugin</h3>
+
+<ul>
+  <li>
+    <p>Support HBase Plugin
+ (Thank you @VictorZeng for your contribution)</p>
+
+    <ul>
+      <li>
+        <p>servermap<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983461-3abe3c80-ffa6-11e8-9fc2-870e0b08cd24.PNG" alt="hbase 1" /></p>
+      </li>
+      <li>
+        <p>call stack<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983465-3f82f080-ffa6-11e8-946a-9c5e4fd31aed.PNG" alt="hbase 2" /></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Support Openwhisk Plugin 
+ (Thank you @upgle for your contribution)</p>
+
+    <ul>
+      <li>
+        <p>servermap<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983512-98eb1f80-ffa6-11e8-978a-a00f62bd9f4e.PNG" alt="1" /></p>
+      </li>
+      <li>
+        <p>call stack<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983515-9be61000-ffa6-11e8-9547-40ef2a6f9999.png" alt="2" /></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Support Druid DataSource Plugin 
+ (Thank you @VictorZeng for your contribution)</p>
+
+    <ul>
+      <li>
+        <p>call stack<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983580-f67f6c00-ffa6-11e8-87a3-aaf8df45d9f2.PNG" alt="default" /></p>
+      </li>
+      <li>
+        <p>datasource info<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983583-fa12f300-ffa6-11e8-95f5-c7c7176601d9.png" alt="default" /></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Support gRPC Plugin</p>
+
+    <ul>
+      <li>
+        <p>callstack 1 (req/res)<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983630-42321580-ffa7-11e8-826c-00d9d349f19b.png" alt="grpc 1" /></p>
+      </li>
+      <li>
+        <p>callstack 2 (stream)<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983633-49592380-ffa7-11e8-84a9-cb4e6621aa41.png" alt="grpc2" /></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Support Lettuce</p>
+
+    <ul>
+      <li>servermap<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983687-8fae8280-ffa7-11e8-8722-649cb8e51c91.png" alt="lettuce" /></li>
+    </ul>
+  </li>
+  <li>
+    <p>Support Fastjson
+ (Thank you @VictorZeng for your contribution)</p>
+
+    <ul>
+      <li>callstack<br />
+ <img src="https://user-images.githubusercontent.com/10057874/49983713-b2409b80-ffa7-11e8-853e-bf3b32851d63.png" alt="fastjson" /></li>
+    </ul>
+  </li>
+  <li>Support Spring Kafka in Kafka Plugin
+ You can trace spring-kafka in the kafka plugin with the following settings:
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> profiler.springskafka.consumer.enable=true/false
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Support MongoDB Plugin</p>
+
+    <div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-circle"></i> <b>Warning:</b> There is a critical bug in certain scenario. Fix planned for 1.8.2.
+ <br /><br /> If you are using Pinpoint 1.8.1 with MongoDB, recommended to disable mongodb plug-in from pinpoint.config</div>
+  </li>
+  <li>Fix minor bugs</li>
+</ul>
+
+<h3 id="pinpoint-agent">Pinpoint Agent</h3>
+
+<ul>
+  <li>Fix Lambda tracking bug</li>
+  <li>Fix agent startup failure for certain ibm java versions</li>
+</ul>
+
+<h3 id="pinpoint-web">Pinpoint Web</h3>
+
+<ul>
+  <li>Option added : hide stack trace from web response</li>
+  <li>Add deleting api for alarm users</li>
+</ul>
+
+<h3 id="upgrade-consideration">Upgrade consideration</h3>
+
+<p>HBase compatibility table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>HBase 0.94.x</th>
+      <th>HBase 0.98.x</th>
+      <th>HBase 1.0.x</th>
+      <th>HBase 1.2.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.8.x</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent Version</th>
+      <th>Collector 1.0.x</th>
+      <th>Collector 1.1.x</th>
+      <th>Collector 1.5.x</th>
+      <th>Collector 1.6.x</th>
+      <th>Collector 1.7.x</th>
+      <th>Collector 1.8.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>1.8.x</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>Agent</th>
+      <th>Collector</th>
+      <th>Web</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0.x</td>
+      <td>6-8</td>
+      <td>6+</td>
+      <td>6+</td>
+    </tr>
+    <tr>
+      <td>1.1.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.5.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>6-8</td>
+      <td>7+</td>
+      <td>7+</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>6-8</td>
+      <td>8+</td>
+      <td>8+</td>
+    </tr>
+    <tr>
+      <td>1.8.x</td>
+      <td>6-8<br /> 9+(Experimental)</td>
+      <td>8+</td>
+      <td>8+</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="supported-modules">Supported Modules</h2>
+
+<ul>
+  <li>JDK 6+</li>
+  <li><a href="https://github.com/naver/pinpoint/tree/master/plugins/tomcat">Tomcat 6/7/8/9</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/jetty">Jetty 8/9</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/jboss">JBoss EAP 6/7</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/resin">Resin 4</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/websphere">Websphere 6/7/8</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/vertx">Vertx 3.3/3.4/3.5</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/weblogic">Weblogic 10/11g/12c</a>, Undertow</li>
+  <li>Spring, Spring Boot (Embedded Tomcat, Jetty), Spring asynchronous communication</li>
+  <li>Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient, Akka-http, Apache CXF</li>
+  <li>Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER, GRPC</li>
+  <li>ActiveMQ, RabbitMQ, Kafka</li>
+  <li>MySQL, Oracle, MSSQL(jtds), CUBRID, POSTGRESQL, MARIA</li>
+  <li>Arcus, Memcached, Redis(<a href="https://github.com/naver/pinpoint/blob/master/plugins/redis">Jedis</a>, <a href="https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce">Lettuce</a>), CASSANDRA, MongoDB, Hbase</li>
+  <li>iBATIS, MyBatis</li>
+  <li>DBCP, DBCP2, HIKARICP, DRUID</li>
+  <li>gson, Jackson, Json Lib, Fastjson</li>
+  <li>log4j, Logback</li>
+</ul>
+
+
+    <div class="tags">
+        
+    </div>
+
+</div>
+
+
+
+<hr class="shaded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy;2019 Naver. All rights reserved. <br />
+
+
+<p><img src="images/company_logo.png" alt="Company logo"/></p>
+                </div>
+            </div>
+</footer>
+
+
+        </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->
+</div>
+<!-- /#main -->
+    </div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>
