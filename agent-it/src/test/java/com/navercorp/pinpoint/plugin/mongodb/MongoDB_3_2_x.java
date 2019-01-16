@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.mongodb;
 
-import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.connection.Cluster;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -30,11 +28,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.lang.reflect.Constructor;
-import java.util.List;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @author Roy Kim
@@ -64,11 +57,6 @@ public class MongoDB_3_2_x extends MongoDBBase {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
         com.mongodb.MongoClient mongoClient = new com.mongodb.MongoClient("localhost", 27018);
-        verifier.printCache();
-        Class<?> clusterClass = Class.forName("com.mongodb.Mongo");
-
-        Constructor create = clusterClass.getDeclaredConstructor(Cluster.class, MongoClientOptions.class, List.class);
-        verifier.verifyTrace(event(MONGO, create, null, MONGODB_ADDRESS, null));
 
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
         MongoCollection<Document> collection = database.getCollection("customers");
@@ -80,6 +68,8 @@ public class MongoDB_3_2_x extends MongoDBBase {
         insertData(verifier, collection2, mongoDatabaseImpl, "customers2", "ACKNOWLEDGED");
         updateData(verifier, collection, mongoDatabaseImpl);
         readData(verifier, collection, mongoDatabaseImpl);
+        filterData(verifier, collection, mongoDatabaseImpl);
+        filterData2(verifier, collection, mongoDatabaseImpl);
         deleteData(verifier, collection, mongoDatabaseImpl);
 
         mongoClient.close();
