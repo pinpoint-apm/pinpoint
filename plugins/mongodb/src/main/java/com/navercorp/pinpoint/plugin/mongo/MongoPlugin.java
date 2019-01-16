@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.mongo;
 
+import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -55,6 +56,14 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+
+        addFilterTransformer();
+        addUpdatesTransformer();
+        //TODO withReadConcern
+        //TODO SimpleExpression
+        //TODO Sort, Projection
+//        addSortsTransformer();
+//        addProjectionTransformer();
 
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();
@@ -144,7 +153,8 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
         });
     }
-    private void addConnectionTransformer3_7_X(){
+
+    private void addConnectionTransformer3_7_X() {
         //3.7.0+
         transformTemplate.transform("com.mongodb.client.MongoClients", new TransformCallback() {
 
@@ -158,7 +168,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InstrumentMethod connect = InstrumentUtils.findMethod(target, "create", "com.mongodb.MongoClientSettings","com.mongodb.MongoDriverInformation");
+                InstrumentMethod connect = InstrumentUtils.findMethod(target, "create", "com.mongodb.MongoClientSettings", "com.mongodb.MongoDriverInformation");
 
                 connect.addScopedInterceptor(
                         "com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_7",
@@ -224,7 +234,8 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
         });
     }
-    private void addConnectionTransformer3_8_X(){
+
+    private void addConnectionTransformer3_8_X() {
         //3.8.0+
         transformTemplate.transform("com.mongodb.client.internal.MongoClientImpl", new TransformCallback() {
 
@@ -271,7 +282,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistCUD3_0_x())))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor", va(config.isCollectJson(), config.istraceBsonBindValue()) ,MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor", va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
                 }
 
                 InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference", "com.mongodb.ReadPreference");
@@ -291,6 +302,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         // java driver 3.0.0 ~ 3.6.4
         transformTemplate.transform("com.mongodb.MongoCollectionImpl", transformCallback);
     }
+
     private void addSessionTransformer3_7_X(final MongoConfig config) {
         TransformCallback transformCallback = new TransformCallback() {
 
@@ -331,39 +343,387 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mongodb.client.internal.MongoCollectionImpl", transformCallback);
     }
 
-    private String[] getMethodlistR3_0_x(){
+
+    private void addFilterTransformer() {
+
+        //@TODO how about. pullByFilter under Updates
+        TransformCallback transformCallback = new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                if (!target.isInterceptable()) {
+                    return null;
+                }
+
+                List<InstrumentClass> nestedClasses = target.getNestedClasses(
+                        ClassFilters.name(MongoConstants.FILTERLIST.toArray(new String[0]))
+                );
+
+                for (final InstrumentClass nestedClass : nestedClasses) {
+
+                    //GeometryOperatorFilter 3.1+
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_GEOMETRYOPERATOR)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.OperatorNameGetter", "operatorName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.FilterGetter", "fieldName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.GeometryGetter", "geometry");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.MaxDistanceGetter", "maxDistance");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.MinDistanceGetter", "minDistance");
+
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //NotFilter
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_NOT)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.FilterGetter", "filter");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //SimpleEncodingFilter
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_SIMPLEENCODING)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter", "fieldName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.ValueGetter", "value");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //IterableOperatorFilter
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_ITERABLEOPERATOR)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                if (nestedTarget.hasField("fieldName")) {
+                                    nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter", "fieldName");
+                                }
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.OperatorNameGetter", "operatorName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.IterableValuesGetter", "values");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //OrFilter
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_OR)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.FiltersGetter", "filters");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //AndFilter
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_AND)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.FiltersGetter", "filters");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //OperatorFilter
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_OPERATOR)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.OperatorNameGetter", "operatorName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter", "fieldName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.ValueGetter", "value");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //SimpleFilter
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_SIMPLE)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter", "fieldName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.BsonValueGetter", "value");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //TextFilter 3.3+
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_TEXT)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.SearchGetter", "search");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.TextSearchOptionsGetter", "textSearchOptions");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //OrNorFilter 3.3+
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_ORNOR)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.FiltersGetter", "filters");
+                                nestedTarget.addField("com.navercorp.pinpoint.plugin.mongo.field.getter.filters.InternalOperatorNameAccessor");
+
+                                final InstrumentMethod nestedConstructor = nestedTarget.getConstructor("com.mongodb.client.model.Filters$OrNorFilter$Operator", "java.lang.Iterable");
+
+                                if (nestedConstructor != null) {
+                                    nestedConstructor.addInterceptor("com.navercorp.pinpoint.plugin.mongo.interceptor.MongoInternalOperatorNameInterceptor");
+                                }
+
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+                }
+                return target.toBytecode();
+            }
+        };
+
+        transformTemplate.transform("com.mongodb.client.model.Filters", transformCallback);
+    }
+
+    private void addUpdatesTransformer() {
+
+        TransformCallback transformCallback = new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                if (!target.isInterceptable()) {
+                    return null;
+                }
+
+                List<InstrumentClass> nestedClasses = target.getNestedClasses(
+                        ClassFilters.name(MongoConstants.UPDATESLIST.toArray(new String[0]))
+                );
+
+                for (final InstrumentClass nestedClass : nestedClasses) {
+
+                    //SimpleUpdate
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_UPDATES_SIMPLE)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter", "fieldName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.ValueGetter", "value");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.OperatorGetter", "operator");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //WithEachUpdate
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_UPDATES_WITHEACH)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter", "fieldName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.updates.ListValuesGetter", "values");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.OperatorGetter", "operator");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //PushUpdate
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_UPDATES_PUSH)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.updates.PushOptionsGetter", "options");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //PullAllUpdate
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_UPDATES_PULLALL)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter", "fieldName");
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.updates.ListValuesGetter", "values");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+
+                    //CompositeUpdate
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_UPDATES_COMPOSITE)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.ExtendedBsonListGetter", "updates");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+                }
+                return target.toBytecode();
+            }
+        };
+
+        transformTemplate.transform("com.mongodb.client.model.Updates", transformCallback);
+    }
+
+    private void addSortsTransformer() {
+
+        TransformCallback transformCallback = new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                if (!target.isInterceptable()) {
+                    return null;
+                }
+
+                List<InstrumentClass> nestedClasses = target.getNestedClasses(
+                        ClassFilters.name(MongoConstants.MONGO_SORT_COMPOSITE)
+                );
+
+                for (final InstrumentClass nestedClass : nestedClasses) {
+
+                    //CompositeUpdate
+                    if (nestedClass.getName().equals(MongoConstants.MONGO_SORT_COMPOSITE)) {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                            @Override
+                            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                                if (!nestedTarget.isInterceptable()) {
+                                    return null;
+                                }
+                                nestedTarget.addGetter("com.navercorp.pinpoint.plugin.mongo.field.getter.ExtendedBsonListGetter", "updates");
+                                return nestedTarget.toBytecode();
+                            }
+                        });
+                    }
+                }
+                return target.toBytecode();
+            }
+        };
+
+        transformTemplate.transform("com.mongodb.client.model.Sorts", transformCallback);
+    }
+
+    private String[] getMethodlistR3_0_x() {
 
         List<String> methodlist = new ArrayList<String>();
-        // object methods.
-        methodlist.addAll(Arrays.asList("findOneAndUpdate","findOneAndReplace","findOneAndDelete","aggregate","find","distinct","count","mapReduce"));
+        methodlist.addAll(Arrays.asList("findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes"
+//                , "watch" ,"aggregate","mapReduce"
+        ));
 
         return methodlist.toArray(new String[0]);
     }
 
-    private String[] getMethodlistCUD3_0_x(){
+    private String[] getMethodlistCUD3_0_x() {
 
         List<String> methodlist = new ArrayList<String>();
-        // object methods.
-        methodlist.addAll(Arrays.asList("dropIndexes","dropIndex","createIndexes","createIndex"
-                ,"updateMany","updateOne","replaceOne","deleteMany","deleteOne","insertMany","insertOne","bulkWrite"));
+        methodlist.addAll(Arrays.asList("dropIndexes", "dropIndex", "createIndexes", "createIndex"
+                , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"));
 
         return methodlist.toArray(new String[0]);
     }
 
-    private String[] getMethodlistR3_7_x(){
+    private String[] getMethodlistR3_7_x() {
 
         List<String> methodlist = new ArrayList<String>();
-        // object methods.
-        methodlist.addAll(Arrays.asList("findOneAndUpdate","findOneAndReplace","findOneAndDelete","watch","aggregate","find","distinct","count","mapReduce"));
+        methodlist.addAll(Arrays.asList("findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes", "countDocuments"
+//                , "watch", "aggregate", "mapReduce"
+        ));
 
         return methodlist.toArray(new String[0]);
     }
-    private String[] getMethodlistCUD3_7_x(){
+
+    private String[] getMethodlistCUD3_7_x() {
 
         List<String> methodlist = new ArrayList<String>();
-        // object methods.
-        methodlist.addAll(Arrays.asList("dropIndexes","dropIndex","createIndexes","createIndex"
-                ,"updateMany","updateOne","replaceOne","deleteMany","deleteOne","insertMany","insertOne","bulkWrite"));
+        methodlist.addAll(Arrays.asList("dropIndexes", "dropIndex", "createIndexes", "createIndex"
+                , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"));
 
         return methodlist.toArray(new String[0]);
     }

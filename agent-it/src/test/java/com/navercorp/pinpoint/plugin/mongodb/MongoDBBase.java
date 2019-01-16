@@ -64,6 +64,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
 
+import static com.mongodb.client.model.Filters.*;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
@@ -311,5 +312,77 @@ public abstract class MongoDBBase {
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), parsedBson)));
 
         Assert.assertEquals(1, deleteResult.getDeletedCount());
+    }
+
+    public void filterData(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
+
+        Bson bson = eq("name","Roy3");
+        Object[] objects = new Object[1];
+        objects[0] = bson;
+
+        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+
+        MongoCursor<Document> cursor = collection.find(bson).iterator();
+
+        Method find;
+        try {
+            find = mongoDatabaseImpl.getDeclaredMethod("find", Bson.class);
+        } catch (NoSuchMethodException e) {
+            find = null;
+        }
+
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MONGODB_ADDRESS, null
+                , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
+                , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
+                , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), parsedBson)));
+
+        int resultCount = 0;
+        try {
+            while (cursor.hasNext()) {
+                resultCount++;
+                cursor.next();
+            }
+        } finally {
+            cursor.close();
+        }
+
+        Assert.assertEquals(1, resultCount);
+    }
+
+    public void filterData2(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
+
+        Document doc = new Document("name", "Roy3");
+
+        Bson bson = and(exists("name"), nin("name", 5, 15));
+        Object[] objects = new Object[1];
+        objects[0] = bson;
+
+        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+
+        MongoCursor<Document> cursor = collection.find(bson).iterator();
+
+        Method find;
+        try {
+            find = mongoDatabaseImpl.getDeclaredMethod("find", Bson.class);
+        } catch (NoSuchMethodException e) {
+            find = null;
+        }
+
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MONGODB_ADDRESS, null
+                , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
+                , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
+                , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), parsedBson)));
+
+        int resultCount = 0;
+        try {
+            while (cursor.hasNext()) {
+                resultCount++;
+                cursor.next();
+            }
+        } finally {
+            cursor.close();
+        }
+
+        Assert.assertEquals(1, resultCount);
     }
 }
