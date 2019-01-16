@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.mongodb;
 
-import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoDriverInformation;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoClient;
@@ -32,10 +30,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.lang.reflect.Method;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @author Roy Kim
@@ -64,13 +58,7 @@ public class MongoDB_3_7_x extends MongoDBBase {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
-        //create DB
         MongoClient mongoClient = MongoClients.create("mongodb://localhost:27018");
-        verifier.printCache();
-        Class<?> CreateDBClass = Class.forName("com.mongodb.client.MongoClients");
-
-        Method create = CreateDBClass.getDeclaredMethod("create", MongoClientSettings.class, MongoDriverInformation.class);
-        verifier.verifyTrace(event(MONGO, create, null, MONGODB_ADDRESS, null));
 
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
         MongoCollection<Document> collection = database.getCollection("customers");
@@ -82,6 +70,8 @@ public class MongoDB_3_7_x extends MongoDBBase {
         insertData(verifier, collection2, mongoDatabaseImpl, "customers2", "ACKNOWLEDGED");
         updateData(verifier, collection, mongoDatabaseImpl);
         readData(verifier, collection, mongoDatabaseImpl);
+        filterData(verifier, collection, mongoDatabaseImpl);
+        filterData2(verifier, collection, mongoDatabaseImpl);
         deleteData(verifier, collection, mongoDatabaseImpl);
 
         //close connection
