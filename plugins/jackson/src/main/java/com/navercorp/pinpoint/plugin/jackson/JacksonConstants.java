@@ -41,9 +41,4 @@ public final class JacksonConstants {
 
     public static final String JACKSON_SCOPE = "JACKSON_OBJECTMAPPER_SCOPE";
 
-    public static final Class<? extends Interceptor> BASIC_METHOD_INTERCEPTOR = BasicMethodInterceptor.class;
-    public static final Class<? extends Interceptor> READ_VALUE_INTERCEPTOR = ReadValueInterceptor.class;
-    public static final Class<? extends Interceptor> WRITE_VALUE_AS_BYTES_INTERCEPTOR = WriteValueAsBytesInterceptor.class;
-    public static final Class<? extends Interceptor> WRITE_VALUE_AS_STRING_INTERCEPTOR = WriteValueAsStringInterceptor.class;
-
 }
