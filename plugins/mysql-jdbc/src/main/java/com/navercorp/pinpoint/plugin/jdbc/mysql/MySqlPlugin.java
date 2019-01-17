@@ -235,12 +235,18 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> preparedStatementInterceptor = PreparedStatementExecuteQueryInterceptor.class;
-            InstrumentUtils.findMethod(target, "execute")
-                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "executeQuery")
-                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "executeUpdate")
-                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MYSQL_SCOPE);
+            InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
+            if (executeMethod != null) {
+                executeMethod.addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MYSQL_SCOPE);
+            }
+            InstrumentMethod executeQueryMethod = target.getDeclaredMethod("executeQuery");
+            if (executeQueryMethod != null) {
+                executeQueryMethod.addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MYSQL_SCOPE);
+            }
+            InstrumentMethod executeUpdateMethod = target.getDeclaredMethod("executeUpdate");
+            if (executeUpdateMethod != null) {
+                executeUpdateMethod.addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MYSQL_SCOPE);
+            }
 
             if (config.isTraceSqlBindValue()) {
                 final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
