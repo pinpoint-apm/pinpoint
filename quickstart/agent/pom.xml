@@ -26,19 +26,19 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-java7</artifactId>
+            <artifactId>pinpoint-bootstrap-java7</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-java8</artifactId>
+            <artifactId>pinpoint-bootstrap-java8</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-java9</artifactId>
+            <artifactId>pinpoint-bootstrap-java9</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
