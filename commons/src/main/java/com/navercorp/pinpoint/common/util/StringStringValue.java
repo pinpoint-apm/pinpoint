@@ -44,21 +44,4 @@ public class StringStringValue {
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof StringStringValue)) return false;
-
-        StringStringValue that = (StringStringValue) o;
-
-        if (!getStringValue1().equals(that.getStringValue1())) return false;
-        return getStringValue2() != null ? getStringValue2().equals(that.getStringValue2()) : that.getStringValue2() == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getStringValue1().hashCode();
-        result = 31 * result + (getStringValue2() != null ? getStringValue2().hashCode() : 0);
-        return result;
-    }
 }

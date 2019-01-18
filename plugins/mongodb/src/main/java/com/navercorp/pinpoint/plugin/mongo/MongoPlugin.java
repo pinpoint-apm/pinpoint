@@ -692,40 +692,33 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private String[] getMethodlistR3_0_x() {
 
-        List<String> methodlist = new ArrayList<String>();
-        methodlist.addAll(Arrays.asList("findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes"
+        final String[] methodList = new String[]{"findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes"
 //                , "watch" ,"aggregate","mapReduce"
-        ));
-
-        return methodlist.toArray(new String[0]);
+        };
+        return methodList;
     }
 
     private String[] getMethodlistCUD3_0_x() {
-
-        List<String> methodlist = new ArrayList<String>();
-        methodlist.addAll(Arrays.asList("dropIndexes", "dropIndex", "createIndexes", "createIndex"
-                , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"));
-
-        return methodlist.toArray(new String[0]);
+        final String[] methodList = new String[] {"dropIndexes", "dropIndex", "createIndexes", "createIndex"
+                , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"};
+        return methodList;
     }
 
     private String[] getMethodlistR3_7_x() {
 
-        List<String> methodlist = new ArrayList<String>();
-        methodlist.addAll(Arrays.asList("findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes", "countDocuments"
+        final String[] methodList = new String[]{"findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes", "countDocuments"
 //                , "watch", "aggregate", "mapReduce"
-        ));
+        };
 
-        return methodlist.toArray(new String[0]);
+        return methodList;
     }
 
     private String[] getMethodlistCUD3_7_x() {
 
-        List<String> methodlist = new ArrayList<String>();
-        methodlist.addAll(Arrays.asList("dropIndexes", "dropIndex", "createIndexes", "createIndex"
-                , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"));
+        final String[] methodlist = new String[]{"dropIndexes", "dropIndex", "createIndexes", "createIndex"
+                , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"};
 
-        return methodlist.toArray(new String[0]);
+        return methodlist;
     }
 
     @Override
