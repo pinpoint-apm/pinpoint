@@ -22,9 +22,9 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.DeleteResult;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
+import com.navercorp.pinpoint.plugin.mongo.NormalizedBson;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -136,7 +136,7 @@ public abstract class MongoDBBase {
         Object[] objects = new Object[1];
         objects[0] = document;
 
-        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
 
         Method insertOne;
         try {
@@ -185,7 +185,7 @@ public abstract class MongoDBBase {
         Object[] objects = new Object[1];
         objects[0] = document;
 
-        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
 
         Method insertOne;
         try {
@@ -208,7 +208,7 @@ public abstract class MongoDBBase {
         Object[] objects = new Object[1];
         objects[0] = doc;
 
-        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
 
         Method insertOne;
         try {
@@ -234,7 +234,7 @@ public abstract class MongoDBBase {
         objects[0] = doc;
         objects[1] = doc2;
 
-        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
 
         Method updateOne;
         try {
@@ -283,7 +283,7 @@ public abstract class MongoDBBase {
         Object[] objects = new Object[1];
         objects[0] = doc;
 
-        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
 
         DeleteResult deleteResult = collection.deleteMany(doc);
 
@@ -308,7 +308,7 @@ public abstract class MongoDBBase {
         Object[] objects = new Object[1];
         objects[0] = bson;
 
-        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
 
         MongoCursor<Document> cursor = collection.find(bson).iterator();
 
@@ -345,7 +345,7 @@ public abstract class MongoDBBase {
         Object[] objects = new Object[1];
         objects[0] = bson;
 
-        StringStringValue parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
 
         MongoCursor<Document> cursor = collection.find(bson).iterator();
 

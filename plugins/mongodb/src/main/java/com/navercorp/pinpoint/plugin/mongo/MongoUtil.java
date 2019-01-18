@@ -55,13 +55,14 @@ public final class MongoUtil {
         return mongoWriteConcernMapper.getName(writeConcern);
     }
 
-    public static void recordParsedBson(SpanEventRecorder recorder, StringStringValue stringStringValue) {
-        if (stringStringValue != null) {
+    public static void recordParsedBson(SpanEventRecorder recorder, NormalizedBson normalizedBson) {
+        if (normalizedBson != null) {
+            StringStringValue stringStringValue = new StringStringValue(normalizedBson.getNormalizedBson(), normalizedBson.getParameter());
             recorder.recordAttribute(MongoConstants.MONGO_JSON_DATA, stringStringValue);
         }
     }
 
-    public static StringStringValue parseBson(Object[] args, boolean traceBsonBindValue) {
+    public static NormalizedBson parseBson(Object[] args, boolean traceBsonBindValue) {
 
         if (args == null) {
             return null;
@@ -83,7 +84,7 @@ public final class MongoUtil {
 
         String parsedJsonString = StringJoiner.join(parsedJson, SEPARATOR);
         String jsonParameterString = StringJoiner.join(jsonParameter, SEPARATOR);
-        return new StringStringValue(parsedJsonString, jsonParameterString);
+        return new NormalizedBson(parsedJsonString, jsonParameterString);
     }
 }
 
