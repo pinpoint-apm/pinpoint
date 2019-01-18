@@ -67,16 +67,7 @@ public class MongoWriteConcernInterceptor implements AroundInterceptor {
             return;
         }
 
-        DatabaseInfo databaseInfo;
-        if (target instanceof DatabaseInfoAccessor) {
-            databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
-        } else {
-            databaseInfo = null;
-        }
-
-        if (databaseInfo == null) {
-            databaseInfo = UnKnownDatabaseInfo.MONGO_INSTANCE;
-        }
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
 
         String writeConcernStr = MongoUtil.getWriteConcern0((WriteConcern) args[0]);
 
@@ -88,6 +79,5 @@ public class MongoWriteConcernInterceptor implements AroundInterceptor {
             ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
         }
     }
-
 
 }
