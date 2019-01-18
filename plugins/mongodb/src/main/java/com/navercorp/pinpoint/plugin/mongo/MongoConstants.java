@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
@@ -45,18 +45,18 @@ public final class MongoConstants {
     static final String MONGO_FILTER_TEXT = "com.mongodb.client.model.Filters$TextFilter";
     static final String MONGO_FILTER_ORNOR = "com.mongodb.client.model.Filters$OrNorFilter";
 
-    static final List<String> FILTERLIST = new ArrayList<String>() {{
-        add(MONGO_FILTER_NOT);
-        add(MONGO_FILTER_SIMPLEENCODING);
-        add(MONGO_FILTER_ITERABLEOPERATOR);
-        add(MONGO_FILTER_OR);
-        add(MONGO_FILTER_AND);
-        add(MONGO_FILTER_OPERATOR);
-        add(MONGO_FILTER_SIMPLE);
-        add(MONGO_FILTER_GEOMETRYOPERATOR);
-        add(MONGO_FILTER_TEXT);
-        add(MONGO_FILTER_ORNOR);
-    }};
+    static final List<String> FILTERLIST = Arrays.asList(
+        MONGO_FILTER_NOT,
+        MONGO_FILTER_SIMPLEENCODING,
+        MONGO_FILTER_ITERABLEOPERATOR,
+        MONGO_FILTER_OR,
+        MONGO_FILTER_AND,
+        MONGO_FILTER_OPERATOR,
+        MONGO_FILTER_SIMPLE,
+        MONGO_FILTER_GEOMETRYOPERATOR,
+        MONGO_FILTER_TEXT,
+        MONGO_FILTER_ORNOR
+    );
 
     static final String MONGO_UPDATES_SIMPLE = "com.mongodb.client.model.Updates$SimpleUpdate";
     static final String MONGO_UPDATES_WITHEACH = "com.mongodb.client.model.Updates$WithEachUpdate";
@@ -64,13 +64,13 @@ public final class MongoConstants {
     static final String MONGO_UPDATES_PULLALL = "com.mongodb.client.model.Updates$PullAllUpdate";
     static final String MONGO_UPDATES_COMPOSITE = "com.mongodb.client.model.Updates$CompositeUpdate";
 
-    static final List<String> UPDATESLIST = new ArrayList<String>() {{
-        add(MONGO_UPDATES_SIMPLE);
-        add(MONGO_UPDATES_WITHEACH);
-        add(MONGO_UPDATES_PUSH);
-        add(MONGO_UPDATES_PULLALL);
-        add(MONGO_UPDATES_COMPOSITE);
-    }};
+    static final List<String> UPDATESLIST = Arrays.asList(
+        MONGO_UPDATES_SIMPLE,
+        MONGO_UPDATES_WITHEACH,
+        MONGO_UPDATES_PUSH,
+        MONGO_UPDATES_PULLALL,
+        MONGO_UPDATES_COMPOSITE
+    );
 
     static final String MONGO_SORT_COMPOSITE = "com.mongodb.client.model.Sorts$CompoundSort";
 
