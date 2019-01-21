@@ -67,6 +67,13 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  *
  * <tr><td>1130</td><td>GRPC_SERVER</td></tr>
  *
+ * <tr><td>1140</td><td>NODE</td></tr>
+ * <tr><td>1141</td><td>NODE_METHOD</td></tr>
+ * <tr><td>1142</td><td>EXPRESS</td></tr>
+ * <tr><td>1143</td><td>KOA</td></tr>
+ * <tr><td>1144</td><td>HAPI</td></tr>
+ * <tr><td>1145</td><td>RESTIFY</td></tr>
+ *
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
  * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
