@@ -67,6 +67,13 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  *
  * <tr><td>1130</td><td>GRPC_SERVER</td></tr>
  *
+ * <tr><td>1140</td><td>NODE</td></tr>
+ * <tr><td>1141</td><td>NODE_METHOD</td></tr>
+ * <tr><td>1142</td><td>EXPRESS</td></tr>
+ * <tr><td>1143</td><td>KOA</td></tr>
+ * <tr><td>1144</td><td>HAPI</td></tr>
+ * <tr><td>1145</td><td>RESTIFY</td></tr>
+ *
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
  * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
@@ -299,4 +306,16 @@ public interface ServiceType {
     ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING");
     // FIXME need to define how to handle spring related codes
 //    ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
+
+    // Node.js
+    ServiceType NODE = of(1140, "NODE", RECORD_STATISTICS);
+    ServiceType NODE_METHOD = of(1141, "NODE_METHOD", "NODE");
+    // Fast, unopinionated, minimalist web framework for Node.js
+    ServiceType EXPRESS = of(1142, "EXPRESS");
+    // Next generation web framework for Node.js
+    ServiceType KOA = of(1143, "KOA");
+    // A rich framework for building applications and services
+    ServiceType HAPI = of(1144, "HAPI");
+    // The future of Node.js REST development
+    ServiceType RESTIFY = of(1145, "RESTIFY");
 }
