@@ -127,7 +127,7 @@ export class UrlPathIdFactory {
             case UrlPathId.END_TIME:
                 return new UrlEndTime(new EndTime(paramValue)) as IUrlPathId<EndTime>;
             case UrlPathId.PAGE:
-                return new UrlGeneral(paramValue || '2') as IUrlPathId<string>;
+                return new UrlGeneral(Number(paramValue)) as IUrlPathId<number>;
             case UrlPathId.FILTER:
             case UrlPathId.HINT:
             case UrlPathId.REAL_TIME:

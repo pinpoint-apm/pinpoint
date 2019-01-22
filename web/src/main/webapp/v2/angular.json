@@ -23,7 +23,7 @@
                             "src/assets"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "./node_modules/ag-grid/dist/styles/ag-grid.css",
                             "./node_modules/ag-grid/dist/styles/ag-theme-balham.css",
                             "./node_modules/nouislider/distribute/nouislider.css",

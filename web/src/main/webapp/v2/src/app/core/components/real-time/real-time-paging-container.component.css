@@ -39,19 +39,3 @@
     background-color: #000;
     color: #FFF;
 }
-.l-paging {
-    width: 100%;
-    background-color: #74879a;
-    color: #FFF;
-    font-size: 15px;
-    margin-bottom: 5px;
-    padding: 11px;
-}
-.l-paging .l-txt {
-    font-weight: lighter;
-}
-.l-paging .l-txt-bold {
-    font-weight: bolder;
-    font-size: 18px;
-    margin-right: 2px;
-}
