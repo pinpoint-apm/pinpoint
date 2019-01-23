@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
 
-import { IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
-import { ChartType } from './real-time-chart.component';
+import { IParsedATC } from './real-time-chart.component';
 
 @Component({
     selector: 'pp-real-time-agent-chart',
@@ -10,12 +9,13 @@ import { ChartType } from './real-time-chart.component';
 })
 export class RealTimeAgentChartComponent implements OnInit, AfterViewInit {
     @Input() timeStamp: number;
-    @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
-    @Input() pagingSize: number;
+    @Input() activeThreadCounts: { [key: string]: IParsedATC };
     @Input() currentPage = 1;
+    @Input() sum: number[];
     @Output() outOpenThreadDump = new EventEmitter<string>();
     @Output() outRenderCompleted = new EventEmitter<void>(true);
 
+    maxChartNumberPerPage = 30;
     chartOption = {
         canvasLeftPadding: 0,
         canvasTopPadding: 0,
@@ -45,7 +45,6 @@ export class RealTimeAgentChartComponent implements OnInit, AfterViewInit {
         titleFontSize: '11px',
         errorFontSize: '13px',
         duration: 4000,
-        chartType: ChartType.EACH
     };
 
     constructor() {}
@@ -53,7 +52,8 @@ export class RealTimeAgentChartComponent implements OnInit, AfterViewInit {
     ngAfterViewInit() {
         this.outRenderCompleted.emit();
     }
-    onClick(key: string): void {
-        this.outOpenThreadDump.emit(key);
+
+    onOpenThreadDump(agentId: string): void {
+        this.outOpenThreadDump.emit(agentId);
     }
 }

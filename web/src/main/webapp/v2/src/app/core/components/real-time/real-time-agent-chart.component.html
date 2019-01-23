@@ -1,8 +1,9 @@
 <pp-real-time-chart
-    [activeThreadCounts]="activeThreadCounts"
     [timeStamp]="timeStamp"
+    [activeThreadCounts]="activeThreadCounts"
+    [sum]="sum"
     [currentPage]="currentPage"
-    [pagingSize]="pagingSize"
+    [maxChartNumberPerPage]="maxChartNumberPerPage"
     [chartOption]="chartOption"
-    (outClick)="onClick($event)">
+    (outClick)="onOpenThreadDump($event)">
 </pp-real-time-chart>

@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { MatSlideToggleModule } from '@angular/material';
 
 import { SharedModule } from 'app/shared';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
@@ -9,6 +10,7 @@ import { RealTimeContainerComponent } from 'app/core/components/real-time/real-t
 import { RealTimeTotalChartComponent } from 'app/core/components/real-time/real-time-total-chart.component';
 import { RealTimePagingContainerComponent } from 'app/core/components/real-time/real-time-paging-container.component';
 import { RealTimeWebSocketService } from 'app/core/components/real-time/real-time-websocket.service';
+import { RealTimeChartHeaderComponent } from 'app/core/components/real-time/real-time-chart-header.component';
 
 @NgModule({
     declarations: [
@@ -17,10 +19,12 @@ import { RealTimeWebSocketService } from 'app/core/components/real-time/real-tim
         RealTimeChartComponent,
         RealTimeContainerComponent,
         RealTimeTotalChartComponent,
-        RealTimePagingContainerComponent
+        RealTimePagingContainerComponent,
+        RealTimeChartHeaderComponent
     ],
     imports: [
         SharedModule,
+        MatSlideToggleModule,
         HelpViewerPopupModule
     ],
     exports: [

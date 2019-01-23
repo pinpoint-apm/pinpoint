@@ -2,16 +2,18 @@
     <div class="l-chart-group-wrap font-opensans">
         <ng-container *ngIf="activeThreadCounts">
             <article class="l-agent-chart">
-                <div class="l-paging">
-                    <span class="l-txt">Total Servers : </span>
-                    <span class="l-txt-bold">{{totalCount}}</span>
-                    <span>[ {{firstChartIndex + 1}} ~ {{lastChartIndex + 1}} ]</span>
-                </div>
+                <pp-real-time-chart-header
+                    [activeOnly]="activeOnly"
+                    [totalCount]="totalCount"
+                    [currentPage]="currentPage"
+                    (outOpenPage)="onOpenPage($event)"
+                    (outChangeActiveOnlyToggle)="onChangeActiveOnlyToggle($event)">
+                </pp-real-time-chart-header>
                 <pp-real-time-agent-chart
                     [timeStamp]="timeStamp"
-                    [activeThreadCounts]="activeThreadCounts"
+                    [activeThreadCounts]="atcForAgent"
+                    [sum]="sum"
                     [currentPage]="currentPage"
-                    [pagingSize]="pagingSize"
                     (outOpenThreadDump)="onOpenThreadDump($event)"
                     (outRenderCompleted)="onRenderCompleted()">
                 </pp-real-time-agent-chart>

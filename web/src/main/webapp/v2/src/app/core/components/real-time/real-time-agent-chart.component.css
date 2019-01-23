@@ -1,4 +1,6 @@
 :host {
     display: block;
     width: 100%;
+    height: calc(100% - 51px);
+    overflow-y: auto;
 }
