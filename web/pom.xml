@@ -33,6 +33,10 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java18</sniffer.artifactid>
         <grunt.build.command>build_release_without_lint</grunt.build.command>
+
+        <plugin.frontend.verison>1.6</plugin.frontend.verison>
+        <plugin.frontend.node.verison>v10.15.0</plugin.frontend.node.verison>
+        <plugin.frontend.npm.verison>6.1.0</plugin.frontend.npm.verison>
     </properties>
 
     <dependencies>
@@ -385,7 +389,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>${plugin.frontend.verison}</version>
                 <configuration>
                     <srcdir>${basedir}/target/main/webapp</srcdir>
                     <outputdir>${basedir}/target/main/webapp</outputdir>
@@ -399,8 +403,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v5.11.1</nodeVersion>
-                            <npmVersion>3.9.6</npmVersion>
+                            <nodeVersion>${plugin.frontend.node.verison}</nodeVersion>
+                            <npmVersion>${plugin.frontend.npm.verison}</npmVersion>
                             <workingDirectory>${basedir}/target</workingDirectory>
                         </configuration>
                     </execution>
@@ -474,7 +478,7 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>${plugin.frontend.verison}</version>
                         <configuration>
                             <installDirectory>target</installDirectory>
                         </configuration>
@@ -486,8 +490,8 @@
                                     <goal>install-node-and-npm</goal>
                                 </goals>
                                 <configuration>
-                                    <nodeVersion>v10.6.0</nodeVersion>
-                                    <npmVersion>6.1.0</npmVersion>
+                                    <nodeVersion>${plugin.frontend.node.verison}</nodeVersion>
+                                    <npmVersion>${plugin.frontend.npm.verison}</npmVersion>
                                     <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
                                 </configuration>
                             </execution>
