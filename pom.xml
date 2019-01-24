@@ -121,6 +121,7 @@
         <plugin.assembly.version>3.1.1</plugin.assembly.version>
         <plugin.war.version>3.2.2</plugin.war.version>
         <plugin.jar.version>3.1.0</plugin.jar.version>
+        <plugin.antrun.version>1.8</plugin.antrun.version>
 
         <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
         <plugin.clover.version>4.2.1</plugin.clover.version>
@@ -747,6 +748,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${plugin.assembly.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>${plugin.antrun.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
