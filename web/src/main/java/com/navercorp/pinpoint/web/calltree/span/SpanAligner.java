@@ -38,7 +38,6 @@ import java.util.Map;
 public class SpanAligner {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
     public static final int INIT_MATCH = -1;
     // not matched
@@ -51,7 +50,7 @@ public class SpanAligner {
     private int matchType = INIT_MATCH;
     private final long collectorAcceptTime;
     private final List<Node> sortedNodeList = new ArrayList<>();
-    private final Map<String, Node> spanToLinkMap = new HashMap<>();
+    private final Map<SpanIdPair, Node> spanToLinkMap = new HashMap<>();
     private final List<Link> linkList = new ArrayList<>();
     private final MetaSpanCallTreeFactory metaSpanCallTreeFactory = new MetaSpanCallTreeFactory();
 
@@ -73,7 +72,8 @@ public class SpanAligner {
         // for performance & remove duplicate span
         final List<Node> duplicatedNodeList = new ArrayList<>();
         for (Node node : this.sortedNodeList) {
-            final String key = node.span.getParentSpanId() + "." + node.span.getSpanId();
+            final SpanBo span = node.span;
+            final SpanIdPair key = new SpanIdPair(span.getParentSpanId(), span.getSpanId());
             // check duplicated span
             final Node value = this.spanToLinkMap.get(key);
             if (value == null) {
@@ -81,7 +81,7 @@ public class SpanAligner {
             } else {
                 updateMatchType(PROGRESS_MATCH);
                 // duplicated span, choose focus span
-                if (node.span.getCollectorAcceptTime() == collectorAcceptTime) {
+                if (span.getCollectorAcceptTime() == collectorAcceptTime) {
                     // replace value
                     this.spanToLinkMap.put(key, node);
                     duplicatedNodeList.add(value);
@@ -211,7 +211,7 @@ public class SpanAligner {
     private void link() {
         final List<Link> linkedList = new ArrayList<>();
         for (Link link : this.linkList) {
-            final String key = link.spanId + "." + link.nextSpanId;
+            final SpanIdPair key = new SpanIdPair(link.spanId, link.nextSpanId);
             final Node node = this.spanToLinkMap.get(key);
             if (node != null) {
                 if (isDebug) {
@@ -292,9 +292,8 @@ public class SpanAligner {
             return node.spanCallTree;
         }
 
-        if (isInfo) {
-            logger.info("Select span in top node list, not found root span");
-        }
+        logger.info("Select span in top node list, not found root span");
+
         CallTree rootCallTree = this.metaSpanCallTreeFactory.unknown(node.span.getStartTime());
         rootCallTree.add(node.spanCallTree);
         updateMatchType(PROGRESS_MATCH);
@@ -323,9 +322,8 @@ public class SpanAligner {
             return selectInFocusNodeList(focusNodeList, topNodeList);
         }
 
-        if (isInfo) {
-            logger.info("Select first span in top node list, not found root & focus span");
-        }
+        logger.info("Select first span in top node list, not found root & focus span");
+
         final Node node = topNodeList.get(0);
         updateMatchType(PROGRESS_MATCH);
         return selectInNodeList(node, topNodeList);
@@ -334,9 +332,8 @@ public class SpanAligner {
     private CallTree selectInRootNodeList(final List<Node> rootNodeList) {
         // in root list
         if (rootNodeList.size() == 1) {
-            if (isInfo) {
-                logger.info("Select root span in top node list");
-            }
+            logger.info("Select root span in top node list");
+
             final Node node = rootNodeList.get(0);
             updateMatchType(PROGRESS_MATCH);
             return node.spanCallTree;
@@ -344,24 +341,18 @@ public class SpanAligner {
         // find focus
         final List<Node> focusNodeList = NodeList.filterFocus(rootNodeList, this.collectorAcceptTime);
         if (focusNodeList.size() == 1) {
-            if (isInfo) {
-                logger.info("Select root & focus span in top node list");
-            }
+            logger.info("Select root & focus span in top node list");
             final Node node = focusNodeList.get(0);
             updateMatchType(PROGRESS_MATCH);
             return node.spanCallTree;
         } else if (focusNodeList.size() > 1) {
-            if (isInfo) {
-                logger.info("Select first root & focus span in top node list");
-            }
+            logger.info("Select first root & focus span in top node list");
             final Node node = focusNodeList.get(0);
             updateMatchType(PROGRESS_MATCH);
             return node.spanCallTree;
         }
         // not found focus
-        if (isInfo) {
-            logger.info("Select first root span in top node list, not found focus span");
-        }
+        logger.info("Select first root span in top node list, not found focus span");
         final Node node = rootNodeList.get(0);
         updateMatchType(PROGRESS_MATCH);
         return node.spanCallTree;
@@ -369,16 +360,14 @@ public class SpanAligner {
 
     private CallTree selectInFocusNodeList(final List<Node> focusNodeList, final List<Node> topNodeList) {
         if (focusNodeList.size() == 1) {
-            if (isInfo) {
-                logger.info("Select focus span in top node list, not found root span");
-            }
+             logger.info("Select focus span in top node list, not found root span");
             final Node node = focusNodeList.get(0);
             updateMatchType(PROGRESS_MATCH);
             return selectInNodeList(node, topNodeList);
         }
-        if (isInfo) {
-            logger.info("Select first focus span in top node list, not found root span");
-        }
+
+        logger.info("Select first focus span in top node list, not found root span");
+
         final Node node = focusNodeList.get(0);
         updateMatchType(PROGRESS_MATCH);
         return selectInNodeList(node, topNodeList);
@@ -542,6 +531,50 @@ public class SpanAligner {
                 }
             }
             return null;
+        }
+    }
+
+    private static class SpanIdPair {
+        private final long spanId1;
+        private final long spanId2;
+
+        public SpanIdPair(long spanId1, long spanId2) {
+            this.spanId1 = spanId1;
+            this.spanId2 = spanId2;
+        }
+
+        public long getSpanId1() {
+            return spanId1;
+        }
+
+        public long getSpanId2() {
+            return spanId2;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof SpanIdPair)) return false;
+
+            SpanIdPair that = (SpanIdPair) o;
+
+            if (spanId1 != that.spanId1) return false;
+            return spanId2 == that.spanId2;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = (int) (spanId1 ^ (spanId1 >>> 32));
+            result = 31 * result + (int) (spanId2 ^ (spanId2 >>> 32));
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "SpanIdPair{" +
+                    "spanId1=" + spanId1 +
+                    ", spanId2=" + spanId2 +
+                    '}';
         }
     }
 }
