@@ -43,7 +43,6 @@ public class AsyncChildTrace implements Trace {
     private final TraceRoot traceRoot;
     private final WrappedSpanEventRecorder wrappedSpanEventRecorder;
 
-    private final AsyncContextFactory asyncContextFactory;
     private final SpanRecorder spanRecorder;
 
     private boolean closed = false;
@@ -52,13 +51,12 @@ public class AsyncChildTrace implements Trace {
 
     private final LocalAsyncId localAsyncId;
 
-    public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
+    public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                              SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
 
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
         this.storage = Assert.requireNonNull(storage, "storage must not be null");
-        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
         this.sampling = sampling;
         this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
         this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
@@ -77,10 +75,6 @@ public class AsyncChildTrace implements Trace {
         return this.traceRoot.getTraceStartTime();
     }
 
-    @Override
-    public Thread getBindThread() {
-        return null;
-    }
 
     @Override
     public long getThreadId() {
@@ -209,15 +203,6 @@ public class AsyncChildTrace implements Trace {
         }
     }
 
-    /**
-     * @deprecated Since 1.7.0 Use {@link SpanEventRecorder#recordNextAsyncContext()}
-     * This API will be removed in 1.8.0
-     */
-    @Deprecated
-    @Override
-    public AsyncTraceId getAsyncTraceId() {
-        return asyncContextFactory.newAsyncTraceId(traceRoot);
-    }
 
     @Override
     public boolean isClosed() {

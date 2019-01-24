@@ -138,8 +138,8 @@ public class ASMAspectWeaverTest {
                         final ClassNode classNode = new ClassNode();
                         cr.accept(classNode, 0);
 
-                        final ASMClassNodeAdapter sourceClassNode = new ASMClassNodeAdapter(pluginContext, defaultClassLoader, classNode);
-                        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(pluginContext, defaultClassLoader, JavaAssistUtils.javaNameToJvmName(aspectName));
+                        final ASMClassNodeAdapter sourceClassNode = new ASMClassNodeAdapter(pluginContext, defaultClassLoader, null, classNode);
+                        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(pluginContext, defaultClassLoader, null, JavaAssistUtils.javaNameToJvmName(aspectName));
 
                         final ASMAspectWeaver aspectWeaver = new ASMAspectWeaver();
                         aspectWeaver.weaving(sourceClassNode, adviceClassNode);

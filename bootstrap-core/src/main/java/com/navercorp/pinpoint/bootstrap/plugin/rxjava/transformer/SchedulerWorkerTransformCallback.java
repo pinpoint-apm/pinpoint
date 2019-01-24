@@ -38,7 +38,7 @@ public class SchedulerWorkerTransformCallback implements TransformCallback {
 
     private final ServiceType serviceType;
 
-    private SchedulerWorkerTransformCallback(ServiceType serviceType) {
+    public SchedulerWorkerTransformCallback(ServiceType serviceType) {
         this.serviceType = serviceType;
     }
 
@@ -53,7 +53,7 @@ public class SchedulerWorkerTransformCallback implements TransformCallback {
         for (InstrumentMethod schedule : target.getDeclaredMethods(MethodFilters.chain(
                 MethodFilters.name("schedule"), MethodFilters.argAt(0, "rx.functions.Action0")))) {
             if (schedule != null) {
-                schedule.addScopedInterceptor(WorkerScheduleInterceptor.class.getName(), va(serviceType), RxJavaScopes.SCHEDULER_WORKER_SCOPE, ExecutionPolicy.BOUNDARY);
+                schedule.addScopedInterceptor(WorkerScheduleInterceptor.class, va(serviceType), RxJavaScopes.SCHEDULER_WORKER_SCOPE, ExecutionPolicy.BOUNDARY);
             }
         }
         return target.toBytecode();

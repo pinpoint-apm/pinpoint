@@ -58,4 +58,13 @@ public class KafkaConfig {
         return kafkaEntryPoint;
     }
 
+    @Override
+    public String toString() {
+        return "KafkaConfig{" +
+                "producerEnable=" + producerEnable +
+                ", consumerEnable=" + consumerEnable +
+                ", springConsumerEnable=" + springConsumerEnable +
+                ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
+                '}';
+    }
 }

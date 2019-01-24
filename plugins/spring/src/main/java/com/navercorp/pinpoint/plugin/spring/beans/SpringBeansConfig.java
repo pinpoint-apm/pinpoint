@@ -45,6 +45,8 @@ public class SpringBeansConfig {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final Map<Integer, SpringBeansTarget> targets = new HashMap<Integer, SpringBeansTarget>();
 
+    private final boolean markError;
+
     public SpringBeansConfig(ProfilerConfig config) {
         // backward compatibility
         final Map<Integer, SpringBeansTarget> result = addBackwardCompatibilityTarget(config);
@@ -57,6 +59,11 @@ public class SpringBeansConfig {
                 this.targets.put(entry.getKey(), entry.getValue());
             }
         }
+        this.markError = getMarkError(config);
+    }
+
+    public static boolean getMarkError(ProfilerConfig config) {
+        return config.readBoolean(SPRING_BEANS_MARK_ERROR, false);
     }
 
     private Map<Integer, SpringBeansTarget> addBackwardCompatibilityTarget(ProfilerConfig config) {
@@ -166,11 +173,15 @@ public class SpringBeansConfig {
         return false;
     }
 
+    public boolean isMarkError() {
+        return markError;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("targets=").append(targets);
-        sb.append('}');
-        return sb.toString();
+        return "SpringBeansConfig{" +
+                "targets=" + targets +
+                ", markError=" + markError +
+                '}';
     }
 }

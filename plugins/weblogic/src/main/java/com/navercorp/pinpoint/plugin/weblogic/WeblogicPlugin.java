@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.weblogic.interceptor.ServletRequestImplStartAsyncInterceptor;
+import com.navercorp.pinpoint.plugin.weblogic.interceptor.WebAppServletContextExecuteInterceptor;
 
 /**
  * @author andyspan
@@ -43,10 +45,10 @@ public class WeblogicPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final WeblogicConfiguration config = new WeblogicConfiguration(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("WeblogicPlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("WeblogicPlugin config={}", config);
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         context.addApplicationTypeDetector(new WeblogicDetector(config.getBootstrapMains()));
 
@@ -59,48 +61,56 @@ public class WeblogicPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addServletRequestImpl(final WeblogicConfiguration config) {
-        transformTemplate.transform("weblogic.servlet.internal.ServletRequestImpl", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                if (config.isHidePinpointHeader()) {
-                    // Hide pinpoint headers
-                    target.weave("com.navercorp.pinpoint.plugin.weblogic.aspect.ServletRequestImplAspect");
-                }
-
-                // Add async listener. Servlet 3.0
-                final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-                if (startAsyncMethodEditor != null) {
-                    startAsyncMethodEditor.addInterceptor("com.navercorp.pinpoint.plugin.weblogic.interceptor.ServletRequestImplStartAsyncInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("weblogic.servlet.internal.ServletRequestImpl", ServletRequestImplTransform.class);
     }
+
+    public static class ServletRequestImplTransform implements TransformCallback {
+    @Override
+    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+        final WeblogicConfiguration config = new WeblogicConfiguration(instrumentor.getProfilerConfig());
+        if (config.isHidePinpointHeader()) {
+            // Hide pinpoint headers
+            target.weave("com.navercorp.pinpoint.plugin.weblogic.aspect.ServletRequestImplAspect");
+        }
+
+        // Add async listener. Servlet 3.0
+        final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+        if (startAsyncMethodEditor != null) {
+            startAsyncMethodEditor.addInterceptor(ServletRequestImplStartAsyncInterceptor.class);
+        }
+        return target.toBytecode();
+    }
+}
 
     private void addServerInterceptor() {
-        transformTemplate.transform("weblogic.servlet.internal.WebAppServletContext", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("execute", "weblogic.servlet.internal.ServletRequestImpl", "weblogic.servlet.internal.ServletResponseImpl");
-                if (handleMethodEditorBuilder != null) {
-                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.weblogic.interceptor.WebAppServletContextExecuteInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("weblogic.servlet.internal.WebAppServletContext", WebAppServletContextTransform.class);
     }
 
+    public static class WebAppServletContextTransform implements TransformCallback {
+    @Override
+    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("execute", "weblogic.servlet.internal.ServletRequestImpl", "weblogic.servlet.internal.ServletResponseImpl");
+        if (handleMethodEditorBuilder != null) {
+            handleMethodEditorBuilder.addInterceptor(WebAppServletContextExecuteInterceptor.class);
+        }
+        return target.toBytecode();
+    }
+}
+
     private void addAsyncContextImpl() {
-        transformTemplate.transform("weblogic.servlet.internal.async.AsyncContextImpl", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addGetter("com.navercorp.pinpoint.plugin.weblogic.ResponseGetter", "response");
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("weblogic.servlet.internal.async.AsyncContextImpl", AsyncContextImplTransform.class);
+    }
+
+    public static class AsyncContextImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addGetter(ResponseGetter.class, "response");
+            return target.toBytecode();
+        }
     }
 
     @Override

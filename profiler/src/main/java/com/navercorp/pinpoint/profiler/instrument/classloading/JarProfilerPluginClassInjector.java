@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument.classloading;
 import java.io.InputStream;
 import java.net.URLClassLoader;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.exception.PinpointException;
 public class JarProfilerPluginClassInjector implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
 
+    private final BootstrapCore bootstrapCore;
     private final ClassInjector bootstrapClassLoaderHandler;
     private final ClassInjector urlClassLoaderHandler;
     private final ClassInjector plainClassLoaderHandler;
@@ -41,15 +43,19 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
         if (pluginConfig == null) {
             throw new NullPointerException("pluginConfig must not be null");
         }
-        this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig, bootstrapCore, instrumentEngine);
-        this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig, bootstrapCore);
-        this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig, bootstrapCore);
+        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
+        this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine);
+        this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig);
+        this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
         try {
+            if (bootstrapCore.isBootstrapPackage(className)) {
+                return bootstrapCore.loadClass(className);
+            }
             if (classLoader == null) {
                 return (Class<T>)bootstrapClassLoaderHandler.injectClass(null, className);
             } else if (classLoader instanceof URLClassLoader) {
@@ -67,6 +73,9 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
 
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
+            if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {
+                return bootstrapCore.openStream(internalName);
+            }
             if (targetClassLoader == null) {
                 return bootstrapClassLoaderHandler.getResourceAsStream(null, internalName);
             } else if (targetClassLoader instanceof URLClassLoader) {

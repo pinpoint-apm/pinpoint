@@ -50,7 +50,9 @@ public class RewriteForV2Filter implements Filter {
             "/v2/threadDump",
             "/v2/transactionDetail",
             "/v2/transactionList",
-            "/v2/transactionView"
+            "/v2/transactionView",
+            "/v2/browserNotSupported",
+            "/v2/config"
     };
 
     private final boolean enable;

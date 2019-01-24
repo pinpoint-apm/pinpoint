@@ -96,4 +96,15 @@ public class AkkaHttpConfig {
 
     public List<String> getTransformTargetParameters() { return transformParameters; }
 
+    @Override
+    public String toString() {
+        return "AkkaHttpConfig{" +
+                "enable=" + enable +
+                ", realIpHeader='" + realIpHeader + '\'' +
+                ", excludeUrlFilter=" + excludeUrlFilter +
+                ", excludeHttpMethodFilter=" + excludeHttpMethodFilter +
+                ", transformTargetName='" + transformTargetName + '\'' +
+                ", transformParameters=" + transformParameters +
+                '}';
+    }
 }

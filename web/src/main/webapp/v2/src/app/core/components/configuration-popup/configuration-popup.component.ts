@@ -8,7 +8,7 @@ import { Component, OnInit, HostBinding, Output, EventEmitter } from '@angular/c
 export class ConfigurationPopupComponent implements OnInit {
     @HostBinding('class.font-opensans') fontFamily = true;
     @Output() outMenuClick = new EventEmitter<string>();
-    @Output() outOpenGithub = new EventEmitter<void>();
+    @Output() outOpenLink = new EventEmitter<void>();
 
     constructor() {}
     ngOnInit() {}
@@ -16,7 +16,7 @@ export class ConfigurationPopupComponent implements OnInit {
         this.outMenuClick.emit(type);
     }
 
-    onOpenGithub(): void {
-        this.outOpenGithub.emit();
+    onOpenLink(): void {
+        this.outOpenLink.emit();
     }
 }

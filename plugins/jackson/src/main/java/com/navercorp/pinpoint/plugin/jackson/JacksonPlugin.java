@@ -22,10 +22,15 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.jackson.interceptor.ReadValueInterceptor;
+import com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsBytesInterceptor;
+import com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsStringInterceptor;
+
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 import java.security.ProtectionDomain;
@@ -35,12 +40,6 @@ import java.security.ProtectionDomain;
  *
  */
 public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
-    private static final String JACKSON_SCOPE = "JACKSON_OBJECTMAPPER_SCOPE";
-
-    private static final String BASIC_METHOD_INTERCEPTOR = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
-    private static final String READ_VALUE_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.ReadValueInterceptor";
-    private static final String WRITE_VALUE_AS_BYTES_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsBytesInterceptor";
-    private static final String WRITE_VALUE_AS_STRING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsStringInterceptor";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
@@ -48,173 +47,156 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         JacksonConfig config = new JacksonConfig(context.getConfig());
-        logger.debug("[Jackson] Initialized config={}", config);
-
-        if (config.isProfile()) {
-            addObjectMapperEditor("com.fasterxml.jackson.databind.ObjectMapper");
-            addObjectReaderEditor("com.fasterxml.jackson.databind.ObjectReader");
-            addObjectWriterEditor("com.fasterxml.jackson.databind.ObjectWriter");
-
-            addObjectMapper_1_X_Editor("org.codehaus.jackson.map.ObjectMapper");
-            addObjectReaderEditor("org.codehaus.jackson.map.ObjectReader");
-            addObjectWriterEditor("org.codehaus.jackson.map.ObjectWriter");
+        if (!config.isProfile()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+        addObjectMapperEditor("com.fasterxml.jackson.databind.ObjectMapper");
+        addObjectReaderEditor("com.fasterxml.jackson.databind.ObjectReader");
+        addObjectWriterEditor("com.fasterxml.jackson.databind.ObjectWriter");
+
+        addObjectMapper_1_X_Editor("org.codehaus.jackson.map.ObjectMapper");
+        addObjectReaderEditor("org.codehaus.jackson.map.ObjectReader");
+        addObjectWriterEditor("org.codehaus.jackson.map.ObjectWriter");
     }
 
     private void addObjectMapperEditor(String clazzName) {
-        transformTemplate.transform(clazzName, new TransformCallback() {
+        transformTemplate.transform(clazzName, ObjectMapperTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+    public static class ObjectMapperTransform implements TransformCallback {
 
-                final InstrumentMethod constructor1 = target.getConstructor();
-                addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                final InstrumentMethod constructor2 = target.getConstructor("com.fasterxml.jackson.core.JsonFactory");
-                addInterceptor(constructor2, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
+            final InstrumentMethod constructor1 = target.getConstructor();
+            JacksonUtils.addInterceptor(constructor1, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
 
-                final InstrumentMethod constructor3 = target.getConstructor("com.fasterxml.jackson.core.JsonFactory", "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider", "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext");
-                addInterceptor(constructor3, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
+            final InstrumentMethod constructor2 = target.getConstructor("com.fasterxml.jackson.core.JsonFactory");
+            JacksonUtils.addInterceptor(constructor2, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
-                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
-                }
+            final InstrumentMethod constructor3 = target.getConstructor("com.fasterxml.jackson.core.JsonFactory", "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider", "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext");
+            JacksonUtils.addInterceptor(constructor3, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue"))) {
-                    addInterceptor(method, READ_VALUE_INTERCEPTOR);
-                }
-
-                return target.toBytecode();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
+                JacksonUtils.addInterceptor(method, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
             }
 
-        });
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
+                JacksonUtils.addInterceptor(method, WriteValueAsStringInterceptor.class);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
+                JacksonUtils.addInterceptor(method, WriteValueAsBytesInterceptor.class);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue"))) {
+                JacksonUtils.addInterceptor(method, ReadValueInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
     }
 
     private void addObjectMapper_1_X_Editor(String clazzName) {
-        transformTemplate.transform(clazzName, new TransformCallback() {
+        transformTemplate.transform(clazzName, ObjectMapperV1Transform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+    public static class ObjectMapperV1Transform implements TransformCallback {
 
-                final InstrumentMethod constructor1 = target.getConstructor();
-                addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                final InstrumentMethod constructor2 = target.getConstructor("org.codehaus.jackson.JsonFactory");
-                addInterceptor(constructor2, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
+            final InstrumentMethod constructor1 = target.getConstructor();
+            JacksonUtils.addInterceptor(constructor1, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
 
-                final InstrumentMethod constructor3 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider");
-                addInterceptor(constructor3, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
+            final InstrumentMethod constructor2 = target.getConstructor("org.codehaus.jackson.JsonFactory");
+            JacksonUtils.addInterceptor(constructor2, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
 
-                final InstrumentMethod constructor4 = target.getConstructor("org.codehaus.jackson.map.SerializerFactory");
-                addInterceptor(constructor4, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
+            final InstrumentMethod constructor3 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider");
+            JacksonUtils.addInterceptor(constructor3, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
 
-                final InstrumentMethod constructor5 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider", "org.codehaus.jackson.map.SerializationConfig", "org.codehaus.jackson.map.DeserializationConfig");
-                addInterceptor(constructor5, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
+            final InstrumentMethod constructor4 = target.getConstructor("org.codehaus.jackson.map.SerializerFactory");
+            JacksonUtils.addInterceptor(constructor4, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
+
+            final InstrumentMethod constructor5 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider", "org.codehaus.jackson.map.SerializationConfig", "org.codehaus.jackson.map.DeserializationConfig");
+            JacksonUtils.addInterceptor(constructor5, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
 
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
-                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue"))) {
-                    addInterceptor(method, READ_VALUE_INTERCEPTOR);
-                }
-
-                return target.toBytecode();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
+                JacksonUtils.addInterceptor(method, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
             }
 
-        });
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
+                JacksonUtils.addInterceptor(method, WriteValueAsStringInterceptor.class);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
+                JacksonUtils.addInterceptor(method, WriteValueAsBytesInterceptor.class);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue"))) {
+                JacksonUtils.addInterceptor(method, ReadValueInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
     }
 
 
     private void addObjectReaderEditor(String clazzName) {
-        transformTemplate.transform(clazzName, new TransformCallback() {
+        transformTemplate.transform(clazzName, ObjectReaderTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+    public static class ObjectReaderTransform implements TransformCallback {
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue", "readValues"))) {
-                    addInterceptor(method, READ_VALUE_INTERCEPTOR);
-                }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                return target.toBytecode();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue", "readValues"))) {
+                JacksonUtils.addInterceptor(method, ReadValueInterceptor.class);
             }
 
-        });
+            return target.toBytecode();
+        }
+
     }
 
     private void addObjectWriterEditor(String clazzName) {
-        transformTemplate.transform(clazzName, new TransformCallback() {
+        transformTemplate.transform(clazzName, ObjectWriterTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+    public static class ObjectWriterTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 //                InterceptorScope scope = instrumentor.getInterceptorScope(JACKSON_SCOPE);
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
-                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR);
-                }
-
-                return target.toBytecode();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
+                JacksonUtils.addInterceptor(method, BasicMethodInterceptor.class, va(JacksonConstants.SERVICE_TYPE));
             }
 
-        });
-    }
-
-    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName) {
-        if (method != null) {
-            try {
-                method.addScopedInterceptor(interceptorClassName, JACKSON_SCOPE);
-                return true;
-            } catch (InstrumentException e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method " + method, e);
-                }
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
+                JacksonUtils.addInterceptor(method, WriteValueAsStringInterceptor.class);
             }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
+                JacksonUtils.addInterceptor(method, WriteValueAsBytesInterceptor.class);
+            }
+
+            return target.toBytecode();
         }
-        return false;
+
     }
 
-    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object[] constructorArgs) {
-        if (method != null) {
-            try {
-                method.addScopedInterceptor(interceptorClassName, constructorArgs, JACKSON_SCOPE);
-                return true;
-            } catch (InstrumentException e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method " + method, e);
-                }
-            }
-        }
-        return false;
-    }
+
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

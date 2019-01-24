@@ -44,10 +44,6 @@ public class DefaultTraceHeaderReader<T> implements TraceHeaderReader<T> {
         Assert.requireNonNull(request, "request must not be null");
 
         // Check sampling flag from client. If the flag is false, do not sample this request.
-        final String samplingFlag = requestAdaptor.getHeader(request, Header.HTTP_SAMPLED.toString());
-        if (isDebug) {
-            logger.debug("SamplingFlag={}", samplingFlag);
-        }
         final boolean sampling = samplingEnable(request);
         if (!sampling) {
             return DisableTraceHeader.INSTANCE;

@@ -31,15 +31,15 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.redis.jedis.interceptor.AttachEndPointInterceptor;
+import com.navercorp.pinpoint.plugin.redis.jedis.interceptor.ProtocolSendCommandAndReadMethodInterceptor;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author jaehong.kim
  */
 public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final JedisMethodNameFilter jedisMethodNameFilter = new JedisMethodNameFilter();
     private TransformTemplate transformTemplate;
 
     @Override
@@ -51,9 +51,7 @@ public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             return;
         }
-        if (logger.isInfoEnabled()) {
-            logger.info("Enable JedisPlugin. config={}", config);
-        }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         final boolean pipeline = config.isPipeline();
         // jedis & jedis cluster
@@ -68,178 +66,180 @@ public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     // Jedis & BinaryJedis
     private void addJedis(JedisPluginConfig config) {
-        addBinaryJedisExtends(config, "redis.clients.jedis.BinaryJedis", new TransformHandler() {
-
-            @Override
-            public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(JedisConstants.END_POINT_ACCESSOR);
-            }
-        });
+        addBinaryJedisExtends(config, "redis.clients.jedis.BinaryJedis", BinaryJedisTransform.class);
 
         // Jedis extends BinaryJedis
-        addBinaryJedisExtends(config, "redis.clients.jedis.Jedis", null);
+        addBinaryJedisExtends(config, "redis.clients.jedis.Jedis", BinaryJedisExtendsTransform.class);
     }
 
-    private void addBinaryJedisExtends(final JedisPluginConfig config, final String targetClassName, final TransformHandler handler) {
-        transformTemplate.transform(targetClassName, new TransformCallback() {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                if (handler != null) {
-                    handler.handle(target);
-                }
+    public static class BinaryJedisTransform extends BinaryJedisExtendsTransform {
+        @Override
+        public void handle(InstrumentClass target) throws InstrumentException {
+            target.addField(EndPointAccessor.class);
+        }
+    }
 
-                // Set endpoint
-                // host
-                addSetEndPointInterceptor(target, "java.lang.String");
-                // host, port
-                addSetEndPointInterceptor(target, "java.lang.String", "int");
-                // host, port, ssl
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "boolean");
-                // host, port, ssl, sslSocketFactory, sslParameters, hostnameVerifier
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
-                // host, port, timeout
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "int");
-                // host, port, timeout, ssl
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "boolean");
-                // host, port, timeout, ssl, sslSocketFactory, sslParameters, hostnameVerifier
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
-                // host, port, connectionTimeout, soTimeout
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int");
-                // host, port, connectionTimeout, soTimeout, ssl
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int", "boolean");
-                // host, port, connectionTimeout, soTimeout, ssl, sslSocketFactory, sslParameters, hostnameVerifier
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
-                // shardInfo
-                addSetEndPointInterceptor(target, "redis.clients.jedis.JedisShardInfo");
-                // uri
-                addSetEndPointInterceptor(target, "java.net.URI");
-                // uri, sslSocketFactory, sslParameters, hostnameVerifier
-                addSetEndPointInterceptor(target, "java.net.URI", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
-                // uri, timeout
-                addSetEndPointInterceptor(target, "java.net.URI", "int");
-                // uri, timeout, sslSocketFactory, sslParameters, hostnameVerifier
-                addSetEndPointInterceptor(target, "java.net.URI", "int", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
-                // uri, connectionTimeout, soTimeout
-                addSetEndPointInterceptor(target, "java.net.URI", "int", "int");
-                // uri, connectionTimeout, soTimeout, sslSocketFactory, sslParameters, hostnameVerifier
-                addSetEndPointInterceptor(target, "java.net.URI", "int", "int", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+    private void addBinaryJedisExtends(final JedisPluginConfig config, final String targetClassName, Class<? extends TransformCallback> transformCallback) {
+        transformTemplate.transform(targetClassName, transformCallback);
+    }
 
-                // methods(commands)
-                addJedisMethodInterceptor(target, config, JedisConstants.REDIS_SCOPE);
+    public static class BinaryJedisExtendsTransform implements TransformCallback {
 
-                return target.toBytecode();
-            }
-        });
+        public BinaryJedisExtendsTransform() {
+        }
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            handle(target);
+
+
+            // Set endpoint
+            // host
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String");
+            // host, port
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int");
+            // host, port, ssl
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "boolean");
+            // host, port, ssl, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+            // host, port, timeout
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int");
+            // host, port, timeout, ssl
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "boolean");
+            // host, port, timeout, ssl, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+            // host, port, connectionTimeout, soTimeout
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int");
+            // host, port, connectionTimeout, soTimeout, ssl
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int", "boolean");
+            // host, port, connectionTimeout, soTimeout, ssl, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+            // shardInfo
+            JedisUtils.addSetEndPointInterceptor(target, "redis.clients.jedis.JedisShardInfo");
+            // uri
+            JedisUtils.addSetEndPointInterceptor(target, "java.net.URI");
+            // uri, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.net.URI", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+            // uri, timeout
+            JedisUtils.addSetEndPointInterceptor(target, "java.net.URI", "int");
+            // uri, timeout, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.net.URI", "int", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+            // uri, connectionTimeout, soTimeout
+            JedisUtils.addSetEndPointInterceptor(target, "java.net.URI", "int", "int");
+            // uri, connectionTimeout, soTimeout, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.net.URI", "int", "int", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+
+            // methods(commands)
+            final JedisPluginConfig config = new JedisPluginConfig(instrumentor.getProfilerConfig());
+            JedisUtils.addJedisMethodInterceptor(target, config, JedisConstants.REDIS_SCOPE);
+
+            return target.toBytecode();
+        }
+
+        protected void handle(InstrumentClass target) throws InstrumentException {
+            ;
+        }
     }
 
     // Client
     private void addClient() {
-        transformTemplate.transform("redis.clients.jedis.Client", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(JedisConstants.END_POINT_ACCESSOR);
-
-                // Set endpoint
-                // host
-                addSetEndPointInterceptor(target, "java.lang.String");
-                // host, port
-                addSetEndPointInterceptor(target, "java.lang.String", "int");
-                // host, port, ssl
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "boolean");
-                // host, port, ssl, sslSocketFactory, sslParameters, hostnameVerifier
-                addSetEndPointInterceptor(target, "java.lang.String", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
-
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("redis.clients.jedis.Client", ClientTransform.class);
     }
 
-    private void addSetEndPointInterceptor(final InstrumentClass target, final String... parameterTypes) throws InstrumentException {
-        final InstrumentMethod method = target.getConstructor(parameterTypes);
-        if (method != null) {
-            method.addInterceptor("com.navercorp.pinpoint.plugin.redis.jedis.interceptor.SetEndPointInterceptor");
+    public static class ClientTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(EndPointAccessor.class);
+
+            // Set endpoint
+            // host
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String");
+            // host, port
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int");
+            // host, port, ssl
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "boolean");
+            // host, port, ssl, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+
+            return target.toBytecode();
         }
     }
 
+
     private void addProtocol() {
-        transformTemplate.transform("redis.clients.jedis.Protocol", new TransformCallback() {
+        transformTemplate.transform("redis.clients.jedis.Protocol", ProtocolTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name("sendCommand", "read"), MethodFilters.modifierNot(Modifier.PRIVATE)))) {
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.jedis.interceptor.ProtocolSendCommandAndReadMethodInterceptor", JedisConstants.REDIS_SCOPE, ExecutionPolicy.INTERNAL);
-                }
+    public static class ProtocolTransform implements TransformCallback {
 
-                return target.toBytecode();
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name("sendCommand", "read"), MethodFilters.modifierNot(Modifier.PRIVATE)))) {
+                method.addScopedInterceptor(ProtocolSendCommandAndReadMethodInterceptor.class, JedisConstants.REDIS_SCOPE, ExecutionPolicy.INTERNAL);
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     // Pipeline
     private void addPipeline(JedisPluginConfig config) {
-        addPipelineBaseExtends(config, "redis.clients.jedis.PipelineBase", null);
+        addPipelineBaseExtends("redis.clients.jedis.PipelineBase", PipelineBaseExtendsTransform.class);
 
         // MultikeyPipellineBase extends PipelineBase
-        addPipelineBaseExtends(config, "redis.clients.jedis.MultiKeyPipelineBase", null);
+        addPipelineBaseExtends("redis.clients.jedis.MultiKeyPipelineBase", PipelineBaseExtendsTransform.class);
 
         // Pipeline extends PipelineBase
-        addPipelineBaseExtends(config, "redis.clients.jedis.Pipeline", new TransformHandler() {
-
-            @Override
-            public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(JedisConstants.END_POINT_ACCESSOR);
-
-                final InstrumentMethod setClientMethod = target.getDeclaredMethod("setClient", "redis.clients.jedis.Client");
-                if (setClientMethod != null) {
-                    setClientMethod.addInterceptor("com.navercorp.pinpoint.plugin.redis.jedis.interceptor.AttachEndPointInterceptor");
-                }
-
-                final InstrumentMethod constructor = target.getConstructor("redis.clients.jedis.Client");
-                if (constructor != null) {
-                    constructor.addInterceptor("com.navercorp.pinpoint.plugin.redis.jedis.interceptor.AttachEndPointInterceptor");
-                }
-            }
-        });
+        addPipelineBaseExtends("redis.clients.jedis.Pipeline", PipelineTransform.class);
     }
 
-    private void addPipelineBaseExtends(final JedisPluginConfig config, String targetClassName, final TransformHandler handler) {
-        transformTemplate.transform(targetClassName, new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                if (handler != null) {
-                    handler.handle(target);
-                }
-
-                // methods(commands)
-                addJedisMethodInterceptor(target, config, JedisConstants.REDIS_SCOPE);
-
-                return target.toBytecode();
-            }
-        });
+    private void addPipelineBaseExtends(String targetClassName, final Class<? extends TransformCallback> transformCallback) {
+        transformTemplate.transform(targetClassName, transformCallback);
     }
 
-    private void addJedisMethodInterceptor(final InstrumentClass target, final JedisPluginConfig config, final String scope) {
-        for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(this.jedisMethodNameFilter, MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
-            try {
-                method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.jedis.interceptor.JedisMethodInterceptor", va(config.isIo()), scope);
-            } catch (Exception e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method {}", method, e);
-                }
+    public static class PipelineTransform extends PipelineBaseExtendsTransform {
+        @Override
+        protected void handle(InstrumentClass target) throws InstrumentException {
+            target.addField(EndPointAccessor.class);
+
+            final InstrumentMethod setClientMethod = target.getDeclaredMethod("setClient", "redis.clients.jedis.Client");
+            if (setClientMethod != null) {
+                setClientMethod.addInterceptor(AttachEndPointInterceptor.class);
+            }
+
+            final InstrumentMethod constructor = target.getConstructor("redis.clients.jedis.Client");
+            if (constructor != null) {
+                constructor.addInterceptor(AttachEndPointInterceptor.class);
             }
         }
     }
 
-    private interface TransformHandler {
-        void handle(InstrumentClass target) throws InstrumentException;
+    public static class PipelineBaseExtendsTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            handle(target);
+
+            final JedisPluginConfig config = new JedisPluginConfig(instrumentor.getProfilerConfig());
+            // methods(commands)
+            JedisUtils.addJedisMethodInterceptor(target, config, JedisConstants.REDIS_SCOPE);
+
+            return target.toBytecode();
+        }
+
+        protected void handle(InstrumentClass target) throws InstrumentException {
+            ;
+        }
     }
+
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

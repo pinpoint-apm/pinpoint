@@ -14,9 +14,9 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
-
 import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
+import com.navercorp.pinpoint.test.plugin.shared.SharedProcessPluginTestCase;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -43,9 +43,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
 
 /**
- *
  * We have referred OrderedThreadPoolExecutor ParentRunner of JUnit.
  *
  * @author Jongho Moon
@@ -61,6 +63,8 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     private final String libraryPath;
     private final String[] librarySubDirs;
 
+    private final boolean sharedProcess;
+
     private final Object childrenLock = new Object();
     private volatile Collection<Runner> filteredChildren = null;
 
@@ -74,7 +78,15 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         }
     };
 
+    protected boolean usingSharedProcess() {
+        return true;
+    }
+
     public PinpointPluginTestSuite(Class<?> testClass) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
+        this(testClass, true);
+    }
+
+    public PinpointPluginTestSuite(Class<?> testClass, boolean sharedProcess) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
         super(testClass);
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
@@ -106,12 +118,17 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
 
         Repository repos = testClass.getAnnotation(Repository.class);
         this.repositories = repos == null ? new String[0] : repos.value();
+        this.sharedProcess = sharedProcess;
     }
 
-    @Override
+        @Override
     protected List<PinpointPluginTestInstance> createTestCases(PinpointPluginTestContext context) throws Exception {
         if (dependencies != null) {
-            return createCasesWithDependencies(context);
+            if (sharedProcess) {
+                return createSharedCasesWithDependencies(context);
+            } else {
+                return createCasesWithDependencies(context);
+            }
         } else if (libraryPath != null) {
             return createCasesWithLibraryPath(context);
         }
@@ -119,20 +136,66 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return createCasesWithJdkOnly(context);
     }
 
-    private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PinpointPluginTestContext context) {
+    private List<PinpointPluginTestInstance> createSharedCasesWithDependencies(PinpointPluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
 
-        if (testOnSystemClassLoader) {
-            cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), true));
-        }
+        DependencyResolver resolver = DependencyResolver.get(repositories);
 
-        if (testOnChildClassLoader) {
-            cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), false));
+        Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(dependencies);
+
+        Set<String> testKeySet = dependencyMap.keySet();
+
+        SharedProcessManager sharedProcessManager = new SharedProcessManager(context);
+        for (String testKey : testKeySet) {
+            List<Artifact> artifacts = dependencyMap.get(testKey);
+
+            List<String> libs = new ArrayList<String>();
+            for (File lib : resolver.resolveArtifactsAndDependencies(artifacts)) {
+                libs.add(lib.getAbsolutePath());
+            }
+
+            PinpointPluginTestInstance testInstance = null;
+            if (testOnSystemClassLoader) {
+                testInstance = new SharedProcessPluginTestCase(context, testKey, libs, true, sharedProcessManager);
+            }
+
+            if (testOnChildClassLoader) {
+                testInstance = new SharedProcessPluginTestCase(context, testKey, libs, false, sharedProcessManager);
+            }
+
+            if (testInstance != null) {
+                cases.add(testInstance);
+                sharedProcessManager.registerTest(testInstance.getTestId(), artifacts);
+            }
         }
 
         return cases;
     }
 
+    private List<PinpointPluginTestInstance> createCasesWithDependencies(PinpointPluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
+        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
+
+        DependencyResolver resolver = DependencyResolver.get(repositories);
+        Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
+
+        for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
+            List<String> libs = new ArrayList<String>();
+
+            for (File lib : resolver.resolveArtifactsAndDependencies(dependencyCase.getValue())) {
+                libs.add(lib.getAbsolutePath());
+            }
+
+            if (testOnSystemClassLoader) {
+                cases.add(new NormalPluginTestCase(context, dependencyCase.getKey(), libs, true));
+            }
+
+            if (testOnChildClassLoader) {
+                cases.add(new NormalPluginTestCase(context, dependencyCase.getKey(), libs, false));
+            }
+        }
+
+        return cases;
+    }
 
     private List<PinpointPluginTestInstance> createCasesWithLibraryPath(PinpointPluginTestContext context) {
         File file = new File(libraryPath);
@@ -176,6 +239,20 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return cases;
     }
 
+    private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PinpointPluginTestContext context) {
+        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
+
+        if (testOnSystemClassLoader) {
+            cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), true));
+        }
+
+        if (testOnChildClassLoader) {
+            cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), false));
+        }
+
+        return cases;
+    }
+
     private void addJars(File libDir, List<String> libraries) {
         if (!libDir.isDirectory()) {
             return;
@@ -189,31 +266,6 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
                 libraries.add(f.getAbsolutePath());
             }
         }
-    }
-
-    private List<PinpointPluginTestInstance> createCasesWithDependencies(PinpointPluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
-        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
-
-        DependencyResolver resolver = DependencyResolver.get(repositories);
-        Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
-
-        for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
-            List<String> libs = new ArrayList<String>();
-
-            for (File lib : resolver.resolveArtifactsAndDependencies(dependencyCase.getValue())) {
-                libs.add(lib.getAbsolutePath());
-            }
-
-            if (testOnSystemClassLoader) {
-                cases.add(new NormalPluginTestCase(context, dependencyCase.getKey(), libs, true));
-            }
-
-            if (testOnChildClassLoader) {
-                cases.add(new NormalPluginTestCase(context, dependencyCase.getKey(), libs, false));
-            }
-        }
-
-        return cases;
     }
 
     protected Statement classBlock(final RunNotifier notifier) {
@@ -344,17 +396,19 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return description;
     }
 
-    private static class NormalPluginTestCase implements PinpointPluginTestInstance {
+    private static class NormalPluginTestCase implements DelegateSupportedPinpointPluginTestInstance {
         private final PinpointPluginTestContext context;
         private final String testId;
         private final List<String> libs;
         private final boolean onSystemClassLoader;
+        private final ProcessManager processManager;
 
         public NormalPluginTestCase(PinpointPluginTestContext context, String testId, List<String> libs, boolean onSystemClassLoader) {
             this.context = context;
             this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
             this.libs = libs;
             this.onSystemClassLoader = onSystemClassLoader;
+            this.processManager = new DefaultProcessManager(context);
         }
 
         @Override
@@ -408,19 +462,36 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         }
 
         @Override
-        public Scanner startTest(Process process) throws Exception {
+        public Scanner startTest() throws Exception {
+            Process process = processManager.create(this);
             InputStream inputStream = process.getInputStream();
             return new Scanner(inputStream, DEFAULT_ENCODING);
         }
 
         @Override
-        public void endTest(Process process) throws Exception {
+        public Scanner startTest(PinpointPluginTestInstance pinpointPluginTestInstance) throws Throwable {
+            Process process = processManager.create(pinpointPluginTestInstance);
+            InputStream inputStream = process.getInputStream();
+            return new Scanner(inputStream, DEFAULT_ENCODING);
+        }
+
+        @Override
+        public void endTest() throws Exception {
+            processManager.stop();
+
             // do nothing
         }
 
         @Override
         public File getWorkingDirectory() {
             return new File(".");
+        }
+
+        @Override
+        public String toString() {
+            return "NormalPluginTestCase{" +
+                    "testId='" + testId + '\'' +
+                    '}';
         }
     }
 

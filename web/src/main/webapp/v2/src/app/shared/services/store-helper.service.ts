@@ -23,6 +23,9 @@ export class StoreHelperService {
     ) {
         this.dateFormatList = this.webAppSettingDataService.getDateFormatList();
     }
+    getURLPath(): Observable<string> {
+        return this.getObservable(STORE_KEY.URL_PATH);
+    }
     getApplicationList(unsubscribe: Subject<void>): Observable<IApplication[]> {
         return this.getObservable(STORE_KEY.APPLICATION_LIST, unsubscribe);
     }
