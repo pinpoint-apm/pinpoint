@@ -35,7 +35,6 @@ exclude:
   - pinpointHome.iml
   - Gemfile
   - Gemfile.lock
-  - googlec597bd2844fc7d83.html
   - README.md
   - version.json
   - licenses/
