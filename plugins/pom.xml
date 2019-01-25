@@ -88,6 +88,7 @@
         <module>druid</module>
         <module>hbase</module>
         <module>openwhisk</module>
+        <module>node-js</module>
     </modules>
 
     <dependencies>
@@ -374,6 +375,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-openwhisk-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-node-js-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
