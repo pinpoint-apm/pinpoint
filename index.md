@@ -1,7 +1,7 @@
 ---
 title: 
 keywords: pinpoint apm, apm, pinpoint, pinpoint homepage, pinpoint gitpage
-tags: pinpoint
+tags: 
 permalink: index.html
 summary:
 toc: false
