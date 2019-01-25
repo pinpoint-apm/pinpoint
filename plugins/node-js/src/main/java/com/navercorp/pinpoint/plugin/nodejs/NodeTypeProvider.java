@@ -50,5 +50,8 @@ public class NodeTypeProvider implements TraceMetadataProvider {
         // The future of Node.js REST development
         final ServiceType RESTIFY = of(6630, "RESTIFY");
         context.addServiceType(RESTIFY);
+
+        final ServiceType IOREDIS = of(8202, "IOREDIS", "REDIS");
+        context.addServiceType(IOREDIS);
     }
 }
