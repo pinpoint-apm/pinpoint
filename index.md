@@ -1,7 +1,7 @@
 ---
-title: Pinpoint
+title: 
 keywords: pinpoint apm, apm, pinpoint, pinpoint homepage, pinpoint gitpage
-tags:
+tags: pinpoint
 permalink: index.html
 summary:
 toc: false
@@ -13,12 +13,11 @@ layout: firstpage
 ![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)
  
 
+<a class="twitter-timeline" data-lang="en" data-width="550" data-height="400" data-theme="light" data-link-color="#19CF86" href="https://twitter.com/Pinpoint_APM?ref_src=twsrc%5Etfw">Tweets by Pinpoint_APM</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
  
-## Latest News (2018/08/30)
+## Is your application created with PHP?
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
-
-[Follow our twitter for Latest updates on Pinpoint](https://twitter.com/Pinpoint_APM)
 
 ## Introduction  
   
