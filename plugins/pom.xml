@@ -88,6 +88,7 @@
         <module>druid</module>
         <module>hbase</module>
         <module>openwhisk</module>
+        <module>node-js</module>
         <module>elasticsearch-bboss</module>
     </modules>
 
@@ -379,6 +380,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-node-js-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+		<dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-elasticsearch-bboss-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -389,7 +395,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.3</version>
                 <configuration>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>

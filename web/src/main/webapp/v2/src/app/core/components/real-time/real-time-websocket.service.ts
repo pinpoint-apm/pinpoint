@@ -18,7 +18,7 @@ export interface IWebSocketDataResult {
 }
 
 export interface IActiveThreadCounts {
-    code: number;
+    code: ResponseCode;
     message: string;
     status?: number[];
 }

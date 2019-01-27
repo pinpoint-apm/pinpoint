@@ -15,29 +15,20 @@
                     [timeStamp]="timeStamp"
                     [timezone]="timezone$ | async"
                     [dateFormat]="dateFormat$ | async"
-                    [applicationName]="applicationName"
-                    [activeThreadCounts]="activeThreadCounts">
+                    [sum]="sum"
+                    [activeThreadCounts]="atcForTotal">
                 </pp-real-time-total-chart>
             </article>
             <article class="l-agent-chart">
-                <ng-container *ngIf="needPaging()">
-                    <div class="l-paging">
-                        <span class="l-txt">Total Servers : </span>
-                        <span class="l-txt-bold">{{totalCount}}</span>
-                        <span>[ {{firstChartIndex + 1}} ~ {{lastChartIndex + 1}} ]</span>
-                        <nav>
-                            <ul class="l-pagination">
-                                <li class="l-page-item" *ngFor="let page of getTotalPage()">
-                                    <a class="l-page-link" (click)="openPage(page)">{{page}}</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </ng-container>
+                <pp-real-time-chart-header
+                    [totalCount]="totalCount"
+                    (outOpenPage)="onOpenPage($event)"
+                    (outChangeActiveOnlyToggle)="onChangeActiveOnlyToggle($event)">
+                </pp-real-time-chart-header>
                 <pp-real-time-agent-chart
                     [timeStamp]="timeStamp"
-                    [activeThreadCounts]="activeThreadCounts"
-                    [pagingSize]="pagingSize"
+                    [activeThreadCounts]="atcForAgent"
+                    [sum]="sum"
                     (outOpenThreadDump)="onOpenThreadDump($event)"
                     (outRenderCompleted)="onRenderCompleted()">
                 </pp-real-time-agent-chart>
