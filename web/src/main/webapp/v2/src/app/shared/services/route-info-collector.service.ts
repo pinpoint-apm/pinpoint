@@ -26,7 +26,7 @@ export class RouteInfoCollectorService {
     }
     private collectUrlInfo(activatedChildRouteSnapshot: ActivatedRouteSnapshot[], pathIds: any, queryParams: any, innerData: any): void {
         if (activatedChildRouteSnapshot.length !== 0) {
-            for ( let i = 0 ; i < activatedChildRouteSnapshot.length ; i++ ) {
+            for (let i = 0; i < activatedChildRouteSnapshot.length; i++) {
                 this.assign(pathIds, activatedChildRouteSnapshot[i].paramMap);
                 this.assign(queryParams, activatedChildRouteSnapshot[i].queryParamMap);
                 Object.assign(innerData, activatedChildRouteSnapshot[i].data);

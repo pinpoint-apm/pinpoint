@@ -91,7 +91,6 @@ if "%COMMAND%" == "start" (
     echo "can't find agent file(%PINPOINT_AGENT%)."
     goto :eof
   )
-  set MAVEN_OPTS=-Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP -javaagent:%PINPOINT_AGENT%
 
 :start_process
   set UNIT_TIME=5
@@ -99,7 +98,7 @@ if "%COMMAND%" == "start" (
   set WAIT_TIME=0
   set /a CLOSE_WAIT_TIME=UNIT_TIME*END_COUNT
 
-  start "%COMPONENT_IDENTIFIER%" cmd /c %MAVEN% -f %COMPONENT_DIR%/pom.xml clean package tomcat7:run -D%IDENTIFIER% -Dmaven.pinpoint.version=%VERSION% ^> %LOG_FILE%
+  start "%COMPONENT_IDENTIFIER%" cmd /c %MAVEN% -f %COMPONENT_DIR%/pom.xml clean package cargo:run -D%IDENTIFIER% -Dmaven.pinpoint.version=%VERSION% ^> %LOG_FILE%
   timeout /NOBREAK 1
 
   for /f "tokens=3 delims=," %%i in ('wmic process where Name^="java.exe" get ProcessId^,CommandLine /Format:csv ^| findstr "%IDENTIFIER%"') do set PID=%%i
@@ -142,13 +141,21 @@ if "%COMMAND%" == "start" (
 
 :stop_component
   for /f "tokens=3 delims=," %%i in ('wmic process where Name^="java.exe" get ProcessId^,CommandLine /Format:csv ^| findstr "%IDENTIFIER%"') do set PID=%%i
-
   if not "%PID%" == "" (
     echo "shutting down %COMPONENT_IDENTIFIER%. pid=%PID%."
     taskkill /f /pid %PID%
   ) ELSE (
     echo "not running %COMPONENT_IDENTIFIER%"
   )
+
+  for /f "tokens=3 delims=," %%i in ('wmic process where Name^="java.exe" get ProcessId^,CommandLine /Format:csv ^| findstr "%IDENTIFIER%"') do set PID=%%i
+  if not "%PID%" == "" (
+  echo "shutting down %COMPONENT_IDENTIFIER%. pid=%PID%."
+    taskkill /f /pid %PID%
+  ) ELSE (
+    echo "not running %COMPONENT_IDENTIFIER%"
+  )
+
   goto :eof
 
 :print_usage
