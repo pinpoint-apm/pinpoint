@@ -59,7 +59,7 @@ Pinpoint is licensed under the Apache License, Version 2.0.
 See [LICENSE](https://github.com/naver/pinpoint/blob/master/LICENSE) for full license text.
 
 ```
-Copyright 2018 NAVER Corp.
+Copyright 2019 NAVER Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
