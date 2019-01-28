@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor;
+import com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -38,8 +40,6 @@ import java.security.ProtectionDomain;
  * @author ChaYoung You
  */
 public class GsonPlugin implements ProfilerPlugin, TransformTemplateAware {
-    public static final ServiceType GSON_SERVICE_TYPE = ServiceTypeFactory.of(5010, "GSON");
-    public static final AnnotationKey GSON_ANNOTATION_KEY_JSON_LENGTH = AnnotationKeyFactory.of(9000, "gson.json.length");
 
     private static final String GSON_SCOPE = "GSON_SCOPE";
 
@@ -50,26 +50,29 @@ public class GsonPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         GsonConfig config = new GsonConfig(context.getConfig());
-        logger.debug("[Gson] Initialized config={}", config);
+        if (!config.isProfile()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+        }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+        transformTemplate.transform("com.google.gson.Gson", GsonTransform.class);
 
-        if (config.isProfile()) {
-            transformTemplate.transform("com.google.gson.Gson", new TransformCallback() {
+    }
 
-                @Override
-                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    public static class GsonTransform implements TransformCallback {
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", GSON_SCOPE);
-                    }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", GSON_SCOPE);
-                    }
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
+                m.addScopedInterceptor(FromJsonInterceptor.class, GSON_SCOPE);
+            }
 
-                    return target.toBytecode();
-                }
-            });
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
+                m.addScopedInterceptor(ToJsonInterceptor.class, GSON_SCOPE);
+            }
+
+            return target.toBytecode();
         }
     }
 

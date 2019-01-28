@@ -50,8 +50,7 @@ public class OffsetFixedBufferTest {
         try {
             new OffsetFixedBuffer(new byte[10], 0, 11);
             Assert.fail();
-        } catch (Exception e) {
-            logger.debug(e.getMessage(), e);
+        } catch (IndexOutOfBoundsException e) {
         }
 
         new OffsetFixedBuffer(new byte[10], 0, 10);

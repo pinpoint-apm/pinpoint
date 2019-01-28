@@ -72,4 +72,14 @@ public class ActiveMQClientPluginConfig {
         return this.excludeDestinationFilter;
     }
 
+    @Override
+    public String toString() {
+        return "ActiveMQClientPluginConfig{" +
+                "traceActiveMQClient=" + traceActiveMQClient +
+                ", traceActiveMQClientProducer=" + traceActiveMQClientProducer +
+                ", traceActiveMQClientConsumer=" + traceActiveMQClientConsumer +
+                ", traceActiveMQTextMessage=" + traceActiveMQTextMessage +
+                ", excludeDestinationFilter=" + excludeDestinationFilter +
+                '}';
+    }
 }

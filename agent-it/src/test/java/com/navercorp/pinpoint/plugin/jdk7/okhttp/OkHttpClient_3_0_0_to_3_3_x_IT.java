@@ -121,6 +121,7 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
         latch.await(3, TimeUnit.SECONDS);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.awaitTrace(event(ASYNC.getName(), "Asynchronous Invocation"), 20, 3000);
         verifier.printCache();
 
         Method realCallEnqueueMethod = Class.forName("okhttp3.RealCall").getDeclaredMethod("enqueue", Class.forName("okhttp3.Callback"));

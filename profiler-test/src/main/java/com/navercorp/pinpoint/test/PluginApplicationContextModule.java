@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
@@ -25,6 +26,7 @@ import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
@@ -68,6 +70,7 @@ public class PluginApplicationContextModule extends AbstractModule {
 
         ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
         bind(ServerMetaDataRegistryService.class).toInstance(serverMetaDataRegistryService);
+        bind(ApiMetaDataService.class).toProvider(MockApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
     }
 
 

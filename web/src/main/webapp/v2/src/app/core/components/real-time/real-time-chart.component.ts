@@ -1,11 +1,19 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit, OnDestroy, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import * as moment from 'moment-timezone';
+import { from } from 'rxjs';
+import { tap, filter } from 'rxjs/operators';
 
 import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
+import { sliceObj } from 'app/core/utils/util';
 
-export const enum ChartType {
-    SUM = 'sum',
-    EACH = 'each'
+export const enum ChartState {
+    ADDED = 'added',
+    REMOVED = 'removed',
+    NORMAL = 'normal'
+}
+
+export interface IParsedATC extends IActiveThreadCounts {
+    chartState: ChartState;
 }
 
 @Component({
@@ -15,42 +23,39 @@ export const enum ChartType {
 })
 export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     @ViewChild('realTime') canvasRef: ElementRef;
-    @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input() timeStamp: number;
-    @Input() applicationName: string;
-    @Input() pagingSize: number;
-    @Input() currentPage: number;
+    @Input() activeThreadCounts: { [key: string]: IParsedATC };
+    @Input() currentPage = 1;
+    @Input() maxChartNumberPerPage: number;
+    @Input() sum: number[];
     @Input() chartOption: { [key: string]: any };
     @Output() outClick = new EventEmitter<string>();
-    @Output() outSum = new EventEmitter<number[]>();
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private firstTimeStamp: { [key: string]: number } = {};
+    private startingXPos: { [key: string]: number } = {}; // 최초로 움직이기 시작하는 점의 x좌표
     private chartStart: { [key: string]: number } = {};
-    private animationFrameId: number;
+    private firstTimeStamp: { [key: string]: number } = {};
     private timeStampList: { [key: string]: number[] } = {};
     private dataList: { [key: string]: number[][] } = {};
+    private animationFrameId: number;
     private max: number;
     private maxRatio = 3 / 4; // 차트의 높이에 대해 데이터의 최댓값을 위치시킬 비율
     private ratio: number; // maxRatio를 바탕으로 각 데이터에 적용되는 비율
-    private startingXPos: { [key: string]: number } = {}; // 최초로 움직이기 시작하는 점의 x좌표
     private lastMousePosInCanvas: ICoordinate;
     private chartNumPerRow: number;
-    private linkIconInfoList: { [key: string]: any }[] = []; // { leftX, rightX, topY, bottomY, agentKey } 를 담은 object의 배열
     private dataSumList: number[][] = [];
-    private removedKeys: string[] = [];
-    private addedKeys: string[] = [];
-    private mergedKeys: string[] = [];
+    private atcOnUse: { [key: string]: IParsedATC };
+    private numOfCharts: number;
 
     showTooltip = false;
     tooltipDataObj = {
         title: '',
         values: [] as number[],
     };
-    _activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    linkIconWidth: number;
 
     constructor(
         private el: ElementRef
@@ -59,77 +64,33 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
     ngOnChanges(changes: SimpleChanges) {
         const changesOnATC = changes['activeThreadCounts'];
         const changesOnTimeStamp = changes['timeStamp'];
+        const firstChartIndex = (this.currentPage - 1) * this.maxChartNumberPerPage;
 
         if (changesOnATC && changesOnTimeStamp) {
-            const { previousValue: prevATC, currentValue: currATC, firstChange } = changesOnATC;
+            const { previousValue: prevATC = {}, currentValue: currATC }: { previousValue: { [key: string]: IParsedATC }, currentValue: { [key: string]: IParsedATC } } = changesOnATC;
             const { currentValue: timeStamp } = changesOnTimeStamp;
-            const { chartType } = this.chartOption;
-            const successDataList = this.getSuccessDataList(currATC);
-            const hasError = successDataList.length === 0;
-            const sum = this.getTotalResponseCount(successDataList);
+            const prevATCKeys = Object.keys(prevATC);
 
-            if (chartType === ChartType.EACH) {
-                const totalCount = Object.keys(currATC).length;
-                const firstChartIndex = (this.currentPage - 1) * this.pagingSize;
-                const indexLimit = this.currentPage * this.pagingSize - 1;
-                const lastChartIndex = totalCount - 1 <= indexLimit ? totalCount - 1 : indexLimit;
-                const prevATCKeys = firstChange ? [] : Object.keys(prevATC).slice(firstChartIndex, lastChartIndex + 1);
-                const currATCKeys = Object.keys(currATC).slice(firstChartIndex, lastChartIndex + 1);
+            for (const key of Object.keys(currATC)) {
+                const chartState = currATC[key].chartState;
 
-                this._activeThreadCounts = currATCKeys.reduce((acc: { [key: string]: IActiveThreadCounts }, curr: string) => {
-                    return { ...acc, [curr]: currATC[curr] };
-                }, {});
-                this.mergedKeys = [...new Set([...prevATCKeys, ...currATCKeys])];
-                this.addedKeys = [];
-                this.removedKeys = [];
+                if (chartState === ChartState.REMOVED) {
+                    this.removeData(key);
+                } else {
+                    const { status } = currATC[key];
+                    const data = status ? status : [];
 
-                this.mergedKeys.forEach((key: string) => {
-                    if (!prevATCKeys.includes(key)) {
-                        // 새로 추가된 agent
-                        const { status } = currATC[key];
-                        const data = status ? status : [];
-
-                        this.initData(key, data, timeStamp);
-                        if (!firstChange) {
-                            this.addedKeys.push(key);
-                        }
-                    } else if (!currATCKeys.includes(key)) {
-                        // 삭제된 agent
-                        // 해당 key에 대한 dataList, timeStampList, firstStamp, startingXPos, chartStart 제거
-                        this.removeData(key);
-                        this.removedKeys.push(key);
-                    } else {
-                        // 변동없는 agent
-                        const { status } = currATC[key];
-                        const data = status ? status : [];
-
-                        this.addData(key, data, timeStamp);
-                    }
-                });
-
-                if (this.canvas && (prevATCKeys.length !== currATCKeys.length)) {
-                    this.setCanvasSize();
+                    chartState === ChartState.ADDED || !prevATCKeys.includes(key) ? this.initData(key, data, timeStamp) : this.addData(key, data, timeStamp);
                 }
-            } else if (chartType === ChartType.SUM) {
-                const key = this.applicationName;
-
-                this.mergedKeys = [key];
-                this._activeThreadCounts = {
-                    [key]: {
-                        code: hasError ? ResponseCode.ERROR_BLACK : ResponseCode.SUCCESS,
-                        message: hasError ? currATC[Object.keys(currATC)[0]].message : 'OK',
-                        status: hasError ? null : sum
-                    }
-                };
-
-                const { status } = this._activeThreadCounts[key];
-                const data = status ? status : [];
-
-                firstChange ? this.initData(key, data, timeStamp) : this.addData(key, data, timeStamp);
-                this.outSum.emit(hasError ? [] : sum);
             }
 
-            this.dataSumList.push(sum);
+            this.dataSumList.push(this.sum);
+        }
+
+        this.atcOnUse = sliceObj(this.activeThreadCounts, firstChartIndex, firstChartIndex + this.maxChartNumberPerPage);
+
+        if (this.canvas && (this.numOfCharts !== Object.keys(this.atcOnUse).length)) {
+            this.setCanvasSize();
         }
     }
 
@@ -138,6 +99,7 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
         this.ctx = this.canvas.getContext('2d');
 
         this.setCanvasSize();
+        this.initVariable();
 
         this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
         this.addEventListener();
@@ -145,6 +107,12 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
 
     ngOnDestroy() {
         cancelAnimationFrame(this.animationFrameId);
+    }
+
+    private initVariable(): void {
+        const { linkIconCode } = this.chartOption;
+
+        this.linkIconWidth = this.ctx.measureText(linkIconCode).width;
     }
 
     private initData(key: string, data: number[], timeStamp: number): void {
@@ -166,25 +134,13 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
         delete this.chartStart[key];
     }
 
-    private getSuccessDataList(obj: { [key: string]: IActiveThreadCounts }): number[][] {
-        return Object.keys(obj)
-            .filter((agentName: string) => obj[agentName].code === ResponseCode.SUCCESS)
-            .map((agentName: string) => obj[agentName].status);
-    }
-
-    private getTotalResponseCount(dataList: number[][]): number[] {
-        return dataList.reduce((acc: number[], curr: number[]) => {
-            return acc.map((a: number, i: number) => a + curr[i]);
-        }, [0, 0, 0, 0]);
-    }
-
     private setCanvasSize(): void {
         const { titleHeight, containerHeight, canvasBottomPadding } = this.chartOption;
-        const numOfChart = this.mergedKeys.length;
 
+        this.numOfCharts = Object.keys(this.atcOnUse).length;
         this.canvas.width = this.el.nativeElement.offsetWidth;
         this.setChartNumPerRow();
-        this.canvas.height = this.getTopEdgeYPos(numOfChart - 1) + titleHeight + containerHeight + canvasBottomPadding;
+        this.canvas.height = this.getTopEdgeYPos(this.numOfCharts - 1) + titleHeight + containerHeight + canvasBottomPadding;
     }
 
     private setChartNumPerRow(): void {
@@ -229,12 +185,18 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
 
     private draw(timeStamp: number): void {
         const { drawVGridLine, showXAxis, showYAxis, showYAxisLabel, tooltipEnabled, chartWidth } = this.chartOption;
+        let i = -1;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.mergedKeys.forEach((key: string, i: number) => {
+
+        from(Object.keys(this.activeThreadCounts)).pipe(
+            tap((key: string) => this.setStartingXPos(timeStamp, key)),
+            filter((key: string) => this.atcOnUse.hasOwnProperty(key)),
+            tap(() => ++i)
+        ).subscribe((key: string) => {
             this.drawChartTitle(key, i);
             this.drawChartContainerRect(i);
-            if (this.removedKeys.includes(key)) {
+            if (this.atcOnUse[key].chartState === ChartState.REMOVED) {
                 this.drawRemovedText(i);
                 return;
             }
@@ -248,7 +210,6 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
             }
 
             if (this.timeStampList[key].length !== 0) {
-                this.setStartingXPos(timeStamp, key);
                 while (this.isChartOverflow(key)) {
                     this.timeStampList[key].shift();
                     this.dataList[key].shift();
@@ -332,7 +293,7 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
 
-        const { code, message } = this._activeThreadCounts[key];
+        const { code, message } = this.atcOnUse[key];
         const isResponseSuccess = code === ResponseCode.SUCCESS;
 
         if (!isResponseSuccess) {
@@ -374,8 +335,8 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
 
     private drawChartTitle(key: string, i: number): void {
         const { containerWidth, titleHeight, titleFontSize, marginRightForLinkIcon, linkIconCode } = this.chartOption;
-        const isRemovedKey = this.removedKeys.includes(key);
-        const isAddedKey = this.addedKeys.includes(key);
+        const isRemovedKey = this.atcOnUse[key].chartState === ChartState.REMOVED;
+        const isAddedKey = this.atcOnUse[key].chartState === ChartState.ADDED;
 
         this.ctx.fillStyle = isAddedKey ? '#34b994' : isRemovedKey ? '#e95459' : '#74879a';
         this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i), containerWidth, titleHeight);
@@ -390,16 +351,6 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
             this.ctx.font = '600 9px "Font Awesome 5 Free"';
             this.ctx.textAlign = 'right';
             this.ctx.fillText(linkIconCode, this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon, this.getTopEdgeYPos(i) + titleHeight / 2);
-
-            const linkIconWidth = this.ctx.measureText(linkIconCode).width;
-
-            this.linkIconInfoList.push({
-                leftX: this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon - linkIconWidth,
-                rightX: this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon,
-                topY: this.getTopEdgeYPos(i) + titleHeight / 2 - linkIconWidth / 2,
-                bottomY: this.getTopEdgeYPos(i) + titleHeight / 2 + linkIconWidth / 2,
-                key
-            });
         }
     }
 
@@ -707,30 +658,34 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
     }
 
     onClick(): void {
-        const linkIconInfo = this.getLinkIconInfo();
+        const key = this.getLinkedKey();
 
-        if (linkIconInfo) {
-            this.outClick.emit(linkIconInfo.key);
+        if (key) {
+            this.outClick.emit(key);
         }
     }
 
-    private getLinkIconInfo(): { [key: string]: any } {
-        const { linkIconCode } = this.chartOption;
+    private getLinkedKey(): string {
+        const { containerWidth, marginRightForLinkIcon, titleHeight, linkIconCode } = this.chartOption;
 
         if (!(this.lastMousePosInCanvas && linkIconCode)) {
-            return null;
+            return '';
         }
 
         const { coordX, coordY } = this.lastMousePosInCanvas;
-
-        return this.linkIconInfoList.find((linkIcon: { [key: string]: any }) => {
-            const { leftX, rightX, topY, bottomY } = linkIcon;
+        const key = Object.keys(this.atcOnUse).find((_: string, i: number) => {
+            const leftX = this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon - this.linkIconWidth;
+            const rightX = this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon;
+            const topY = this.getTopEdgeYPos(i) + titleHeight / 2 - this.linkIconWidth / 2;
+            const bottomY = this.getTopEdgeYPos(i) + titleHeight / 2 + this.linkIconWidth / 2;
 
             return coordX >= leftX && coordX <= rightX && coordY >= topY && coordY <= bottomY;
         });
+
+        return key;
     }
 
     getCursorStyle(): string {
-        return this.getLinkIconInfo() ? 'pointer' : 'auto';
+        return this.getLinkedKey() ? 'pointer' : 'auto';
     }
 }

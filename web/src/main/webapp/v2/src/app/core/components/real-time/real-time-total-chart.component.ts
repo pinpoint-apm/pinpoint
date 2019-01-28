@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
-import { ChartType } from './real-time-chart.component';
+import { IParsedATC } from './real-time-chart.component';
 
 @Component({
     selector: 'pp-real-time-total-chart',
@@ -9,14 +8,14 @@ import { ChartType } from './real-time-chart.component';
     styleUrls: ['./real-time-total-chart.component.css']
 })
 export class RealTimeTotalChartComponent implements OnInit {
-    @Input() timeStamp: number;
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input() applicationName: string;
-    @Input() activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    @Input() timeStamp: number;
+    @Input() sum: number[];
+    @Input() activeThreadCounts: { [key: string]: IParsedATC };
 
-    data: number[];
-    totalCount: number;
+    maxChartNumberPerPage = 1;
     chartOption = {
         canvasLeftPadding: 0,
         canvasTopPadding: 0,
@@ -45,7 +44,6 @@ export class RealTimeTotalChartComponent implements OnInit {
         titleFontSize: '15px',
         errorFontSize: '15px',
         duration: 4000,
-        chartType: ChartType.SUM
     };
 
     constructor() {}
@@ -60,8 +58,7 @@ export class RealTimeTotalChartComponent implements OnInit {
         };
     }
 
-    onSum(sum: number[]): void {
-        this.data = sum;
-        this.totalCount = sum.length === 0 ? null : sum.reduce((acc: number, curr: number) => acc + curr, 0);
+    getTotalCount(): number {
+        return this.sum.reduce((acc: number, curr: number) => acc + curr, 0);
     }
 }

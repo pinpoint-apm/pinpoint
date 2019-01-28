@@ -24,6 +24,12 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseAdminMethodInterceptor;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientMainInterceptor;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientMethodInterceptor;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientRunInterceptor;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseTableMethodInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -51,105 +57,111 @@ public class HbasePlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
 
         HbasePluginConfig config = new HbasePluginConfig(context.getConfig());
-
         if (!config.isClientProfile()) {
-            logger.info("Disable HbasePlugin. config={}", config);
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         if (config.isAdminProfile()) {
-            addHbaseAdminTransformer(config.isParamsProfile());
+            addHbaseAdminTransformer();
         }
         if (config.isTableProfile()) {
-            addHbaseTableTransformer(config.isParamsProfile());
+            addHbaseTableTransformer();
         }
         addHbaseClientTransformer();
     }
 
     private void addHbaseClientTransformer() {
 
-        transformTemplate.transform("org.apache.hadoop.hbase.client.AsyncProcess", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("submit", "submitAll"))) {
-
-                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientMainInterceptor", HbasePluginConstants.HBASE_CLIENT_SCOPE);
-                }
-                return target.toBytecode();
-            }
-        });
-
-        transformTemplate.transform("org.apache.hadoop.hbase.client.AsyncProcess$AsyncRequestFutureImpl$SingleServerRequestRunnable", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                target.addField(AsyncContextAccessor.class.getName());
-
-                InstrumentMethod constructor = target.getConstructor("org.apache.hadoop.hbase.client.AsyncProcess$AsyncRequestFutureImpl", "org.apache.hadoop.hbase.client.MultiAction", "int", "org.apache.hadoop.hbase.ServerName", "java.util.Set");
-
-                constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientConstructorInterceptor", HbasePluginConstants.HBASE_CLIENT_SCOPE, ExecutionPolicy.INTERNAL);
-
-                InstrumentMethod method = target.getDeclaredMethod("run");
-
-                method.addInterceptor("com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientRunInterceptor");
-
-                return target.toBytecode();
-            }
-        });
-
-        TransformCallback transformCallback = new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("call"))) {
-
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientMethodInterceptor");
-                }
-                return target.toBytecode();
-            }
-        };
-
-        transformTemplate.transform("org.apache.hadoop.hbase.ipc.RpcClientImpl", transformCallback);
-        transformTemplate.transform("org.apache.hadoop.hbase.ipc.AsyncRpcClient", transformCallback);
+        transformTemplate.transform("org.apache.hadoop.hbase.client.AsyncProcess", AsyncProcessTransform.class);
+        transformTemplate.transform("org.apache.hadoop.hbase.client.AsyncProcess$AsyncRequestFutureImpl$SingleServerRequestRunnable", SingleServerRequestRunnableTransform.class);
+        transformTemplate.transform("org.apache.hadoop.hbase.ipc.RpcClientImpl", RpcClientImplTransform.class);
+        transformTemplate.transform("org.apache.hadoop.hbase.ipc.AsyncRpcClient", RpcClientImplTransform.class);
     }
 
-    private void addHbaseAdminTransformer(final boolean paramsProfile) {
+    public static class AsyncProcessTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-        transformTemplate.transform("org.apache.hadoop.hbase.client.HBaseAdmin", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(HbasePluginConstants.adminMethodNames))) {
-
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseAdminMethodInterceptor", va(paramsProfile));
-                }
-                return target.toBytecode();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("submit", "submitAll"))) {
+                method.addScopedInterceptor(HbaseClientMainInterceptor.class, HbasePluginConstants.HBASE_CLIENT_SCOPE);
             }
-        });
+            return target.toBytecode();
+        }
     }
 
-    private void addHbaseTableTransformer(final boolean paramsProfile) {
+    public static class SingleServerRequestRunnableTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-        transformTemplate.transform("org.apache.hadoop.hbase.client.HTable", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(HbasePluginConstants.tableMethodNames))) {
+            InstrumentMethod constructor = target.getConstructor("org.apache.hadoop.hbase.client.AsyncProcess$AsyncRequestFutureImpl", "org.apache.hadoop.hbase.client.MultiAction", "int", "org.apache.hadoop.hbase.ServerName", "java.util.Set");
 
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseTableMethodInterceptor", va(paramsProfile));
-                }
-                return target.toBytecode();
+            constructor.addScopedInterceptor(HbaseClientConstructorInterceptor.class, HbasePluginConstants.HBASE_CLIENT_SCOPE, ExecutionPolicy.INTERNAL);
+
+            InstrumentMethod method = target.getDeclaredMethod("run");
+
+            method.addInterceptor(HbaseClientRunInterceptor.class);
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class RpcClientImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("call"))) {
+
+                method.addInterceptor(HbaseClientMethodInterceptor.class);
             }
-        });
+            return target.toBytecode();
+        }
+    };
+
+    private void addHbaseAdminTransformer() {
+
+        transformTemplate.transform("org.apache.hadoop.hbase.client.HBaseAdmin", HBaseAdminTransform.class);
+    }
+
+    public static class HBaseAdminTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            HbasePluginConfig config = new HbasePluginConfig(instrumentor.getProfilerConfig());
+            final boolean paramsProfile = config.isParamsProfile();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(HbasePluginConstants.adminMethodNames))) {
+                method.addInterceptor(HbaseAdminMethodInterceptor.class, va(paramsProfile));
+            }
+            return target.toBytecode();
+        }
+    }
+
+    private void addHbaseTableTransformer() {
+        transformTemplate.transform("org.apache.hadoop.hbase.client.HTable", HTableTransform.class);
+    }
+
+    public static class HTableTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            HbasePluginConfig config = new HbasePluginConfig(instrumentor.getProfilerConfig());
+            final boolean paramsProfile = config.isParamsProfile();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(HbasePluginConstants.tableMethodNames))) {
+                method.addInterceptor(HbaseTableMethodInterceptor.class, va(paramsProfile));
+            }
+            return target.toBytecode();
+        }
     }
 }

@@ -47,8 +47,9 @@ public class MongoConfig{
     public String toString() {
         return "MongoConfig{" +
                 "enable=" + enable +
+                ", collectJson=" + collectJson +
+                ", traceBsonBindValue=" + traceBsonBindValue +
                 '}';
     }
-
 }
 

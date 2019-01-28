@@ -25,6 +25,7 @@ export class UrlQuery {
     static INBOUND = 'inbound';
     static OUTBOUND = 'outbound';
     static WAS_ONLY = 'wasOnly';
+    static ACTIVE_ONLY = 'activeOnly';
 
     constructor() {}
     static getQueryList(): string[] {
@@ -33,22 +34,24 @@ export class UrlQuery {
             UrlQuery.INBOUND,
             UrlQuery.OUTBOUND,
             UrlQuery.WAS_ONLY,
+            UrlQuery.ACTIVE_ONLY
         ];
     }
 }
 
 export class UrlQueryFactory {
     constructor() {}
-    static createQuery<T>(queryName: string, queryValue?: T): IUrlQuery<T> {
+    static createQuery(queryName: string, queryValue: string): IUrlQuery<string | boolean | number> {
         switch (queryName) {
             case UrlQuery.INBOUND:
             case UrlQuery.OUTBOUND:
-                return new UrlQueryClass<T>(queryValue) as IUrlQuery<T>;
+                return new UrlQueryClass<number>(Number(queryValue)) as IUrlQuery<number>;
             case UrlQuery.BIDIRECTIONAL:
             case UrlQuery.WAS_ONLY:
-                return new UrlQueryClass<T>(queryValue) as IUrlQuery<T>;
+            case UrlQuery.ACTIVE_ONLY:
+                return new UrlQueryClass<boolean>(queryValue === 'true') as IUrlQuery<boolean>;
             default:
-                return new UrlQueryClass<T>(queryValue) as IUrlQuery<T>;
+                return new UrlQueryClass<string>(queryValue) as IUrlQuery<string>;
         }
     }
 }

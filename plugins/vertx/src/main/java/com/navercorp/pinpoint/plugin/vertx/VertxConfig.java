@@ -62,4 +62,15 @@ public class VertxConfig {
     public List<String> getHandlerBasePackageNames() {
         return handlerBasePackageNames;
     }
+
+    @Override
+    public String toString() {
+        return "VertxConfig{" +
+                "enable=" + enable +
+                ", enableHttpServer=" + enableHttpServer +
+                ", enableHttpClient=" + enableHttpClient +
+                ", bootstrapMains=" + bootstrapMains +
+                ", handlerBasePackageNames=" + handlerBasePackageNames +
+                '}';
+    }
 }

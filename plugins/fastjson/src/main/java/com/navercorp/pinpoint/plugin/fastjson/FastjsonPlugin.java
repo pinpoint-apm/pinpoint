@@ -22,6 +22,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.fastjson.interceptor.ParseArrayInterceptor;
+import com.navercorp.pinpoint.plugin.fastjson.interceptor.ParseInterceptor;
+import com.navercorp.pinpoint.plugin.fastjson.interceptor.ParseObjectInterceptor;
+import com.navercorp.pinpoint.plugin.fastjson.interceptor.ToJavaObjectInterceptor;
+import com.navercorp.pinpoint.plugin.fastjson.interceptor.ToJsonBytesInterceptor;
+import com.navercorp.pinpoint.plugin.fastjson.interceptor.ToJsonInterceptor;
+import com.navercorp.pinpoint.plugin.fastjson.interceptor.ToJsonStringInterceptor;
+import com.navercorp.pinpoint.plugin.fastjson.interceptor.WriteJsonStringInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -47,52 +55,54 @@ public class FastjsonPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
 
         FastjsonConfig config = new FastjsonConfig(context.getConfig());
+        if (!config.isProfile()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+        transformTemplate.transform("com.alibaba.fastjson.JSON", JSONTransformer.class);
 
-        logger.debug("[Fastjson] Initialized config={}", config);
+    }
 
-        if (config.isProfile()) {
+    public static class JSONTransformer implements TransformCallback {
 
-            transformTemplate.transform("com.alibaba.fastjson.JSON", new TransformCallback() {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                @Override
-                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("parse"))) {
+                m.addScopedInterceptor(ParseInterceptor.class, FastjsonConstants.SCOPE);
+            }
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("parse"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.fastjson.interceptor.ParseInterceptor", FastjsonConstants.SCOPE);
-                    }
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("parseObject"))) {
+                m.addScopedInterceptor(ParseObjectInterceptor.class, FastjsonConstants.SCOPE);
+            }
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("parseObject"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.fastjson.interceptor.ParseObjectInterceptor", FastjsonConstants.SCOPE);
-                    }
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("parseArray"))) {
+                m.addScopedInterceptor(ParseArrayInterceptor.class, FastjsonConstants.SCOPE);
+            }
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("parseArray"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.fastjson.interceptor.ParseArrayInterceptor", FastjsonConstants.SCOPE);
-                    }
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJSON"))) {
+                m.addScopedInterceptor(ToJsonInterceptor.class, FastjsonConstants.SCOPE);
+            }
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJSON"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.fastjson.interceptor.ToJsonInterceptor", FastjsonConstants.SCOPE);
-                    }
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJavaObject"))) {
+                m.addScopedInterceptor(ToJavaObjectInterceptor.class, FastjsonConstants.SCOPE);
+            }
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJavaObject"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.fastjson.interceptor.ToJavaObjectInterceptor", FastjsonConstants.SCOPE);
-                    }
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJSONString"))) {
+                m.addScopedInterceptor(ToJsonStringInterceptor.class, FastjsonConstants.SCOPE);
+            }
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJSONString"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.fastjson.interceptor.ToJsonStringInterceptor", FastjsonConstants.SCOPE);
-                    }
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJSONBytes"))) {
+                m.addScopedInterceptor(ToJsonBytesInterceptor.class, FastjsonConstants.SCOPE);
+            }
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJSONBytes"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.fastjson.interceptor.ToJsonBytesInterceptor", FastjsonConstants.SCOPE);
-                    }
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("writeJSONString"))) {
+                m.addScopedInterceptor(WriteJsonStringInterceptor.class, FastjsonConstants.SCOPE);
+            }
 
-                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("writeJSONString"))) {
-                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.fastjson.interceptor.WriteJsonStringInterceptor", FastjsonConstants.SCOPE);
-                    }
-
-                    return target.toBytecode();
-                }
-            });
+            return target.toBytecode();
         }
     }
 }

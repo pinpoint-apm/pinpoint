@@ -41,7 +41,13 @@ public interface InstrumentContext {
 
     void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
 
+    void addClassFileTransformer(ClassLoader classLoader, String targetClassName, String transformCallbackClassName);
+
     void addClassFileTransformer(Matcher matcher, TransformCallback transformCallback);
+
+    void addClassFileTransformer(Matcher matcher, String transformCallbackClassName);
+
+    void addClassFileTransformer(Matcher matcher, String transformCallbackClassName, Object[] parameters, Class<?>[] parameterTypes);
 
     void retransform(Class<?> target, TransformCallback transformCallback);
 

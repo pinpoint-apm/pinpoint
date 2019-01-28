@@ -12,29 +12,11 @@
     <name>pinpoint-php-plugin</name>
     <packaging>jar</packaging>
 
-
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons-server</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 </project>

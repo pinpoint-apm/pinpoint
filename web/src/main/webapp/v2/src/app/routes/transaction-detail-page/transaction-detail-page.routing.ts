@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { TransactionDetailContentsContainerComponent } from 'app/core/components/transaction-detail-contents/transaction-detail-contents-container.component';
-import { SystemConfigurationResolverService, ApplicationListResolverService } from 'app/shared/services';
+import { SystemConfigurationResolverService } from 'app/shared/services';
 import { TransactionDetailPageComponent } from './transaction-detail-page.component';
 
 const TO_MAIN = '/' + UrlPath.MAIN;
@@ -12,8 +12,7 @@ export const routing: Routes = [
         path: '',
         component: TransactionDetailPageComponent,
         resolve: {
-            configuration: SystemConfigurationResolverService,
-            applicationList: ApplicationListResolverService
+            configuration: SystemConfigurationResolverService
         },
         children: [
             {

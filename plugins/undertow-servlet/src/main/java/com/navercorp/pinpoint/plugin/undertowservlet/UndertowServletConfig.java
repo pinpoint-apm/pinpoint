@@ -43,4 +43,11 @@ public class UndertowServletConfig {
     public boolean isEnable() {
         return enable;
     }
+
+    @Override
+    public String toString() {
+        return "UndertowServletConfig{" +
+                "enable=" + enable +
+                '}';
+    }
 }

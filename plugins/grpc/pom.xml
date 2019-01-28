@@ -27,12 +27,14 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-core</artifactId>
             <version>${grpc.version}</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

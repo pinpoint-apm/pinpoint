@@ -89,6 +89,7 @@
         <module>hbase</module>
         <module>openwhisk</module>
         <module>log4j2</module>
+        <module>node-js</module>
     </modules>
 
     <dependencies>
@@ -344,6 +345,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-undertow-servlet-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-kafka-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -372,6 +378,11 @@
             <artifactId>pinpoint-openwhisk-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-node-js-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -379,7 +390,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.3</version>
                 <configuration>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>

@@ -6,14 +6,16 @@ import {
     StoreHelperService,
     WebAppSettingDataService,
     NewUrlStateNotificationService,
-    UrlRouteManagerService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    UrlRouteManagerService
 } from 'app/shared/services';
-import { UrlPath, UrlPathId } from 'app/shared/models';
 import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
+import { UrlPathId, UrlPath } from 'app/shared/models';
+import { IParsedATC } from './real-time-chart.component';
+import { getATCforAgent, getATCforTotal, getFilteredATC } from './real-time-util';
 
 // TODO: 나중에 공통으로 추출.
 const enum MessageTemplate {
@@ -31,19 +33,20 @@ const enum MessageTemplate {
 export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     private unsubscribe = new Subject<null>();
     private serviceType = '';
-    pagingSize = 30;
-    totalCount: number;
-    firstChartIndex = 0;
-    lastChartIndex: number;
+    activeOnly = false;
     isPinUp = true;
     lastHeight: number;
     minHeight = 343;
     maxHeightPadding = 50; // Header Height
     timezone$: Observable<string>;
     dateFormat$: Observable<string>;
-    timeStamp: number;
     applicationName = '';
+    timeStamp: number;
     activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    atcForAgent: { [key: string]: IParsedATC };
+    atcForTotal: { [key: string]: IParsedATC };
+    totalCount: number;
+    sum: number[];
     hiddenComponent = true;
     messageTemplate = MessageTemplate.LOADING;
     // messageTemplate: MessageTemplate;
@@ -58,7 +61,6 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
     ) {}
     ngOnInit() {
         this.lastHeight = this.webAppSettingDataService.getLayerHeight() || this.minHeight;
-        this.lastChartIndex = this.pagingSize - 1;
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
         ).subscribe(() => {
@@ -196,18 +198,14 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
             return;
         }
 
-        this.totalCount = Object.keys(activeThreadCounts).length;
         this.timeStamp = timeStamp;
+        this.atcForAgent = this.activeOnly ? getFilteredATC(getATCforAgent(this.activeThreadCounts, activeThreadCounts)) : getATCforAgent(this.activeThreadCounts, activeThreadCounts);
+        this.atcForTotal = getATCforTotal(applicationName, activeThreadCounts);
+        this.sum = this.atcForTotal[Object.keys(this.atcForTotal)[0]].status;
+        this.totalCount = Object.keys(this.atcForAgent).length;
         this.activeThreadCounts = activeThreadCounts;
     }
-    needPaging(): boolean {
-        return this.totalCount > this.pagingSize;
-    }
-    getTotalPage(): number[] {
-        const totalPage = Math.ceil(this.totalCount / this.pagingSize);
 
-        return Array(totalPage).fill(0).map((v: number, i: number) => i + 1);
-    }
     retryConnection(): void {
         this.messageTemplate = MessageTemplate.LOADING;
         this.realTimeWebSocketService.connect();
@@ -216,12 +214,16 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         this.analyticsService.trackEvent(this.isPinUp ? TRACKED_EVENT_LIST.PIN_UP_REAL_TIME_CHART : TRACKED_EVENT_LIST.REMOVE_PIN_ON_REAL_TIME_CHART);
         this.isPinUp = !this.isPinUp;
     }
-    openPage(page: number): void {
+    onOpenPage(page: number): void {
         this.urlRouteManagerService.openPage([
             UrlPath.REAL_TIME,
             this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-            '' + page
+            '' + page,
+            `?activeOnly=${this.activeOnly}`
         ]);
+    }
+    onChangeActiveOnlyToggle(activeOnly: boolean): void {
+        this.activeOnly = activeOnly;
     }
     onOpenThreadDump(agentId: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_THREAD_DUMP);

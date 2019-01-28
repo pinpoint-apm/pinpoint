@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.undertowservlet.interceptor.HttpServletRequestImplStartAsyncInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -42,32 +43,32 @@ public class UndertowServletPlugin implements ProfilerPlugin, TransformTemplateA
     public void setup(ProfilerPluginSetupContext context) {
         final UndertowServletConfig config = new UndertowServletConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("UndertowServletPlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        if (logger.isInfoEnabled()) {
-            logger.info("UndertowServletPlugin config:{}", config);
-        }
         // Add async listener. Servlet 3.0
         addHttpServletRequestImpl();
     }
 
 
     private void addHttpServletRequestImpl() {
-        transformTemplate.transform("io.undertow.servlet.spec.HttpServletRequestImpl", new TransformCallback() {
+        transformTemplate.transform("io.undertow.servlet.spec.HttpServletRequestImpl", HttpServletRequestImplTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add async listener. Servlet 3.0
-                final InstrumentMethod startAsyncMethod = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-                if (startAsyncMethod != null) {
-                    startAsyncMethod.addInterceptor("com.navercorp.pinpoint.plugin.undertowservlet.interceptor.HttpServletRequestImplStartAsyncInterceptor");
-                }
-                return target.toBytecode();
+    public static class HttpServletRequestImplTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Add async listener. Servlet 3.0
+            final InstrumentMethod startAsyncMethod = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+            if (startAsyncMethod != null) {
+                startAsyncMethod.addInterceptor(HttpServletRequestImplStartAsyncInterceptor.class);
             }
-        });
+            return target.toBytecode();
+        }
     }
 
     @Override

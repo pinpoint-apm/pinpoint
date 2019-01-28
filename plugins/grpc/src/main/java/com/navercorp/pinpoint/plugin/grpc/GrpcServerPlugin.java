@@ -16,161 +16,157 @@
 
 package com.navercorp.pinpoint.plugin.grpc;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.grpc.field.accessor.ServerStreamGetter;
+import com.navercorp.pinpoint.plugin.grpc.interceptor.server.ServerStreamCreatedInterceptor;
 
 import java.security.ProtectionDomain;
-import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-class GrpcServerPlugin {
-
+public class GrpcServerPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private TransformTemplate transformTemplate;
 
-    private final TransformTemplate transformTemplate;
-    private final GrpcConfig grpcConfig;
-
-    GrpcServerPlugin(TransformTemplate transformTemplate, GrpcConfig grpcConfig) {
-        this.transformTemplate = Assert.requireNonNull(transformTemplate, "transformTemplate must not be null");
-        this.grpcConfig = Assert.requireNonNull(grpcConfig, "grpcConfig must not be null");
+    @Override
+    public void setup(ProfilerPluginSetupContext context) {
+        final GrpcServerConfig config = new GrpcServerConfig(context.getConfig());
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+        if (!config.isServerEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+        addInterceptor(config);
     }
 
-    void addInterceptor() {
-        transformTemplate.transform("io.grpc.internal.ServerImpl$ServerTransportListenerImpl", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                InstrumentMethod streamCreatedMethod = target.getDeclaredMethod("streamCreated",
-                        "io.grpc.internal.ServerStream", "java.lang.String", "io.grpc.Metadata");
-                if (streamCreatedMethod != null) {
-                    streamCreatedMethod.addInterceptor("com.navercorp.pinpoint.plugin.grpc.interceptor.server.ServerStreamCreatedInterceptor");
-                } else {
-                    if (isDebug) {
-                        logger.debug("can't find streamCreated method");
-                    }
-                }
+    private void addInterceptor(GrpcServerConfig grpcConfig) {
+        transformTemplate.transform("io.grpc.internal.ServerImpl$ServerTransportListenerImpl", ServerTransportListenerImplTransform.class);
 
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("io.grpc.internal.AbstractServerStream", AddAsyncContextAccessorTransform.class);
 
-        transformTemplate.transform("io.grpc.internal.AbstractServerStream", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        transformTemplate.transform("io.grpc.ServerCall$Listener", AddAsyncContextAccessorTransform.class);
 
-                target.addField("com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor");
+        transformTemplate.transform("io.grpc.internal.ServerCallImpl", ServerCallImplTransform.class);
 
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("io.grpc.stub.ServerCalls$UnaryServerCallHandler", UnaryServerCallHandler.class);
 
-        transformTemplate.transform("io.grpc.ServerCall$Listener", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                target.addField("com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor");
-
-                return target.toBytecode();
-            }
-        });
-
-        transformTemplate.transform("io.grpc.internal.ServerCallImpl", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                target.addGetter("com.navercorp.pinpoint.plugin.grpc.field.accessor.ServerStreamGetter", "stream");
-
-                return target.toBytecode();
-            }
-        });
-
-        transformTemplate.transform("io.grpc.stub.ServerCalls$UnaryServerCallHandler", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                addStartCallMethodInterceptor(target);
-
-                return target.toBytecode();
-            }
-        });
-
-
-        transformTemplate.transform("io.grpc.stub.ServerCalls$UnaryServerCallHandler$UnaryServerCallListener", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                addListenerMethod(target, true);
-
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("io.grpc.stub.ServerCalls$UnaryServerCallHandler$UnaryServerCallListener", UnaryServerCallListenerTransform.class);
 
         if (grpcConfig.isServerStreamingEnable()) {
-            transformTemplate.transform("io.grpc.stub.ServerCalls$StreamingServerCallHandler", new TransformCallback() {
-                @Override
-                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                    final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            transformTemplate.transform("io.grpc.stub.ServerCalls$StreamingServerCallHandler", StreamingServerCallHandlerTransform.class);
 
-                    addStartCallMethodInterceptor(target);
-
-                    return target.toBytecode();
-                }
-            });
-
-
-            transformTemplate.transform("io.grpc.stub.ServerCalls$StreamingServerCallHandler$StreamingServerCallListener", new TransformCallback() {
-                @Override
-                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                    final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                    addListenerMethod(target, grpcConfig.isServerStreamingOnMessageEnable());
-
-                    return target.toBytecode();
-                }
-            });
+            transformTemplate.transform("io.grpc.stub.ServerCalls$StreamingServerCallHandler$StreamingServerCallListener", StreamingServerCallListenerTransform.class);
         }
     }
 
-    private void addStartCallMethodInterceptor(InstrumentClass target) throws InstrumentException {
-        InstrumentMethod startCall = target.getDeclaredMethod("startCall", "io.grpc.ServerCall", "io.grpc.Metadata");
-        if (startCall != null) {
-            startCall.addInterceptor("com.navercorp.pinpoint.plugin.grpc.interceptor.server.CopyAsyncContextInterceptor");
-        } else {
-            if (isDebug) {
-                logger.debug("can't find startCall method");
-            }
-        }
-    }
+    public static class ServerTransportListenerImplTransform implements TransformCallback {
+        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private void addListenerMethod(InstrumentClass target, boolean traceOnMessage) throws InstrumentException {
-        List<InstrumentMethod> declaredMethods = target.getDeclaredMethods();
-        for (InstrumentMethod declaredMethod : declaredMethods) {
-            if (declaredMethod.getName().equals("onMessage") && !traceOnMessage) {
-                if (isDebug) {
-                    logger.debug("skip add onMessage interceptor");
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            InstrumentMethod streamCreatedMethod = target.getDeclaredMethod("streamCreated",
+                    "io.grpc.internal.ServerStream", "java.lang.String", "io.grpc.Metadata");
+            if (streamCreatedMethod != null) {
+                streamCreatedMethod.addInterceptor(ServerStreamCreatedInterceptor.class);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("can't find streamCreated method");
                 }
-                continue;
             }
 
-            declaredMethod.addInterceptor("com.navercorp.pinpoint.plugin.grpc.interceptor.server.ServerListenerInterceptor");
+            return target.toBytecode();
         }
-
     }
 
+    public static class AddAsyncContextAccessorTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            target.addField(AsyncContextAccessor.class);
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class ServerCallImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            target.addGetter(ServerStreamGetter.class, "stream");
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class UnaryServerCallHandler implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            GrpcUtils.addStartCallMethodInterceptor(target);
+
+            return target.toBytecode();
+        }
+    }
+
+
+    public static class UnaryServerCallListenerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            GrpcUtils.addListenerMethod(target, true);
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class StreamingServerCallHandlerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            GrpcUtils.addStartCallMethodInterceptor(target);
+
+            return target.toBytecode();
+        }
+    }
+
+
+    public static class StreamingServerCallListenerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final GrpcServerConfig grpcConfig = new GrpcServerConfig(instrumentor.getProfilerConfig());
+
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            GrpcUtils.addListenerMethod(target, grpcConfig.isServerStreamingOnMessageEnable());
+
+            return target.toBytecode();
+        }
+    }
+
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
+    }
 }

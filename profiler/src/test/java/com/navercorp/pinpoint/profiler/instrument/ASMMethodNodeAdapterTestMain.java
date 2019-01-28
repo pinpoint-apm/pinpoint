@@ -97,7 +97,7 @@ public class ASMMethodNodeAdapterTestMain {
                     try {
                         ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(name));
                         EngineComponent engineComponent = mock(DefaultEngineComponent.class);
-                        ASMClass asmClass = new ASMClass(engineComponent, null, null, classNode);
+                        ASMClass asmClass = new ASMClass(engineComponent, null, null, null, classNode);
                         if (asmClass.isInterceptable()) {
                             for (InstrumentMethod method : asmClass.getDeclaredMethods()) {
                                 try {

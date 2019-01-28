@@ -4,10 +4,6 @@
     background-color: #edf2f8;
 }
 
-header {
-    justify-content: flex-start;
-}
-
 .l-main-container {
     display: flex;
     height: calc(100% - 50px);
@@ -56,11 +52,11 @@ header {
     padding: 20px 15px 0;
 }
 
-.l-back-button {
+.l-exit-button {
     color: #fff;
     background-color: #4b99e3;
     font-size: 20px;
     height: 100%;
-    margin-left: 28px;
+    margin-right: 17px;
     outline: none;
 }

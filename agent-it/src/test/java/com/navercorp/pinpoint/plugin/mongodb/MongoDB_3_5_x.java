@@ -48,16 +48,23 @@ public class MongoDB_3_5_x extends MongoDBBase {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-
+        if (isWindows()) {
+            return;
+        }
     }
 
     @AfterClass
     public static void tearDownAfterClass() {
-
+        if (isWindows()) {
+            return;
+        }
     }
 
     @Test
     public void testConnection() throws Exception {
+        if (isWindows()) {
+            return;
+        }
 
         startDB();
 

@@ -15,10 +15,10 @@ export class InboundOutboundRangeSelectorContainerComponent implements OnInit, O
     private unsubscribe: Subject<null> = new Subject();
 
     hiddenComponent: boolean;
-    inboundList: string[];
-    outboundList: string[];
-    selectedInbound: string;
-    selectedOutbound: string;
+    inboundList: number[];
+    outboundList: number[];
+    selectedInbound: number;
+    selectedOutbound: number;
 
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
@@ -46,7 +46,7 @@ export class InboundOutboundRangeSelectorContainerComponent implements OnInit, O
                     outbound: urlService.hasValue(UrlQuery.OUTBOUND) ? urlService.getQueryValue(UrlQuery.OUTBOUND) : this.webAppSettingDataService.getUserDefaultOutbound()
                 };
             })
-        ).subscribe(({inbound, outbound}: {inbound: string, outbound: string}) => {
+        ).subscribe(({inbound, outbound}: {inbound: number, outbound: number}) => {
             this.selectedInbound = inbound;
             this.selectedOutbound = outbound;
             this.changeDetectorRef.detectChanges();
