@@ -16,10 +16,6 @@ package com.navercorp.pinpoint.plugin.php;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
