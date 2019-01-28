@@ -22,12 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 /**
- * <p>Description: </p>
- * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2018/12/26 14:23
- * @author biaoping.yin
- * @version 1.0
+ * @author yinbp[yin-bp@163.com]
  */
 public class InstrumentMethodIT implements InstrumentMethod {
 	private String name;
