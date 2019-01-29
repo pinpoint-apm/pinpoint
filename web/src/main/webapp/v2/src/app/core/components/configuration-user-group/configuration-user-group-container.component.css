@@ -1,5 +1,7 @@
 :host {
+    height: 100%;
     display: flex;
+    padding-bottom: 20px;
 }
 
 .l-content-item {
