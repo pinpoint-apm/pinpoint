@@ -16,27 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.mongodb;
 
-import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.connection.Cluster;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.Properties;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @author Roy Kim
@@ -48,11 +34,15 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 })
 public class MongoDB_3_0_x extends MongoDBBase {
 
+    private static com.mongodb.MongoClient mongoClient;
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         if (isWindows()) {
             return;
         }
+        version = 3.0;
+        secondCollectionDefaultOption = "SAFE";
     }
 
     @AfterClass
@@ -62,40 +52,16 @@ public class MongoDB_3_0_x extends MongoDBBase {
         }
     }
 
-    @Test
-    public void testConnection() throws Exception {
-        if (isWindows()) {
-            return;
-        }
-
-        startDB();
-
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-
-        //create DB
-        com.mongodb.MongoClient mongoClient = new com.mongodb.MongoClient("localhost", 27018);
-        verifier.printCache();
-        Class<?> clusterClass = Class.forName("com.mongodb.Mongo");
-
-        Constructor create = clusterClass.getDeclaredConstructor(Cluster.class, MongoClientOptions.class, List.class);
-        verifier.verifyTrace(event(MONGO, create, null, MONGODB_ADDRESS, null));
+    @Override
+    public void setClient() {
+        mongoClient = new com.mongodb.MongoClient("localhost", 27018);
 
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
-        MongoCollection<Document> collection = database.getCollection("customers");
-        MongoCollection<Document> collection2 = database.getCollection("customers2").withWriteConcern(WriteConcern.ACKNOWLEDGED);
-        Class<?> mongoDatabaseImpl = Class.forName("com.mongodb.MongoCollectionImpl");
-
-        insertComlexBsonValueData30(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
-        insertData(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
-        insertData(verifier, collection2, mongoDatabaseImpl, "customers2", "SAFE");
-        updateData(verifier, collection, mongoDatabaseImpl);
-        readData(verifier, collection, mongoDatabaseImpl);
-        deleteData(verifier, collection, mongoDatabaseImpl);
-
-        //close connection
-        mongoClient.close();
-        stopDB();
     }
 
+    @Override
+    public void closeClient() {
 
+        mongoClient.close();
+    }
 }
