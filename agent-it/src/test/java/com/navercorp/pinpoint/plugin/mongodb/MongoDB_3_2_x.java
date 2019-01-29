@@ -18,15 +18,10 @@ package com.navercorp.pinpoint.plugin.mongodb;
 
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoCollection;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -34,16 +29,19 @@ import org.junit.runner.RunWith;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.2.0,3.4.max]",
+        "org.mongodb:mongodb-driver:[3.2.0,3.3.max]",
         "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.1.1"
 })
 public class MongoDB_3_2_x extends MongoDBBase {
+
+    private static com.mongodb.MongoClient mongoClient;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         if (isWindows()) {
             return;
         }
+        version = 3.2;
     }
 
     @AfterClass
@@ -53,33 +51,14 @@ public class MongoDB_3_2_x extends MongoDBBase {
         }
     }
 
-    @Test
-    public void testConnection() throws Exception {
-        if (isWindows()) {
-            return;
-        }
-
-        startDB();
-
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-
-        com.mongodb.MongoClient mongoClient = new com.mongodb.MongoClient("localhost", 27018);
-
+    @Override
+    public void setClient() {
+        mongoClient = new com.mongodb.MongoClient("localhost", 27018);
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
-        MongoCollection<Document> collection = database.getCollection("customers");
-        MongoCollection<Document> collection2 = database.getCollection("customers2").withWriteConcern(WriteConcern.ACKNOWLEDGED);
-        Class<?> mongoDatabaseImpl = Class.forName("com.mongodb.MongoCollectionImpl");
+    }
 
-        insertComlexBsonValueData30(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
-        insertData(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
-        insertData(verifier, collection2, mongoDatabaseImpl, "customers2", "ACKNOWLEDGED");
-        updateData(verifier, collection, mongoDatabaseImpl);
-        readData(verifier, collection, mongoDatabaseImpl);
-        filterData(verifier, collection, mongoDatabaseImpl);
-        filterData2(verifier, collection, mongoDatabaseImpl);
-        deleteData(verifier, collection, mongoDatabaseImpl);
-
+    @Override
+    public void closeClient() {
         mongoClient.close();
-        stopDB();
     }
 }
