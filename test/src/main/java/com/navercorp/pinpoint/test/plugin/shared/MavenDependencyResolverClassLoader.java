@@ -45,23 +45,32 @@ public class MavenDependencyResolverClassLoader extends URLClassLoader {
         return super.loadClass(name);
     }
 
-    static ClassLoader getClassLoader(String[] jars) throws MalformedURLException {
+    static ClassLoader getClassLoader(String[] jars) {
         List<URL> urlList = getUrlList(jars);
 
         return new MavenDependencyResolverClassLoader(urlList.toArray(new URL[0]));
     }
 
-    private static List<URL> getUrlList(String[] jars) throws MalformedURLException {
+    private static List<URL> getUrlList(String[] jars) {
         if (jars == null) {
             return Collections.emptyList();
         }
 
         List<URL> urlList = new ArrayList<URL>();
         for (String jar : jars) {
-            File file = new File(jar);
-            urlList.add(file.toURI().toURL());
+            URL url = toURL(jar);
+            urlList.add(url);
         }
         return urlList;
+    }
+
+    private static URL toURL(String jar) {
+        try {
+            File file = new File(jar);
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
 }
