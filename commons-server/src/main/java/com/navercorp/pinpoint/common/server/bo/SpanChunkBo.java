@@ -29,6 +29,7 @@ public class SpanChunkBo implements BasicSpan {
 
     private long collectorAcceptTime;
 
+    private LocalAsyncIdBo localAsyncId;
 
 
     public SpanChunkBo() {
@@ -136,6 +137,14 @@ public class SpanChunkBo implements BasicSpan {
         this.spanEventBoList.addAll(spanEventBoList);
     }
 
+    public LocalAsyncIdBo getLocalAsyncId() {
+        return localAsyncId;
+    }
+
+    public void setLocalAsyncId(LocalAsyncIdBo localAsyncId) {
+        this.localAsyncId = localAsyncId;
+    }
+
     @Override
     public String toString() {
         return "SpanChunkBo{" +
@@ -150,6 +159,7 @@ public class SpanChunkBo implements BasicSpan {
                 ", applicationServiceType=" + applicationServiceType +
                 ", spanEventBoList=" + spanEventBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +
+                ", localAsyncId=" + localAsyncId +
                 '}';
     }
 }

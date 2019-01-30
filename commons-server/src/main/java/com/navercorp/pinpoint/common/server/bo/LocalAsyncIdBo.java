@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.common.server.bo;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultLocalAsyncId implements LocalAsyncId {
+public class LocalAsyncIdBo {
     private final int asyncId;
     private final int sequence;
 
-    public DefaultLocalAsyncId(int asyncId, int sequence) {
+    public LocalAsyncIdBo(int asyncId, int sequence) {
         this.asyncId = asyncId;
         this.sequence = sequence;
     }
 
-    @Override
     public int getAsyncId() {
         return asyncId;
     }
 
-    @Override
     public int getSequence() {
         return sequence;
     }
@@ -41,9 +39,9 @@ public class DefaultLocalAsyncId implements LocalAsyncId {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DefaultLocalAsyncId)) return false;
+        if (!(o instanceof LocalAsyncIdBo)) return false;
 
-        DefaultLocalAsyncId that = (DefaultLocalAsyncId) o;
+        LocalAsyncIdBo that = (LocalAsyncIdBo) o;
 
         if (asyncId != that.asyncId) return false;
         return sequence == that.sequence;
@@ -58,7 +56,7 @@ public class DefaultLocalAsyncId implements LocalAsyncId {
 
     @Override
     public String toString() {
-        return "DefaultLocalAsyncId{" +
+        return "LocalAsyncIdBo{" +
                 "asyncId=" + asyncId +
                 ", sequence=" + sequence +
                 '}';

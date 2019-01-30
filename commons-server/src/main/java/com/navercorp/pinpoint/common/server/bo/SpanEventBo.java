@@ -54,8 +54,9 @@ public class SpanEventBo implements Event {
 
     private int nextAsyncId = -1;
 
-
+    @Deprecated
     private int asyncId = -1;
+    @Deprecated
     private short asyncSequence = -1;
     
     public SpanEventBo() {
@@ -196,14 +197,6 @@ public class SpanEventBo implements Event {
         this.exceptionClass = exceptionClass;
     }
 
-    public int getAsyncId() {
-        return asyncId;
-    }
-
-    public void setAsyncId(int asyncId) {
-        this.asyncId = asyncId;
-    }
-
     public int getNextAsyncId() {
         return nextAsyncId;
     }
@@ -211,11 +204,24 @@ public class SpanEventBo implements Event {
     public void setNextAsyncId(int nextAsyncId) {
         this.nextAsyncId = nextAsyncId;
     }
-    
+
+
+    @Deprecated
+    public int getAsyncId() {
+        return asyncId;
+    }
+
+    @Deprecated
+    public void setAsyncId(int asyncId) {
+        this.asyncId = asyncId;
+    }
+
+    @Deprecated
     public short getAsyncSequence() {
         return asyncSequence;
     }
 
+    @Deprecated
     public void setAsyncSequence(short asyncSequence) {
         this.asyncSequence = asyncSequence;
     }

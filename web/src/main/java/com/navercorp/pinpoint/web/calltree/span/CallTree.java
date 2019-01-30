@@ -33,7 +33,7 @@ public interface CallTree extends Iterable<CallTreeNode> {
 
     void add(int parentDepth, CallTree tree);
 
-    void add(final int depth, final SpanAlign spanAlign);
+    void add(final int depth, final Align align);
     
     void sort();
 }

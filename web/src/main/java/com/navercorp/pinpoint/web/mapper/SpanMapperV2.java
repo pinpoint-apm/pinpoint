@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -171,8 +172,13 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
                 int agentLevelCollisionCount = 0;
                 for (SpanBo spanBo : matchedSpanBoList) {
-                    if (StringUtils.equals(spanBo.getAgentId(), spanChunkBo.getAgentId())) {
-                        spanBo.addSpanEventBoList(spanChunkBo.getSpanEventBoList());
+                    if (isChildSpanChunk(spanBo, spanChunkBo)) {
+                        final LocalAsyncIdBo parentAsyncIdBo = spanChunkBo.getLocalAsyncId();
+                        if (parentAsyncIdBo != null) {
+                            spanBo.addAsyncSpanBo(spanChunkBo);
+                        } else {
+                            spanBo.addSpanEventBoList(spanChunkBo.getSpanEventBoList());
+                        }
                         agentLevelCollisionCount++;
                     }
                 }
@@ -187,6 +193,22 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
             }
         }
         return Lists.newArrayList(spanMap.values());
+    }
+
+    private boolean isChildSpanChunk(SpanBo spanBo, SpanChunkBo spanChunkBo) {
+        if (spanBo.getSpanId() != spanChunkBo.getSpanId()) {
+            return false;
+        }
+        if (spanBo.getAgentStartTime() != spanChunkBo.getAgentStartTime()) {
+            return false;
+        }
+        if (!StringUtils.equals(spanBo.getAgentId(), spanChunkBo.getAgentId())) {
+            return false;
+        }
+        if (!StringUtils.equals(spanBo.getApplicationId(), spanChunkBo.getApplicationId())) {
+            return false;
+        }
+        return true;
     }
 
     private AgentKey newAgentKey(BasicSpan basicSpan) {

@@ -21,7 +21,6 @@ import java.util.List;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -30,8 +29,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.util.ApiDescription;
 import com.navercorp.pinpoint.common.server.util.ApiDescriptionParser;
+import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
-import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +58,7 @@ public class RecordFactory {
     }
 
     public Record get(final CallTreeNode node) {
-        final SpanAlign align = node.getValue();
+        final Align align = node.getAlign();
         align.setId(getNextId());
 
         final int parentId = getParentId(node);
@@ -91,31 +90,23 @@ public class RecordFactory {
         return record;
     }
 
-    private String getArgument(final SpanAlign spanAlign) {
-        if (spanAlign.isSpan()) {
-            return getRpcArgument(spanAlign);
-        }
-
-        return getDisplayArgument(spanAlign);
-    }
-
-    private String getRpcArgument(SpanAlign spanAlign) {
-        SpanBo spanBo = spanAlign.getSpanBo();
-        String rpc = spanBo.getRpc();
+    private String getArgument(final Align align) {
+        final String rpc = align.getRpc();
         if (rpc != null) {
             return rpc;
         }
-        return getDisplayArgument(spanAlign);
+
+        return getDisplayArgument(align);
     }
 
-    private String getDisplayArgument(SpanAlign spanAlign) {
-        AnnotationBo displayArgument = getDisplayArgument0(spanAlign.getServiceType(), spanAlign.getAnnotationBoList());
+    private String getDisplayArgument(Align align) {
+        final AnnotationBo displayArgument = getDisplayArgument0(align.getServiceType(), align.getAnnotationBoList());
         if (displayArgument == null) {
             return "";
         }
 
         final AnnotationKey key = findAnnotationKey(displayArgument.getKey());
-        return this.annotationRecordFormatter.formatArguments(key, displayArgument, spanAlign);
+        return this.annotationRecordFormatter.formatArguments(key, displayArgument, align);
     }
 
     private AnnotationBo getDisplayArgument0(final short serviceType, final List<AnnotationBo> annotationBoList) {
@@ -139,7 +130,7 @@ public class RecordFactory {
     }
 
     public Record getFilteredRecord(final CallTreeNode node, String apiTitle) {
-        final SpanAlign align = node.getValue();
+        final Align align = node.getAlign();
         align.setId(getNextId());
 
         final int parentId = getParentId(node);
@@ -169,14 +160,14 @@ public class RecordFactory {
         return record;
     }
 
-    public Record getException(final int depth, final int parentId, final SpanAlign align) {
+    public Record getException(final int depth, final int parentId, final Align align) {
         if (!align.hasException()) {
             return null;
         }
         return new ExceptionRecord(depth, getNextId(), parentId, align);
     }
 
-    public List<Record> getAnnotations(final int depth, final int parentId, SpanAlign align) {
+    public List<Record> getAnnotations(final int depth, final int parentId, Align align) {
         List<Record> list = new ArrayList<>();
         for (AnnotationBo annotation : align.getAnnotationBoList()) {
             final AnnotationKey key = findAnnotationKey(annotation.getKey());
@@ -198,17 +189,17 @@ public class RecordFactory {
     int getParentId(final CallTreeNode node) {
         final CallTreeNode parent = node.getParent();
         if (parent == null) {
-            if (!node.getValue().isSpan()) {
+            if (!node.getAlign().isSpan()) {
                 throw new IllegalStateException("parent is null. node=" + node);
             }
 
             return 0;
         }
 
-        return parent.getValue().getId();
+        return parent.getAlign().getId();
     }
 
-    private Api getApi(final SpanAlign align) {
+    private Api getApi(final Align align) {
 
         final AnnotationBo annotation = AnnotationUtils.findAnnotationBo(align.getAnnotationBoList(), AnnotationKey.API_METADATA);
         if (annotation != null) {
