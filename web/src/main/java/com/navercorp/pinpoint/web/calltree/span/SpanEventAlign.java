@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,52 +16,41 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import org.apache.commons.collections.CollectionUtils;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  */
-public class SpanAlign implements Align {
+public class SpanEventAlign implements Align {
     private final SpanBo spanBo;
-    private final boolean hasChild;
-    private final boolean meta;
+    private final SpanEventBo spanEventBo;
 
     private int id;
     private long gap;
     private int depth;
     private long executionMilliseconds;
 
-    public SpanAlign(SpanBo spanBo) {
-        this(spanBo, false);
-    }
 
-    public SpanAlign(SpanBo spanBo, boolean meta) {
+    public SpanEventAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
         this.spanBo = Objects.requireNonNull(spanBo, "spanBo must not be null");
-        this.hasChild = hasChild0();
-        this.meta = meta;
-    }
-
-    private boolean hasChild0() {
-        List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
-        return CollectionUtils.isNotEmpty(spanEvents);
+        this.spanEventBo = Objects.requireNonNull(spanEventBo, "spanEventBo must not be null");
     }
 
     @Override
     public boolean isMeta() {
-        return meta;
+        return false;
     }
 
     @Override
     public boolean isSpan() {
-        return true;
+        return false;
     }
 
     @Override
@@ -71,12 +60,12 @@ public class SpanAlign implements Align {
 
     @Override
     public SpanEventBo getSpanEventBo() {
-        return null;
+        return spanEventBo;
     }
 
     @Override
     public boolean hasChild() {
-        return hasChild;
+        return false;
     }
 
     @Override
@@ -112,7 +101,6 @@ public class SpanAlign implements Align {
     @Override
     public boolean isAsync() {
         return false;
-
     }
 
     @Override
@@ -142,33 +130,27 @@ public class SpanAlign implements Align {
 
     @Override
     public long getLastTime() {
-        return spanBo.getStartTime() + spanBo.getElapsed();
+
+        return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
     }
 
     @Override
     public long getStartTime() {
-        return spanBo.getStartTime();
+        return spanBo.getStartTime() + spanEventBo.getStartElapsed();
     }
 
     @Override
     public long getElapsed() {
-        return spanBo.getElapsed();
+        return spanEventBo.getEndElapsed();
     }
 
     @Override
     public String getAgentId() {
-        if (isMeta()) {
-            return " ";
-        }
-
         return spanBo.getAgentId();
     }
 
     @Override
     public String getApplicationId() {
-        if (isMeta()) {
-            return " ";
-        }
         return spanBo.getApplicationId();
     }
 
@@ -179,7 +161,7 @@ public class SpanAlign implements Align {
 
     @Override
     public short getServiceType() {
-        return spanBo.getServiceType();
+        return spanEventBo.getServiceType();
     }
 
     @Override
@@ -194,57 +176,57 @@ public class SpanAlign implements Align {
 
     @Override
     public boolean hasException() {
-        return spanBo.hasException();
+        return spanEventBo.hasException();
     }
 
     @Override
     public int getExceptionId() {
-        return spanBo.getExceptionId();
+        return spanEventBo.getExceptionId();
     }
 
     @Override
     public String getExceptionClass() {
-        return spanBo.getExceptionClass();
+        return spanEventBo.getExceptionClass();
     }
 
     @Override
     public void setExceptionClass(String exceptionClass) {
-        spanBo.setExceptionClass(exceptionClass);
+        spanEventBo.setExceptionClass(exceptionClass);
     }
 
     @Override
     public String getExceptionMessage() {
-        return spanBo.getExceptionMessage();
+        return spanEventBo.getExceptionMessage();
     }
 
     @Override
     public String getRemoteAddr() {
-        return spanBo.getRemoteAddr();
+        return null;
     }
 
     @Override
     public String getRpc() {
-        return spanBo.getRpc();
+        return null;
     }
 
     @Override
     public int getApiId() {
-        return spanBo.getApiId();
+        return spanEventBo.getApiId();
     }
 
     @Override
     public List<AnnotationBo> getAnnotationBoList() {
-        return spanBo.getAnnotationBoList();
+        return spanEventBo.getAnnotationBoList();
     }
 
     @Override
     public void setAnnotationBoList(List<AnnotationBo> annotationBoList) {
-        spanBo.setAnnotationBoList(annotationBoList);
+        spanEventBo.setAnnotationBoList(annotationBoList);
     }
 
     @Override
     public String getDestinationId() {
-        return null;
+        return spanEventBo.getDestinationId();
     }
 
     @Override
@@ -254,14 +236,14 @@ public class SpanAlign implements Align {
 
     @Override
     public String toString() {
-        return "SpanAlign{" +
+        return "SpanEventAlign{" +
                 "spanBo=" + spanBo +
-                ", hasChild=" + hasChild +
-                ", meta=" + meta +
+                ", spanEventBo=" + spanEventBo +
                 ", id=" + id +
                 ", gap=" + gap +
                 ", depth=" + depth +
                 ", executionMilliseconds=" + executionMilliseconds +
                 '}';
     }
+
 }

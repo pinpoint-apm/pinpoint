@@ -21,8 +21,8 @@ package com.navercorp.pinpoint.web.calltree.span;
  */
 public class MetaSpanCallTree extends SpanCallTree {
 
-    public MetaSpanCallTree(SpanAlign spanAlign) {
-        super(spanAlign);
+    public MetaSpanCallTree(Align align) {
+        super(align);
     }
 
     @Override
@@ -33,8 +33,8 @@ public class MetaSpanCallTree extends SpanCallTree {
             return;
         }
         // increase elapsed time
-        final int elapsedTime = getRoot().getValue().getSpanBo().getElapsed() + node.getValue().getSpanBo().getElapsed();
-        getRoot().getValue().getSpanBo().setElapsed(elapsedTime);
+        final int elapsedTime = getRoot().getAlign().getSpanBo().getElapsed() + node.getAlign().getSpanBo().getElapsed();
+        getRoot().getAlign().getSpanBo().setElapsed(elapsedTime);
         super.add(tree);
     }
 }

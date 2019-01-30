@@ -24,7 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -52,7 +54,7 @@ public class CallTreeIteratorTest {
         callStack.add("#####", 4, 1, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -66,7 +68,7 @@ public class CallTreeIteratorTest {
         callStack.add("####", 3, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -80,7 +82,7 @@ public class CallTreeIteratorTest {
         callStack.add("###", 2, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -94,7 +96,7 @@ public class CallTreeIteratorTest {
         callStack.add("##", 1, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -108,7 +110,7 @@ public class CallTreeIteratorTest {
         callStack.add("#####", 4, 1, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -122,7 +124,7 @@ public class CallTreeIteratorTest {
         callStack.add("####", 3, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -136,7 +138,7 @@ public class CallTreeIteratorTest {
         callStack.add("###", 2, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -150,7 +152,7 @@ public class CallTreeIteratorTest {
         callStack.add("##", 1, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -165,7 +167,7 @@ public class CallTreeIteratorTest {
         callStack.add("####", 3, 4, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -180,7 +182,7 @@ public class CallTreeIteratorTest {
         callStack.add("###", 2, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -195,7 +197,7 @@ public class CallTreeIteratorTest {
         callStack.add("##", 1, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
 
@@ -213,7 +215,7 @@ public class CallTreeIteratorTest {
         callStack.add("RRRRRRRR", 7, 1, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -227,7 +229,7 @@ public class CallTreeIteratorTest {
         callStack.add("RRRR", 3, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -241,7 +243,7 @@ public class CallTreeIteratorTest {
         callStack.add("RRR", 2, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -255,7 +257,7 @@ public class CallTreeIteratorTest {
         callStack.add("RR", 1, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -270,7 +272,7 @@ public class CallTreeIteratorTest {
         callStack.add("RRRRRR", 5, 1, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -285,7 +287,7 @@ public class CallTreeIteratorTest {
         callStack.add("RRRRR", 4, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -300,7 +302,7 @@ public class CallTreeIteratorTest {
         callStack.add("RRRR", 3, 4, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -315,7 +317,7 @@ public class CallTreeIteratorTest {
         callStack.add("RR", 1, 0, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -329,7 +331,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAAAA", 4, 2, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -343,7 +345,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAAA", 3, 3, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -357,7 +359,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAA", 2, 4, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -372,7 +374,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAAAAA", 5, 2, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -388,7 +390,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAAAAA", 5, 3, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -402,7 +404,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAAA", 3, 3, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -416,7 +418,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAA", 2, 4, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -430,7 +432,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAAAA", 4, 2, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -445,7 +447,7 @@ public class CallTreeIteratorTest {
         callStack.add("AAAA", 3, 2, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
     @Test
@@ -459,40 +461,40 @@ public class CallTreeIteratorTest {
         callStack.add("AAA", 2, 5, 1); // check
 
         CallTree callTree = factory.get(callStack.getEvents());
-        assertCallTree(callTree, callStack.getDepths(), callStack.getGaps(), callStack.getExecs(), true);
+        assertCallTree(callTree, callStack.getStackEvents(), true);
     }
 
-    private void assertCallTree(CallTree callTree, List<Integer> expectedDepths, List<Integer> expectedGaps, List<Integer> expectedExecs, boolean check) {
-        Queue<Integer> depths = new LinkedBlockingQueue<>(expectedDepths);
-        Queue<Integer> gaps = new LinkedBlockingQueue<>(expectedGaps);
-        Queue<Integer> execs = new LinkedBlockingQueue<>(expectedExecs);
+    private void assertCallTree(CallTree callTree, List<StackEvent> stackEvents, boolean check) {
 
-        int index = 0;
+        Queue<StackEvent> stackEventQueue = new LinkedList<>(stackEvents);
+        if (check && CollectionUtils.isNotEmpty(stackEventQueue)) {
+            int index = 0;
+            for (CallTreeNode callTreeNode : callTree) {
+                Align align = callTreeNode.getAlign();
+                final StackEvent stackEvent = stackEventQueue.poll();
+                assertEquals("depth " + index, stackEvent.getDepth(), align.getDepth());
+                assertEquals("gap " + index, stackEvent.getGap(), align.getGap());
+                assertEquals("exec " + index, stackEvent.getExec(), align.getExecutionMilliseconds());
+                index++;
+            }
+        }
+// TODO Check CI log
+        log(callTree);
+    }
+
+    private void log(CallTree callTree) {
         CallTreeIterator iterator = callTree.iterator();
         final StringBuilder buffer = new StringBuilder("\n");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
-            SpanAlign align = node.getValue();
-            if (check && CollectionUtils.isNotEmpty(depths)) {
-                final int depth = depths.poll();
-                assertEquals("depth " + index, depth, align.getDepth());
-            }
-            if (check && CollectionUtils.isNotEmpty(gaps)) {
-                final int gap = gaps.poll();
-                assertEquals("gap " + index, gap, align.getGap());
-            }
-            if (check && CollectionUtils.isNotEmpty(execs)) {
-                final int exec = execs.poll();
-                assertEquals("exec " + index, exec, align.getExecutionMilliseconds());
-            }
-
+            Align align = node.getAlign();
             for (int i = 0; i <= align.getDepth(); i++) {
                 if (align.isSpan()) {
-                    buffer.append("R");
+                    buffer.append(EventType.REMOTE);
                 } else if (align.isAsync()) {
-                    buffer.append("A");
+                    buffer.append(EventType.ASYNC);
                 } else {
-                    buffer.append("#");
+                    buffer.append(EventType.INTERNAL);
                 }
             }
             buffer.append(" : depth=");
@@ -515,10 +517,8 @@ public class CallTreeIteratorTest {
             }
             buffer.append("\n");
 
-            index++;
         }
-        // TODO Check CI log
-        //logger.debug(buffer.toString());
+        logger.debug(buffer.toString());
     }
 
     private Queue<Integer> parseExpected(String expectedValues) {
@@ -537,32 +537,86 @@ public class CallTreeIteratorTest {
 
 
     class CallStackDummy {
-        List<String> events = new ArrayList<String>();
-        List<Integer> depths = new ArrayList<Integer>();
-        List<Integer> gaps = new ArrayList<Integer>();
-        List<Integer> execs = new ArrayList<Integer>();
+        final List<StackEvent> stackEvents = new ArrayList<>();
 
         public void add(String event, int depth, int gap, int exec) {
-            events.add(event);
-            depths.add(depth);
-            gaps.add(gap);
-            execs.add(exec);
+            final StackEvent stackEvent = new StackEvent(event, depth, gap, exec);
+            this.stackEvents.add(stackEvent);
         }
 
         List<String> getEvents() {
-            return events;
+            List<String> eventList = new ArrayList<>(stackEvents.size());
+            for (StackEvent stackEvent : stackEvents) {
+                eventList.add(stackEvent.getEvent());
+            }
+            return eventList;
         }
 
-        List<Integer> getDepths() {
-            return depths;
+        List<StackEvent> getStackEvents() {
+            return stackEvents;
         }
 
-        List<Integer> getGaps() {
-            return gaps;
+    }
+
+    static class StackEvent {
+        private final String event;
+        private final int depth;
+        private final int gap;
+        private final int exec;
+
+        public StackEvent(String event, int depth, int gap, int exec) {
+            this.event = Objects.requireNonNull(event, "event must not be null");
+            this.depth = depth;
+            this.gap = gap;
+            this.exec = exec;
         }
 
-        List<Integer> getExecs() {
-            return execs;
+        public String getEvent() {
+            return event;
+        }
+
+        public int getDepth() {
+            return depth;
+        }
+
+        public int getGap() {
+            return gap;
+        }
+
+        public int getExec() {
+            return exec;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof StackEvent)) return false;
+
+            StackEvent that = (StackEvent) o;
+
+            if (depth != that.depth) return false;
+            if (gap != that.gap) return false;
+            if (exec != that.exec) return false;
+            return event != null ? event.equals(that.event) : that.event == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = event != null ? event.hashCode() : 0;
+            result = 31 * result + depth;
+            result = 31 * result + gap;
+            result = 31 * result + exec;
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "StackEvent{" +
+                    "event='" + event + '\'' +
+                    ", depth=" + depth +
+                    ", gap=" + gap +
+                    ", exec=" + exec +
+                    '}';
         }
     }
 }
