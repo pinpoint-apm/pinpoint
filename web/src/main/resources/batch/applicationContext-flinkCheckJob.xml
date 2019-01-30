@@ -15,5 +15,5 @@
         </batch:listeners>
     </batch:job>
 
-    <bean id="healthCheckTasklet" class="com.navercorp.pinpoint.web.batch.flink.HealthCheckTasklet"/>
+    <bean id="healthCheckTasklet" class="com.navercorp.pinpoint.web.batch.flink.HealthCheckTaskletV2"/>
 </beans>
