@@ -21,7 +21,6 @@ form {
 .l-form-grid {
     color: #333;
     border: 1px solid #e5e8f0;
-    height: 100%;
     display: grid;
     position: relative;
     font-size: 13px;

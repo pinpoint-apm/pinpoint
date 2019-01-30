@@ -21,9 +21,9 @@ package com.navercorp.pinpoint.profiler.context;
  */
 public class DefaultLocalAsyncId implements LocalAsyncId {
     private final int asyncId;
-    private final short sequence;
+    private final int sequence;
 
-    public DefaultLocalAsyncId(int asyncId, short sequence) {
+    public DefaultLocalAsyncId(int asyncId, int sequence) {
         this.asyncId = asyncId;
         this.sequence = sequence;
     }
@@ -34,7 +34,7 @@ public class DefaultLocalAsyncId implements LocalAsyncId {
     }
 
     @Override
-    public short getSequence() {
+    public int getSequence() {
         return sequence;
     }
 
