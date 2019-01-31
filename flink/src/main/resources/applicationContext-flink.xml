@@ -235,6 +235,7 @@
         <property name="tcpPacketHandlerFactory" ref="flinkPacketHandlerFactory"/>
     </bean>
 
-
     <bean id="tcpSourceFunction" class="com.navercorp.pinpoint.flink.receiver.TcpSourceFunction"/>
+
+    <bean id="agentStatHandler" class="com.navercorp.pinpoint.flink.receiver.AgentStatHandler"/>
 </beans>
