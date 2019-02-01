@@ -60,7 +60,7 @@ public class ProducerSendInterceptorTest {
         short s = 0;
         doReturn(s).when(nextId).getFlags();
 
-        ProducerSendInterceptor interceptor = new ProducerSendInterceptor(traceContext, descriptor);
+        ProducerSendInterceptor interceptor = new ProducerSendInterceptor(traceContext, descriptor, true, false);
         Object target = new Object();
         Object[] args = new Object[]{record};
         interceptor.before(target, args);
@@ -76,7 +76,7 @@ public class ProducerSendInterceptorTest {
         doReturn(recorder).when(trace).currentSpanEventRecorder();
         doReturn("test").when(record).topic();
 
-        ProducerSendInterceptor interceptor = new ProducerSendInterceptor(traceContext, descriptor);
+        ProducerSendInterceptor interceptor = new ProducerSendInterceptor(traceContext, descriptor, true, false);
         Object[] args = new Object[]{record};
         interceptor.after(addressFieldAccessor, args, null, null);
 

@@ -40,7 +40,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
     @Test
     public void doInBeforeTrace() {
 
-        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
+        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0, true, false);
 
         interceptor.doInBeforeTrace(eventRecorder, new Object(), new Object[]{});
 
@@ -50,7 +50,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
     @Test
     public void doInAfterTrace() {
 
-        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
+        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0, true, false);
 
         interceptor.doInAfterTrace(eventRecorder, new Object(), new Object[]{}, null, null);
 
@@ -71,7 +71,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
         doReturn(headers).when(consumerRecord).headers();
         doReturn(new Header[]{}).when(headers).toArray();
 
-        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
+        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0, true, false);
 
         interceptor.createTrace(new Object(), new Object[]{consumerRecord});
 

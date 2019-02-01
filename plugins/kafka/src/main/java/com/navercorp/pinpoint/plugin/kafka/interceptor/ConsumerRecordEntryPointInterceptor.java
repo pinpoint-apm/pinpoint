@@ -45,11 +45,15 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
     private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<TraceFactoryProvider.TraceFactory>();
 
     protected final int parameterIndex;
+    protected final boolean paramsProfile;
+    protected final boolean topicProfile;
 
-    public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex) {
+    public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex, boolean paramsProfile, boolean topicProfile) {
         super(traceContext, methodDescriptor, SCOPE_NAME);
         traceContext.cacheApi(ENTRY_POINT_METHOD_DESCRIPTOR);
         this.parameterIndex = parameterIndex;
+        this.paramsProfile = paramsProfile;
+        this.topicProfile = topicProfile;
     }
 
     @Override
@@ -97,7 +101,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
     private Trace createTrace(ConsumerRecord consumerRecord) {
         TraceFactoryProvider.TraceFactory createTrace = tracyFactoryReference.get();
         if (createTrace == null) {
-            createTrace = TraceFactoryProvider.get(consumerRecord);
+            createTrace = TraceFactoryProvider.get(consumerRecord, paramsProfile, topicProfile);
             tracyFactoryReference.compareAndSet(null, createTrace);
         }
         return createTrace.createTrace(traceContext, consumerRecord);
@@ -105,30 +109,35 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     private static class TraceFactoryProvider {
 
-        private static TraceFactory get(Object object) {
+        private static TraceFactory get(Object object, boolean paramsProfile, boolean topicProfile) {
             try {
                 final Class<?> aClass = object.getClass();
                 final Method method = aClass.getMethod("headers");
 
                 if (method != null) {
-                    return new SupportContinueTraceFactory();
+                    return new SupportContinueTraceFactory(paramsProfile, topicProfile);
                 }
             } catch (NoSuchMethodException e) {
                 // ignore
             }
-            return new DefaultTraceFactory();
+            return new DefaultTraceFactory(paramsProfile, topicProfile);
         }
 
         private interface TraceFactory {
 
             Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord);
-
         }
 
         private static class DefaultTraceFactory implements TraceFactory {
 
             final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-            final boolean isDebug = logger.isDebugEnabled();
+            final boolean paramsProfile;
+            final boolean topicProfile;
+
+            public DefaultTraceFactory(boolean paramsProfile, boolean topicProfile) {
+                this.paramsProfile = paramsProfile;
+                this.topicProfile = topicProfile;
+            }
 
             @Override
             public Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord) {
@@ -140,12 +149,12 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
                     recordRootSpan(recorder, consumerRecord);
-                    if (isDebug) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("TraceID not exist. start new trace.");
                     }
                     return trace;
                 } else {
-                    if (isDebug) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("TraceID not exist. camSampled is false. skip trace.");
                     }
                     return null;
@@ -161,16 +170,18 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 recorder.recordApi(ConsumerRecordEntryPointInterceptor.ENTRY_POINT_METHOD_DESCRIPTOR);
 
                 String remoteAddress = getRemoteAddress(consumerRecord);
+                String topic = consumerRecord.topic();
+
+                recorder.recordRpcName(createRpcName(consumerRecord));
                 recorder.recordEndPoint(remoteAddress);
                 recorder.recordRemoteAddress(remoteAddress);
+                recorder.recordAcceptorHost(topicProfile ? topic : remoteAddress);
 
-                String topic = consumerRecord.topic();
-                recorder.recordRpcName(createRpcName(consumerRecord));
-                recorder.recordAcceptorHost(remoteAddress);
-                recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
-
-                recorder.recordAttribute(KafkaConstants.KAFKA_PARTITION_ANNOTATION_KEY, consumerRecord.partition());
-                recorder.recordAttribute(KafkaConstants.KAFKA_OFFSET_ANNOTATION_KEY, consumerRecord.offset());
+                if (paramsProfile) {
+                    recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
+                    recorder.recordAttribute(KafkaConstants.KAFKA_PARTITION_ANNOTATION_KEY, consumerRecord.partition());
+                    recorder.recordAttribute(KafkaConstants.KAFKA_OFFSET_ANNOTATION_KEY, consumerRecord.offset());
+                }
 
                 if (StringUtils.hasText(parentApplicationName) && StringUtils.hasText(parentApplicationType)) {
                     recorder.recordParentApplication(parentApplicationName, NumberUtils.parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
@@ -203,6 +214,10 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
         private static class SupportContinueTraceFactory extends DefaultTraceFactory {
 
+            public SupportContinueTraceFactory(boolean paramsProfile, boolean topicProfile) {
+                super(paramsProfile, topicProfile);
+            }
+
             @Override
             public Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord) {
                 org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
@@ -214,7 +229,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                     // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
                     // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
                     final Trace trace = traceContext.disableSampling();
-                    if (isDebug) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("remotecall sampling flag found. skip trace");
                     }
                     return trace;
@@ -264,7 +279,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
             }
 
             private Trace createContinueTrace(TraceContext traceContext, ConsumerRecord consumerRecord, TraceId traceId) {
-                if (isDebug) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("TraceID exist. continue trace. traceId:{}", traceId);
                 }
 
