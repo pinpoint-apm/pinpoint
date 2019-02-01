@@ -34,8 +34,6 @@ public class FlinkConfiguration extends CollectorConfiguration {
     private int flinkClusterTcpPort;
     private String flinkStreamExecutionEnvironment;
 
-    private int flinkSourceFunctionParallel;
-
     public boolean isFlinkClusterEnable() {
         return flinkClusterEnable;
     }
@@ -56,10 +54,6 @@ public class FlinkConfiguration extends CollectorConfiguration {
         return flinkRetryInterval;
     }
 
-    public int getFlinkSourceFunctionParallel() {
-        return flinkSourceFunctionParallel;
-    }
-
     public boolean isLocalforFlinkStreamExecutionEnvironment() {
         return "local".equals(flinkStreamExecutionEnvironment) ? true : false;
     }
@@ -76,6 +70,5 @@ public class FlinkConfiguration extends CollectorConfiguration {
         this.flinkRetryInterval =  readInt(properties, "flink.cluster.zookeeper.retry.interval", 60000);
         this.flinkClusterTcpPort = readInt(properties,"flink.cluster.tcp.port", 19994);
         this.flinkStreamExecutionEnvironment = readString(properties, "flink.StreamExecutionEnvironment", "server");
-        this.flinkSourceFunctionParallel = readInt(properties, "flink.sourceFunction.Parallel", 1);
     }
 }

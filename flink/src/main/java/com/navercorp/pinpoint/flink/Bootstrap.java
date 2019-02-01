@@ -152,11 +152,6 @@ public class Bootstrap {
         }
     }
 
-    public void setSourceFunctionParallel(DataStreamSource rawData) {
-        int parallel = flinkConfiguration.getFlinkSourceFunctionParallel();
-        rawData.setParallelism(parallel);
-    }
-
     public void setStatHandlerTcpDispatchHandler(SourceContext<RawData> sourceContext) {
         agentStatHandler.addSourceContext(sourceContext);
         tcpDispatchHandler.setAgentStatHandler(agentStatHandler);
