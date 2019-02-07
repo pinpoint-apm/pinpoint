@@ -93,13 +93,61 @@ public class DefaultTraceTest {
         trace.close();
     }
 
+    @Test
+    public void overflow() {
+        Trace trace = newTrace(2);
+        SpanEventRecorder recorder1 = trace.traceBlockBegin();
+        SpanEventRecorder recorder2 = trace.traceBlockBegin();
+        SpanEventRecorder recorder3 = trace.traceBlockBegin();
+        // overflow
+        SpanEventRecorder recorder4 = trace.traceBlockBegin();
+        trace.traceBlockEnd();
+
+        trace.traceBlockEnd();
+        trace.traceBlockEnd();
+        trace.traceBlockEnd();
+        trace.close();
+    }
+
+    @Test
+    public void overflowUnlimit() {
+        Trace trace = newTrace(-1);
+        for(int i = 0; i < 256; i++) {
+            trace.traceBlockBegin();
+        }
+
+        for(int i = 0; i < 256; i++) {
+            trace.traceBlockEnd();
+        }
+    }
+
+    @Test
+    public void close() {
+        Trace trace = newTrace();
+        trace.close();
+        // Already closed
+        SpanEventRecorder recorder1 = trace.traceBlockBegin();
+        trace.traceBlockEnd();
+    }
+
+    @Test
+    public void notEmpty() {
+        Trace trace = newTrace();
+        SpanEventRecorder recorder1 = trace.traceBlockBegin();
+        trace.close();
+    }
+
     private Trace newTrace() {
+        return newTrace(64);
+    }
+
+    private Trace newTrace(final int maxCallStackDepth) {
         when(traceRoot.getShared()).thenReturn(shared);
 
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 0);
         when(traceRoot.getTraceId()).thenReturn(traceId);
 
-        CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(64);
+        CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(maxCallStackDepth);
         CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
         SpanFactory spanFactory = new DefaultSpanFactory();
