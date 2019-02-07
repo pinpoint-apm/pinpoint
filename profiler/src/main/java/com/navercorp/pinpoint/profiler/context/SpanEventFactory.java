@@ -20,6 +20,8 @@ package com.navercorp.pinpoint.profiler.context;
  * @author Woonduk Kang(emeroad)
  */
 public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
+    private static final SpanEvent DUMMY = new SpanEvent();
+
     @Override
     public Class<SpanEvent> getType() {
         return SpanEvent.class;
@@ -28,6 +30,16 @@ public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
     @Override
     public SpanEvent newInstance() {
         return new SpanEvent();
+    }
+
+    @Override
+    public SpanEvent dummyInstance() {
+        return DUMMY;
+    }
+
+    @Override
+    public boolean isDummy(SpanEvent element) {
+        return DUMMY == element;
     }
 
     @Override
