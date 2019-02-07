@@ -40,7 +40,7 @@
 						scope.agentList = node["agentIds"] ? node["agentIds"].sort() : [];
 					}
 					function getIconUrl( serviceType ) {
-						return PreferenceService.getIconPath() + ( /.*\_GROUP/.test( serviceType ) ? serviceType.split("_")[0] : serviceType ) + ".png";
+						return PreferenceService.getIconPath() + ( /.*\_GROUP/.test( serviceType ) ? serviceType.replace(/(.*)(\_GROUP)/, "$1") : serviceType ) + ".png";
 					}
 					function getNodeName( applicationName ) {
 						return applicationName.replace( "_", " " );
