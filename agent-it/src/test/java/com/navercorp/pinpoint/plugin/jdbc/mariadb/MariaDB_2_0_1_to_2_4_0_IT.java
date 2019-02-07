@@ -40,8 +40,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8) // 2.x+ requires Java 8
-@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.0.1,)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2" })
-public class MariaDB_2_x_IT extends MariaDB_IT_Base {
+@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.0.1,2.4.min)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2" })
+public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
     private  static final String CALLABLE_QUERY_META_INFOS_QUERY = "select param_list, returns, db, type from mysql.proc where name=? and db=DATABASE()";
