@@ -41,6 +41,10 @@ public interface CallStack<T> {
 
         T newInstance();
 
+        T dummyInstance();
+
+        boolean isDummy(T element);
+
         void markDepth(T element, int index);
 
         void setSequence(T element, short sequence);

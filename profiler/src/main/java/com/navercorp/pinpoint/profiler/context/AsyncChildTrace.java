@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -33,6 +34,7 @@ public class AsyncChildTrace implements Trace {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncChildTrace.class.getName());
     private static final boolean isWarn = logger.isWarnEnabled();
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     private final boolean sampling;
 
@@ -111,19 +113,12 @@ public class AsyncChildTrace implements Trace {
             if (isWarn) {
                 stackDump("already closed trace");
             }
-            final SpanEvent dummy = newSpanEvent(stackId);
+            final SpanEvent dummy = dummySpanEvent();
             return dummy;
         }
         // Set properties for the case when stackFrame is not used as part of Span.
         final SpanEvent spanEvent = newSpanEvent(stackId);
         this.callStack.push(spanEvent);
-        return spanEvent;
-    }
-
-    private SpanEvent newSpanEvent(int stackId) {
-        final SpanEvent spanEvent = new SpanEvent();
-        spanEvent.markStartTime();
-        spanEvent.setStackId(stackId);
         return spanEvent;
     }
 
@@ -156,6 +151,13 @@ public class AsyncChildTrace implements Trace {
         if (spanEvent == null) {
             if (isWarn) {
                 stackDump("call stack is empty.");
+            }
+            return;
+        }
+
+        if (isDummySpanEvent(spanEvent)) {
+            if (isDebug) {
+                logger.debug("[AsyncChildTrace] Skip dummy spanEvent");
             }
             return;
         }
@@ -249,10 +251,27 @@ public class AsyncChildTrace implements Trace {
                 stackDump("call stack is empty");
             }
             // make dummy.
-            spanEvent = new SpanEvent();
+            spanEvent = dummySpanEvent();
         }
 
         return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
+    }
+
+    private SpanEvent newSpanEvent(int stackId) {
+        final SpanEvent spanEvent = callStack.getFactory().newInstance();
+        spanEvent.markStartTime();
+        spanEvent.setStackId(stackId);
+        return spanEvent;
+    }
+
+    @VisibleForTesting
+    SpanEvent dummySpanEvent() {
+        return callStack.getFactory().dummyInstance();
+    }
+
+    @VisibleForTesting
+    boolean isDummySpanEvent(final SpanEvent spanEvent) {
+        return callStack.getFactory().isDummy(spanEvent);
     }
 
     @Override
