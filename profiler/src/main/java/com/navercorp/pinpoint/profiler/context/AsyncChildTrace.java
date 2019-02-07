@@ -171,6 +171,9 @@ public class AsyncChildTrace implements Trace {
             spanEvent.markAfterTime();
         }
         logSpan(spanEvent);
+        // state restore
+        final SpanEvent previous = callStack.peek();
+        wrappedSpanEventRecorder.setWrapped(previous);
     }
 
     private void logSpan(SpanEvent spanEvent) {

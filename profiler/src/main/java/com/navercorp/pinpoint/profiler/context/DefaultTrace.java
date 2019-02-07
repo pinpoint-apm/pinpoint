@@ -144,11 +144,13 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
                 stackDump("not matched stack id. expected=" + stackId + ", current=" + spanEvent.getStackId());
             }
         }
-
         if (spanEvent.isTimeRecording()) {
             spanEvent.markAfterTime();
         }
         logSpan(spanEvent);
+        // state restore
+        final SpanEvent previous = callStack.peek();
+        wrappedSpanEventRecorder.setWrapped(previous);
     }
 
 
