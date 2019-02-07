@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -39,6 +40,7 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private static final boolean isWarn = logger.isWarnEnabled();
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     private final boolean sampling;
 
@@ -97,7 +99,7 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
             if (isWarn) {
                 stackDump("already closed trace");
             }
-            final SpanEvent dummy = newSpanEvent(stackId);
+            final SpanEvent dummy = dummySpanEvent();
             return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, dummy);
         }
         // Set properties for the case when stackFrame is not used as part of Span.
@@ -105,14 +107,6 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
         this.callStack.push(spanEvent);
         return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
     }
-
-    private SpanEvent newSpanEvent(int stackId) {
-        final SpanEvent spanEvent = newSpanEvent();
-        spanEvent.markStartTime();
-        spanEvent.setStackId(stackId);
-        return spanEvent;
-    }
-
 
     private void stackDump(String caused) {
         PinpointException exception = new PinpointException(caused);
@@ -137,6 +131,13 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
         if (spanEvent == null) {
             if (isWarn) {
                 stackDump("call stack is empty.");
+            }
+            return;
+        }
+
+        if (isDummySpanEvent(spanEvent)) {
+            if (isDebug) {
+                logger.debug("[DefaultTrace] Skip dummy spanEvent");
             }
             return;
         }
@@ -282,14 +283,27 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
                 stackDump("call stack is empty");
             }
             // make dummy.
-            spanEvent = newSpanEvent();
+            spanEvent = dummySpanEvent();
         }
 
         return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
     }
 
-    private SpanEvent newSpanEvent() {
-        return callStack.getFactory().newInstance();
+    private SpanEvent newSpanEvent(int stackId) {
+        final SpanEvent spanEvent = callStack.getFactory().newInstance();
+        spanEvent.markStartTime();
+        spanEvent.setStackId(stackId);
+        return spanEvent;
+    }
+
+    @VisibleForTesting
+    SpanEvent dummySpanEvent() {
+        return callStack.getFactory().dummyInstance();
+    }
+
+    @VisibleForTesting
+    boolean isDummySpanEvent(final SpanEvent spanEvent) {
+        return callStack.getFactory().isDummy(spanEvent);
     }
 
     @Override

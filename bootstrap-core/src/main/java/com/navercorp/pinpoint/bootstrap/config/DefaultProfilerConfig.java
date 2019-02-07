@@ -591,7 +591,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // CallStack
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
-        if (this.callStackMaxDepth < 2) {
+        if (this.callStackMaxDepth != -1 && this.callStackMaxDepth < 2) {
             this.callStackMaxDepth = 2;
         }
 
