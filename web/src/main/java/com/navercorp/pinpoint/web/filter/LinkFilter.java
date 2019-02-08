@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.filter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -29,18 +30,17 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.agent.*;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilter;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilterFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- *
  * @author netspider
  * @author emeroad
- *
  */
-public class LinkFilter implements Filter {
+public class LinkFilter implements Filter<SpanBo> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final List<ServiceType> fromServiceDescList;
@@ -59,7 +59,7 @@ public class LinkFilter implements Filter {
     private final AgentFilter fromAgentFilter;
     private final AgentFilter toAgentFilter;
 
-    private final FilterType filterType;
+    private final Filter<SpanBo> filter;
 
     private final List<RpcHint> rpcHintList;
 
@@ -70,21 +70,10 @@ public class LinkFilter implements Filter {
     private final URLPatternFilter rpcUrlFilter;
 
     public LinkFilter(FilterDescriptor filterDescriptor, FilterHint filterHint, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
-        if (filterDescriptor == null) {
-            throw new NullPointerException("filter descriptor must not be null");
-        }
-        if (filterHint == null) {
-            throw new NullPointerException("filterHint must not be null");
-        }
-        if (serviceTypeRegistryService == null) {
-            throw new NullPointerException("serviceTypeRegistryService must not be null");
-        }
-        if (annotationKeyRegistryService == null) {
-            throw new NullPointerException("annotationKeyRegistryService must not be null");
-        }
-
-        this.serviceTypeRegistryService = serviceTypeRegistryService;
-        this.annotationKeyRegistryService = annotationKeyRegistryService;
+        Objects.requireNonNull(filterDescriptor, "filterDescriptor must not be null");
+        Objects.requireNonNull(filterHint, "filterHint must not be null");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService must not be null");
+        this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService must not be null");
 
         final String fromServiceType = filterDescriptor.getFromServiceType();
         this.fromServiceDescList = serviceTypeRegistryService.findDesc(fromServiceType);
@@ -119,8 +108,8 @@ public class LinkFilter implements Filter {
         this.fromAgentFilter = agentFilterFactory.createFromAgentFilter();
         this.toAgentFilter = agentFilterFactory.createToAgentFilter();
 
-        this.filterType = getFilterType();
-        logger.info("filterType:{}", filterType);
+        this.filter = resolveFilter();
+        logger.info("filter:{}", filter);
 
         this.rpcHintList = this.filterHint.getRpcHintList(toApplicationName);
 
@@ -162,15 +151,6 @@ public class LinkFilter implements Filter {
         return ExecutionType.SUCCESS_ONLY;
     }
 
-    enum FilterType {
-        WAS_TO_WAS,
-        USER_TO_WAS,
-        WAS_TO_UNKNOWN,
-        WAS_TO_BACKEND,
-        WAS_TO_QUEUE,
-        QUEUE_TO_WAS,
-        UNSUPPORTED
-    }
 
     enum ExecutionType {
         ALL,
@@ -178,28 +158,29 @@ public class LinkFilter implements Filter {
         FAIL_ONLY
     }
 
-    private FilterType getFilterType() {
+    private Filter resolveFilter() {
         if (includeWas(fromServiceDescList) && includeWas(toServiceDescList)) {
-            return FilterType.WAS_TO_WAS;
+            return new WasToWasFilter();
         }
         if (includeUser(fromServiceDescList) && includeWas(toServiceDescList)) {
-            return FilterType.USER_TO_WAS;
+            return new UserToWasFilter();
         }
         if (includeWas(fromServiceDescList) && includeUnknown(toServiceDescList)) {
-            return FilterType.WAS_TO_UNKNOWN;
+            return new WasToUnknownFilter();
         }
         if (includeWas(fromServiceDescList) && includeQueue(toServiceDescList)) {
-            return FilterType.WAS_TO_QUEUE;
+            return new WasToQueueFilter();
         }
         if (includeQueue(fromServiceDescList) && includeWas(toServiceDescList)) {
-            return FilterType.QUEUE_TO_WAS;
+            return new QueueToWasFilter();
         }
         // TODO toServiceDescList check logic not exist.
 //        if (includeWas(fromServiceDescList) && isBackEnd????()) {
         if (includeWas(fromServiceDescList)) {
-            return FilterType.WAS_TO_BACKEND;
+            return new WasToBackendFilter();
         }
-        return FilterType.UNSUPPORTED;
+        logger.warn("unsupported filter type:{}", this);
+        throw new IllegalArgumentException("filter resolve fail:" + this);
     }
 
     private boolean checkResponseCondition(long elapsed, boolean hasError) {
@@ -233,67 +214,48 @@ public class LinkFilter implements Filter {
 
     @Override
     public boolean include(List<SpanBo> transaction) {
-        switch (this.filterType) {
-            case USER_TO_WAS: {
-                return userToWasFilter(transaction);
-            }
-            case WAS_TO_UNKNOWN: {
-                return wasToUnknownFilter(transaction);
-            }
-            case WAS_TO_WAS: {
-                return wasToWasFilter(transaction);
-            }
-            case WAS_TO_QUEUE: {
-                return wasToQueueFilter(transaction);
-            }
-            case QUEUE_TO_WAS: {
-                return queueToWasFilter(transaction);
-            }
-            case WAS_TO_BACKEND: {
-                return wasToBackendFilter(transaction);
-            }
-            default: {
-                logger.warn("unsupported filter type:{}", this);
-                throw new IllegalArgumentException("unsupported filter type:");
-            }
-        }
+        return filter.include(transaction);
     }
 
     /**
      * USER -> WAS
      */
-    private boolean userToWasFilter(List<SpanBo> transaction) {
-        final List<SpanBo> toNode = findToNode(transaction);
-        for (SpanBo span : toNode) {
-            if (span.isRoot()) {
-                if (checkResponseCondition(span.getElapsed(), isError(span))) {
-                    return true;
+    public class UserToWasFilter implements Filter<SpanBo> {
+        public boolean include(List<SpanBo> transaction) {
+            final List<SpanBo> toNode = findToNode(transaction);
+            for (SpanBo span : toNode) {
+                if (span.isRoot()) {
+                    if (checkResponseCondition(span.getElapsed(), isError(span))) {
+                        return true;
+                    }
                 }
-
             }
+            return false;
         }
-        return false;
     }
 
     private boolean isError(SpanBo span) {
         return span.getErrCode() > 0;
     }
 
-    private boolean wasToUnknownFilter(List<SpanBo> transaction) {
-        /*
-         * WAS -> UNKNOWN
-         */
-        final List<SpanBo> fromNode = findFromNode(transaction);
-        if (!rpcUrlFilter.accept(fromNode)) {
-            return false;
-        }
-        for (SpanBo span : fromNode) {
-            final List<SpanEventBo> eventBoList = span.getSpanEventBoList();
-            if (eventBoList == null) {
-                continue;
+    class WasToUnknownFilter implements Filter<SpanBo> {
+        public boolean include(List<SpanBo> transaction) {
+            /*
+             * WAS -> UNKNOWN
+             */
+            final List<SpanBo> fromNode = findFromNode(transaction);
+            if (!rpcUrlFilter.accept(fromNode)) {
+                return false;
             }
+            Filter<SpanBo> spanEventVisitor = new SpanEventVisitor(this::filter);
+            return spanEventVisitor.include(fromNode);
+        }
 
-            for (SpanEventBo event : eventBoList) {
+        private boolean filter(List<SpanEventBo> spanEventBoList) {
+            if (CollectionUtils.isEmpty(spanEventBoList)) {
+                return false;
+            }
+            for (SpanEventBo event : spanEventBoList) {
                 // check only whether a client exists or not.
                 final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
                 if (eventServiceType.isRpcClient() && eventServiceType.isRecordStatistics()) {
@@ -304,19 +266,23 @@ public class LinkFilter implements Filter {
                     }
                 }
             }
+            return false;
         }
-        return false;
     }
 
     /**
      * WAS -> BACKEND (non-WAS)
      */
-    private boolean wasToBackendFilter(List<SpanBo> transaction) {
-        final List<SpanBo> fromNode = findFromNode(transaction);
-        for (SpanBo span : fromNode) {
-            final List<SpanEventBo> eventBoList = span.getSpanEventBoList();
-            if (eventBoList == null) {
-                continue;
+    class WasToBackendFilter implements Filter<SpanBo> {
+        public boolean include(List<SpanBo> transaction) {
+            final List<SpanBo> fromNode = findFromNode(transaction);
+            Filter<SpanBo> spanEventVisitor = new SpanEventVisitor(this::filter);
+            return spanEventVisitor.include(fromNode);
+        }
+
+        private boolean filter(List<SpanEventBo> eventBoList) {
+            if (CollectionUtils.isEmpty(eventBoList)) {
+                return false;
             }
             for (SpanEventBo event : eventBoList) {
                 final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
@@ -326,71 +292,78 @@ public class LinkFilter implements Filter {
                     }
                 }
             }
+            return false;
         }
-        return false;
     }
 
     /**
      * WAS -> WAS
      */
-    private boolean wasToWasFilter(List<SpanBo> transaction) {
-        /*
-         * WAS -> WAS
-         * if destination is a "WAS", the span of src and dest may exist. need to check if be circular or not.
-         * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
-         */
+    class WasToWasFilter implements Filter<SpanBo> {
+        public boolean include(List<SpanBo> transaction) {
+            /*
+             * WAS -> WAS
+             * if destination is a "WAS", the span of src and dest may exist. need to check if be circular or not.
+             * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
+             */
 
-        final List<SpanBo> fromSpanList = findFromNode(transaction);
-        if (fromSpanList.isEmpty()) {
-            // from span not found
-            return false;
-        }
-        final List<SpanBo> toSpanList = findToNode(transaction);
-        if (!toSpanList.isEmpty()) {
-
-            // from -> to compare SpanId & pSpanId filter
-            final boolean exactMatch = wasToWasExactMatch(fromSpanList, toSpanList);
-            if (exactMatch)  {
-                return true;
+            final List<SpanBo> fromSpanList = findFromNode(transaction);
+            if (fromSpanList.isEmpty()) {
+                // from span not found
+                return false;
             }
-        }
-        if (isToAgentFilter()) {
-            // fast skip. toAgent filtering condition exist.
-            // url filter not available.
-            return false;
-        }
+            final List<SpanBo> toSpanList = findToNode(transaction);
+            if (!toSpanList.isEmpty()) {
 
-        // Check for url pattern should now be done on the caller side (from spans) as to spans are missing at this point
-        if (!rpcUrlFilter.accept(fromSpanList)) {
-            return false;
-        }
+                // from -> to compare SpanId & pSpanId filter
+                final boolean exactMatch = wasToWasExactMatch(fromSpanList, toSpanList);
+                if (exactMatch) {
+                    return true;
+                }
+            }
+            if (isToAgentFilter()) {
+                // fast skip. toAgent filtering condition exist.
+                // url filter not available.
+                return false;
+            }
 
-        // if agent filter is FromAgentFilter or AcceptAgentFilter(agent filter is not selected), url filtering is available.
-        return fromBaseFilter(fromSpanList);
+            // Check for url pattern should now be done on the caller side (from spans) as to spans are missing at this point
+            if (!rpcUrlFilter.accept(fromSpanList)) {
+                return false;
+            }
+
+            // if agent filter is FromAgentFilter or AcceptAgentFilter(agent filter is not selected), url filtering is available.
+            return fromBaseFilter(fromSpanList);
+        }
     }
 
     /**
      * WAS -> Queue (virtual)
-     * Should be the same as {@link #wasToBackendFilter}
+     * Should be the same as {@link WasToBackendFilter}
      */
-    private boolean wasToQueueFilter(List<SpanBo> transaction) {
-        return wasToBackendFilter(transaction);
+    class WasToQueueFilter extends WasToBackendFilter {
+
     }
 
     /**
      * Queue (virtual) -> WAS
      */
-    private boolean queueToWasFilter(List<SpanBo> transaction) {
-        final List<SpanBo> toNode = findToNode(transaction);
-        logger.debug("matching toNode spans: {}", toNode);
-        for (SpanBo span : toNode) {
-            if (fromApplicationName.equals(span.getAcceptorHost())) {
-                if (checkResponseCondition(span.getElapsed(), isError(span))) {
-                    return true;
+    class QueueToWasFilter implements Filter<SpanBo> {
+
+        public boolean include(List<SpanBo> transaction) {
+            final List<SpanBo> toNode = findToNode(transaction);
+            if (logger.isDebugEnabled()) {
+                logger.debug("matching toNode spans: {}", toNode);
+            }
+            for (SpanBo span : toNode) {
+                if (fromApplicationName.equals(span.getAcceptorHost())) {
+                    if (checkResponseCondition(span.getElapsed(), isError(span))) {
+                        return true;
+                    }
                 }
             }
+            return false;
         }
-        return false;
     }
 
     private boolean fromBaseFilter(List<SpanBo> fromSpanList) {
@@ -404,7 +377,7 @@ public class LinkFilter implements Filter {
         }
         for (SpanBo fromSpan : fromSpanList) {
             final List<SpanEventBo> eventBoList = fromSpan.getSpanEventBoList();
-            if (eventBoList == null) {
+            if (CollectionUtils.isEmpty(eventBoList)) {
                 continue;
             }
             for (SpanEventBo event : eventBoList) {
@@ -502,7 +475,6 @@ public class LinkFilter implements Filter {
     }
 
 
-
     private boolean isToNode(String applicationId, ServiceType serviceType) {
         return this.toApplicationName.equals(applicationId) && includeServiceType(this.toServiceDescList, serviceType);
     }
@@ -565,7 +537,7 @@ public class LinkFilter implements Filter {
         sb.append(", agentFilterFactory=").append(agentFilterFactory);
         sb.append(", fromAgentFilter=").append(fromAgentFilter);
         sb.append(", toAgentFilter=").append(toAgentFilter);
-        sb.append(", filterType=").append(filterType);
+        sb.append(", filter=").append(filter);
         sb.append(", rpcHintList=").append(rpcHintList);
         sb.append(", acceptURLFilter=").append(acceptURLFilter);
         sb.append('}');
