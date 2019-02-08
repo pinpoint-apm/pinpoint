@@ -17,9 +17,11 @@ export const routing: Routes = [
         },
         children: [
             {
-                path: '',
-                redirectTo: TO_MAIN,
-                pathMatch: 'full'
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PAGE,
+                resolve: {
+                    serverTime: ServerTimeResolverService
+                },
+                component: RealTimePagingContainerComponent
             },
             {
                 path: ':' + UrlPathId.APPLICATION,
@@ -27,11 +29,9 @@ export const routing: Routes = [
                 pathMatch: 'full'
             },
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PAGE,
-                resolve: {
-                    serverTime: ServerTimeResolverService
-                },
-                component: RealTimePagingContainerComponent
+                path: '',
+                redirectTo: TO_MAIN,
+                pathMatch: 'full'
             }
         ]
     }

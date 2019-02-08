@@ -159,15 +159,17 @@ export class NewUrlStateNotificationService {
     getStartTimeToNumber(): number {
         if (this.isRealTimeMode()) {
             return this.getUrlServerTimeData() - (this.componentDefaultSettingDataService.getSystemDefaultPeriod().getMiliSeconds());
-        } else {
+        } else if (this.getPathValue(UrlPathId.END_TIME) && this.getPathValue(UrlPathId.PERIOD)) {
             return this.getPathValue(UrlPathId.END_TIME).calcuStartTime(this.getPathValue(UrlPathId.PERIOD).getValue()).getDate().valueOf();
         }
+        return Date.now();
     }
     getEndTimeToNumber(): number {
         if (this.isRealTimeMode()) {
             return this.getUrlServerTimeData();
-        } else {
+        } else if (this.getPathValue(UrlPathId.END_TIME)) {
             return this.getPathValue(UrlPathId.END_TIME).getDate().valueOf();
         }
+        return Date.now();
     }
 }
