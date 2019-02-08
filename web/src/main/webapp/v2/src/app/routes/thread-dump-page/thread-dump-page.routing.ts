@@ -15,16 +15,11 @@ export const routing: Routes = [
         },
         children: [
             {
-                path: '',
-                redirectTo: '/' + UrlPath.MAIN,
-                pathMatch: 'full'
-            },
-            {
-                path: ':' + UrlPathId.APPLICATION,
-                data: {
-                    path: UrlPath.MAIN
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP,
+                resolve: {
+                    serverTime: ServerTimeResolverService
                 },
-                component: UrlRedirectorComponent
+                component: ThreadDumpListContainerComponent
             },
             {
                 path: ':' + UrlPathId.APPLICATION +  '/:' + UrlPathId.AGENT_ID,
@@ -34,11 +29,16 @@ export const routing: Routes = [
                 component: UrlRedirectorComponent
             },
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP,
-                resolve: {
-                    serverTime: ServerTimeResolverService
+                path: ':' + UrlPathId.APPLICATION,
+                data: {
+                    path: UrlPath.MAIN
                 },
-                component: ThreadDumpListContainerComponent
+                component: UrlRedirectorComponent
+            },
+            {
+                path: '',
+                redirectTo: '/' + UrlPath.MAIN,
+                pathMatch: 'full'
             }
         ]
     }

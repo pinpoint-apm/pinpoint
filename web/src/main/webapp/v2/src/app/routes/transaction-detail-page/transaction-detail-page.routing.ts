@@ -16,12 +16,19 @@ export const routing: Routes = [
         },
         children: [
             {
-                path: '',
-                redirectTo: TO_MAIN,
-                pathMatch: 'full'
+                path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.SPAN_ID + '/:' + UrlPathId.VIEW_TYPE  + '/:' + UrlPathId.SEARCH_ID,
+                component: TransactionDetailContentsContainerComponent,
             },
             {
-                path: ':' + UrlPathId.TRACE_ID,
+                path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.SPAN_ID + '/:' + UrlPathId.VIEW_TYPE,
+                component: TransactionDetailContentsContainerComponent,
+            },
+            {
+                path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.SPAN_ID,
+                component: TransactionDetailContentsContainerComponent,
+            },
+            {
+                path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID,
                 redirectTo: TO_MAIN,
                 pathMatch: 'full'
             },
@@ -31,36 +38,14 @@ export const routing: Routes = [
                 pathMatch: 'full'
             },
             {
-                path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID,
+                path: ':' + UrlPathId.TRACE_ID,
                 redirectTo: TO_MAIN,
                 pathMatch: 'full'
             },
             {
-                path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.SPAN_ID,
-                children: [
-                    {
-                        path: '',
-                        component: TransactionDetailContentsContainerComponent
-                    },
-                    {
-                        path: ':' + UrlPathId.VIEW_TYPE,
-                        children: [
-                            {
-                                path: '',
-                                component: TransactionDetailContentsContainerComponent,
-                            },
-                            {
-                                path: ':' + UrlPathId.SEARCH_ID,
-                                children: [
-                                    {
-                                        path: '',
-                                        component: TransactionDetailContentsContainerComponent,
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
+                path: '',
+                redirectTo: TO_MAIN,
+                pathMatch: 'full'
             }
         ]
     }

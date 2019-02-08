@@ -16,12 +16,11 @@ export const routing: Routes = [
         },
         children: [
             {
-                path: '',
-                redirectTo: TO_MAIN,
-                pathMatch: 'full'
+                path: ':' + UrlPathId.AGENT_ID + '/:' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.SPAN_ID,
+                component: TransactionViewTopContentsContainerComponent
             },
             {
-                path: ':' + UrlPathId.AGENT_ID,
+                path: ':' + UrlPathId.AGENT_ID + '/:' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP,
                 redirectTo: TO_MAIN,
                 pathMatch: 'full'
             },
@@ -31,18 +30,14 @@ export const routing: Routes = [
                 pathMatch: 'full'
             },
             {
-                path: ':' + UrlPathId.AGENT_ID + '/:' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP,
+                path: ':' + UrlPathId.AGENT_ID,
                 redirectTo: TO_MAIN,
                 pathMatch: 'full'
             },
             {
-                path: ':' + UrlPathId.AGENT_ID + '/:' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.SPAN_ID,
-                children: [
-                    {
-                        path: '',
-                        component: TransactionViewTopContentsContainerComponent
-                    }
-                ]
+                path: '',
+                redirectTo: TO_MAIN,
+                pathMatch: 'full'
             }
         ]
     }

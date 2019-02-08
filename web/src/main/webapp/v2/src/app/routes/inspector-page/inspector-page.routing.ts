@@ -17,15 +17,20 @@ export const routing: Routes = [
         },
         children: [
             {
-                path: '',
-                component: EmptyInspectorContentsContainerComponent
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.AGENT_ID,
+                data: {
+                    showRealTimeButton: false,
+                    enableRealTimeMode: false
+                },
+                component: AgentInspectorContentsContainerComponent
             },
             {
-                path: ':' + UrlPathId.APPLICATION,
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
                 data: {
-                    path: UrlPath.INSPECTOR
+                    showRealTimeButton: false,
+                    enableRealTimeMode: false
                 },
-                component: UrlRedirectorComponent
+                component: ApplicationInspectorContentsContainerComponent
             },
             {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD,
@@ -35,20 +40,15 @@ export const routing: Routes = [
                 component: UrlRedirectorComponent
             },
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
-                component: ApplicationInspectorContentsContainerComponent,
+                path: ':' + UrlPathId.APPLICATION,
                 data: {
-                    showRealTimeButton: false,
-                    enableRealTimeMode: false
-                }
+                    path: UrlPath.INSPECTOR
+                },
+                component: UrlRedirectorComponent
             },
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.AGENT_ID,
-                component: AgentInspectorContentsContainerComponent,
-                data: {
-                    showRealTimeButton: false,
-                    enableRealTimeMode: false
-                }
+                path: '',
+                component: EmptyInspectorContentsContainerComponent
             }
         ]
     }
