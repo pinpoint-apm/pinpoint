@@ -3,8 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
+        <artifactId>pinpoint-plugins</artifactId>
         <version>1.9.0-SNAPSHOT</version>
     </parent>
 
@@ -16,18 +15,6 @@
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <test.jdk.home>${env.JAVA_8_HOME}</test.jdk.home>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugin-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
