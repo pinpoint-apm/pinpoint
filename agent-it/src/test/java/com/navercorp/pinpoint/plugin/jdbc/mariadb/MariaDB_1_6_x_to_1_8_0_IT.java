@@ -53,7 +53,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(7) // 1.6.2+ works with Java 6, but since the IT includes 1.6.0 and 1.6.1 just run on Java 7
 @Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.6.0,2.0.min)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2" })
-public class MariaDB_1_6_x_to_2_0_0_IT extends MariaDB_IT_Base {
+public class MariaDB_1_6_x_to_1_8_0_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
     private  static final String CALLABLE_QUERY_META_INFOS_QUERY = "select param_list, returns, db, type from mysql.proc where name=? and db=DATABASE()";
