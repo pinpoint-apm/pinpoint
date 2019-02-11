@@ -28,7 +28,7 @@ We welcome your plugin contribution.
 Currently, we would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org "Apache Storm"), [HBase](http://hbase.apache.org "Apache HBase"), as well as profiler support for additional languages (.NET, C++).
 
 ### Technical Guide
-**For technical guides for developing plug-in,** take a look at our [plugin development guide](./plugindevguide.html "Pinpoint Plugin Development Guide"), along with [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.  
+**For technical guides for developing plug-in,** take a look at our [plugin development guide](https://naver.github.io/pinpoint/plugindevguide.html "Pinpoint Plugin Development Guide"), along with [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.  
 
 ### Contributing Plugin
 If you want to contribute your plugin, it has to satisfy the following requirements:
@@ -63,18 +63,18 @@ To send a PR, you have to modify your plugin like this:
 ```
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pom</artifactId>
-        <relativePath>../..</relativePath>
+        <artifactId>pinpoint-plugins</artifactId>
         <version>Current Version</version>
     </parent>
 ```
-* Add your plugin to plugins/pom.xml as a sub-module and a dependency.
-* Copy your plugin integration tests under /agent/src/test directory.
+* Add your plugin to *plugins/pom.xml* as a sub-module.
+* Add your plugin to *plugins/assembly/pom.xml* as a dependency.
+* Copy your plugin integration tests under /agent-it/src/test directory.
 * Add your configurations to /agent/src/main/resources/*.config files.
 * Insert following license header to all java source files.
 ```
 /*
- * Copyright 2016 Pinpoint contributors and NAVER Corp.
+ * Copyright 2018 Pinpoint contributors and NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
