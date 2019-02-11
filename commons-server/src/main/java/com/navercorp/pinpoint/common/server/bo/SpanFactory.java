@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.common.server.bo;
 
 
 
+import com.google.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -43,8 +43,16 @@ public class SpanFactory {
     private final boolean fastAsyncIdGen;
 
     public SpanFactory() {
+        this(fastAsyncIdGen());
+    }
+
+    private static boolean fastAsyncIdGen() {
         final String fastAsyncIdGen = System.getProperty("collector.spanfactory.fastasyncidgen", "true");
-        this.fastAsyncIdGen = Boolean.parseBoolean(fastAsyncIdGen);
+        return Boolean.parseBoolean(fastAsyncIdGen);
+    }
+
+    public SpanFactory(boolean fastAsyncIdGen) {
+        this.fastAsyncIdGen = fastAsyncIdGen;
     }
 
     @Autowired(required = false)
@@ -180,7 +188,7 @@ public class SpanFactory {
 
     public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk) {
         final SpanChunkBo spanChunkBo = newSpanChunkBo(tSpanChunk);
-        final LocalAsyncIdBo localAsyncIdBo = getLocalAsyncId(tSpanChunk, spanChunkBo);
+        final LocalAsyncIdBo localAsyncIdBo = getLocalAsyncId(tSpanChunk);
         if (localAsyncIdBo != null) {
             spanChunkBo.setLocalAsyncId(localAsyncIdBo);
         }
@@ -196,7 +204,7 @@ public class SpanFactory {
         return spanChunkBo;
     }
 
-    private LocalAsyncIdBo getLocalAsyncId(TSpanChunk tSpanChunk, SpanChunkBo spanChunkBo) {
+    private LocalAsyncIdBo getLocalAsyncId(TSpanChunk tSpanChunk) {
         final TLocalAsyncId localAsyncId = tSpanChunk.getLocalAsyncId();
         if (localAsyncId != null) {
             return new LocalAsyncIdBo(localAsyncId.getAsyncId(), localAsyncId.getSequence());
@@ -213,24 +221,27 @@ public class SpanFactory {
             return null;
         }
         if (fastAsyncIdGen) {
-            final TSpanEvent first = tSpanEventList.get(0);
-            final int asyncId = first.getAsyncId();
-            if (asyncId == -1) {
-                return null;
-            } else {
-                return new LocalAsyncIdBo(asyncId, first.getAsyncSequence());
-            }
+            return fastLocalAsyncIdBo(tSpanEventList);
         } else {
-            int asyncId = -1;
-            int asyncSequence = -1;
-            boolean first = true;
-            boolean asyncIdNotSame = false;
-            for (TSpanEvent tSpanEvent : tSpanEventList) {
-                if (first) {
-                    first = false;
+            return fullScanLocalAsyncIdBo(tSpanChunk);
+        }
+    }
+
+    @VisibleForTesting
+    LocalAsyncIdBo fullScanLocalAsyncIdBo(TSpanChunk tSpanChunk) {
+        int asyncId = -1;
+        int asyncSequence = -1;
+        boolean first = true;
+        boolean asyncIdNotSame = false;
+        for (TSpanEvent tSpanEvent : tSpanChunk.getSpanEventList()) {
+            if (first) {
+                first = false;
+                if (isSetAsyncId(tSpanEvent)) {
                     asyncId = tSpanEvent.getAsyncId();
                     asyncSequence = tSpanEvent.getAsyncSequence();
-                } else {
+                }
+            } else {
+                if (isSetAsyncId(tSpanEvent)) {
                     if (asyncId != tSpanEvent.getAsyncId()) {
                         asyncIdNotSame = true;
                         break;
@@ -241,16 +252,38 @@ public class SpanFactory {
                     }
                 }
             }
-            if (asyncIdNotSame) {
-                logger.warn("AsyncId consistency is broken. SpanChunk:{}", tSpanChunk);
-                return null;
-            }
-            if (asyncId != -1 && asyncSequence != -1) {
-                return new LocalAsyncIdBo(asyncId, asyncSequence);
-            }
-            // non async
+        }
+        if (asyncIdNotSame) {
+            logger.warn("AsyncId consistency is broken. tSpanChunk:{}", tSpanChunk);
             return null;
         }
+        if (asyncId != -1 && asyncSequence != -1) {
+            return new LocalAsyncIdBo(asyncId, asyncSequence);
+        }
+        // non async
+        return null;
+    }
+
+    @VisibleForTesting
+    LocalAsyncIdBo fastLocalAsyncIdBo(List<TSpanEvent> tSpanEventList) {
+        final TSpanEvent first = tSpanEventList.get(0);
+        if (isSetAsyncId(first)) {
+            final int asyncId = first.getAsyncId();
+            final short asyncSequence = first.getAsyncSequence();
+            return new LocalAsyncIdBo(asyncId, asyncSequence);
+        }
+        return null;
+    }
+
+    private boolean isSetAsyncId(TSpanEvent tSpanEvent) {
+        if (!tSpanEvent.isSetAsyncId()) {
+            return false;
+        }
+        if (!tSpanEvent.isSetAsyncSequence()) {
+            logger.warn("AsyncId & AsyncSequence consistency is broken. {}", tSpanEvent);
+            return false;
+        }
+        return true;
     }
 
     // for test
