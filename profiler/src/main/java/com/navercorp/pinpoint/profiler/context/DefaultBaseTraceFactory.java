@@ -227,7 +227,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final long traceStartTime = System.currentTimeMillis();
         final long threadId = Thread.currentThread().getId();
         final ActiveTraceHandle activeTraceHandle = registerActiveTrace(id, traceStartTime, threadId);
-        final Trace disableTrace = new DisableTrace(id, traceStartTime, threadId, activeTraceHandle);
+        final Trace disableTrace = new DisableTrace(id, traceStartTime, activeTraceHandle);
         return disableTrace;
     }
 

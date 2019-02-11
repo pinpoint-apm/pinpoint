@@ -42,7 +42,6 @@ public class AsyncTrace implements Trace {
     @Override
     public long getId() {
         return traceRoot.getLocalTransactionId();
-
     }
 
     @Override
@@ -50,12 +49,6 @@ public class AsyncTrace implements Trace {
         return this.traceRoot.getTraceStartTime();
     }
 
-
-    @Override
-    public long getThreadId() {
-         return this.traceRoot.getShared().getThreadId();
-
-    }
 
     @Override
     public TraceId getTraceId() {
