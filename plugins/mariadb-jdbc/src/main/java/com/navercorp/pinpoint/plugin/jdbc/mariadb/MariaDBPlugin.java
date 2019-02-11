@@ -189,10 +189,10 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     private void addPreparedStatementTransformer() {
         transformTemplate.transform("org.mariadb.jdbc.MariaDbServerPreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("org.mariadb.jdbc.MariaDbClientPreparedStatement", PreparedStatementTransform.class);
-        // 1.6.x
+        // [1.6.0,1.8.0), [2.0.0,2.4.0)
         transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementServer", PreparedStatementTransform.class);
         transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementClient", PreparedStatementTransform.class);
-        // 2.4.x
+        // [1.8.0,2.0.0), [2.4.0,)
         transformTemplate.transform("org.mariadb.jdbc.ServerSidePreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("org.mariadb.jdbc.ClientSidePreparedStatement", PreparedStatementTransform.class);
 
