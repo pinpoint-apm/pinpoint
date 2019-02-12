@@ -14,41 +14,35 @@
  */
 package com.navercorp.pinpoint.plugin.dubbo;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Jinkai.Ma
  */
-public final class DubboProviderDetector implements ApplicationTypeDetector {
+public final class DubboProviderDetector {
 
-    private static final String DEFAULT_BOOTSTRAP_MAIN = "com.alibaba.dubbo.container.Main";
+    private static final String DEFAULT_EXPECTED_MAIN_CLASS = "com.alibaba.dubbo.container.Main";
 
-    private static final String REQUIRED_CLASS = "com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker";
+    private List<String> expectedMainClasses;
 
-    private List<String> bootstrapMains;
-
-    public DubboProviderDetector(List<String> bootstrapMains) {
-        if (CollectionUtils.isEmpty(bootstrapMains)) {
-            this.bootstrapMains = Arrays.asList(DEFAULT_BOOTSTRAP_MAIN);
+    public DubboProviderDetector(List<String> expectedMainClasses) {
+        if (CollectionUtils.isEmpty(expectedMainClasses)) {
+            this.expectedMainClasses = Collections.singletonList(DEFAULT_EXPECTED_MAIN_CLASS);
         } else {
-            this.bootstrapMains = bootstrapMains;
+            this.expectedMainClasses = expectedMainClasses;
         }
     }
 
-    @Override
-    public ServiceType getApplicationType() {
-        return DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE;
-    }
-
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass(bootstrapMains) ||
-               provider.checkForClass(REQUIRED_CLASS);
+    public boolean detect() {
+        String bootstrapMainClass = MainClassCondition.INSTANCE.getValue();
+        boolean isExpectedMainClass = expectedMainClasses.contains(bootstrapMainClass);
+        if (isExpectedMainClass) {
+            return true;
+        }
+        return false;
     }
 }

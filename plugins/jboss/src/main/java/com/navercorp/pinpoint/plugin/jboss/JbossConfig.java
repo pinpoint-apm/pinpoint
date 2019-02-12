@@ -49,7 +49,6 @@ public class JbossConfig {
     private final boolean enable;
 
     private final List<String> bootstrapMains;
-    private final boolean conditionalTransformEnable;
 
     private final String realIpHeader;
     private final String realIpEmptyValue;
@@ -66,7 +65,6 @@ public class JbossConfig {
         this.traceEjb = config.readBoolean("profiler.jboss.traceEjb", false);
 
         this.bootstrapMains = config.readList("profiler.jboss.bootstrap.main");
-        this.conditionalTransformEnable = config.readBoolean("profiler.jboss.conditional.transform", true);
         this.hidePinpointHeader = config.readBoolean("profiler.jboss.hidepinpointheader", true);
 
         this.traceRequestParam = config.readBoolean("profiler.jboss.tracerequestparam", true);
@@ -93,10 +91,6 @@ public class JbossConfig {
 
     public List<String> getBootstrapMains() {
         return bootstrapMains;
-    }
-
-    public boolean isConditionalTransformEnable() {
-        return conditionalTransformEnable;
     }
 
     /**
@@ -151,7 +145,6 @@ public class JbossConfig {
         sb.append(", traceEjb=").append(traceEjb);
         sb.append(", enable=").append(enable);
         sb.append(", bootstrapMains=").append(bootstrapMains);
-        sb.append(", conditionalTransformEnable=").append(conditionalTransformEnable);
         sb.append(", realIpHeader='").append(realIpHeader).append('\'');
         sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
         sb.append(", traceRequestParam=").append(traceRequestParam);

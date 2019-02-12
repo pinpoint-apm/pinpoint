@@ -12,6 +12,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.resin.interceptor.HttpServletRequestImplInterceptor;
 import com.navercorp.pinpoint.plugin.resin.interceptor.ServletInvocationServiceInterceptor;
 import com.navercorp.pinpoint.plugin.resin.interceptor.WebAppInterceptor;
@@ -37,8 +38,15 @@ public class ResinPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        final ResinDetector resinDetector = new ResinDetector(config.getBootstrapMains());
-        context.addApplicationTypeDetector(resinDetector);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final ResinDetector resinDetector = new ResinDetector(config.getBootstrapMains());
+            if (resinDetector.detect()) {
+                logger.info("Detected application type : {}", ResinConstants.RESIN);
+                if (!context.registerApplicationType(ResinConstants.RESIN)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), ResinConstants.RESIN);
+                }
+            }
+        }
 
         logger.info("Adding Resin transformers");
         addTransformers(config);
