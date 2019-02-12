@@ -106,9 +106,11 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 
 Flink compatibility table:
 
-Pinpoint Version | flink 1.3.X | flink 1.4.X
----------------- | ----------- | ----------- 
-1.7.x | yes | no |
+Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink 1.7.X
+---------------- | ----------- | ----------- | ----------- | ----------- | ----------- 
+1.7.x | yes | yes | no | no | no |
+1.8.x | yes | yes | no | no | no |
+1.9.x | yes | yes | yes | yes | yes |
 
 ## User Group
 For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).
