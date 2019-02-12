@@ -14,37 +14,30 @@
  */
 package com.navercorp.pinpoint.plugin.websphere;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author sjmittal
  * @author jaehong.kim
  */
-public class WebsphereDetector implements ApplicationTypeDetector {
+public class WebsphereDetector {
 
-    private static final String REQUIRED_MAIN_CLASS = "com.ibm.wsspi.bootstrap.WSPreLauncher";
-    private final List<String> bootstrapMains;
+    private static final String DEFAULT_EXPECTED_MAIN_CLASS = "com.ibm.wsspi.bootstrap.WSPreLauncher";
+    private final List<String> expectedMainClasses;
 
-    public WebsphereDetector(List<String> bootstrapMains) {
-        if (bootstrapMains == null || bootstrapMains.isEmpty()) {
-            this.bootstrapMains = Arrays.asList(REQUIRED_MAIN_CLASS);
+    public WebsphereDetector(List<String> expectedMainClasses) {
+        if (expectedMainClasses == null || expectedMainClasses.isEmpty()) {
+            this.expectedMainClasses = Collections.singletonList(DEFAULT_EXPECTED_MAIN_CLASS);
         } else {
-            this.bootstrapMains = bootstrapMains;
+            this.expectedMainClasses = expectedMainClasses;
         }
     }
 
-    @Override
-    public ServiceType getApplicationType() {
-        return WebsphereConstants.WEBSPHERE;
-    }
-
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass(this.bootstrapMains);
+    public boolean detect() {
+        String bootstrapMainClass = MainClassCondition.INSTANCE.getValue();
+        return expectedMainClasses.contains(bootstrapMainClass);
     }
 }

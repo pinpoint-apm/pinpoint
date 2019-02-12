@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.weblogic.interceptor.ServletRequestImplStartAsyncInterceptor;
 import com.navercorp.pinpoint.plugin.weblogic.interceptor.WebAppServletContextExecuteInterceptor;
 
@@ -50,8 +51,17 @@ public class WeblogicPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        context.addApplicationTypeDetector(new WeblogicDetector(config.getBootstrapMains()));
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final WeblogicDetector weblogicDetector = new WeblogicDetector(config.getBootstrapMains());
+            if (weblogicDetector.detect()) {
+                logger.info("Detected application type : {}", WeblogicConstants.WEBLOGIC);
+                if (!context.registerApplicationType(WeblogicConstants.WEBLOGIC)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), WeblogicConstants.WEBLOGIC);
+                }
+            }
+        }
 
+        logger.info("Adding Weblogic transformers");
         // Add async listener. Servlet 3.0 & Hide pinpoint headers
         addServletRequestImpl(config);
         // Entry Point

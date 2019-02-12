@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.websphere.interceptor.WCCRequestImplStartAsyncInterceptor;
 import com.navercorp.pinpoint.plugin.websphere.interceptor.WCCResponseImplInterceptor;
 import com.navercorp.pinpoint.plugin.websphere.interceptor.WebContainerHandleRequestInterceptor;
@@ -50,8 +51,17 @@ public class WebspherePlugin implements ProfilerPlugin, TransformTemplateAware {
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
 
-        context.addApplicationTypeDetector(new WebsphereDetector(config.getBootstrapMains()));
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            WebsphereDetector websphereDetector = new WebsphereDetector(config.getBootstrapMains());
+            if (websphereDetector.detect()) {
+                logger.info("Detected application type : {}", WebsphereConstants.WEBSPHERE);
+                if (!context.registerApplicationType(WebsphereConstants.WEBSPHERE)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), WebsphereConstants.WEBSPHERE);
+                }
+            }
+        }
 
+        logger.info("Adding WebSphere transformers");
         // Hide pinpoint header & Add async listener. Servlet 3.0
         addSRTServletRequest();
         // Entry Point
