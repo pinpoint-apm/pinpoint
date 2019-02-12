@@ -1,8 +1,7 @@
 package com.navercorp.pinpoint.plugin.resin;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.ClassResourceCondition;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
@@ -10,29 +9,23 @@ import com.navercorp.pinpoint.common.util.StringUtils;
  * @author huangpengjie@fang.com
  *
  */
-public class ResinDetector implements ApplicationTypeDetector {
+public class ResinDetector {
 
-    private static final String DEFAULT_BOOTSTRAP_MAIN = "com.caucho.server.resin.Resin";
+    private static final String DEFAULT_EXPECTED_MAIN_CLASS = "com.caucho.server.resin.Resin";
 
-    private static final String REQUIRED_CLASS = DEFAULT_BOOTSTRAP_MAIN;
+    private static final String REQUIRED_CLASS = DEFAULT_EXPECTED_MAIN_CLASS;
 
-    private final String bootstrapMains;
+    private final String expectedMainClass;
 
-    public ResinDetector(String bootstrapMains) {
-        this.bootstrapMains = bootstrapMains;
+    public ResinDetector(String expectedMainClass) {
+        this.expectedMainClass = expectedMainClass;
     }
 
-    @Override
-    public ServiceType getApplicationType() {
-        return ResinConstants.RESIN;
-    }
-
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        if (StringUtils.hasLength(bootstrapMains)) {
-            return provider.checkMainClass(bootstrapMains) && provider.checkForClass(REQUIRED_CLASS);
+    public boolean detect() {
+        if (StringUtils.hasLength(expectedMainClass)) {
+            return MainClassCondition.INSTANCE.check(expectedMainClass) && ClassResourceCondition.INSTANCE.check(REQUIRED_CLASS);
         }
-        return provider.checkForClass(REQUIRED_CLASS);
+        return ClassResourceCondition.INSTANCE.check(REQUIRED_CLASS);
     }
 
 }

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty80ServerHandleInterceptor;
 import com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8xServerHandleInterceptor;
 import com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty9xServerHandleInterceptor;
@@ -52,15 +53,29 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         logger.info("{} config:{} ", this.getClass().getSimpleName(), config);
         // 8.0 <= x <= 9.4
         logger.info("version range=[8.0, 9.4]");
-        context.addApplicationTypeDetector(new JettyDetector(config.getBootstrapMains()));
 
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            JettyDetector jettyDetector = new JettyDetector(config.getBootstrapMains());
+            if (jettyDetector.detect()) {
+                logger.info("Detected application type : {}", JettyConstants.JETTY);
+                if (!context.registerApplicationType(JettyConstants.JETTY)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), JettyConstants.JETTY);
+                }
+            }
+        }
+
+        logger.info("Adding Jetty transformers");
+        addTransformers();
+    }
+
+    private void addTransformers() {
         // Add async listener. Servlet 3.0
-        requestAspect(config);
+        requestAspect();
         // Entry Point
         addServerInterceptor();
     }
 
-    private void requestAspect(final JettyConfiguration config) {
+    private void requestAspect() {
         transformTemplate.transform("org.eclipse.jetty.server.Request", RequestTransform.class);
     }
 

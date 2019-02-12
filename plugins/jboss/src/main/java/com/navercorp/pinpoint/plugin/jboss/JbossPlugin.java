@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.ContextInvocationInterceptor;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.MethodInvocationHandlerInterceptor;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.RequestStartAsyncInterceptor;
@@ -58,26 +58,24 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        final JbossDetector jbossDetector = new JbossDetector(config.getBootstrapMains());
-        context.addApplicationTypeDetector(jbossDetector);
-
-        if (shouldAddTransformers(config)) {
+        ServiceType applicationType = context.getConfiguredApplicationType();
+        if (ServiceType.UNDEFINED.equals(applicationType)) {
+            final JbossDetector jbossDetector = new JbossDetector(config.getBootstrapMains());
+            if (jbossDetector.detect()) {
+                logger.info("Detected application type : {}", JbossConstants.JBOSS);
+                if (context.registerApplicationType(JbossConstants.JBOSS)) {
+                    applicationType = JbossConstants.JBOSS;
+                } else {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), JbossConstants.JBOSS);
+                }
+            }
+        }
+        if (JbossConstants.JBOSS.equals(applicationType)) {
             logger.info("Adding JBoss transformers");
             addTransformers(config);
         } else {
             logger.info("Not adding JBoss transformers");
         }
-    }
-
-    private boolean shouldAddTransformers(JbossConfig jbossConfig) {
-        // Transform if conditional check is disabled
-        if (!jbossConfig.isConditionalTransformEnable()) {
-            return true;
-        }
-        // Only transform if it's a JBoss application
-        ConditionProvider conditionProvider = ConditionProvider.DEFAULT_CONDITION_PROVIDER;
-        boolean isJbossApplication = conditionProvider.checkMainClass(jbossConfig.getBootstrapMains());
-        return isJbossApplication;
     }
 
     private void addTransformers(JbossConfig jbossConfig) {
