@@ -20,7 +20,9 @@ import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import com.navercorp.pinpoint.plugin.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -30,6 +32,7 @@ import org.junit.runner.RunWith;
  * @author Roy Kim
  */
 @RunWith(PinpointPluginTestSuite.class)
+@PinpointAgent(AgentPath.PATH)
 @Dependency({
         "org.mongodb:mongodb-driver:[3.7.0,3.7.0]",
         "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.1.1"
