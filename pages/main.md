@@ -1,20 +1,17 @@
 ---
-title: "Pinpoint 1.8.2"
-keywords: pinpoint release, 1.8.2
+title: "Pinpoint 1.9.0"
+keywords: pinpoint release, 1.9.0
 permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-[Check out updates on lastest stable release](https://naver.github.io/pinpoint/1.8.1/main.html)
+[Check out updates on lastest stable release](https://naver.github.io/pinpoint/1.8.2/main.html)
 
-## What's Next in 1.8.2
+## What's Next in 1.9.0
 
-**If you are tracing MongoDB or Undertow in SpringBoot,** we highly suggest upgrading your agent to 1.8.2 as it includes a number of bug fixes for the plugins
 
 ### Pinpoint Plugin
 
- - Bug Fix for MongoDB
- - Bug Fix for Undertow in SpringBoot
 
 ### Upgrade consideration
 
