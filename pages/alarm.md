@@ -14,6 +14,11 @@ Pinpoint-web periodically checks the applications' status and triggers an alarm 
 
 These conditions are (by default) checked every 3 minutes by a background batch process within the Web module, using the last 5 minutes of data. Once a condition is met, the batch process sends an sms/email to users registered to a user group.
 
+> If an email/sms is sent everytime when a threshold is exceeded, we felt that alarm message would be spammable.<br/>
+> Therefore we decided to gradually increase the transmission frequency for alarms.<br/>
+> ex) If an alarm occurs continuously, transmission frequency is increased by a factor of two. 3 min -> 6min -> 12min -> 24min
+
+
 ## 1. User Guide
 
 1) Configuration menu
@@ -88,10 +93,6 @@ DATASOURCE CONNECTION USAGE RATE
 ## 2. Implementation & Configuration
 
 In order to use the alarm function, you must implement your own logic to send sms and email by implementing `com.navercorp.pinpoint.web.alarm.AlarmMessageSender` and registering it as a Spring managed bean. When an alarm is triggered, `AlarmMessageSender#sendEmail`, and `AlarmMessageSender#sendSms` methods are called.
-
-> If an email/sms is sent everytime when a threshold is exceeded, we felt that alarm message would be spammable.<br/>
-> Therefore we decided to gradually increase the transmission frequency for alarms.<br/>
-> ex) If an alarm occurs continuously, transmission frequency is increased by a factor of two. 3 min -> 6min -> 12min -> 24min
 
 ### 1) Implementing `AlarmMessageSender` and Spring bean registration
 ```
@@ -202,6 +203,11 @@ pinpoint-web 서버에서 application 상태를 주기적으로 체크하여 app
 application 상태 값이 사용자가 설정한 임계치를 초과하는 지 판단하는 batch는 pinpoint-web 서버내에서 background로 동작 된다.
 alarm batch는 기본적으로 3분에 한번씩 동작이 된다. 최근 5분동안의 데이터를 수집해서 alarm 조건을 만족하면 user group에 속한 user 들에게 sms /email을 전송한다.
 
+> 연속적으로 알람 조건이 임게치를 초과한 경우에 매번 sms/email를 전송하지 않습니다.<br/>
+> 알람 조건이 만족할때마다 매번 sms/email이 전송되는것은 오히려 방해가 된다고 생각하기 때문입니다. 그래서 연속해서 알람이 발생할 경우 sms/email 전송 주기가 점증적으로 증가됩니다.<br/>
+> 예) 알람이 연속해서 발생할 경우, 전송 주기는 3분 -> 6분 -> 12분 -> 24분 으로 증가합니다.
+
+
 ## 1. Alarm 기능 사용 방법
 
 1) 설정 화면으로 이동
@@ -267,61 +273,73 @@ DATASOURCE CONNECTION USAGE RATE
 ```
 
 
-## 2. 구현 및 설정 방법
+## 2. 설정 및 구현 방법
 
-알람 기능을 사용하기 위해서는 sms, email을 전송하는 로직을 직접 구현해야 한다.
-pipoint-web에서 제공하는 `com.navercorp.pinpoint.web.alarm.AlarmMessageSender` interface를 구현하고 spring framework의 bean으로 등록하면 된다.
-사용자가 등록한 alarm rule 중 임계치를 초과한 rule이 발생하면 AlarmMessageSender의 sendEmail, sendSms 함수가 호출이 된다.
-구현 및 설정 방법은 아래와 같다.
+email과 sms로 알람을 전송을 할 수 있다. 
+email로 알람을 설정만 추가해면 기능을 사용할수 있고, sms 전송을 하기 위해서는 직접 전송 로직을 구현해야한다.
 
-> 연속적으로 알람 조건이 임게치를 초과한 경우에 매번 sms/email를 전송하지 않습니다.<br/>
-> 알람 조건이 만족할때마다 매번 sms/email이 전송되는것은 오히려 방해가 된다고 생각하기 때문입니다. 그래서 연속해서 알람이 발생할 경우 sms/email 전송 주기가 점증적으로 증가됩니다.<br/>
-> 예) 알람이 연속해서 발생할 경우, 전송 주기는 3분 -> 6분 -> 12분 -> 24분 으로 증가합니다.
+### 1) email/sms 전송 class 설정 및 구현
 
-### 1) AlarmMessageSender 구현 및 bean 등록
-	
+**A. email 전송**
+
+[applicationContext-batch.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/batch/applicationContext-batch.xml)파일에 email을 전송하는 class가  기본으로 bean으로 등록 되어있다.
+
 ```
-public class AlarmMessageSenderImple implements AlarmMessageSender {
+    <bean id="mailSender" class="com.navercorp.pinpoint.web.alarm.SpringSmtpMailSender">
+        <constructor-arg ref="batchConfiguration"/>
+        <constructor-arg ref="userGroupServiceImpl"/>
+        <constructor-arg ref="javaMailSenderImpl"/>
+    </bean>
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
+        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
+        <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
+        <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
+        <property name="javaMailProperties">
+            <props>
+                 <prop key="mail.smtp.from">#{batchProps['alarm.mail.sender.address'] ?: ''}</prop>
+            </props>
+        </property>
+    </bean>
+```
 
-    @Autowired
-    private UserGroupService userGroupService;
+email 전송 기능을 사용하기 위해서 batch.properties파일에 smtp 서버 정보와 email에 포함될 여러 정보를 설정한다.
 
-    @Override
-    public void sendSms(AlarmChecker checker, int sequenceCount) {
-        List<String> receivers = userGroupService.selectPhoneNumberOfMember(checker.getUserGroupId());
+```
+pinpoint.url= #pinpoint-web 서버의 url 
+alarm.mail.server.url= #smtp 서버 주소  
+alarm.mail.server.port= #smtp 서버 port 
+alarm.mail.server.userName= #smtp 인증을 위한 userName
+alarm.mail.server.password= #smtp 인증을 위한 password
+alarm.mail.sender.address= # 송신자 email
 
-        if (receivers.size() == 0) {
-            return;
-        }
+ex)
+pinpoint.url=http://pinpoint.com
+alarm.mail.server.url=stmp.server.com
+alarm.mail.server.port=583
+alarm.mail.server.userName=pinpoint
+alarm.mail.server.password=pinpoint
+alarm.mail.sender.address=pinpoint_operator@pinpoint.com
+```
 
-        for (String message : checker.getSmsMessage()) {
-            logger.info("send SMS : {}", message);
+만약 email 전송 로직을 직접 구현하고 싶다면 위의 SpringSmtpMailSender, JavaMailSenderImpl bean 선언을 제거하고 com.navercorp.pinpoint.web.alarm.MailSender interface를 구현해서 bean을 등록하면 된다.
 
-            //TODO sms 전송 로직 구현
-        }
-    }
-
-    @Override
-    public void sendEmail(AlarmChecker checker, int sequenceCount) {
-        List<String> receivers = userGroupService.selectEmailOfMember(checker.getUserGroupId());
-
-        if (receivers.size() == 0) {
-            return;
-        }
-
-        for (String message : checker.getEmailMessage()) {
-            logger.info("send email : {}", message);
-
-            //TODO email 전송 로직 구현
-        }
-    }
+```
+public interface MailSender {
+   void sendEmail(AlarmChecker checker, int sequenceCount);
 }
 ```
 
+**B. sms 전송**
+
+sms를 하려면 com.navercorp.pinpoint.web.alarm.SmsSender interface를 구현하고 bean으로 등록하면 된다.
+반드시 sms 전송 로직을 구현할 필요는 없고, SmsSender 구현 class가 없는 경우 sms는 전송되지 않는다.
+
 ```
-<bean id="AlarmMessageSenderImple" class="com.navercorp.pinpoint.web.alarm.AlarmMessageSenderImple"/>
+public interface SmsSender {
+    public void sendSms(AlarmChecker checker, int sequenceCount);
+}
 ```
 
 ### 2) batch properties 설정 
