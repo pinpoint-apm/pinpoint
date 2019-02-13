@@ -34,10 +34,10 @@ import org.junit.runner.RunWith;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.7.0,3.7.0]",
+        "org.mongodb:mongodb-driver:[3.7.0,]",
         "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.1.1"
 })
-public class MongoDB_3_7_x extends MongoDBBase {
+public class MongoDB_3_7_x_IT extends MongoDBBase {
 
     private static MongoClient mongoClient;
 
